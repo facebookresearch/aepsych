@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+# Copyright 2004-present Facebook. All Rights Reserved.
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+
+try:
+    import pickle5 as pickle
+except Exception:
+    import pickle
+
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    String,
+    Integer,
+    DateTime,
+    PickleType,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+
+logger = logging.getLogger()
+
+Base = declarative_base()
+
+"""
+Original Schema
+CREATE TABLE master (
+unique_id INTEGER NOT NULL,
+experiment_name VARCHAR(256),
+experiment_description VARCHAR(2048),
+experiment_id VARCHAR(10),
+PRIMARY KEY (unique_id),
+UNIQUE (experiment_id)
+);
+CREATE TABLE replay_data (
+unique_id INTEGER NOT NULL,
+timestamp DATETIME,
+message_type VARCHAR(64),
+message_contents BLOB,
+master_table_id INTEGER,
+PRIMARY KEY (unique_id),
+FOREIGN KEY(master_table_id) REFERENCES master (unique_id)
+);
+"""
+
+
+class DBMasterTable(Base):
+    """
+    Master table to keep track of all experiments and unique keys associated with the experiment
+    """
+
+    __tablename__ = "master"
+
+    unique_id = Column(Integer, primary_key=True, autoincrement=True)
+    experiment_name = Column(String(256))
+    experiment_description = Column(String(2048))
+    experiment_id = Column(String(10), unique=True)
+
+    children_replay = relationship("DbReplayTable", back_populates="parent")
+    children_strat = relationship("DbStratTable", back_populates="parent")
+    children_config = relationship("DbConfigTable", back_populates="parent")
+    """
+    @classmethod
+    def from_sqlite(cls, row):
+        this = DBMasterTable()
+        this.unique_id = row["unique_id"]
+        this.experiment_name = row["experiment_name"]
+        this.experiment_description = row["experiment_description"]
+        this.experiment_id = row["experiment_id"]
+        return this
+    """
+
+    def __repr__(self):
+        return (
+            f"<DBMasterTable(unique_id={self.unique_id})"
+            f", experiment_name={self.experiment_name}, "
+            f"experiment_description={self.experiment_description}, "
+            f"experiment_id={self.experiment_id})>"
+        )
+
+    @staticmethod
+    def update(engine):
+        logger.info("DBMasterTable : update called")
+
+
+# link back to the master table entry
+#
+class DbReplayTable(Base):
+    __tablename__ = "replay_data"
+
+    use_extra_info = False
+
+    unique_id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(DateTime)
+    message_type = Column(String(64))
+
+    # specify the pickler to allow backwards compatibility between 3.7 and 3.8
+    message_contents = Column(PickleType(pickler=pickle))
+
+    extra_info = Column(PickleType(pickler=pickle))
+
+    master_table_id = Column(Integer, ForeignKey("master.unique_id"))
+    parent = relationship("DBMasterTable", back_populates="children_replay")
+
+    __mapper_args__ = {}
+
+    @classmethod
+    def from_sqlite(cls, row):
+        this = DbReplayTable()
+        this.unique_id = row["unique_id"]
+        this.timestamp = row["timestamp"]
+        this.message_type = row["message_type"]
+        this.message_contents = row["message_contents"]
+        this.master_table_id = row["master_table_id"]
+
+        if "extra_info" in row:
+            this.extra_info = row["extra_info"]
+        else:
+            this.extra_info = None
+
+        this.strat = row["strat"]
+        return this
+
+    def __repr__(self):
+        return (
+            f"<DbReplayTable(unique_id={self.unique_id})"
+            f", timestamp={self.timestamp}, "
+            f"message_type={self.message_type}"
+            f", master_table_id={self.master_table_id})>"
+        )
+
+    @staticmethod
+    def has_extra_info(engine):
+        result = engine.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
+        )
+        rows = result.fetchall()
+        count = rows[0][0]
+        return count != 0
+
+    @staticmethod
+    def update(engine):
+        logger.info("DbReplayTable : update called")
+        # add the extra_info column
+        try:
+            result = engine.execute(
+                "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
+            )
+            rows = result.fetchall()
+            count = rows[0][0]
+
+            if 0 == count:
+                logger.debug(
+                    "Altering the replay_data table to add the extra_info column"
+                )
+                engine.execute("ALTER TABLE replay_data ADD COLUMN extra_info BLOB")
+                engine.commit()
+        except Exception as e:
+            logger.debug(f"Column already exists, no need to alter. [{e}]")
+
+
+class DbStratTable(Base):
+    __tablename__ = "strat_data"
+
+    unique_id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(DateTime)
+    strat = Column(PickleType(pickler=pickle))
+
+    master_table_id = Column(Integer, ForeignKey("master.unique_id"))
+    parent = relationship("DBMasterTable", back_populates="children_strat")
+
+    @classmethod
+    def from_sqlite(cls, row):
+        this = DbStratTable()
+        this.unique_id = row["unique_id"]
+        this.timestamp = row["timestamp"]
+        this.strat = row["strat"]
+        this.master_table_id = row["master_table_id"]
+
+        return this
+
+    def __repr__(self):
+        return (
+            f"<DbStratTable(unique_id={self.unique_id})"
+            f", timestamp={self.timestamp} "
+            f", master_table_id={self.master_table_id})>"
+        )
+
+    @staticmethod
+    def update(engine):
+        logger.info("DbStratTable : update called")
+
+
+class DbConfigTable(Base):
+    __tablename__ = "config_data"
+
+    unique_id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(DateTime)
+    config = Column(PickleType(pickler=pickle))
+
+    master_table_id = Column(Integer, ForeignKey("master.unique_id"))
+    parent = relationship("DBMasterTable", back_populates="children_config")
+
+    @classmethod
+    def from_sqlite(cls, row):
+        this = DbConfigTable()
+        this.unique_id = row["unique_id"]
+        this.timestamp = row["timestamp"]
+        this.strat = row["config"]
+        this.master_table_id = row["master_table_id"]
+
+        return this
+
+    def __repr__(self):
+        return (
+            f"<DbStratTable(unique_id={self.unique_id})"
+            f", timestamp={self.timestamp} "
+            f", master_table_id={self.master_table_id})>"
+        )
+
+    @staticmethod
+    def update(engine):
+        logger.info("DbConfigTable : update called")
