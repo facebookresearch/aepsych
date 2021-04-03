@@ -235,20 +235,20 @@ def make_bench(testfun, logger, name, configs, lb, ub):
     return combine_benchmarks(*benches)
 
 
-all_benchmarks = [
-    make_bench(testfun, combo_logger, name, all_bench_configs, **bounds)
-    for (testfun, bounds, name) in zip(all_testfuns, all_bounds, all_names)
-]
+if __name__ == "__main__":
+    all_benchmarks = [
+        make_bench(testfun, combo_logger, name, all_bench_configs, **bounds)
+        for (testfun, bounds, name) in zip(all_testfuns, all_bounds, all_names)
+    ]
 
+    for bench in tqdm.tqdm(all_benchmarks):
+        print(f"starting {bench}...")
+        bench.run_benchmarks()
+        print(f"done with {bench}...")
 
-for bench in tqdm.tqdm(all_benchmarks):
-    print(f"starting {bench}...")
-    bench.run_benchmarks()
-    print(f"done with {bench}...")
+    for bench in all_benchmarks:
+        combo_logger._log.extend(bench.logger._log)
 
-for bench in all_benchmarks:
-    combo_logger._log.extend(bench.logger._log)
+    out_pd = combo_logger.pandas()
 
-out_pd = combo_logger.pandas()
-
-out_pd.to_csv(f"bench_{global_seed}.csv")
+    out_pd.to_csv(f"bench_{global_seed}.csv")
