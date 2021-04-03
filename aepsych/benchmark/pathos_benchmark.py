@@ -58,7 +58,7 @@ class PathosBenchmark(Benchmark):
     def start_benchmarks(self):
         self.loggers = []
         self.all_sim_configs = [
-            (config_dict, seed, rep)
+            (config_dict, self.global_seed + seed, rep)
             for seed, (config_dict, rep) in enumerate(
                 itertools.product(self.combinations, range(self.n_reps))
             )
