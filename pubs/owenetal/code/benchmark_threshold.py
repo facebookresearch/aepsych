@@ -49,7 +49,7 @@ combo_logger = BenchmarkLogger(log_every=log_every)
 # configs Sobol, MCLSETS, and Song vs ours get set up all differently
 # Song benches
 bench_config_nonsobol_song = {
-    "common": {"pairwise": False, "target": 0.75},
+    "common": {"outcome_type": "single_probit", "target": 0.75},
     "experiment": {
         "acqf": [
             "MCLevelSetEstimation",
@@ -80,7 +80,7 @@ bench_config_nonsobol_song = {
     },
 }
 bench_config_sobol_song = {
-    "common": {"pairwise": False, "target": 0.75},
+    "common": {"outcome_type": "single_probit", "target": 0.75},
     "experiment": {
         "acqf": "MCLevelSetEstimation",
         "modelbridge_cls": "SingleProbitModelbridgeWithSongHeuristic",
@@ -111,7 +111,7 @@ bench_config_sobol_song = {
 # non-Song benches
 
 bench_config_sobol_rbf = {
-    "common": {"pairwise": False, "target": 0.75},
+    "common": {"outcome_type": "single_probit", "target": 0.75},
     "experiment": {
         "acqf": "MonotonicMCLSE",
         "modelbridge_cls": "MonotonicSingleProbitModelbridge",
@@ -137,7 +137,7 @@ bench_config_sobol_rbf = {
     },
 }
 bench_config_all_but_gplsets_rbf = {
-    "common": {"pairwise": False, "target": 0.75},
+    "common": {"outcome_type": "single_probit", "target": 0.75},
     "experiment": {
         "acqf": [
             "MonotonicMCLSE",
@@ -147,13 +147,13 @@ bench_config_all_but_gplsets_rbf = {
         "modelbridge_cls": "MonotonicSingleProbitModelbridge",
         "init_strat_cls": "SobolStrategy",
         "opt_strat_cls": "EpsilonGreedyModelWrapperStrategy",
-        "model": "MonotonicGP",
+        "model": "MonotonicRejectionGP",
         "parnames": "[context,intensity]",
     },
     "MonotonicMCLSE": {"target": 0.75, "beta": 3.98,},
     "MonotonicBernoulliMCMutualInformation": {},
     "MonotonicMCPosteriorVariance": {},
-    "MonotonicGP": {
+    "MonotonicRejectionGP": {
         "inducing_size": 100,
         "mean_covar_factory": ["monotonic_mean_covar_factory",],
         "monotonic_idxs": ["[1]", "[]"],
@@ -167,7 +167,7 @@ bench_config_all_but_gplsets_rbf = {
     },
 }
 bench_config_gplsets_rbf = {
-    "common": {"pairwise": False, "target": 0.75},
+    "common": {"outcome_type": "single_probit", "target": 0.75},
     "experiment": {
         "acqf": "MonotonicMCLSE",
         "modelbridge_cls": "MonotonicSingleProbitModelbridge",
