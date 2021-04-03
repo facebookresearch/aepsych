@@ -83,3 +83,8 @@ class PathosBenchmark(Benchmark):
             for logger in self.loggers:
                 out_logger._log.extend(logger._log)
             self.logger = out_logger
+
+    def __add__(self, bench_2):
+        out = super().__add__(bench_2)
+        out.pool = self.pool
+        return out
