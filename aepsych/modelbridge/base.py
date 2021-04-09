@@ -16,7 +16,8 @@ from scipy.stats import norm
 # this is pretty aggressive jitter setting but should protect us from
 # crashes which are a bigger concern in data collection.
 # we refit with stan afterwards anyway.
-gpytorch.settings.cholesky_jitter._global_value = 1e-3
+gpytorch.settings.cholesky_jitter._global_float_value = 1e-3
+gpytorch.settings.cholesky_jitter._global_double_value = 1e-3
 gpytorch.settings.tridiagonal_jitter._global_value = 1e-3
 
 logger = utils_logging.getLogger(logging.DEBUG)
