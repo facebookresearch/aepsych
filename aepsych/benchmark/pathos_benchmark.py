@@ -40,7 +40,11 @@ class PathosBenchmark(Benchmark):
         # copy things that we mutate
         local_config = deepcopy(config_dict)
         local_logger = BenchmarkLogger(log_every=self.logger.log_every)
-        _ = super().run_experiment(local_config, local_logger, seed, rep)
+        try:
+            _ = super().run_experiment(local_config, local_logger, seed, rep)
+        except Exception as e:
+            logger.error(f"Error on config {config_dict}: {e}!")
+            return e
         return local_logger
 
     def __getstate__(self):
@@ -67,12 +71,18 @@ class PathosBenchmark(Benchmark):
             self.pool.apipe(self.run_experiment, *conf) for conf in self.all_sim_configs
         ]
 
+    @property
+    def is_done(self):
+        return len(self.futures) == 0
+
     def collate_benchmarks(self, wait=False):
         newfutures = []
         while self.futures:
             item = self.futures.pop()
             if wait or item.ready():
-                self.loggers.append(item.get())
+                result = item.get()
+                if ~isinstance(result, Exception):
+                    self.loggers.append(result)
             else:
                 newfutures.append(item)
 
