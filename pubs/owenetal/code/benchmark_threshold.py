@@ -1,4 +1,10 @@
-# imports
+# we have pretty verbose messaging by default, suppress that here
+import warnings
+import logging
+
+warnings.filterwarnings("ignore")
+logging.disable(logging.WARNING)  # disable anything below warning
+
 from aepsych.benchmark.test_functions import (
     make_songetal_testfun,
     novel_detection_testfun,
@@ -15,6 +21,7 @@ from copy import copy
 from itertools import product
 import os
 import tqdm
+import time
 
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
@@ -25,7 +32,6 @@ n_reps = 100
 sobol_trials = 5
 total_trials = 150
 global_seed = 3
-refit_every = 10
 log_every = 5
 
 # test functions and boundaries
@@ -58,7 +64,7 @@ bench_config_nonsobol_song = {
         ],
         "modelbridge_cls": "SingleProbitModelbridgeWithSongHeuristic",
         "init_strat_cls": "SobolStrategy",
-        "opt_strat_cls": "EpsilonGreedyModelWrapperStrategy",
+        "opt_strat_cls": "ModelWrapperStrategy",
         "model": "GPClassificationModel",
         "parnames": "[context,intensity]",
     },
@@ -74,9 +80,9 @@ bench_config_nonsobol_song = {
     },
     "SingleProbitModelbridgeWithSongHeuristic": {"restarts": 10, "samps": 1000},
     "SobolStrategy": {"n_trials": [sobol_trials],},
-    "EpsilonGreedyModelWrapperStrategy": {
+    "ModelWrapperStrategy": {
         "n_trials": [total_trials - sobol_trials],
-        "refit_every": [refit_every],
+        "refit_every": 1,
     },
 }
 bench_config_sobol_song = {
@@ -85,7 +91,7 @@ bench_config_sobol_song = {
         "acqf": "MCLevelSetEstimation",
         "modelbridge_cls": "SingleProbitModelbridgeWithSongHeuristic",
         "init_strat_cls": "SobolStrategy",
-        "opt_strat_cls": "EpsilonGreedyModelWrapperStrategy",
+        "opt_strat_cls": "ModelWrapperStrategy",
         "model": "GPClassificationModel",
         "parnames": "[context,intensity]",
     },
@@ -103,9 +109,9 @@ bench_config_sobol_song = {
     "SobolStrategy": {
         "n_trials": list(range(sobol_trials, total_trials - 1, log_every)),
     },
-    "EpsilonGreedyModelWrapperStrategy": {
+    "ModelWrapperStrategy": {
         "n_trials": [1],
-        "refit_every": [refit_every],
+        "refit_every": 1,
     },
 }
 # non-Song benches
@@ -116,7 +122,7 @@ bench_config_sobol_rbf = {
         "acqf": "MonotonicMCLSE",
         "modelbridge_cls": "MonotonicSingleProbitModelbridge",
         "init_strat_cls": "SobolStrategy",
-        "opt_strat_cls": "EpsilonGreedyModelWrapperStrategy",
+        "opt_strat_cls": "ModelWrapperStrategy",
         "model": "MonotonicGPLSETS",
         "parnames": "[context,intensity]",
     },
@@ -131,9 +137,9 @@ bench_config_sobol_rbf = {
     "SobolStrategy": {
         "n_trials": list(range(sobol_trials, total_trials - 1, log_every)),
     },
-    "EpsilonGreedyModelWrapperStrategy": {
+    "ModelWrapperStrategy": {
         "n_trials": [1],
-        "refit_every": [refit_every],
+        "refit_every": 1,
     },
 }
 bench_config_all_but_gplsets_rbf = {
@@ -146,7 +152,7 @@ bench_config_all_but_gplsets_rbf = {
         ],
         "modelbridge_cls": "MonotonicSingleProbitModelbridge",
         "init_strat_cls": "SobolStrategy",
-        "opt_strat_cls": "EpsilonGreedyModelWrapperStrategy",
+        "opt_strat_cls": "ModelWrapperStrategy",
         "model": "MonotonicRejectionGP",
         "parnames": "[context,intensity]",
     },
@@ -161,9 +167,9 @@ bench_config_all_but_gplsets_rbf = {
     },
     "MonotonicSingleProbitModelbridge": {"restarts": 10, "samps": 1000},
     "SobolStrategy": {"n_trials": [sobol_trials],},
-    "EpsilonGreedyModelWrapperStrategy": {
+    "ModelWrapperStrategy": {
         "n_trials": [total_trials - sobol_trials],
-        "refit_every": [refit_every],
+        "refit_every": 1,
     },
 }
 bench_config_gplsets_rbf = {
@@ -172,7 +178,7 @@ bench_config_gplsets_rbf = {
         "acqf": "MonotonicMCLSE",
         "modelbridge_cls": "MonotonicSingleProbitModelbridge",
         "init_strat_cls": "SobolStrategy",
-        "opt_strat_cls": "EpsilonGreedyModelWrapperStrategy",
+        "opt_strat_cls": "ModelWrapperStrategy",
         "model": "MonotonicGPLSETS",
         "parnames": "[context,intensity]",
     },
@@ -185,9 +191,9 @@ bench_config_gplsets_rbf = {
     },
     "MonotonicSingleProbitModelbridge": {"restarts": 10, "samps": 1000},
     "SobolStrategy": {"n_trials": [sobol_trials],},
-    "EpsilonGreedyModelWrapperStrategy": {
+    "ModelWrapperStrategy": {
         "n_trials": [total_trials - sobol_trials],
-        "refit_every": [refit_every],
+        "refit_every": 1,
     },
 }
 all_bench_configs = [
@@ -235,20 +241,45 @@ def make_bench(testfun, logger, name, configs, lb, ub):
     return combine_benchmarks(*benches)
 
 
+def aggregate_bench_results(all_benchmarks):
+    combo_logger = BenchmarkLogger(log_every=log_every)
+    for bench in all_benchmarks:
+        combo_logger._log.extend(bench.logger._log)
+    out_pd = combo_logger.pandas()
+    return out_pd
+
+
 if __name__ == "__main__":
+    # one benchmark per test function
+    print("Creating benchmark objects...")
     all_benchmarks = [
         make_bench(testfun, combo_logger, name, all_bench_configs, **bounds)
         for (testfun, bounds, name) in zip(all_testfuns, all_bounds, all_names)
     ]
 
-    for bench in tqdm.tqdm(all_benchmarks):
-        print(f"starting {bench}...")
-        bench.run_benchmarks()
-        print(f"done with {bench}...")
-
+    # start all the benchmarks
+    print("Starting benchmarks...")
     for bench in all_benchmarks:
-        combo_logger._log.extend(bench.logger._log)
+        bench_name = bench.combinations[0]["common"]["name"]
+        print(f"starting {bench_name}...")
+        bench.start_benchmarks()
 
-    out_pd = combo_logger.pandas()
+    done = False
+    # checkpoint every minute in case something breaks
+    while not done:
+        time.sleep(60)
+        print("Checkpointing benches...")
+        done = True
+        for bench in all_benchmarks:
+            bench_name = bench.combinations[0]["common"]["name"]
+            bench.collate_benchmarks(wait=False)
+            if bench.is_done:
+                print(f"bench {bench_name} is done!")
+            else:
+                done = False
+        temp_results = aggregate_bench_results(all_benchmarks)
+        temp_results.to_csv(f"bench_checkpoint_seed{global_seed}.csv")
 
-    out_pd.to_csv(f"bench_{global_seed}.csv")
+    print("Done with all benchmarks, saving!")
+    final_results = aggregate_bench_results(all_benchmarks)
+    final_results.to_csv(f"bench_final_seed{global_seed}.csv")
