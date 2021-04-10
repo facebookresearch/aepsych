@@ -4,6 +4,7 @@ import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.modelbridge.base import ModelBridge, _prune_extra_acqf_args
 from aepsych.models import GPClassificationModel
+from aepsych.acquisition.objective import ProbitObjective
 from botorch.fit import fit_gpytorch_model
 from botorch.optim import optimize_acqf
 from botorch.utils.sampling import draw_sobol_samples
@@ -91,6 +92,7 @@ class SingleProbitModelbridge(ModelBridge):
         default_extra_acqf_args = {
             "beta": 3.98,
             "target": 0.75,
+            "objective": ProbitObjective,
         }
         extra_acqf_args = {
             k: config.getobj(acqf_name, k, fallback_type=float, fallback=v, warn=False)
