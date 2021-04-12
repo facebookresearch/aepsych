@@ -81,7 +81,7 @@ class PathosBenchmark(Benchmark):
             item = self.futures.pop()
             if wait or item.ready():
                 result = item.get()
-                if ~isinstance(result, Exception):
+                if ~issubclass(result, Exception):
                     self.loggers.append(result)
             else:
                 newfutures.append(item)
