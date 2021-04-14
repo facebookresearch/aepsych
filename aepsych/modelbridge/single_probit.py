@@ -2,6 +2,7 @@ import gpytorch
 import numpy as np
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
+from aepsych.acquisition.objective import ProbitObjective
 from aepsych.modelbridge.base import ModelBridge, _prune_extra_acqf_args
 from aepsych.models import GPClassificationModel
 from botorch.fit import fit_gpytorch_model
@@ -91,6 +92,7 @@ class SingleProbitModelbridge(ModelBridge):
         default_extra_acqf_args = {
             "beta": 3.98,
             "target": 0.75,
+            "objective": ProbitObjective,
         }
         extra_acqf_args = {
             k: config.getobj(acqf_name, k, fallback_type=float, fallback=v, warn=False)
@@ -121,7 +123,6 @@ class SingleProbitModelbridgeWithSongHeuristic(SingleProbitModelbridge):
         X = draw_sobol_samples(
             bounds=torch.Tensor(np.c_[self.lb, self.ub]).T, n=self.samps, q=1
         ).squeeze(1)
-        # Fix any explore features
 
         # Draw n samples
         f_samp = self.sample(X, num_samples=1000)

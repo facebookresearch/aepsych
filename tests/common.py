@@ -16,11 +16,11 @@ def f_2d(x):
     return np.exp(-np.linalg.norm(x, axis=-1))
 
 
-def new_hairtie_params(freq, scale_factor=1.0):
-    """Get the loc and scale params for 2D synthetic hairtie(frequency) function
+def new_novel_det_params(freq, scale_factor=1.0):
+    """Get the loc and scale params for 2D synthetic novel_det(frequency) function
         Keyword arguments:
     freq -- 1D array of frequencies whose thresholds to return
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     target -- target threshold
     """
     locs = 0.66 * np.power(0.8 * freq * (0.2 * freq - 1), 2) + 0.05
@@ -29,54 +29,44 @@ def new_hairtie_params(freq, scale_factor=1.0):
     return loc, scale
 
 
-def target_new_hairtie(freq, scale_factor=1.0, target=0.75):
-    """Get the target (i.e. threshold) for 2D synthetic hairtie(frequency) function
+def target_new_novel_det(freq, scale_factor=1.0, target=0.75):
+    """Get the target (i.e. threshold) for 2D synthetic novel_det(frequency) function
         Keyword arguments:
     freq -- 1D array of frequencies whose thresholds to return
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     target -- target threshold
     """
-    locs, scale = new_hairtie_params(freq, scale_factor)
+    locs, scale = new_novel_det_params(freq, scale_factor)
     return norm.ppf(target, loc=locs, scale=scale)
 
 
-def new_hairtie(x, scale_factor=1.0):
-    """Get the cdf for 2D synthetic hairtie(frequency) function
+def new_novel_det(x, scale_factor=1.0):
+    """Get the cdf for 2D synthetic novel_det(frequency) function
         Keyword arguments:
     x -- array of shape (n,2) of locations to sample;
          x[...,0] is frequency from -1 to 1; x[...,1] is intensity from -1 to 1
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     """
     freq = x[..., 0]
-    locs, scale = new_hairtie_params(freq, scale_factor)
+    locs, scale = new_novel_det_params(freq, scale_factor)
     return (x[..., 1] - locs) / scale
 
 
-def cdf_new_hairtie(x, scale_factor=1.0):
-    """Get the cdf for 2D synthetic hairtie(frequency) function
+def cdf_new_novel_det(x, scale_factor=1.0):
+    """Get the cdf for 2D synthetic novel_det(frequency) function
         Keyword arguments:
     x -- array of shape (n,2) of locations to sample;
          x[...,0] is frequency from -1 to 1; x[...,1] is intensity from -1 to 1
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     """
-    return norm.cdf(new_hairtie(x, scale_factor))
+    return norm.cdf(new_novel_det(x, scale_factor))
 
 
-def cdf_new_hairtie(x, scale_factor=1.0):
-    """Get the cdf for 2D synthetic hairtie(frequency) function
-        Keyword arguments:
-    x -- array of shape (n,2) of locations to sample;
-         x[...,0] is frequency from -1 to 1; x[...,1] is intensity from -1 to 1
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
-    """
-    return norm.cdf(new_hairtie(x, scale_factor))
-
-
-def new_hairtie_channels_params(channel, scale_factor=1.0, wave_freq=1, target=0.75):
-    """Get the target parameters for 2D synthetic Hairtie(channel) function
+def new_novel_det_channels_params(channel, scale_factor=1.0, wave_freq=1, target=0.75):
+    """Get the target parameters for 2D synthetic novel_det(channel) function
         Keyword arguments:
     channel -- 1D array of channel locations whose thresholds to return
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     wave_freq -- frequency of location waveform on [-1,1]
     target -- target threshold
     """
@@ -87,42 +77,46 @@ def new_hairtie_channels_params(channel, scale_factor=1.0, wave_freq=1, target=0
     return locs, scale
 
 
-def target_new_hairtie_channels(channel, scale_factor=1.0, wave_freq=1, target=0.75):
-    """Get the target (i.e. threshold) for 2D synthetic Hairtie(channel) function
+def target_new_novel_det_channels(channel, scale_factor=1.0, wave_freq=1, target=0.75):
+    """Get the target (i.e. threshold) for 2D synthetic novel_det(channel) function
         Keyword arguments:
     channel -- 1D array of channel locations whose thresholds to return
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     wave_freq -- frequency of location waveform on [-1,1]
     target -- target threshold
     """
-    locs, scale = new_hairtie_channels_params(channel, scale_factor, wave_freq, target)
+    locs, scale = new_novel_det_channels_params(
+        channel, scale_factor, wave_freq, target
+    )
     return norm.ppf(target, loc=locs, scale=scale)
 
 
-def new_hairtie_channels(x, channel, scale_factor=1.0, wave_freq=1, target=0.75):
-    """Get the 2D synthetic Hairtie(channel) function
+def new_novel_det_channels(x, channel, scale_factor=1.0, wave_freq=1, target=0.75):
+    """Get the 2D synthetic novel_det(channel) function
         Keyword arguments:
     x -- array of shape (n,2) of locations to sample;
          x[...,0] is channel from -1 to 1; x[...,1] is intensity from -1 to 1
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     wave_freq -- frequency of location waveform on [-1,1]
     """
-    locs, scale = new_hairtie_channels_params(channel, scale_factor, wave_freq, target)
+    locs, scale = new_novel_det_channels_params(
+        channel, scale_factor, wave_freq, target
+    )
     return (x - locs) / scale
 
 
-def cdf_new_hairtie_channels(channel, scale_factor=1.0, wave_freq=1, target=0.75):
-    """Get the cdf for 2D synthetic Hairtie(channel) function
+def cdf_new_novel_det_channels(channel, scale_factor=1.0, wave_freq=1, target=0.75):
+    """Get the cdf for 2D synthetic novel_det(channel) function
         Keyword arguments:
     x -- array of shape (n,2) of locations to sample;
          x[...,0] is channel from -1 to 1; x[...,1] is intensity from -1 to 1
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     wave_freq -- frequency of location waveform on [-1,1]
     """
-    return norm.cdf(new_hairtie_channels(channel, scale_factor, wave_freq, target))
+    return norm.cdf(new_novel_det_channels(channel, scale_factor, wave_freq, target))
 
 
-def new_hairtie_3D_params(x, scale_factor=1.0):
+def new_novel_det_3D_params(x, scale_factor=1.0):
     freq = x[..., 0]
     chan = x[..., 1]
     locs_freq = -0.32 + 2 * (0.66 * np.power(0.8 * freq * (0.2 * freq - 1), 2) + 0.05)
@@ -136,48 +130,38 @@ def new_hairtie_3D_params(x, scale_factor=1.0):
     return locs, scale
 
 
-def new_hairtie_3D(x, scale_factor=1.0):
+def new_novel_det_3D(x, scale_factor=1.0):
     """
-    Get the synthetic 3D Hairtie
+    Get the synthetic 3D novel_det
     function over freqs,channels and amplitudes
 
     """
-    locs, scale = new_hairtie_3D_params(x, scale_factor)
+    locs, scale = new_novel_det_3D_params(x, scale_factor)
     return (x[..., 2] - locs) / scale
 
 
-def new_hairtie_3D(x, scale_factor=1.0):
+def cdf_new_novel_det_3D(x, scale_factor=1.0):
     """
-    Get the synthetic 3D Hairtie
-    function over freqs,channels and amplitudes
-
-    """
-    locs, scale = new_hairtie_3D_params(x, scale_factor)
-    return (x[..., 2] - locs) / scale
-
-
-def cdf_new_hairtie_3D(x, scale_factor=1.0):
-    """
-    Get the cdf for 3D synthetic Hairtie function
+    Get the cdf for 3D synthetic novel_det function
 
     x -- array of shape (n,3) of locations to sample
          x[...,0] is frequency, x[...,1] is channel, x[...,2] is intensity
 
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     """
-    return norm.cdf(new_hairtie_3D(x, scale_factor))
+    return norm.cdf(new_novel_det_3D(x, scale_factor))
 
 
-def target_new_hairtie_3D(x, scale_factor=1.0, target=0.75):
+def target_new_novel_det_3D(x, scale_factor=1.0, target=0.75):
     """
-    Get target for 3D synthetic Hairtie function at location x
+    Get target for 3D synthetic novel_det function at location x
 
     x -- array of shape (n,2) of locations to sample
          x[...,0] is frequency, x[...,1] is channel,
 
-    scale factor -- scale for the hairtie function, where higher is steeper/lower SD
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     target -- target threshold
 
     """
-    locs, scale = new_hairtie_3D_params(x, scale_factor)
+    locs, scale = new_novel_det_3D_params(x, scale_factor)
     return norm.ppf(target, loc=locs, scale=scale)
