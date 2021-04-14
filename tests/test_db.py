@@ -1,4 +1,5 @@
 import unittest
+import uuid
 import aepsych.database.db as db
 import aepsych.database.tables as tables
 from pathlib import Path
@@ -8,7 +9,8 @@ import sqlalchemy
 
 class DBTestCase(unittest.TestCase):
     def setUp(self):
-        self._dbname= "./test_default.db"
+        # random datebase path name without dashes
+        self._dbname= "./{}.db".format(str(uuid.uuid4().hex))
         self._database = db.Database(db_path=self._dbname)
 
     def tearDown(self):

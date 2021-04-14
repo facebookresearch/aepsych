@@ -1,0 +1,7 @@
+{
+  "name": "com.frl.aepsych",
+  "version": "0.0.1",
+  "displayName": "AEPsych examples",
+  "description": "Example code for AEPsych Unity Client",
+  "unity": "2018.1"
+}

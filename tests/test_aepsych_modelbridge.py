@@ -22,7 +22,7 @@ from botorch.acquisition.objective import GenericMCObjective
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from scipy.stats import bernoulli, norm, pearsonr
-from .common import f_1d, f_2d, cdf_new_hairtie, cdf_new_hairtie_3D
+from .common import f_1d, f_2d, cdf_new_novel_det, cdf_new_novel_det_3D
 from torch.distributions import Normal
 
 
@@ -278,13 +278,13 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(cdf_new_hairtie(next_x))])
+            strat.add_data(next_x, [bernoulli.rvs(cdf_new_novel_det(next_x))])
 
         xy = np.mgrid[-1:1:30j, -1:1:30j].reshape(2, -1).T
         post_mean, _ = strat.predict(torch.Tensor(xy))
         phi_post_mean = norm.cdf(post_mean.reshape(30, 30).detach().numpy())
 
-        phi_post_true = cdf_new_hairtie(xy)
+        phi_post_true = cdf_new_novel_det(xy)
 
         self.assertTrue(
             pearsonr(phi_post_mean.flatten(), phi_post_true.flatten())[0] > 0.9
@@ -478,7 +478,7 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         est_jnd_taylor = jnd_taylor[50]
         self.assertTrue(np.abs(est_jnd_taylor - 1.5) < 0.25)
 
-    def test_2d_hairtie(self):
+    def test_2d_novel_det(self):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -508,7 +508,7 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(cdf_new_hairtie(next_x))])
+            strat.add_data(next_x, [bernoulli.rvs(cdf_new_novel_det(next_x))])
 
         xy = np.mgrid[-1:1:30j, -1:1:30j].reshape(2, -1).T
         post_mean, _ = strat.predict(torch.Tensor(xy))
@@ -516,11 +516,11 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         x1 = torch.linspace(-1, 1, 30)
         x2_hat = get_lse_contour(phi_post_mean, x1, level=0.75, lb=-1.0, ub=1.0)
 
-        true_f = cdf_new_hairtie(xy)
+        true_f = cdf_new_novel_det(xy)
         true_x2 = x1[np.argmin(((true_f - 0.75) ** 2).reshape(30, 30), axis=1)].numpy()
         self.assertTrue(np.mean(np.abs(x2_hat - true_x2)) < 0.15)
 
-    def test_3d_hairtie(self):
+    def test_3d_novel_det(self):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -550,7 +550,7 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(cdf_new_hairtie_3D(next_x))])
+            strat.add_data(next_x, [bernoulli.rvs(cdf_new_novel_det_3D(next_x))])
 
         gridsize_freq = 17
         gridsize_chan = 13
@@ -575,7 +575,7 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         mono_grid = torch.linspace(-1, 1, gridsize_amp)
 
         x2_hat = get_lse_contour(phi_post_mean, mono_grid, level=0.75, lb=-1.0, ub=1.0)
-        true_f = cdf_new_hairtie_3D(x).reshape(
+        true_f = cdf_new_novel_det_3D(x).reshape(
             gridsize_freq, gridsize_chan, gridsize_amp
         )
         true_x2 = get_lse_contour(true_f, mono_grid, level=0.75, lb=-1.0, ub=1.0)
@@ -641,7 +641,7 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
 
         while not strat.finished:
             next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(cdf_new_hairtie(next_x))])
+            strat.add_data(next_x, [bernoulli.rvs(cdf_new_novel_det(next_x))])
 
         self.assertTrue(strat.y.shape[0] < 25)
 

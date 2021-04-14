@@ -107,6 +107,8 @@ def plot_strat_2d(
     target_level=0.75,
     xlabel="Context (abstract)",
     ylabel="Intensity (abstract)",
+    yes_label="Yes trial",
+    no_label="No trial",
     flipx=False,
     logx=False,
     gridsize=30,

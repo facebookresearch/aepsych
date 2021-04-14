@@ -1,4 +1,5 @@
 import unittest
+import uuid
 from unittest.mock import MagicMock, call
 
 import aepsych.server as server
@@ -36,7 +37,11 @@ n_trials = 2
 
 class ServerTestCase(unittest.TestCase):
     def setUp(self):
-        self.s = server.AEPsychServer(database_path="./test_database.db")
+        # random port
+        socket = server.PySocket(port=0)
+        # random datebase path name without dashes
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        self.s = server.AEPsychServer(socket=socket, database_path=database_path)
 
     def tearDown(self):
         self.s.cleanup()
@@ -244,6 +249,15 @@ class ServerTestCase(unittest.TestCase):
         test_calls.append(call(request))
 
         self.s.unversioned_handler = MagicMock()
+
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        self.s.versioned_handler(setup_request)
+        self.s.strat.has_model = False
+
         self.s.replay(self.s._db_master_record.experiment_id, skip_asks=True)
         print(f"replay called with check = {test_calls}")
         self.s.unversioned_handler.assert_has_calls(test_calls, any_order=False)
@@ -268,10 +282,6 @@ class ServerTestCase(unittest.TestCase):
         self.s.unversioned_handler.assert_called_once_with(request)
 
     def test_final_strat_serialization(self):
-        class DummySocket:
-            pass
-
-        serv = server.AEPsychServer(socket=DummySocket())
         setup_request = {
             "type": "setup",
             "version": "0.01",
@@ -282,30 +292,28 @@ class ServerTestCase(unittest.TestCase):
             "type": "tell",
             "message": {"config": {"x": [0.5]}, "outcome": 1},
         }
-        serv.versioned_handler(setup_request)
-        while not serv.strat.finished:
-            serv.unversioned_handler(ask_request)
-            serv.unversioned_handler(tell_request)
+        self.s.versioned_handler(setup_request)
+        while not self.s.strat.finished:
+            self.s.unversioned_handler(ask_request)
+            self.s.unversioned_handler(tell_request)
 
-        exp_id = serv.db.get_master_records()[-1].experiment_id
-        stored_strat = serv.get_final_strat_from_replay(exp_id)
+        exp_id = self.s.db.get_master_records()[-1].experiment_id
+        stored_strat = self.s.get_final_strat_from_replay(exp_id)
         # just some spot checks that the strat's the same
         # same data
-        self.assertTrue((stored_strat.x == serv.strat.x).all())
-        self.assertTrue((stored_strat.y == serv.strat.y).all())
+        self.assertTrue((stored_strat.x == self.s.strat.x).all())
+        self.assertTrue((stored_strat.y == self.s.strat.y).all())
         # same lengthscale and outputscale
         self.assertEqual(
             stored_strat.modelbridge.model.covar_module.lengthscale,
-            serv.strat.modelbridge.model.covar_module.lengthscale,
+            self.s.strat.modelbridge.model.covar_module.lengthscale,
         )
         self.assertEqual(
             stored_strat.modelbridge.model.covar_module.outputscale,
-            serv.strat.modelbridge.model.covar_module.outputscale,
+            self.s.strat.modelbridge.model.covar_module.outputscale,
         )
 
     def test_pandadf_dump_single(self):
-
-        serv = server.AEPsychServer(socket=DummySocket())
         setup_request = {
             "type": "setup",
             "version": "0.01",
@@ -317,23 +325,23 @@ class ServerTestCase(unittest.TestCase):
             "message": {"config": {"x": [0.5]}, "outcome": 1},
             "extra_info": {},
         }
-        serv.versioned_handler(setup_request)
+        self.s.versioned_handler(setup_request)
         expected_x = [0, 1, 2, 3]
         expected_z = list(reversed(expected_x))
         expected_y = [x % 2 for x in expected_x]
         i = 0
-        while not serv.strat.finished:
-            serv.unversioned_handler(ask_request)
+        while not self.s.strat.finished:
+            self.s.unversioned_handler(ask_request)
             tell_request["message"]["config"]["x"] = [expected_x[i]]
             tell_request["message"]["config"]["z"] = [expected_z[i]]
             tell_request["message"]["outcome"] = expected_y[i]
             tell_request["extra_info"]["e1"] = 1
             tell_request["extra_info"]["e2"] = 2
             i = i + 1
-            serv.unversioned_handler(tell_request)
+            self.s.unversioned_handler(tell_request)
 
-        exp_id = serv.db.get_master_records()[-1].experiment_id
-        out_df = serv.get_dataframe_from_replay(exp_id)
+        exp_id = self.s.db.get_master_records()[-1].experiment_id
+        out_df = self.s.get_dataframe_from_replay(exp_id)
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
         self.assertTrue((out_df.response == expected_y).all())

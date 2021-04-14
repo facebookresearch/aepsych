@@ -3,6 +3,8 @@ import unittest
 
 import torch
 from aepsych.acquisition.lse import LevelSetEstimation
+from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
+from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
 from aepsych.modelbridge import (
     MonotonicSingleProbitModelbridge,
@@ -13,7 +15,6 @@ from aepsych.strategy import (
     SequentialStrategy,
     SobolStrategy,
 )
-from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -62,12 +63,18 @@ class ConfigTestCase(unittest.TestCase):
         # since ProbitObjective() is turned into an obj, we check for keys and then vals
         self.assertTrue(
             set(strat.strat_list[1].modelbridge.extra_acqf_args.keys())
-            == {"beta", "target"}
+            == {"beta", "target", "objective"}
         )
         self.assertTrue(
             strat.strat_list[1].modelbridge.extra_acqf_args["target"] == 0.75
         )
         self.assertTrue(strat.strat_list[1].modelbridge.extra_acqf_args["beta"] == 3.98)
+        self.assertTrue(
+            isinstance(
+                strat.strat_list[1].modelbridge.extra_acqf_args["objective"],
+                ProbitObjective,
+            )
+        )
 
         self.assertTrue(strat.strat_list[1].modelbridge.restarts == 10)
         self.assertTrue(strat.strat_list[1].modelbridge.samps == 1000)
