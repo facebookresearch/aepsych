@@ -1,3 +1,11 @@
+/*
+Copyright (c) Facebook, Inc. and its affiliates.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +22,7 @@ public class SingleDetection2D_hue : MonoBehaviour
     bool isDone = false;
     int trialNum = 0;
     int totalTrials = 30;
-    
+
     //This is specific to this example
     public GameObject circlePrefab;
     public TextMeshProUGUI trialText;

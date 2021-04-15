@@ -1,23 +1,32 @@
+/*
+Copyright (c) Facebook, Inc. and its affiliates.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+*/
+
+
 using NetMQ;
 using NetMQ.Sockets;
-using System.Collections.Generic; 
-using System.Collections; 
+using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
-using Newtonsoft.Json; 
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.IO;
 
 namespace AEPsych
-{ 
+{
 public enum RequestType { setup, ask, tell, resume};
 
 // TODO make this a little more strongly typed
-public class TrialConfig: Dictionary<string, List<float>>{} 
+public class TrialConfig: Dictionary<string, List<float>>{}
 
-public class Request 
+public class Request
 {
     // this should definitely be more narrowly defined
-    public object message; 
+    public object message;
 
     [JsonConverter(typeof(StringEnumConverter))]
     public RequestType type;
@@ -40,12 +49,12 @@ public class VersionedRequest : Request
 
 public class TrialWithOutcome
 {
-    public TrialConfig config; 
-    public int outcome; 
+    public TrialConfig config;
+    public int outcome;
 
     public TrialWithOutcome(TrialConfig config, int outcome){
-        this.config = config; 
-        this.outcome = outcome; 
+        this.config = config;
+        this.outcome = outcome;
     }
 
 }
@@ -111,7 +120,7 @@ public class Target
             SetupMessage setupMessage = new SetupMessage(configStr: configStr);
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(new VersionedRequest(setupMessage, RequestType.setup, version))));
         }
-        
+
         IEnumerator SendRequest(string query)
         {
 
@@ -136,7 +145,7 @@ public class Target
         {
             return status;
         }
-        
+
         public bool IsBusy()
         {
             return (status == ClientStatus.QuerySent);

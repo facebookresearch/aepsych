@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import unittest
 import uuid
 from unittest.mock import MagicMock, call
@@ -93,8 +100,6 @@ class ServerTestCase(unittest.TestCase):
         result = self.s.unversioned_handler(request)
         self.assertEqual(True, result)
 
-
-
     def test_v01_handler_types_resume(self):
         """ test setup v01 """
         request = {}
@@ -144,7 +149,6 @@ class ServerTestCase(unittest.TestCase):
 
         result = self.s.handle_update(request)
         self.assertEqual("update success", result)
-
 
     def test_replay_order(self):
         """test_replay - verifies the replay is working, uses a test db version but does some

@@ -1,3 +1,11 @@
+/*
+Copyright (c) Facebook, Inc. and its affiliates.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
@@ -11,7 +19,7 @@ public class ShowKey : MonoBehaviour
     void Start()
     {
         t = GetComponent<Text>();
-        float timer = 0.0f; 
+        float timer = 0.0f;
     }
 
     // Update is called once per frame

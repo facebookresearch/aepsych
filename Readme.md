@@ -100,3 +100,9 @@ has one table containing all experiment sessions that were run. Then, for each e
 is a table containing all messages sent and received by the server, capable of supporting a
 full replay of the experiment from the server's perspective. This table can be summarized
 into a data frame output (docs forthcoming) and used to visualize data (docs forthcoming).
+
+## Contributing
+See the [CONTRIBUTING](CONTRIBUTING.md) file for how to help out.
+
+## License
+BoTorch is MIT licensed, as found in the [LICENSE](LICENSE) file.
