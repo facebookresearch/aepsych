@@ -28,7 +28,7 @@ class TestProblem(Problem, LSEProblem):
 class BenchmarkTestCase(unittest.TestCase):
     def setUp(self):
 
-        # run this single-threaded since we parallelize using pathos/dask
+        # run this single-threaded since we parallelize using pathos
         self.oldenv = os.environ.copy()
         os.environ["OMP_NUM_THREADS"] = "1"
         os.environ["NUMEXPR_MAX_THREADS"] = "1"
