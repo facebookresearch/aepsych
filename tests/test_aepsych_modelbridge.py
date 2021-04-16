@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 import unittest
 
 import numpy as np
@@ -8,8 +13,10 @@ from aepsych.acquisition.mc_posterior_variance import (
     MCPosteriorVariance,
     MonotonicMCPosteriorVariance,
 )
+from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.modelbridge.monotonic import MonotonicSingleProbitModelbridge
 from aepsych.modelbridge.single_probit import SingleProbitModelbridge
+from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.server import AEPsychServer
 from aepsych.strategy import (
     SequentialStrategy,
@@ -19,11 +26,10 @@ from aepsych.strategy import (
 from aepsych.utils import get_lse_contour
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.acquisition.objective import GenericMCObjective
-from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from scipy.stats import bernoulli, norm, pearsonr
-from .common import f_1d, f_2d, cdf_new_novel_det, cdf_new_novel_det_3D
 from torch.distributions import Normal
+
+from .common import f_1d, f_2d, cdf_new_novel_det, cdf_new_novel_det_3D
 
 
 class DummySocket(object):

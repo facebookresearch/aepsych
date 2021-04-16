@@ -1,3 +1,11 @@
+/*
+Copyright (c) Facebook, Inc. and its affiliates.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +34,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
     int numStrats = 2;
     int currentStrat = 0;
 
-    
+
 
     //Display a stimulus, and complete when the stimulus is done
     private IEnumerator PresentStimulus(TrialConfig config)
@@ -69,7 +77,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
             yield return StartCoroutine(b.InitStrat(client, configPath: configPath));
 
         }
-        //start with strat 0 
+        //start with strat 0
         yield return StartCoroutine(client.Resume(AEPsychStrats[currentStrat].stratId));
 
         SetText("Welcome. Press Y to begin.");
@@ -91,7 +99,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
 
     IEnumerator RunExperiment()
     {
-        
+
         while (!isDone) {
             Debug.Log("trial# " + trialNum + " strat "+currentStrat + " strat's trial# " + AEPsychStrats[currentStrat].currentTrial);
 
@@ -99,7 +107,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
             yield return StartCoroutine(client.Ask());
 
             config = client.GetConfig();
- 
+
             SetText("Now presenting stimulus.");
 
             yield return StartCoroutine(PresentStimulus(config));
@@ -124,7 +132,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
             AEPsychStrats[currentStrat].currentTrial++;
             trialNum++;
 
-            //in this example, switch every 5 trials 
+            //in this example, switch every 5 trials
             if (AEPsychStrats[currentStrat].currentTrial % 5 == 4)
             {
                 currentStrat = (currentStrat + 1) % numStrats;
@@ -137,7 +145,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
             }
 
 
-            
+
 
         }
         yield return 0;

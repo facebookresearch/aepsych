@@ -1,3 +1,11 @@
+/*
+Copyright (c) Facebook, Inc. and its affiliates.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +15,7 @@ using AEPsych;
 
 public class Ex1DSingleOpt : MonoBehaviour
 {
-    
+
     //Include for all EventLoops
     public AEPsychClient client;
 
@@ -72,7 +80,7 @@ public class Ex1DSingleOpt : MonoBehaviour
             yield return StartCoroutine(client.Ask());
 
             config = client.GetConfig();
- 
+
             SetText("Now presenting stimulus.");
 
             yield return StartCoroutine(PresentStimulus(config));
@@ -82,14 +90,14 @@ public class Ex1DSingleOpt : MonoBehaviour
             yield return StartCoroutine(LogUserInput());
 
 
-        
+
             if (trialNum == (totalTrials-1))
             {
                 SetText("Experiment complete");
                 isDone = true;
                 break;
             }
-        
+
             trialNum++;
 
 
@@ -104,5 +112,5 @@ public class Ex1DSingleOpt : MonoBehaviour
         trialText.SetText(s);
     }
 
-    
+
 }
