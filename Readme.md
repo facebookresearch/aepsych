@@ -105,4 +105,4 @@ into a data frame output (docs forthcoming) and used to visualize data (docs for
 See the [CONTRIBUTING](CONTRIBUTING.md) file for how to help out.
 
 ## License
-BoTorch is MIT licensed, as found in the [LICENSE](LICENSE) file.
+AEPsych licensed CC-NC, as found in the [LICENSE](LICENSE) file.
