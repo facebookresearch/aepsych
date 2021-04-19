@@ -1,0 +1,55 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\subsection{Classical psychophysical methods}
+One of the experimental objectives of classical psychophysics is to measure three quantities of interest: the
+detection threshold (DT),  the just-noticeable-difference (JND), and the point of subjective equality (PSE).
+The DT is defined as the lowest stimulus intensity at which the observer will correctly detect a stimulus with
+some average probability. The JND is defined as the difference in intensities between two stimuli such that
+the observer will correctly detect the difference with some average probability, often
+taken to be 0.75. The PSE is defined as the stimulus intensity where two stimuli appear equal, i.e.\ a JND
+for probability 0.5. These last two quantities are also sufficient statistics for the parameters of the full psychometric function under classical assumptions, since they essentially specify the slope and intercept of a linear model.
+
+Standard methods of classical psychophysics are the method of constant stimuli, the method of limits, and the method of adjustment. The first of these is a standard randomized experiment where participants are shown repeated stimuli from a predefined set (often a fixed grid over the stimulus domain), and in the second, stimuli are shown in ascending or descending order. In both cases, participants are asked to respond as to whether they detected the stimulus or difference. In the method of adjustment, participants are not asked to respond to stimuli, rather they are asked to adjust a second target stimulus until it matches a predetermined probe.
+
+A deep discussion of the relative advantages and disadvantages of classical methods is beyond the scope of the present work (though see \citet{Klein2001}), but none of these methods are suitable for evaluating stimuli with more than one or two dimensions. For a conventional method of constant stimuli grid, the number of stimuli grows exponentially in both the number of dimensions and the number of points per dimension, yielding experiments that take upwards of 5 hours per observer \citep[e.g.][]{Guan2016,Wier1977}, though sparser irregular grids are theoretically possible. For the method of limits, the ordering is typically in just one dimension, requiring a grid over the other dimensions and thus suffering from the same issue. A secondary concern with these methods is that the same exact stimulus must be repeated many times in order to estimate its response probability, and no information is shared across similar stimuli. For the method of adjustment, the search of the stimulus space is ceded entirely to the participant, and participants are unlikely to be able to find their own thresholds in more than one or two dimensions except if the dimensions have some separable structure that allows them to be adjusted independently. Consequently, classical psychophysics has rarely exceeded one or two stimulus dimensions, and is time-consuming even in that setting.
+
+\subsection{Adaptive parametric methods in psychophysics}
+
+To address the above problems, several adaptive techniques have been developed over the years with the goal of
+acheiving similar accuracy with fewer trials \citep{Leek2001}. They make do with less data by injecting
+additional structure into the problem, typically a model of the psychometric transfer function, and then they
+use some secondary objective or heuristic to determine a sequence of points to sample, either a priori or
+conditioned on the data observed so far. The most well-known such methods are PEST, \citep{Taylor1967}, QUEST
+\citep{Watson1983}, and Psi \citep{Kontsevich1999}, though others exist as well (\cite{Levitt1971,Watson1983};
+see also \cite{Treutwein1995} for a review). It is notable that the most well-used methods are also the ones where robust public implementations are readily available. Nonetheless, most prior adaptive methods either make no explicit assumption about the psychometric
+function (in the case of some heuristic methods), or share the assumption of a parametric model for the
+psychometric function consistent with Weber's law. They have been applied to various domains in perception including auditory filters \citep{Shen2012}, contrast external noise functions \citep{Lesmes2006}, visual fields \citep{bengtsson1997new}, as well as complex visual models \citep{DiMattina2015}.
+
+These parametric models are still one-dimensional and assume that the stimulus varies on only one dimension.
+To evaluate a multidimensional space (for example, the threshold on visual stimulus contrast as a function of
+size and color), the additional dimensions are once again evaluated independently over a grid of points. One notable exception to this work is QUEST+ \citep{Watson2017}, which supports multidimensional parametric models.
+However, QUEST+ requires the researcher to specify a parametric form for the psychometric function a
+priori, such as assuming that the contrast threshold is linear in stimulus size.
+
+By using strongly constrained models during both the experiment stage and the subsequent analysis, these methods strongly constrain the set of conclusions that can be drawn: under model misspecification (i.e. if data violate
+some assumptions of the chosen parametric model), the method of constant stimuli would still allow estimation of the correct
+function, whereas a restrictive adaptive method would not. The problem is especially acute because these modeling assumptions must be made prior to collecting any data, even in an exploratory setting.
+
+\subsection{Nonparametric models and methods for psychophysics}
+
+Recent work has attempted to address the issue of adaptive methods making strong assumptions about the shape of the psychometric function. Specifically, this work has modeled the psychometric transfer function using a Gaussian process (GP), a Bayesian nonparametric model.
+
+GPs have a long history in sample-efficient modeling of complex functions, and are used to support adaptive sampling in a variety of domains, including geophysics, materials development, genomics, and others (for some reviews, see \citet{Brochu2010ATO,Frazier2018,Deisenroth2015}. They have additionally seen a surge of recent interest and advancement due to their use for global optimization of machine learning hyperparameters \citep[e.g][]{Snoek2012,Balandat2020}. GPs are most commonly used with continuous outcome spaces using a simple Gaussian observation density, but have also been applied for discrete observations using a link function and non-Gaussian observation likelihoods, similarly to the generalized linear model.
+
+GPs have been used to model psychophysical response data in both detection \citep{Song2018,Song2017b,Gardner2015a,Schlittenlacher2018,Schlittenlacher2020} and discrimination \citep{Browder2019} experiments. In the detection work, the GP models were further used for adaptive stimulus selection. In both cases, the response was modeled as a data-driven nonlinear function of multi-dimensional stimuli. In this way, using adaptive sampling with GPs for psychometric experimentation addresses the key issues with both classical methods (sample efficiency) and parametric adaptive methods (strong parametric assumptions).
+
+We build on this prior work in a number of ways. First, we show that the specific assumptions made about the
+psychometric function in prior nonparametric work can be improved. Work by Song and colleagues assumed the function is linear, as in conventional psychophysics, and only shifted by context variables (i.e.\ without changing the slope). On the other hand, work by Browder and colleagues let the psychometric function be any smooth function including those with a nonmonotonic relationship between stimulus and perception, which is not a realistic outcome in many psychophysics experiments. We propose a middle ground, a prior over \emph{smooth monotonic functions} that is able to encode known monotonicity without having to otherwise specify the shape of the psychometric function.
+
+Second, we develop new adaptive stimulus selection policies that improve on the prior work by being more tailored to the objectives of psychophysics researchers. We show that the threshold-estimation objective of classical psychophysics can be framed as \emph{level set estimation} (LSE) in multiple dimensions \citep{Gotovos2013}, and provide a new LSE objective to complement the global variance- and entropy-based objectives used in prior work. This gives researchers the ability to tailor their adaptive procedure to their experiment goals, using the LSE objective for threshold estimation or a global objective for estimating the full psychometric field.
+
+Finally, we make explicit the connection between probit-GP models as we use them here and classical psychophysical theory, showing how they can be thought of as a formal generalization of both the Weber-Fechner law and classical Signal Detection Theory.
+
+\end{document}

@@ -1,0 +1,76 @@
+% \documentclass[man]{svjour3}
+\documentclass[man,floatsintext]{apa6}
+
+\usepackage[american]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{csquotes}
+\usepackage[backend=biber,useprefix=true,style=apa,url=false,doi=false,eprint=false]{biblatex}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{mathptmx}      % use Times fonts if available on your TeX system
+\usepackage{amsfonts}
+\graphicspath{{figs/}{../figs/}}
+\usepackage{blindtext}
+\usepackage{todonotes}
+\usepackage{subfiles}
+
+\DeclareLanguageMapping{american}{american-apa}
+\addbibresource{mike.bib}
+\addbibresource{lucy.bib}
+
+\let \citet \textcite
+\let \citep \parencite
+% \newcommand{\mikenote}[1]{\todo[color=green!40]{#1}}
+
+% \journalname{Behavior Research Methods}
+
+
+\title{Adaptive nonparametric psychophysics}
+\shorttitle{Adaptive nonparametric psychophysics}
+
+\sixauthors{Lucy Owen}{Jonathan Browder}{Benjamin Letham}{Gideon Stocek}{Chase Tymms}{Michael Shvartsman}
+\sixaffiliations{Dartmouth College\footnote{work done while on internship at Facebook Reality Labs}}{Facebook Reality Labs}{Facebook}{Facebook Reality Labs}{Facebook Reality Labs}{Facebook Reality Labs}
+
+\leftheader{Owen}
+
+\keywords{psychophysics, Bayesian, adaptive}
+
+\abstract{We introduce a new set of models and adaptive psychometric testing methods for multidimensional psychophysics. In contrast to traditional adaptive staircase methods like PEST and QUEST, the method is multi-dimensional and does not require a grid over contextual dimensions, retaining sub-exponential scaling in the number of stimulus dimensions. In contrast to more recent multi-dimensional adaptive methods, our underlying model does not require a parametric assumption about the interaction between intensity and the additional dimensions. In addition, we introduce a new active sampling policy that explicitly targets psychometric detection threshold estimation and does so substantially faster than policies that attempt to estimate the full psychometric function (though it still provides estimates of the function, albeit with lower accuracy). Finally, we introduce \texttt{AEPsych}, a user-friendly open-source package for nonparametric psychophysics that makes these technically-challenging methods accessible to the broader community.}
+
+\begin{document}
+\maketitle
+
+
+\section{Introduction}
+\subfile{sections/intro}
+
+\section{Background}
+\subfile{sections/background}
+
+\section{Theory}
+\subfile{sections/theory}
+
+\section{Methods}
+\subfile{sections/methods}
+
+\section{The AEPsych toolbox}
+\subfile{sections/toolbox}
+
+\section{Results}
+\subfile{sections/results}
+
+\section{Discussion}
+\subfile{sections/discussion}
+
+
+\section{Acknowledgements}
+We are grateful to Deborah Boehm-Davis, Phil Guan, and Jess Hartcher-O'Brien for helpful comments on the manuscript, and to Eytan Bakshy and Max Balandat for their help and support in applying GPyTorch and BoTorch to this domain.
+
+\section{Open Practices Statement}
+AEPsych is available at \url{https://github.com/facebookresearch/aepsych}, alongside the code used to generate this paper and all the results within it.
+
+\clearpage
+\printbibliography[]
+
+\end{document}

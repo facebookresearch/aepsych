@@ -1,0 +1,14 @@
+matplotlib
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch
+pyzmq
+scipy
+sklearn
+gpytorch>=1.4
+botorch>=0.4.0
+SQLAlchemy
+dill
+pickle5 ; python_version < "3.8"
+pandas
+tqdm
+pathos
