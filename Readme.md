@@ -105,4 +105,9 @@ into a data frame output (docs forthcoming) and used to visualize data (docs for
 See the [CONTRIBUTING](CONTRIBUTING.md) file for how to help out.
 
 ## License
-AEPsych licensed CC-NC, as found in the [LICENSE](LICENSE) file.
+AEPsych licensed CC-BY-NC 4.0, as found in the [LICENSE](LICENSE) file.
+
+## Citing
+The AEPsych paper is currently under review. In the meanwhile, you can cite our [preprint](https://arxiv.org/abs/2104.09549):
+
+    Owen, L., Browder, J., Letham, B., Stocek, G., Tymms, C., & Shvartsman, M. (2021). Adaptive Nonparametric Psychophysics. http://arxiv.org/abs/2104.09549
