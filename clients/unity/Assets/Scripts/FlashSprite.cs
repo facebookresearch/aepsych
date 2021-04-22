@@ -33,6 +33,13 @@ public class FlashSprite : MonoBehaviour
     {
         this.r = r; this.g = g; this.b = b; this.alpha = a;
     }
+    public void SetColor(Color c)
+    {
+        this.r = c.r;
+        this.g = c.g;
+        this.b = c.b;
+        this.alpha = c.a;
+    }
 
     // Update is called once per frame
     void Update()
