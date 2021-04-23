@@ -65,11 +65,13 @@ class ZMQSocket(object):
 
 
 class PySocket(object):
-    def __init__(self, port, ip="0.0.0.0"):
+    def __init__(self, port, ip=''):
 
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.bind((ip, port))
-        self.socket.listen()
+        addr = (ip, port)  # all interfaces
+        if socket.has_dualstack_ipv6():
+            self.socket = socket.create_server(addr, family=socket.AF_INET6, dualstack_ipv6=True)
+        else:
+            self.socket = socket.create_server(addr)
         self.conn = None
 
     def close(self):
