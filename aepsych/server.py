@@ -78,17 +78,25 @@ class PySocket(object):
         self.socket.close()
 
     def receive(self):
-        if self.conn is None:
-            logger.info("Waiting for connection...")
-            self.conn, self.addr = self.socket.accept()
-        recv_result = b""
-        while recv_result == b"":
-            logger.info(f"Connected by {self.addr}, waiting for messages...")
-            recv_result = self.conn.recv(1024 * 512)  # 512KiB
-            logger.debug(f"receive : result = {recv_result}")
-            msg = json.loads(recv_result)
+        # catch the Error and reset the connection
+        while True:
+            try:
+                if self.conn is None:
+                    logger.info("Waiting for connection...")
+                    self.conn, self.addr = self.socket.accept()
+                recv_result = b""
+                while recv_result == b"":
+                    logger.info(f"Connected by {self.addr}, waiting for messages...")
+                    recv_result = self.conn.recv(1024 * 512)  # 512KiB
+                    logger.debug(f"receive : result = {recv_result}")
+                    msg = json.loads(recv_result)
 
-        logger.info(f"Got: {msg}")
+                logger.info(f"Got: {msg}")
+                break
+            except UnicodeDecodeError:
+                self.conn.close()
+                self.conn, self.addr = None, None
+                logger.info("Received invalid message. Disconnect the client...")
         return msg
 
     def send(self, message):

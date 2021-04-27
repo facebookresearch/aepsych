@@ -5,9 +5,10 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import json
 import unittest
 import uuid
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock, call, patch
 
 import aepsych.server as server
 
@@ -149,6 +150,20 @@ class ServerTestCase(unittest.TestCase):
 
         result = self.s.handle_update(request)
         self.assertEqual("update success", result)
+
+    @patch("socket.socket.accept")
+    def test_receive(self, mock_accept):
+        """test_receive - verifies the receive is working when server receives unexpected messages"""
+        conn = MagicMock()
+        mock_accept.return_value = (conn, MagicMock())
+
+        message1 = b"\x16\x03\x01\x00\xaf\x01\x00\x00\xab\x03\x03\xa9\x80\xcc" # invalid message
+        message2 = b"\xec\xec\x14M\xfb\xbd\xac\xe7jF\xbe\xf9\x9bM\x92\x15b\xb5" # invalid message
+        message3 = {"message": {"target": "test request"}} # valid message
+
+        conn.recv = MagicMock()
+        conn.recv.side_effect = iter([message1, message2, json.dumps(message3)])
+        self.assertEqual(self.s.socket.receive(), message3)
 
     def test_replay_order(self):
         """test_replay - verifies the replay is working, uses a test db version but does some
