@@ -53,7 +53,16 @@ class ZMQSocket(object):
         self.socket.close()
 
     def receive(self):
-        return self.socket.recv_json()
+        while True:
+            try:
+                msg = self.socket.recv_json()
+                break
+            except Exception as e:
+                logger.info(
+                    "Exception caught while trying to receive a message from the client. "
+                    f"Ignoring message and trying again. The caught exception was: {e}."
+                )
+        return msg
 
     def send(self, message):
         if type(message) == str:
@@ -93,10 +102,13 @@ class PySocket(object):
 
                 logger.info(f"Got: {msg}")
                 break
-            except UnicodeDecodeError:
+            except Exception as e:
                 self.conn.close()
                 self.conn, self.addr = None, None
-                logger.info("Received invalid message. Disconnect the client...")
+                logger.info(
+                    "Exception caught while trying to receive a message from the client. "
+                    f"Ignoring message and trying again. The caught exception was: {e}."
+                )
         return msg
 
     def send(self, message):
