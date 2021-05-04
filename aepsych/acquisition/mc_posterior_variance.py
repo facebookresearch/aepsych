@@ -27,7 +27,6 @@ def balv_acq(obj_samps):
 
 class MCPosteriorVariance(MCAcquisitionFunction):
     r"""Posterior variance, computed using samples so we can use objective/transform
-    (modified from code by @zylin https://www.internalfb.com/intern/anp/view/?id=321216)
     """
 
     def __init__(
