@@ -234,6 +234,7 @@ class AEPsychServer(object):
                 result = self.versioned_handler(request)
             else:
                 result = self.unversioned_handler(request)
+        self.is_performing_replay = False
 
     def get_final_strat_from_replay(self, uuid_of_replay=None):
         if uuid_of_replay is None:
@@ -528,6 +529,9 @@ def startServerAndRun(
             server.configure(config_str)
 
         if socket is not None:
+            if uuid_of_replay is not None:
+                server.replay(uuid_of_replay, skip_asks = True)
+                server._db_master_record = server.db.get_master_record(uuid_of_replay)
             server.serve()
         else:
             if config_path is not None:
@@ -617,6 +621,10 @@ def start_server(server_class):
     )
 
     database_parser.add_argument(
+    "-m", "--resume",  action="store_true", help="Resume server after replay."
+    )
+
+    database_parser.add_argument(
         "-u",
         "--update",
         action="store_true",
@@ -633,8 +641,14 @@ def start_server(server_class):
                 database.list_master_records()
             elif "replay" in args and args.replay is not None:
                 logger.info(f"Attempting to replay {args.replay}")
+                if args.resume is True:
+                    sock = createSocket(socket_type=args.socket_type, port=args.port)
+                    logger.info(f"Will resume {args.replay}")
+                else:
+                    sock = None
                 startServerAndRun(
                     server_class,
+                    socket = sock,
                     database_path=database_path,
                     uuid_of_replay=args.replay,
                     config_path=args.stratconfig,
