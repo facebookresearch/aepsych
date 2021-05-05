@@ -24,7 +24,7 @@ logger = logging.getLogger()
 class Database:
     def __init__(self, db_path=None):
         if db_path is None:
-            db_path = os.path.join(Path.home(), "databases/default.db")
+            db_path = "./databases/default.db"
 
         db_dir, db_name = os.path.split(db_path)
         self._db_name = db_name

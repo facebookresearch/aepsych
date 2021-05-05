@@ -662,7 +662,14 @@ def start_server(server_class):
                 else:
                     logger.info(f"- update not needed for database {database_path}")
             else:
-                parser.print_help()
+                logger.info(f"Setting the database path {database_path}")
+                sock = createSocket(socket_type=args.socket_type, port=args.port)
+                startServerAndRun(
+                    server_class,
+                    database_path=database_path,
+                    socket=sock,
+                    config_path=args.stratconfig,
+                )
         else:
             sock = createSocket(socket_type=args.socket_type, port=args.port)
             startServerAndRun(server_class, socket=sock, config_path=args.stratconfig)
