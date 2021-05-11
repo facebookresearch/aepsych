@@ -10,6 +10,8 @@ import unittest
 import uuid
 from unittest.mock import MagicMock, call, patch
 
+import logging
+import aepsych.utils_logging as utils_logging
 import aepsych.server as server
 
 
@@ -45,6 +47,8 @@ n_trials = 2
 
 class ServerTestCase(unittest.TestCase):
     def setUp(self):
+        # setup logger
+        server.logger = utils_logging.getLogger(logging.DEBUG, 'logs')
         # random port
         socket = server.PySocket(port=0)
         # random datebase path name without dashes

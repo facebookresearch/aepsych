@@ -25,7 +25,6 @@ from aepsych.config import Config
 from aepsych.strategy import SequentialStrategy
 
 
-logger = utils_logging.getLogger(logging.DEBUG)
 
 
 def SimplifyArrays(message):
@@ -572,8 +571,7 @@ def createSocket(socket_type="pysocket", port=5555):
 
     return sock
 
-def start_server(server_class):
-    logger.info("Starting the AEPsychServer")
+def parse_argument():
     parser = argparse.ArgumentParser(description="AEPsych Server!")
     parser.add_argument(
         "--port", metavar="N", type=int, default=5555, help="port to serve on"
@@ -597,6 +595,13 @@ def start_server(server_class):
         "--stratconfig",
         help="Location of ini config file for strat",
         type=str,
+    )
+
+    parser.add_argument(
+        "--logs",
+        type=str,
+        help="The logs path to use if not the default (./logs).",
+        default="logs",
     )
 
     sub_parsers = parser.add_subparsers(dest="subparser")
@@ -632,7 +637,10 @@ def start_server(server_class):
     )
 
     args = parser.parse_args()
+    return args
 
+def start_server(server_class):
+    logger.info("Starting the AEPsychServer")
     try:
         if args.subparser == "database":
             database_path = args.db
@@ -682,6 +690,9 @@ def start_server(server_class):
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
 
-
 if __name__ == "__main__":
+    args = parse_argument()
+    log_path = args.logs
+    logger = utils_logging.getLogger(logging.DEBUG, log_path)
+    logger.info(f"Saving logs to path: {log_path}")
     start_server(AEPsychServer)

@@ -5,18 +5,15 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 import logging
 import logging.config
 import os
-from pathlib import Path
 
 logger = logging.getLogger()
 
 
-def getLogger(level=logging.INFO) -> logging.Logger:
+def getLogger(level=logging.INFO, log_path="logs") -> logging.Logger:
     my_format = "%(asctime)-15s [%(levelname)-7s] %(message)s"
-    log_path = Path.home().joinpath("logs")
     os.makedirs(log_path, exist_ok=True)
 
     logging_config = {
