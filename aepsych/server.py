@@ -24,7 +24,7 @@ import zmq
 from aepsych.config import Config
 from aepsych.strategy import SequentialStrategy
 
-
+logger = utils_logging.getLogger(logging.DEBUG)
 
 
 def SimplifyArrays(message):
@@ -639,7 +639,7 @@ def parse_argument():
     args = parser.parse_args()
     return args
 
-def start_server(server_class):
+def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
     try:
         if args.subparser == "database":
@@ -690,9 +690,14 @@ def start_server(server_class):
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
 
-if __name__ == "__main__":
+def main(server_class):
     args = parse_argument()
-    log_path = args.logs
-    logger = utils_logging.getLogger(logging.DEBUG, log_path)
+    if args.logs:
+        # overide logger path
+        log_path = args.logs
+        logger = utils_logging.getLogger(logging.DEBUG, log_path)
     logger.info(f"Saving logs to path: {log_path}")
-    start_server(AEPsychServer)
+    start_server(server_class, args)
+
+if __name__ == "__main__":
+    main(AEPsychServer)
