@@ -6,13 +6,13 @@
 # LICENSE file in the root directory of this source tree.
 
 import json
+import logging
 import unittest
 import uuid
 from unittest.mock import MagicMock, call, patch
 
-import logging
-import aepsych.utils_logging as utils_logging
 import aepsych.server as server
+import aepsych.utils_logging as utils_logging
 
 
 class DummySocket:
@@ -48,7 +48,7 @@ n_trials = 2
 class ServerTestCase(unittest.TestCase):
     def setUp(self):
         # setup logger
-        server.logger = utils_logging.getLogger(logging.DEBUG, 'logs')
+        server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
         # random port
         socket = server.PySocket(port=0)
         # random datebase path name without dashes
@@ -63,21 +63,21 @@ class ServerTestCase(unittest.TestCase):
             self.s.db.delete_db()
 
     def test_unversioned_handler_untyped(self):
-        """ test_unversioned_handler_untyped """
+        """test_unversioned_handler_untyped"""
         request = {}
         # check untyped request
         with self.assertRaises(RuntimeError):
             self.s.unversioned_handler(request)
 
     def test_unversioned_handler_type_invalid(self):
-        """ test_unversioned_handler_type_invalid """
+        """test_unversioned_handler_type_invalid"""
         request = {"type": "invalid"}
         # make sure invalid types handle properly
         with self.assertRaises(RuntimeError):
             self.s.unversioned_handler(request)
 
     def test_unversioned_handler_types_ask(self):
-        """ test_unversioned_handler_types_ask """
+        """test_unversioned_handler_types_ask"""
         request = {}
 
         request["type"] = "ask"
@@ -86,7 +86,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(True, result)
 
     def test_unversioned_handler_types_tell(self):
-        """ test_unversioned_handler_types_tell """
+        """test_unversioned_handler_types_tell"""
         request = {}
         # self.s.handle_setup = MagicMock(return_value=True)
 
@@ -96,7 +96,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(True, result)
 
     def test_unversioned_handler_types_update(self):
-        """ test_unversioned_handler_types_update """
+        """test_unversioned_handler_types_update"""
         request = {}
         # self.s.handle_setup = MagicMock(return_value=True)
 
@@ -106,7 +106,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(True, result)
 
     def test_v01_handler_types_resume(self):
-        """ test setup v01 """
+        """test setup v01"""
         request = {}
         self.s.handle_resume_v01 = MagicMock(return_value=True)
         self.s.socket.send = MagicMock()
@@ -122,7 +122,7 @@ class ServerTestCase(unittest.TestCase):
         )
 
     def test_handle_ask(self):
-        """ test_handle_ask - Doesn't mock the db, this will create a real db entry """
+        """test_handle_ask - Doesn't mock the db, this will create a real db entry"""
         request = {"test": "test request"}
 
         self.s.ask = MagicMock(return_value="ask success")
@@ -133,7 +133,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual("ask success", result)
 
     def test_handle_tell(self):
-        """ test_handle_tell - Doesn't mock the db, this will create a real db entry """
+        """test_handle_tell - Doesn't mock the db, this will create a real db entry"""
         request = {"message": {"target": "test request"}}
 
         self.s.tell = MagicMock(return_value="ask success")
@@ -143,7 +143,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual("acq", result)
 
     def test_handle_update(self):
-        """ test_handle_update - Doesn't mock the db, this will create a real db entry """
+        """test_handle_update - Doesn't mock the db, this will create a real db entry"""
         request = {"message": {"target": "test request"}}
 
         self.s.tell = MagicMock(return_value="update success")
@@ -161,9 +161,9 @@ class ServerTestCase(unittest.TestCase):
         conn = MagicMock()
         mock_accept.return_value = (conn, MagicMock())
 
-        message1 = b"\x16\x03\x01\x00\xaf\x01\x00\x00\xab\x03\x03\xa9\x80\xcc" # invalid message
-        message2 = b"\xec\xec\x14M\xfb\xbd\xac\xe7jF\xbe\xf9\x9bM\x92\x15b\xb5" # invalid message
-        message3 = {"message": {"target": "test request"}} # valid message
+        message1 = b"\x16\x03\x01\x00\xaf\x01\x00\x00\xab\x03\x03\xa9\x80\xcc"  # invalid message
+        message2 = b"\xec\xec\x14M\xfb\xbd\xac\xe7jF\xbe\xf9\x9bM\x92\x15b\xb5"  # invalid message
+        message3 = {"message": {"target": "test request"}}  # valid message
 
         conn.recv = MagicMock()
         conn.recv.side_effect = iter([message1, message2, json.dumps(message3)])
@@ -201,7 +201,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(replay_records[4].message_type, "end")
 
     def test_replay_server_none_uuid(self):
-        """ test_replay_server_failed_uuid - check expected behavior on None UUID """
+        """test_replay_server_failed_uuid - check expected behavior on None UUID"""
         self.assertRaises(RuntimeError, self.s.replay, None)
 
     def test_replay_server_none_db(self):
@@ -357,6 +357,94 @@ class ServerTestCase(unittest.TestCase):
             self.s.unversioned_handler(ask_request)
             tell_request["message"]["config"]["x"] = [expected_x[i]]
             tell_request["message"]["config"]["z"] = [expected_z[i]]
+            tell_request["message"]["outcome"] = expected_y[i]
+            tell_request["extra_info"]["e1"] = 1
+            tell_request["extra_info"]["e2"] = 2
+            i = i + 1
+            self.s.unversioned_handler(tell_request)
+
+        exp_id = self.s.db.get_master_records()[-1].experiment_id
+        out_df = self.s.get_dataframe_from_replay(exp_id)
+        self.assertTrue((out_df.x == expected_x).all())
+        self.assertTrue((out_df.z == expected_z).all())
+        self.assertTrue((out_df.response == expected_y).all())
+        self.assertTrue((out_df.e1 == [1] * 4).all())
+        self.assertTrue((out_df.e2 == [2] * 4).all())
+        self.assertTrue("post_mean" in out_df.columns)
+        self.assertTrue("post_var" in out_df.columns)
+
+    def test_pandadf_dump_multistrat(self):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+            "extra_info": {},
+        }
+        expected_x = [0, 1, 2, 3] * 2
+        expected_z = list(reversed(expected_x))
+        expected_y = [x % 2 for x in expected_x]
+        for _ in range(2):
+            i = 0
+            self.s.versioned_handler(setup_request)
+            while not self.s.strat.finished:
+                self.s.unversioned_handler(ask_request)
+                tell_request["message"]["config"]["x"] = [expected_x[i]]
+                tell_request["message"]["config"]["z"] = [expected_z[i]]
+                tell_request["message"]["outcome"] = expected_y[i]
+                tell_request["extra_info"]["e1"] = 1
+                tell_request["extra_info"]["e2"] = 2
+                i = i + 1
+                self.s.unversioned_handler(tell_request)
+
+        exp_id = self.s.db.get_master_records()[-1].experiment_id
+        out_df = self.s.get_dataframe_from_replay(exp_id)
+
+        self.assertTrue((out_df.x == expected_x).all())
+        self.assertTrue((out_df.z == expected_z).all())
+        self.assertTrue((out_df.response == expected_y).all())
+        self.assertTrue((out_df.e1 == [1] * 8).all())
+        self.assertTrue((out_df.e2 == [2] * 8).all())
+        self.assertTrue("post_mean" in out_df.columns)
+        self.assertTrue("post_var" in out_df.columns)
+        # first 4 fmean/fval will be empty because
+        # there's no matching strat. TODO the right
+        # version of this function should not pass
+        # this test because there's actually values there
+        self.assertTrue((out_df["post_mean"][:4].values == [""] * 4).all())
+        self.assertTrue((out_df["post_var"][:4].values == [""] * 4).all())
+        self.assertTrue((out_df["post_mean"][4:].values != [""] * 4).all())
+        self.assertTrue((out_df["post_var"][4:].values != [""] * 4).all())
+
+    def test_pandadf_dump_flat(self):
+        """
+        This test handles the case where the config values are flat
+        scalars and not lists
+        """
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+            "extra_info": {},
+        }
+        self.s.versioned_handler(setup_request)
+        expected_x = [0, 1, 2, 3]
+        expected_z = list(reversed(expected_x))
+        expected_y = [x % 2 for x in expected_x]
+        i = 0
+        while not self.s.strat.finished:
+            self.s.unversioned_handler(ask_request)
+            tell_request["message"]["config"]["x"] = expected_x[i]
+            tell_request["message"]["config"]["z"] = expected_z[i]
             tell_request["message"]["outcome"] = expected_y[i]
             tell_request["extra_info"]["e1"] = 1
             tell_request["extra_info"]["e2"] = 2

@@ -73,11 +73,13 @@ class ZMQSocket(object):
 
 
 class PySocket(object):
-    def __init__(self, port, ip=''):
+    def __init__(self, port, ip=""):
 
         addr = (ip, port)  # all interfaces
         if socket.has_dualstack_ipv6():
-            self.socket = socket.create_server(addr, family=socket.AF_INET6, dualstack_ipv6=True)
+            self.socket = socket.create_server(
+                addr, family=socket.AF_INET6, dualstack_ipv6=True
+            )
         else:
             self.socket = socket.create_server(addr)
         self.conn = None
@@ -226,7 +228,10 @@ class AEPsychServer(object):
                 # TODO this should probably be the other way around when we refactor
                 # the whole Modelbridge/Strategy axis.
                 self.strat._strat._count += 1
-                if isinstance(self.strat, SequentialStrategy) and self.strat._count >= self.strat._strat.n_trials:
+                if (
+                    isinstance(self.strat, SequentialStrategy)
+                    and self.strat._count >= self.strat._strat.n_trials
+                ):
                     self.strat._make_next_strat()
                 continue
             if "version" in request.keys():
@@ -246,8 +251,10 @@ class AEPsychServer(object):
             strat_buffer = self.db.get_strat_for(uuid_of_replay)
             return torch.load(strat_buffer, pickle_module=dill)
         except Exception as e:
-            logger.info("No final strat found (likely due to old DB or server crash, "+
-                        "trying to replay tells to generate a final strat...")
+            logger.info(
+                "No final strat found (likely due to old DB or server crash, "
+                + "trying to replay tells to generate a final strat..."
+            )
             try:
                 # sometimes there's no final strat, e.g.
                 # if the server crashed or it's a very old database
@@ -263,12 +270,16 @@ class AEPsychServer(object):
     def _flatten_tell_record(self, rec):
         out = {}
         out["response"] = int(rec.message_contents["message"]["outcome"])
+
         out.update(
-            {k: v[0] for k, v in rec.message_contents["message"]["config"].items()}
+            pd.json_normalize(
+                rec.message_contents["message"]["config"], sep="_"
+            ).to_dict(orient="records")[0]
         )
 
         if rec.extra_info is not None:
             out.update(rec.extra_info)
+
         return out
 
     def get_dataframe_from_replay(self, uuid_of_replay=None):
@@ -287,8 +298,35 @@ class AEPsychServer(object):
                 if rec.message_type == "tell"
             ]
         )
-        out["post_mean"] = post_mean.detach().numpy()
-        out["post_var"] = post_var.detach().numpy()
+
+        # flatten any final nested lists
+        def _flatten(x):
+            return x[0] if len(x) == 1 else x
+
+        for col in out.columns:
+            if out[col].dtype == object:
+                out.loc[:, col] = out[col].apply(_flatten)
+
+        # TODO make this more robust to multi-strat replays
+        n_tell_records = len(out)
+        n_strat_datapoints = len(post_mean)
+        if n_tell_records == n_strat_datapoints:
+            out["post_mean"] = post_mean.detach().numpy()
+            out["post_var"] = post_var.detach().numpy()
+        else:
+            logger.warn(
+                f"Number of tell records ({n_tell_records}) does not match "
+                + f"number of datapoints in strat ({n_strat_datapoints}) "
+                + "filling fvals for final strat only"
+            )
+            out["post_mean"] = ""
+            out["post_var"] = ""
+            out.iloc[
+                -n_strat_datapoints:, out.columns.get_indexer(["post_mean"])
+            ] = post_mean.detach().numpy()
+            out.iloc[
+                -n_strat_datapoints:, out.columns.get_indexer(["post_var"])
+            ] = post_var.detach().numpy()
         return out
 
     def versioned_handler(self, request):
@@ -475,8 +513,13 @@ class AEPsychServer(object):
         return config
 
     def _config_to_tensor(self, config):
-        x = np.stack([config[name] for name in self.parnames], axis=1)
+        unpacked = [config[name] for name in self.parnames]
 
+        # handle config elements being either scalars or length-1 lists
+        if isinstance(unpacked[0], list):
+            x = np.stack(unpacked, axis=1)
+        else:
+            x = np.stack(unpacked)
         return x
 
     def tell(self, outcome, config):
@@ -529,7 +572,7 @@ def startServerAndRun(
 
         if socket is not None:
             if uuid_of_replay is not None:
-                server.replay(uuid_of_replay, skip_asks = True)
+                server.replay(uuid_of_replay, skip_asks=True)
                 server._db_master_record = server.db.get_master_record(uuid_of_replay)
             server.serve()
         else:
@@ -570,6 +613,7 @@ def createSocket(socket_type="pysocket", port=5555):
         sock = ZMQSocket(port=port)
 
     return sock
+
 
 def parse_argument():
     parser = argparse.ArgumentParser(description="AEPsych Server!")
@@ -626,7 +670,7 @@ def parse_argument():
     )
 
     database_parser.add_argument(
-    "-m", "--resume",  action="store_true", help="Resume server after replay."
+        "-m", "--resume", action="store_true", help="Resume server after replay."
     )
 
     database_parser.add_argument(
@@ -656,7 +700,7 @@ def start_server(server_class, args):
                     sock = None
                 startServerAndRun(
                     server_class,
-                    socket = sock,
+                    socket=sock,
                     database_path=database_path,
                     uuid_of_replay=args.replay,
                     config_path=args.stratconfig,
