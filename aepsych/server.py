@@ -28,7 +28,7 @@ logger = utils_logging.getLogger(logging.DEBUG)
 
 
 def SimplifyArrays(message):
-    return {k: v.tolist() if type(v) == np.ndarray else v for k, v in message.items()}
+    return {k: v.tolist() if type(v) == np.ndarray else SimplifyArrays(v) if type(v) is dict else v for k, v in message.items()}
 
 
 def _get_next_filename(folder, fname, ext):
@@ -330,7 +330,7 @@ class AEPsychServer(object):
         return out
 
     def versioned_handler(self, request):
-        handled_types = ["setup", "resume"]
+        handled_types = ["setup", "resume", "ask"]
         if request["type"] == "setup":
             if request["version"] == "0.01":
                 ret_val = self.handle_setup_v01(request)
@@ -344,6 +344,13 @@ class AEPsychServer(object):
             else:
                 raise RuntimeError(
                     f"Unknown message version {request['version']} for message 'resume'!"
+                )
+        elif request["type"] == "ask":
+            if request["version"] == "0.01":
+                ret_val = self.handle_ask_v01(request)
+            else:
+                raise RuntimeError(
+                    f"Unknown message version {request['version']} for message 'ask'!"
                 )
         if request["type"] in handled_types:
             logger.debug(f"Received msg [{request['type']}]")
@@ -389,6 +396,19 @@ class AEPsychServer(object):
                 master_table=self._db_master_record, type="resume", request=request
             )
         return self.strat_id
+
+    def handle_ask_v01(self, request):
+        """ Returns dictionary with two entries:
+            "config" -- dictionary with config (keys are strings, values are floats)
+            "is_finished" -- bool, true if the strat is finished
+        """
+        logger.debug("got ask message!")
+        new_config = {"config": self.ask(), "is_finished": self.strat.finished}
+        if not self.is_performing_replay:
+            self.db.record_message(
+                master_table=self._db_master_record, type="ask", request=request
+            )
+        return new_config
 
     def unversioned_handler(self, request):
         message_map = {
@@ -498,12 +518,11 @@ class AEPsychServer(object):
         """get the next point to query from the model
 
         Returns:
-            dict -- new config dictionary (keys are strings, values are floats)
+            dict -- new config dict (keys are strings, values are floats)
         """
         # index by [0] is temporary HACK while serverside
         # doesn't handle batched ask
         next_x = self.strat.gen()[0]
-
         return self._tensor_to_config(next_x)
 
     def _tensor_to_config(self, next_x):
