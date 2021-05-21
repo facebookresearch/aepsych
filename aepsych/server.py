@@ -28,7 +28,14 @@ logger = utils_logging.getLogger(logging.DEBUG)
 
 
 def SimplifyArrays(message):
-    return {k: v.tolist() if type(v) == np.ndarray else SimplifyArrays(v) if type(v) is dict else v for k, v in message.items()}
+    return {
+        k: v.tolist()
+        if type(v) == np.ndarray
+        else SimplifyArrays(v)
+        if type(v) is dict
+        else v
+        for k, v in message.items()
+    }
 
 
 def _get_next_filename(folder, fname, ext):
@@ -220,8 +227,12 @@ class AEPsychServer(object):
         for result in master_record.children_replay:
             request = result.message_contents
             logger.debug(f"replay - type = {result.message_type} request = {request}")
-            if (request["type"] == "ask" or request["type"] == "query") and skip_computations is True:
-                logger.debug("Request type is ask or query and skip_computations==True, skipping!")
+            if (
+                request["type"] == "ask" or request["type"] == "query"
+            ) and skip_computations is True:
+                logger.debug(
+                    "Request type is ask or query and skip_computations==True, skipping!"
+                )
                 # HACK increment strat's count and manually move to next strat as needed, since
                 # strats count based on `gen` calls not `add_data calls`.
                 # TODO this should probably be the other way around when we refactor
@@ -246,25 +257,28 @@ class AEPsychServer(object):
                 uuid_of_replay = records[-1].experiment_id
             else:
                 raise RuntimeError("Server has no experiment records!")
-        try:
-            strat_buffer = self.db.get_strat_for(uuid_of_replay)
-            return torch.load(strat_buffer, pickle_module=dill)
-        except Exception as e:
+
+        strat_buffer = self.db.get_strat_for(uuid_of_replay)
+        if strat_buffer is not None:
+            strat = torch.load(strat_buffer, pickle_module=dill)
+            return strat
+        elif self.strat is not None:
+            # we've previously run a replay that has populated a strat,
+            # just reuse it
+            return self.strat
+        else:
             logger.info(
                 "No final strat found (likely due to old DB or server crash, "
                 + "trying to replay tells to generate a final strat..."
             )
-            try:
-                # sometimes there's no final strat, e.g.
-                # if the server crashed or it's a very old database
-                # in this case, replay the setup and tells
-                self.replay(uuid_of_replay, skip_computations=True)
-                # then if the final strat is model-based, refit
-                if self.strat.has_model:
-                    self.strat.modelbridge.fit(self.strat.x, self.strat.y)
-                return self.strat
-            except Exception:
-                raise e
+            # sometimes there's no final strat, e.g.
+            # if the server crashed or it's a very old database
+            # in this case, replay the setup and tells
+            self.replay(uuid_of_replay, skip_computations=True)
+            # then if the final strat is model-based, refit
+            if self.strat.has_model:
+                self.strat.modelbridge.fit(self.strat.x, self.strat.y)
+            return self.strat
 
     def _flatten_tell_record(self, rec):
         out = {}
@@ -288,8 +302,6 @@ class AEPsychServer(object):
 
         strat = self.get_final_strat_from_replay(uuid_of_replay)
 
-        post_mean, post_var = strat.predict(strat.x)
-
         out = pd.DataFrame(
             [
                 self._flatten_tell_record(rec)
@@ -307,25 +319,27 @@ class AEPsychServer(object):
                 out.loc[:, col] = out[col].apply(_flatten)
 
         # TODO make this more robust to multi-strat replays
-        n_tell_records = len(out)
-        n_strat_datapoints = len(post_mean)
-        if n_tell_records == n_strat_datapoints:
-            out["post_mean"] = post_mean.detach().numpy()
-            out["post_var"] = post_var.detach().numpy()
-        else:
-            logger.warn(
-                f"Number of tell records ({n_tell_records}) does not match "
-                + f"number of datapoints in strat ({n_strat_datapoints}) "
-                + "filling fvals for final strat only"
-            )
-            out["post_mean"] = ""
-            out["post_var"] = ""
-            out.iloc[
-                -n_strat_datapoints:, out.columns.get_indexer(["post_mean"])
-            ] = post_mean.detach().numpy()
-            out.iloc[
-                -n_strat_datapoints:, out.columns.get_indexer(["post_var"])
-            ] = post_var.detach().numpy()
+        if strat.has_model:
+            post_mean, post_var = strat.predict(strat.x)
+            n_tell_records = len(out)
+            n_strat_datapoints = len(post_mean)
+            if n_tell_records == n_strat_datapoints:
+                out["post_mean"] = post_mean.detach().numpy()
+                out["post_var"] = post_var.detach().numpy()
+            else:
+                logger.warn(
+                    f"Number of tell records ({n_tell_records}) does not match "
+                    + f"number of datapoints in strat ({n_strat_datapoints}) "
+                    + "filling fvals for final strat only"
+                )
+                out["post_mean"] = ""
+                out["post_var"] = ""
+                out.iloc[
+                    -n_strat_datapoints:, out.columns.get_indexer(["post_mean"])
+                ] = post_mean.detach().numpy()
+                out.iloc[
+                    -n_strat_datapoints:, out.columns.get_indexer(["post_var"])
+                ] = post_var.detach().numpy()
         return out
 
     def versioned_handler(self, request):
@@ -397,9 +411,9 @@ class AEPsychServer(object):
         return self.strat_id
 
     def handle_ask_v01(self, request):
-        """ Returns dictionary with two entries:
-            "config" -- dictionary with config (keys are strings, values are floats)
-            "is_finished" -- bool, true if the strat is finished
+        """Returns dictionary with two entries:
+        "config" -- dictionary with config (keys are strings, values are floats)
+        "is_finished" -- bool, true if the strat is finished
         """
         logger.debug("got ask message!")
         new_config = {"config": self.ask(), "is_finished": self.strat.finished}
@@ -506,7 +520,10 @@ class AEPsychServer(object):
             self.db.record_message(
                 master_table=self._db_master_record, type="parameters", request=request
             )
-        config_setup = {self.parnames[i]:[self.strat.lb[i].item(), self.strat.ub[i].item()] for i in range(len(self.parnames))}
+        config_setup = {
+            self.parnames[i]: [self.strat.lb[i].item(), self.strat.ub[i].item()]
+            for i in range(len(self.parnames))
+        }
         return config_setup
 
     def handle_query(self, request):
@@ -518,41 +535,52 @@ class AEPsychServer(object):
         response = self.query(**request["message"])
         return response
 
-    def query(self,
-              query_type = "max",
-              probability_space = False,
-              x=None,
-              y=None,
-              constraints=None,
-              ):
+    def query(
+        self,
+        query_type="max",
+        probability_space=False,
+        x=None,
+        y=None,
+        constraints=None,
+    ):
         constraints = constraints or {}
-        response = {'query_type':query_type, 'probability_space':probability_space, 'constraints':constraints}
+        response = {
+            "query_type": query_type,
+            "probability_space": probability_space,
+            "constraints": constraints,
+        }
 
-        if query_type=="max":
+        if query_type == "max":
             fmax, fmax_loc = self.strat.get_max()
-            response['y'] = fmax.astype(float)
-            response['x'] = fmax_loc.astype(float)
-        elif query_type=="min":
+            response["y"] = fmax.astype(float)
+            response["x"] = fmax_loc.astype(float)
+        elif query_type == "min":
             fmin, fmin_loc = self.strat.get_min()
-            response['y'] = fmin.astype(float)
-            response['x'] = fmin_loc.astype(float)
+            response["y"] = fmin.astype(float)
+            response["x"] = fmin_loc.astype(float)
         elif query_type == "prediction":
             # returns the model value at x
-            if x is None: # TODO: ensure if x is between lb and ub
+            if x is None:  # TODO: ensure if x is between lb and ub
                 raise RuntimeError("Cannot query model at location = None!")
-            mean, var = self.strat.query(torch.Tensor([x]), probability_space=probability_space)
-            response['x'] = x
-            response['y'] = mean.item()
+            mean, var = self.strat.query(
+                torch.Tensor([x]), probability_space=probability_space
+            )
+            response["x"] = x
+            response["y"] = mean.item()
         elif query_type == "inverse":
             # expect to be a dictionary
-            if type(constraints)!= dict:
+            if type(constraints) != dict:
                 raise RuntimeError("For inv_query, constraints must be a dict!")
-            constraints = {int(k): v for k,v in constraints.items()}
+            constraints = {int(k): v for k, v in constraints.items()}
             if len(constraints) >= len(self.parnames):
-                raise RuntimeError("Inverse query requires at least one unconstrained dimension!")
-            nearest_y, nearest_loc = self.strat.inv_query(y, constraints, probability_space=probability_space)
-            response['y'] = nearest_y.astype(float)
-            response['x'] = nearest_loc.astype(float)
+                raise RuntimeError(
+                    "Inverse query requires at least one unconstrained dimension!"
+                )
+            nearest_y, nearest_loc = self.strat.inv_query(
+                y, constraints, probability_space=probability_space
+            )
+            response["y"] = nearest_y.astype(float)
+            response["x"] = nearest_loc.astype(float)
         else:
             raise RuntimeError("unknown query type!")
         return response
@@ -760,6 +788,7 @@ def parse_argument():
     args = parser.parse_args()
     return args
 
+
 def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
     try:
@@ -811,6 +840,7 @@ def start_server(server_class, args):
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
 
+
 def main(server_class):
     args = parse_argument()
     if args.logs:
@@ -819,6 +849,7 @@ def main(server_class):
         logger = utils_logging.getLogger(logging.DEBUG, log_path)
     logger.info(f"Saving logs to path: {log_path}")
     start_server(server_class, args)
+
 
 if __name__ == "__main__":
     main(AEPsychServer)

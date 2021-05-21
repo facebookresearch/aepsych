@@ -116,7 +116,7 @@ class Database:
         """Get the strat records for a specific master row."""
         master_record = self.get_master_record(master_id)
 
-        if master_record is not None:
+        if master_record is not None and len(master_record.children_strat)>0:
             return master_record.children_strat[0].strat
 
         return None
