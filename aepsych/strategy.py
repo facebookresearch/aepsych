@@ -140,6 +140,22 @@ class ModelWrapperStrategy(Strategy):
         )
 
     @ensure_model_is_fresh
+    def query(self, x, probability_space=False):
+        return self.modelbridge.query(x, probability_space)
+
+    @ensure_model_is_fresh
+    def get_max(self):
+        return self.modelbridge.get_max()
+
+    @ensure_model_is_fresh
+    def get_min(self):
+        return self.modelbridge.get_min()
+
+    @ensure_model_is_fresh
+    def inv_query(self, y, constraints, probability_space=False):
+        return self.modelbridge.inv_query(y, constraints, probability_space)
+
+    @ensure_model_is_fresh
     def predict(self, x):
         return self.modelbridge.predict(x)
 

@@ -183,15 +183,14 @@ class AEPsychServer(object):
                 result = self.versioned_handler(request)
             else:
                 result = self.unversioned_handler(request)
-
             self.socket.send(result)
             if self.exit_server_loop:
                 break
 
-    def replay(self, uuid_to_replay, skip_asks=False):
+    def replay(self, uuid_to_replay, skip_computations=False):
         """
         Run a replay against the server. The UUID will be looked up in the database.
-        if skip_asks is true, skip all the asks, which should make the replay much faster.
+        if skip_computations is true, skip all the asks and queries, which should make the replay much faster.
         """
         if uuid_to_replay is None:
             raise RuntimeError("UUID is a required parameter to perform a replay")
@@ -199,9 +198,9 @@ class AEPsychServer(object):
         if self.db is None:
             raise RuntimeError("A database is required to perform a replay")
 
-        if skip_asks is True:
+        if skip_computations is True:
             logger.info(
-                "skip_asks=True, make sure to refit the final strat before doing anything!"
+                "skip_computations=True, make sure to refit the final strat before doing anything!"
             )
 
         master_record = self.db.get_master_record(uuid_to_replay)
@@ -221,8 +220,8 @@ class AEPsychServer(object):
         for result in master_record.children_replay:
             request = result.message_contents
             logger.debug(f"replay - type = {result.message_type} request = {request}")
-            if request["type"] == "ask" and skip_asks is True:
-                logger.debug("Request type is ask and skip_asks==True, skipping!")
+            if (request["type"] == "ask" or request["type"] == "query") and skip_computations is True:
+                logger.debug("Request type is ask or query and skip_computations==True, skipping!")
                 # HACK increment strat's count and manually move to next strat as needed, since
                 # strats count based on `gen` calls not `add_data calls`.
                 # TODO this should probably be the other way around when we refactor
@@ -259,7 +258,7 @@ class AEPsychServer(object):
                 # sometimes there's no final strat, e.g.
                 # if the server crashed or it's a very old database
                 # in this case, replay the setup and tells
-                self.replay(uuid_of_replay, skip_asks=True)
+                self.replay(uuid_of_replay, skip_computations=True)
                 # then if the final strat is model-based, refit
                 if self.strat.has_model:
                     self.strat.modelbridge.fit(self.strat.x, self.strat.y)
@@ -416,6 +415,8 @@ class AEPsychServer(object):
             "ask": self.handle_ask,
             "tell": self.handle_tell,
             "update": self.handle_update,
+            "query": self.handle_query,
+            "parameters": self.handle_params,
         }
 
         if "type" not in request.keys():
@@ -498,6 +499,63 @@ class AEPsychServer(object):
         new_config = self.handle_ask(request)
 
         return new_config
+
+    def handle_params(self, request):
+        logger.debug("got parameters message!")
+        if not self.is_performing_replay:
+            self.db.record_message(
+                master_table=self._db_master_record, type="parameters", request=request
+            )
+        config_setup = {self.parnames[i]:[self.strat.lb[i].item(), self.strat.ub[i].item()] for i in range(len(self.parnames))}
+        return config_setup
+
+    def handle_query(self, request):
+        logger.debug("got query message!")
+        if not self.is_performing_replay:
+            self.db.record_message(
+                master_table=self._db_master_record, type="query", request=request
+            )
+        response = self.query(**request["message"])
+        return response
+
+    def query(self,
+              query_type = "max",
+              probability_space = False,
+              x=None,
+              y=None,
+              constraints=None,
+              ):
+        constraints = constraints or {}
+        response = {'query_type':query_type, 'probability_space':probability_space, 'constraints':constraints}
+
+        if query_type=="max":
+            fmax, fmax_loc = self.strat.get_max()
+            response['y'] = fmax.astype(float)
+            response['x'] = fmax_loc.astype(float)
+        elif query_type=="min":
+            fmin, fmin_loc = self.strat.get_min()
+            response['y'] = fmin.astype(float)
+            response['x'] = fmin_loc.astype(float)
+        elif query_type == "prediction":
+            # returns the model value at x
+            if x is None: # TODO: ensure if x is between lb and ub
+                raise RuntimeError("Cannot query model at location = None!")
+            mean, var = self.strat.query(torch.Tensor([x]), probability_space=probability_space)
+            response['x'] = x
+            response['y'] = mean.item()
+        elif query_type == "inverse":
+            # expect to be a dictionary
+            if type(constraints)!= dict:
+                raise RuntimeError("For inv_query, constraints must be a dict!")
+            constraints = {int(k): v for k,v in constraints.items()}
+            if len(constraints) >= len(self.parnames):
+                raise RuntimeError("Inverse query requires at least one unconstrained dimension!")
+            nearest_y, nearest_loc = self.strat.inv_query(y, constraints, probability_space=probability_space)
+            response['y'] = nearest_y.astype(float)
+            response['x'] = nearest_loc.astype(float)
+        else:
+            raise RuntimeError("unknown query type!")
+        return response
 
     @property
     def strat(self):
@@ -591,7 +649,7 @@ def startServerAndRun(
 
         if socket is not None:
             if uuid_of_replay is not None:
-                server.replay(uuid_of_replay, skip_asks=True)
+                server.replay(uuid_of_replay, skip_computations=True)
                 server._db_master_record = server.db.get_master_record(uuid_of_replay)
             server.serve()
         else:

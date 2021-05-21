@@ -241,7 +241,7 @@ class ServerTestCase(unittest.TestCase):
         print(f"replay called with check = {test_calls}")
         self.s.unversioned_handler.assert_has_calls(test_calls, any_order=False)
 
-    def test_replay_server_skip_asks(self):
+    def test_replay_server_skip_computations(self):
         test_calls = []
         request = {"message": {"target": "setup"}, "type": "setup"}
         # 1. create setup then send some messages through
@@ -281,7 +281,7 @@ class ServerTestCase(unittest.TestCase):
         self.s.versioned_handler(setup_request)
         self.s.strat.has_model = False
 
-        self.s.replay(self.s._db_master_record.experiment_id, skip_asks=True)
+        self.s.replay(self.s._db_master_record.experiment_id, skip_computations=True)
         print(f"replay called with check = {test_calls}")
         self.s.unversioned_handler.assert_has_calls(test_calls, any_order=False)
         self.assertEqual(self.s.unversioned_handler.call_count, len(test_calls))
