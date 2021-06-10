@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 329997636}
   - component: {fileID: 329997635}
   m_Layer: 0
-  m_Name: AEPsychtExperimentSelector
+  m_Name: AEPsychExperimentSelector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,10 +149,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d3674b84b4e7b242bf0fcc69fb12bb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Dim: 0
+  m_Dim: 2
   m_Method: 0
   m_Response: 0
-  selectedScript: 1DSingleOpt
+  selectedScript: 3DSingleOpt
 --- !u!4 &329997636
 Transform:
   m_ObjectHideFlags: 0
@@ -270,7 +270,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &634023898
 Transform:
   m_ObjectHideFlags: 0
@@ -586,7 +586,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1636215477
 Transform:
   m_ObjectHideFlags: 0
