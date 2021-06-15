@@ -133,9 +133,36 @@ class PySocket(object):
         sys.stdout.flush()
         self.conn.sendall(bytes(message, "utf-8"))
 
+class ThriftSocketWrapper(object):
+    def __init__(self, msg_queue=None):
+        self.msg_queue = msg_queue
+
+    def close(self):
+        # it's not a real socket so no close function need?
+        pass
+
+    def receive(self):
+        # Remove and return an item from the queue. If queue is empty, wait until an item is available.
+        message = self.msg_queue.get()
+        logger.info(f"thrift socket got msg: {message}")
+        return message
+
+    def send(self, message):
+        #add responds to msg_queue
+        if self.msg_queue is None:
+            logger.exception("There is no msg_queue!")
+            raise RuntimeError("There is no message to send from server!")
+        if type(message) == str:
+            pass  # keep it as-is
+        elif type(message) == int:
+            message = str(message)
+        else:
+            message = json.dumps(SimplifyArrays(message))
+        logger.info(f"Sending: {message}")
+        self.msg_queue.put(message, block=True)
 
 class AEPsychServer(object):
-    def __init__(self, socket=None, database_path=None):
+    def __init__(self, socket=None, database_path=None, thrift=False):
         """Server for doing black box optimization using gaussian processes.
 
         Keyword Arguments:
@@ -147,7 +174,6 @@ class AEPsychServer(object):
             self.socket = PySocket(port=5555)
         else:
             self.socket = socket
-
         self.db = None
         self.is_performing_replay = False
         self.exit_server_loop = False
@@ -163,6 +189,7 @@ class AEPsychServer(object):
         self.strat_id = -1
 
         self.debug = False
+        self.is_using_thrift = thrift
 
     def cleanup(self):
         self.socket.close()
@@ -183,16 +210,26 @@ class AEPsychServer(object):
         logger.info("Server up, waiting for connections!")
         logger.info("Ctrl-C to quit!")
         # yeah we're not sanitizing input at all
-        while True:
-            request = self.socket.receive()
 
+        if self.is_using_thrift is True:
+            # no loop if using thrift
+            request = self.socket.receive()
             if "version" in request.keys():
                 result = self.versioned_handler(request)
             else:
                 result = self.unversioned_handler(request)
             self.socket.send(result)
-            if self.exit_server_loop:
-                break
+        else:
+            while True:
+                request = self.socket.receive()
+
+                if "version" in request.keys():
+                    result = self.versioned_handler(request)
+                else:
+                    result = self.unversioned_handler(request)
+                self.socket.send(result)
+                if self.exit_server_loop:
+                    break
 
     def replay(self, uuid_to_replay, skip_computations=False):
         """
@@ -709,13 +746,15 @@ def startServerAndRun(
         raise RuntimeError(e)
 
 
-def createSocket(socket_type="pysocket", port=5555):
+def createSocket(socket_type="pysocket", port=5555, msg_queue=None):
     logger.info(f"socket_type = {socket_type} port = {port}")
 
     if socket_type == "pysocket":
         sock = PySocket(port=port)
     elif socket_type == "zmq":
         sock = ZMQSocket(port=port)
+    elif socket_type == "thrift":
+        sock = ThriftSocketWrapper(msg_queue)
 
     return sock
 
@@ -839,7 +878,6 @@ def start_server(server_class, args):
         fname = _get_next_filename(".", "dump", "pkl")
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
-
 
 def main(server_class):
     args = parse_argument()
