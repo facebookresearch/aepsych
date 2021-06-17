@@ -4,7 +4,7 @@
 % This source code is licensed under the license found in the
 % LICENSE file in the root directory of this source tree.
 
-classdef AEPsychClient
+classdef AEPsychClient < handle
 % AEPsychClient  Client to AEPsych
 %   client = AEPsychClient() instantiates with the default params
 %   (localhost:5555)
@@ -52,6 +52,22 @@ classdef AEPsychClient
             response = self.send_recv(config_msg);
             self.strat_indices(end+1) = str2num(response);
         end
+        
+        function configure_by_file(self, filename)
+            fid=fopen(filename);
+            config_string='';
+            tline = fgetl(fid);
+            while ischar(tline)
+                config_string = strcat(config_string, tline,'\n'); 
+                tline = fgetl(fid);
+            end
+            fclose(fid);
+            config_string = strrep(config_string, '"', '\"');
+            config_msg = sprintf('{"type":"setup","version":"0.01","message":{"config_str":"%s"}}', config_string);
+            response = self.send_recv(config_msg);
+            self.strat_indices(end+1) = str2num(response);
+        end
+        
         function response=ask(self)
             % Request from the server the next trial configuration to be
             % run
@@ -79,7 +95,7 @@ classdef AEPsychClient
             % shares data, use SequentialStrategy in your configuration.
             ask_msg = sprintf('{"type":"resume","version":"0.01","message":{"strat_id":"%d"}}', strat_id);
             response = jsondecode(self.send_recv(ask_msg));
-            fprintf("Requested strat %d, got strat %s", strat_id, response);
+            fprintf("Requested strat %d, got strat %d\n", strat_id, response);
         end
     end
     % private methods

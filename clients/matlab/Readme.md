@@ -6,49 +6,13 @@ This lets you use matlab to interface with the AEPsych server to do model-based 
 This interface uses AEPsych's ini-based config, which gets passed as a string to the server:
 
 ```{matlab}
-%% make a config
-% TODO: load this from a file
-config = {'### Example config for threshold estimation from single observations. \n',
-    '[common]\n',
-    'lb = [1, 1]\n',
-    'ub = [6, 2.9]\n',
-    'outcome_type = single_probit\n',
-    'parnames = [par1, par2]\n',
-    'target = 0.75\n',
-    '\n',
-    '[experiment]\n',
-    'acqf = MonotonicMCLSE\n',
-    'modelbridge_cls = MonotonicSingleProbitModelbridge\n',
-    'init_strat_cls = SobolStrategy\n',
-    'opt_strat_cls = ModelWrapperStrategy\n',
-    'model = MonotonicRejectionGP\n',
-    '\n',
-    '[MonotonicMCLSE]\n',
-    'beta = 1.96\n',
-    'objective = ProbitObjective\n',
-    '\n',
-    '[MonotonicRejectionGP]\n',
-    'inducing_size = 100\n',
-    'mean_covar_factory = default_mean_covar_factory\n',
-    'monotonic_idxs = [1]\n'
-    '\n',
-    '[MonotonicSingleProbitModelbridge]\n',
-    'restarts = 10\n',
-    'samps = 1000\n',
-    '\n',
-    '[SobolStrategy]\n',
-    'n_trials = 10\n',
-    '\n',
-    '[ModelWrapperStrategy]\n',
-    'n_trials = 20\n',
-    'refit_every = 5\n'};
-
 
 %% Instantiate a client
 client = AEPsychClient('port', 5555);
 
-%% Send a config message to the server
-client.configure(config);
+%% Send a config message to the server, passing in a configuration filename
+filename = 'configs/single_lse_2d.ini';
+client.configure_by_file(filename);
 ```
 
 ## Ask and tell
@@ -68,7 +32,7 @@ doing this we can interleave different model runs.
 
 ```
 %% Send another config, this generates an independent new strat
-client.configure(config);
+client.configure_by_file(filename);
 
 %% Run some stuff on this config
 trial_params = client.ask();
