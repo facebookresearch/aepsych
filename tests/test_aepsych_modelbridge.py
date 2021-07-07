@@ -32,11 +32,6 @@ from torch.distributions import Normal
 from .common import f_1d, f_2d, cdf_new_novel_det, cdf_new_novel_det_3D
 
 
-class DummySocket(object):
-    def __init__(self):
-        self.dummy_receive = None
-
-
 class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
     def test_1d_single_probit_new_interface(self):
 
@@ -695,7 +690,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer(socket=DummySocket())
+        server = AEPsychServer()
         server.configure(config_dict=experiment_config)
 
         for _i in range(n_init + n_opt):
@@ -740,7 +735,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
         }
 
         resume_msg = {"type": "resume", "version": "0.01", "message": {"strat_id": 0}}
-        server = AEPsychServer(socket=DummySocket())
+        server = AEPsychServer()
 
         resp0 = server.versioned_handler(config1_msg)
 
@@ -763,7 +758,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer(socket=DummySocket())
+        server = AEPsychServer()
         server.configure(config_dict=experiment_config)
 
         conf = server.ask()
@@ -777,7 +772,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer(socket=DummySocket())
+        server = AEPsychServer()
         server.configure(config_dict=experiment_config)
 
         conf = server.ask()
@@ -791,7 +786,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer(socket=DummySocket())
+        server = AEPsychServer()
         server.configure(config_dict=experiment_config)
         conf = server.ask()
 
@@ -810,7 +805,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer(socket=DummySocket())
+        server = AEPsychServer()
         server.configure(config_dict=experiment_config)
         for _i in range(n_init + n_opt):
             next_config = server.ask()
@@ -844,7 +839,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer(socket=DummySocket())
+        server = AEPsychServer()
         server.configure(config_dict=experiment_config)
         for _i in range(n_init + n_opt):
             next_config = server.ask()

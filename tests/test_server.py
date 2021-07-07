@@ -15,10 +15,6 @@ import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 
 
-class DummySocket:
-    pass
-
-
 dummy_config = """
 [common]
 lb = [0]

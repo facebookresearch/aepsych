@@ -43,6 +43,10 @@ def _get_next_filename(folder, fname, ext):
     return f"{folder}/{fname}_{n+1}.{ext}"
 
 
+class DummySocket(object):
+    pass
+
+
 class ZMQSocket(object):
     def __init__(self, port, ip="*"):
         """sends/receives json-formated messages over ZMQ
@@ -133,6 +137,7 @@ class PySocket(object):
         sys.stdout.flush()
         self.conn.sendall(bytes(message, "utf-8"))
 
+
 class ThriftSocketWrapper(object):
     def __init__(self, msg_queue=None):
         self.msg_queue = msg_queue
@@ -161,6 +166,7 @@ class ThriftSocketWrapper(object):
         logger.info(f"Sending: {message}")
         self.msg_queue.put(message, block=True)
 
+
 class AEPsychServer(object):
     def __init__(self, socket=None, database_path=None, thrift=False):
         """Server for doing black box optimization using gaussian processes.
@@ -171,7 +177,7 @@ class AEPsychServer(object):
             TODO actually make an abstract interface to subclass from here
         """
         if socket is None:
-            self.socket = PySocket(port=5555)
+            self.socket = DummySocket()
         else:
             self.socket = socket
         self.db = None
