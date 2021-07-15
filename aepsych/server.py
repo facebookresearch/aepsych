@@ -59,8 +59,10 @@ class ZMQSocket(object):
         self.socket = self.context.socket(zmq.REP)
         self.socket.bind(f"tcp://{ip}:{port}")
 
+
     def close(self):
         self.socket.close()
+
 
     def receive(self):
         while True:
@@ -73,6 +75,7 @@ class ZMQSocket(object):
                     f"Ignoring message and trying again. The caught exception was: {e}."
                 )
         return msg
+
 
     def send(self, message):
         if type(message) == str:
@@ -95,8 +98,10 @@ class PySocket(object):
             self.socket = socket.create_server(addr)
         self.conn = None
 
+
     def close(self):
         self.socket.close()
+
 
     def receive(self):
         # catch the Error and reset the connection
@@ -123,6 +128,7 @@ class PySocket(object):
                 )
         return msg
 
+
     def send(self, message):
         if self.conn is None:
             logger.error("No connection to send to!")
@@ -142,15 +148,18 @@ class ThriftSocketWrapper(object):
     def __init__(self, msg_queue=None):
         self.msg_queue = msg_queue
 
+
     def close(self):
         # it's not a real socket so no close function need?
         pass
+
 
     def receive(self):
         # Remove and return an item from the queue. If queue is empty, wait until an item is available.
         message = self.msg_queue.get()
         logger.info(f"thrift socket got msg: {message}")
         return message
+
 
     def send(self, message):
         #add responds to msg_queue
@@ -197,8 +206,10 @@ class AEPsychServer(object):
         self.debug = False
         self.is_using_thrift = thrift
 
+
     def cleanup(self):
         self.socket.close()
+
 
     def serve(self):
         """Run the server. Note that all configuration outside of socket type and port
@@ -236,6 +247,7 @@ class AEPsychServer(object):
                 self.socket.send(result)
                 if self.exit_server_loop:
                     break
+
 
     def replay(self, uuid_to_replay, skip_computations=False):
         """
@@ -293,6 +305,7 @@ class AEPsychServer(object):
                 result = self.unversioned_handler(request)
         self.is_performing_replay = False
 
+
     def get_final_strat_from_replay(self, uuid_of_replay=None):
         if uuid_of_replay is None:
             records = self.db.get_master_records()
@@ -323,6 +336,7 @@ class AEPsychServer(object):
                 self.strat.modelbridge.fit(self.strat.x, self.strat.y)
             return self.strat
 
+
     def _flatten_tell_record(self, rec):
         out = {}
         out["response"] = int(rec.message_contents["message"]["outcome"])
@@ -337,6 +351,7 @@ class AEPsychServer(object):
             out.update(rec.extra_info)
 
         return out
+
 
     def get_dataframe_from_replay(self, uuid_of_replay=None):
         if uuid_of_replay is None:
@@ -385,6 +400,7 @@ class AEPsychServer(object):
                 ] = post_var.detach().numpy()
         return out
 
+
     def versioned_handler(self, request):
         handled_types = ["setup", "resume", "ask"]
         if request["type"] == "setup":
@@ -418,6 +434,7 @@ class AEPsychServer(object):
             self.unversioned_handler(request)
         return ret_val
 
+
     def handle_setup_v01(self, request):
         logger.debug("got setup message!")
 
@@ -443,6 +460,7 @@ class AEPsychServer(object):
 
         return strat_id
 
+
     def handle_resume_v01(self, request):
         logger.debug("got resume message!")
         strat_id = int(request["message"]["strat_id"])
@@ -452,6 +470,7 @@ class AEPsychServer(object):
                 master_table=self._db_master_record, type="resume", request=request
             )
         return self.strat_id
+
 
     def handle_ask_v01(self, request):
         """Returns dictionary with two entries:
@@ -465,6 +484,7 @@ class AEPsychServer(object):
                 master_table=self._db_master_record, type="ask", request=request
             )
         return new_config
+
 
     def unversioned_handler(self, request):
         message_map = {
@@ -491,6 +511,7 @@ class AEPsychServer(object):
                 )
                 raise RuntimeError(exception_message)
 
+
     def handle_setup(self, request):
         logger.debug("got setup message!")
 
@@ -511,6 +532,7 @@ class AEPsychServer(object):
 
         return new_config
 
+
     def handle_ask(self, request):
         logger.debug("got ask message!")
         new_config = self.ask()
@@ -521,6 +543,7 @@ class AEPsychServer(object):
             )
 
         return new_config
+
 
     def handle_tell(self, request):
         logger.debug("got tell message!")
@@ -547,6 +570,7 @@ class AEPsychServer(object):
 
         return "acq"
 
+
     def handle_update(self, request):
         # update is syntactic sugar for tell, then ask
         logger.debug("got update message!")
@@ -556,6 +580,7 @@ class AEPsychServer(object):
         new_config = self.handle_ask(request)
 
         return new_config
+
 
     def handle_params(self, request):
         logger.debug("got parameters message!")
@@ -569,6 +594,7 @@ class AEPsychServer(object):
         }
         return config_setup
 
+
     def handle_query(self, request):
         logger.debug("got query message!")
         if not self.is_performing_replay:
@@ -577,6 +603,7 @@ class AEPsychServer(object):
             )
         response = self.query(**request["message"])
         return response
+
 
     def query(
         self,
@@ -628,6 +655,7 @@ class AEPsychServer(object):
             raise RuntimeError("unknown query type!")
         return response
 
+
     @property
     def strat(self):
         if self.strat_id == -1:
@@ -635,13 +663,16 @@ class AEPsychServer(object):
         else:
             return self._strats[self.strat_id]
 
+
     @strat.setter
     def strat(self, s):
         self._strats.append(s)
 
+
     @property
     def n_strats(self):
         return len(self._strats)
+
 
     def ask(self):
         """get the next point to query from the model
@@ -654,11 +685,13 @@ class AEPsychServer(object):
         next_x = self.strat.gen()[0]
         return self._tensor_to_config(next_x)
 
+
     def _tensor_to_config(self, next_x):
         config = {}
         for name, val in zip(self.parnames, next_x):
             config[name] = [float(val)]
         return config
+
 
     def _config_to_tensor(self, config):
         unpacked = [config[name] for name in self.parnames]
@@ -669,6 +702,7 @@ class AEPsychServer(object):
         else:
             x = np.stack(unpacked)
         return x
+
 
     def tell(self, outcome, config):
         """tell the model which input was run and what the outcome was
@@ -684,6 +718,7 @@ class AEPsychServer(object):
         y = outcome
         self.strat.add_data(x, y)
 
+
     def _configure(self, config):
         self.parnames = config.str_to_list(
             config.get("experiment", "parnames"), element_type=str
@@ -696,9 +731,11 @@ class AEPsychServer(object):
         self.strat_id = self.n_strats - 1  # 0-index strats
         return self.strat_id
 
+
     def configure(self, **config_args):
         config = Config(**config_args)
         return self._configure(config)
+
 
     def __getstate__(self):
         ### nuke the socket since it's not pickleble
@@ -716,7 +753,7 @@ def startServerAndRun(
         if config_path is not None:
             with open(config_path) as f:
                 config_str = f.read()
-            server.configure(config_str)
+            server.configure(config_str=config_str)
 
         if socket is not None:
             if uuid_of_replay is not None:
@@ -884,6 +921,7 @@ def start_server(server_class, args):
         fname = _get_next_filename(".", "dump", "pkl")
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
+
 
 def main(server_class):
     args = parse_argument()
