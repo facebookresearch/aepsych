@@ -1,7 +1,7 @@
 matplotlib
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch
-pyzmq
+pyzmq==19.0.2
 scipy
 sklearn
 gpytorch>=1.4
