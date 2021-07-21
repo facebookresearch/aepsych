@@ -17,6 +17,8 @@ pip install -e .
 Eventually, `AEPsych` will be available on PyPI and pip-installable directly.
 
 ## Usage
+**See the code examples [here](https://github.com/facebookresearch/aepsych/tree/main/examples).**  
+
 The canonical way of using `AEPsych` is to launch it in server mode.
 ```
 python aepsych/server.py
