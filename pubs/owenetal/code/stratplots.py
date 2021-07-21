@@ -149,6 +149,8 @@ def plot_audiometric_lse_grids(
             ylabel="Intensity (dB HL)",
             flipx=True,
             logx=True,
+            show=False,
+            include_legend=False
         )
         for ax_, strat_, title_ in zip(plotting_axes, strats, titles)
     ]
@@ -284,6 +286,8 @@ def plot_novel_lse_grids(sobol_trials, opt_trials, funtype="detection"):
             logx=False,
             yes_label=yes_label,
             no_label=no_label,
+            show=False, 
+            include_legend=False
         )
         for ax_, strat_, title_ in zip(plotting_axes, strats, titles)
     ]

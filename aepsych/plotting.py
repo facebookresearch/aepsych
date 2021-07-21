@@ -10,7 +10,7 @@ import numpy as np
 from aepsych.utils import get_lse_interval, _dim_grid, get_lse_contour
 from scipy.stats import norm
 
-
+# TODO: Restructure plot_strat_1d and plot_strat_2d so that they can share code
 def plot_strat_1d(
     strat,
     title,
@@ -119,6 +119,10 @@ def plot_strat_2d(
     flipx=False,
     logx=False,
     gridsize=30,
+    show=True,
+    save_path=None,
+    include_legend=True,
+    include_colobar=True
 ):
 
     x, y = strat.x, strat.y
@@ -132,10 +136,10 @@ def plot_strat_2d(
 
     if flipx:
         extent = np.r_[strat.lb[0], strat.ub[0], strat.ub[1], strat.lb[1]]
-        _ = ax.imshow(phimean, aspect="auto", origin="upper", extent=extent, alpha=0.5)
+        colormap = ax.imshow(phimean, aspect="auto", origin="upper", extent=extent, alpha=0.5)
     else:
         extent = np.r_[strat.lb[0], strat.ub[0], strat.lb[1], strat.ub[1]]
-        _ = ax.imshow(phimean, aspect="auto", origin="lower", extent=extent, alpha=0.5)
+        colormap = ax.imshow(phimean, aspect="auto", origin="lower", extent=extent, alpha=0.5)
 
     # hacky relabel to be in logspace
     if logx:
@@ -143,8 +147,8 @@ def plot_strat_2d(
         ax.set_xticks(ticks=locs)
         ax.set_xticklabels(2.0 ** locs)
 
-    ax.plot(x[y == 0, 0], x[y == 0, 1], "ro", alpha=0.7, label="Nondetected trials")
-    ax.plot(x[y == 1, 0], x[y == 1, 1], "bo", alpha=0.7, label="Detected trials")
+    ax.plot(x[y == 0, 0], x[y == 0, 1], "ro", alpha=0.7, label=no_label)
+    ax.plot(x[y == 1, 0], x[y == 1, 1], "bo", alpha=0.7, label=yes_label)
 
     if target_level is not None:  # plot threshold
         mono_grid = np.linspace(strat.lb[1], strat.ub[1], num=gridsize)
@@ -172,7 +176,7 @@ def plot_strat_2d(
         if true_testfun is not None:
             true_f = true_testfun(grid).reshape(gridsize, gridsize)
             true_thresh = get_lse_contour(
-                norm.cdf(true_f), mono_grid, level=target_level, lb=-1.0, ub=1.0
+                norm.cdf(true_f), mono_grid, level=target_level, lb=strat.lb[-1], ub=strat.ub[-1]
             )
             ax.plot(context_grid, true_thresh, label="Ground truth threshold")
 
@@ -180,3 +184,22 @@ def plot_strat_2d(
     ax.set_ylabel(ylabel)
 
     ax.set_title(title)
+
+    if include_colobar:
+        # TODO: Find a better way to handle the colorbar when the function is given a pre-existing axis
+        try:
+            colorbar = fig.colorbar(colormap)
+            colorbar.set_label(f"Probability of {yes_label}")
+
+        except NameError:
+            pass
+    
+    if include_legend:
+        plt.legend(loc="center left", bbox_to_anchor=(1.5, 0.5))
+
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches="tight")
+
+    if show:
+        plt.tight_layout()
+        plt.show()
