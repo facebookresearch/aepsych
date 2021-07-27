@@ -117,6 +117,7 @@ def get_lse_interval(
     lb=-np.inf,
     ub=np.inf,
     gridsize=30,
+    **kwargs
 ):
 
     xgrid = torch.Tensor(
@@ -130,7 +131,7 @@ def get_lse_interval(
         .T
     )
 
-    samps = modelbridge.sample(xgrid, num_samples=n_samps)
+    samps = modelbridge.sample(xgrid, num_samples=n_samps, **kwargs)
     samps = [s.reshape((gridsize,) * modelbridge.dim) for s in samps.detach().numpy()]
     contours = np.stack(
         [

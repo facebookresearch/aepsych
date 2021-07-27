@@ -100,8 +100,8 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
             x = x[:, None]
         return self.model.predict(x)
 
-    def sample(self, x, num_samples=None):
-        return self.model.sample(x, num_samples)
+    def sample(self, x, **kwargs):
+        return self.model.sample(x, **kwargs)
 
     def fit(self, train_x, train_y):
         self.model.fit(train_x, train_y, np.c_[self.lb, self.ub])

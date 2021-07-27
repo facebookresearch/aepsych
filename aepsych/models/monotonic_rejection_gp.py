@@ -27,6 +27,7 @@ from gpytorch.means import Mean
 from gpytorch.mlls.variational_elbo import VariationalELBO
 from scipy.stats import norm
 from torch import Tensor
+import warnings
 
 
 def default_loss_constraint_fun(loss, candidates):
@@ -60,7 +61,7 @@ class MonotonicRejectionGP:
         mean_module: Optional[Mean] = None,
         num_induc: int = 25,
         num_samples: int = 250,
-        num_rejection_samples: int = 4096,
+        num_rejection_samples: int = 5000,
         acqf: MonotonicMCAcquisition = MonotonicMCLSE,
         objective: Optional[MCAcquisitionObjective] = None,
         extra_acqf_args: Optional[dict[str, object]] = None,
@@ -200,6 +201,11 @@ class MonotonicRejectionGP:
             num_samples = self.num_samples
         if num_rejection_samples is None:
             num_rejection_samples = self.num_rejection_samples
+
+        rejection_ratio = 20
+        if num_samples * rejection_ratio > num_rejection_samples:
+            warnings.warn(f"num_rejection_samples should be at least {rejection_ratio} times greater than num_samples.")
+
         n = X.shape[0]
         # Augment with derivative index
         x_aug = self._augment_with_deriv_index(X, 0)
@@ -376,7 +382,7 @@ class MonotonicGPLSE(MonotonicRejectionGP):
         target_value: Optional[float] = None,
         num_induc: int = 25,
         num_samples: int = 250,
-        num_rejection_samples: int = 4096,
+        num_rejection_samples: int = 5000,
         extra_acqf_args: Optional[dict[str, object]] = None,
     ) -> None:
         super().__init__(
