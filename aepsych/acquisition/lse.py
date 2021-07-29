@@ -73,8 +73,8 @@ class LevelSetEstimation(AnalyticAcquisitionFunction):
             A `(b)`-dim Tensor of LSE values at the given
             design points `X`.
         """
-        self.beta = self.beta.to(X)
-        self.target = self.target.to(X)
+        self.beta: torch.Tensor = self.beta.to(X)
+        self.target: torch.Tensor = self.target.to(X)
         posterior = self._get_posterior(X=X)
         batch_shape = X.shape[:-2]
         mean = posterior.mean.view(batch_shape)

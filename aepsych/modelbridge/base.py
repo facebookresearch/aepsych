@@ -37,13 +37,6 @@ def _prune_extra_acqf_args(acqf, extra_acqf_args):
     return {k: v for k, v in extra_acqf_args.items() if k in acqf_args_expected}
 
 
-def _prune_extra_acqf_args(acqf, extra_acqf_args):
-    # prune extra args needed, ignore the rest
-    # (this helps with API consistency)
-    acqf_args_expected = signature(acqf).parameters.keys()
-    return {k: v for k, v in extra_acqf_args.items() if k in acqf_args_expected}
-
-
 class ModelBridge(object):
     """Base class for objects combining an interpolator/model, acquisition, and data
     Loosely inspired by https://ax.dev/api/modelbridge.html#module-ax.modelbridge.base
@@ -187,35 +180,35 @@ class ModelBridge(object):
         return fmean, fvar
 
     def get_max(self):
-        #TODO: Do this the right way, e.g. w/ gradient descent. Uses grid estimate for now.
-        d = _dim_grid(self, gridsize=10) #If it's >2D, gridsize must stay small
+        # TODO: Do this the right way, e.g. w/ gradient descent. Uses grid estimate for now.
+        d = _dim_grid(self, gridsize=10)  # If it's >2D, gridsize must stay small
         fmean, fvar = self.predict(d)
         fmean = fmean.detach().numpy()
         fmax = np.max(fmean)
-        fmax_loc = d[np.where(fmean==fmax)[0][0]].detach().numpy()
+        fmax_loc = d[np.where(fmean == fmax)[0][0]].detach().numpy()
         return fmax, fmax_loc
 
     def get_min(self):
-        #TODO: do this the right way w/ gradient descent. Uses grid estimate for now.
+        # TODO: do this the right way w/ gradient descent. Uses grid estimate for now.
         d = _dim_grid(self, gridsize=10)
         fmean, fvar = self.predict(d)
         fmean = fmean.detach().numpy()
         fmin = np.min(fmean)
-        fmin_loc = d[np.where(fmean==fmin)[0][0]].detach().numpy()
+        fmin_loc = d[np.where(fmean == fmin)[0][0]].detach().numpy()
         return fmin, fmin_loc
 
     def inv_query(self, y, locked_dims, probability_space=False):
-        #TODO: do this the right way w/ iteration and/or interpolation. Uses grid estimate for now.
-        #Look for point with value closest to y, subject the dict of locked dims
+        # TODO: do this the right way w/ iteration and/or interpolation. Uses grid estimate for now.
+        # Look for point with value closest to y, subject the dict of locked dims
         d = _dim_grid(self, gridsize=10)
         for locked_dim in locked_dims.keys():
-            d = d[np.where(d[:,locked_dim] == self.lb[locked_dim])]
-            d[:,locked_dim] = locked_dims[locked_dim]
+            d = d[np.where(d[:, locked_dim] == self.lb[locked_dim])]
+            d[:, locked_dim] = locked_dims[locked_dim]
         fmean, fvar = self.predict(d)
         fmean = fmean.detach().numpy()
         if probability_space:
             fmean = norm.cdf(fmean)
-        nearest_ind = np.argmin(np.abs(fmean-y))
+        nearest_ind = np.argmin(np.abs(fmean - y))
         nearest_y = fmean[nearest_ind]
         nearest_loc = d[nearest_ind].detach().numpy()
         return nearest_y, nearest_loc

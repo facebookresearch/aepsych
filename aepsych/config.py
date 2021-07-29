@@ -14,11 +14,12 @@ import botorch
 import gpytorch
 import torch
 
+from typing import Dict
 
 class Config(configparser.ConfigParser):
 
     # names in these packages can be referred to by string name
-    registered_names = {}
+    registered_names: Dict[str, object] = {}
 
     def __init__(
         self, config_dict=None, config_fnames=None, config_list=None, config_str=None
