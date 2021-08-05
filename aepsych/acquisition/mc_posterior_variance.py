@@ -18,7 +18,17 @@ from aepsych.acquisition.objective import ProbitObjective
 from torch import Tensor
 
 
-def balv_acq(obj_samps):
+def balv_acq(obj_samps: torch.Tensor) -> torch.Tensor:
+    """Evaluate BALV (posterior variance) on a set of objective samples. 
+
+    Args:
+        obj_samps (torch.Tensor): Samples from the GP, transformed by the objective. 
+            Should be samples x batch_shape. 
+
+    Returns:
+        torch.Tensor: Acquisition function value. 
+    """
+
     # the output of objective is of shape num_samples x batch_shape x d_out
     # objective should project the last dimension to 1d,
     # so incoming should be samples x batch_shape, we take var in samp dim

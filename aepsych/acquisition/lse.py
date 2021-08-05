@@ -113,7 +113,20 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
         self.beta = beta
         self.target = target
 
-    def acquisition(self, obj_samples):
+    def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
+        """Evaluate the acquisition based on objective samples. 
+
+        Usually you should not call this directly unless you are
+        subclassing this class and modifying how objective samples
+        are generated. 
+
+        Args:
+            obj_samples (torch.Tensor): Samples from the model, transformed
+                by the objective. Should be samples x batch_shape. 
+
+        Returns:
+            torch.Tensor: Acquisition function at the sampled values. 
+        """
         mean = obj_samples.mean(dim=0)
         variance = obj_samples.var(dim=0)
         # prevent numerical issues if probit makes all the values 1 or 0
@@ -123,6 +136,14 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
 
     @t_batch_mode_transform()
     def forward(self, X: torch.Tensor) -> torch.Tensor:
+        """Evaluate the acquisition function
+
+        Args:
+            X (torch.Tensor): Points at which to evaluate. 
+
+        Returns:
+            torch.Tensor: Value of the acquisition functiona at these points. 
+        """
 
         post = self.model.posterior(X)
         samples = self.sampler(post)  # num_samples x batch_shape x q x d_out

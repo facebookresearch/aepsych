@@ -17,9 +17,13 @@ from torch import Tensor
 
 from .rejection_sampler import RejectionSampler
 
+
 class MonotonicMCAcquisition(AcquisitionFunction):
     """
-    Acquisition function for use with the rejection sampling monotonic GP.
+    Acquisition function base class for use with the rejection sampling
+        monotonic GP. This handles the bookkeeping of the derivative
+        constraint points -- implement specific monotonic MC acquisition
+        in subclasses.
     """
 
     def __init__(
@@ -30,6 +34,15 @@ class MonotonicMCAcquisition(AcquisitionFunction):
         num_rejection_samples: int = 1024,
         objective: Optional[MCAcquisitionObjective] = None,
     ) -> None:
+        """Initialize MonotonicMCAcquisition
+
+        Args:
+            model (Model): Model to use, usually a MixedDerivativeVariationalGP.
+            num_samples (int, optional): Number of samples to keep from the rejection sampler. . Defaults to 32.
+            num_rejection_samples (int, optional): Number of rejection samples to draw. Defaults to 1024.
+            objective (Optional[MCAcquisitionObjective], optional): Objective transform of the GP output
+                before evaluating the acquisition. Defaults to identity transform.
+        """
         super().__init__(model=model)
         self.deriv_constraint_points = deriv_constraint_points
         self.num_samples = num_samples
@@ -43,7 +56,15 @@ class MonotonicMCAcquisition(AcquisitionFunction):
         self.add_module("objective", objective)
 
     def forward(self, X: Tensor) -> Tensor:
-        # X is (b) x q x d.
+        """Evaluate the acquisition function at a set of points. 
+
+        Args:
+            X (Tensor): Points at which to evaluate the acquisition function. 
+                Should be (b) x q x d, and q should be 1. 
+
+        Returns:
+            Tensor: Acquisition function value at these points. 
+        """
         # This is currently doing joint samples over (b), and requiring q=1
         # TODO T68656582 support batches properly.
         if len(X.shape) == 3:
@@ -87,6 +108,18 @@ class MonotonicMCLSE(MonotonicMCAcquisition):
         beta: float = 3.84,
         objective: Optional[MCAcquisitionObjective] = None,
     ) -> None:
+        """Level set estimation acquisition function for use with monotonic models. 
+
+        Args:
+            model (Model): Underlying model object, usually should be MixedDerivativeVariationalGP. 
+            target (float): Level set value to target (after the objective). 
+            num_samples (int, optional): Number of MC samples to draw in MC acquisition. Defaults to 32.
+            num_rejection_samples (int, optional): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.
+            beta (float, optional): Parameter of the LSE acquisition function that governs exploration vs
+                exploitation (similarly to the same parameter in UCB). Defaults to 3.84, which maps to the straddle
+                heuristic of Bryan et al. 2005. 
+            objective (Optional[MCAcquisitionObjective], optional): Objective transform. Defaults to identity transform.
+        """
         self.beta = beta
         self.target = target
         super().__init__(

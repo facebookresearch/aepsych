@@ -25,6 +25,16 @@ class RejectionSampler(MCSampler):
     def __init__(
         self, num_samples: int, num_rejection_samples: int, constrained_idx: Tensor
     ):
+        """Initialize RejectionSampler
+
+        Args:
+            num_samples (int): Number of samples to return. Note that if fewer samples 
+                than this number are positive in the required dimension, the remaining
+                samples returned will be the "least violating", i.e. closest to 0. 
+            num_rejection_samples (int): Number of samples to draw before rejecting. 
+            constrained_idx (Tensor): Indices of input dimensions that should be 
+                constrained positive.
+        """
         self.num_samples = num_samples
         self.num_rejection_samples = num_rejection_samples
         self.constrained_idx = constrained_idx
@@ -38,6 +48,15 @@ class RejectionSampler(MCSampler):
         self.base_samples = None
 
     def forward(self, posterior: Posterior) -> Tensor:
+        """Run the rejection sampler. 
+
+        Args:
+            posterior (Posterior): The unconstrained GP posterior object
+                to perform rejection samples on. 
+
+        Returns:
+            Tensor: Kept samples. 
+        """
         samples = posterior.rsample(
             sample_shape=torch.Size([self.num_rejection_samples])
         )
