@@ -24,7 +24,7 @@ from aepsych.benchmark.test_functions import (
     novel_discrimination_testfun,
 )
 from aepsych.config import Config
-from aepsych.plotting import plot_strat_2d, plot_strat_1d
+from aepsych.plotting import plot_strat
 from aepsych.strategy import SequentialStrategy
 from scipy.stats import norm
 
@@ -140,7 +140,7 @@ def plot_audiometric_lse_grids(
     plotting_axes = [axes[1, 0], axes[0, 1], axes[0, 0]]
     fig.delaxes(axes[1, 1])
     _ = [
-        plot_strat_2d(
+        plot_strat(
             strat=strat_,
             title=title_,
             ax=ax_,
@@ -150,7 +150,8 @@ def plot_audiometric_lse_grids(
             flipx=True,
             logx=True,
             show=False,
-            include_legend=False
+            include_legend=False,
+            include_colorbar=False
         )
         for ax_, strat_, title_ in zip(plotting_axes, strats, titles)
     ]
@@ -277,17 +278,16 @@ def plot_novel_lse_grids(sobol_trials, opt_trials, funtype="detection"):
     plotting_axes = [axes[1, 0], axes[0, 1], axes[0, 0]]
     fig.delaxes(axes[1, 1])
     _ = [
-        plot_strat_2d(
+        plot_strat(
             strat=strat_,
             title=title_,
             ax=ax_,
             true_testfun=testfun,
-            flipx=False,
-            logx=False,
             yes_label=yes_label,
             no_label=no_label,
-            show=False, 
-            include_legend=False
+            show=False,
+            include_legend=False,
+            include_colorbar=False
         )
         for ax_, strat_, title_ in zip(plotting_axes, strats, titles)
     ]
@@ -342,11 +342,11 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
     }
 
     def true_testfun(x):
-        return 3 * x
+        return norm.cdf(3 * x)
 
     class SimpleLinearProblem(Problem):
         def f(self, x):
-            return true_testfun(x)
+            return norm.ppf(true_testfun(x))
 
     lb = [-3]
     ub = [3]
@@ -377,12 +377,14 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
     first_gens = [s.gen() for s in strats]
 
     fig, ax = plt.subplots(2, 2)
-    plot_strat_1d(
+    plot_strat(
         strat=strats[0],
         title=f"First active trial\n (after {sobol_trials} Sobol trials)",
         ax=ax[0, 0],
         true_testfun=true_testfun,
         target_level=target_level,
+        show=False,
+        include_legend=False
     )
     samps = [
         norm.cdf(s.sample(torch.Tensor(g), num_samples=10000))
@@ -415,8 +417,8 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
     ]
 
     _ = [
-        plot_strat_1d(
-            strat=s, title=t, ax=a, true_testfun=true_testfun, target_level=target_level
+        plot_strat(
+            strat=s, title=t, ax=a, true_testfun=true_testfun, target_level=target_level, show=False, include_legend=False
         )
         for a, s, t in zip(plotting_axes, strats, titles)
     ]
