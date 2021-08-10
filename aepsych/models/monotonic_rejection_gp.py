@@ -7,9 +7,16 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
+from aepsych.acquisition.monotonic_rejection import (
+    MonotonicMCAcquisition,
+    MonotonicMCLSE,
+)
+from aepsych.acquisition.objective import ProbitObjective
+from aepsych.acquisition.rejection_sampler import RejectionSampler
+from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
 from botorch.acquisition.monte_carlo import MCAcquisitionObjective
 from botorch.acquisition.objective import IdentityMCObjective
 from botorch.fit import fit_gpytorch_model
@@ -17,10 +24,6 @@ from botorch.logging import logger
 from botorch.optim.initializers import gen_batch_initial_conditions
 from botorch.optim.utils import columnwise_clamp, fix_features
 from botorch.utils.sampling import draw_sobol_samples
-from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition, MonotonicMCLSE
-from aepsych.acquisition.objective import ProbitObjective
-from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
-from aepsych.acquisition.rejection_sampler import RejectionSampler
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 from gpytorch.means import Mean
@@ -30,26 +33,35 @@ from torch import Tensor
 import warnings
 
 
-def default_loss_constraint_fun(loss, candidates):
+def default_loss_constraint_fun(
+    loss: torch.Tensor, candidates: torch.Tensor
+) -> torch.Tensor:
+    """Identity transform for constrained optimization.
+
+    This simply returns loss as-is. Write your own versions of this
+    for constrained optimization by e.g. interior point method.
+
+    Args:
+        loss (torch.Tensor): Value of loss at candidate points.
+        candidates (torch.Tensor): Location of candidate points.
+
+    Returns:
+        torch.Tensor: New loss (unchanged)
+    """
     return loss
 
 
 class MonotonicRejectionGP:
     """A monotonic GP using rejection sampling.
 
-    Args:
-        likelihood: Link function and likelihood. Can be 'probit-bernoulli' or
-            'identity-gaussian'.
-        monotonic_idxs: List of which columns of X should be given monotonicity
-            constraints.
-        fixed_prior_mean: Fixed prior mean. If classification, should be the prior
-            classification probability (not the latent function value).
-        covar_module: Covariance kernel to use (default: scaled RBF).
-        mean_module: Mean module to use (default: constant mean).
-        num_induc: Number of inducing points for variational GP.
-        num_samples: Number of samples for estimating posterior on predict or
-            acquisition function evaluation.
-        num_rejection_samples: Number of samples used for rejection sampling.
+    This takes the same insight as in e.g. Riihimäki & Vehtari 2010 (that the derivative of a GP
+    is likewise a GP) but instead of approximately optimizing the likelihood of the model
+    using EP, we optimize an unconstrained model by VI and then draw monotonic samples
+    by rejection sampling.
+
+    References:
+        Riihimäki, J., & Vehtari, A. (2010). Gaussian processes with monotonicity information.
+            Journal of Machine Learning Research, 9, 645–652.
     """
 
     def __init__(
@@ -63,9 +75,28 @@ class MonotonicRejectionGP:
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
         acqf: MonotonicMCAcquisition = MonotonicMCLSE,
-        objective: Optional[MCAcquisitionObjective] = None,
+        objective: Optional[Union[MCAcquisitionObjective, object]] = None,
         extra_acqf_args: Optional[dict[str, object]] = None,
     ) -> None:
+        """Initialize MonotonicRejectionGP.
+
+        Args:
+            likelihood (str): Link function and likelihood. Can be 'probit-bernoulli' or
+                'identity-gaussian'.
+            monotonic_idxs (List[int]): List of which columns of x should be given monotonicity
+            constraints.
+            fixed_prior_mean (Optional[float], optional): Fixed prior mean. If classification, should be the prior
+            classification probability (not the latent function value). Defaults to None.
+            covar_module (Optional[Kernel], optional): Covariance kernel to use (default: scaled RBF).
+            mean_module (Optional[Mean], optional): Mean module to use (default: constant mean).
+            num_induc (int, optional): Number of inducing points for variational GP.]. Defaults to 25.
+            num_samples (int, optional): Number of samples for estimating posterior on predict or
+            acquisition function evaluation. Defaults to 250.
+            num_rejection_samples (int, optional): Number of samples used for rejection sampling. Defaults to 4096.
+            acqf (MonotonicMCAcquisition, optional): Acquisition function to use for querying points. Defaults to MonotonicMCLSE.
+            objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
+            extra_acqf_args (Optional[dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
+        """
         assert likelihood in ["probit-bernoulli", "identity-gaussian"]
         self.likelihood = likelihood
         self.num_induc = num_induc
@@ -100,13 +131,12 @@ class MonotonicRejectionGP:
     def fit(
         self, train_x: Tensor, train_y: Tensor, bounds: List[Tuple[float, float]]
     ) -> None:
-        """
-        Fit the model.
+        """Fit the model
 
         Args:
-            train_x: Train X.
-            train_y: Train Y. Should be (n x 1).
-            bounds: List of (lb, ub) tuples for each column in X.
+            train_x (Tensor): Training x points
+            train_y (Tensor): Training y points. Should be (n x 1).
+            bounds (List[Tuple[float, float]]): List of (lb, ub) tuples for each column in X.
         """
         self.dtype = train_x.dtype
         self.device = train_x.device
@@ -163,12 +193,13 @@ class MonotonicRejectionGP:
     def update(self, train_x: Tensor, train_y: Tensor, warmstart: bool = True) -> None:
         """
         Update the model with new data.
+
         Expects the full set of data, not the incremental new data.
 
         Args:
-            train_x: Train X.
-            train_y: Train Y. Should be (n x 1).
-            warmstart: If True, warm-start model fitting with current parameters.
+            train_x (Tensor): Train X.
+            train_y (Tensor): Train Y. Should be (n x 1).
+            warmstart (bool): If True, warm-start model fitting with current parameters.
         """
         if warmstart:
             model_state_dict = self.model.state_dict()
@@ -192,8 +223,8 @@ class MonotonicRejectionGP:
         """Sample from monotonic GP
 
         Args:
-            X: tensor of n points at which to sample
-            num_samples: how many points to sample (default: self.num_samples)
+            X (Tensor): tensor of n points at which to sample
+            num_samples (int, optional): how many points to sample (default: self.num_samples)
 
         Returns: a Tensor of shape [n_samp, n]
         """
@@ -446,9 +477,9 @@ class MonotonicGPRand(MonotonicGPLSE):
 
     def gen(
         self,
-        model_gen_options: Optional[Dict[str, Any]] = None,
+        model_gen_options: Optional[Dict[str, object]] = None,
         explore_features: Optional[List[int]] = None,
-    ) -> Tuple[torch.Tensor, Optional[List[Dict[str, Any]]]]:
+    ) -> Tuple[torch.Tensor, Optional[List[Dict[str, object]]]]:
         X = self.bounds_[0] + torch.rand(self.bounds_.shape[1]) * (
             self.bounds_[1] - self.bounds_[0]
         )

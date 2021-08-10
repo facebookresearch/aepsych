@@ -9,12 +9,14 @@ import configparser
 import pprint
 import warnings
 from types import ModuleType
+from typing import Dict, TypeVar
 
 import botorch
 import gpytorch
 import torch
 
-from typing import Dict
+_T = TypeVar("_T")
+
 
 class Config(configparser.ConfigParser):
 
@@ -135,7 +137,7 @@ class Config(configparser.ConfigParser):
         return f"Config at {hex(id(self))}: \n {str(self)}"
 
     @classmethod
-    def register_module(cls, module):
+    def register_module(cls: _T, module: ModuleType):
         cls.registered_names.update(
             {
                 name: getattr(module, name)
@@ -145,7 +147,7 @@ class Config(configparser.ConfigParser):
         )
 
     @classmethod
-    def register_object(cls, obj):
+    def register_object(cls: _T, obj: object):
         if obj.__name__ in cls.registered_names.keys():
             warnings.warn(
                 f"Registering {obj.__name__} but already"
