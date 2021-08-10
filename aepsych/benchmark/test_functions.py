@@ -6,11 +6,11 @@
 # LICENSE file in the root directory of this source tree.
 
 import io
+from typing import Callable
 
 import numpy as np
 import pandas as pd
-from scipy.interpolate import CubicSpline
-from scipy.interpolate import interp1d
+from scipy.interpolate import CubicSpline, interp1d
 from scipy.stats import norm
 
 # manually scraped data from doi:10.1007/s10162-013-0396-x fig 2
@@ -52,10 +52,20 @@ freq,thresh,phenotype
 dubno_data = pd.read_csv(io.StringIO(raw))
 
 
-def make_songetal_threshfun(x, y):
-    """
-    makes a function that generates a threshold function as in Song
-    et al.
+def make_songetal_threshfun(x: np.ndarray, y: np.ndarray) -> Callable[[float], float]:
+    """Generate a synthetic threshold function by interpolation of real data.
+
+    Real data is from Dubno et al. 2013, and procedure follows Song et al. 2017, 2018.
+    See make_songetal_testfun for more detail.
+
+    Args:
+        x (np.ndarray): Frequency
+        y (np.ndarray): Threshold
+
+    Returns:
+        Callable[[float], float]: Function that interpolates the given
+            frequencies and thresholds and returns threshold as a function
+            of frequency.
     """
     f_interp = CubicSpline(x, y, extrapolate=False)
     f_extrap = interp1d(x, y, fill_value="extrapolate")
@@ -70,18 +80,37 @@ def make_songetal_threshfun(x, y):
     return f_combo
 
 
-def make_songetal_testfun(phenotype="Metabolic", beta=1):
-    """
-    Makes a test function as used by:
-    Song, X. D., Garnett, R., & Barbour, D. L. (2017).
-    Psychometric function estimation by probabilistic classification.
-    The Journal of the Acoustical Society of America, 141(4), 2513–2525.
-    https://doi.org/10.1121/1.4979594
+def make_songetal_testfun(
+    phenotype: str = "Metabolic", beta: float = 1
+) -> Callable[[np.ndarray, bool], np.ndarray]:
+    """Make an audiometric test function following Song et al. 2017.
+
+    To do so,we first compute a threshold by interpolation/extrapolation
+    from real data, then assume a linear psychometric function in intensity
+    with slope beta.
+
+    Args:
+        phenotype (str, optional): Audiometric phenotype from Dubno et al. 2013.
+            Specifically, one of "Metabolic", "Sensory", "Metabolic+Sensory",
+            or "Older-normal". Defaults to "Metabolic".
+        beta (float, optional): Psychometric function slope. Defaults to 1.
+
+    Returns:
+        Callable[[np.ndarray, bool], np.ndarray]: A test function taking a [b x 2] array of points and returning the psychometric function value at those points.
+
+    Raises:
+        AssertionError: if an invalid phenotype is passed.
+
+    References:
+        Song, X. D., Garnett, R., & Barbour, D. L. (2017).
+            Psychometric function estimation by probabilistic classification.
+            The Journal of the Acoustical Society of America, 141(4), 2513–2525.
+            https://doi.org/10.1121/1.4979594
     """
     valid_phenotypes = ["Metabolic", "Sensory", "Metabolic+Sensory", "Older-normal"]
     assert phenotype in valid_phenotypes, f"Phenotype must be one of {valid_phenotypes}"
-    x = dubno_data[dubno_data.phenotype == phenotype].freq
-    y = dubno_data[dubno_data.phenotype == phenotype].thresh
+    x = dubno_data[dubno_data.phenotype == phenotype].freq.values
+    y = dubno_data[dubno_data.phenotype == phenotype].thresh.values
     # first, make the threshold fun
     threshfun = make_songetal_threshfun(x, y)
 
@@ -99,14 +128,38 @@ def make_songetal_testfun(phenotype="Metabolic", beta=1):
     return song_testfun
 
 
-def novel_discrimination_testfun(x):
+def novel_discrimination_testfun(x: np.ndarray) -> np.ndarray:
+    """Evaluate novel discrimination test function from Owen et al.
+
+    The threshold is roughly parabolic with context, and the slope
+    varies with the threshold. Adding to the difficulty is the fact
+    that the function is minimized at f=0 (or p=0.5), corresponding
+    to discrimination being at chance at zero stimulus intensity.
+
+    Args:
+        x (np.ndarray): Points at which to evaluate.
+
+    Returns:
+        np.ndarray: Value of function at these points.
+    """
     freq = x[..., 0]
     amp = x[..., 1]
     context = 2 * (0.05 + 0.4 * (-1 + 0.2 * freq) ** 2 * freq ** 2)
     return 2 * (amp + 1) / context
 
 
-def novel_detection_testfun(x):
+def novel_detection_testfun(x: np.ndarray) -> np.ndarray:
+    """Evaluate novel detection test function from Owen et al.
+
+    The threshold is roughly parabolic with context, and the slope
+    varies with the threshold.
+
+    Args:
+        x (np.ndarray): Points at which to evaluate.
+
+    Returns:
+        np.ndarray: Value of function at these points.
+    """
     freq = x[..., 0]
     amp = x[..., 1]
     context = 2 * (0.05 + 0.4 * (-1 + 0.2 * freq) ** 2 * freq ** 2)

@@ -7,13 +7,17 @@
 
 import itertools
 import logging
+import traceback
 from copy import deepcopy
+from typing import Mapping, Tuple, Optional
 
 import aepsych.utils_logging as utils_logging
 import multiprocess.context as ctx
 import pathos
 import torch
 from aepsych.benchmark import Benchmark, BenchmarkLogger
+from aepsych.strategy import SequentialStrategy
+
 
 ctx._force_start_method("spawn")  # fixes problems with CUDA and fork
 
@@ -21,13 +25,18 @@ logger = utils_logging.getLogger(logging.INFO)
 
 
 class PathosBenchmark(Benchmark):
-    def __init__(self, nproc=2, *args, **kwargs):
+    """Benchmarking class for parallelized benchmarks using pathos"""
+
+    def __init__(self, nproc: int = 1, *args, **kwargs):
+        """Initialize pathos benchmark.
+
+        Args:
+            nproc (int, optional): Number of cores to use. Defaults to 1.
+        """
         super().__init__(*args, **kwargs)
-        if torch.get_num_threads() > 1:
-            logger.warn(
-                f"Running benchmark with pytorch threads {torch.get_num_threads()}>1! \n"
-                + "Interaction of threaded pytorch with process-based parallelism may be unpredictable!"
-            )
+        # parallelize over jobs, so each job should be 1 thread only
+        self.__orig_num_threads = torch.get_num_threads()
+        torch.set_num_threads(1)
         self.pool = pathos.pools.ProcessPool(nodes=nproc)
 
     def __del__(self):
@@ -43,16 +52,41 @@ class PathosBenchmark(Benchmark):
             except TypeError:
                 pass
 
-    def run_experiment(self, config_dict, seed, rep):
+        # make pytorch parallel again
+        torch.set_num_threads(self.__orig_num_threads)
+
+    def run_experiment(
+        self,
+        config_dict: Mapping[str, str],
+        logger: BenchmarkLogger,
+        seed: int,
+        rep: int,
+    ) -> Tuple[BenchmarkLogger, Optional[SequentialStrategy]]:
+        """Run one simulated experiment.
+
+        Args:
+            config_dict (Mapping[str, str]): AEPsych configuration to use.
+            logger (BenchmarkLogger): BenchmarkLogger object to store data.
+            seed (int): Random seed for this run.
+            rep (int): Index of this repetition (used for the logger).
+
+        Returns:
+            BenchmarkLogger: Local logger from this run.
+        """
+
         # copy things that we mutate
         local_config = deepcopy(config_dict)
-        local_logger = BenchmarkLogger(log_every=self.logger.log_every)
+        local_logger = deepcopy(logger)
         try:
-            _ = super().run_experiment(local_config, local_logger, seed, rep)
+            return super().run_experiment(local_config, local_logger, seed, rep)
         except Exception as e:
-            logger.error(f"Error on config {config_dict}: {e}!")
-            return e
-        return local_logger
+
+            logging.error(
+                f"Error on config {config_dict}: {e}!"
+                + f"Traceback follows:\n{traceback.format_exc()}"
+            )
+
+            return local_logger, None
 
     def __getstate__(self):
         self_dict = self.__dict__.copy()
@@ -63,26 +97,54 @@ class PathosBenchmark(Benchmark):
         return self_dict
 
     def run_benchmarks(self):
+        """Run all the benchmarks,
+
+        Note that this blocks while waiting for benchmarks to complete. If you
+        would like to start benchmarks and periodically collect partial results,
+        use start_benchmarks and then call collate_benchmarks(wait=False) on some
+        interval.
+        """
         self.start_benchmarks()
         self.collate_benchmarks(wait=True)
 
     def start_benchmarks(self):
+        """Start benchmark run.
+
+        This does not block: after running it, self.futures holds the
+        status of benchmarks running in parallel.
+        """
+
+        def run_discard_strat(*conf):
+            logger, _ = self.run_experiment(*conf)
+            return logger
+
         self.loggers = []
         self.all_sim_configs = [
-            (config_dict, self.global_seed + seed, rep)
+            (config_dict, self.logger, self.global_seed + seed, rep)
             for seed, (config_dict, rep) in enumerate(
                 itertools.product(self.combinations, range(self.n_reps))
             )
         ]
         self.futures = [
-            self.pool.apipe(self.run_experiment, *conf) for conf in self.all_sim_configs
+            self.pool.apipe(run_discard_strat, *conf) for conf in self.all_sim_configs
         ]
 
     @property
-    def is_done(self):
+    def is_done(self) -> bool:
+        """Check if the benchmark is done.
+
+        Returns:
+            bool: True if all futures are cleared and benchmark is done.
+        """
         return len(self.futures) == 0
 
-    def collate_benchmarks(self, wait=False):
+    def collate_benchmarks(self, wait: bool = False) -> None:
+        """Collect benchmark results from completed futures.
+
+        Args:
+            wait (bool, optional): If true, this method blocks and waits
+            on all futures to complete. Defaults to False.
+        """
         newfutures = []
         while self.futures:
             item = self.futures.pop()

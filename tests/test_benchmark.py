@@ -22,14 +22,23 @@ from aepsych.benchmark import (
 )
 
 
-class TestProblem(Problem, LSEProblem):
-    def f(self, x, delay=False):
-        if delay:
-            time.sleep(1 * random.random())
-        if len(x.shape) == 1:
-            return x
-        else:
-            return x.sum(axis=-1)
+def f(x, delay=False):
+    if delay:
+        time.sleep(1 * random.random())
+    if len(x.shape) == 1:
+        return x
+    else:
+        return x.sum(axis=-1)
+
+
+class TestProblem(Problem):
+    def f(self, x):
+        return f(x)
+
+
+class LSETestProblem(LSEProblem):
+    def f(self, x):
+        return f(x)
 
 
 class BenchmarkTestCase(unittest.TestCase):
@@ -53,12 +62,12 @@ class BenchmarkTestCase(unittest.TestCase):
                 "outcome_type": "single_probit",
             },
             "experiment": {
-                "acqf": "LevelSetEstimation",
+                "acqf": "MCLevelSetEstimation",
                 "modelbridge_cls": "SingleProbitModelbridge",
                 "init_strat_cls": "SobolStrategy",
                 "opt_strat_cls": "ModelWrapperStrategy",
             },
-            "LevelSetEstimation": {
+            "MCLevelSetEstimation": {
                 "target": 0.75,
                 "beta": 3.98,
             },
@@ -67,8 +76,8 @@ class BenchmarkTestCase(unittest.TestCase):
                 "mean_covar_factory": "default_mean_covar_factory",
             },
             "SingleProbitModelbridge": {
-                "restarts": 10,
-                "samps": 1000,
+                "restarts": 1,
+                "samps": 200,
             },
             "SobolStrategy": {
                 "n_trials": [2, 4, 6],
@@ -146,7 +155,7 @@ class BenchmarkTestCase(unittest.TestCase):
             problem=problem, logger=logger, configs=self.bench_config, n_reps=1
         )
         bench.start_benchmarks()
-        # wait for something to finsh
+        # wait for something to finish
         while len(bench.logger._log) == 0:
             time.sleep(0.1)
             bench.collate_benchmarks(wait=False)
@@ -155,7 +164,7 @@ class BenchmarkTestCase(unittest.TestCase):
         # have fewer than all the results
         self.assertTrue(len(out[out.final]) < bench.num_benchmarks)
 
-        bench.collate_benchmarks(wait=True)  # wait for everything to finsh
+        bench.collate_benchmarks(wait=True)  # wait for everything to finish
         out = bench.logger.pandas()  # complete results
 
         self.assertTrue(len(out[out.final]) == bench.num_benchmarks)
@@ -204,12 +213,12 @@ class BenchProblemTestCase(unittest.TestCase):
                 "outcome_type": "single_probit",
             },
             "experiment": {
-                "acqf": "LevelSetEstimation",
+                "acqf": "MCLevelSetEstimation",
                 "modelbridge_cls": "SingleProbitModelbridge",
                 "init_strat_cls": "SobolStrategy",
                 "opt_strat_cls": "ModelWrapperStrategy",
             },
-            "LevelSetEstimation": {
+            "MCLevelSetEstimation": {
                 "target": 0.75,
                 "beta": 3.98,
             },
@@ -228,10 +237,10 @@ class BenchProblemTestCase(unittest.TestCase):
                 "n_trials": 1,
             },
         }
-        problem = TestProblem(lb=[-1, -1], ub=[1, 1])
+        problem = LSETestProblem(lb=[-1, -1], ub=[1, 1])
         logger = BenchmarkLogger(log_every=100)
         bench = Benchmark(problem=problem, configs=config, logger=logger)
-        strat = bench.run_experiment(bench.combinations[0], logger, 0, 0)
+        _, strat = bench.run_experiment(bench.combinations[0], logger, 0, 0)
         e = problem.evaluate(strat)
         self.assertTrue(e["mean_square_err_p"] < 0.05)
 
@@ -268,10 +277,10 @@ class BenchProblemTestCase(unittest.TestCase):
                 "n_trials": 1,
             },
         }
-        problem = TestProblem(lb=[-1, -1], ub=[1, 1])
+        problem = LSETestProblem(lb=[-1, -1], ub=[1, 1])
         logger = BenchmarkLogger(log_every=100)
         bench = Benchmark(problem=problem, configs=config, logger=logger)
-        strat = bench.run_experiment(bench.combinations[0], logger, 0, 0)
+        _, strat = bench.run_experiment(bench.combinations[0], logger, 0, 0)
         e = problem.evaluate(strat)
         self.assertTrue(e["mean_square_err_p"] < 0.05)
 
