@@ -8,6 +8,7 @@
 from typing import Optional, Union
 
 import torch
+from aepsych.acquisition.objective import ProbitObjective
 from botorch.acquisition.analytic import AnalyticAcquisitionFunction
 from botorch.acquisition.monte_carlo import (
     MCAcquisitionFunction,
@@ -18,7 +19,6 @@ from botorch.acquisition.objective import ScalarizedObjective
 from botorch.models.model import Model
 from botorch.sampling import SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
-from aepsych.acquisition.objective import ProbitObjective
 from torch import Tensor
 
 
@@ -114,18 +114,18 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
         self.target = target
 
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
-        """Evaluate the acquisition based on objective samples. 
+        """Evaluate the acquisition based on objective samples.
 
         Usually you should not call this directly unless you are
         subclassing this class and modifying how objective samples
-        are generated. 
+        are generated.
 
         Args:
             obj_samples (torch.Tensor): Samples from the model, transformed
-                by the objective. Should be samples x batch_shape. 
+                by the objective. Should be samples x batch_shape.
 
         Returns:
-            torch.Tensor: Acquisition function at the sampled values. 
+            torch.Tensor: Acquisition function at the sampled values.
         """
         mean = obj_samples.mean(dim=0)
         variance = obj_samples.var(dim=0)
@@ -139,10 +139,10 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
         """Evaluate the acquisition function
 
         Args:
-            X (torch.Tensor): Points at which to evaluate. 
+            X (torch.Tensor): Points at which to evaluate.
 
         Returns:
-            torch.Tensor: Value of the acquisition functiona at these points. 
+            torch.Tensor: Value of the acquisition functiona at these points.
         """
 
         post = self.model.posterior(X)

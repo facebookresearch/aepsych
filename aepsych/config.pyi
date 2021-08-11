@@ -9,25 +9,21 @@ import configparser
 import pprint
 import warnings
 from types import ModuleType
-from typing import Dict, Mapping, Optional, Any, overload, TypeVar, Union
+from typing import Dict, List, Mapping, Optional, Any, overload, TypeVar, Union
 
 import botorch
 import gpytorch
 import torch
 
 _T = TypeVar("_T")
+_ET = TypeVar("_ET")
+
+"""
+This whole thing exists so that mypy is happy with the very
+arcane way that ConfigParser handles type conversions.
+"""
 
 class Config(configparser.ConfigParser):
-    @overload
-    def gettensor(
-        self,
-        section: str,
-        option: str,
-        *,
-        raw: bool = ...,
-        vars: Optional[Mapping[str, str]] = ...,
-    ) -> torch.Tensor: ...
-    @overload
     def gettensor(
         self,
         section: str,
@@ -37,7 +33,6 @@ class Config(configparser.ConfigParser):
         vars: Optional[Mapping[str, str]] = ...,
         fallback: _T = ...,
     ) -> Union[torch.Tensor, _T]: ...
-    @overload
     def getobj(
         self,
         section: str,
@@ -45,9 +40,11 @@ class Config(configparser.ConfigParser):
         *,
         raw: bool = ...,
         vars: Optional[Mapping[str, str]] = ...,
-    ) -> Any: ...
-    @overload
-    def getobj(
+        fallback: object = ...,
+        fallback_type: _T = ...,
+        warn: bool = ...,
+    ) -> Union[Any, _T]: ...
+    def getlist(
         self,
         section: str,
         option: str,
@@ -55,6 +52,7 @@ class Config(configparser.ConfigParser):
         raw: bool = ...,
         vars: Optional[Mapping[str, str]] = ...,
         fallback: _T = ...,
-    ) -> Union[Any, _T]: ...
+        element_type: _ET = ...,
+    ) -> Union[_T, List[_ET]]: ...
     @classmethod
     def register_module(cls: _T, module): ...

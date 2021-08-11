@@ -5,21 +5,27 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+from typing import Dict, List, Optional, Sequence, Tuple, Type, TypeVar, Union
+
 import numpy as np
-from aepsych.modelbridge.base import ModelBridge, _prune_extra_acqf_args
+import torch
 from aepsych.acquisition.monotonic_rejection import (
     MonotonicMCAcquisition,
     MonotonicMCLSE,
 )
+from aepsych.config import Config
+from aepsych.modelbridge.base import ModelBridge, _prune_extra_acqf_args
 from aepsych.models.monotonic_rejection_gp import MonotonicGPLSETS, MonotonicRejectionGP
+
+ModelType = TypeVar("ModelType", bound="MonotonicSingleProbitModelbridge")
 
 
 class MonotonicSingleProbitModelbridge(ModelBridge):
     """
-    Minimal shim for MonotonicGPLSE
+    Modelbridge wrapping monotonic single probit GP models.
 
-    This is basically hacky multiple inheritance, it is definitely bad.
-    TODO before opensourcing we need to standardize interfaces so that this shim goes away
+    Attributes:
+        outcome_type: fixed to "single_probit".
 
     """
 
@@ -27,16 +33,36 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
 
     def __init__(
         self,
-        lb,
-        ub,
-        samps=1000,
-        dim=1,
-        acqf=None,
-        extra_acqf_args=None,
-        monotonic_idxs=None,
-        uniform_idxs=None,
-        model=None,
-    ):
+        lb: Union[np.ndarray, torch.Tensor],
+        ub: Union[np.ndarray, torch.Tensor],
+        samps: int = 1000,
+        dim: int = 1,
+        acqf: Optional[MonotonicMCAcquisition] = None,
+        extra_acqf_args: Optional[Dict[str, object]] = None,
+        monotonic_idxs: Optional[Sequence[int]] = None,
+        uniform_idxs: Optional[Sequence[int]] = None,
+        model: Optional[MonotonicRejectionGP] = None,
+    ) -> None:
+        """Initialize monotonic modelbridge.
+
+        Args:
+            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of domain.
+            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of domain.
+            samps (int, optional): Number of quasi-random samples to use for finding
+                an initial condition for acquisition function optimization. Defaults to 1000.
+            dim (int, optional): Number of input dimensions. Defaults to 1.
+            acqf (MonotonicMCAcquisition, optional): Acquisition function
+                to use. Defaults to whatver the underlying model defaults to.
+            extra_acqf_args (Dict[str, object], optional): Extra arguments to
+                pass to acquisition function. Defaults to no arguments.
+            monotonic_idxs (Sequence[int], optional): Dimensions to constrain to be
+                monotonically increasing. Defaults no dimensions.
+            uniform_idxs (Sequence[int], optional): Dimensions to sample uniformly
+                instead of using acquisition function (this can sometimes help improve
+                exploration). Defaults to no dimensions.
+            model (MonotonicRejectionGP, optional): Underyling model to use.
+                Defaults to MonotonicGPLSETS.
+        """
         super().__init__(
             lb=lb, ub=ub, dim=dim, acqf=acqf, extra_acqf_args=extra_acqf_args
         )
@@ -54,7 +80,7 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
         self.model = model or MonotonicGPLSETS(
             likelihood="probit-bernoulli",
             monotonic_idxs=monotonic_idxs,
-            target_value=self.target,
+            target_value=self.target,  # type: ignore
         )
         # self.acqf was set by super() so we just copy it to model
         assert issubclass(self.acqf, MonotonicMCAcquisition), (
@@ -66,7 +92,22 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
     def _get_acquisition_fn(self) -> MonotonicMCAcquisition:
         return self.model._get_acquisition_fn()
 
-    def gen(self, num_points=1, use_uniform=False, **kwargs):
+    def gen(self, num_points: int = 1, use_uniform: bool = False) -> np.ndarray:
+        """Query next point(s) to run by optimizing the acquisition function.
+
+        Args:
+            num_points (int, optional): Number of points to query. Defaults to 1.
+            use_uniform (bool, optional): If true, sample self.uniform_idxs uniformly
+                instead of acquiring over them. Defaults to False.
+
+        Raises:
+            NotImplementedError: If requesting num_points > 1 for a model other
+                than GPLSETS.
+
+        Returns:
+            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+        """
+        explore_strat_features: Optional[Sequence[int]]
         gen_args = {"raw_samples": self.samps}
         if use_uniform and len(self.uniform_idxs) > 0:
             explore_strat_features = self.uniform_idxs
@@ -79,7 +120,6 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
                     n=num_points,
                     model_gen_options=gen_args,
                     explore_features=explore_strat_features,
-                    **kwargs,
                 )
             else:
                 raise NotImplementedError(
@@ -89,37 +129,79 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
             next_pts, _ = self.model.gen(
                 model_gen_options=gen_args,
                 explore_features=explore_strat_features,
-                **kwargs,
             )
 
         return next_pts.numpy()
 
-    def predict(self, x):
+    def predict(
+        self, x: Union[np.ndarray, torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Call underlying model for prediction.
+
+        Args:
+            x (Union[np.ndarray, torch.Tensor]): Points at which to predict.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at x.
+        """
         # MGPLSETS expects batch x dim so augment if needed
         if len(x.shape) == 1:
             x = x[:, None]
-        return self.model.predict(x)
+        return self.model.predict(torch.Tensor(x))
 
-    def sample(self, x, **kwargs):
+    def sample(self, x: torch.Tensor, num_samples: int, **kwargs) -> torch.Tensor:
+        """Sample from underlying model.
+
+        Args:
+            x (torch.Tensor): Points at which to sample.
+            num_samples (int): How many points to draw.
+            Additional arguments are passed to underlying model.
+
+        Returns:
+            torch.Tensor: Posterior samples [num_samples x dim]
+        """
         return self.model.sample(x, **kwargs)
 
-    def fit(self, train_x, train_y):
+    def fit(self, train_x: torch.Tensor, train_y: torch.LongTensor):
+        """Fit underlying model.
+
+        Args:
+            train_x (torch.Tensor): Inputs.
+            train_y (torch.LongTensor): Responses.
+        """
         self.model.fit(train_x, train_y, np.c_[self.lb, self.ub])
 
-    def update(self, train_x, train_y):
+    def update(self, train_x: torch.Tensor, train_y: torch.LongTensor):
+        """Update underlying model by warm starting from previous variational fit.
+
+        Args:
+            train_x (torch.Tensor): Inputs.
+            train_y (torch.LongTensor): Responses.
+        """
+
         # update the warm-start model fitting
         self.model.update(train_x, train_y)
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls: Type[ModelType], config: Config) -> ModelType:
+        """Alternate constructor for monotonic modelbridge from AEPsych config.
+
+        Args:
+            config (Config): Config containing params for this object and child objects.
+
+        Returns:
+            MonotonicSingleProbitModelbridge: Configured class instance.
+        """
 
         classname = cls.__name__
         model_cls = config.getobj("experiment", "model", fallback=MonotonicRejectionGP)
         mean_covar_factory = config.getobj(model_cls.__name__, "mean_covar_factory")
-        monotonic_idxs = config.getlist(
+        monotonic_idxs: List[int] = config.getlist(
             model_cls.__name__, "monotonic_idxs", fallback=[-1]
         )
-        uniform_idxs = config.getlist(model_cls.__name__, "uniform_idxs", fallback=[])
+        uniform_idxs: List[int] = config.getlist(
+            model_cls.__name__, "uniform_idxs", fallback=[]
+        )
 
         mean, covar = mean_covar_factory(config)
         lb = config.gettensor(classname, "lb")

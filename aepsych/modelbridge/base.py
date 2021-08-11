@@ -7,16 +7,18 @@
 
 import logging
 from inspect import signature
+from typing import Dict, Mapping, Optional, Tuple, Union
 
 import aepsych.utils_logging as utils_logging
+import botorch
 import gpytorch
 import numpy as np
 import torch
-from aepsych.utils import promote_0d, _dim_grid, get_jnd_multid
+from aepsych.utils import _dim_grid, get_jnd_multid, promote_0d
 from botorch.acquisition import (
+    NoisyExpectedImprovement,
     qNoisyExpectedImprovement,
     qUpperConfidenceBound,
-    NoisyExpectedImprovement,
 )
 from scipy.stats import norm
 
@@ -30,7 +32,7 @@ gpytorch.settings.tridiagonal_jitter._global_value = 1e-3
 logger = utils_logging.getLogger(logging.DEBUG)
 
 
-def _prune_extra_acqf_args(acqf, extra_acqf_args):
+def _prune_extra_acqf_args(acqf, extra_acqf_args: Dict):
     # prune extra args needed, ignore the rest
     # (this helps with API consistency)
     acqf_args_expected = signature(acqf).parameters.keys()
@@ -41,11 +43,34 @@ class ModelBridge(object):
     """Base class for objects combining an interpolator/model, acquisition, and data
     Loosely inspired by https://ax.dev/api/modelbridge.html#module-ax.modelbridge.base
     but definitely not compatible with it.
+
+    Attributes:
+        baseline_requiring_acqfs: list of acquisition functions that need an X_baseline
+            passed in.
     """
 
     baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
+    model: gpytorch.models.GP
 
-    def __init__(self, lb, ub, dim=1, acqf=None, extra_acqf_args=None):
+    def __init__(
+        self,
+        lb: Union[np.ndarray, torch.Tensor],
+        ub: Union[np.ndarray, torch.Tensor],
+        dim: int = 1,
+        acqf: Optional[botorch.acquisition.AcquisitionFunction] = None,
+        extra_acqf_args: Dict[str, object] = None,
+    ):
+        """Inititalize the base modelbridge class
+
+        Args:
+            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of search space.
+            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of search space.
+            dim (int, optional): Number of dimensions of search space. Defaults to 1.
+            acqf (botorch.acquisition.AcquisitionFunction, optional): Acquisition function to
+                use. Defaults to qUpperConfidenceBound.
+            extra_acqf_args (Dict[str, object], optional): Additional arguments to pass to
+                acquisition function. Defaults to nothing (except for qUCB, where we pass beta=1.96).
+        """
         self.dim = dim
 
         self.lb = torch.Tensor(promote_0d(lb)).float()
@@ -64,20 +89,64 @@ class ModelBridge(object):
         self.target = extra_acqf_args.get("target", 0.75)
 
     def gen(self):
+        """Generate next point to sample.
+
+        Raises:
+            NotImplementedError: Subclass from this class and implement this.
+        """
         raise NotImplementedError("Implement me in subclasses!")
 
-    def predict(self):
+    def predict(
+        self, x: Union[np.ndarray, torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Call underlying model for prediction.
+
+        Args:
+            x (Union[np.ndarray, torch.Tensor]): Points at which to predict.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at x.
+        Raises:
+            NotImplementedError: Subclass from this class and implement this.
+        """
         raise NotImplementedError("Implement me in subclasses!")
 
-    def update(self, *args, **kwargs):
+    def fit(self, train_x: torch.Tensor, train_y: torch.LongTensor):
+        """Fit underlying model.
+
+        Args:
+            train_x (torch.Tensor): Inputs.
+            train_y (torch.LongTensor): Responses.
+        Raises:
+            NotImplementedError: Subclass from this class and implement this.
+        """
+        raise NotImplementedError("Implement me in subclasses!")
+
+    def update(self, train_x: torch.Tensor, train_y: torch.LongTensor):
+        """Perform a warm-start update of the model from previous fit.
+
+        Note that in this base class, this just calls fit directly. Override
+        this in subclasses to implement a more efficient model update.
+        """
         logger.info(
             "Calling update on a model without specialized "
             + "update implementation, defaulting to regular fit"
         )
-        self.fit(*args, **kwargs)
+        self.fit(train_x, train_y)
 
-    def sample(self, x, num_samples):
-        """Override this as needed."""
+    def sample(
+        self, x: torch.Tensor, num_samples: int, **kwargs: object
+    ) -> torch.Tensor:
+        """Sample from the underlying model
+
+        Args:
+            x (torch.Tensor): Points at which to sample from model.
+            num_samples (int): Number of samples to generate
+            kwargs are ignored here but can be used in subclasses
+
+        Returns:
+            torch.Tensor: Samples from the model.
+        """
         return self.model.posterior(x).sample(torch.Size([num_samples]))
 
     def _get_acquisition_fn(self):
@@ -89,15 +158,35 @@ class ModelBridge(object):
         else:
             return self.acqf(model=self.model, **self.extra_acqf_args)
 
-    def best(self):
-        from aepsych.plotting import lse_acqfs
+    def best(self) -> Optional[np.ndarray]:
+        """Return the current best.
+
+        Note that currently this only returns the threshold for LSE
+        acquisition functions, or otherwise nothing.
+
+        TODO: make this actually return a more reasonable "best".
+
+        Returns:
+            np.ndarray: Current threshold estimate.
+        """
+        from aepsych.acquisition import lse_acqfs
 
         if self.acqf in lse_acqfs:
             return self._get_contour()
         else:
-            pass
+            return None
 
-    def _get_contour(self, gridsize=30):
+    def _get_contour(self, gridsize: int = 30) -> Optional[np.ndarray]:
+        """Get a LSE contour from the underlying model.
+
+        Currently only works in 2d, else returns None.
+
+        Args:
+            gridsize (int, optional): Number of grid points to evaluate threshold at. Defaults to 30.
+
+        Returns:
+            Optional[np.ndarray]: Threshold as a function of context.
+        """
 
         from aepsych.utils import get_lse_contour
 
@@ -115,9 +204,16 @@ class ModelBridge(object):
             return None
 
     def get_jnd(
-        self, grid=None, cred_level=None, intensity_dim=-1, confsamps=500, method="step"
-    ):
-        """Calculate the JND. Note that JND can have multiple plausible definitions
+        self,
+        grid: Optional[np.ndarray] = None,
+        cred_level: float = None,
+        intensity_dim: int = -1,
+        confsamps: int = 500,
+        method: str = "step",
+    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
+        """Calculate the JND.
+
+        Note that JND can have multiple plausible definitions
         outside of the linear case, so we provide options for how to compute it.
         For method="step", we report how far one needs to go over in stimulus
         space to move 1 unit up in latent space (this is a lot of people's
@@ -126,6 +222,25 @@ class ModelBridge(object):
         1st-order Taylor expansion of the latent function. This is a formal
         generalization of JND as defined in Weber's law.
         Both definitions are equivalent for linear psychometric functions.
+
+        Args:
+            grid (Optional[np.ndarray], optional): Mesh grid over which to find the JND.
+                Defaults to a square grid of size as determined by aepsych.utils._dim_grid
+            cred_level (float, optional): Credible level for computing an interval.
+                Defaults to None, computing no interval.
+            intensity_dim (int, optional): Dimension over which to compute the JND.
+                Defaults to -1.
+            confsamps (int, optional): Number of posterior samples to use for
+                computing the credible interval. Defaults to 500.
+            method (str, optional): "taylor" or "step" method (see docstring).
+                Defaults to "step".
+
+        Raises:
+            RuntimeError: for passing an unknown method.
+
+        Returns:
+            Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]: either the
+                mean JND, or a median, lower, upper tuple of the JND posterior.
         """
         if grid is None:
             grid = _dim_grid(self)
@@ -149,7 +264,7 @@ class ModelBridge(object):
             qlower = alpha / 2
             qupper = 1 - alpha / 2
 
-            fsamps = self.sample(grid, confsamps)
+            fsamps = self.sample(torch.Tensor(grid), confsamps)
             if method == "taylor":
                 jnds = 1 / np.gradient(
                     fsamps.detach()
@@ -172,23 +287,46 @@ class ModelBridge(object):
 
         raise RuntimeError(f"Unknown method {method}!")
 
-    def query(self, x, probability_space=False):
-        fmean, fvar = self.predict(x)
-        fmean, fvar = fmean.detach().numpy(), fvar.detach().numpy()
-        if probability_space:
-            fmean, fvar = norm.cdf(fmean), norm.cdf(fvar)
-        return fmean, fvar
+    def query(
+        self, x: torch.Tensor, probability_space: bool = False
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Query the model for posterior mean and variance.
 
-    def get_max(self):
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            probability_space (bool, optional): Return outputs in units of
+                response probability instead of latent function value. Defaults to False.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+        """
+        fmean, fvar = self.predict(x)
+        if probability_space:
+            return norm.cdf(fmean.detach().numpy()), norm.cdf(fvar.detach().numpy())
+        else:
+            return fmean.detach().numpy(), fvar.detach().numpy()
+
+    def get_max(self) -> Tuple[float, np.ndarray]:
+        """Return the maximum of the modeled function
+
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
+        """
         # TODO: Do this the right way, e.g. w/ gradient descent. Uses grid estimate for now.
         d = _dim_grid(self, gridsize=10)  # If it's >2D, gridsize must stay small
+
         fmean, fvar = self.predict(d)
         fmean = fmean.detach().numpy()
         fmax = np.max(fmean)
         fmax_loc = d[np.where(fmean == fmax)[0][0]].detach().numpy()
         return fmax, fmax_loc
 
-    def get_min(self):
+    def get_min(self) -> Tuple[float, np.ndarray]:
+        """Return the minimum of the modeled function
+
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+        """
         # TODO: do this the right way w/ gradient descent. Uses grid estimate for now.
         d = _dim_grid(self, gridsize=10)
         fmean, fvar = self.predict(d)
@@ -197,7 +335,29 @@ class ModelBridge(object):
         fmin_loc = d[np.where(fmean == fmin)[0][0]].detach().numpy()
         return fmin, fmin_loc
 
-    def inv_query(self, y, locked_dims, probability_space=False):
+    def inv_query(
+        self,
+        y: float,
+        locked_dims: Mapping[int, float],
+        probability_space: bool = False,
+    ) -> Tuple[float, np.ndarray]:
+        """Query the model inverse.
+
+        Return nearest x such that f(x) = queried y, and also return the
+            value of f at that point.
+
+        Args:
+            y (float): Points at which to find the inverse.
+            locked_dims (Mapping[int, float]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+            probability_space (bool, optional): Is y (and therefore the
+                returned nearest_y) in probability space instead of latent
+                function space? Defaults to False.
+
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the value of f
+                nearest to queried y and the x position of this value.
+        """
         # TODO: do this the right way w/ iteration and/or interpolation. Uses grid estimate for now.
         # Look for point with value closest to y, subject the dict of locked dims
         d = _dim_grid(self, gridsize=10)
@@ -208,7 +368,9 @@ class ModelBridge(object):
         fmean = fmean.detach().numpy()
         if probability_space:
             fmean = norm.cdf(fmean)
-        nearest_ind = np.argmin(np.abs(fmean - y))
-        nearest_y = fmean[nearest_ind]
+        nearest_ind = int(
+            np.argmin(np.abs(fmean - y))
+        )  # explicit cast because numpy ints aren't python ints ???
+        nearest_y = fmean[nearest_ind].item()
         nearest_loc = d[nearest_ind].detach().numpy()
         return nearest_y, nearest_loc

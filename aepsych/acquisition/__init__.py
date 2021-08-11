@@ -17,6 +17,7 @@ from .mutual_information import (
 )
 from .objective import ProbitObjective
 
+lse_acqfs = [MonotonicMCLSE, LevelSetEstimation]
 __all__ = [
     "BernoulliMCMutualInformation",
     "MonotonicBernoulliMCMutualInformation",

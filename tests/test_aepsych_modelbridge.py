@@ -38,8 +38,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 15
-        n_opt = 5
+        n_init = 50
+        n_opt = 1
         lb = -4.0
         ub = 4.0
 
@@ -71,8 +71,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 10
-        n_opt = 10
+        n_init = 50
+        n_opt = 2
         lb = -4.0
         ub = 4.0
 
@@ -103,8 +103,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 10
-        n_opt = 10
+        n_init = 50
+        n_opt = 2
         lb = -4.0
         ub = 4.0
         extra_acqf_args = {"target": 0.75, "beta": 3.98}
@@ -146,8 +146,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 15
-        n_opt = 5
+        n_init = 50
+        n_opt = 1
         lb = -4.0
         ub = 4.0
 
@@ -177,8 +177,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 5
-        n_opt = 10
+        n_init = 50
+        n_opt = 1
         lb = -4.0
         ub = 4.0
 
@@ -215,8 +215,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 5
-        n_opt = 10
+        n_init = 50
+        n_opt = 1
         lb = -4.0
         ub = 4.0
 
@@ -257,8 +257,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 30
-        n_opt = 10
+        n_init = 50
+        n_opt = 1
         lb = [-1, -1]
         ub = [1, 1]
 
@@ -296,8 +296,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 10
-        n_opt = 10
+        n_init = 50
+        n_opt = 1
         lb = -4.0
         ub = 4.0
 
@@ -340,8 +340,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 50
-        n_opt = 10
+        n_init = 150
+        n_opt = 1
         lb = -4.0
         ub = 4.0
 
@@ -392,8 +392,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 10
-        n_opt = 10
+        n_init = 50
+        n_opt = 1
         lb = -4.0
         ub = 4.0
 
@@ -483,8 +483,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 30
-        n_opt = 10
+        n_init = 50
+        n_opt = 1
         lb = [-1, -1]
         ub = [1, 1]
 
@@ -526,7 +526,7 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         torch.manual_seed(seed)
         np.random.seed(seed)
         n_init = 100
-        n_opt = 10
+        n_opt = 1
         lb = [-1, -1, -1]
         ub = [1, 1, 1]
 
@@ -588,8 +588,8 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 10
-        n_opt = 10
+        n_init = 150
+        n_opt = 1
         lb = np.r_[-1, -1]
         ub = np.r_[1, 1]
 
@@ -612,12 +612,13 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
 
         self.assertTrue(np.all(np.abs(xy[np.argmax(zhat.detach().numpy())]) < 0.5))
 
+    @unittest.skip("SLOW")
     def test_2d_single_probit_stopping_criterion(self):
 
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 10
+        n_init = 100
         n_opt = 10
         lb = [-1, -1]
         ub = [1, 1]
@@ -680,8 +681,8 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 15
-        n_opt = 5
+        n_init = 50
+        n_opt = 1
 
         experiment_config = {
             "common": {"lb": [-4.0], "ub": [4.0]},
@@ -858,7 +859,3 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
 
         except Exception:
             self.fail()
-
-
-# if __name__ == "__main__":
-#     unittest.main()

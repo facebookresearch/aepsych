@@ -7,7 +7,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+import warnings
+from typing import Any, Dict, List, Optional, Tuple, Union, Sequence
 
 import torch
 from aepsych.acquisition.monotonic_rejection import (
@@ -30,7 +31,6 @@ from gpytorch.means import Mean
 from gpytorch.mlls.variational_elbo import VariationalELBO
 from scipy.stats import norm
 from torch import Tensor
-import warnings
 
 
 def default_loss_constraint_fun(
@@ -67,7 +67,7 @@ class MonotonicRejectionGP:
     def __init__(
         self,
         likelihood: str,
-        monotonic_idxs: List[int],
+        monotonic_idxs: Sequence[int],
         fixed_prior_mean: Optional[float] = None,
         covar_module: Optional[Kernel] = None,
         mean_module: Optional[Mean] = None,
@@ -76,7 +76,7 @@ class MonotonicRejectionGP:
         num_rejection_samples: int = 5000,
         acqf: MonotonicMCAcquisition = MonotonicMCLSE,
         objective: Optional[Union[MCAcquisitionObjective, object]] = None,
-        extra_acqf_args: Optional[dict[str, object]] = None,
+        extra_acqf_args: Optional[Dict[str, object]] = None,
     ) -> None:
         """Initialize MonotonicRejectionGP.
 
@@ -90,12 +90,12 @@ class MonotonicRejectionGP:
             covar_module (Optional[Kernel], optional): Covariance kernel to use (default: scaled RBF).
             mean_module (Optional[Mean], optional): Mean module to use (default: constant mean).
             num_induc (int, optional): Number of inducing points for variational GP.]. Defaults to 25.
-            num_samples (int, optional): Number of samples for estimating posterior on predict or
+            num_samples (int, optional): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
             num_rejection_samples (int, optional): Number of samples used for rejection sampling. Defaults to 4096.
             acqf (MonotonicMCAcquisition, optional): Acquisition function to use for querying points. Defaults to MonotonicMCLSE.
             objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
-            extra_acqf_args (Optional[dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
+            extra_acqf_args (Optional[Dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
         """
         assert likelihood in ["probit-bernoulli", "identity-gaussian"]
         self.likelihood = likelihood
@@ -235,7 +235,9 @@ class MonotonicRejectionGP:
 
         rejection_ratio = 20
         if num_samples * rejection_ratio > num_rejection_samples:
-            warnings.warn(f"num_rejection_samples should be at least {rejection_ratio} times greater than num_samples.")
+            warnings.warn(
+                f"num_rejection_samples should be at least {rejection_ratio} times greater than num_samples."
+            )
 
         n = X.shape[0]
         # Augment with derivative index
@@ -273,7 +275,7 @@ class MonotonicRejectionGP:
     def gen(
         self,
         model_gen_options: Optional[Dict[str, Any]] = None,
-        explore_features: Optional[List[int]] = None,
+        explore_features: Optional[Sequence[int]] = None,
     ) -> Tuple[Tensor, Optional[List[Dict[str, Any]]]]:
         """Generate candidate by optimizing acquisition function.
 
@@ -390,7 +392,7 @@ class MonotonicRejectionGP:
             model=self.model,
             deriv_constraint_points=self._get_deriv_constraint_points(),
             objective=self.objective,
-            **self.extra_acqf_args
+            **self.extra_acqf_args,
         )
 
 
@@ -407,7 +409,7 @@ class MonotonicGPLSE(MonotonicRejectionGP):
     def __init__(
         self,
         likelihood: str,
-        monotonic_idxs: List[int],
+        monotonic_idxs: Sequence[int],
         covar_module: Optional[Kernel] = None,
         mean_module: Optional[Mean] = None,
         target_value: Optional[float] = None,
@@ -444,7 +446,7 @@ class MonotonicGPLSETS(MonotonicGPLSE):
         self,
         n: int = 1,
         model_gen_options: Optional[Dict[str, Any]] = None,
-        explore_features: Optional[List[int]] = None,
+        explore_features: Optional[Sequence[int]] = None,
     ) -> Tuple[torch.Tensor, Optional[List[Dict[str, Any]]]]:
         options = model_gen_options or {}
         num_ts_points = options.get("num_ts_points", 1000)  # OK for 2-d
@@ -478,7 +480,7 @@ class MonotonicGPRand(MonotonicGPLSE):
     def gen(
         self,
         model_gen_options: Optional[Dict[str, object]] = None,
-        explore_features: Optional[List[int]] = None,
+        explore_features: Optional[Sequence[int]] = None,
     ) -> Tuple[torch.Tensor, Optional[List[Dict[str, object]]]]:
         X = self.bounds_[0] + torch.rand(self.bounds_.shape[1]) * (
             self.bounds_[1] - self.bounds_[0]
