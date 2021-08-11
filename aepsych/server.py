@@ -24,7 +24,7 @@ import zmq
 from aepsych.config import Config
 from aepsych.strategy import SequentialStrategy
 
-logger = utils_logging.getLogger(logging.DEBUG)
+logger = utils_logging.getLogger(logging.INFO)
 
 
 def SimplifyArrays(message):
@@ -285,7 +285,7 @@ class AEPsychServer(object):
             if (
                 request["type"] == "ask" or request["type"] == "query"
             ) and skip_computations is True:
-                logger.debug(
+                logger.info(
                     "Request type is ask or query and skip_computations==True, skipping!"
                 )
                 # HACK increment strat's count and manually move to next strat as needed, since
@@ -425,7 +425,7 @@ class AEPsychServer(object):
                     f"Unknown message version {request['version']} for message 'ask'!"
                 )
         if request["type"] in handled_types:
-            logger.debug(f"Received msg [{request['type']}]")
+            logger.info(f"Received msg [{request['type']}]")
 
         else:
             warnings.warn(
@@ -501,7 +501,7 @@ class AEPsychServer(object):
         else:
             type = request["type"]
             if type in message_map.keys():
-                logger.debug(f"Received msg [{type}]")
+                logger.info(f"Received msg [{type}]")
                 ret_val = message_map[type](request)
 
                 return ret_val

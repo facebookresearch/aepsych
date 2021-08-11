@@ -29,7 +29,7 @@ gpytorch.settings.cholesky_jitter._global_float_value = 1e-3
 gpytorch.settings.cholesky_jitter._global_double_value = 1e-3
 gpytorch.settings.tridiagonal_jitter._global_value = 1e-3
 
-logger = utils_logging.getLogger(logging.DEBUG)
+logger = utils_logging.getLogger(logging.INFO)
 
 
 def _prune_extra_acqf_args(acqf, extra_acqf_args: Dict):
