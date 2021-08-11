@@ -10,19 +10,38 @@ from configparser import NoOptionError
 import gpytorch
 import numpy as np
 import torch
-from aepsych.kernels.rbf_partial_grad import (
-    RBFKernelPartialObsGrad,
-)
-from aepsych.means.constant_partial_grad import (
-    ConstantMeanPartialObsGrad,
-)
+from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
+from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
+from aepsych.config import Config
 from scipy.optimize import fsolve
 from scipy.stats import invgamma
 from scipy.stats import norm
+from typing import Tuple, Iterable
 
+"""AEPsych factory functions.
+These functions generate a gpytorch Mean and Kernel objects from
+aepsych.config.Config configurations, including setting lengthscale
+priors and so on. They are primarily used for programmatically
+constructing modular AEPsych models from configs.
 
-def _compute_invgamma_prior_params_inner(min_lengthscale, max_lengthscale, q=0.01):
-    # let's make an invgamma for which 99% of the density lives in our bounds
+TODO write a modular AEPsych tutorial.
+"""
+
+def _compute_invgamma_prior_params_inner(
+    min_lengthscale: float, max_lengthscale: float, q: float = 0.01
+) -> Tuple[float, float]:
+    """
+
+    Args:
+        min_lengthscale (float): Approximate minimum of desired prior.
+        max_lengthscale (float): Approximate maximum of desired prior.
+        q (float, optional): Proportion of prior to retain outside the
+            target range. Defaults to 0.01.
+
+    Returns:
+        Tuple[float, float]: alpha and beta params of invgamma distribution.
+    """
+
     def loss(theta):
         alpha, beta = theta
         return (
@@ -33,7 +52,23 @@ def _compute_invgamma_prior_params_inner(min_lengthscale, max_lengthscale, q=0.0
     return fsolve(loss, x0=(1 / max_lengthscale, 6 / max_lengthscale))
 
 
-def compute_invgamma_prior_params(mins, maxes, q):
+def compute_invgamma_prior_params(
+    mins: Iterable[float], maxes: Iterable[float], q: float
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Find inverse-gamma prior parameters.
+
+    What we do here is find gamma prior parameters for each element in mins and maxes
+    such that most (1-q proportion) of the prior density lives between the target min
+    and max.
+
+    Args:
+        mins (Iterable[float]): Target minimum lengthscales for each dimension.
+        maxes (Iterable[float]): Target maximum lengthscales for each dimension.
+        q (float): Proportion of prior that can be outside the target range.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: alpha, beta hyperparam tensors for inverse-gamma prior.
+    """
     res = [
         _compute_invgamma_prior_params_inner((upper - lower) / 10, upper - lower, q)
         for lower, upper in zip(mins, maxes)
@@ -43,7 +78,19 @@ def compute_invgamma_prior_params(mins, maxes, q):
     return torch.Tensor(alphas), torch.Tensor(betas)
 
 
-def default_mean_covar_factory(config):
+def default_mean_covar_factory(
+    config: Config,
+) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
+    """Default factory for generic GP models
+
+    Args:
+        config (Config): Object containing bounds (and potentially other
+            config details).
+
+    Returns:
+        Tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated
+            ConstantMean and ScaleKernel with priors based on bounds.
+    """
 
     lb = config.gettensor("default_mean_covar_factory", "lb")
     ub = config.gettensor("default_mean_covar_factory", "ub")
@@ -75,7 +122,18 @@ def default_mean_covar_factory(config):
     return mean, covar
 
 
-def monotonic_mean_covar_factory(config):
+def monotonic_mean_covar_factory(
+    config: Config,
+) -> Tuple[ConstantMeanPartialObsGrad, gpytorch.kernels.ScaleKernel]:
+    """Default factory for monotonic GP models based on derivative observations.
+
+    Args:
+        config (Config): Config containing (at least) bounds, and optionally LSE target.
+
+    Returns:
+        Tuple[ConstantMeanPartialObsGrad, gpytorch.kernels.ScaleKernel]: Instantiated mean and
+            scaled RBF kernels with partial derivative observations.
+    """
     lb = config.gettensor("monotonic_mean_covar_factory", "lb")
     ub = config.gettensor("monotonic_mean_covar_factory", "ub")
     mean_prior = ub - lb
@@ -115,11 +173,21 @@ def monotonic_mean_covar_factory(config):
     return mean, covar
 
 
-def song_mean_covar_factory(config):
+def song_mean_covar_factory(
+    config: Config,
+) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]:
     """
     Factory that makes kernels like Song et al. 2018:
-    linear in intensity dimension (assumed to be the last
-    dimension), RBF in context dimensions, add them together
+    Linear in intensity dimension (assumed to be the last
+    dimension), RBF in context dimensions, summed.
+
+    Args:
+        config (Config): Config object containing (at least) bounds and optionally
+            LSE target.
+
+    Returns:
+        Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]: Instantiated
+            constant mean object and additive kernel object.
     """
     lb = config.gettensor("song_mean_covar_factory", "lb")
     ub = config.gettensor("song_mean_covar_factory", "ub")
