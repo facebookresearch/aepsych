@@ -744,6 +744,16 @@ class AEPsychServer(object):
         del state["db"]
         return state
 
+    def dump(self, exception_type, dumptype):
+        if self._db_master_record is not None and self.strat is not None:
+            logger.info(f"Dumping strat to DB due to {exception_type}.")
+            buffer = dill.dumps(self.strat)
+            self.db.record_strat(master_table=self._db_master_record, strat=buffer)
+
+        fname = _get_next_filename(".", dumptype, "pkl")
+
+        logger.exception(f"Got {exception_type}, exiting! Server dump in {fname}")
+        dill.dump(self, open(fname, "wb"))
 
 def startServerAndRun(
     server_class, socket=None, database_path=None, config_path=None, uuid_of_replay=None
@@ -767,25 +777,13 @@ def startServerAndRun(
                 )
             server.replay(uuid_of_replay)
     except (KeyboardInterrupt, SystemExit):
-        if server._db_master_record is not None and server.strat is not None:
-            logger.info("Dumping strat to DB due to CTRL+C.")
-            buffer = dill.dumps(server.strat)
-            server.db.record_strat(master_table=server._db_master_record, strat=buffer)
-
-        fname = _get_next_filename(".", "dump", "pkl")
-
-        logger.exception(f"Got Ctrl+C, exiting! server dump in {fname}")
-        dill.dump(server, open(fname, "wb"))
+        exception_type = "CTRL+C"
+        dump_type = "dump"
+        server.dump(exception_type, dump_type)
     except RuntimeError as e:
-        if server._db_master_record is not None and server.strat is not None:
-            logger.info("Dumping strat to DB due to exception.")
-            buffer = dill.dumps(server.strat)
-            server.db.record_strat(master_table=server._db_master_record, strat=buffer)
-
-        fname = _get_next_filename(".", "crashdump", "pkl")
-
-        logger.exception(f"CRASHING!! dump in {fname}")
-        dill.dump(server, open(fname, "wb"))
+        exception_type = "RuntimeError"
+        dump_type = "crashdump"
+        server.dump(exception_type, dump_type)
         raise RuntimeError(e)
 
 
