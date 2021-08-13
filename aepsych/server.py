@@ -744,14 +744,14 @@ class AEPsychServer(object):
         del state["db"]
         return state
 
-    def dump(self, exception_type, dumptype):
+    def write_strat(self, termination_type):
         if self._db_master_record is not None and self.strat is not None:
-            logger.info(f"Dumping strat to DB due to {exception_type}.")
+            logger.info(f"Dumping strat to DB due to {termination_type}.")
             buffer = dill.dumps(self.strat)
             self.db.record_strat(master_table=self._db_master_record, strat=buffer)
 
+    def generate_debug_info(self, exception_type, dumptype):
         fname = _get_next_filename(".", dumptype, "pkl")
-
         logger.exception(f"Got {exception_type}, exiting! Server dump in {fname}")
         dill.dump(self, open(fname, "wb"))
 
@@ -776,14 +776,16 @@ def startServerAndRun(
                     "You have passed in a config path but this is a replay. If there's a config in the database it will be used instead of the passed in config path."
                 )
             server.replay(uuid_of_replay)
-    except (KeyboardInterrupt, SystemExit):
+    except (KeyboardInterrupt):
         exception_type = "CTRL+C"
         dump_type = "dump"
-        server.dump(exception_type, dump_type)
+        server.write_strat(exception_type)
+        server.generate_debug_info(exception_type, dump_type)
     except RuntimeError as e:
         exception_type = "RuntimeError"
         dump_type = "crashdump"
-        server.dump(exception_type, dump_type)
+        server.write_strat(exception_type)
+        server.generate_debug_info(exception_type, dump_type)
         raise RuntimeError(e)
 
 
