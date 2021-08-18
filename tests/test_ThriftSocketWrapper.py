@@ -53,8 +53,8 @@ class ThriftSocketTestCase(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ("test", "test"),
             ({"key1": 1.0, "key2": 2.0}, json.dumps({"key1": 1.0, "key2": 2.0})),
+            ("test", "test"),
             (1, "1"),
         ]
     )
