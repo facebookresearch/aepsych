@@ -720,7 +720,7 @@ class AEPsychServer(object):
 
 
     def _configure(self, config):
-        self.parnames = config.str_to_list(
+        self.parnames = config._str_to_list(
             config.get("experiment", "parnames"), element_type=str
         )
         self.outcome_type = config.get(

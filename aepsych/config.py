@@ -9,7 +9,7 @@ import configparser
 import pprint
 import warnings
 from types import ModuleType
-from typing import Dict, TypeVar
+from typing import Dict, TypeVar, Mapping, Sequence, List
 
 import botorch
 import gpytorch
@@ -24,24 +24,40 @@ class Config(configparser.ConfigParser):
     registered_names: Dict[str, object] = {}
 
     def __init__(
-        self, config_dict=None, config_fnames=None, config_list=None, config_str=None
+        self,
+        config_dict: Mapping[str, str] = None,
+        config_fnames: Sequence[str] = None,
+        config_str: str = None,
     ):
+        """Initialize the AEPsych config object. This can be used to instantiate most
+        objects in AEPsych by calling object.from_config(config).
+
+        TODO write a tutorial on writing configs.
+
+        Args:
+            config_dict (Mapping[str, str], optional): Mapping to build configuration from.
+                Keys are section names, values are dictionaries with keys and values that
+                should be present in the section. Defaults to None.
+            config_fnames (Sequence[str], optional): List of INI filenames to load
+                configuration from. Defaults to None.
+            config_str (str, optional): String formatted as an INI file to load configuration
+                from. Defaults to None.
+        """
         super().__init__(
             inline_comment_prefixes=("#"),
             empty_lines_in_values=False,
             default_section="common",
             interpolation=configparser.ExtendedInterpolation(),
             converters={
-                "list": self.str_to_list,
-                "tensor": self.str_to_tensor,
-                "obj": self.str_to_obj,
+                "list": self._str_to_list,
+                "tensor": self._str_to_tensor,
+                "obj": self._str_to_obj,
             },
         )
 
         self.update(
             config_dict=config_dict,
             config_fnames=config_fnames,
-            config_list=config_list,
             config_str=config_str,
         )
 
@@ -88,21 +104,32 @@ class Config(configparser.ConfigParser):
             )
 
     def update(
-        self, config_dict=None, config_fnames=None, config_list=None, config_str=None
+        self,
+        config_dict: Mapping[str, str] = None,
+        config_fnames: Sequence[str] = None,
+        config_str: str = None,
     ):
+        """Update this object with a new configuration.
+
+        Args:
+            config_dict (Mapping[str, str], optional): Mapping to build configuration from.
+                Keys are section names, values are dictionaries with keys and values that
+                should be present in the section. Defaults to None.
+            config_fnames (Sequence[str], optional): List of INI filenames to load
+                configuration from. Defaults to None.
+            config_str (str, optional): String formatted as an INI file to load configuration
+                from. Defaults to None.
+        """
         if config_dict is not None:
             self.read_dict(config_dict)
 
         if config_fnames is not None:
             self.read(config_fnames)
 
-        if config_list is not None:
-            self.read(config_list)
-
         if config_str is not None:
             self.read_string(config_str)
 
-    def str_to_list(self, v, element_type=float):
+    def _str_to_list(self, v: str, element_type: _T = float) -> List[_T]:
         if v[0] == "[" and v[-1] == "]":
             if v == "[]":  # empty list
                 return []
@@ -111,10 +138,10 @@ class Config(configparser.ConfigParser):
         else:
             return [v.strip()]
 
-    def str_to_tensor(self, v):
-        return torch.Tensor(self.str_to_list(v))
+    def _str_to_tensor(self, v: str) -> torch.Tensor:
+        return torch.Tensor(self._str_to_list(v))
 
-    def str_to_obj(self, v, fallback_type=str, warn=True):
+    def _str_to_obj(self, v: str, fallback_type: _T = str, warn: bool = True) -> object:
 
         try:
             return self.registered_names[v]
@@ -138,6 +165,12 @@ class Config(configparser.ConfigParser):
 
     @classmethod
     def register_module(cls: _T, module: ModuleType):
+        """Register a module with Config so that objects in it can
+           be referred to by their string name in config files.
+
+        Args:
+            module (ModuleType): Module to register.
+        """
         cls.registered_names.update(
             {
                 name: getattr(module, name)
@@ -148,6 +181,12 @@ class Config(configparser.ConfigParser):
 
     @classmethod
     def register_object(cls: _T, obj: object):
+        """Register an object with Config so that it can be
+            referred to by its string name in config files.
+
+        Args:
+            obj (object): Object to register.
+        """
         if obj.__name__ in cls.registered_names.keys():
             warnings.warn(
                 f"Registering {obj.__name__} but already"
