@@ -38,7 +38,7 @@ def SimplifyArrays(message):
     }
 
 
-def _get_next_filename(folder, fname, ext):
+def get_next_filename(folder, fname, ext):
     n = sum(1 for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)))
     return f"{folder}/{fname}_{n+1}.{ext}"
 
@@ -751,7 +751,7 @@ class AEPsychServer(object):
             self.db.record_strat(master_table=self._db_master_record, strat=buffer)
 
     def generate_debug_info(self, exception_type, dumptype):
-        fname = _get_next_filename(".", dumptype, "pkl")
+        fname = get_next_filename(".", dumptype, "pkl")
         logger.exception(f"Got {exception_type}, exiting! Server dump in {fname}")
         dill.dump(self, open(fname, "wb"))
 
@@ -918,7 +918,7 @@ def start_server(server_class, args):
         logger.exception("Got Ctrl+C, exiting!")
         sys.exit()
     except RuntimeError as e:
-        fname = _get_next_filename(".", "dump", "pkl")
+        fname = get_next_filename(".", "dump", "pkl")
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
 
