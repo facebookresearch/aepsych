@@ -127,8 +127,7 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
                 )
         else:
             next_pts, _ = self.model.gen(
-                model_gen_options=gen_args,
-                explore_features=explore_strat_features,
+                model_gen_options=gen_args, explore_features=explore_strat_features,
             )
 
         return next_pts.numpy()
@@ -209,7 +208,10 @@ class MonotonicSingleProbitModelbridge(ModelBridge):
         samps = config.getint(classname, "samps", fallback=1000)
         assert lb.shape[0] == ub.shape[0], "bounds are of different shapes!"
         dim = lb.shape[0]
-
+        for idx in monotonic_idxs:
+            assert (
+                idx < dim
+            ), f"monotonic_idx {int(idx)} is out of bounds for dimensionality {dim}"
         acqf = config.getobj("experiment", "acqf", fallback=MonotonicMCLSE)
         acqf_name = acqf.__name__
 
