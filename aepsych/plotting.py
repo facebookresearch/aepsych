@@ -19,7 +19,7 @@ def plot_strat(
     true_testfun: Optional[Callable] = None,
     cred_level: float = 0.95,
     target_level: float = 0.75,
-    xlabel: str = "Context (abstract)",
+    xlabel: Optional[str] = None,
     ylabel: Optional[str] = None,
     yes_label: str = "Yes trial",
     no_label: str = "No trial",
@@ -38,16 +38,16 @@ def plot_strat(
     Args:
         strat (ModelWrapperStrategy): Strategy object to be plotted. Must have a dimensionality of 2 or less.
         ax (plt.Axes, optional): Matplotlib axis to plot on (if None, creates a new axis). Default: None.
-        true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor 
+        true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor
                     as input and produce the response probability at each sample as output. Default: None.
         cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.
         target_level (float): Response probability to estimate the threshold of. Default: 0.75.
         xlabel (str): Label of the x-axis. Default: "Context (abstract)".
-        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or 
+        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or
                       "Intensity (Abstract)" for 2-d plots). Default: None.
         yes_label (str): Label of trials with response of 1. Default: "Yes trial".
         no_label (str): Label of trials with response of 0. Default: "No trial".
-        flipx (bool): Whether the values of the x-axis should be flipped such that the min becomes the max and vice 
+        flipx (bool): Whether the values of the x-axis should be flipped such that the min becomes the max and vice
                       versa.
                (Only valid for 2-d plots.) Default: False.
         logx (bool): Whether the x-axis should be log-transformed. (Only valid for 2-d plots.) Default: False.
@@ -56,11 +56,14 @@ def plot_strat(
         save_path (str, optional): File name to save the plot to. Default: None.
         show (bool): Whether the plot should be shown in an interactive window. Default: True.
         include_legend (bool): Whether to include the legend in the figure. Default: True.
-        include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials. 
+        include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials.
                                  Default: True.
     """
     if ax is None:
         _, ax = plt.subplots()
+
+    if xlabel is None:
+        xlabel = "Context (abstract)"
 
     dim = strat.dim
     if dim == 1:
@@ -105,13 +108,18 @@ def plot_strat(
     ax.set_title(title)
 
     if include_legend:
-        plt.legend(loc="center left", bbox_to_anchor=(1.4, 0.5))
+        anchor = (1.4, 0.5) if include_colorbar and dim > 1 else (1, 0.5)
+        plt.legend(loc="center left", bbox_to_anchor=anchor)
 
     if save_path is not None:
         plt.savefig(save_path, bbox_inches="tight")
 
     if show:
+        ax.set_aspect(1)
         plt.tight_layout()
+
+        if include_legend or (include_colorbar and dim > 1):
+            plt.subplots_adjust(left=0.1, bottom=0.25, top=0.75)
         plt.show()
 
 
@@ -132,7 +140,7 @@ def _plot_strat_1d(
     x, y = strat.x, strat.y
 
     grid = _dim_grid(modelbridge=strat.modelbridge, gridsize=gridsize)
-    samps = norm.cdf(strat.modelbridge.sample(grid))
+    samps = norm.cdf(strat.modelbridge.sample(grid, num_samples=10000).detach())
     phimean = samps.mean(0)
     upper = np.quantile(samps, cred_level, axis=0)
     lower = np.quantile(samps, 1 - cred_level, axis=0)
