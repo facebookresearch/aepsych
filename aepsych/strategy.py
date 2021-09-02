@@ -202,7 +202,12 @@ class ModelWrapperStrategy(Strategy):
             classname, "stopping_threshold", fallback=None
         )
         refit_every = config.getint(classname, "refit_every", fallback=1)
-        return cls(modelbridge=modelbridge, n_trials=n_trials, stopping_threshold=stopping_threshold, refit_every=refit_every)
+        return cls(
+            modelbridge=modelbridge,
+            n_trials=n_trials,
+            stopping_threshold=stopping_threshold,
+            refit_every=refit_every,
+        )
 
 
 class SobolStrategy(Strategy):
@@ -210,8 +215,15 @@ class SobolStrategy(Strategy):
         self, lb, ub, n_trials, dim=1, outcome_type="single_probit", seed=None
     ):
         super().__init__(lb=lb, ub=ub, dim=dim, outcome_type=outcome_type)
+        if n_trials <= 0:
+            warnings.warn(
+                "SobolStrategy was initialized with n_trials <= 0; it will not generate any points!"
+            )
 
-        self.points = make_scaled_sobol(lb=lb, ub=ub, size=n_trials, seed=seed)
+        if n_trials > 0:
+            self.points = make_scaled_sobol(lb=lb, ub=ub, size=n_trials, seed=seed)
+        else:
+            self.points = np.array([])
 
         self.n_trials = n_trials
         self._count = 0
@@ -275,6 +287,9 @@ class SequentialStrategy(object):
             return
 
         # populate new model with final data from last model
+        assert (
+            self.x is not None and self.y is not None
+        ), "Cannot initialize next strategy; no data has been given!"
         self.strat_list[self._strat_idx + 1].add_data(self.x, self.y)
 
         self._suggest_count = 0

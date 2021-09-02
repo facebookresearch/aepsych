@@ -138,3 +138,25 @@ class ConfigTestCase(unittest.TestCase):
 
         with self.assertWarns(Warning):
             Config.register_object(DummyMod)
+
+    def test_sobol_n_trials(self):
+        for n_trials in [-1, 0, 1]:
+            config_str = f"""
+                [common]
+                lb = [0]
+                ub = [1]
+                parnames = [par1]
+
+                [SobolStrategy]
+                n_trials = {n_trials}
+                """
+            config = Config()
+            config.update(config_str=config_str)
+            if n_trials <= 0:
+                with self.assertWarns(UserWarning):
+                    model = SobolStrategy.from_config(config)
+            else:
+                model = SobolStrategy.from_config(config)
+            self.assertEqual(model.n_trials, n_trials)
+            self.assertEqual(len(model.points), max(0, n_trials))
+            self.assertEqual(model.finished, n_trials <= 0)
