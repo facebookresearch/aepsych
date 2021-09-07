@@ -115,7 +115,6 @@ def plot_strat(
         plt.savefig(save_path, bbox_inches="tight")
 
     if show:
-        ax.set_aspect(1)
         plt.tight_layout()
 
         if include_legend or (include_colorbar and dim > 1):
