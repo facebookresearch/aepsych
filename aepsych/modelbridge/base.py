@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
@@ -6,11 +7,15 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+
 from inspect import signature
 from typing import Dict, Mapping, Optional, Tuple, Union
 
+from aepsych.utils import make_scaled_sobol
 import aepsych.utils_logging as utils_logging
+
 import botorch
+
 import gpytorch
 import numpy as np
 import torch
@@ -20,6 +25,7 @@ from botorch.acquisition import (
     qNoisyExpectedImprovement,
     qUpperConfidenceBound,
 )
+from scipy.optimize import minimize
 from scipy.stats import norm
 
 # this is pretty aggressive jitter setting but should protect us from
@@ -300,11 +306,12 @@ class ModelBridge(object):
         Returns:
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
-        fmean, fvar = self.predict(x)
+        post = self.model.posterior(torch.Tensor(x))
+        fmean, fvar = post.mean.squeeze().detach().numpy(), post.variance.squeeze().detach().numpy()
         if probability_space:
-            return norm.cdf(fmean.detach().numpy()), norm.cdf(fvar.detach().numpy())
+            return norm.cdf(fmean), norm.cdf(fvar)
         else:
-            return fmean.detach().numpy(), fvar.detach().numpy()
+            return fmean, fvar
 
     def get_max(self) -> Tuple[float, np.ndarray]:
         """Return the maximum of the modeled function
@@ -312,14 +319,41 @@ class ModelBridge(object):
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
         """
-        # TODO: Do this the right way, e.g. w/ gradient descent. Uses grid estimate for now.
-        d = _dim_grid(self, gridsize=10)  # If it's >2D, gridsize must stay small
+        return self._get_extremum('max')
 
-        fmean, fvar = self.predict(d)
-        fmean = fmean.detach().numpy()
-        fmax = np.max(fmean)
-        fmax_loc = d[np.where(fmean == fmax)[0][0]].detach().numpy()
-        return fmax, fmax_loc
+    def _get_extremum(self, extremum_type: str, n_samples: int = 1000) -> Tuple[float, np.ndarray]:
+        """Return the extremum (min or max) of the modeled function
+
+        Args:
+            extremum_type (str): type of extremum (currently 'min' or 'max'
+            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
+
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+        """
+
+        def signed_model(x, sign=1):
+            return sign*self.query([x])[0]
+
+        bounds = tuple(zip(self.lb.numpy(), self.ub.numpy()))
+
+        #generate a coarse sample to compute an initial estimate.
+        d = make_scaled_sobol(self.lb, self.ub, n_samples, seed=0)
+
+        fmean, _ = self.query(d)
+
+        if extremum_type=='max':
+            estimate = d[np.where(fmean==np.max(fmean))[0][0]]
+            a = minimize(signed_model, estimate, args=-1, method='Powell', bounds=bounds)
+            return -a.fun, a.x
+        elif extremum_type=='min':
+            estimate = d[np.where(fmean==np.min(fmean))[0][0]]
+            a = minimize(signed_model, estimate, args=1, method='Powell', bounds=bounds)
+            return a.fun, a.x
+
+        else:
+            raise RuntimeError(f"Unknown extremum type: '{extremum_type}'! Valid types: 'min', 'max' ")
+
 
     def get_min(self) -> Tuple[float, np.ndarray]:
         """Return the minimum of the modeled function
@@ -327,19 +361,14 @@ class ModelBridge(object):
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
         """
-        # TODO: do this the right way w/ gradient descent. Uses grid estimate for now.
-        d = _dim_grid(self, gridsize=10)
-        fmean, fvar = self.predict(d)
-        fmean = fmean.detach().numpy()
-        fmin = np.min(fmean)
-        fmin_loc = d[np.where(fmean == fmin)[0][0]].detach().numpy()
-        return fmin, fmin_loc
+        return self._get_extremum('min')
 
     def inv_query(
         self,
         y: float,
         locked_dims: Mapping[int, float],
         probability_space: bool = False,
+        n_samples: int = 1000
     ) -> Tuple[float, np.ndarray]:
         """Query the model inverse.
 
@@ -358,19 +387,26 @@ class ModelBridge(object):
             Tuple[float, np.ndarray]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
         """
-        # TODO: do this the right way w/ iteration and/or interpolation. Uses grid estimate for now.
-        # Look for point with value closest to y, subject the dict of locked dims
-        d = _dim_grid(self, gridsize=10)
+
+        def model_distance(x, pt, probability_space):
+            return np.abs(self.query([x], probability_space)[0]-pt)
+
+        #Look for point with value closest to y, subject the dict of locked dims
+
+        query_lb = self.lb.clone().numpy()
+        query_ub = self.ub.clone().numpy()
+
         for locked_dim in locked_dims.keys():
-            d = d[np.where(d[:, locked_dim] == self.lb[locked_dim])]
-            d[:, locked_dim] = locked_dims[locked_dim]
-        fmean, fvar = self.predict(d)
-        fmean = fmean.detach().numpy()
-        if probability_space:
-            fmean = norm.cdf(fmean)
-        nearest_ind = int(
-            np.argmin(np.abs(fmean - y))
-        )  # explicit cast because numpy ints aren't python ints ???
-        nearest_y = fmean[nearest_ind].item()
-        nearest_loc = d[nearest_ind].detach().numpy()
-        return nearest_y, nearest_loc
+            query_lb[locked_dim] = locked_dims[locked_dim]
+            query_ub[locked_dim] = locked_dims[locked_dim]
+
+        d = make_scaled_sobol(query_lb, query_ub, n_samples, seed=0)
+
+        bounds = tuple(zip(query_lb, query_ub))
+
+        fmean, _ = self.query(d, probability_space)
+
+        f = np.abs(fmean-y)
+        estimate = d[np.where(f==np.min(f))[0][0]]
+        a = minimize(model_distance, estimate, args=(y, probability_space), method='Powell', bounds=bounds)
+        return self.query([a.x], probability_space)[0], a.x

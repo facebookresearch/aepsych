@@ -632,22 +632,20 @@ class AEPsychServer(object):
             # returns the model value at x
             if x is None:  # TODO: ensure if x is between lb and ub
                 raise RuntimeError("Cannot query model at location = None!")
-            mean, var = self.strat.query(
-                torch.Tensor([x]), probability_space=probability_space
-            )
+            mean, var = self.strat.query([x], probability_space=probability_space)
             response["x"] = x
             response["y"] = mean.item()
         elif query_type == "inverse":
-            # expect to be a dictionary
+            # expect constraints to be a dictionary
             if type(constraints) != dict:
-                raise RuntimeError("For inv_query, constraints must be a dict!")
+                raise RuntimeError("For query type \"inverse\", constraints must be a dict!")
             constraints = {int(k): v for k, v in constraints.items()}
             if len(constraints) >= len(self.parnames):
                 raise RuntimeError(
-                    "Inverse query requires at least one unconstrained dimension!"
+                    "For query type \"inverse\", len(constraints) must be less than number of parameters."
                 )
             nearest_y, nearest_loc = self.strat.inv_query(
-                y, constraints, probability_space=probability_space
+                [y], constraints, probability_space=probability_space
             )
             response["y"] = nearest_y.astype(float)
             response["x"] = nearest_loc.astype(float)

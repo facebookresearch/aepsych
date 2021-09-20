@@ -387,6 +387,66 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
         est_jnd_taylor = jnd_taylor[50]
         self.assertTrue(np.abs(est_jnd_taylor - 1.5) < 0.25)
 
+
+
+    def test_1d_query(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        n_init = 150
+        n_opt = 1
+        lb = -4.0
+        ub = 4.0
+
+        target = 0.5
+
+        def obj(x):
+            return -((Normal(0, 1).cdf(x[..., 0]) - target) ** 2)
+
+        #Test sine function with period 4
+        def test_fun(x):
+            return np.sin(np.pi*x/4)
+
+        mc_objective = GenericMCObjective(obj)
+        extra_acqf_args = {"objective": mc_objective, "beta": 1.96}
+        strat_list = [
+            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
+            ModelWrapperStrategy(
+                modelbridge=SingleProbitModelbridge(
+                    lb=lb,
+                    ub=ub,
+                    acqf=qUpperConfidenceBound,
+                    extra_acqf_args=extra_acqf_args,
+                ),
+                n_trials=n_opt,
+            ),
+        ]
+
+        strat = SequentialStrategy(strat_list)
+
+        for _i in range(n_init + n_opt):
+            next_x = strat.gen()
+            strat.add_data(next_x, [bernoulli.rvs(norm.cdf(test_fun(next_x)))])
+
+        # We expect the global max to be at (2, 1), the min at (-2, -1)
+        fmax, argmax = strat.get_max()
+        self.assertTrue(np.abs(fmax - 1) < 0.5)
+        self.assertTrue(np.abs(argmax[0] - 2) < 0.5)
+
+        fmin, argmin = strat.get_min()
+        self.assertTrue(np.abs(fmin + 1) < 0.5)
+        self.assertTrue(np.abs(argmin[0] + 2) < 0.5)
+
+        #Query at x=2 should be f=1
+        self.assertTrue(np.abs(strat.query(np.array([2]))[0]-1) < 0.5)
+
+        #Inverse query at val 1 should return (1,[2])
+        val, loc = strat.inv_query(1.0, constraints={})
+        self.assertTrue(np.abs(val-1) < 0.5)
+        self.assertTrue(np.abs(loc[0] - 2) < 0.5)
+
+
+
     def test_1d_single_lse(self):
 
         seed = 1
