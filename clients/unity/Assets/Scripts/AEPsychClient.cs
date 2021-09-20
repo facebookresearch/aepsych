@@ -18,68 +18,89 @@ using System.IO;
 
 namespace AEPsych
 {
-public enum RequestType { setup, ask, tell, resume};
+    public enum RequestType { setup, ask, tell, resume, query, parameters };
+    public enum QueryType { min, max, prediction, inverse }
 
-// TODO make this a little more strongly typed
-public class TrialConfig: Dictionary<string, List<float>>{}
+    // TODO make this a little more strongly typed
+    public class TrialConfig : Dictionary<string, List<float>> { }
 
-public class Request
-{
-    // this should definitely be more narrowly defined
-    public object message;
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public RequestType type;
-
-    public Request(object message, RequestType type)
+    public class Request
     {
-        this.message = message;
-        this.type = type;
-    }
-}
+        // this should definitely be more narrowly defined
+        public object message;
 
-public class VersionedRequest : Request
-{
-    public string version;
-    public VersionedRequest(object message, RequestType type, string version) : base(message, type)
+        [JsonConverter(typeof(StringEnumConverter))]
+        public RequestType type;
+
+        public Request(object message, RequestType type)
+        {
+            this.message = message;
+            this.type = type;
+        }
+    }
+
+    public class VersionedRequest : Request
     {
-        this.version = version;
-    }
-}
-
-public class TrialWithOutcome
-{
-    public TrialConfig config;
-    public int outcome;
-
-    public TrialWithOutcome(TrialConfig config, int outcome){
-        this.config = config;
-        this.outcome = outcome;
+        public string version;
+        public VersionedRequest(object message, RequestType type, string version) : base(message, type)
+        {
+            this.version = version;
+        }
     }
 
-}
-
-public class ResumeMessage
-{
-    public int strat_id;
-
-    public ResumeMessage(int strat_id)
+    public class TrialWithOutcome
     {
-        this.strat_id = strat_id;
-    }
-}
+        public TrialConfig config;
+        public int outcome;
 
-public class Target
-{
-    public string target;
-    public Target(string target)
+        public TrialWithOutcome(TrialConfig config, int outcome)
+        {
+            this.config = config;
+            this.outcome = outcome;
+        }
+
+    }
+
+    public class QueryMessage
     {
-        this.target = target;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public QueryType query_type;
+        public List<float> x;
+        public float y;
+        public Dictionary<int, float> constraints;
+        public bool probability_space;
+
+        public QueryMessage(QueryType queryType, List<float> x, float y, Dictionary<int, float> constraints, bool probability_space)
+        {
+            this.query_type = queryType;
+            this.x = x;
+            this.y = y;
+            this.constraints = constraints;
+            this.probability_space = probability_space;
+        }
     }
-}
+
+    public class ResumeMessage
+    {
+        public int strat_id;
+
+        public ResumeMessage(int strat_id)
+        {
+            this.strat_id = strat_id;
+        }
+    }
+
+    public class Target
+    {
+        public string target;
+        public Target(string target)
+        {
+            this.target = target;
+        }
+    }
 
 
- public class SetupMessage
+    public class SetupMessage
     {
         public string config_str;
 
@@ -100,8 +121,10 @@ public class Target
         public int currentStrat;
         public string server_address = "tcp://localhost";
         public string server_port = "5555";
+        public bool finished;
 
-        public string ReadFile(string filePath) {
+        public string ReadFile(string filePath)
+        {
             var sr = new StreamReader(filePath);
             string fileContents = sr.ReadToEnd();
             sr.Close();
@@ -120,6 +143,16 @@ public class Target
             SetupMessage setupMessage = new SetupMessage(configStr: configStr);
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(new VersionedRequest(setupMessage, RequestType.setup, version))));
         }
+
+        public void ConnectServer()
+        {
+            CleanupClient();
+            AsyncIO.ForceDotNet.Force();
+            status = ClientStatus.Ready;
+            client = new RequestSocket();
+            client.Connect($"{this.server_address}:{this.server_port}");
+        }
+
 
         IEnumerator SendRequest(string query)
         {
@@ -167,6 +200,10 @@ public class Target
             }
             status = ClientStatus.Ready;
             baseConfig = JsonConvert.DeserializeObject<TrialConfig>(reply);
+            if (baseConfig.ContainsKey("finished"))
+            {
+                finished = (1 == baseConfig["finished"][0]);
+            }
             return baseConfig;
         }
 
@@ -191,6 +228,39 @@ public class Target
         {
             Request req = new Request("", RequestType.ask);
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
+        }
+
+        public IEnumerator Params()
+        {
+            Request req = new Request("", RequestType.parameters);
+            yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
+        }
+
+        public IEnumerator Query(QueryType queryType, List<float> x = null, float y = 0, Dictionary<int, float> constraints = null, bool probability_space = false)
+        {
+            if (x == null)
+            {
+                x = new List<float>() { };
+            }
+            if (constraints == null)
+            {
+                constraints = new Dictionary<int, float>() { };
+            }
+
+            QueryMessage message = new QueryMessage(queryType, x, y, constraints, probability_space);
+            Request req = new Request(message, RequestType.query);
+            string s = JsonConvert.SerializeObject(req);
+            yield return StartCoroutine(this.SendRequest(s));
+        }
+        public QueryMessage GetQueryResponse()
+        {
+            if (status != ClientStatus.GotResponse)
+            {
+                Debug.Log("Error! Called getQuery() when there is no reply available! Current status is " + status);
+            }
+            status = ClientStatus.Ready;
+            QueryMessage queryResponse = JsonConvert.DeserializeObject<QueryMessage>(reply);
+            return queryResponse;
         }
 
         public IEnumerator Resume(int strat_id, string version = "0.01")
