@@ -48,6 +48,18 @@ namespace AEPsych
         }
     }
 
+    public class TrialWithFinished
+    {
+        public TrialConfig config;
+        public bool is_finished;
+
+        public TrialWithFinished(TrialConfig config, bool is_finished)
+        {
+            this.config = config;
+            this.is_finished = is_finished;
+        }
+    }
+
     public class TrialWithOutcome
     {
         public TrialConfig config;
@@ -192,18 +204,24 @@ namespace AEPsych
             }
         }
 
-        public TrialConfig GetConfig()
+        public TrialConfig GetConfig(string version = "0.01")
         {
             if (status != ClientStatus.GotResponse)
             {
                 Debug.Log("Error! Called getConfig() when there is no reply available! Current status is " + status);
             }
             status = ClientStatus.Ready;
-            baseConfig = JsonConvert.DeserializeObject<TrialConfig>(reply);
-            if (baseConfig.ContainsKey("finished"))
+            if (version == "0.01")
             {
-                finished = (1 == baseConfig["finished"][0]);
+                TrialWithFinished config = JsonConvert.DeserializeObject<TrialWithFinished>(reply);
+                finished = config.is_finished;
+                baseConfig = config.config;
             }
+            else
+            {
+                baseConfig = JsonConvert.DeserializeObject<TrialConfig>(reply);
+            }
+
             return baseConfig;
         }
 
@@ -226,7 +244,7 @@ namespace AEPsych
         }
         public IEnumerator Ask()
         {
-            Request req = new Request("", RequestType.ask);
+            VersionedRequest req = new VersionedRequest("", RequestType.ask, version: "0.01");
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
         }
 

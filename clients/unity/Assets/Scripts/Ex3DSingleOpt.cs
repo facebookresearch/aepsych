@@ -18,9 +18,7 @@ public class Ex3DSingleOpt : MonoBehaviour
 {
     public AEPsychClient client;
     TrialConfig config;
-    AEPsychClient.ClientStatus clientStatus;
 
-    bool isDone = false;
     int trialNum = 0;
     int totalTrials = 50;
 
@@ -74,7 +72,7 @@ public class Ex3DSingleOpt : MonoBehaviour
 
     IEnumerator RunExperiment()
     {
-        while (!isDone) {
+        while (!client.finished) {
             Debug.Log(trialNum);
 
             SetText("Querying for next trial");
@@ -91,19 +89,11 @@ public class Ex3DSingleOpt : MonoBehaviour
 
             yield return StartCoroutine(LogUserInput());
 
-
-
-
-            if (trialNum == (totalTrials-1))
-            {
-                SetText("Experiment complete");
-                isDone = true;
-                break;
-            }
-
             trialNum++;
 
         }
+        SetText("Experiment complete");
+
         yield return 0;
 
     }

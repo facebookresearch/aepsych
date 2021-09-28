@@ -17,9 +17,7 @@ public class Ex1DSingleDetection : MonoBehaviour
 {
     public AEPsychClient client;
     TrialConfig config;
-    AEPsychClient.ClientStatus clientStatus;
 
-    bool isDone = false;
     int trialNum = 0;
     int totalTrials = 25;
 
@@ -68,7 +66,7 @@ public class Ex1DSingleDetection : MonoBehaviour
 
     IEnumerator RunExperiment()
     {
-        while (!isDone) {
+        while (!client.finished) {
             SetText("Querying for next trial");
             yield return StartCoroutine(client.Ask());
 
@@ -82,18 +80,12 @@ public class Ex1DSingleDetection : MonoBehaviour
             SetText("Was it visible? (Y/N)");
 
             yield return StartCoroutine(LogUserInput());
-
-
-            if (trialNum == (totalTrials-1))
-            {
-                SetText("Experiment complete");
-                isDone = true;
-                break;
-            }
-
             trialNum++;
 
         }
+
+        SetText("Experiment complete!");
+
         yield return 0;
 
     }

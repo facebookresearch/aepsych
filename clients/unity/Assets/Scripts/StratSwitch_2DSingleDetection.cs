@@ -117,7 +117,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
             yield return StartCoroutine(LogUserInput());
 
             //check if strat or experiment is done
-            if (AEPsychStrats[currentStrat].currentTrial == (totalTrials-1))
+            if (client.finished) //check if this was the final ask for this strat
             {
                 SetText("Strat is complete.");
                 AEPsychStrats[currentStrat].isDone = true;

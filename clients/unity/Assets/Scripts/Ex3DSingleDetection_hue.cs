@@ -18,9 +18,7 @@ public class Ex3DSingleDetection_hue : MonoBehaviour
     //Include for all EventLoops
     public AEPsychClient client;
     TrialConfig config;
-    AEPsychClient.ClientStatus clientStatus;
 
-    bool isDone = false;
     int trialNum = 0;
     int totalTrials = 30;
 
@@ -71,7 +69,7 @@ public class Ex3DSingleDetection_hue : MonoBehaviour
 
     IEnumerator RunExperiment()
     {
-        while (!isDone)
+        while (!client.finished)
         {
             Debug.Log(trialNum);
 
@@ -89,18 +87,12 @@ public class Ex3DSingleDetection_hue : MonoBehaviour
 
             yield return StartCoroutine(LogUserInput());
 
-            if (trialNum == (totalTrials - 1))
-            {
-                SetText("Experiment complete");
-                isDone = true;
-                break;
-            }
-
 
             trialNum++;
 
 
         }
+        SetText("Experiment complete");
         yield return 0;
 
     }
