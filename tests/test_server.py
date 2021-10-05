@@ -201,6 +201,8 @@ class ServerTestCase(unittest.TestCase):
         self.assertRaises(RuntimeError, self.s.replay, None)
 
     def test_replay_server_none_db(self):
+        # Remove the db generated from setUp()
+        self.s.db.delete_db()
         self.s.db = None
         self.assertRaises(RuntimeError, self.s.replay, "TEST")
 

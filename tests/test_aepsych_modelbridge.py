@@ -4,8 +4,12 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+import logging
 import unittest
+import uuid
 
+import aepsych.server as server
+import aepsych.utils_logging as utils_logging
 import numpy as np
 import torch
 from aepsych.acquisition.lse import LevelSetEstimation
@@ -17,7 +21,6 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.modelbridge.monotonic import MonotonicSingleProbitModelbridge
 from aepsych.modelbridge.single_probit import SingleProbitModelbridge
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
-from aepsych.server import AEPsychServer
 from aepsych.strategy import (
     SequentialStrategy,
     SobolStrategy,
@@ -736,6 +739,20 @@ class SingleProbitModelbridgeModelBridgeTest(unittest.TestCase):
 
 
 class SingleProbitModelbridgeServerTest(unittest.TestCase):
+    def setUp(self):
+        # setup logger
+        server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
+        # use dummy socket
+        socket = server.DummySocket()
+        # random datebase path name without dashes
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        self.s = server.AEPsychServer(socket=socket, database_path=database_path)
+
+    def tearDown(self):
+        # cleanup the db
+        if self.s.db is not None:
+            self.s.db.delete_db()
+
     def test_1d_single_server(self):
 
         seed = 1
@@ -751,7 +768,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer()
+        server = self.s
         server.configure(config_dict=experiment_config)
 
         for _i in range(n_init + n_opt):
@@ -796,7 +813,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
         }
 
         resume_msg = {"type": "resume", "version": "0.01", "message": {"strat_id": 0}}
-        server = AEPsychServer()
+        server = self.s
 
         resp0 = server.versioned_handler(config1_msg)
 
@@ -819,7 +836,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer()
+        server = self.s
         server.configure(config_dict=experiment_config)
 
         conf = server.ask()
@@ -833,7 +850,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer()
+        server = self.s
         server.configure(config_dict=experiment_config)
 
         conf = server.ask()
@@ -847,7 +864,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer()
+        server = self.s
         server.configure(config_dict=experiment_config)
         conf = server.ask()
 
@@ -866,7 +883,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer()
+        server = self.s
         server.configure(config_dict=experiment_config)
         for _i in range(n_init + n_opt):
             next_config = server.ask()
@@ -900,7 +917,7 @@ class SingleProbitModelbridgeServerTest(unittest.TestCase):
             "ModelWrapperStrategy": {"n_trials": n_opt},
         }
 
-        server = AEPsychServer()
+        server = self.s
         server.configure(config_dict=experiment_config)
         for _i in range(n_init + n_opt):
             next_config = server.ask()
