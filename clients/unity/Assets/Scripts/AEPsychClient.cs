@@ -32,10 +32,19 @@ namespace AEPsych
         [JsonConverter(typeof(StringEnumConverter))]
         public RequestType type;
 
+        public TrialMetadata extra_info;
+
         public Request(object message, RequestType type)
         {
             this.message = message;
             this.type = type;
+            this.extra_info = null;
+        }
+        public Request(object message, RequestType type, TrialMetadata extra_info)
+        {
+            this.message = message;
+            this.type = type;
+            this.extra_info = extra_info;
         }
     }
 
@@ -143,7 +152,6 @@ namespace AEPsych
             return fileContents;
         }
 
-
         public IEnumerator StartServer(string configPath, string version = "0.01")
         {
             CleanupClient();
@@ -236,10 +244,18 @@ namespace AEPsych
             return currentStrat;
         }
 
-        public IEnumerator Tell(TrialConfig trialConfig, int outcome)
+        public IEnumerator Tell(TrialConfig trialConfig, int outcome, TrialMetadata metadata = null)
         {
             TrialWithOutcome message = new TrialWithOutcome(trialConfig, outcome);
-            Request req = new Request(message, RequestType.tell);
+            Request req;
+            if (metadata != null)
+            {
+                req = new Request(message, RequestType.tell, metadata);
+            }
+            else
+            {
+                req = new Request(message, RequestType.tell);
+            }
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
         }
         public IEnumerator Ask()

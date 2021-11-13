@@ -29,7 +29,7 @@ public class Ex1DSingleOpt : MonoBehaviour
     public TextMeshProUGUI trialText;
     public string configName = "configs/single_opt_1d.ini";
 
-
+    float reactionTime = 0.0f;
 
 
     //Display a stimulus, and complete when the stimulus is done
@@ -44,17 +44,19 @@ public class Ex1DSingleOpt : MonoBehaviour
     //Wait for the user input; then tell the server the result
     private IEnumerator LogUserInput()
     {
+        float startTime = Time.time;
         while (!Input.GetKeyDown(KeyCode.N) && !Input.GetKeyDown(KeyCode.Y))
         {
             yield return null;
         }
+        float responseTime = Time.time - startTime;
         if (Input.GetKeyDown(KeyCode.N))
         {
-            yield return StartCoroutine(client.Tell(config, 0));
+            yield return StartCoroutine(client.Tell(config, 0, new TrialMetadata(responseTime, "test")));
         }
         else if (Input.GetKeyDown(KeyCode.Y))
         {
-            yield return StartCoroutine(client.Tell(config, 1));
+            yield return StartCoroutine(client.Tell(config, 1, new TrialMetadata(responseTime, "test")));
         }
 
     }
