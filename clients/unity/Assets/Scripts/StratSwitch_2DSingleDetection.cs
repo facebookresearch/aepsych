@@ -8,6 +8,7 @@ LICENSE file in the root directory of this source tree.
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using TMPro;
 using System.Threading.Tasks;
@@ -24,10 +25,10 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
 
     bool isDone = false;
     int trialNum = 0;
-    int totalTrials = 20;
 
 
     //This is specific to this example
+    public string configName = "configs/single_lse_2d.ini";
     public GameObject circlePrefab;
     public TextMeshProUGUI trialText;
     List<AEPsychStrategy> AEPsychStrats;
@@ -69,7 +70,7 @@ public class StratSwitch_2DSingleDetection : MonoBehaviour
         AEPsychStrats = new List<AEPsychStrategy>() { };
         config = new TrialConfig();
 
-        string configPath = "Assets/StreamingAssets/configs/single_lse_2d.ini";
+        string configPath = Path.Combine(Application.streamingAssetsPath, configName);
         for (int i = 0; i<numStrats; i++)
         {
             AEPsychStrategy b = gameObject.AddComponent<AEPsychStrategy>() as AEPsychStrategy;

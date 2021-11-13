@@ -8,6 +8,7 @@ LICENSE file in the root directory of this source tree.
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using TMPro;
 using System.Threading.Tasks;
@@ -20,13 +21,14 @@ public class Ex3DSingleOpt : MonoBehaviour
     TrialConfig config;
 
     int trialNum = 0;
-    int totalTrials = 50;
 
 
     //This is specific to this example
     public GameObject circlePrefab;
     public GameObject examplePrefab;
     public TextMeshProUGUI trialText;
+    public string configName = "configs/single_opt_3d.ini";
+
 
 
     //Display a stimulus, and complete when the stimulus is done
@@ -62,7 +64,7 @@ public class Ex3DSingleOpt : MonoBehaviour
         GameObject example = Instantiate(examplePrefab);
         example.SetActive(true);
         config = new TrialConfig();
-        string configPath = "Assets/StreamingAssets/configs/single_opt_3d.ini";
+        string configPath = Path.Combine(Application.streamingAssetsPath, configName);
         yield return StartCoroutine(client.StartServer(configPath: configPath));
         SetText("Welcome. Note the color above, which is indigo. Press Y to begin.");
         yield return new WaitUntil(()=>Input.GetKeyDown(KeyCode.Y));
@@ -92,10 +94,20 @@ public class Ex3DSingleOpt : MonoBehaviour
             trialNum++;
 
         }
-        SetText("Experiment complete");
-
+        SetText("Experiment complete! Displaying optimal color: ");
+        yield return StartCoroutine(DisplayOptimal());
         yield return 0;
+    }
 
+    IEnumerator DisplayOptimal()
+    {
+        yield return StartCoroutine(client.Query(QueryType.max));
+        QueryMessage m = client.GetQueryResponse();
+        List<float> maxLoc = m.x;
+        GameObject circle = Instantiate(circlePrefab);
+        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        fs.SetColor(maxLoc[0], maxLoc[1], maxLoc[2], 1.0f);
+        fs.flashDuration = -1.0f; //never destroy
     }
 
 

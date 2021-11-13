@@ -8,6 +8,7 @@ LICENSE file in the root directory of this source tree.
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using TMPro;
 using System.Threading.Tasks;
@@ -60,7 +61,8 @@ public class Ex3DSingleDetection_hue : MonoBehaviour
     {
         config = new TrialConfig();
         TrialConfig baseConfig = new TrialConfig() { };
-        string configPath = "Assets/StreamingAssets/configs/single_lse_3d.ini";
+        string configName = "configs/single_lse_3d.ini";
+        string configPath = Path.Combine(Application.streamingAssetsPath, configName);
         yield return StartCoroutine(client.StartServer(configPath: configPath));
         SetText("Welcome. Press Y to begin.");
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Y));

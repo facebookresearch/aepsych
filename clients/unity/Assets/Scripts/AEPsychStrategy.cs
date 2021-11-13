@@ -16,7 +16,6 @@ public class AEPsychStrategy : MonoBehaviour
     AEPsychClient client;
     TrialConfig baseConfig = new TrialConfig() { };
     public int stratId;
-    public int totalTrials;
     public int currentTrial;
     public bool isDone = false;
 

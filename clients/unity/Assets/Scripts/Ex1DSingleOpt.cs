@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.IO;
 using System.Threading.Tasks;
 using AEPsych;
 
@@ -22,11 +23,12 @@ public class Ex1DSingleOpt : MonoBehaviour
     TrialConfig config;
 
     int trialNum = 0;
-    int totalTrials = 30;
 
     //This is specific to this example
     public GameObject circlePrefab;
     public TextMeshProUGUI trialText;
+    public string configName = "configs/single_opt_1d.ini";
+
 
 
 
@@ -61,7 +63,7 @@ public class Ex1DSingleOpt : MonoBehaviour
     IEnumerator Start()
     {
         config = new TrialConfig();
-        string configPath = "Assets/StreamingAssets/configs/single_opt_1d.ini";
+        string configPath = Path.Combine(Application.streamingAssetsPath, configName);
         yield return StartCoroutine(client.StartServer(configPath: configPath));
         SetText("Welcome. Press Y to begin.");
         yield return new WaitUntil(()=>Input.GetKeyDown(KeyCode.Y));
@@ -92,12 +94,22 @@ public class Ex1DSingleOpt : MonoBehaviour
 
         }
 
-        SetText("Experiment complete");
-
+        SetText("Experiment complete! Displaying optimal color: ");
+        yield return StartCoroutine(DisplayOptimal());
         yield return 0;
 
     }
 
+    IEnumerator DisplayOptimal()
+    {
+        yield return StartCoroutine(client.Query(QueryType.max));
+        QueryMessage m = client.GetQueryResponse();
+        List<float> maxLoc = m.x;
+        GameObject circle = Instantiate(circlePrefab);
+        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        fs.flashDuration = -1.0f; //never destroy
+        fs.SetGrayscaleColor(maxLoc[0]);
+    }
 
     void SetText(string s)
     {

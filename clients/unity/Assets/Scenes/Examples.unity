@@ -150,9 +150,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Dim: 0
-  m_Method: 1
+  m_Method: 0
   m_Response: 0
-  selectedScript: 1DSingleDetection
+  selectedScript: 1DSingleOpt
 --- !u!4 &329997636
 Transform:
   m_ObjectHideFlags: 0
@@ -222,6 +222,7 @@ MonoBehaviour:
   circlePrefab: {fileID: 5063913981118371212, guid: 22be9bb2d25524845aa7083ed4875594,
     type: 3}
   trialText: {fileID: 1690873761}
+  configName: configs/single_lse_2d_hue.ini
 --- !u!114 &576863803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,6 +239,7 @@ MonoBehaviour:
   circlePrefab: {fileID: 5063913981118371212, guid: 22be9bb2d25524845aa7083ed4875594,
     type: 3}
   trialText: {fileID: 1690873761}
+  configName: configs/single_lse_2d.ini
 --- !u!114 &576863804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,6 +253,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   client: {fileID: 1659366959}
+  configName: configs/single_lse_2d.ini
   circlePrefab: {fileID: 5063913981118371212, guid: 22be9bb2d25524845aa7083ed4875594,
     type: 3}
   trialText: {fileID: 1690873761}
@@ -270,7 +273,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &634023898
 Transform:
   m_ObjectHideFlags: 0
@@ -301,6 +304,7 @@ MonoBehaviour:
   circlePrefab: {fileID: 5063913981118371212, guid: 22be9bb2d25524845aa7083ed4875594,
     type: 3}
   trialText: {fileID: 1690873761}
+  configName: configs/single_opt_1d.ini
 --- !u!1 &774019107
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,6 +574,7 @@ MonoBehaviour:
   examplePrefab: {fileID: 1097749217152763744, guid: 7c84cd43a3add5b448570b4d74e1e831,
     type: 3}
   trialText: {fileID: 1690873761}
+  configName: configs/single_opt_2d.ini
 --- !u!1 &1636215476
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,6 +624,7 @@ MonoBehaviour:
   examplePrefab: {fileID: 5063913981118371212, guid: 3b3d64313f60ae84795970e60bde2777,
     type: 3}
   trialText: {fileID: 1690873761}
+  configName: configs/single_opt_3d.ini
 --- !u!114 &1659366959 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7429437447731183726, guid: d6fe4b885bd5122478e8fc03e7f108d1,
@@ -802,7 +808,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1789285997
 Transform:
   m_ObjectHideFlags: 0
@@ -833,6 +839,7 @@ MonoBehaviour:
   circlePrefab: {fileID: 5063913981118371212, guid: 22be9bb2d25524845aa7083ed4875594,
     type: 3}
   trialText: {fileID: 1690873761}
+  configName: configs/single_lse_1d.ini
 --- !u!1 &2005403076
 GameObject:
   m_ObjectHideFlags: 0

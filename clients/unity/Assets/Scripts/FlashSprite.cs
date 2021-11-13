@@ -22,7 +22,10 @@ public class FlashSprite : MonoBehaviour
         Color c = GetComponent<SpriteRenderer>().color;
         GetComponent<SpriteRenderer>().color = new Color(r, g, b, alpha);
         //destory after time
-        Destroy(this.gameObject, flashDuration);
+        if (flashDuration > 0.0f)
+        {
+            Destroy(this.gameObject, flashDuration);
+        }
     }
     public void SetGrayscaleColor(float f, float a=1.0f)
     {
@@ -32,6 +35,8 @@ public class FlashSprite : MonoBehaviour
     public void SetColor(float r, float g, float b, float a = 1.0f)
     {
         this.r = r; this.g = g; this.b = b; this.alpha = a;
+        GetComponent<SpriteRenderer>().color = new Color(r, g, b, alpha);
+
     }
     public void SetColor(Color c)
     {
@@ -39,6 +44,8 @@ public class FlashSprite : MonoBehaviour
         this.g = c.g;
         this.b = c.b;
         this.alpha = c.a;
+        GetComponent<SpriteRenderer>().color = new Color(r, g, b, alpha);
+
     }
 
     // Update is called once per frame

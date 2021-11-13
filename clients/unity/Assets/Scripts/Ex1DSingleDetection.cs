@@ -8,6 +8,7 @@ LICENSE file in the root directory of this source tree.
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using TMPro;
 using System.Threading.Tasks;
@@ -19,11 +20,12 @@ public class Ex1DSingleDetection : MonoBehaviour
     TrialConfig config;
 
     int trialNum = 0;
-    int totalTrials = 25;
 
     //This specific to this example
     public GameObject circlePrefab;
     public TextMeshProUGUI trialText;
+    public string configName = "configs/single_lse_1d.ini";
+
 
 
     //Display the stimulus; complete when the stimulus is done displaying
@@ -57,7 +59,7 @@ public class Ex1DSingleDetection : MonoBehaviour
     IEnumerator Start()
     {
         config = new TrialConfig();
-        string configPath = "Assets/StreamingAssets/configs/single_lse_1d.ini";
+        string configPath = Path.Combine(Application.streamingAssetsPath, configName);
         yield return StartCoroutine(client.StartServer(configPath: configPath));
         SetText("Welcome. Press Y to begin.");
         yield return new WaitUntil(()=>Input.GetKeyDown(KeyCode.Y));
