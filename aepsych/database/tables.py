@@ -9,10 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 
-try:
-    import pickle5 as pickle
-except Exception:
-    import pickle
+import pickle
 
 from sqlalchemy import (
     Column,
