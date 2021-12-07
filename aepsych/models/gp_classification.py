@@ -4,23 +4,26 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+from __future__ import annotations
 
-from typing import TypeVar, Union
+from typing import Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.factory.factory import default_mean_covar_factory
-from aepsych.utils import make_scaled_sobol
-from botorch.models.gpytorch import GPyTorchModel
-from gpytorch.models import ApproximateGP
+from aepsych.models.base import AEPsychModel
+from aepsych.utils import _process_bounds, make_scaled_sobol, promote_0d
+from botorch.fit import fit_gpytorch_model
+from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.variational import MeanFieldVariationalDistribution, VariationalStrategy
+from scipy.stats import norm
+from gpytorch.models import ApproximateGP
+from botorch.models.gpytorch import GPyTorchModel
 
-ModelType = TypeVar("ModelType", bound="GPClassificationModel")
 
-
-class GPClassificationModel(ApproximateGP, GPyTorchModel):
+class GPClassificationModel(AEPsychModel, ApproximateGP, GPyTorchModel):
     """Probit-GP model with variational inference.
 
     From a conventional ML perspective this is a GP Classification model,
@@ -33,31 +36,35 @@ class GPClassificationModel(ApproximateGP, GPyTorchModel):
     """
 
     _num_outputs = 1
+    outcome_type = "single_probit"
 
     def __init__(
         self,
-        inducing_min: Union[np.ndarray, torch.Tensor],
-        inducing_max: Union[np.ndarray, torch.Tensor],
+        lb: Union[np.ndarray, torch.Tensor],
+        ub: Union[np.ndarray, torch.Tensor],
+        dim: Optional[int] = None,
+        mean_module: Optional[gpytorch.means.Mean] = None,
+        covar_module: Optional[gpytorch.kernels.Kernel] = None,
+        likelihood: Optional[Likelihood] = None,
         inducing_size: int = 10,
-        mean_module: gpytorch.means.Mean = None,
-        covar_module: gpytorch.kernels.Kernel = None,
     ):
         """Initialize the GP Classification model
 
         Args:
-            inducing_min (Union[np.ndarray, torch.Tensor]): array of lower bounds of inducing points
-            inducing_max (Union[np.ndarray, torch.Tensor]): array of upper bounds of inducing points
             inducing_size (int, optional): Number of inducing points. Defaults to 10.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults
                 to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel
                 class. Defaults to scaled RBF with a gamma prior.
         """
-        mean_prior = inducing_max - inducing_min
+        lb, ub, dim = _process_bounds(lb, ub, dim)
 
-        inducing_points = torch.Tensor(
-            make_scaled_sobol(inducing_min, inducing_max, inducing_size)
-        )
+        if likelihood is None:
+            likelihood = BernoulliLikelihood()
+
+        inducing_min = lb
+        inducing_max = ub
+        inducing_points = make_scaled_sobol(inducing_min, inducing_max, inducing_size)
 
         variational_distribution = MeanFieldVariationalDistribution(
             inducing_points.size(0)
@@ -68,8 +75,11 @@ class GPClassificationModel(ApproximateGP, GPyTorchModel):
             variational_distribution,
             learn_inducing_locations=False,
         )
-        super(GPClassificationModel, self).__init__(variational_strategy)
-        self.mean_module = mean_module or gpytorch.means.ConstantMean(
+        ApproximateGP.__init__(self, variational_strategy)
+
+        mean_prior = inducing_max - inducing_min
+
+        mean_module = mean_module or gpytorch.means.ConstantMean(
             prior=gpytorch.priors.NormalPrior(loc=0.0, scale=2.0)
         )
         ls_prior = gpytorch.priors.GammaPrior(concentration=3.0, rate=6.0 / mean_prior)
@@ -78,7 +88,7 @@ class GPClassificationModel(ApproximateGP, GPyTorchModel):
             transform=None, initial_value=ls_prior_mode
         )
         ndim = mean_prior.shape[0]
-        self.covar_module = covar_module or gpytorch.kernels.ScaleKernel(
+        covar_module = covar_module or gpytorch.kernels.ScaleKernel(
             gpytorch.kernels.RBFKernel(
                 lengthscale_prior=ls_prior,
                 lengthscale_constraint=ls_constraint,
@@ -86,6 +96,8 @@ class GPClassificationModel(ApproximateGP, GPyTorchModel):
             ),
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
+
+        super().__init__(lb, ub, dim, mean_module, covar_module, likelihood)
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
         """Evaluate GP
@@ -102,19 +114,9 @@ class GPClassificationModel(ApproximateGP, GPyTorchModel):
         latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
         return latent_pred
 
-    def set_train_data(self, x: torch.Tensor, y: torch.Tensor):
-        """Set the training data for the model
-
-        Args:
-            x (torch.Tensor): training X points
-            y ([type]): Training y points
-        """
-        self.train_inputs = (x,)
-        self.train_targets = y
-
     @classmethod
-    def from_config(cls, config: Config) -> ModelType:
-        """Altenate constructor for GPClassification model.
+    def from_config(cls, config: Config) -> GPClassificationModel:
+        """Alternate constructor for GPClassification model.
 
         This is used when we recursively build a full sampling strategy
         from a configuration. TODO: document how this works in some tutorial.
@@ -127,9 +129,11 @@ class GPClassificationModel(ApproximateGP, GPyTorchModel):
         """
 
         classname = cls.__name__
-        inducing_min = config.gettensor(classname, "lb")
-        inducing_max = config.gettensor(classname, "ub")
         inducing_size = config.getint(classname, "inducing_size", fallback=10)
+
+        lb = config.gettensor(classname, "lb")
+        ub = config.gettensor(classname, "ub")
+        dim = config.getint(classname, "dim", fallback=None)
 
         mean_covar_factory = config.getobj(
             classname, "mean_covar_factory", fallback=default_mean_covar_factory
@@ -138,9 +142,112 @@ class GPClassificationModel(ApproximateGP, GPyTorchModel):
         mean, covar = mean_covar_factory(config)
 
         return cls(
-            inducing_min=inducing_min,
-            inducing_max=inducing_max,
+            lb=lb,
+            ub=ub,
+            dim=dim,
             inducing_size=inducing_size,
             mean_module=mean,
             covar_module=covar,
         )
+
+    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
+        """Fit underlying model.
+
+        Args:
+            train_x (torch.Tensor): Inputs.
+            train_y (torch.LongTensor): Responses.
+        """
+        n = train_y.shape[0]
+        mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
+        self.train()
+        self.set_train_data(train_x, train_y)
+        fit_gpytorch_model(mll)
+
+    def sample(
+        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
+    ) -> torch.Tensor:
+        """Sample from underlying model.
+
+        Args:
+            x (torch.Tensor): Points at which to sample.
+            num_samples (int, optional): Number of samples to return. Defaults to None.
+            kwargs are ignored
+
+        Returns:
+            torch.Tensor: Posterior samples [num_samples x dim]
+        """
+        return self.posterior(x).rsample(torch.Size([num_samples])).detach()
+
+    def best(self) -> Optional[np.ndarray]:
+        """Return the current best.
+
+        Note that currently this only returns the threshold for LSE
+        acquisition functions, or otherwise nothing.
+
+        TODO: make this actually return a more reasonable "best".
+
+        Returns:
+            np.ndarray: Current threshold estimate.
+        """
+        from aepsych.acquisition import lse_acqfs
+
+        if self.acqf in lse_acqfs:
+            return self._get_contour()
+        else:
+            return None
+
+    def _get_contour(self, gridsize: int = 30) -> Optional[np.ndarray]:
+        """Get a LSE contour from the underlying model.
+
+        Currently only works in 2d, else returns None.
+
+        Args:
+            gridsize (int, optional): Number of grid points to evaluate threshold at. Defaults to 30.
+
+        Returns:
+            Optional[np.ndarray]: Threshold as a function of context.
+        """
+
+        from aepsych.utils import get_lse_contour
+
+        if self.dim == 2:
+
+            x1 = self.dim_grid(gridsize=gridsize)
+            post_mean, _ = self.predict(x1)
+            post_mean = norm.cdf(post_mean.reshape(gridsize, gridsize).detach().numpy())
+            x2_hat = get_lse_contour(
+                post_mean, x1, level=self.target, lb=x1.min(), ub=x1.max()
+            )
+            return x2_hat
+        else:
+            return None
+
+    def predict(
+        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            probability_space (bool, optional): Return outputs in units of
+                response probability instead of latent function value. Defaults to False.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+        """
+        post = self.posterior(x)
+        fmean = post.mean.detach().squeeze()
+        fvar = post.variance.detach().squeeze()
+        if probability_space:
+            return (
+                promote_0d(norm.cdf(fmean)),
+                promote_0d(norm.cdf(fvar)),
+            )
+        else:
+            return fmean, fvar
+
+    def update(
+        self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
+    ):
+        """Perform a warm-start update of the model from previous fit."""
+        self.fit(train_x, train_y)

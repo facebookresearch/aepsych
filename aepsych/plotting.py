@@ -8,7 +8,7 @@
 from typing import Callable, Optional
 import matplotlib.pyplot as plt
 import numpy as np
-from aepsych.utils import get_lse_interval, _dim_grid, get_lse_contour
+from aepsych.utils import get_lse_interval, get_lse_contour
 from aepsych.strategy import ModelWrapperStrategy
 from scipy.stats import norm
 
@@ -137,9 +137,10 @@ def _plot_strat_1d(
     """Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments."""
 
     x, y = strat.x, strat.y
+    assert x is not None and y is not None, "No data to plot!"
 
-    grid = _dim_grid(modelbridge=strat.modelbridge, gridsize=gridsize)
-    samps = norm.cdf(strat.modelbridge.sample(grid, num_samples=10000).detach())
+    grid = strat.model.dim_grid(gridsize=gridsize)
+    samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
     phimean = samps.mean(0)
     upper = np.quantile(samps, cred_level, axis=0)
     lower = np.quantile(samps, 1 - cred_level, axis=0)
@@ -196,10 +197,18 @@ def _plot_strat_1d(
             )
 
     ax.scatter(
-        x[y == 0, 0], np.zeros_like(x[y == 0, 0]), marker=3, color="r", label=no_label,
+        x[y == 0, 0],
+        np.zeros_like(x[y == 0, 0]),
+        marker=3,
+        color="r",
+        label=no_label,
     )
     ax.scatter(
-        x[y == 1, 0], np.zeros_like(x[y == 1, 0]), marker=3, color="b", label=yes_label,
+        x[y == 1, 0],
+        np.zeros_like(x[y == 1, 0]),
+        marker=3,
+        color="b",
+        label=yes_label,
     )
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -225,9 +234,10 @@ def _plot_strat_2d(
     """Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments."""
 
     x, y = strat.x, strat.y
+    assert x is not None and y is not None, "No data to plot!"
 
-    grid = _dim_grid(modelbridge=strat.modelbridge, gridsize=gridsize)
-    fmean, _ = strat.modelbridge.predict(grid)
+    grid = strat.model.dim_grid(gridsize=gridsize)
+    fmean, _ = strat.model.predict(grid)
     phimean = norm.cdf(fmean.reshape(gridsize, gridsize).detach().numpy()).T
 
     extent = np.r_[strat.lb[0], strat.ub[0], strat.lb[1], strat.ub[1]]
@@ -259,7 +269,7 @@ def _plot_strat_2d(
         mono_grid = np.linspace(strat.lb[1], strat.ub[1], num=gridsize)
         context_grid = np.linspace(strat.lb[0], strat.ub[0], num=gridsize)
         thresh_75, lower, upper = get_lse_interval(
-            modelbridge=strat.modelbridge,
+            model=strat.model,
             mono_grid=mono_grid,
             target_level=target_level,
             cred_level=cred_level,

@@ -13,10 +13,8 @@ from aepsych.acquisition.lse import LevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
-from aepsych.modelbridge import (
-    MonotonicSingleProbitModelbridge,
-    SingleProbitModelbridge,
-)
+from aepsych.generators import OptimizeAcqfGenerator, MonotonicRejectionGenerator
+
 from aepsych.strategy import (
     ModelWrapperStrategy,
     SequentialStrategy,
@@ -35,18 +33,19 @@ class ConfigTestCase(unittest.TestCase):
 
         [experiment]
         acqf = LevelSetEstimation
-        modelbridge_cls = SingleProbitModelbridge
+        generator = OptimizeAcqfGenerator
         init_strat_cls = SobolStrategy
         opt_strat_cls = ModelWrapperStrategy
 
         [LevelSetEstimation]
         beta = 3.98
+        objective = ProbitObjective
 
         [GPClassificationModel]
         inducing_size = 10
         mean_covar_factory = default_mean_covar_factory
 
-        [SingleProbitModelbridge]
+        [OptimizeAcqfGenerator]
         restarts = 10
         samps = 1000
 
@@ -64,38 +63,32 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(isinstance(strat.strat_list[0], SobolStrategy))
         self.assertTrue(isinstance(strat.strat_list[1], ModelWrapperStrategy))
         self.assertTrue(
-            isinstance(strat.strat_list[1].modelbridge, SingleProbitModelbridge)
+            isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
-        self.assertTrue(strat.strat_list[1].modelbridge.acqf is LevelSetEstimation)
+        self.assertTrue(strat.strat_list[1].generator.acqf is LevelSetEstimation)
         # since ProbitObjective() is turned into an obj, we check for keys and then vals
         self.assertTrue(
-            set(strat.strat_list[1].modelbridge.extra_acqf_args.keys())
+            set(strat.strat_list[1].generator.acqf_kwargs.keys())
             == {"beta", "target", "objective"}
         )
-        self.assertTrue(
-            strat.strat_list[1].modelbridge.extra_acqf_args["target"] == 0.75
-        )
-        self.assertTrue(strat.strat_list[1].modelbridge.extra_acqf_args["beta"] == 3.98)
+        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
+        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.98)
         self.assertTrue(
             isinstance(
-                strat.strat_list[1].modelbridge.extra_acqf_args["objective"],
+                strat.strat_list[1].generator.acqf_kwargs["objective"],
                 ProbitObjective,
             )
         )
 
-        self.assertTrue(strat.strat_list[1].modelbridge.restarts == 10)
-        self.assertTrue(strat.strat_list[1].modelbridge.samps == 1000)
+        self.assertTrue(strat.strat_list[1].generator.restarts == 10)
+        self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].n_trials == 10)
         self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
         self.assertTrue(strat.strat_list[1].n_trials == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(
-            torch.all(strat.strat_list[1].modelbridge.lb == torch.Tensor([0, 0]))
-        )
+        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(
-            torch.all(strat.strat_list[1].modelbridge.ub == torch.Tensor([1, 1]))
-        )
+        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
     def test_monotonic_single_probit_config_file(self):
         config_file = "../configs/single_lse_example.ini"
@@ -108,27 +101,31 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(isinstance(strat.strat_list[0], SobolStrategy))
         self.assertTrue(isinstance(strat.strat_list[1], ModelWrapperStrategy))
         self.assertTrue(
+            isinstance(strat.strat_list[1].generator, MonotonicRejectionGenerator)
+        )
+        self.assertTrue(strat.strat_list[1].generator.acqf is MonotonicMCLSE)
+        self.assertTrue(
+            set(strat.strat_list[1].generator.acqf_kwargs.keys())
+            == {"beta", "target", "objective"}
+        )
+        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
+        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.98)
+        self.assertTrue(
             isinstance(
-                strat.strat_list[1].modelbridge, MonotonicSingleProbitModelbridge
+                strat.strat_list[1].generator.acqf_kwargs["objective"],
+                ProbitObjective,
             )
         )
-        self.assertTrue(strat.strat_list[1].modelbridge.acqf is MonotonicMCLSE)
         self.assertTrue(
-            strat.strat_list[1].modelbridge.extra_acqf_args
-            == {"beta": 3.98, "target": 0.75}
+            strat.strat_list[1].generator.model_gen_options["raw_samples"] == 1000
         )
-        self.assertTrue(strat.strat_list[1].modelbridge.samps == 1000)
         self.assertTrue(strat.strat_list[0].n_trials == 10)
         self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
         self.assertTrue(strat.strat_list[1].n_trials == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(
-            torch.all(strat.strat_list[1].modelbridge.lb == torch.Tensor([0, 0]))
-        )
+        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(
-            torch.all(strat.strat_list[1].modelbridge.ub == torch.Tensor([1, 1]))
-        )
+        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
     def test_name_conflict_warns(self):
         class DummyMod:

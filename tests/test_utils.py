@@ -8,8 +8,8 @@
 import unittest
 import numpy as np
 import torch
-from aepsych.utils import make_scaled_sobol, _dim_grid
-from aepsych.modelbridge.base import ModelBridge
+from aepsych.utils import make_scaled_sobol
+from aepsych.models import GPClassificationModel
 
 
 class TestSequenceGenerators(unittest.TestCase):
@@ -26,14 +26,14 @@ class TestSequenceGenerators(unittest.TestCase):
         grid = make_scaled_sobol(lb, ub, 100)
         self.assertEqual(grid.shape, (100, 2))
 
-    def test_dim_grid_modelbridge_size(self):
+    def test_dim_grid_model_size(self):
 
         lb = -4.0
         ub = 4.0
         dim = 1
         gridsize = 10
-        mb = ModelBridge(lb=lb, ub=ub, dim=dim)
-        grid = _dim_grid(mb, gridsize=gridsize)
+        mb = GPClassificationModel(lb=lb, ub=ub, dim=dim)
+        grid = GPClassificationModel.dim_grid(mb, gridsize=gridsize)
         self.assertEqual(grid.shape, torch.Size([10, 1]))
 
 

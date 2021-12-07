@@ -14,13 +14,7 @@ from torch.quasirandom import SobolEngine
 
 
 def make_scaled_sobol(lb, ub, size, seed=None):
-    # coerce sloppy inputs, this will fail mysteriously and should be less dumb
-    if type(lb) != np.ndarray:
-        lb = np.r_[lb]
-    if type(ub) != np.ndarray:
-        ub = np.r_[ub]
-    assert lb.shape == ub.shape, "lower and upper bounds should be same shape!"
-    ndim = len(lb)
+    lb, ub, ndim = _process_bounds(lb, ub, None)
     if seed is not None:
         grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
     else:
@@ -31,7 +25,7 @@ def make_scaled_sobol(lb, ub, size, seed=None):
         grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
 
     # rescale from [0,1] to [lb, ub]
-    grid = lb + (ub - lb) * grid.numpy()
+    grid = lb + (ub - lb) * grid
 
     return grid
 
@@ -42,14 +36,19 @@ def promote_0d(x):
     return x
 
 
-def _dim_grid(modelbridge=None, lower=None, upper=None, dim=None, gridsize=30):
+def dim_grid(
+    lower: torch.Tensor,
+    upper: torch.Tensor,
+    dim: int,
+    gridsize: int = 30,
+) -> torch.Tensor:
 
     """Create a grid
-    Create a grid based on either modelbridge dimensions, or pass in lower, upper, and dim separately.
+    Create a grid based on either model dimensions, or pass in lower, upper, and dim separately.
     Parameters
     ----------
-    modelbridge : ModelBridge
-        Input ModelBridge object that defines:
+    model : Model
+        Input Model object that defines:
         - lower ('int') - lower bound
         - upper ('int') - upper bound
         - dim ('int) - dimension
@@ -63,29 +62,41 @@ def _dim_grid(modelbridge=None, lower=None, upper=None, dim=None, gridsize=30):
         Tensor
     """
 
-    from aepsych.modelbridge.base import ModelBridge
+    lower, upper, _ = _process_bounds(lower, upper, None)
 
-    if modelbridge:
-        assert isinstance(modelbridge, ModelBridge), "Not a ModelBridge"
-        lower = modelbridge.lb
-        upper = modelbridge.ub
-        dim = modelbridge.dim
-    else:
-        assert None not in (lower, upper, dim), (
-            "Either pass in lower, upper, and dim, or just "
-            "pass modelbridge (but not both)."
-        )
-
-    lower = torch.Tensor(promote_0d(lower)).float()
-    upper = torch.Tensor(promote_0d(upper)).float()
-
-    return torch.Tensor(
+    return torch.tensor(
         np.mgrid[
             [slice(lower[i].item(), upper[i].item(), gridsize * 1j) for i in range(dim)]
         ]
         .reshape(dim, -1)
         .T
     )
+
+
+def _process_bounds(lb, ub, dim):
+    """Helper function for ensuring bounds are correct shape and type."""
+    lb = promote_0d(lb)
+    ub = promote_0d(ub)
+
+    if not isinstance(lb, torch.Tensor):
+        lb = torch.tensor(lb)
+    if not isinstance(ub, torch.Tensor):
+        ub = torch.tensor(ub)
+
+    lb = lb.float()
+    ub = ub.float()
+    assert lb.shape[0] == ub.shape[0], "bounds should be of equal shape!"
+
+    if dim is not None:
+        if lb.shape[0] == 1:
+            lb = lb.repeat(dim)
+            ub = ub.repeat(dim)
+        else:
+            assert lb.shape[0] == dim, "dim does not match shape of bounds!"
+    else:
+        dim = lb.shape[0]
+
+    return lb, ub, dim
 
 
 def interpolate_monotonic(x, y, z, min_x=-np.inf, max_x=np.inf):
@@ -108,7 +119,7 @@ def interpolate_monotonic(x, y, z, min_x=-np.inf, max_x=np.inf):
 
 
 def get_lse_interval(
-    modelbridge,
+    model,
     mono_grid,
     target_level,
     cred_level=None,
@@ -123,16 +134,16 @@ def get_lse_interval(
     xgrid = torch.Tensor(
         np.mgrid[
             [
-                slice(modelbridge.lb[i].item(), modelbridge.ub[i].item(), gridsize * 1j)
-                for i in range(modelbridge.dim)
+                slice(model.lb[i].item(), model.ub[i].item(), gridsize * 1j)
+                for i in range(model.dim)
             ]
         ]
-        .reshape(modelbridge.dim, -1)
+        .reshape(model.dim, -1)
         .T
     )
 
-    samps = modelbridge.sample(xgrid, num_samples=n_samps, **kwargs)
-    samps = [s.reshape((gridsize,) * modelbridge.dim) for s in samps.detach().numpy()]
+    samps = model.sample(xgrid, num_samples=n_samps, **kwargs)
+    samps = [s.reshape((gridsize,) * model.dim) for s in samps.detach().numpy()]
     contours = np.stack(
         [
             get_lse_contour(norm.cdf(s), mono_grid, target_level, mono_dim, lb, ub)

@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import numpy.testing as npt
 import torch
-from aepsych.modelbridge import MonotonicSingleProbitModelbridge
+from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import (
     SobolStrategy,
     SequentialStrategy,
@@ -20,6 +20,7 @@ from aepsych.strategy import (
 )
 from aepsych.utils import make_scaled_sobol
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
+from aepsych.generators import MonotonicRejectionGenerator
 
 
 class TestSequenceGenerators(unittest.TestCase):
@@ -39,23 +40,23 @@ class TestSequenceGenerators(unittest.TestCase):
 
         sobol1 = make_scaled_sobol(lb=[1, 2, 3], ub=[2, 3, 4], size=10, seed=12345)
 
-        sobol2 = np.zeros((10, 3))
+        sobol2 = torch.zeros((10, 3))
         mod = SobolStrategy(lb=[1, 2, 3], ub=[2, 3, 4], dim=3, n_trials=10, seed=12345)
 
-        npt.assert_equal(sobol1, mod.points)
+        npt.assert_equal(sobol1.numpy(), mod.points.numpy())
 
         for i in range(10):
             sobol2[i, :] = mod.gen()
 
-        npt.assert_equal(sobol1, sobol2)
+        npt.assert_equal(sobol1.numpy(), sobol2.numpy())
 
         # check that bounds are also right
-        self.assertTrue(np.all(sobol1[:, 0] > 1))
-        self.assertTrue(np.all(sobol1[:, 1] > 2))
-        self.assertTrue(np.all(sobol1[:, 2] > 3))
-        self.assertTrue(np.all(sobol1[:, 0] < 2))
-        self.assertTrue(np.all(sobol1[:, 1] < 3))
-        self.assertTrue(np.all(sobol1[:, 2] < 4))
+        self.assertTrue(torch.all(sobol1[:, 0] > 1))
+        self.assertTrue(torch.all(sobol1[:, 1] > 2))
+        self.assertTrue(torch.all(sobol1[:, 2] > 3))
+        self.assertTrue(torch.all(sobol1[:, 0] < 2))
+        self.assertTrue(torch.all(sobol1[:, 1] < 3))
+        self.assertTrue(torch.all(sobol1[:, 2] < 4))
 
     def test_opt_strategy_single(self):
         strat_list = [
@@ -89,26 +90,27 @@ class TestSequenceGenerators(unittest.TestCase):
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
 
         strat = ModelWrapperStrategy(
-            modelbridge=MonotonicSingleProbitModelbridge(
+            model=MonotonicRejectionGP(
                 lb=lb,
                 ub=ub,
                 dim=2,
-                acqf=MonotonicMCLSE,
-                extra_acqf_args=extra_acqf_args,
                 monotonic_idxs=[1],
+            ),
+            generator=MonotonicRejectionGenerator(
+                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
             ),
             n_trials=50,
             refit_every=10,
         )
-        strat.modelbridge.fit = MagicMock()
-        strat.modelbridge.update = MagicMock()
-        strat.modelbridge.gen = MagicMock()
+        strat.model.fit = MagicMock()
+        strat.model.update = MagicMock()
+        strat.generator.gen = MagicMock()
         for _ in range(50):
             strat.gen()
             strat.add_data(np.r_[1.0, 1.0], [1])
 
-        assert strat.modelbridge.fit.call_count == 5
-        assert strat.modelbridge.update.call_count == 45
+        assert strat.model.fit.call_count == 5
+        assert strat.model.update.call_count == 45
 
     def test_no_warmstart(self):
 
@@ -120,25 +122,26 @@ class TestSequenceGenerators(unittest.TestCase):
 
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
         strat = ModelWrapperStrategy(
-            modelbridge=MonotonicSingleProbitModelbridge(
+            model=MonotonicRejectionGP(
                 lb=lb,
                 ub=ub,
                 dim=2,
-                acqf=MonotonicMCLSE,
-                extra_acqf_args=extra_acqf_args,
                 monotonic_idxs=[1],
+            ),
+            generator=MonotonicRejectionGenerator(
+                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
             ),
             n_trials=50,
         )
-        strat.modelbridge.fit = MagicMock()
-        strat.modelbridge.update = MagicMock()
-        strat.modelbridge.gen = MagicMock()
+        strat.model.fit = MagicMock()
+        strat.model.update = MagicMock()
+        strat.generator.gen = MagicMock()
         for _ in range(50):
             strat.gen()
             strat.add_data(np.r_[1.0, 1.0], [1])
 
-        assert strat.modelbridge.fit.call_count == 50
-        assert strat.modelbridge.update.call_count == 0
+        assert strat.model.fit.call_count == 50
+        assert strat.model.update.call_count == 0
 
 
 class TestEpsilonGreedyStrategy(unittest.TestCase):
@@ -151,48 +154,50 @@ class TestEpsilonGreedyStrategy(unittest.TestCase):
         total_trials = 1000
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
         strat = EpsilonGreedyModelWrapperStrategy(
-            modelbridge=MonotonicSingleProbitModelbridge(
+            model=MonotonicRejectionGP(
                 lb=lb,
                 ub=ub,
                 dim=2,
-                acqf=MonotonicMCLSE,
-                extra_acqf_args=extra_acqf_args,
                 monotonic_idxs=[1],
+            ),
+            generator=MonotonicRejectionGenerator(
+                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
             ),
             n_trials=total_trials,
         )
-        strat.modelbridge.fit = MagicMock()
-        strat.modelbridge.update = MagicMock()
-        strat.modelbridge.gen = MagicMock()
+        strat.model.fit = MagicMock()
+        strat.model.update = MagicMock()
+        strat.generator.gen = MagicMock()
         for _ in range(total_trials):
             strat.gen()
             strat.add_data(np.r_[1.0, 1.0], [1])
 
         self.assertTrue(
-            np.abs(strat.modelbridge.gen.call_count / total_trials - 0.9) < 0.01
+            np.abs(strat.generator.gen.call_count / total_trials - 0.9) < 0.01
         )
 
         strat = EpsilonGreedyModelWrapperStrategy(
-            modelbridge=MonotonicSingleProbitModelbridge(
+            model=MonotonicRejectionGP(
                 lb=lb,
                 ub=ub,
                 dim=2,
-                acqf=MonotonicMCLSE,
-                extra_acqf_args=extra_acqf_args,
                 monotonic_idxs=[1],
+            ),
+            generator=MonotonicRejectionGenerator(
+                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
             ),
             n_trials=total_trials,
             epsilon=0.5,
         )
-        strat.modelbridge.fit = MagicMock()
-        strat.modelbridge.update = MagicMock()
-        strat.modelbridge.gen = MagicMock()
+        strat.model.fit = MagicMock()
+        strat.model.update = MagicMock()
+        strat.generator.gen = MagicMock()
         for _ in range(total_trials):
             strat.gen()
             strat.add_data(np.r_[1.0, 1.0], [1])
 
         self.assertTrue(
-            np.abs(strat.modelbridge.gen.call_count / total_trials - 0.5) < 0.01
+            np.abs(strat.generator.gen.call_count / total_trials - 0.5) < 0.01
         )
 
 

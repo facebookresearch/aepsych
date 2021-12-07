@@ -12,10 +12,10 @@ from . import (
     config,
     factory,
     benchmark,
-    modelbridge,
     models,
     strategy,
     utils,
+    generators,
 )
 from .config import Config
 from .models import GPClassificationModel
@@ -32,10 +32,10 @@ __all__ = [
     "benchmark",
     "config",
     "factory",
-    "modelbridge",
     "models",
     "strategy",
     "utils",
+    "generators",
     # classes
     "EpsilonGreedyModelWrapperStrategy",
     "GPClassificationModel",

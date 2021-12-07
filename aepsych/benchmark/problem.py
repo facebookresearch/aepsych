@@ -10,7 +10,7 @@ from typing import Dict, Sequence
 import aepsych
 import numpy as np
 import torch
-from aepsych.utils import _dim_grid, get_lse_contour
+from aepsych.utils import dim_grid, get_lse_contour
 from scipy.stats import bernoulli, norm, pearsonr
 
 
@@ -35,8 +35,8 @@ class Problem:
         dim = len(lb)
         self.options = options
         gridsize = self.options.get("gridsize", 10)
-        self.eval_grid = _dim_grid(
-            lower=lb, upper=ub, dim=dim, gridsize=gridsize
+        self.eval_grid = dim_grid(
+            lower=torch.Tensor(lb), upper=torch.Tensor(ub), dim=dim, gridsize=gridsize
         ).reshape(-1, dim)
 
     def f(self, x):
@@ -192,7 +192,7 @@ class LSEProblem(Problem):
         phi_post_mean = norm.cdf(post_mean_reshape.detach().numpy())
         # assume mono_dim is last dim (TODO make this better)
 
-        x1 = _dim_grid(
+        x1 = dim_grid(
             lower=strat.lb.numpy()[-1],
             upper=strat.ub.numpy()[-1],
             dim=1,
@@ -225,7 +225,7 @@ class LSEProblem(Problem):
         # now construct integrated error on thresh
         fsamps = strat.sample(self.eval_grid, num_samples=1000).detach().numpy()
 
-        square_samps = [s.reshape((gridsize,) * strat.modelbridge.dim) for s in fsamps]
+        square_samps = [s.reshape((gridsize,) * strat.model.dim) for s in fsamps]
         contours = np.stack(
             [
                 get_lse_contour(norm.cdf(s), x1, level=thresh, mono_dim=-1, lb=-1, ub=1)

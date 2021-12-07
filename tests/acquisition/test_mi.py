@@ -15,10 +15,7 @@ from aepsych.strategy import (
     SobolStrategy,
     ModelWrapperStrategy,
 )
-from aepsych.modelbridge import (
-    SingleProbitModelbridge,
-    MonotonicSingleProbitModelbridge,
-)
+
 from aepsych.acquisition.mutual_information import (
     BernoulliMCMutualInformation,
     MonotonicBernoulliMCMutualInformation,
@@ -28,6 +25,7 @@ from aepsych.models import (
     MonotonicRejectionGP,
 )
 from aepsych.acquisition.objective import ProbitObjective
+from aepsych.generators import MonotonicRejectionGenerator, OptimizeAcqfGenerator
 
 from gpytorch.means import ConstantMean
 from gpytorch.kernels import LinearKernel
@@ -46,19 +44,12 @@ class SingleProbitMI(unittest.TestCase):
         lb = -4.0
         ub = 4.0
         acqf = MonotonicBernoulliMCMutualInformation
-        extra_acqf_args = {"objective": ProbitObjective()}
-        model = MonotonicRejectionGP(likelihood="probit-bernoulli", monotonic_idxs=[0])
+        acqf_kwargs = {"objective": ProbitObjective()}
         model_list = [
             SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
             ModelWrapperStrategy(
-                modelbridge=MonotonicSingleProbitModelbridge(
-                    lb=lb,
-                    ub=ub,
-                    dim=1,
-                    acqf=acqf,
-                    extra_acqf_args=extra_acqf_args,
-                    model=model,
-                ),
+                model=MonotonicRejectionGP(lb=lb, ub=ub, dim=1, monotonic_idxs=[0]),
+                generator=MonotonicRejectionGenerator(acqf, acqf_kwargs),
                 n_trials=n_opt,
             ),
         ]
@@ -69,7 +60,7 @@ class SingleProbitMI(unittest.TestCase):
             next_x = strat.gen()
             strat.add_data(next_x, [bernoulli.rvs(f_1d(next_x))])
 
-        x = torch.linspace(-4, 4, 100)
+        x = torch.linspace(-4, 4, 100).reshape(-1, 1)
 
         zhat, _ = strat.predict(x)
 
@@ -94,9 +85,8 @@ class SingleProbitMI(unittest.TestCase):
         model_list = [
             SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
             ModelWrapperStrategy(
-                modelbridge=SingleProbitModelbridge(
-                    lb=lb, ub=ub, dim=1, acqf=acqf, extra_acqf_args=extra_acqf_args
-                ),
+                model=GPClassificationModel(lb=lb, ub=ub, dim=1),
+                generator=OptimizeAcqfGenerator(acqf, extra_acqf_args),
                 n_trials=n_opt,
             ),
         ]
@@ -122,8 +112,8 @@ class SingleProbitMI(unittest.TestCase):
         mean = ConstantMean().initialize(constant=1.2)
         covar = LinearKernel().initialize(variance=1.0)
         model = GPClassificationModel(
-            inducing_min=torch.Tensor([0]),
-            inducing_max=torch.Tensor([1]),
+            lb=torch.Tensor([0]),
+            ub=torch.Tensor([1]),
             inducing_size=10,
             mean_module=mean,
             covar_module=covar,

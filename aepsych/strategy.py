@@ -6,11 +6,16 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
+from typing import Optional, Union
+from aepsych.generators.optimize_acqf_generator import OptimizeAcqfGenerator
 
 import numpy as np
 import torch
-from aepsych.modelbridge import SingleProbitModelbridge
-from aepsych.utils import make_scaled_sobol, promote_0d
+
+from aepsych.generators.base import AEPsychGenerator
+from aepsych.models.base import AEPsychModel
+from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.utils import _process_bounds, make_scaled_sobol
 
 
 def ensure_model_is_fresh(f):
@@ -18,10 +23,10 @@ def ensure_model_is_fresh(f):
         if not self._model_is_fresh:
             if self._count % self.refit_every == 0 or self.refit_every == 1:
                 # don't warm start
-                self.modelbridge.fit(self.x, self.y)
+                self.model.fit(self.x, self.y)
             else:
                 # warm start
-                self.modelbridge.update(self.x, self.y)
+                self.model.update(self.x, self.y)
         self._model_is_fresh = True
         return f(self, *args, **kwargs)
 
@@ -31,36 +36,26 @@ def ensure_model_is_fresh(f):
 class Strategy(object):
     has_model = False
 
-    def __init__(self, lb, ub, n_trials=-1, dim=1, outcome_type="single_probit"):
-        lb = torch.Tensor(promote_0d(lb)).float()
-        ub = torch.Tensor(promote_0d(ub)).float()
+    def __init__(
+        self,
+        lb: Union[np.ndarray, torch.Tensor],
+        ub: Union[np.ndarray, torch.Tensor],
+        n_trials: int = -1,
+        dim: Optional[int] = None,
+        outcome_type: str = "single_probit",
+    ):
+        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
 
-        if lb.shape[0] > 1 and lb.shape[0] != dim:
-            raise RuntimeError(
-                "lb must be either of size 1 or size dim"
-                + f"got lb.shape={lb.shape} and dim={dim}!"
-            )
-
-        if ub.shape[0] > 1 and ub.shape[0] != dim:
-            raise RuntimeError(
-                "ub must be either of size 1 or size dim"
-                + f"got ub.shape={ub.shape} and dim={dim}!"
-            )
-
-        self.lb = lb.reshape(dim) if lb.shape[0] == 1 else lb
-        self.ub = ub.reshape(dim) if ub.shape[0] == 1 else ub
-
-        self.dim = dim
         self.x = None
         self.y = None
         self.n_trials = n_trials
         self._count = 0
 
         # I think this is a correct usage of event_shape
-        if type(dim) is int:
-            self.event_shape = (dim,)
+        if type(self.dim) is int:
+            self.event_shape = (self.dim,)
         else:
-            self.event_shape = dim
+            self.event_shape = self.dim
         self.outcome_type = outcome_type
 
     @property
@@ -105,67 +100,77 @@ class Strategy(object):
 
 
 class ModelWrapperStrategy(Strategy):
-    """Wraps a ModelBridge into a strategy by forwarding calls and
+    """Wraps a Model into a strategy by forwarding calls and
     storing data
 
     Args:
-        modelbridge (ModelBridge): the underlying modelbridge
+        model (Model): the underlying model
 
     """
 
     has_model = True
 
     def __init__(
-        self, modelbridge, n_trials, stopping_threshold=None, refit_every=None
+        self,
+        model: AEPsychModel,
+        generator: AEPsychGenerator,
+        n_trials: int,
+        stopping_threshold: Optional[float] = None,
+        refit_every: int = 1,
     ):
         super().__init__(
-            lb=modelbridge.lb,
-            ub=modelbridge.ub,
+            lb=model.lb,
+            ub=model.ub,
             n_trials=n_trials,
-            dim=modelbridge.dim,
-            outcome_type=modelbridge.outcome_type,
+            dim=model.dim,
+            outcome_type=model.outcome_type,
         )
-        self.modelbridge = modelbridge
+        self.model = model
         self.last_best = None
         self.stopping_threshold = stopping_threshold
-        self.refit_every = refit_every or 1
+        self.refit_every = refit_every
         self._model_is_fresh = False
+        self.generator = generator
 
+    # TODO: allow user to pass in generator options
     @ensure_model_is_fresh
-    def gen(self, use_uniform=False, num_points=1, **kwargs):
+    def gen(self, num_points: int = 1):
+        """Query next point(s) to run by optimizing the acquisition function.
+
+        Args:
+            num_points (int, optional): Number of points to query. Defaults to 1.
+            Other arguments are forwared to underlying model.
+
+        Returns:
+            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+        """
         self._count = self._count + num_points
 
-        return self.modelbridge.gen(
-            use_uniform=use_uniform, num_points=num_points, **kwargs
-        )
-
-    @ensure_model_is_fresh
-    def query(self, x, probability_space=False):
-        return self.modelbridge.query(x, probability_space)
+        return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
     def get_max(self):
-        return self.modelbridge.get_max()
+        return self.model.get_max()
 
     @ensure_model_is_fresh
     def get_min(self):
-        return self.modelbridge.get_min()
+        return self.model.get_min()
 
     @ensure_model_is_fresh
     def inv_query(self, y, constraints, probability_space=False):
-        return self.modelbridge.inv_query(y, constraints, probability_space)
+        return self.model.inv_query(y, constraints, probability_space)
 
     @ensure_model_is_fresh
-    def predict(self, x):
-        return self.modelbridge.predict(x)
+    def predict(self, x, probability_space=False):
+        return self.model.predict(x, probability_space)
 
     @ensure_model_is_fresh
-    def get_jnd(self, grid, *args, **kwargs):
-        return self.modelbridge.get_jnd(grid, *args, **kwargs)
+    def get_jnd(self, *args, **kwargs):
+        return self.model.get_jnd(*args, **kwargs)
 
     @ensure_model_is_fresh
     def sample(self, x, num_samples=None):
-        return self.modelbridge.sample(x, num_samples=num_samples)
+        return self.model.sample(x, num_samples=num_samples)
 
     @property
     def finished(self):
@@ -178,9 +183,9 @@ class ModelWrapperStrategy(Strategy):
     def __finished_with_thresh(self):
         # if we actually have a threshold, update the model and criterion
         if self.last_best is None:
-            self.last_best = self.modelbridge.best()
+            self.last_best = self.model.best()
         else:
-            current_best = self.modelbridge.best()
+            current_best = self.model.best()
             l_2 = np.linalg.norm(self.last_best - current_best)
             self.last_best = current_best
             return l_2 < self.stopping_threshold
@@ -192,18 +197,23 @@ class ModelWrapperStrategy(Strategy):
     @classmethod
     def from_config(cls, config):
         classname = cls.__name__
-        modelbridge_cls = config.getobj(
-            "experiment", "modelbridge_cls", fallback=SingleProbitModelbridge
-        )
+        model_cls = config.getobj("experiment", "model", fallback=GPClassificationModel)
 
-        modelbridge = modelbridge_cls.from_config(config)
+        model = model_cls.from_config(config)
         n_trials = config.getint(classname, "n_trials")
         stopping_threshold = config.getfloat(
             classname, "stopping_threshold", fallback=None
         )
         refit_every = config.getint(classname, "refit_every", fallback=1)
+
+        gen_cls = config.getobj(
+            "experiment", "generator", fallback=OptimizeAcqfGenerator
+        )
+        generator = gen_cls.from_config(config)
+
         return cls(
-            modelbridge=modelbridge,
+            model=model,
+            generator=generator,
             n_trials=n_trials,
             stopping_threshold=stopping_threshold,
             refit_every=refit_every,
@@ -212,7 +222,13 @@ class ModelWrapperStrategy(Strategy):
 
 class SobolStrategy(Strategy):
     def __init__(
-        self, lb, ub, n_trials, dim=1, outcome_type="single_probit", seed=None
+        self,
+        lb: Union[np.ndarray, torch.Tensor],
+        ub: Union[np.ndarray, torch.Tensor],
+        n_trials: int,
+        dim: int = None,
+        outcome_type: str = "single_probit",
+        seed: Optional[int] = None,
     ):
         super().__init__(lb=lb, ub=ub, dim=dim, outcome_type=outcome_type)
         if n_trials <= 0:
@@ -247,8 +263,8 @@ class SobolStrategy(Strategy):
         classname = cls.__name__
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
-        assert lb.shape[0] == ub.shape[0], "bounds should be of equal shape!"
-        dim = lb.shape[0]
+        dim = config.gettensor(classname, "dim", fallback=None)
+        lb, ub, dim = _process_bounds(lb, ub, dim)
         n_trials = config.getint(classname, "n_trials")
         outcome_type = config.get(classname, "outcome_type", fallback="single_probit")
         seed = config.getfloat(classname, "seed", fallback=None)

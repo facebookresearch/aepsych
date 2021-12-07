@@ -328,12 +328,12 @@ class ServerTestCase(unittest.TestCase):
             self.assertTrue((stored_strat.y == self.s.strat.y).all())
             # same lengthscale and outputscale
             self.assertEqual(
-                stored_strat.modelbridge.model.covar_module.lengthscale,
-                self.s.strat.modelbridge.model.covar_module.lengthscale,
+                stored_strat.model.covar_module.lengthscale,
+                self.s.strat.model.covar_module.lengthscale,
             )
             self.assertEqual(
-                stored_strat.modelbridge.model.covar_module.outputscale,
-                self.s.strat.modelbridge.model.covar_module.outputscale,
+                stored_strat.model.covar_module.outputscale,
+                self.s.strat.model.covar_module.outputscale,
             )
 
     def test_pandadf_dump_single(self):

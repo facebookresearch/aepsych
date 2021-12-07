@@ -214,7 +214,7 @@ class BenchProblemTestCase(unittest.TestCase):
             },
             "experiment": {
                 "acqf": "MCLevelSetEstimation",
-                "modelbridge_cls": "SingleProbitModelbridge",
+                "generator": "OptimizeAcqfGenerator",
                 "init_strat_cls": "SobolStrategy",
                 "opt_strat_cls": "ModelWrapperStrategy",
             },
@@ -226,7 +226,7 @@ class BenchProblemTestCase(unittest.TestCase):
                 "inducing_size": 10,
                 "mean_covar_factory": "default_mean_covar_factory",
             },
-            "SingleProbitModelbridge": {
+            "OptimizeAcqfGenerator": {
                 "restarts": 10,
                 "samps": 1000,
             },
@@ -253,7 +253,7 @@ class BenchProblemTestCase(unittest.TestCase):
             },
             "experiment": {
                 "acqf": "MonotonicMCLSE",
-                "modelbridge_cls": "MonotonicSingleProbitModelbridge",
+                "generator": "MonotonicRejectionGenerator",
                 "init_strat_cls": "SobolStrategy",
                 "opt_strat_cls": "ModelWrapperStrategy",
                 "model": "MonotonicRejectionGP",
@@ -266,9 +266,11 @@ class BenchProblemTestCase(unittest.TestCase):
                 "inducing_size": 10,
                 "mean_covar_factory": "monotonic_mean_covar_factory",
             },
-            "MonotonicSingleProbitModelbridge": {
-                "restarts": 10,
-                "samps": 1000,
+            "MonotonicRejectionGenerator": {
+                "model_gen_options": {
+                    "num_restarts": 10,
+                    "raw_samples": 1000,
+                }
             },
             "SobolStrategy": {
                 "n_trials": 50,

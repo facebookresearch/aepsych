@@ -5,16 +5,17 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import json
 import logging
 import unittest
 import uuid
-import json
-from unittest.mock import MagicMock
 from queue import Queue
-from parameterized import parameterized
+from unittest.mock import MagicMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
+from parameterized import parameterized
+
 
 class ThriftSocketTestCase(unittest.TestCase):
     def setUp(self):
@@ -23,7 +24,9 @@ class ThriftSocketTestCase(unittest.TestCase):
         socket = server.ThriftSocketWrapper(msg_queue=Queue())
         # random datebase path name without dashes
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
-        self.s = server.AEPsychServer(socket=socket, database_path=database_path, thrift=True)
+        self.s = server.AEPsychServer(
+            socket=socket, database_path=database_path, thrift=True
+        )
 
     def tearDown(self):
         # cleanup the db
