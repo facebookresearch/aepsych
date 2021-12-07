@@ -12,6 +12,7 @@ from typing import Union, Optional
 from aepsych.utils import make_scaled_sobol, _process_bounds
 import warnings
 from aepsych.config import Config
+from aepsych.models.base import AEPsychMixin
 
 
 class SobolGenerator(AEPsychGenerator):
@@ -28,7 +29,8 @@ class SobolGenerator(AEPsychGenerator):
         """Iniatialize SobolGenerator.
         Args:
             lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
-            lb (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
+            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
+            dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             n_points (int): Number of points to generate from this generator.
             seed (int, optional): Random seed.
         """
@@ -41,7 +43,7 @@ class SobolGenerator(AEPsychGenerator):
             )
         else:
             warnings.warn(
-                "SobolStrategy was initialized with n_trials <= 0; it will not generate any points!"
+                "SobolGenerator was initialized with n_trials <= 0; it will not generate any points!"
             )
             self.points = np.array([])
 
@@ -49,7 +51,11 @@ class SobolGenerator(AEPsychGenerator):
         self._count = 0
         self.seed = seed
 
-    def gen(self, num_points=1):
+    def gen(
+        self,
+        num_points: int = 1,
+        model: AEPsychMixin = None,  # included for API compatibility
+    ):
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
             num_points (int, optional): Number of points to query.
