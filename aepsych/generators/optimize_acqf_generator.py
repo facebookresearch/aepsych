@@ -27,6 +27,8 @@ def _prune_extra_acqf_args(acqf, extra_acqf_args: Dict):
 
 
 class OptimizeAcqfGenerator(AEPsychGenerator):
+    """Generator that chooses points by minimizing an acquisition function."""
+
     baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
 
     def __init__(
@@ -36,6 +38,14 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         restarts: int = 10,
         samps: int = 1000,
     ) -> None:
+        """Initialize OptimizeAcqfGenerator.
+        Args:
+            acqf (AcquisitionFunction): Acquisition function to use.
+            acqf_kwargs (Dict[str, object], optional): Extra arguments to
+                pass to acquisition function. Defaults to no arguments.
+            restarts (int): Number of restarts for acquisition function optimization.
+            samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer.
+        """
         if acqf_kwargs is None:
             acqf_kwargs = {}
         self.acqf = acqf
@@ -50,6 +60,14 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             return self.acqf(model=model, **self.acqf_kwargs)
 
     def gen(self, num_points: int, model: AEPsychMixin) -> np.ndarray:
+        """Query next point(s) to run by optimizing the acquisition function.
+        Args:
+            num_points (int, optional): Number of points to query.
+            model (AEPsychMixin): Fitted model of the data.
+        Returns:
+            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+        """
+
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         train_x = model.train_inputs[0]

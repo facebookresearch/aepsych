@@ -10,17 +10,19 @@ from aepsych.models.base import AEPsychMixin
 import numpy as np
 from typing import Generic, TypeVar
 
-AEPsychMixinType = TypeVar("AEPsychMixinType", bound=AEPsychMixin)
+AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
 
-class AEPsychGenerator(abc.ABC, Generic[AEPsychMixinType]):
+class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
+    """Abstract base class for generators, which are responsible for generating new points to sample."""
+
     def __init__(
         self,
     ) -> None:
         pass
 
     @abc.abstractmethod
-    def gen(self, num_points: int, model: AEPsychMixinType) -> np.ndarray:
+    def gen(self, num_points: int, model: AEPsychModelType) -> np.ndarray:
         pass
 
     @classmethod

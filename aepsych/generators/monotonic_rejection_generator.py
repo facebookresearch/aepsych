@@ -36,6 +36,9 @@ def default_loss_constraint_fun(
 
 
 class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
+    """Generator specifically to be used with MonotonicRejectionGP, which generates new points to sample by minimizing
+    an acquisition function through stochastic gradient descent."""
+
     def __init__(
         self,
         acqf: MonotonicMCAcquisition,
@@ -43,6 +46,16 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         model_gen_options: Optional[Dict[str, Any]] = None,
         explore_features: Optional[Sequence[int]] = None,
     ) -> None:
+        """Initialize MonotonicRejectionGenerator.
+        Args:
+            acqf (AcquisitionFunction): Acquisition function to use.
+            acqf_kwargs (Dict[str, object], optional): Extra arguments to
+                pass to acquisition function. Defaults to no arguments.
+            model_gen_options: Dictionary with options for generating candidate, such as
+                SGD parameters. See code for all options and their defaults.
+            explore_features: List of features that will be selected randomly and then
+                fixed for acquisition fn optimization.
+        """
         if acqf_kwargs is None:
             acqf_kwargs = {}
         self.acqf = acqf
@@ -62,6 +75,14 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         num_points: int,  # Current implementation only generates 1 point at a time
         model: MonotonicRejectionGP,
     ):
+        """Query next point(s) to run by optimizing the acquisition function.
+        Args:
+            num_points (int, optional): Number of points to query.
+            model (AEPsychMixin): Fitted model of the data.
+        Returns:
+            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+        """
+
         options = self.model_gen_options or {}
         num_restarts = options.get("num_restarts", 10)
         raw_samples = options.get("raw_samples", 1000)
