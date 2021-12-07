@@ -10,11 +10,7 @@ import numpy as np
 import torch
 
 from scipy.stats import bernoulli, norm, multivariate_normal, pearsonr
-from aepsych.strategy import (
-    SequentialStrategy,
-    SobolStrategy,
-    ModelWrapperStrategy,
-)
+from aepsych.strategy import SequentialStrategy, Strategy
 
 from aepsych.acquisition.mutual_information import (
     BernoulliMCMutualInformation,
@@ -25,7 +21,11 @@ from aepsych.models import (
     MonotonicRejectionGP,
 )
 from aepsych.acquisition.objective import ProbitObjective
-from aepsych.generators import MonotonicRejectionGenerator, OptimizeAcqfGenerator
+from aepsych.generators import (
+    MonotonicRejectionGenerator,
+    OptimizeAcqfGenerator,
+    SobolGenerator,
+)
 
 from gpytorch.means import ConstantMean
 from gpytorch.kernels import LinearKernel
@@ -46,11 +46,18 @@ class SingleProbitMI(unittest.TestCase):
         acqf = MonotonicBernoulliMCMutualInformation
         acqf_kwargs = {"objective": ProbitObjective()}
         model_list = [
-            SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_opt,
                 model=MonotonicRejectionGP(lb=lb, ub=ub, dim=1, monotonic_idxs=[0]),
                 generator=MonotonicRejectionGenerator(acqf, acqf_kwargs),
-                n_trials=n_opt,
             ),
         ]
 
@@ -83,8 +90,15 @@ class SingleProbitMI(unittest.TestCase):
         extra_acqf_args = {"objective": ProbitObjective()}
 
         model_list = [
-            SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub, dim=1),
                 generator=OptimizeAcqfGenerator(acqf, extra_acqf_args),
                 n_trials=n_opt,
@@ -136,3 +150,7 @@ class SingleProbitMI(unittest.TestCase):
         self.assertTrue(
             pearsonr(acq_numpy, acq_pytorch.detach().numpy().flatten())[0] > (1 - 1e-5)
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

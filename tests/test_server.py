@@ -21,23 +21,26 @@ lb = [0]
 ub = [1]
 parnames = [x]
 outcome_type = single_probit
+strategy_names = [init_strat, opt_strat]
+
+[init_strat]
+n_trials = 2
+generator = SobolGenerator
+
+[opt_strat]
+n_trials = 2
+generator = OptimizeAcqfGenerator
 
 [experiment]
 acqf = MCPosteriorVariance
-modelbridge_cls = SingleProbitModelbridge
-init_strat_cls = SobolStrategy
-opt_strat_cls = ModelWrapperStrategy
 model = GPClassificationModel
 
 [GPClassificationModel]
 inducing_size = 10
 mean_covar_factory = default_mean_covar_factory
 
-[SobolStrategy]
-n_trials = 2
-
-[ModelWrapperStrategy]
-n_trials = 2
+[SobolGenerator]
+n_points = 2
 """
 
 

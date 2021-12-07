@@ -9,18 +9,17 @@ from aepsych.generators.base import AEPsychGenerator
 import torch
 import numpy as np
 from typing import Union, Optional
-from aepsych.utils import make_scaled_sobol, _process_bounds
-import warnings
+from aepsych.utils import _process_bounds
+from torch.quasirandom import SobolEngine
 from aepsych.config import Config
 from aepsych.models.base import AEPsychMixin
 
 
 class SobolGenerator(AEPsychGenerator):
-    """Generator that generates a fixed number of points from the Sobol Sequence."""
+    """Generator that generates points from the Sobol Sequence."""
 
     def __init__(
         self,
-        n_points: int,
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
         dim: Optional[int] = None,
@@ -31,25 +30,11 @@ class SobolGenerator(AEPsychGenerator):
             lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
             ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
-            n_points (int): Number of points to generate from this generator.
             seed (int, optional): Random seed.
         """
-
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
-
-        if n_points > 0:
-            self.points = make_scaled_sobol(
-                lb=self.lb, ub=self.ub, size=n_points, seed=seed
-            )
-        else:
-            warnings.warn(
-                "SobolGenerator was initialized with n_trials <= 0; it will not generate any points!"
-            )
-            self.points = np.array([])
-
-        self.n_points = n_points
-        self._count = 0
         self.seed = seed
+        self.engine = SobolEngine(dimension=self.dim, scramble=True, seed=self.seed)
 
     def gen(
         self,
@@ -62,26 +47,17 @@ class SobolGenerator(AEPsychGenerator):
         Returns:
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
-        if self._count + num_points > self.n_points:
-            warnings.warn(
-                f"Requesting more points ({num_points}) than"
-                + f"this sobol sequence has remaining ({self.n_points-self._count})!"
-                + "Giving as many as we have."
-            )
-            candidates = self.points[self._count :]
-        else:
-            candidates = self.points[self._count : self._count + num_points]
-        self._count = self._count + num_points
-        return candidates
+        grid = self.engine.draw(num_points)
+        grid = self.lb + (self.ub - self.lb) * grid
+        return grid
 
     @classmethod
     def from_config(cls, config: Config):
         classname = cls.__name__
 
-        n_points = config.getint(classname, "n_points", fallback=None)
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
         seed = config.getint(classname, "seed", fallback=None)
 
-        return cls(n_points=n_points, lb=lb, ub=ub, dim=dim, seed=seed)
+        return cls(lb=lb, ub=ub, dim=dim, seed=seed)

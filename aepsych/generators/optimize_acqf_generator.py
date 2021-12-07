@@ -5,6 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 from inspect import signature
+from aepsych.config import Config
 
 from aepsych.models.base import AEPsychMixin
 from botorch.acquisition import (
@@ -84,7 +85,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         return new_candidate.numpy()
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config: Config):
         classname = cls.__name__
         acqf = config.getobj("experiment", "acqf")
         acqf_name = acqf.__name__

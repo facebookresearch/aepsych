@@ -7,20 +7,21 @@
 
 import warnings
 from typing import Optional, Union
-from aepsych.generators.optimize_acqf_generator import OptimizeAcqfGenerator
+from aepsych.generators.random_generator import RandomGenerator
+from aepsych.generators.sobol_generator import SobolGenerator
 
 import numpy as np
 import torch
 
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.utils import _process_bounds, make_scaled_sobol
+from aepsych.utils import _process_bounds
+from aepsych.config import Config
 
 
 def ensure_model_is_fresh(f):
     def wrapper(self, *args, **kwargs):
-        if not self._model_is_fresh:
+        if self.has_model and not self._model_is_fresh:
             if self._count % self.refit_every == 0 or self.refit_every == 1:
                 # don't warm start
                 self.model.fit(self.x, self.y)
@@ -34,14 +35,15 @@ def ensure_model_is_fresh(f):
 
 
 class Strategy(object):
-    has_model = False
-
     def __init__(
         self,
+        n_trials: int,
+        generator: AEPsychGenerator,
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
-        n_trials: int = -1,
+        model: Optional[AEPsychMixin] = None,
         dim: Optional[int] = None,
+        refit_every: int = 1,
         outcome_type: str = "single_probit",
     ):
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
@@ -57,10 +59,17 @@ class Strategy(object):
         else:
             self.event_shape = self.dim
         self.outcome_type = outcome_type
+        self.model = model
+        self.refit_every = refit_every
+        self._model_is_fresh = False
+        self.generator = generator
 
-    @property
-    def finished(self):
-        return self._count >= self.n_trials
+        if isinstance(self.generator, SobolGenerator) or isinstance(
+            self.generator, RandomGenerator
+        ):  # temporary hack until config refactor is complete
+            self.has_model = False
+        else:
+            self.has_model = True
 
     def normalize_inputs(self, x, y):
         """converts inputs into normalized format for this strategy
@@ -74,9 +83,10 @@ class Strategy(object):
             y (np.ndarray): training outputs, normalized
             n (int): number of observations
         """
-        assert (
-            x.shape[-1:] == self.event_shape
-        ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
+        if self.outcome_type == "single_probit":
+            assert (
+                x.shape[-1:] == self.event_shape
+            ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
         if x.shape == self.event_shape:
             x = x[None, :]
@@ -95,43 +105,6 @@ class Strategy(object):
 
         return torch.Tensor(x), torch.Tensor(y), n
 
-    def add_data(self, x, y):
-        self.x, self.y, self.n = self.normalize_inputs(x, y)
-
-
-class ModelWrapperStrategy(Strategy):
-    """Wraps a Model into a strategy by forwarding calls and
-    storing data
-
-    Args:
-        model (Model): the underlying model
-
-    """
-
-    has_model = True
-
-    def __init__(
-        self,
-        model: AEPsychMixin,
-        generator: AEPsychGenerator,
-        n_trials: int,
-        stopping_threshold: Optional[float] = None,
-        refit_every: int = 1,
-    ):
-        super().__init__(
-            lb=model.lb,
-            ub=model.ub,
-            n_trials=n_trials,
-            dim=model.dim,
-            outcome_type=model.outcome_type,
-        )
-        self.model = model
-        self.last_best = None
-        self.stopping_threshold = stopping_threshold
-        self.refit_every = refit_every
-        self._model_is_fresh = False
-        self.generator = generator
-
     # TODO: allow user to pass in generator options
     @ensure_model_is_fresh
     def gen(self, num_points: int = 1):
@@ -146,7 +119,10 @@ class ModelWrapperStrategy(Strategy):
         """
         self._count = self._count + num_points
 
-        return self.generator.gen(num_points, self.model)
+        if self.has_model:
+            return self.generator.gen(num_points, self.model)
+        else:
+            return self.generator.gen(num_points)
 
     @ensure_model_is_fresh
     def get_max(self):
@@ -174,101 +150,45 @@ class ModelWrapperStrategy(Strategy):
 
     @property
     def finished(self):
-        if self.stopping_threshold is None:
-            return super().finished
-        else:
-            return self.__finished_with_thresh()
-
-    @ensure_model_is_fresh
-    def __finished_with_thresh(self):
-        # if we actually have a threshold, update the model and criterion
-        if self.last_best is None:
-            self.last_best = self.model.best()
-        else:
-            current_best = self.model.best()
-            l_2 = np.linalg.norm(self.last_best - current_best)
-            self.last_best = current_best
-            return l_2 < self.stopping_threshold
+        return self._count >= self.n_trials
 
     def add_data(self, x, y):
-        super().add_data(x, y)
+        self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
 
     @classmethod
-    def from_config(cls, config):
-        classname = cls.__name__
-        model_cls = config.getobj("experiment", "model", fallback=GPClassificationModel)
+    def from_config(cls, config: Config, name: str):
+        model_cls = config.getobj("experiment", "model", fallback=None)
 
-        model = model_cls.from_config(config)
-        n_trials = config.getint(classname, "n_trials")
-        stopping_threshold = config.getfloat(
-            classname, "stopping_threshold", fallback=None
-        )
-        refit_every = config.getint(classname, "refit_every", fallback=1)
+        if model_cls is not None:
+            model = model_cls.from_config(config)
+        else:
+            model = None
 
-        gen_cls = config.getobj(
-            "experiment", "generator", fallback=OptimizeAcqfGenerator
-        )
+        n_trials = config.getint(name, "n_trials")
+        refit_every = config.getint(name, "refit_every", fallback=1)
+
+        lb = config.gettensor(name, "lb")
+        ub = config.gettensor(name, "ub")
+        dim = config.getint(name, "dim", fallback=None)
+
+        # Temporary hack until config refactor is complete
+        # Prevents user from having to specify number of sobol trials twice in config
+        gen_cls = config.getobj(name, "generator", fallback=SobolGenerator)
         generator = gen_cls.from_config(config)
 
+        outcome_type = config.get(name, "outcome_type", fallback="single_probit")
+
         return cls(
+            lb=lb,
+            ub=ub,
+            dim=dim,
             model=model,
             generator=generator,
             n_trials=n_trials,
-            stopping_threshold=stopping_threshold,
             refit_every=refit_every,
+            outcome_type=outcome_type,
         )
-
-
-class SobolStrategy(Strategy):
-    def __init__(
-        self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
-        n_trials: int,
-        dim: int = None,
-        outcome_type: str = "single_probit",
-        seed: Optional[int] = None,
-    ):
-        super().__init__(lb=lb, ub=ub, dim=dim, outcome_type=outcome_type)
-        if n_trials <= 0:
-            warnings.warn(
-                "SobolStrategy was initialized with n_trials <= 0; it will not generate any points!"
-            )
-
-        if n_trials > 0:
-            self.points = make_scaled_sobol(lb=lb, ub=ub, size=n_trials, seed=seed)
-        else:
-            self.points = np.array([])
-
-        self.n_trials = n_trials
-        self._count = 0
-        self.seed = seed
-
-    def gen(self, num_points=1, **kwargs):
-        if self._count + num_points > self.n_trials:
-            warnings.warn(
-                f"Requesting more points ({num_points}) than"
-                + f"this sobol sequence has remaining ({self.n_trials-self._count})!"
-                + "Giving as many as we have."
-            )
-            candidates = self.points[self._count :]
-        else:
-            candidates = self.points[self._count : self._count + num_points]
-        self._count = self._count + num_points
-        return candidates
-
-    @classmethod
-    def from_config(cls, config):
-        classname = cls.__name__
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
-        dim = config.gettensor(classname, "dim", fallback=None)
-        lb, ub, dim = _process_bounds(lb, ub, dim)
-        n_trials = config.getint(classname, "n_trials")
-        outcome_type = config.get(classname, "outcome_type", fallback="single_probit")
-        seed = config.getfloat(classname, "seed", fallback=None)
-        return cls(lb, ub, n_trials, dim, outcome_type, seed)
 
 
 class SequentialStrategy(object):
@@ -325,38 +245,13 @@ class SequentialStrategy(object):
         self._strat.add_data(x, y)
 
     @classmethod
-    def from_config(cls, config):
-
-        init_strat_cls = config.getobj(
-            "experiment", "init_strat_cls", fallback=SobolStrategy
+    def from_config(cls, config: Config):
+        strat_names = config._str_to_list(
+            config.get("common", "strategy_names"), element_type=str
         )
-        opt_strat_cls = config.getobj(
-            "experiment", "opt_strat_cls", fallback=ModelWrapperStrategy
-        )
+        strats = []
+        for name in strat_names:
+            strat = Strategy.from_config(config, name)
+            strats.append(strat)
 
-        init_strat = init_strat_cls.from_config(config)
-        opt_strat = opt_strat_cls.from_config(config)
-
-        return cls([init_strat, opt_strat])
-
-
-class EpsilonGreedyModelWrapperStrategy(ModelWrapperStrategy):
-    def __init__(self, epsilon=0.1, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.epsilon = epsilon
-
-    @classmethod
-    def from_config(cls, config):
-        classname = cls.__name__
-        obj = super().from_config(config)
-        obj.epsilon = config.getfloat(classname, "epsilon", fallback=0)
-        return obj
-
-    def gen(self, num_points=1, *args, **kwargs):
-        if num_points > 1:
-            raise NotImplementedError("Epsilon-greedy batched gen is not implemented!")
-        if np.random.uniform() < self.epsilon:
-            self._count = self._count + num_points
-            return np.random.uniform(low=self.lb, high=self.ub)
-        else:
-            return super().gen(*args, **kwargs)
+        return cls(strats)

@@ -9,60 +9,26 @@ import unittest
 from unittest.mock import MagicMock
 
 import numpy as np
-import numpy.testing as npt
 import torch
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
-from aepsych.strategy import (
-    SobolStrategy,
-    SequentialStrategy,
-    ModelWrapperStrategy,
-    EpsilonGreedyModelWrapperStrategy,
-)
-from aepsych.utils import make_scaled_sobol
+from aepsych.strategy import Strategy, SequentialStrategy
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.generators import MonotonicRejectionGenerator
+from aepsych.generators import (
+    MonotonicRejectionGenerator,
+    SobolGenerator,
+)
 
 
 class TestSequenceGenerators(unittest.TestCase):
-    def test_batchsobol(self):
-        mod = SobolStrategy(lb=[1, 2, 3], ub=[2, 3, 4], dim=3, n_trials=10, seed=12345)
-        acq1 = mod.gen(num_points=2)
-        self.assertEqual(acq1.shape, (2, 3))
-        acq2 = mod.gen(num_points=3)
-        self.assertEqual(acq2.shape, (3, 3))
-        acq3 = mod.gen()
-        self.assertEqual(acq3.shape, (1, 3))
-        with self.assertWarns(Warning):
-            mod.gen(num_points=15)
-
-    def test_sobolmodel_single(self):
-        # test that SobolModel doesn't mess with shapes
-
-        sobol1 = make_scaled_sobol(lb=[1, 2, 3], ub=[2, 3, 4], size=10, seed=12345)
-
-        sobol2 = torch.zeros((10, 3))
-        mod = SobolStrategy(lb=[1, 2, 3], ub=[2, 3, 4], dim=3, n_trials=10, seed=12345)
-
-        npt.assert_equal(sobol1.numpy(), mod.points.numpy())
-
-        for i in range(10):
-            sobol2[i, :] = mod.gen()
-
-        npt.assert_equal(sobol1.numpy(), sobol2.numpy())
-
-        # check that bounds are also right
-        self.assertTrue(torch.all(sobol1[:, 0] > 1))
-        self.assertTrue(torch.all(sobol1[:, 1] > 2))
-        self.assertTrue(torch.all(sobol1[:, 2] > 3))
-        self.assertTrue(torch.all(sobol1[:, 0] < 2))
-        self.assertTrue(torch.all(sobol1[:, 1] < 3))
-        self.assertTrue(torch.all(sobol1[:, 2] < 4))
-
     def test_opt_strategy_single(self):
-        strat_list = [
-            SobolStrategy(lb=[-1], ub=[1], n_trials=3),
-            SobolStrategy(lb=[-10], ub=[-8], n_trials=5),
-        ]
+        lbs = [[-1], [-10]]
+        ubs = [[1], [-8]]
+        n = [3, 5]
+        strat_list = []
+        for lb, ub, n in zip(lbs, ubs, n):
+            gen = SobolGenerator(lb, ub)
+            strat = Strategy(n, gen, lb, ub)
+            strat_list.append(strat)
 
         strat = SequentialStrategy(strat_list)
         out = np.zeros(8)
@@ -89,7 +55,7 @@ class TestSequenceGenerators(unittest.TestCase):
 
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
 
-        strat = ModelWrapperStrategy(
+        strat = Strategy(
             model=MonotonicRejectionGP(
                 lb=lb,
                 ub=ub,
@@ -100,6 +66,8 @@ class TestSequenceGenerators(unittest.TestCase):
                 acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
             ),
             n_trials=50,
+            lb=lb,
+            ub=ub,
             refit_every=10,
         )
         strat.model.fit = MagicMock()
@@ -121,7 +89,7 @@ class TestSequenceGenerators(unittest.TestCase):
         ub = [1, 1]
 
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
-        strat = ModelWrapperStrategy(
+        strat = Strategy(
             model=MonotonicRejectionGP(
                 lb=lb,
                 ub=ub,
@@ -131,6 +99,8 @@ class TestSequenceGenerators(unittest.TestCase):
             generator=MonotonicRejectionGenerator(
                 acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
             ),
+            lb=lb,
+            ub=ub,
             n_trials=50,
         )
         strat.model.fit = MagicMock()
@@ -142,63 +112,6 @@ class TestSequenceGenerators(unittest.TestCase):
 
         assert strat.model.fit.call_count == 50
         assert strat.model.update.call_count == 0
-
-
-class TestEpsilonGreedyStrategy(unittest.TestCase):
-    def test_epsilon_greedy(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        lb = [-1, -1]
-        ub = [1, 1]
-        total_trials = 1000
-        extra_acqf_args = {"target": 0.75, "beta": 1.96}
-        strat = EpsilonGreedyModelWrapperStrategy(
-            model=MonotonicRejectionGP(
-                lb=lb,
-                ub=ub,
-                dim=2,
-                monotonic_idxs=[1],
-            ),
-            generator=MonotonicRejectionGenerator(
-                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
-            ),
-            n_trials=total_trials,
-        )
-        strat.model.fit = MagicMock()
-        strat.model.update = MagicMock()
-        strat.generator.gen = MagicMock()
-        for _ in range(total_trials):
-            strat.gen()
-            strat.add_data(np.r_[1.0, 1.0], [1])
-
-        self.assertTrue(
-            np.abs(strat.generator.gen.call_count / total_trials - 0.9) < 0.01
-        )
-
-        strat = EpsilonGreedyModelWrapperStrategy(
-            model=MonotonicRejectionGP(
-                lb=lb,
-                ub=ub,
-                dim=2,
-                monotonic_idxs=[1],
-            ),
-            generator=MonotonicRejectionGenerator(
-                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
-            ),
-            n_trials=total_trials,
-            epsilon=0.5,
-        )
-        strat.model.fit = MagicMock()
-        strat.model.update = MagicMock()
-        strat.generator.gen = MagicMock()
-        for _ in range(total_trials):
-            strat.gen()
-            strat.add_data(np.r_[1.0, 1.0], [1])
-
-        self.assertTrue(
-            np.abs(strat.generator.gen.call_count / total_trials - 0.5) < 0.01
-        )
 
 
 if __name__ == "__main__":

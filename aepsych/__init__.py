@@ -19,12 +19,7 @@ from . import (
 )
 from .config import Config
 from .models import GPClassificationModel
-from .strategy import (
-    EpsilonGreedyModelWrapperStrategy,
-    ModelWrapperStrategy,
-    SequentialStrategy,
-    SobolStrategy,
-)
+from .strategy import Strategy, SequentialStrategy
 
 __all__ = [
     # modules
@@ -37,11 +32,9 @@ __all__ = [
     "utils",
     "generators",
     # classes
-    "EpsilonGreedyModelWrapperStrategy",
     "GPClassificationModel",
-    "ModelWrapperStrategy",
+    "Strategy",
     "SequentialStrategy",
-    "SobolStrategy",
 ]
 
 Config.register_module(sys.modules[__name__])

@@ -13,7 +13,7 @@ from aepsych.acquisition.objective import ProbitObjective
 from scipy.stats import norm
 from aepsych.models import MonotonicRejectionGP
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
-from aepsych.strategy import ModelWrapperStrategy
+from aepsych.strategy import Strategy
 from aepsych.generators import MonotonicRejectionGenerator
 
 
@@ -22,9 +22,11 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         # Init
         target = 1.5
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
+        lb = torch.tensor([0, 0])
+        ub = torch.tensor([4, 4])
         m = MonotonicRejectionGP(
-            lb=torch.tensor([0, 0]),
-            ub=torch.tensor([4, 4]),
+            lb=lb,
+            ub=ub,
             likelihood=GaussianLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],
@@ -32,9 +34,11 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_samples=3,
             num_rejection_samples=4,
         )
-        strat = ModelWrapperStrategy(
-            m,
-            MonotonicRejectionGenerator(
+        strat = Strategy(
+            lb=lb,
+            ub=ub,
+            model=m,
+            generator=MonotonicRejectionGenerator(
                 MonotonicMCLSE,
                 acqf_kwargs={"target": target},
                 model_gen_options=model_gen_options,
@@ -71,9 +75,11 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         # Init
         target = 0.75
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
+        lb = torch.tensor([0, 0])
+        ub = torch.tensor([4, 4])
         m = MonotonicRejectionGP(
-            lb=torch.tensor([0, 0]),
-            ub=torch.tensor([4, 4]),
+            lb=lb,
+            ub=ub,
             likelihood=BernoulliLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],
@@ -81,9 +87,11 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_samples=3,
             num_rejection_samples=4,
         )
-        strat = ModelWrapperStrategy(
-            m,
-            MonotonicRejectionGenerator(
+        strat = Strategy(
+            lb=lb,
+            ub=ub,
+            model=m,
+            generator=MonotonicRejectionGenerator(
                 MonotonicMCLSE,
                 acqf_kwargs={"target": target, "objective": ProbitObjective()},
                 model_gen_options=model_gen_options,

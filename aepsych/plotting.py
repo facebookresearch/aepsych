@@ -9,12 +9,12 @@ from typing import Callable, Optional
 import matplotlib.pyplot as plt
 import numpy as np
 from aepsych.utils import get_lse_interval, get_lse_contour
-from aepsych.strategy import ModelWrapperStrategy
+from aepsych.strategy import Strategy
 from scipy.stats import norm
 
 
 def plot_strat(
-    strat: ModelWrapperStrategy,
+    strat: Strategy,
     ax: Optional[plt.Axes] = None,
     true_testfun: Optional[Callable] = None,
     cred_level: float = 0.95,
@@ -36,7 +36,7 @@ def plot_strat(
     threshold, and optionally a ground truth response threshold.
 
     Args:
-        strat (ModelWrapperStrategy): Strategy object to be plotted. Must have a dimensionality of 2 or less.
+        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 2 or less.
         ax (plt.Axes, optional): Matplotlib axis to plot on (if None, creates a new axis). Default: None.
         true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor
                     as input and produce the response probability at each sample as output. Default: None.
@@ -123,7 +123,7 @@ def plot_strat(
 
 
 def _plot_strat_1d(
-    strat: ModelWrapperStrategy,
+    strat: Strategy,
     ax: plt.Axes,
     true_testfun: Optional[Callable],
     cred_level: float,
@@ -217,7 +217,7 @@ def _plot_strat_1d(
 
 
 def _plot_strat_2d(
-    strat: ModelWrapperStrategy,
+    strat: Strategy,
     ax: plt.Axes,
     true_testfun: Optional[Callable],
     cred_level: float,

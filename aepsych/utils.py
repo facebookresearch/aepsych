@@ -15,14 +15,7 @@ from torch.quasirandom import SobolEngine
 
 def make_scaled_sobol(lb, ub, size, seed=None):
     lb, ub, ndim = _process_bounds(lb, ub, None)
-    if seed is not None:
-        grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
-    else:
-        # TODO once https://github.com/pytorch/pytorch/issues/36341 is resolved
-        # this randint seed is not needed, but until then this is needed
-        # for reproducibility
-        seed = torch.randint(high=int(1e6), size=(1,)).item()
-        grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
+    grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
 
     # rescale from [0,1] to [lb, ub]
     grid = lb + (ub - lb) * grid

@@ -11,9 +11,9 @@ import numpy.testing as npt
 import torch
 from aepsych.acquisition.lse import LevelSetEstimation
 from aepsych.config import Config
-from aepsych.generators import OptimizeAcqfGenerator
+from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
-from aepsych.strategy import ModelWrapperStrategy, SequentialStrategy, SobolStrategy
+from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
@@ -35,8 +35,15 @@ class GPClassificationTest(unittest.TestCase):
         ub = 4.0
 
         model_list = [
-            SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -71,8 +78,15 @@ class GPClassificationTest(unittest.TestCase):
         ub = 4.0
 
         model_list = [
-            SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -106,8 +120,15 @@ class GPClassificationTest(unittest.TestCase):
         ub = 4.0
 
         model_list = [
-            SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -140,8 +161,15 @@ class GPClassificationTest(unittest.TestCase):
         ub = 4.0
 
         strat_list = [
-            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -178,8 +206,15 @@ class GPClassificationTest(unittest.TestCase):
         ub = [1, 1]
 
         strat_list = [
-            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -220,8 +255,15 @@ class GPClassificationTest(unittest.TestCase):
             return -((Normal(0, 1).cdf(x[..., 0]) - target) ** 2)
 
         strat_list = [
-            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -260,8 +302,15 @@ class GPClassificationTest(unittest.TestCase):
             return -((Normal(0, 1).cdf(x[..., 0]) - target) ** 2)
 
         strat_list = [
-            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -307,8 +356,15 @@ class GPClassificationTest(unittest.TestCase):
         extra_acqf_args = {"target": norm.ppf(0.75), "beta": 1.96}
 
         strat_list = [
-            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 n_trials=n_opt,
                 generator=OptimizeAcqfGenerator(
@@ -342,8 +398,15 @@ class GPClassificationTest(unittest.TestCase):
         ub = [1, 1]
 
         strat_list = [
-            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -374,8 +437,15 @@ class GPClassificationTest(unittest.TestCase):
         ub = 4.0
 
         model_list = [
-            SobolStrategy(lb=lb, ub=ub, seed=seed, n_trials=n_init),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
@@ -400,12 +470,20 @@ class GPClassificationTest(unittest.TestCase):
         ub = [1, 1]
         outcome_type = single_probit
         parnames = [par1, par2]
+        strategy_names = [init_strat, opt_strat]
+
+        [init_strat]
+        n_trials = 10
+        generator = SobolGenerator
+
+        [opt_strat]
+        n_trials = 20
+        refit_every = 5
+        generator = OptimizeAcqfGenerator
 
         [experiment]
         acqf = LevelSetEstimation
         model = GPClassificationModel
-        init_strat_cls = SobolStrategy
-        opt_strat_cls = ModelWrapperStrategy
 
         [LevelSetEstimation]
         beta = 3.98
@@ -414,11 +492,7 @@ class GPClassificationTest(unittest.TestCase):
         inducing_size = 10
         mean_covar_factory = default_mean_covar_factory
 
-        [SobolStrategy]
-        n_trials = 10
-
-        [ModelWrapperStrategy]
-        n_trials = 20
+        [OptimizeAcqfGenerator]
         restarts = 10
         samps = 1000
         """
@@ -427,8 +501,7 @@ class GPClassificationTest(unittest.TestCase):
 
         strat = SequentialStrategy.from_config(config)
 
-        self.assertTrue(isinstance(strat.strat_list[0], SobolStrategy))
-        self.assertTrue(isinstance(strat.strat_list[1], ModelWrapperStrategy))
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
         self.assertTrue(isinstance(strat.strat_list[1].model, GPClassificationModel))
         self.assertTrue(strat.strat_list[1].generator.acqf is LevelSetEstimation)
         # since ProbitObjective() is turned into an obj, we check for keys and then vals
@@ -489,8 +562,15 @@ class GPClassificationTest(unittest.TestCase):
             return np.sin(np.pi * x / 4)
 
         strat_list = [
-            SobolStrategy(lb=lb, ub=ub, n_trials=n_init, seed=seed),
-            ModelWrapperStrategy(
+            Strategy(
+                lb=lb,
+                ub=ub,
+                n_trials=n_init,
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            ),
+            Strategy(
+                lb=lb,
+                ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound,

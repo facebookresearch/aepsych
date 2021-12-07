@@ -13,12 +13,16 @@ from aepsych.acquisition.lse import LevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
-from aepsych.generators import OptimizeAcqfGenerator, MonotonicRejectionGenerator
+from aepsych.generators import (
+    OptimizeAcqfGenerator,
+    MonotonicRejectionGenerator,
+    SobolGenerator,
+)
+from aepsych.models import GPClassificationModel
 
 from aepsych.strategy import (
-    ModelWrapperStrategy,
     SequentialStrategy,
-    SobolStrategy,
+    Strategy,
 )
 
 
@@ -30,12 +34,19 @@ class ConfigTestCase(unittest.TestCase):
         ub = [1, 1]
         outcome_type = single_probit
         parnames = [par1, par2]
+        strategy_names = [init_strat, opt_strat]
 
         [experiment]
+        model = GPClassificationModel
         acqf = LevelSetEstimation
+
+        [init_strat]
+        generator = SobolGenerator
+        n_trials = 10
+
+        [opt_strat]
         generator = OptimizeAcqfGenerator
-        init_strat_cls = SobolStrategy
-        opt_strat_cls = ModelWrapperStrategy
+        n_trials = 20
 
         [LevelSetEstimation]
         beta = 3.98
@@ -49,22 +60,19 @@ class ConfigTestCase(unittest.TestCase):
         restarts = 10
         samps = 1000
 
-        [SobolStrategy]
-        n_trials = 10
-
-        [ModelWrapperStrategy]
-        n_trials = 20
+        [SobolGenerator]
+        n_points = 10
         """
         config = Config()
         config.update(config_str=config_str)
 
         strat = SequentialStrategy.from_config(config)
 
-        self.assertTrue(isinstance(strat.strat_list[0], SobolStrategy))
-        self.assertTrue(isinstance(strat.strat_list[1], ModelWrapperStrategy))
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
         self.assertTrue(
             isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
+        self.assertTrue(isinstance(strat.strat_list[1].model, GPClassificationModel))
         self.assertTrue(strat.strat_list[1].generator.acqf is LevelSetEstimation)
         # since ProbitObjective() is turned into an obj, we check for keys and then vals
         self.assertTrue(
@@ -98,8 +106,7 @@ class ConfigTestCase(unittest.TestCase):
         config.update(config_fnames=[config_file])
         strat = SequentialStrategy.from_config(config)
 
-        self.assertTrue(isinstance(strat.strat_list[0], SobolStrategy))
-        self.assertTrue(isinstance(strat.strat_list[1], ModelWrapperStrategy))
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
         self.assertTrue(
             isinstance(strat.strat_list[1].generator, MonotonicRejectionGenerator)
         )
@@ -139,21 +146,18 @@ class ConfigTestCase(unittest.TestCase):
     def test_sobol_n_trials(self):
         for n_trials in [-1, 0, 1]:
             config_str = f"""
-                [common]
-                lb = [0]
-                ub = [1]
-                parnames = [par1]
+            [common]
+            lb = [0]
+            ub = [1]
+            parnames = [par1]
+            strategy_names = [init_strat]
 
-                [SobolStrategy]
-                n_trials = {n_trials}
-                """
+            [init_strat]
+            generator = SobolGenerator
+            n_trials = {n_trials}
+            """
             config = Config()
             config.update(config_str=config_str)
-            if n_trials <= 0:
-                with self.assertWarns(UserWarning):
-                    model = SobolStrategy.from_config(config)
-            else:
-                model = SobolStrategy.from_config(config)
-            self.assertEqual(model.n_trials, n_trials)
-            self.assertEqual(len(model.points), max(0, n_trials))
-            self.assertEqual(model.finished, n_trials <= 0)
+            strat = Strategy.from_config(config, "init_strat")
+            self.assertEqual(strat.n_trials, n_trials)
+            self.assertEqual(strat.finished, n_trials <= 0)

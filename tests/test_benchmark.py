@@ -60,13 +60,14 @@ class BenchmarkTestCase(unittest.TestCase):
                 "lb": "[0]",
                 "ub": "[1]",
                 "outcome_type": "single_probit",
+                "strategy_names": "[init_strat, opt_strat]",
             },
             "experiment": {
                 "acqf": "MCLevelSetEstimation",
-                "modelbridge_cls": "SingleProbitModelbridge",
-                "init_strat_cls": "SobolStrategy",
-                "opt_strat_cls": "ModelWrapperStrategy",
+                "model": "GPClassificationModel",
             },
+            "init_strat": {"n_trials": [2, 4, 6], "generator": "SobolGenerator"},
+            "opt_strat": {"n_trials": [1, 2], "generator": "OptimizeAcqfGenerator"},
             "MCLevelSetEstimation": {
                 "target": 0.75,
                 "beta": 3.98,
@@ -75,15 +76,9 @@ class BenchmarkTestCase(unittest.TestCase):
                 "inducing_size": 10,
                 "mean_covar_factory": "default_mean_covar_factory",
             },
-            "SingleProbitModelbridge": {
+            "OptimizeAcqfGenerator": {
                 "restarts": 1,
                 "samps": 200,
-            },
-            "SobolStrategy": {
-                "n_trials": [2, 4, 6],
-            },
-            "ModelWrapperStrategy": {
-                "n_trials": [1, 2],
             },
         }
 
@@ -113,9 +108,9 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertTrue((out[~out.final].trial_id % 2 == 0).all())
 
         # we don't run extra trials
-        total_trials = out.SobolStrategy_n_trials.astype(
+        total_trials = out.init_strat_n_trials.astype(
             int
-        ) + out.ModelWrapperStrategy_n_trials.astype(int)
+        ) + out.opt_strat_n_trials.astype(int)
         self.assertTrue((out.trial_id <= total_trials).all())
 
     def test_bench_pathossmoke(self):
@@ -139,9 +134,9 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertTrue((out[~out.final].trial_id % 2 == 0).all())
 
         # we don't run extra trials
-        total_trials = out.SobolStrategy_n_trials.astype(
+        total_trials = out.init_strat_n_trials.astype(
             int
-        ) + out.ModelWrapperStrategy_n_trials.astype(int)
+        ) + out.opt_strat_n_trials.astype(int)
         self.assertTrue((out.trial_id <= total_trials).all())
 
     def test_bench_pathos_partial(self):
@@ -211,13 +206,14 @@ class BenchProblemTestCase(unittest.TestCase):
                 "lb": "[-1, -1]",
                 "ub": "[1, 1]",
                 "outcome_type": "single_probit",
+                "strategy_names": "[init_strat, opt_strat]",
             },
             "experiment": {
                 "acqf": "MCLevelSetEstimation",
-                "generator": "OptimizeAcqfGenerator",
-                "init_strat_cls": "SobolStrategy",
-                "opt_strat_cls": "ModelWrapperStrategy",
+                "model": "GPClassificationModel",
             },
+            "init_strat": {"generator": "SobolGenerator", "n_trials": 50},
+            "opt_strat": {"generator": "OptimizeAcqfGenerator", "n_trials": 1},
             "MCLevelSetEstimation": {
                 "target": 0.75,
                 "beta": 3.98,
@@ -229,12 +225,6 @@ class BenchProblemTestCase(unittest.TestCase):
             "OptimizeAcqfGenerator": {
                 "restarts": 10,
                 "samps": 1000,
-            },
-            "SobolStrategy": {
-                "n_trials": 50,
-            },
-            "ModelWrapperStrategy": {
-                "n_trials": 1,
             },
         }
         problem = LSETestProblem(lb=[-1, -1], ub=[1, 1])
@@ -250,14 +240,14 @@ class BenchProblemTestCase(unittest.TestCase):
                 "lb": "[-1, -1]",
                 "ub": "[1, 1]",
                 "outcome_type": "single_probit",
+                "strategy_names": "[init_strat, opt_strat]",
             },
             "experiment": {
                 "acqf": "MonotonicMCLSE",
-                "generator": "MonotonicRejectionGenerator",
-                "init_strat_cls": "SobolStrategy",
-                "opt_strat_cls": "ModelWrapperStrategy",
                 "model": "MonotonicRejectionGP",
             },
+            "init_strat": {"generator": "SobolGenerator", "n_trials": 50},
+            "opt_strat": {"generator": "MonotonicRejectionGenerator", "n_trials": 1},
             "MonotonicMCLSE": {
                 "target": 0.75,
                 "beta": 3.98,
@@ -271,12 +261,6 @@ class BenchProblemTestCase(unittest.TestCase):
                     "num_restarts": 10,
                     "raw_samples": 1000,
                 }
-            },
-            "SobolStrategy": {
-                "n_trials": 50,
-            },
-            "ModelWrapperStrategy": {
-                "n_trials": 1,
             },
         }
         problem = LSETestProblem(lb=[-1, -1], ub=[1, 1])
