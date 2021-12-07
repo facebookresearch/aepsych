@@ -13,6 +13,7 @@ from .monotonic_rejection_generator import MonotonicRejectionGenerator
 from .monotonic_thompson_sampler_generator import MonotonicThompsonSamplerGenerator
 from .random_generator import RandomGenerator
 from .sobol_generator import SobolGenerator
+from .epsilon_greedy_generator import EpsilonGreedyGenerator
 
 __all__ = [
     "OptimizeAcqfGenerator",
@@ -20,6 +21,7 @@ __all__ = [
     "MonotonicThompsonSamplerGenerator",
     "RandomGenerator",
     "SobolGenerator",
+    "EpsilonGreedyGenerator",
 ]
 
 Config.register_module(sys.modules[__name__])
