@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from inspect import signature
 
-from aepsych.models.base import AEPsychModel
+from aepsych.models.base import AEPsychMixin
 from botorch.acquisition import (
     AcquisitionFunction,
     NoisyExpectedImprovement,
@@ -43,13 +43,13 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.restarts = restarts
         self.samps = samps
 
-    def _instantiate_acquisition_fn(self, model: AEPsychModel, train_x):
+    def _instantiate_acquisition_fn(self, model: AEPsychMixin, train_x):
         if self.acqf in self.baseline_requiring_acqfs:
             return self.acqf(model=model, X_baseline=train_x, **self.acqf_kwargs)
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
-    def gen(self, num_points: int, model: AEPsychModel) -> np.ndarray:
+    def gen(self, num_points: int, model: AEPsychMixin) -> np.ndarray:
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         train_x = model.train_inputs[0]

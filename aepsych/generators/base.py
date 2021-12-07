@@ -6,21 +6,21 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 from aepsych.config import Config
-from aepsych.models.base import AEPsychModel
+from aepsych.models.base import AEPsychMixin
 import numpy as np
 from typing import Generic, TypeVar
 
-AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychModel)
+AEPsychMixinType = TypeVar("AEPsychMixinType", bound=AEPsychMixin)
 
 
-class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
+class AEPsychGenerator(abc.ABC, Generic[AEPsychMixinType]):
     def __init__(
         self,
     ) -> None:
         pass
 
     @abc.abstractmethod
-    def gen(self, num_points: int, model: AEPsychModelType) -> np.ndarray:
+    def gen(self, num_points: int, model: AEPsychMixinType) -> np.ndarray:
         pass
 
     @classmethod

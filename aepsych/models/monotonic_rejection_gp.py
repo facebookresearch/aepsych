@@ -15,15 +15,17 @@ import numpy as np
 import torch
 from aepsych.acquisition.rejection_sampler import RejectionSampler
 from aepsych.config import Config
-from aepsych.factory.factory import monotonic_mean_covar_factory
+from aepsych.factory.factory import (
+    compute_invgamma_prior_params,
+    monotonic_mean_covar_factory,
+)
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
-from aepsych.models.base import AEPsychModel
+from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.utils.sampling import draw_sobol_samples
-from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -32,10 +34,9 @@ from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 from scipy.stats import norm
 from torch import Tensor
-from aepsych.factory.factory import compute_invgamma_prior_params
 
 
-class MonotonicRejectionGP(AEPsychModel, ApproximateGP, GPyTorchModel):
+class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
     """A monotonic GP using rejection sampling.
 
     This takes the same insight as in e.g. Riihimäki & Vehtari 2010 (that the derivative of a GP
@@ -138,8 +139,14 @@ class MonotonicRejectionGP(AEPsychModel, ApproximateGP, GPyTorchModel):
                 outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
             )
 
-        ApproximateGP.__init__(self, variational_strategy)
-        super().__init__(lb, ub, dim, mean_module, covar_module, likelihood)
+        super().__init__(variational_strategy)
+
+        self.lb, self.ub, self.dim = lb, ub, dim
+        self.bounds_ = torch.stack([self.lb, self.ub])
+        self.mean_module = mean_module
+        self.covar_module = covar_module
+        self.likelihood = likelihood
+
         self.num_induc = num_induc
         self.monotonic_idxs = monotonic_idxs
         self.num_samples = num_samples
@@ -147,19 +154,15 @@ class MonotonicRejectionGP(AEPsychModel, ApproximateGP, GPyTorchModel):
         self.fixed_prior_mean = fixed_prior_mean
         self.inducing_points = inducing_points
 
-    def forward(self, x: torch.Tensor) -> MultivariateNormal:
-        """Evaluate the model
+    def set_train_data(self, x: torch.Tensor, y: torch.Tensor) -> None:
+        """Set the training data for the model
 
         Args:
-            x (torch.Tensor): Points at which to evaluate.
-
-        Returns:
-            MultivariateNormal: Object containig mean and covariance
-                of GP at these points.
+            x (torch.Tensor): training X points
+            y ([type]): Training y points
         """
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
-        return MultivariateNormal(mean_x, covar_x)
+        self.train_inputs = (x,)
+        self.train_targets = y
 
     def fit(self, train_x: Tensor, train_y: Tensor) -> None:
         """Fit the model
@@ -168,8 +171,6 @@ class MonotonicRejectionGP(AEPsychModel, ApproximateGP, GPyTorchModel):
             train_x (Tensor): Training x points
             train_y (Tensor): Training y points. Should be (n x 1).
         """
-
-        # Select inducing points
 
         self._set_model(train_x, train_y)
 
@@ -300,7 +301,7 @@ class MonotonicRejectionGP(AEPsychModel, ApproximateGP, GPyTorchModel):
         return deriv_cp
 
     @classmethod
-    def from_config(cls, config: Config) -> AEPsychModel:
+    def from_config(cls, config: Config) -> MonotonicRejectionGP:
         classname = cls.__name__
         num_induc = config.gettensor(classname, "num_induc", fallback=25)
         num_samples = config.gettensor(classname, "num_samples", fallback=250)
@@ -333,3 +334,18 @@ class MonotonicRejectionGP(AEPsychModel, ApproximateGP, GPyTorchModel):
             mean_module=mean,
             covar_module=covar,
         )
+
+    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
+        """Evaluate GP
+
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+
+        Returns:
+            gpytorch.distributions.MultivariateNormal: Distribution object
+                holding mean and covariance at x.
+        """
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
+        return latent_pred

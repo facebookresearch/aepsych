@@ -13,7 +13,7 @@ import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.factory.factory import default_mean_covar_factory
-from aepsych.models.base import AEPsychModel
+from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, make_scaled_sobol, promote_0d
 from botorch.fit import fit_gpytorch_model
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
@@ -23,7 +23,7 @@ from gpytorch.models import ApproximateGP
 from botorch.models.gpytorch import GPyTorchModel
 
 
-class GPClassificationModel(AEPsychModel, ApproximateGP, GPyTorchModel):
+class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
     """Probit-GP model with variational inference.
 
     From a conventional ML perspective this is a GP Classification model,
@@ -75,7 +75,7 @@ class GPClassificationModel(AEPsychModel, ApproximateGP, GPyTorchModel):
             variational_distribution,
             learn_inducing_locations=False,
         )
-        ApproximateGP.__init__(self, variational_strategy)
+        super().__init__(variational_strategy)
 
         mean_prior = inducing_max - inducing_min
 
@@ -97,7 +97,12 @@ class GPClassificationModel(AEPsychModel, ApproximateGP, GPyTorchModel):
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
 
-        super().__init__(lb, ub, dim, mean_module, covar_module, likelihood)
+        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
+        self.bounds_ = torch.stack([self.lb, self.ub])
+
+        self.mean_module = mean_module
+        self.covar_module = covar_module
+        self.likelihood = likelihood
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
         """Evaluate GP
@@ -150,6 +155,16 @@ class GPClassificationModel(AEPsychModel, ApproximateGP, GPyTorchModel):
             covar_module=covar,
         )
 
+    def set_train_data(self, x: torch.Tensor, y: torch.Tensor) -> None:
+        """Set the training data for the model
+
+        Args:
+            x (torch.Tensor): training X points
+            y ([type]): Training y points
+        """
+        self.train_inputs = (x,)
+        self.train_targets = y
+
     def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
         """Fit underlying model.
 
@@ -196,32 +211,6 @@ class GPClassificationModel(AEPsychModel, ApproximateGP, GPyTorchModel):
         else:
             return None
 
-    def _get_contour(self, gridsize: int = 30) -> Optional[np.ndarray]:
-        """Get a LSE contour from the underlying model.
-
-        Currently only works in 2d, else returns None.
-
-        Args:
-            gridsize (int, optional): Number of grid points to evaluate threshold at. Defaults to 30.
-
-        Returns:
-            Optional[np.ndarray]: Threshold as a function of context.
-        """
-
-        from aepsych.utils import get_lse_contour
-
-        if self.dim == 2:
-
-            x1 = self.dim_grid(gridsize=gridsize)
-            post_mean, _ = self.predict(x1)
-            post_mean = norm.cdf(post_mean.reshape(gridsize, gridsize).detach().numpy())
-            x2_hat = get_lse_contour(
-                post_mean, x1, level=self.target, lb=x1.min(), ub=x1.max()
-            )
-            return x2_hat
-        else:
-            return None
-
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -251,3 +240,18 @@ class GPClassificationModel(AEPsychModel, ApproximateGP, GPyTorchModel):
     ):
         """Perform a warm-start update of the model from previous fit."""
         self.fit(train_x, train_y)
+
+    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
+        """Evaluate GP
+
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+
+        Returns:
+            gpytorch.distributions.MultivariateNormal: Distribution object
+                holding mean and covariance at x.
+        """
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
+        latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
+        return latent_pred

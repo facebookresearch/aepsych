@@ -13,7 +13,7 @@ import numpy as np
 import torch
 
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import AEPsychModel
+from aepsych.models.base import AEPsychMixin
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.utils import _process_bounds, make_scaled_sobol
 
@@ -112,7 +112,7 @@ class ModelWrapperStrategy(Strategy):
 
     def __init__(
         self,
-        model: AEPsychModel,
+        model: AEPsychMixin,
         generator: AEPsychGenerator,
         n_trials: int,
         stopping_threshold: Optional[float] = None,

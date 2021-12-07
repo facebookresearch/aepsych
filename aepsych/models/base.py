@@ -5,70 +5,20 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from __future__ import annotations
 
-import abc
 from typing import Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from aepsych.config import Config
-from aepsych.utils import dim_grid, _process_bounds, get_jnd_multid, make_scaled_sobol
-from gpytorch.kernels import Kernel
-from gpytorch.likelihoods import Likelihood
-from gpytorch.means import Mean
+from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol, get_lse_contour
 from scipy.optimize import minimize
+from scipy.stats import norm
 
 torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
 
 
-class AEPsychModel(abc.ABC):
-    outcome_type = ""
-
-    @abc.abstractmethod
-    def __init__(
-        self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
-        dim: Optional[int],
-        mean_module: Mean,
-        covar_module: Kernel,
-        likelihood: Likelihood,
-    ):
-        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
-        self.bounds_ = torch.stack([self.lb, self.ub])
-
-        self.mean_module = mean_module
-        self.covar_module = covar_module
-        self.likelihood = likelihood
-
-    @abc.abstractmethod
-    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
-        pass
-
-    def update(
-        self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
-    ) -> None:
-        self.fit(train_x, train_y)
-
-    @abc.abstractmethod
-    def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        pass
-
-    @abc.abstractmethod
-    def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
-    ) -> torch.Tensor:
-        pass
-
-    def get_max(self) -> Tuple[float, np.ndarray]:
-        """Return the maximum of the modeled function
-        Returns:
-            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
-        """
-        return self._get_extremum("max")
+class AEPsychMixin:
+    """Mixin class that provides AEPsych-specific utility methods."""
 
     def _get_extremum(
         self, extremum_type: str, n_samples: int = 1000
@@ -106,6 +56,13 @@ class AEPsychModel(abc.ABC):
             raise RuntimeError(
                 f"Unknown extremum type: '{extremum_type}'! Valid types: 'min', 'max' "
             )
+
+    def get_max(self) -> Tuple[float, np.ndarray]:
+        """Return the maximum of the modeled function
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
+        """
+        return self._get_extremum("max")
 
     def get_min(self) -> Tuple[float, np.ndarray]:
         """Return the minimum of the modeled function
@@ -264,17 +221,26 @@ class AEPsychModel(abc.ABC):
     def dim_grid(self, gridsize: int = 30):
         return dim_grid(self.lb, self.ub, self.dim, gridsize)
 
-    def set_train_data(self, x: torch.Tensor, y: torch.Tensor) -> None:
-        """Set the training data for the model
+    def _get_contour(self, gridsize: int = 30) -> Optional[np.ndarray]:
+        """Get a LSE contour from the underlying model.
+
+        Currently only works in 2d, else returns None.
 
         Args:
-            x (torch.Tensor): training X points
-            y ([type]): Training y points
-        """
-        self.train_inputs = (x,)
-        self.train_targets = y
+            gridsize (int, optional): Number of grid points to evaluate threshold at. Defaults to 30.
 
-    @classmethod
-    @abc.abstractmethod
-    def from_config(cls, config: Config) -> AEPsychModel:
-        pass
+        Returns:
+            Optional[np.ndarray]: Threshold as a function of context.
+        """
+
+        if self.dim == 2:
+
+            x1 = self.dim_grid(gridsize=gridsize)
+            post_mean, _ = self.predict(x1)
+            post_mean = norm.cdf(post_mean.reshape(gridsize, gridsize).detach().numpy())
+            x2_hat = get_lse_contour(
+                post_mean, x1, level=self.target, lb=x1.min(), ub=x1.max()
+            )
+            return x2_hat
+        else:
+            return None
