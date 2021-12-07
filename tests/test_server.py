@@ -154,6 +154,16 @@ class ServerTestCase(unittest.TestCase):
         result = self.s.handle_update(request)
         self.assertEqual("update success", result)
 
+    def test_handle_exit(self):
+        request = {}
+        request["type"] = "exit"
+        self.s.dump = MagicMock()
+
+        with self.assertRaises(SystemExit) as cm:
+            self.s.handle_exit(request)
+
+        self.assertEqual(cm.exception.code, 0)
+
     @patch("socket.socket.accept")
     def test_receive(self, mock_accept):
         """test_receive - verifies the receive is working when server receives unexpected messages"""

@@ -474,6 +474,7 @@ class AEPsychServer(object):
             "update": self.handle_update,
             "query": self.handle_query,
             "parameters": self.handle_params,
+            "exit": self.handle_exit,
         }
 
         if "type" not in request.keys():
@@ -627,6 +628,19 @@ class AEPsychServer(object):
         else:
             raise RuntimeError("unknown query type!")
         return response
+
+    def handle_exit(self, request):
+        # Make local server write strats into DB and close the connection
+        termination_type = "Normal termination"
+        logger.info("Got termination message!")
+        self.write_strat(termination_type)
+        if not self.is_using_thrift:
+            # Close the socket and terminate with code 0
+            self.cleanup()
+            sys.exit(0)
+
+        # If using thrift, it will add 'Terminate' to the queue and pass it to thrift server level
+        return "Terminate"
 
     @property
     def strat(self):

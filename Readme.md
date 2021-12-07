@@ -17,7 +17,7 @@ pip install -e .
 Eventually, `AEPsych` will be available on PyPI and pip-installable directly.
 
 ## Usage
-**See the code examples [here](https://github.com/facebookresearch/aepsych/tree/main/examples).**  
+**See the code examples [here](https://github.com/facebookresearch/aepsych/tree/main/examples).**
 
 The canonical way of using `AEPsych` is to launch it in server mode.
 ```
@@ -36,7 +36,7 @@ have the following format:
 }
 ```
 Version can be omitted, in which case we default to the oldest / unversioned handler for this message
-type. There are four message types: `setup`, `resume`, `ask`, and `tell`.
+type. There are five message types: `setup`, `resume`, `ask`, `tell` and `exit`.
 
 ### Setup
 The `setup` message prepares the server for making suggestions and accepting data. The setup
@@ -95,6 +95,15 @@ looks like this:
     }
 }
 ```
+### Exit
+The `exit` message tells the server to close the socket connection, write strats into the database and terminate current session.
+The message is:
+```
+{
+    "type":"exit",
+}
+```
+The server closes the connection.
 
 ## Data export and visualization
 The data is logged to a SQLite database on disk (by default, `databases/default.db`). The database
