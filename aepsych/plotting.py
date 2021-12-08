@@ -142,19 +142,20 @@ def _plot_strat_1d(
     grid = strat.model.dim_grid(gridsize=gridsize)
     samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
     phimean = samps.mean(0)
-    upper = np.quantile(samps, cred_level, axis=0)
-    lower = np.quantile(samps, 1 - cred_level, axis=0)
 
     ax.plot(np.squeeze(grid), phimean)
-    ax.fill_between(
-        np.squeeze(grid),
-        lower,
-        upper,
-        alpha=0.3,
-        hatch="///",
-        edgecolor="gray",
-        label=f"{cred_level*100:.0f}% posterior mass",
-    )
+    if cred_level is not None:
+        upper = np.quantile(samps, cred_level, axis=0)
+        lower = np.quantile(samps, 1 - cred_level, axis=0)
+        ax.fill_between(
+            np.squeeze(grid),
+            lower,
+            upper,
+            alpha=0.3,
+            hatch="///",
+            edgecolor="gray",
+            label=f"{cred_level*100:.0f}% posterior mass",
+        )
     if target_level is not None:
         from aepsych.utils import interpolate_monotonic
 
