@@ -6,8 +6,11 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
-from aepsych.generators import RandomGenerator
+
 import numpy as np
+import numpy.testing as npt
+from aepsych.config import Config
+from aepsych.generators import RandomGenerator
 
 
 class TestRandomGenerator(unittest.TestCase):
@@ -27,3 +30,17 @@ class TestRandomGenerator(unittest.TestCase):
         self.assertTrue(np.all(rand[:, 0] < 2))
         self.assertTrue(np.all(rand[:, 1] < 3))
         self.assertTrue(np.all(rand[:, 2] < 4))
+
+    def test_randomgen_config(self):
+        lb = [-1, 0]
+        ub = [1, 2]
+        config_str = f"""
+        [common]
+        lb = {lb}
+        ub = {ub}
+        """
+        config = Config(config_str=config_str)
+        gen = RandomGenerator.from_config(config)
+        npt.assert_equal(gen.lb.numpy(), np.array(lb))
+        npt.assert_equal(gen.ub.numpy(), np.array(ub))
+        self.assertEqual(gen.dim, len(lb))
