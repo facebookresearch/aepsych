@@ -32,7 +32,7 @@ class AEPsychMixin:
         """
 
         def signed_model(x, sign=1):
-            return sign * self.predict(torch.tensor([x]))[0].numpy()
+            return sign * self.predict(torch.tensor([x]))[0].detach().numpy()
 
         bounds = zip(self.lb.numpy(), self.ub.numpy())
 
@@ -95,7 +95,7 @@ class AEPsychMixin:
 
         def model_distance(x, pt, probability_space):
             return np.abs(
-                self.predict(torch.tensor([x]), probability_space)[0].numpy() - pt
+                self.predict(torch.tensor([x]), probability_space)[0].detach().numpy() - pt
             )
 
         # Look for point with value closest to y, subject the dict of locked dims
