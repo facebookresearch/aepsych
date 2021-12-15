@@ -98,6 +98,15 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
+    def test_missing_config_file(self):
+        config_file = "../configs/does_not_exist.ini"
+        config_file = os.path.join(os.path.dirname(__file__), config_file)
+        with self.assertRaises(FileNotFoundError):
+            Config(config_fnames=[config_file])
+
+        with self.assertRaises(FileNotFoundError):
+            Config(config_fnames=[])
+
     def test_monotonic_single_probit_config_file(self):
         config_file = "../configs/single_lse_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)

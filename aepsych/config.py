@@ -124,7 +124,9 @@ class Config(configparser.ConfigParser):
             self.read_dict(config_dict)
 
         if config_fnames is not None:
-            self.read(config_fnames)
+            read_ok = self.read(config_fnames)
+            if len(read_ok) < 1:
+                raise FileNotFoundError
 
         if config_str is not None:
             self.read_string(config_str)
