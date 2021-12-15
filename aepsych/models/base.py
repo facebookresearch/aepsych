@@ -6,22 +6,45 @@
 # LICENSE file in the root directory of this source tree.
 
 
-from typing import Mapping, Optional, Tuple, Union
+from typing import Mapping, Optional, Tuple, Union, Protocol
 
 import numpy as np
 import torch
-from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol, get_lse_contour
+from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
 from scipy.optimize import minimize
-from scipy.stats import norm
 
 torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
+
+
+class ModelProtocol(Protocol):
+    @property
+    def train_inputs(self) -> torch.Tensor:
+        pass
+
+    @property
+    def lb(self) -> torch.Tensor:
+        pass
+
+    @property
+    def ub(self) -> torch.Tensor:
+        pass
+
+    @property
+    def dim(self) -> int:
+        pass
+
+    def predict(self, points: torch.Tensor):
+        pass
+
+    def sample(self, points: torch.Tensor):
+        pass
 
 
 class AEPsychMixin:
     """Mixin class that provides AEPsych-specific utility methods."""
 
     def _get_extremum(
-        self, extremum_type: str, n_samples: int = 1000
+        self: ModelProtocol, extremum_type: str, n_samples: int = 1000
     ) -> Tuple[float, np.ndarray]:
         """Return the extremum (min or max) of the modeled function
         Args:
@@ -57,14 +80,14 @@ class AEPsychMixin:
                 f"Unknown extremum type: '{extremum_type}'! Valid types: 'min', 'max' "
             )
 
-    def get_max(self) -> Tuple[float, np.ndarray]:
+    def get_max(self: ModelProtocol) -> Tuple[float, np.ndarray]:
         """Return the maximum of the modeled function
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
         """
         return self._get_extremum("max")
 
-    def get_min(self) -> Tuple[float, np.ndarray]:
+    def get_min(self: ModelProtocol) -> Tuple[float, np.ndarray]:
         """Return the minimum of the modeled function
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
@@ -72,7 +95,7 @@ class AEPsychMixin:
         return self._get_extremum("min")
 
     def inv_query(
-        self,
+        self: ModelProtocol,
         y: float,
         locked_dims: Mapping[int, float],
         probability_space: bool = False,
@@ -95,7 +118,8 @@ class AEPsychMixin:
 
         def model_distance(x, pt, probability_space):
             return np.abs(
-                self.predict(torch.tensor([x]), probability_space)[0].detach().numpy() - pt
+                self.predict(torch.tensor([x]), probability_space)[0].detach().numpy()
+                - pt
             )
 
         # Look for point with value closest to y, subject the dict of locked dims
@@ -126,7 +150,7 @@ class AEPsychMixin:
         return val, torch.Tensor(a.x)
 
     def get_jnd(
-        self,
+        self: ModelProtocol,
         grid: Optional[Union[np.ndarray, torch.Tensor]] = None,
         cred_level: float = None,
         intensity_dim: int = -1,
@@ -218,29 +242,5 @@ class AEPsychMixin:
         median = torch.clip(torch.quantile(jnds, 0.5, axis=0), 0, np.inf)  # type: ignore
         return median, lower, upper
 
-    def dim_grid(self, gridsize: int = 30):
+    def dim_grid(self: ModelProtocol, gridsize: int = 30):
         return dim_grid(self.lb, self.ub, self.dim, gridsize)
-
-    def _get_contour(self, gridsize: int = 30) -> Optional[np.ndarray]:
-        """Get a LSE contour from the underlying model.
-
-        Currently only works in 2d, else returns None.
-
-        Args:
-            gridsize (int, optional): Number of grid points to evaluate threshold at. Defaults to 30.
-
-        Returns:
-            Optional[np.ndarray]: Threshold as a function of context.
-        """
-
-        if self.dim == 2:
-
-            x1 = self.dim_grid(gridsize=gridsize)
-            post_mean, _ = self.predict(x1)
-            post_mean = norm.cdf(post_mean.reshape(gridsize, gridsize).detach().numpy())
-            x2_hat = get_lse_contour(
-                post_mean, x1, level=self.target, lb=x1.min(), ub=x1.max()
-            )
-            return x2_hat
-        else:
-            return None

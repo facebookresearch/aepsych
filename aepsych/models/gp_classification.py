@@ -104,21 +104,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         self.covar_module = covar_module
         self.likelihood = likelihood
 
-    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
-        """Evaluate GP
-
-        Args:
-            x (torch.Tensor): Tensor of points at which GP should be evaluated.
-
-        Returns:
-            gpytorch.distributions.MultivariateNormal: Distribution object
-                holding mean and covariance at x.
-        """
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
-        latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
-        return latent_pred
-
     @classmethod
     def from_config(cls, config: Config) -> GPClassificationModel:
         """Alternate constructor for GPClassification model.
@@ -192,24 +177,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             torch.Tensor: Posterior samples [num_samples x dim]
         """
         return self.posterior(x).rsample(torch.Size([num_samples])).detach()
-
-    def best(self) -> Optional[np.ndarray]:
-        """Return the current best.
-
-        Note that currently this only returns the threshold for LSE
-        acquisition functions, or otherwise nothing.
-
-        TODO: make this actually return a more reasonable "best".
-
-        Returns:
-            np.ndarray: Current threshold estimate.
-        """
-        from aepsych.acquisition import lse_acqfs
-
-        if self.acqf in lse_acqfs:
-            return self._get_contour()
-        else:
-            return None
 
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False

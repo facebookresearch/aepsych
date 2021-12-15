@@ -13,7 +13,7 @@ from aepsych.models.base import AEPsychMixin
 
 
 class EpsilonGreedyGenerator(AEPsychGenerator):
-    def __init__(self, subgenerator: AEPsychGenerator, epsilon: int = 0.1):
+    def __init__(self, subgenerator: AEPsychGenerator, epsilon: float = 0.1):
         self.subgenerator = subgenerator
         self.epsilon = epsilon
 

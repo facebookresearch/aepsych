@@ -246,9 +246,7 @@ class SequentialStrategy(object):
 
     @classmethod
     def from_config(cls, config: Config):
-        strat_names = config._str_to_list(
-            config.get("common", "strategy_names"), element_type=str
-        )
+        strat_names = config.getlist("common", "strategy_names", element_type=str)
         strats = []
         for name in strat_names:
             strat = Strategy.from_config(config, name)
