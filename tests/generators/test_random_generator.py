@@ -31,6 +31,21 @@ class TestRandomGenerator(unittest.TestCase):
         self.assertTrue(np.all(rand[:, 1] < 3))
         self.assertTrue(np.all(rand[:, 2] < 4))
 
+    def test_randomgen_batch(self):
+        # test that RandomGenerator doesn't mess with shapes
+        n = 100
+        mod = RandomGenerator(lb=[1, 2, 3], ub=[2, 3, 4], dim=3)
+
+        rand = mod.gen(n)
+
+        # check that bounds are right
+        self.assertTrue(np.all(rand[:, 0] > 1))
+        self.assertTrue(np.all(rand[:, 1] > 2))
+        self.assertTrue(np.all(rand[:, 2] > 3))
+        self.assertTrue(np.all(rand[:, 0] < 2))
+        self.assertTrue(np.all(rand[:, 1] < 3))
+        self.assertTrue(np.all(rand[:, 2] < 4))
+
     def test_randomgen_config(self):
         lb = [-1, 0]
         ub = [1, 2]

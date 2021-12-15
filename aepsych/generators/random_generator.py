@@ -5,7 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import warnings
 from typing import Optional, Union
 
 import numpy as np
@@ -37,7 +36,7 @@ class RandomGenerator(AEPsychGenerator):
 
     def gen(
         self,
-        num_points: int = 1,  # Current implementation only generates 1 point at a time
+        num_points: int = 1,
         model: AEPsychMixin = None,  # included for API compatibility.
     ) -> np.ndarray:
         """Query next point(s) to run by randomly sampling the parameter space.
@@ -46,12 +45,10 @@ class RandomGenerator(AEPsychGenerator):
         Returns:
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
-        if num_points != 1:
-            warnings.warn("RandomGenerator currently only generates 1 point at a time.")
-        X = self.bounds_[0] + torch.rand(self.bounds_.shape[1]) * (
+        X = self.bounds_[0] + torch.rand((num_points, self.bounds_.shape[1])) * (
             self.bounds_[1] - self.bounds_[0]
         )
-        return X.unsqueeze(0).numpy()
+        return X.numpy()
 
     @classmethod
     def from_config(cls, config: Config):
