@@ -332,11 +332,11 @@ class ServerTestCase(unittest.TestCase):
             self.s.unversioned_handler(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
-        stored_strat = self.s.get_final_strat_from_replay(exp_id)
         # just some spot checks that the strat's the same
         # same data. We do this twice to make sure buffers are
         # in a good state and we can load twice without crashing
         for _ in range(2):
+            stored_strat = self.s.get_final_strat_from_replay(exp_id)
             self.assertTrue((stored_strat.x == self.s.strat.x).all())
             self.assertTrue((stored_strat.y == self.s.strat.y).all())
             # same lengthscale and outputscale

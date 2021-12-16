@@ -300,10 +300,10 @@ class AEPsychServer(object):
                 uuid_of_replay = records[-1].experiment_id
             else:
                 raise RuntimeError("Server has no experiment records!")
-
         strat_buffer = self.db.get_strat_for(uuid_of_replay)
         if strat_buffer is not None:
             strat = torch.load(strat_buffer, pickle_module=dill)
+            strat_buffer.seek(0) # return to previous state so we can load again
             return strat
         elif self.strat is not None:
             # we've previously run a replay that has populated a strat,
@@ -612,7 +612,9 @@ class AEPsychServer(object):
             # returns the model value at x
             if x is None:  # TODO: ensure if x is between lb and ub
                 raise RuntimeError("Cannot query model at location = None!")
-            mean, var = self.strat.predict(torch.Tensor([x]), probability_space=probability_space)
+            mean, var = self.strat.predict(
+                torch.Tensor([x]), probability_space=probability_space
+            )
             response["x"] = x
             response["y"] = mean.item()
         elif query_type == "inverse":
