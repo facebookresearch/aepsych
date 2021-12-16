@@ -7,7 +7,7 @@
 from inspect import signature
 from aepsych.config import Config
 
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import ModelProtocol
 from botorch.acquisition import (
     AcquisitionFunction,
     NoisyExpectedImprovement,
@@ -54,17 +54,17 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.restarts = restarts
         self.samps = samps
 
-    def _instantiate_acquisition_fn(self, model: AEPsychMixin, train_x):
+    def _instantiate_acquisition_fn(self, model: ModelProtocol, train_x):
         if self.acqf in self.baseline_requiring_acqfs:
             return self.acqf(model=model, X_baseline=train_x, **self.acqf_kwargs)
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
-    def gen(self, num_points: int, model: AEPsychMixin) -> np.ndarray:
+    def gen(self, num_points: int, model: ModelProtocol) -> np.ndarray:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int, optional): Number of points to query.
-            model (AEPsychMixin): Fitted model of the data.
+            model (ModelProtocol): Fitted model of the data.
         Returns:
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """

@@ -118,11 +118,7 @@ class Strategy(object):
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
         self._count = self._count + num_points
-
-        if self.has_model:
-            return self.generator.gen(num_points, self.model)
-        else:
-            return self.generator.gen(num_points)
+        return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
     def get_max(self):
@@ -249,7 +245,7 @@ class SequentialStrategy(object):
         strat_names = config.getlist("common", "strategy_names", element_type=str)
         strats = []
         for name in strat_names:
-            strat = Strategy.from_config(config, name)
+            strat = Strategy.from_config(config, str(name))
             strats.append(strat)
 
         return cls(strats)

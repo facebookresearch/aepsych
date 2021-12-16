@@ -4,7 +4,7 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-
+from __future__ import annotations
 
 from typing import Mapping, Optional, Tuple, Union, Protocol
 
@@ -33,10 +33,20 @@ class ModelProtocol(Protocol):
     def dim(self) -> int:
         pass
 
-    def predict(self, points: torch.Tensor):
+    def predict(
+        self, points: torch.Tensor, probability_space: bool = False
+    ) -> torch.Tensor:
         pass
 
-    def sample(self, points: torch.Tensor):
+    def sample(self, points: torch.Tensor, num_samples: int) -> torch.Tensor:
+        pass
+
+    def _get_extremum(
+        self, extremum_type: str, n_samples=1000
+    ) -> Tuple[float, np.ndarray]:
+        pass
+
+    def dim_grid(self, gridsize: int = 30) -> torch.Tensor:
         pass
 
 
@@ -44,7 +54,9 @@ class AEPsychMixin:
     """Mixin class that provides AEPsych-specific utility methods."""
 
     def _get_extremum(
-        self: ModelProtocol, extremum_type: str, n_samples: int = 1000
+        self: ModelProtocol,
+        extremum_type: str,
+        n_samples: int = 1000,
     ) -> Tuple[float, np.ndarray]:
         """Return the extremum (min or max) of the modeled function
         Args:
@@ -190,11 +202,13 @@ class AEPsychMixin:
         """
         if grid is None:
             grid = self.dim_grid()
+        else:
+            grid = torch.tensor(grid)
 
         # this is super awkward, back into intensity dim grid assuming a square grid
         gridsize = int(grid.shape[0] ** (1 / grid.shape[1]))
         coords = torch.linspace(
-            self.lb[intensity_dim], self.ub[intensity_dim], gridsize
+            self.lb[intensity_dim].item(), self.ub[intensity_dim].item(), gridsize
         )
 
         if cred_level is None:
@@ -242,5 +256,5 @@ class AEPsychMixin:
         median = torch.clip(torch.quantile(jnds, 0.5, axis=0), 0, np.inf)  # type: ignore
         return median, lower, upper
 
-    def dim_grid(self: ModelProtocol, gridsize: int = 30):
+    def dim_grid(self: ModelProtocol, gridsize: int = 30) -> torch.Tensor:
         return dim_grid(self.lb, self.ub, self.dim, gridsize)

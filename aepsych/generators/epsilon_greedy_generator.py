@@ -9,7 +9,7 @@ import numpy as np
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import ModelProtocol
 
 
 class EpsilonGreedyGenerator(AEPsychGenerator):
@@ -27,7 +27,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         epsilon = config.getfloat(classname, "epsilon", fallback=0.1)
         return cls(subgen, epsilon)
 
-    def gen(self, num_points: int, model: AEPsychMixin):
+    def gen(self, num_points: int, model: ModelProtocol):
         if num_points > 1:
             raise NotImplementedError("Epsilon-greedy batched gen is not implemented!")
         if np.random.uniform() < self.epsilon:
