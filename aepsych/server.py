@@ -301,7 +301,7 @@ class AEPsychServer(object):
             else:
                 raise RuntimeError("Server has no experiment records!")
         strat_buffer = self.db.get_strat_for(uuid_of_replay)
-        if strat_buffer is not None:
+        if strat_buffer is not None and type(strat_buffer) == io.BytesIO:
             strat = torch.load(strat_buffer, pickle_module=dill)
             strat_buffer.seek(0) # return to previous state so we can load again
             return strat
@@ -311,8 +311,9 @@ class AEPsychServer(object):
             return self.strat
         else:
             logger.info(
-                "No final strat found (likely due to old DB or server crash, "
-                + "trying to replay tells to generate a final strat..."
+                "No final strat found in expected format (likely due to "
+                "old DB or server crash, trying to replay tells to"
+                "generate a final strat..."
             )
             # sometimes there's no final strat, e.g.
             # if the server crashed or it's a very old database
@@ -800,18 +801,11 @@ def parse_argument():
         help="method to serve over",
     )
     parser.add_argument(
-        "--ip",
-        metavar="M",
-        type=str,
-        default="0.0.0.0",
-        help="ip to bind",
+        "--ip", metavar="M", type=str, default="0.0.0.0", help="ip to bind",
     )
 
     parser.add_argument(
-        "-s",
-        "--stratconfig",
-        help="Location of ini config file for strat",
-        type=str,
+        "-s", "--stratconfig", help="Location of ini config file for strat", type=str,
     )
 
     parser.add_argument(
