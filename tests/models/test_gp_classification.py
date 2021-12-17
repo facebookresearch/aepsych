@@ -8,9 +8,7 @@
 import unittest
 from sklearn.datasets import make_classification
 import numpy as np
-from botorch.fit import fit_gpytorch_model
 import torch
-import gpytorch
 import numpy.testing as npt
 from aepsych.models import GPClassificationModel
 
@@ -38,13 +36,13 @@ class GPClassificationSmoketest(unittest.TestCase):
 
         model = GPClassificationModel(torch.Tensor([-3]), torch.Tensor([3]))
 
-        model.set_train_data(X, y)
-        likelihood = gpytorch.likelihoods.BernoulliLikelihood()
-        mll = gpytorch.mlls.VariationalELBO(likelihood, model, 100)
-        fit_gpytorch_model(mll)
+        model.fit(X[:50], y[:50])
+        pred = (torch.sigmoid(model.posterior(X[:50]).mean) > 0.5).numpy()
+        npt.assert_allclose(pred[:, 0], y[:50])
+
+        model.update(X, y)
         pred = (torch.sigmoid(model.posterior(X).mean) > 0.5).numpy()
         npt.assert_allclose(pred[:, 0], y)
-
 
 if __name__ == "__main__":
     unittest.main()
