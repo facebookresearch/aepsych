@@ -25,7 +25,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         )
         subgen = subgen_cls.from_config(config)
         epsilon = config.getfloat(classname, "epsilon", fallback=0.1)
-        return cls(subgen, epsilon)
+        return cls(subgenerator=subgen, epsilon=epsilon)
 
     def gen(self, num_points: int, model: ModelProtocol):
         if num_points > 1:

@@ -109,4 +109,9 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         restarts = config.getint(classname, "restarts", fallback=10)
         samps = config.getint(classname, "samps", fallback=1000)
 
-        return cls(acqf, extra_acqf_args, restarts, samps)
+        return cls(
+            acqf=acqf,
+            acqf_kwargs=extra_acqf_args,
+            restarts=restarts,
+            samps=samps,
+        )

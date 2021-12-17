@@ -6,14 +6,15 @@
 # LICENSE file in the root directory of this source tree.
 
 from typing import Optional, Sequence
-from aepsych.config import Config
+
+import numpy as np
 import torch
+from aepsych.acquisition.objective import ProbitObjective
+from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
-from aepsych.acquisition.objective import ProbitObjective
-from botorch.utils.sampling import draw_sobol_samples
 from botorch.acquisition.objective import MCAcquisitionObjective
-import numpy as np
+from botorch.utils.sampling import draw_sobol_samples
 
 
 class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
@@ -100,10 +101,10 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         explore_features = config.getlist(classname, "explore_idxs", fallback=None)  # type: ignore
 
         return cls(
-            n_samples,
-            n_rejection_samples,
-            num_ts_points,
-            target,
-            objective,
-            explore_features,
+            n_samples=n_samples,
+            n_rejection_samples=n_rejection_samples,
+            num_ts_points=num_ts_points,
+            target_value=target,
+            objective=objective,
+            explore_features=explore_features,
         )

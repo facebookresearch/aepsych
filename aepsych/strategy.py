@@ -248,4 +248,4 @@ class SequentialStrategy(object):
             strat = Strategy.from_config(config, str(name))
             strats.append(strat)
 
-        return cls(strats)
+        return cls(strat_list=strats)

@@ -5,16 +5,17 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from aepsych.config import Config
-import torch
 from typing import Optional, Sequence, Dict, Any
+
+import torch
+from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
+from aepsych.config import Config
+from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.optimize_acqf_generator import _prune_extra_acqf_args
+from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
+from botorch.logging import logger
 from botorch.optim.initializers import gen_batch_initial_conditions
 from botorch.optim.utils import columnwise_clamp, fix_features
-from botorch.logging import logger
-from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
-from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
-from aepsych.generators.optimize_acqf_generator import _prune_extra_acqf_args
-from aepsych.generators.base import AEPsychGenerator
 
 
 def default_loss_constraint_fun(
@@ -207,4 +208,9 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
 
         explore_features = config.getlist(classname, "explore_idxs", fallback=None)  # type: ignore
 
-        return cls(acqf, extra_acqf_args, options, explore_features)
+        return cls(
+            acqf=acqf,
+            acqf_kwargs=extra_acqf_args,
+            model_gen_options=options,
+            explore_features=explore_features,
+        )
