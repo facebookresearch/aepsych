@@ -6,11 +6,12 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
-from sklearn.datasets import make_classification
+
 import numpy as np
-import torch
 import numpy.testing as npt
+import torch
 from aepsych.models import GPClassificationModel
+from sklearn.datasets import make_classification
 
 
 class GPClassificationSmoketest(unittest.TestCase):
@@ -37,12 +38,30 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(torch.Tensor([-3]), torch.Tensor([3]))
 
         model.fit(X[:50], y[:50])
-        pred = (torch.sigmoid(model.posterior(X[:50]).mean) > 0.5).numpy()
-        npt.assert_allclose(pred[:, 0], y[:50])
 
+        # pspace
+        pm, _ = model.predict(X[:50], probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # fspace
+        pm, _ = model.predict(X[:50], probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # smoke test update
         model.update(X, y)
-        pred = (torch.sigmoid(model.posterior(X).mean) > 0.5).numpy()
-        npt.assert_allclose(pred[:, 0], y)
+
+        # pspace
+        pm, _ = model.predict(X, probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y)
+
+        # fspace
+        pm, _ = model.predict(X, probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y)
+
 
 if __name__ == "__main__":
     unittest.main()

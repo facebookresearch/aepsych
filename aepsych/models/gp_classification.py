@@ -16,11 +16,11 @@ from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, make_scaled_sobol, promote_0d
 from botorch.fit import fit_gpytorch_model
+from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
+from gpytorch.models import ApproximateGP
 from gpytorch.variational import MeanFieldVariationalDistribution, VariationalStrategy
 from scipy.stats import norm
-from gpytorch.models import ApproximateGP
-from botorch.models.gpytorch import GPyTorchModel
 
 
 class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
@@ -191,15 +191,15 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         Returns:
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
-        post = self.posterior(x)
-        fmean = post.mean.detach().squeeze()
-        fvar = post.variance.detach().squeeze()
         if probability_space:
-            return (
-                promote_0d(norm.cdf(fmean)),
-                promote_0d(norm.cdf(fvar)),
-            )
+            samps = self.sample(x, num_samples=10000)
+            pmean = samps.mean(0).squeeze()
+            pvar = samps.var(0).squeeze()
+            return pmean, pvar
         else:
+            post = self.posterior(x)
+            fmean = post.mean.detach().squeeze()
+            fvar = post.variance.detach().squeeze()
             return fmean, fvar
 
     def update(
