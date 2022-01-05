@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
+import time
 from typing import Optional, Tuple, Union
 
 import gpytorch
@@ -14,13 +15,15 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
-from aepsych.utils import _process_bounds, make_scaled_sobol, promote_0d
+from aepsych.utils import _process_bounds, make_scaled_sobol
+from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import MeanFieldVariationalDistribution, VariationalStrategy
-from scipy.stats import norm
+
+logger = getLogger()
 
 
 class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
@@ -47,6 +50,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         inducing_size: int = 10,
+        max_fit_time: Optional[float] = None,
     ):
         """Initialize the GP Classification model
 
@@ -58,7 +62,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
                 class. Defaults to scaled RBF with a gamma prior.
         """
         lb, ub, dim = _process_bounds(lb, ub, dim)
-
+        self.lb, self.ub, self.dim = lb, ub, dim
+        self.max_fit_time = max_fit_time
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
@@ -97,7 +102,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
 
-        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.bounds_ = torch.stack([self.lb, self.ub])
 
         self.mean_module = mean_module
@@ -130,6 +134,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         )
 
         mean, covar = mean_covar_factory(config)
+        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         return cls(
             lb=lb,
@@ -138,6 +143,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             inducing_size=inducing_size,
             mean_module=mean,
             covar_module=covar,
+            max_fit_time=max_fit_time,
         )
 
     def set_train_data(self, x: torch.Tensor, y: torch.Tensor) -> None:
@@ -161,7 +167,22 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
         self.train()
         self.set_train_data(train_x, train_y)
-        fit_gpytorch_model(mll)
+
+        if self.max_fit_time is not None:
+            # figure out how long evaluating a single samp
+            starttime = time.time()
+            _ = mll(self(train_x), train_y)
+            single_eval_time = time.time() - starttime
+            n_eval = self.max_fit_time // single_eval_time
+            options = {"maxfun": n_eval}
+            logger.info(f"fit maxfun is {n_eval}")
+
+        else:
+            options = {}
+        logger.info("Starting fit...")
+        starttime = time.time()
+        fit_gpytorch_model(mll, options=options)
+        logger.info(f"Fit done, time={time.time()-starttime}")
 
     def sample(
         self, x: Union[torch.Tensor, np.ndarray], num_samples: int

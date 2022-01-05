@@ -9,6 +9,7 @@ import warnings
 from typing import Optional, Union
 from aepsych.generators.random_generator import RandomGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
+import time
 
 import numpy as np
 import torch
@@ -17,17 +18,23 @@ from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds
 from aepsych.config import Config
+from aepsych.utils_logging import getLogger
 
+logger = getLogger()
 
 def ensure_model_is_fresh(f):
     def wrapper(self, *args, **kwargs):
         if self.has_model and not self._model_is_fresh:
+            starttime = time.time()
             if self._count % self.refit_every == 0 or self.refit_every == 1:
+                logger.info("Starting fitting (no warm start)...")
                 # don't warm start
                 self.model.fit(self.x, self.y)
             else:
+                logger.info("Starting fitting (warm start)...")
                 # warm start
                 self.model.update(self.x, self.y)
+            logger.info(f"Fitting done, took {time.time()-starttime}")
         self._model_is_fresh = True
         return f(self, *args, **kwargs)
 
