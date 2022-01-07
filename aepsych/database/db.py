@@ -29,6 +29,12 @@ class Database:
         db_dir, db_name = os.path.split(db_path)
         self._db_name = db_name
         self._db_dir = db_dir
+
+        if os.path.exists(db_path):
+            logger.info(f"Found DB at {db_path}, appending!")
+        else:
+            logger.info(f"No DB found at {db_path}, creating a new DB!")
+
         self._engine = self.get_engine()
 
     def get_engine(self):
@@ -58,7 +64,7 @@ class Database:
         return not tables.DbReplayTable.has_extra_info(self._engine)
 
     def perform_updates(self):
-        """ Perform updates on known tables. SQLAlchemy doesn't do alters so they're done the old fashioned way."""
+        """Perform updates on known tables. SQLAlchemy doesn't do alters so they're done the old fashioned way."""
         tables.DBMasterTable.update(self._engine)
         tables.DbReplayTable.update(self._engine)
         tables.DbStratTable.update(self._engine)
@@ -112,12 +118,21 @@ class Database:
 
         return None
 
-    def get_strat_for(self, master_id):
+    def get_strats_for(self, master_id=0):
         """Get the strat records for a specific master row."""
         master_record = self.get_master_record(master_id)
 
-        if master_record is not None and len(master_record.children_strat)>0:
-            return master_record.children_strat[0].strat
+        if master_record is not None and len(master_record.children_strat) > 0:
+            return [c.strat for c in master_record.children_strat]
+
+        return None
+
+    def get_strat_for(self, master_id, strat_id=-1):
+        """Get a specific strat record for a specific master row."""
+        master_record = self.get_master_record(master_id)
+
+        if master_record is not None and len(master_record.children_strat) > 0:
+            return master_record.children_strat[strat_id].strat
 
         return None
 

@@ -192,6 +192,8 @@ class AEPsychServer(object):
             )
 
         self._strats = []
+        self._parnames = []
+        self._outcome_types = []
         self.strat_id = -1
 
         self.debug = False
@@ -293,36 +295,70 @@ class AEPsychServer(object):
                 result = self.unversioned_handler(request)
         self.is_performing_replay = False
 
-    def get_final_strat_from_replay(self, uuid_of_replay=None):
+    def _unpack_strat_buffer(self, strat_buffer):
+        if isinstance(strat_buffer, io.BytesIO):
+            strat = torch.load(strat_buffer, pickle_module=dill)
+            strat_buffer.seek(0)
+        elif isinstance(strat_buffer, bytes):
+            warnings.warn(
+                "Strat buffer is not in bytes format!"
+                + " This is a deprecated format, loading using dill.loads.",
+                DeprecationWarning,
+            )
+            strat = dill.loads(strat_buffer)
+        else:
+            raise RuntimeError("Trying to load strat in unknown format!")
+        return strat
+
+    def get_strats_from_replay(self, uuid_of_replay=None, force_replay=False):
         if uuid_of_replay is None:
             records = self.db.get_master_records()
             if len(records) > 0:
                 uuid_of_replay = records[-1].experiment_id
             else:
                 raise RuntimeError("Server has no experiment records!")
-        strat_buffer = self.db.get_strat_for(uuid_of_replay)
-        if strat_buffer is not None and type(strat_buffer) == io.BytesIO:
-            strat = torch.load(strat_buffer, pickle_module=dill)
-            strat_buffer.seek(0) # return to previous state so we can load again
-            return strat
-        elif self.strat is not None:
-            # we've previously run a replay that has populated a strat,
-            # just reuse it
-            return self.strat
-        else:
-            logger.info(
-                "No final strat found in expected format (likely due to "
-                "old DB or server crash, trying to replay tells to"
-                "generate a final strat..."
+
+        if force_replay:
+            warnings.warn(
+                "Force-replaying to get non-final strats is deprecated after the ability"
+                + " to save all strats was added, and will eventually be removed.",
+                DeprecationWarning,
             )
-            # sometimes there's no final strat, e.g.
-            # if the server crashed or it's a very old database
-            # in this case, replay the setup and tells
+            self.replay(uuid_of_replay, skip_computations=True)
+            for strat in self._strats:
+                if strat.has_model:
+                    strat.modelbridge.fit(strat.x, strat.y)
+            return self._strats
+        else:
+            strat_buffers = self.db.get_strats_for(uuid_of_replay)
+            return [self._unpack_strat_buffer(sb) for sb in strat_buffers]
+
+    def get_strat_from_replay(self, uuid_of_replay=None, strat_id=-1):
+        if uuid_of_replay is None:
+            records = self.db.get_master_records()
+            if len(records) > 0:
+                uuid_of_replay = records[-1].experiment_id
+            else:
+                raise RuntimeError("Server has no experiment records!")
+
+        strat_buffer = self.db.get_strat_for(uuid_of_replay, strat_id)
+        if strat_buffer is not None:
+            return self._unpack_strat_buffer(strat_buffer)
+        else:
+            warnings.warn(
+                "No final strat found (likely due to old DB,"
+                + " trying to replay tells to generate a final strat. Note"
+                + " that this fallback will eventually be removed!",
+                DeprecationWarning,
+            )
+            # sometimes there's no final strat, e.g. if it's a very old database
+            # (we dump strats on crash) in this case, replay the setup and tells
             self.replay(uuid_of_replay, skip_computations=True)
             # then if the final strat is model-based, refit
-            if self.strat.has_model:
-                self.strat.model.fit(self.strat.x, self.strat.y)
-            return self.strat
+            strat = self._strats[strat_id]
+            if strat.has_model:
+                strat.modelbridge.fit(strat.x, strat.y)
+            return strat
 
     def _flatten_tell_record(self, rec):
         out = {}
@@ -341,10 +377,15 @@ class AEPsychServer(object):
 
     def get_dataframe_from_replay(self, uuid_of_replay=None):
         if uuid_of_replay is None:
-            uuid_of_replay = self.db.get_master_records()[-1].experiment_id
+            records = self.db.get_master_records()
+            if len(records) > 0:
+                uuid_of_replay = records[-1].experiment_id
+            else:
+                raise RuntimeError("Server has no experiment records!")
+
         recs = self.db.get_replay_for(uuid_of_replay)
 
-        strat = self.get_final_strat_from_replay(uuid_of_replay)
+        strats = self.get_strats_from_replay(uuid_of_replay)
 
         out = pd.DataFrame(
             [
@@ -362,28 +403,29 @@ class AEPsychServer(object):
             if out[col].dtype == object:
                 out.loc[:, col] = out[col].apply(_flatten)
 
-        # TODO make this more robust to multi-strat replays
-        if strat.has_model:
-            post_mean, post_var = strat.predict(strat.x)
-            n_tell_records = len(out)
-            n_strat_datapoints = len(post_mean)
-            if n_tell_records == n_strat_datapoints:
-                out["post_mean"] = post_mean.detach().numpy()
-                out["post_var"] = post_var.detach().numpy()
-            else:
-                logger.warn(
-                    f"Number of tell records ({n_tell_records}) does not match "
-                    + f"number of datapoints in strat ({n_strat_datapoints}) "
-                    + "filling fvals for final strat only"
-                )
-                out["post_mean"] = ""
-                out["post_var"] = ""
-                out.iloc[
-                    -n_strat_datapoints:, out.columns.get_indexer(["post_mean"])
-                ] = post_mean.detach().numpy()
-                out.iloc[
-                    -n_strat_datapoints:, out.columns.get_indexer(["post_var"])
-                ] = post_var.detach().numpy()
+        n_tell_records = len(out)
+        n_strat_datapoints = 0
+        post_means = []
+        post_vars = []
+
+        # collect posterior means and vars
+        for strat in strats:
+            if strat.has_model:
+                post_mean, post_var = strat.predict(strat.x)
+                n_tell_records = len(out)
+                n_strat_datapoints += len(post_mean)
+                post_means.extend(post_mean.detach().numpy())
+                post_vars.extend(post_var.detach().numpy())
+
+        if n_tell_records == n_strat_datapoints:
+            out["post_mean"] = post_means
+            out["post_var"] = post_vars
+        else:
+            logger.warn(
+                f"Number of tell records ({n_tell_records}) does not match "
+                + f"number of datapoints in strat ({n_strat_datapoints}) "
+                + "cowardly refusing to populate GP mean and var to dataframe!"
+            )
         return out
 
     def versioned_handler(self, request):
@@ -642,7 +684,7 @@ class AEPsychServer(object):
         # Make local server write strats into DB and close the connection
         termination_type = "Normal termination"
         logger.info("Got termination message!")
-        self.write_strat(termination_type)
+        self.write_strats(termination_type)
         if not self.is_using_thrift:
             # Close the socket and terminate with code 0
             self.cleanup()
@@ -651,6 +693,7 @@ class AEPsychServer(object):
         # If using thrift, it will add 'Terminate' to the queue and pass it to thrift server level
         return "Terminate"
 
+    ### Properties that are set on a per-strat basis
     @property
     def strat(self):
         if self.strat_id == -1:
@@ -661,6 +704,28 @@ class AEPsychServer(object):
     @strat.setter
     def strat(self, s):
         self._strats.append(s)
+
+    @property
+    def parnames(self):
+        if self.strat_id == -1:
+            return []
+        else:
+            return self._parnames[self.strat_id]
+
+    @parnames.setter
+    def parnames(self, s):
+        self._parnames.append(s)
+
+    @property
+    def outcome_type(self):
+        if self.strat_id == -1:
+            return None
+        else:
+            return self._outcome_types[self.strat_id]
+
+    @outcome_type.setter
+    def outcome_type(self, s):
+        self._outcome_types.append(s)
 
     @property
     def n_strats(self):
@@ -721,6 +786,7 @@ class AEPsychServer(object):
 
     def configure(self, **config_args):
         config = Config(**config_args)
+        self.db.record_config(master_table=self._db_master_record, config=config)
         return self._configure(config)
 
     def __getstate__(self):
@@ -730,11 +796,14 @@ class AEPsychServer(object):
         del state["db"]
         return state
 
-    def write_strat(self, termination_type):
+    def write_strats(self, termination_type):
         if self._db_master_record is not None and self.strat is not None:
-            logger.info(f"Dumping strat to DB due to {termination_type}.")
-            buffer = dill.dumps(self.strat)
-            self.db.record_strat(master_table=self._db_master_record, strat=buffer)
+            logger.info(f"Dumping strats to DB due to {termination_type}.")
+            for strat in self._strats:
+                buffer = io.BytesIO()
+                torch.save(strat, buffer, pickle_module=dill)
+                buffer.seek(0)
+                self.db.record_strat(master_table=self._db_master_record, strat=buffer)
 
     def generate_debug_info(self, exception_type, dumptype):
         fname = get_next_filename(".", dumptype, "pkl")
@@ -766,12 +835,12 @@ def startServerAndRun(
     except (KeyboardInterrupt):
         exception_type = "CTRL+C"
         dump_type = "dump"
-        server.write_strat(exception_type)
+        server.write_strats(exception_type)
         server.generate_debug_info(exception_type, dump_type)
     except RuntimeError as e:
         exception_type = "RuntimeError"
         dump_type = "crashdump"
-        server.write_strat(exception_type)
+        server.write_strats(exception_type)
         server.generate_debug_info(exception_type, dump_type)
         raise RuntimeError(e)
 

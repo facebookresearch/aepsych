@@ -332,11 +332,12 @@ class ServerTestCase(unittest.TestCase):
             self.s.unversioned_handler(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
+        stored_strat = self.s.get_strat_from_replay(exp_id)
         # just some spot checks that the strat's the same
         # same data. We do this twice to make sure buffers are
         # in a good state and we can load twice without crashing
         for _ in range(2):
-            stored_strat = self.s.get_final_strat_from_replay(exp_id)
+            stored_strat = self.s.get_strat_from_replay(exp_id)
             self.assertTrue((stored_strat.x == self.s.strat.x).all())
             self.assertTrue((stored_strat.y == self.s.strat.y).all())
             # same lengthscale and outputscale
@@ -424,14 +425,6 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue((out_df.e2 == [2] * 8).all())
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
-        # first 4 fmean/fval will be empty because
-        # there's no matching strat. TODO the right
-        # version of this function should not pass
-        # this test because there's actually values there
-        self.assertTrue((out_df["post_mean"][:4].values == [""] * 4).all())
-        self.assertTrue((out_df["post_var"][:4].values == [""] * 4).all())
-        self.assertTrue((out_df["post_mean"][4:].values != [""] * 4).all())
-        self.assertTrue((out_df["post_var"][4:].values != [""] * 4).all())
 
     def test_pandadf_dump_flat(self):
         """
