@@ -18,6 +18,8 @@ from aepsych.models.base import AEPsychMixin
 class SobolGenerator(AEPsychGenerator):
     """Generator that generates points from the Sobol Sequence."""
 
+    _requires_model = False
+
     def __init__(
         self,
         lb: Union[np.ndarray, torch.Tensor],

@@ -18,6 +18,8 @@ from aepsych.models.base import AEPsychMixin
 class RandomGenerator(AEPsychGenerator):
     """Generator that generates points randomly without an acquisition function."""
 
+    _requires_model = False
+
     def __init__(
         self,
         lb: Union[np.ndarray, torch.Tensor],

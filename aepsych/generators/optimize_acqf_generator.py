@@ -25,17 +25,8 @@ from botorch.optim import optimize_acqf
 logger = getLogger()
 
 
-def _prune_extra_acqf_args(acqf, extra_acqf_args: Dict):
-    # prune extra args needed, ignore the rest
-    # (this helps with API consistency)
-    acqf_args_expected = signature(acqf).parameters.keys()
-    return {k: v for k, v in extra_acqf_args.items() if k in acqf_args_expected}
-
-
 class OptimizeAcqfGenerator(AEPsychGenerator):
     """Generator that chooses points by minimizing an acquisition function."""
-
-    baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
 
     def __init__(
         self,
@@ -142,23 +133,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
     def from_config(cls, config: Config):
         classname = cls.__name__
         acqf = config.getobj("experiment", "acqf")
-        acqf_name = acqf.__name__
-
-        default_extra_acqf_args = {
-            "beta": 3.98,
-            "target": 0.75,
-            "objective": None,
-        }
-        extra_acqf_args = {
-            k: config.getobj(acqf_name, k, fallback_type=float, fallback=v, warn=False)
-            for k, v in default_extra_acqf_args.items()
-        }
-        extra_acqf_args = _prune_extra_acqf_args(acqf, extra_acqf_args)
-        if (
-            "objective" in extra_acqf_args.keys()
-            and extra_acqf_args["objective"] is not None
-        ):
-            extra_acqf_args["objective"] = extra_acqf_args["objective"]()
+        extra_acqf_args = cls._get_acqf_options(acqf, config)
 
         restarts = config.getint(classname, "restarts", fallback=10)
         samps = config.getint(classname, "samps", fallback=1000)

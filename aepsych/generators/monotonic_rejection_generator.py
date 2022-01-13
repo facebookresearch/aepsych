@@ -11,7 +11,6 @@ import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.generators.optimize_acqf_generator import _prune_extra_acqf_args
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from botorch.logging import logger
 from botorch.optim.initializers import gen_batch_initial_conditions
@@ -170,23 +169,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
     def from_config(cls, config: Config):
         classname = cls.__name__
         acqf = config.getobj("experiment", "acqf")
-        acqf_name = acqf.__name__
-
-        default_extra_acqf_args = {
-            "beta": 3.98,
-            "target": 0.75,
-            "objective": None,
-        }
-        extra_acqf_args = {
-            k: config.getobj(acqf_name, k, fallback_type=float, fallback=v, warn=False)
-            for k, v in default_extra_acqf_args.items()
-        }
-        extra_acqf_args = _prune_extra_acqf_args(acqf, extra_acqf_args)
-        if (
-            "objective" in extra_acqf_args.keys()
-            and extra_acqf_args["objective"] is not None
-        ):
-            extra_acqf_args["objective"] = extra_acqf_args["objective"]()
+        extra_acqf_args = cls._get_acqf_options(acqf, config)
 
         options = {}
         options["num_restarts"] = config.getint(classname, "restarts", fallback=10)

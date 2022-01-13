@@ -77,7 +77,9 @@ class TestSequenceGenerators(unittest.TestCase):
             strat.gen()
             strat.add_data(np.r_[1.0, 1.0], [1])
 
-        assert strat.model.fit.call_count == 5
+        assert (
+            strat.model.fit.call_count == 4
+        )  # first fit gets skipped because there is no data
         assert strat.model.update.call_count == 45
 
     def test_no_warmstart(self):
@@ -110,7 +112,9 @@ class TestSequenceGenerators(unittest.TestCase):
             strat.gen()
             strat.add_data(np.r_[1.0, 1.0], [1])
 
-        assert strat.model.fit.call_count == 50
+        assert (
+            strat.model.fit.call_count == 49
+        )  # first fit gets skipped because there is no data
         assert strat.model.update.call_count == 0
 
 
