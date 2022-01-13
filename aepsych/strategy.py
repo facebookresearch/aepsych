@@ -158,12 +158,20 @@ class Strategy(object):
 
     @classmethod
     def from_config(cls, config: Config, name: str):
-        model_cls = config.getobj("experiment", "model", fallback=None)
+        gen_cls = config.getobj(name, "generator", fallback=SobolGenerator)
+        generator = gen_cls.from_config(config)
 
+        model_cls = config.getobj(name, "model", fallback=None)
         if model_cls is not None:
             model = model_cls.from_config(config)
         else:
             model = None
+
+        acqf_cls = config.getobj(name, "acqf", fallback=None)
+        if acqf_cls is not None and hasattr(generator, "acqf"):
+            if generator.acqf is None:
+                generator.acqf = acqf_cls
+                generator.acqf_kwargs = generator._get_acqf_options(acqf_cls, config)
 
         n_trials = config.getint(name, "n_trials")
         refit_every = config.getint(name, "refit_every", fallback=1)
@@ -171,9 +179,6 @@ class Strategy(object):
         lb = config.gettensor(name, "lb")
         ub = config.gettensor(name, "ub")
         dim = config.getint(name, "dim", fallback=None)
-
-        gen_cls = config.getobj(name, "generator", fallback=SobolGenerator)
-        generator = gen_cls.from_config(config)
 
         outcome_type = config.get(name, "outcome_type", fallback="single_probit")
 

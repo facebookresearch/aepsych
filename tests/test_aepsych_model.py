@@ -471,6 +471,8 @@ class GPClassificationTest(unittest.TestCase):
         outcome_type = single_probit
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat]
+        acqf = LevelSetEstimation
+        model = GPClassificationModel
 
         [init_strat]
         n_trials = 10
@@ -480,10 +482,6 @@ class GPClassificationTest(unittest.TestCase):
         n_trials = 20
         refit_every = 5
         generator = OptimizeAcqfGenerator
-
-        [experiment]
-        acqf = LevelSetEstimation
-        model = GPClassificationModel
 
         [LevelSetEstimation]
         beta = 3.98

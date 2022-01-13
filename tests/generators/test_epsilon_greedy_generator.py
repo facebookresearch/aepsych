@@ -42,7 +42,7 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
 
     def test_greedyepsilon_config(self):
         config_str = """
-            [experiment]
+            [common]
             acqf = MonotonicMCLSE
             [EpsilonGreedyGenerator]
             subgenerator = MonotonicRejectionGenerator

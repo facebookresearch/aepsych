@@ -22,6 +22,8 @@ ub = [1]
 parnames = [x]
 outcome_type = single_probit
 strategy_names = [init_strat, opt_strat]
+acqf = MCPosteriorVariance
+model = GPClassificationModel
 
 [init_strat]
 n_trials = 2
@@ -30,10 +32,6 @@ generator = SobolGenerator
 [opt_strat]
 n_trials = 2
 generator = OptimizeAcqfGenerator
-
-[experiment]
-acqf = MCPosteriorVariance
-model = GPClassificationModel
 
 [GPClassificationModel]
 inducing_size = 10

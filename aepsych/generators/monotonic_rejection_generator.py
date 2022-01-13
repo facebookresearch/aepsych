@@ -168,7 +168,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
     @classmethod
     def from_config(cls, config: Config):
         classname = cls.__name__
-        acqf = config.getobj("experiment", "acqf")
+        acqf = config.getobj("common", "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
 
         options = {}

@@ -774,7 +774,7 @@ class AEPsychServer(object):
 
     def _configure(self, config):
         self.parnames = config._str_to_list(
-            config.get("experiment", "parnames"), element_type=str
+            config.get("common", "parnames"), element_type=str
         )
         self.outcome_type = config.get(
             "common", "outcome_type", fallback="single_probit"

@@ -14,16 +14,13 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
 from aepsych.generators import (
-    OptimizeAcqfGenerator,
     MonotonicRejectionGenerator,
+    OptimizeAcqfGenerator,
     SobolGenerator,
 )
-from aepsych.models import GPClassificationModel
-
-from aepsych.strategy import (
-    SequentialStrategy,
-    Strategy,
-)
+from aepsych.models import GPClassificationModel, MonotonicRejectionGP
+from aepsych.strategy import SequentialStrategy, Strategy
+from botorch.acquisition import qNoisyExpectedImprovement
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -35,8 +32,6 @@ class ConfigTestCase(unittest.TestCase):
         outcome_type = single_probit
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat]
-
-        [experiment]
         model = GPClassificationModel
         acqf = LevelSetEstimation
 
@@ -116,6 +111,8 @@ class ConfigTestCase(unittest.TestCase):
         strat = SequentialStrategy.from_config(config)
 
         self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
+        self.assertTrue(strat.strat_list[0].model is None)
+
         self.assertTrue(
             isinstance(strat.strat_list[1].generator, MonotonicRejectionGenerator)
         )
@@ -135,6 +132,39 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             strat.strat_list[1].generator.model_gen_options["raw_samples"] == 1000
         )
+        self.assertTrue(strat.strat_list[0].n_trials == 10)
+        self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
+        self.assertTrue(strat.strat_list[1].n_trials == 20)
+        self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
+        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
+        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+
+    def test_nonmonotonic_optimization_config_file(self):
+        config_file = "../configs/nonmonotonic_optimization_example.ini"
+        config_file = os.path.join(os.path.dirname(__file__), config_file)
+
+        config = Config()
+        config.update(config_fnames=[config_file])
+        strat = SequentialStrategy.from_config(config)
+
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
+        self.assertTrue(strat.strat_list[0].model is None)
+
+        self.assertTrue(
+            isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
+        )
+        self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
+        self.assertTrue(
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
+        )
+        self.assertTrue(
+            isinstance(
+                strat.strat_list[1].generator.acqf_kwargs["objective"],
+                ProbitObjective,
+            )
+        )
+
         self.assertTrue(strat.strat_list[0].n_trials == 10)
         self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
         self.assertTrue(strat.strat_list[1].n_trials == 20)
@@ -170,3 +200,61 @@ class ConfigTestCase(unittest.TestCase):
             strat = Strategy.from_config(config, "init_strat")
             self.assertEqual(strat.n_trials, n_trials)
             self.assertEqual(strat.finished, n_trials <= 0)
+
+    def test_multiple_models_and_strats(self):
+        config_str = """
+        [common]
+        lb = [0, 0]
+        ub = [1, 1]
+        outcome_type = single_probit
+        parnames = [par1, par2]
+        strategy_names = [init_strat, opt_strat1, opt_strat2]
+
+        [init_strat]
+        generator = SobolGenerator
+        n_trials = 1
+
+        [opt_strat1]
+        generator = OptimizeAcqfGenerator
+        n_trials = 1
+        model = GPClassificationModel
+        acqf = LevelSetEstimation
+
+        [opt_strat2]
+        generator = MonotonicRejectionGenerator
+        n_trials = 1
+        model = MonotonicRejectionGP
+        acqf = MonotonicMCLSE
+        """
+
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
+        self.assertTrue(strat.strat_list[0].model is None)
+
+        self.assertTrue(
+            isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
+        )
+        self.assertTrue(isinstance(strat.strat_list[1].model, GPClassificationModel))
+        self.assertTrue(strat.strat_list[1].generator.acqf is LevelSetEstimation)
+
+        self.assertTrue(
+            isinstance(strat.strat_list[2].generator, MonotonicRejectionGenerator)
+        )
+        self.assertTrue(isinstance(strat.strat_list[2].model, MonotonicRejectionGP))
+        self.assertTrue(strat.strat_list[2].generator.acqf is MonotonicMCLSE)
+
+    def test_experiment_deprecation(self):
+        config_str = """
+            [experiment]
+            acqf = PairwiseMCPosteriorVariance
+            model = PairwiseProbitModel
+            """
+        config = Config()
+        with self.assertWarns(DeprecationWarning):
+            config.update(config_str=config_str)
+        self.assertTrue("acqf" in config["common"])
+        self.assertTrue("model" in config["common"])

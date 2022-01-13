@@ -131,6 +131,16 @@ class Config(configparser.ConfigParser):
         if config_str is not None:
             self.read_string(config_str)
 
+        # Deprecation warining for "experiment" section
+        if "experiment" in self:
+            for i in self["experiment"]:
+                self["common"][i] = self["experiment"][i]
+            del self["experiment"]
+            warnings.warn(
+                'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.',
+                DeprecationWarning,
+            )
+
     def _str_to_list(self, v: str, element_type: _T = float) -> List[_T]:
         if v[0] == "[" and v[-1] == "]":
             if v == "[]":  # empty list
