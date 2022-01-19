@@ -197,7 +197,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
         """
-        return self.posterior(x).rsample(torch.Size([num_samples])).detach()
+        return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False

@@ -244,6 +244,7 @@ class BenchProblemTestCase(unittest.TestCase):
             },
             "init_strat": {"generator": "SobolGenerator", "n_trials": 50},
             "opt_strat": {"generator": "MonotonicRejectionGenerator", "n_trials": 1},
+            "SobolGenerator": {"seed": 1},
             "MonotonicMCLSE": {
                 "target": 0.75,
                 "beta": 3.98,
