@@ -86,10 +86,20 @@ public class Ex1DSingleDetection : MonoBehaviour
 
         }
 
-        SetText("Experiment complete!");
-
+        SetText("Experiment complete! Displaying threshold color: ");
+        yield return StartCoroutine(DisplayThreshold());
         yield return 0;
+    }
 
+    IEnumerator DisplayThreshold()
+    {
+        yield return StartCoroutine(client.Query(QueryType.inverse, y : 0.75f, probability_space : true));
+        QueryMessage m = client.GetQueryResponse();
+        TrialConfig maxLoc = m.x;
+        GameObject circle = Instantiate(circlePrefab);
+        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        fs.alpha = maxLoc["alpha"][0];
+        fs.flashDuration = -1.0f; //never destroy
     }
 
     void SetText(string s)
