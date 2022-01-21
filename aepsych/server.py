@@ -644,11 +644,11 @@ class AEPsychServer(object):
         }
         if query_type == "max":
             fmax, fmax_loc = self.strat.get_max(constraints)
-            response["y"] = fmax.astype(float)
+            response["y"] = fmax.item()
             response["x"] =  self._tensor_to_config(fmax_loc)
         elif query_type == "min":
             fmin, fmin_loc = self.strat.get_min(constraints)
-            response["y"] = fmin.astype(float)
+            response["y"] = fmin.item()
             response["x"] = self._tensor_to_config(fmin_loc)
         elif query_type == "prediction":
             # returns the model value at x
