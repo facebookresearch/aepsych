@@ -642,42 +642,35 @@ class AEPsychServer(object):
             "probability_space": probability_space,
             "constraints": constraints,
         }
-
         if query_type == "max":
-            fmax, fmax_loc = self.strat.get_max()
+            fmax, fmax_loc = self.strat.get_max(constraints)
             response["y"] = fmax.astype(float)
-            response["x"] = fmax_loc.astype(float)
+            response["x"] =  self._tensor_to_config(fmax_loc)
         elif query_type == "min":
-            fmin, fmin_loc = self.strat.get_min()
+            fmin, fmin_loc = self.strat.get_min(constraints)
             response["y"] = fmin.astype(float)
-            response["x"] = fmin_loc.astype(float)
+            response["x"] = self._tensor_to_config(fmin_loc)
         elif query_type == "prediction":
             # returns the model value at x
             if x is None:  # TODO: ensure if x is between lb and ub
                 raise RuntimeError("Cannot query model at location = None!")
             mean, var = self.strat.predict(
-                torch.Tensor([x]), probability_space=probability_space
+                torch.Tensor([self._config_to_tensor(x).flatten()]), probability_space=probability_space
             )
             response["x"] = x
             response["y"] = mean.item()
         elif query_type == "inverse":
-            # expect constraints to be a dictionary
-            if type(constraints) != dict:
-                raise RuntimeError(
-                    'For query type "inverse", constraints must be a dict!'
-                )
-            constraints = {int(k): v for k, v in constraints.items()}
-            if len(constraints) >= len(self.parnames):
-                raise RuntimeError(
-                    'For query type "inverse", len(constraints) must be less than number of parameters.'
-                )
+            # expect constraints to be a dictionary; values are float arrays size 1 (exact) or 2 (upper/lower bnd)
+            constraints = {self.parnames.index(k): v for k, v in constraints.items()}
             nearest_y, nearest_loc = self.strat.inv_query(
                 y, constraints, probability_space=probability_space
             )
             response["y"] = nearest_y
-            response["x"] = nearest_loc.detach().numpy()
+            response["x"] = self._tensor_to_config(nearest_loc)
         else:
             raise RuntimeError("unknown query type!")
+        #ensure all x values are arrays
+        response["x"] = {k : np.array([v]) if np.array(v).ndim==0 else v for k,v in response["x"].items()}
         return response
 
     def handle_exit(self, request):

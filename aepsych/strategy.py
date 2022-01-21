@@ -125,12 +125,12 @@ class Strategy(object):
         return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
-    def get_max(self):
-        return self.model.get_max()
+    def get_max(self, constraints):
+        return self.model.get_max(constraints)
 
     @ensure_model_is_fresh
-    def get_min(self):
-        return self.model.get_min()
+    def get_min(self, constraints):
+        return self.model.get_min(constraints)
 
     @ensure_model_is_fresh
     def inv_query(self, y, constraints, probability_space=False):

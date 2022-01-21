@@ -42,7 +42,7 @@ class ModelProtocol(Protocol):
         pass
 
     def _get_extremum(
-        self, extremum_type: str, n_samples=1000
+        self, extremum_type: str, locked_dims: Mapping[int, float], n_samples=1000
     ) -> Tuple[float, np.ndarray]:
         pass
 
@@ -56,6 +56,7 @@ class AEPsychMixin:
     def _get_extremum(
         self: ModelProtocol,
         extremum_type: str,
+        locked_dims: Mapping[int, float],
         n_samples: int = 1000,
     ) -> Tuple[float, np.ndarray]:
         """Return the extremum (min or max) of the modeled function
@@ -69,10 +70,22 @@ class AEPsychMixin:
         def signed_model(x, sign=1):
             return sign * self.predict(torch.tensor([x]))[0].detach().numpy()
 
-        bounds = zip(self.lb.numpy(), self.ub.numpy())
+        query_lb = self.lb.clone()
+        query_ub = self.ub.clone()
+
+        for locked_dim in locked_dims.keys():
+            dim_values = locked_dims[locked_dim]
+            if len(dim_values)==1:
+                query_lb[locked_dim] = dim_values[0]
+                query_ub[locked_dim] = dim_values[0]
+            else:
+                query_lb[locked_dim] = dim_values[0]
+                query_ub[locked_dim] = dim_values[1]
 
         # generate a coarse sample to compute an initial estimate.
-        d = make_scaled_sobol(self.lb, self.ub, n_samples, seed=0)
+        d = make_scaled_sobol(query_lb, query_ub, n_samples, seed=0)
+
+        bounds = zip(query_lb.numpy(), query_ub.numpy())
 
         fmean, _ = self.predict(d)
 
@@ -92,19 +105,25 @@ class AEPsychMixin:
                 f"Unknown extremum type: '{extremum_type}'! Valid types: 'min', 'max' "
             )
 
-    def get_max(self: ModelProtocol) -> Tuple[float, np.ndarray]:
-        """Return the maximum of the modeled function
+    def get_max(
+        self: ModelProtocol,
+        locked_dims: Mapping[int, float],
+        ) -> Tuple[float, np.ndarray]:
+        """Return the maximum of the modeled function, subject to constraints
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
         """
-        return self._get_extremum("max")
+        return self._get_extremum("max", locked_dims)
 
-    def get_min(self: ModelProtocol) -> Tuple[float, np.ndarray]:
-        """Return the minimum of the modeled function
+    def get_min(
+        self: ModelProtocol,
+        locked_dims: Mapping[int, float],
+        ) -> Tuple[float, np.ndarray]:
+        """Return the minimum of the modeled function, subject to constraints
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
         """
-        return self._get_extremum("min")
+        return self._get_extremum("min", locked_dims)
 
     def inv_query(
         self: ModelProtocol,
@@ -140,8 +159,13 @@ class AEPsychMixin:
         query_ub = self.ub.clone()
 
         for locked_dim in locked_dims.keys():
-            query_lb[locked_dim] = locked_dims[locked_dim]
-            query_ub[locked_dim] = locked_dims[locked_dim]
+            dim_values = locked_dims[locked_dim]
+            if len(dim_values)==1:
+                query_lb[locked_dim] = dim_values[0]
+                query_ub[locked_dim] = dim_values[0]
+            else:
+                query_lb[locked_dim] = dim_values[0]
+                query_ub[locked_dim] = dim_values[1]
 
         d = make_scaled_sobol(query_lb, query_ub, n_samples, seed=0)
 
