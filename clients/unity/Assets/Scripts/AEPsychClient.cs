@@ -86,12 +86,12 @@ namespace AEPsych
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public QueryType query_type;
-        public List<float> x;
-        public float y;
-        public Dictionary<int, float> constraints;
-        public bool probability_space;
+        public TrialConfig x; //values where we want to query
+        public float y; //target that we want to inverse querying
+        public TrialConfig constraints; //Constraints for inverse querying; if values are 1d then absolute constraint, if 2d then upper/lower bounds
+        public bool probability_space;  //whether to use probability space or latent space
 
-        public QueryMessage(QueryType queryType, List<float> x, float y, Dictionary<int, float> constraints, bool probability_space)
+        public QueryMessage(QueryType queryType, TrialConfig x, float y, TrialConfig constraints, bool probability_space)
         {
             this.query_type = queryType;
             this.x = x;
@@ -270,15 +270,15 @@ namespace AEPsych
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
         }
 
-        public IEnumerator Query(QueryType queryType, List<float> x = null, float y = 0, Dictionary<int, float> constraints = null, bool probability_space = false)
+        public IEnumerator Query(QueryType queryType, TrialConfig x = null, float y = 0, TrialConfig constraints = null, bool probability_space = false)
         {
             if (x == null)
             {
-                x = new List<float>() { };
+                x = new TrialConfig { };
             }
             if (constraints == null)
             {
-                constraints = new Dictionary<int, float>() { };
+                constraints = new TrialConfig() { };
             }
 
             QueryMessage message = new QueryMessage(queryType, x, y, constraints, probability_space);

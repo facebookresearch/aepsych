@@ -106,11 +106,11 @@ public class Ex1DSingleOpt : MonoBehaviour
     {
         yield return StartCoroutine(client.Query(QueryType.max));
         QueryMessage m = client.GetQueryResponse();
-        List<float> maxLoc = m.x;
+        TrialConfig maxLoc = m.x;
         GameObject circle = Instantiate(circlePrefab);
         FlashSprite fs = circle.GetComponent<FlashSprite>();
         fs.flashDuration = -1.0f; //never destroy
-        fs.SetGrayscaleColor(maxLoc[0]);
+        fs.SetGrayscaleColor(maxLoc["gsColor"][0]);
     }
 
     void SetText(string s)
