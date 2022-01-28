@@ -265,10 +265,6 @@ class AEPsychServer(object):
         # this prevents writing back to the DB and creating a circular firing squad
         self.is_performing_replay = True
 
-        # if there is a config in the DB we'll use it.
-        if 0 < len(master_record.children_config):
-            self._configure(master_record.children_config[0].config)
-
         for result in master_record.children_replay:
             request = result.message_contents
             logger.debug(f"replay - type = {result.message_type} request = {request}")
@@ -645,7 +641,7 @@ class AEPsychServer(object):
         if query_type == "max":
             fmax, fmax_loc = self.strat.get_max(constraints)
             response["y"] = fmax.item()
-            response["x"] =  self._tensor_to_config(fmax_loc)
+            response["x"] = self._tensor_to_config(fmax_loc)
         elif query_type == "min":
             fmin, fmin_loc = self.strat.get_min(constraints)
             response["y"] = fmin.item()
@@ -655,7 +651,8 @@ class AEPsychServer(object):
             if x is None:  # TODO: ensure if x is between lb and ub
                 raise RuntimeError("Cannot query model at location = None!")
             mean, var = self.strat.predict(
-                torch.Tensor([self._config_to_tensor(x).flatten()]), probability_space=probability_space
+                torch.Tensor([self._config_to_tensor(x).flatten()]),
+                probability_space=probability_space,
             )
             response["x"] = x
             response["y"] = mean.item()
@@ -669,8 +666,11 @@ class AEPsychServer(object):
             response["x"] = self._tensor_to_config(nearest_loc)
         else:
             raise RuntimeError("unknown query type!")
-        #ensure all x values are arrays
-        response["x"] = {k : np.array([v]) if np.array(v).ndim==0 else v for k,v in response["x"].items()}
+        # ensure all x values are arrays
+        response["x"] = {
+            k: np.array([v]) if np.array(v).ndim == 0 else v
+            for k, v in response["x"].items()
+        }
         return response
 
     def handle_exit(self, request):
@@ -779,6 +779,13 @@ class AEPsychServer(object):
 
     def configure(self, **config_args):
         config = Config(**config_args)
+        logger.warn(
+            'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'
+        )
+        if "experiment" in config:
+            for i in config["experiment"]:
+                config["common"][i] = config["experiment"][i]
+            del config["experiment"]
         self.db.record_config(master_table=self._db_master_record, config=config)
         return self._configure(config)
 
@@ -863,11 +870,18 @@ def parse_argument():
         help="method to serve over",
     )
     parser.add_argument(
-        "--ip", metavar="M", type=str, default="0.0.0.0", help="ip to bind",
+        "--ip",
+        metavar="M",
+        type=str,
+        default="0.0.0.0",
+        help="ip to bind",
     )
 
     parser.add_argument(
-        "-s", "--stratconfig", help="Location of ini config file for strat", type=str,
+        "-s",
+        "--stratconfig",
+        help="Location of ini config file for strat",
+        type=str,
     )
 
     parser.add_argument(
