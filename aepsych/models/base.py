@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from typing import Mapping, Optional, Tuple, Union, Protocol
+from typing import Mapping, Optional, Tuple, Union, Protocol, List
 
 import numpy as np
 import torch
@@ -42,7 +42,7 @@ class ModelProtocol(Protocol):
         pass
 
     def _get_extremum(
-        self, extremum_type: str, locked_dims: Mapping[int, float], n_samples=1000
+        self, extremum_type: str, locked_dims: Mapping[int, List[float]], n_samples=1000
     ) -> Tuple[float, np.ndarray]:
         pass
 
@@ -56,7 +56,7 @@ class AEPsychMixin:
     def _get_extremum(
         self: ModelProtocol,
         extremum_type: str,
-        locked_dims: Mapping[int, float],
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
         n_samples: int = 1000,
     ) -> Tuple[float, np.ndarray]:
         """Return the extremum (min or max) of the modeled function
@@ -66,6 +66,7 @@ class AEPsychMixin:
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
         """
+        locked_dims = locked_dims or {}
 
         def signed_model(x, sign=1):
             return sign * self.predict(torch.tensor([x]))[0].detach().numpy()
@@ -75,7 +76,7 @@ class AEPsychMixin:
 
         for locked_dim in locked_dims.keys():
             dim_values = locked_dims[locked_dim]
-            if len(dim_values)==1:
+            if len(dim_values) == 1:
                 query_lb[locked_dim] = dim_values[0]
                 query_ub[locked_dim] = dim_values[0]
             else:
@@ -107,28 +108,32 @@ class AEPsychMixin:
 
     def get_max(
         self: ModelProtocol,
-        locked_dims: Mapping[int, float],
-        ) -> Tuple[float, np.ndarray]:
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+    ) -> Tuple[float, np.ndarray]:
         """Return the maximum of the modeled function, subject to constraints
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
         """
         return self._get_extremum("max", locked_dims)
 
     def get_min(
         self: ModelProtocol,
-        locked_dims: Mapping[int, float],
-        ) -> Tuple[float, np.ndarray]:
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+    ) -> Tuple[float, np.ndarray]:
         """Return the minimum of the modeled function, subject to constraints
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
         """
         return self._get_extremum("min", locked_dims)
 
     def inv_query(
         self: ModelProtocol,
         y: float,
-        locked_dims: Mapping[int, float],
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
     ) -> Tuple[float, torch.Tensor]:
@@ -137,7 +142,7 @@ class AEPsychMixin:
             value of f at that point.
         Args:
             y (float): Points at which to find the inverse.
-            locked_dims (Mapping[int, float]): Dimensions to fix, so that the
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
             probability_space (bool, optional): Is y (and therefore the
                 returned nearest_y) in probability space instead of latent
@@ -146,6 +151,8 @@ class AEPsychMixin:
             Tuple[float, np.ndarray]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
         """
+
+        locked_dims = locked_dims or {}
 
         def model_distance(x, pt, probability_space):
             return np.abs(
@@ -160,7 +167,7 @@ class AEPsychMixin:
 
         for locked_dim in locked_dims.keys():
             dim_values = locked_dims[locked_dim]
-            if len(dim_values)==1:
+            if len(dim_values) == 1:
                 query_lb[locked_dim] = dim_values[0]
                 query_ub[locked_dim] = dim_values[0]
             else:
