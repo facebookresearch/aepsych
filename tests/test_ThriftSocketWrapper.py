@@ -21,7 +21,7 @@ class ThriftSocketTestCase(unittest.TestCase):
     def setUp(self):
         # setup logger
         server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
-        socket = server.ThriftSocketWrapper(msg_queue=Queue())
+        socket = server.sockets.ThriftSocketWrapper(msg_queue=Queue())
         # random datebase path name without dashes
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         self.s = server.AEPsychServer(

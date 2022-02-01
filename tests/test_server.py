@@ -47,7 +47,7 @@ class ServerTestCase(unittest.TestCase):
         # setup logger
         server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
         # random port
-        socket = server.PySocket(port=0)
+        socket = server.sockets.PySocket(port=0)
         # random datebase path name without dashes
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         self.s = server.AEPsychServer(socket=socket, database_path=database_path)
@@ -357,11 +357,11 @@ class ServerTestCase(unittest.TestCase):
         ask_request = {"type": "ask", "message": ""}
         tell_request = {
             "type": "tell",
-            "message":  [
+            "message": [
                 {"config": {"x": [0.5]}, "outcome": 1},
                 {"config": {"x": [0.0]}, "outcome": 0},
                 {"config": {"x": [1]}, "outcome": 0},
-            ]
+            ],
         }
 
         self.s.versioned_handler(setup_request)
@@ -371,29 +371,29 @@ class ServerTestCase(unittest.TestCase):
 
         query_max_req = {
             "type": "query",
-            "message":{
-                "query_type":"max",
-            }
+            "message": {
+                "query_type": "max",
+            },
         }
         query_min_req = {
             "type": "query",
-            "message":{
-                "query_type":"min",
-            }
+            "message": {
+                "query_type": "min",
+            },
         }
         query_pred_req = {
             "type": "query",
-            "message":{
-                "query_type":"prediction",
-                "x":{"x":[0.0]},
-            }
+            "message": {
+                "query_type": "prediction",
+                "x": {"x": [0.0]},
+            },
         }
         query_inv_req = {
             "type": "query",
-            "message":{
-                "query_type":"inverse",
+            "message": {
+                "query_type": "inverse",
                 "y": 5.0,
-            }
+            },
         }
         response_max = self.s.unversioned_handler(query_max_req)
         response_min = self.s.unversioned_handler(query_min_req)
