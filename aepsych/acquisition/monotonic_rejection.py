@@ -80,7 +80,10 @@ class MonotonicMCAcquisition(AcquisitionFunction):
         assert len(samples.shape) == 3
         # Drop derivative samples
         samples = samples[:, : X.shape[0], :]
-        obj_samples = self.objective(samples, X=X)
+        # NOTE: Squeeze below makes sure that we pass in the same `X` that was used
+        # to generate the `samples`. This is necessitated by `MCAcquisitionObjective`,
+        # which verifies that `samples` and `X` have the same q-batch size.
+        obj_samples = self.objective(samples, X=X.squeeze(-2) if X.ndim == 3 else X)
         return self.acquisition(obj_samples)
 
     def _set_sampler(self, Xshape: torch.Size) -> None:
