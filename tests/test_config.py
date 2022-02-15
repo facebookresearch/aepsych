@@ -9,7 +9,7 @@ import os
 import unittest
 
 import torch
-from aepsych.acquisition.lse import LevelSetEstimation
+from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
@@ -33,7 +33,7 @@ class ConfigTestCase(unittest.TestCase):
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat]
         model = GPClassificationModel
-        acqf = LevelSetEstimation
+        acqf = MCLevelSetEstimation
 
         [init_strat]
         generator = SobolGenerator
@@ -43,7 +43,7 @@ class ConfigTestCase(unittest.TestCase):
         generator = OptimizeAcqfGenerator
         n_trials = 20
 
-        [LevelSetEstimation]
+        [MCLevelSetEstimation]
         beta = 3.98
         objective = ProbitObjective
 
@@ -68,7 +68,7 @@ class ConfigTestCase(unittest.TestCase):
             isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
         self.assertTrue(isinstance(strat.strat_list[1].model, GPClassificationModel))
-        self.assertTrue(strat.strat_list[1].generator.acqf is LevelSetEstimation)
+        self.assertTrue(strat.strat_list[1].generator.acqf is MCLevelSetEstimation)
         # since ProbitObjective() is turned into an obj, we check for keys and then vals
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys())
@@ -218,7 +218,7 @@ class ConfigTestCase(unittest.TestCase):
         generator = OptimizeAcqfGenerator
         n_trials = 1
         model = GPClassificationModel
-        acqf = LevelSetEstimation
+        acqf = MCLevelSetEstimation
 
         [opt_strat2]
         generator = MonotonicRejectionGenerator
@@ -239,7 +239,7 @@ class ConfigTestCase(unittest.TestCase):
             isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
         self.assertTrue(isinstance(strat.strat_list[1].model, GPClassificationModel))
-        self.assertTrue(strat.strat_list[1].generator.acqf is LevelSetEstimation)
+        self.assertTrue(strat.strat_list[1].generator.acqf is MCLevelSetEstimation)
 
         self.assertTrue(
             isinstance(strat.strat_list[2].generator, MonotonicRejectionGenerator)

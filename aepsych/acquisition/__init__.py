@@ -8,7 +8,7 @@
 import sys
 
 from ..config import Config
-from .lse import LevelSetEstimation, MCLevelSetEstimation
+from .lse import MCLevelSetEstimation
 from .mc_posterior_variance import MCPosteriorVariance, MonotonicMCPosteriorVariance
 from .monotonic_rejection import MonotonicMCLSE
 from .mutual_information import (
@@ -17,11 +17,10 @@ from .mutual_information import (
 )
 from .objective import ProbitObjective
 
-lse_acqfs = [MonotonicMCLSE, LevelSetEstimation]
+lse_acqfs = [MonotonicMCLSE]
 __all__ = [
     "BernoulliMCMutualInformation",
     "MonotonicBernoulliMCMutualInformation",
-    "LevelSetEstimation",
     "MonotonicMCLSE",
     "MCPosteriorVariance",
     "MonotonicMCPosteriorVariance",

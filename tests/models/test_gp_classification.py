@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 import torch
-from aepsych.acquisition.lse import LevelSetEstimation
+from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
@@ -403,7 +403,7 @@ class GPClassificationTest(unittest.TestCase):
 
         # target is in z space not phi(z) space, maybe that's
         # weird
-        extra_acqf_args = {"target": norm.ppf(0.75), "beta": 1.96}
+        extra_acqf_args = {"target": 0.75, "beta": 1.96}
 
         strat_list = [
             Strategy(
@@ -418,7 +418,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(lb=lb, ub=ub),
                 n_trials=n_opt,
                 generator=OptimizeAcqfGenerator(
-                    LevelSetEstimation, acqf_kwargs=extra_acqf_args
+                    MCLevelSetEstimation, acqf_kwargs=extra_acqf_args
                 ),
             ),
         ]
@@ -512,64 +512,6 @@ class GPClassificationTest(unittest.TestCase):
 
         with self.assertWarns(RuntimeWarning):
             strat.gen()
-
-    def test_gpclassification_config(self):
-        config_str = """
-        [common]
-        lb = [0, 0]
-        ub = [1, 1]
-        outcome_type = single_probit
-        parnames = [par1, par2]
-        strategy_names = [init_strat, opt_strat]
-        acqf = LevelSetEstimation
-        model = GPClassificationModel
-
-        [init_strat]
-        n_trials = 10
-        generator = SobolGenerator
-
-        [opt_strat]
-        n_trials = 20
-        refit_every = 5
-        generator = OptimizeAcqfGenerator
-
-        [LevelSetEstimation]
-        beta = 3.98
-
-        [GPClassificationModel]
-        inducing_size = 10
-        mean_covar_factory = default_mean_covar_factory
-
-        [OptimizeAcqfGenerator]
-        restarts = 10
-        samps = 1000
-        """
-        config = Config()
-        config.update(config_str=config_str)
-
-        strat = SequentialStrategy.from_config(config)
-
-        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
-        self.assertTrue(isinstance(strat.strat_list[1].model, GPClassificationModel))
-        self.assertTrue(strat.strat_list[1].generator.acqf is LevelSetEstimation)
-        # since ProbitObjective() is turned into an obj, we check for keys and then vals
-        self.assertTrue(
-            set(strat.strat_list[1].generator.acqf_kwargs.keys())
-            == {"beta", "target", "objective"}
-        )
-        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
-        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.98)
-        self.assertEqual(strat.strat_list[1].generator.acqf_kwargs["objective"], None)
-
-        self.assertTrue(strat.strat_list[1].generator.restarts == 10)
-        self.assertTrue(strat.strat_list[1].generator.samps == 1000)
-        self.assertTrue(strat.strat_list[0].n_trials == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
-        self.assertTrue(strat.strat_list[1].n_trials == 20)
-        self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
-        self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
     def test_1d_classification(self):
         """
