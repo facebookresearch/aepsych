@@ -85,7 +85,7 @@ class Problem:
         Returns:
             torch.Tensor: Values of true test function over evaluation grid.
         """
-        return self.f(self.eval_grid)
+        return self.f(self.eval_grid).squeeze()
 
     def evaluate(self, strat: aepsych.strategy.SequentialStrategy) -> Dict[str, float]:
         """Evaluate the strategy with respect to this problem.
