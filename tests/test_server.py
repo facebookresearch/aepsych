@@ -155,10 +155,11 @@ class ServerTestCase(unittest.TestCase):
     def test_handle_exit(self):
         request = {}
         request["type"] = "exit"
+        self.s.socket.receive = MagicMock(return_value=request)
         self.s.dump = MagicMock()
 
         with self.assertRaises(SystemExit) as cm:
-            self.s.handle_exit(request)
+            self.s.serve()
 
         self.assertEqual(cm.exception.code, 0)
 
@@ -301,7 +302,8 @@ class ServerTestCase(unittest.TestCase):
         self.s.versioned_handler = MagicMock()
         self.s.unversioned_handler = MagicMock()
         self.s.exit_server_loop = True
-        self.s.serve()
+        with self.assertRaises(SystemExit):
+            self.s.serve()
         self.s.versioned_handler.assert_called_once_with(request)
 
     def test_serve_unversioned_handler(self):
@@ -310,7 +312,8 @@ class ServerTestCase(unittest.TestCase):
         self.s.versioned_handler = MagicMock()
         self.s.unversioned_handler = MagicMock()
         self.s.exit_server_loop = True
-        self.s.serve()
+        with self.assertRaises(SystemExit):
+            self.s.serve()
         self.s.unversioned_handler.assert_called_once_with(request)
 
     def test_final_strat_serialization(self):
@@ -522,6 +525,15 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
 
+    def test_error_handling(self):
+        request = {"bad request"}
+        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.socket.send = MagicMock()
+        self.s.exit_server_loop = True
+        with self.assertRaises(SystemExit):
+            self.s.serve()
+        self.s.socket.send.assert_called_once_with("bad request")
+
 
 if __name__ == "__main__":
-    pass
+    unittest.main()

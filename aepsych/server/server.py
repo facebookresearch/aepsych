@@ -65,6 +65,19 @@ class AEPsychServer(object):
     def cleanup(self):
         self.socket.close()
 
+    def _receive_send(self):
+        request = self.socket.receive()
+        try:
+            if "version" in request.keys():
+                result = self.versioned_handler(request)
+            else:
+                result = self.unversioned_handler(request)
+        except Exception as e:
+            result = "bad request"
+            logger.warning(f"Request '{request}' raised error '{e}'")
+
+        self.socket.send(result)
+
     def serve(self):
         """Run the server. Note that all configuration outside of socket type and port
         happens via messages from the client. The server simply forwards messages from
@@ -84,23 +97,17 @@ class AEPsychServer(object):
 
         if self.is_using_thrift is True:
             # no loop if using thrift
-            request = self.socket.receive()
-            if "version" in request.keys():
-                result = self.versioned_handler(request)
-            else:
-                result = self.unversioned_handler(request)
-            self.socket.send(result)
+            self._receive_send()
         else:
             while True:
-                request = self.socket.receive()
+                self._receive_send()
 
-                if "version" in request.keys():
-                    result = self.versioned_handler(request)
-                else:
-                    result = self.unversioned_handler(request)
-                self.socket.send(result)
                 if self.exit_server_loop:
                     break
+
+            # Close the socket and terminate with code 0
+            self.cleanup()
+            sys.exit(0)
 
     def replay(self, uuid_to_replay, skip_computations=False):
         """
@@ -542,9 +549,7 @@ class AEPsychServer(object):
         logger.info("Got termination message!")
         self.write_strats(termination_type)
         if not self.is_using_thrift:
-            # Close the socket and terminate with code 0
-            self.cleanup()
-            sys.exit(0)
+            self.exit_server_loop = True
 
         # If using thrift, it will add 'Terminate' to the queue and pass it to thrift server level
         return "Terminate"
@@ -642,10 +647,10 @@ class AEPsychServer(object):
 
     def configure(self, **config_args):
         config = Config(**config_args)
-        logger.warn(
-            'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'
-        )
         if "experiment" in config:
+            logger.warning(
+                'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'
+            )
             for i in config["experiment"]:
                 config["common"][i] = config["experiment"][i]
             del config["experiment"]
