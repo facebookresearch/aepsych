@@ -54,9 +54,6 @@ class ConfigTestCase(unittest.TestCase):
         [OptimizeAcqfGenerator]
         restarts = 10
         samps = 1000
-
-        [SobolGenerator]
-        n_points = 10
         """
         config = Config()
         config.update(config_str=config_str)
@@ -254,7 +251,94 @@ class ConfigTestCase(unittest.TestCase):
             model = PairwiseProbitModel
             """
         config = Config()
-        with self.assertWarns(DeprecationWarning):
-            config.update(config_str=config_str)
+        config.update(config_str=config_str)
         self.assertTrue("acqf" in config["common"])
         self.assertTrue("model" in config["common"])
+
+    def test_to_string(self):
+        in_str = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            outcome_type = single_probit
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            model = GPClassificationModel
+            acqf = LevelSetEstimation
+            [init_strat]
+            generator = SobolGenerator
+            n_trials = 10
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            n_trials = 20
+            [LevelSetEstimation]
+            beta = 3.98
+            objective = ProbitObjective
+            [GPClassificationModel]
+            inducing_size = 10
+            mean_covar_factory = default_mean_covar_factory
+            [OptimizeAcqfGenerator]
+            restarts = 10
+            samps = 1000""".strip().replace(
+            " ", ""
+        )
+
+        config = Config(config_str=in_str)
+        out_str = str(config).strip().replace(" ", "")
+        self.assertEqual(in_str, out_str)
+
+    def test_conversion(self):
+        config_str = """
+        [common]
+        parnames = [par1, par2]
+        lb = [0, 0]
+        ub = [1, 1]
+        outcome_type = single_probit
+        target = 0.75
+
+        [SobolStrategy]
+        n_trials = 10
+
+        [ModelWrapperStrategy]
+        n_trials = 20
+        refit_every = 5
+
+        [experiment]
+        acqf = MonotonicMCLSE
+        init_strat_cls = SobolStrategy
+        opt_strat_cls = ModelWrapperStrategy
+        modelbridge_cls = MonotonicSingleProbitModelbridge
+        model = MonotonicRejectionGP
+
+        [MonotonicMCLSE]
+        beta = 3.98
+
+        [MonotonicRejectionGP]
+        inducing_size = 100
+        mean_covar_factory = monotonic_mean_covar_factory
+
+        [MonotonicSingleProbitModelbridge]
+        restarts = 10
+        samps = 1000
+        """
+
+        config = Config(config_str=config_str)
+        self.assertEqual(config.version, "0.0")
+        config.convert("0.0", "0.1")
+        self.assertEqual(config.version, "0.1")
+
+        self.assertEqual(config["common"]["strategy_names"], "[init_strat, opt_strat]")
+        self.assertEqual(config["common"]["acqf"], "MonotonicMCLSE")
+
+        self.assertEqual(config["init_strat"]["n_trials"], "10")
+        self.assertEqual(config["init_strat"]["generator"], "SobolGenerator")
+
+        self.assertEqual(config["opt_strat"]["n_trials"], "20")
+        self.assertEqual(config["opt_strat"]["refit_every"], "5")
+        self.assertEqual(
+            config["opt_strat"]["generator"], "MonotonicRejectionGenerator"
+        )
+        self.assertEqual(config["opt_strat"]["model"], "MonotonicRejectionGP")
+
+        self.assertEqual(config["MonotonicRejectionGenerator"]["restarts"], "10")
+        self.assertEqual(config["MonotonicRejectionGenerator"]["samps"], "1000")

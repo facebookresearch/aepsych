@@ -61,7 +61,12 @@ class Database:
             self._engine = None
 
     def is_update_required(self):
-        return not tables.DbReplayTable.has_extra_info(self._engine)
+        return (
+            tables.DBMasterTable.requires_update(self._engine)
+            or tables.DbReplayTable.requires_update(self._engine)
+            or tables.DbStratTable.requires_update(self._engine)
+            or tables.DbConfigTable.requires_update(self._engine)
+        )
 
     def perform_updates(self):
         """Perform updates on known tables. SQLAlchemy doesn't do alters so they're done the old fashioned way."""

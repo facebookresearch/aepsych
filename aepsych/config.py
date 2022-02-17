@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 import configparser
-import pprint
 import warnings
 from types import ModuleType
 from typing import Dict, TypeVar, Mapping, Sequence, List
@@ -31,8 +30,6 @@ class Config(configparser.ConfigParser):
     ):
         """Initialize the AEPsych config object. This can be used to instantiate most
         objects in AEPsych by calling object.from_config(config).
-
-        TODO write a tutorial on writing configs.
 
         Args:
             config_dict (Mapping[str, str], optional): Mapping to build configuration from.
@@ -131,15 +128,11 @@ class Config(configparser.ConfigParser):
         if config_str is not None:
             self.read_string(config_str)
 
-        # Deprecation warining for "experiment" section
+        # Deprecation warning for "experiment" section
         if "experiment" in self:
             for i in self["experiment"]:
                 self["common"][i] = self["experiment"][i]
             del self["experiment"]
-            warnings.warn(
-                'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.',
-                DeprecationWarning,
-            )
 
     def _str_to_list(self, v: str, element_type: _T = float) -> List[_T]:
         if v[0] == "[" and v[-1] == "]":
@@ -161,16 +154,6 @@ class Config(configparser.ConfigParser):
             if warn:
                 warnings.warn(f'No known object "{v}"!')
             return fallback_type(v)
-
-    def __str__(self):
-        defaults = {k: v for k, v in self.items("common")}
-        nondefaults = {
-            sec: {k: v for k, v in self[sec].items() if k not in defaults.keys()}
-            for sec in self.sections()
-        }
-        nondefaults["common"] = defaults
-
-        return pprint.pformat(nondefaults)
 
     def __repr__(self):
         return f"Config at {hex(id(self))}: \n {str(self)}"
@@ -206,6 +189,116 @@ class Config(configparser.ConfigParser):
                 + "registered under that name!"
             )
         cls.registered_names.update({obj.__name__: obj})
+
+    def __str__(self):
+        _str = ""
+        for section in self:
+            _str += f"[{section}]\n"
+            for setting in self[section]:
+                if section != "common" and setting in self["common"]:
+                    continue
+                _str += f"{setting} = {self[section][setting]}\n"
+        return _str
+
+    def convert(self, from_version: str, to_version: str) -> None:
+        """Converts a config from an older version to a newer version.
+
+        Args:
+            from_version (str): The version of the config to be converted.
+            to_version (str): The version the config should be converted to.
+        """
+
+        # For now, we can only convert modelbridge era configs (version 0.0) to the latest version (0.1)
+        assert (
+            from_version == "0.0" and to_version == "0.1"
+        ), f"Received from_version '{from_version}' and to_version '{to_version}', but only converting '0.0' to '0.1' is supported!"
+
+        self["common"]["strategy_names"] = "[init_strat, opt_strat]"
+
+        if "experiment" in self:
+            for i in self["experiment"]:
+                self["common"][i] = self["experiment"][i]
+
+        bridge = self["common"]["modelbridge_cls"]
+        n_sobol = self["SobolStrategy"]["n_trials"]
+        n_opt = self["ModelWrapperStrategy"]["n_trials"]
+
+        if bridge == "PairwiseProbitModelbridge":
+            self["init_strat"] = {
+                "generator": "PairwiseSobolGenerator",
+                "n_trials": n_sobol,
+            }
+            self["opt_strat"] = {
+                "generator": "PairwiseOptimizeAcqfGenerator",
+                "model": "PairwiseProbitModel",
+                "n_trials": n_opt,
+            }
+            if "PairwiseProbitModelbridge" in self:
+                self["PairwiseOptimizeAcqfGenerator"] = self[
+                    "PairwiseProbitModelbridge"
+                ]
+            if "PairwiseGP" in self:
+                self["PairwiseProbitModel"] = self["PairwiseGP"]
+
+        elif bridge == "MonotonicSingleProbitModelbridge":
+            self["init_strat"] = {
+                "generator": "SobolGenerator",
+                "n_trials": n_sobol,
+            }
+            self["opt_strat"] = {
+                "generator": "MonotonicRejectionGenerator",
+                "model": "MonotonicRejectionGP",
+                "n_trials": n_opt,
+            }
+            if "MonotonicSingleProbitModelbridge" in self:
+                self["MonotonicRejectionGenerator"] = self[
+                    "MonotonicSingleProbitModelbridge"
+                ]
+
+        elif bridge == "SingleProbitModelbridge":
+            self["init_strat"] = {
+                "generator": "SobolGenerator",
+                "n_trials": n_sobol,
+            }
+            self["opt_strat"] = {
+                "generator": "OptimizeAcqfGenerator",
+                "model": "GPClassificationModel",
+                "n_trials": n_opt,
+            }
+            if "SingleProbitModelbridge" in self:
+                self["OptimizeAcqfGenerator"] = self["SingleProbitModelbridge"]
+
+        else:
+            raise NotImplementedError(
+                f"Refactor for {bridge} has not been implemented!"
+            )
+
+        if "ModelWrapperStrategy" in self:
+            if "refit_every" in self["ModelWrapperStrategy"]:
+                self["opt_strat"]["refit_every"] = self["ModelWrapperStrategy"][
+                    "refit_every"
+                ]
+
+        del self["common"]["model"]
+
+    @property
+    def version(self) -> str:
+        """Returns the version number of the config."""
+        # TODO: implement an explicit versioning system
+
+        # Try to infer the version
+        if "common" in self and "strategy_names" in self["common"]:
+            return "0.1"
+
+        elif (
+            "SobolStrategy" in self
+            or "ModelWrapperStrategy" in self
+            or "EpsilonGreedyModelWrapperStrategy" in self
+        ):
+            return "0.0"
+
+        else:
+            raise RuntimeError("Unrecognized config format!")
 
 
 Config.register_module(gpytorch.kernels)
