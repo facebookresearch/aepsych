@@ -49,27 +49,67 @@ def default_mean_covar_factory(
 
     lb = config.gettensor("default_mean_covar_factory", "lb")
     ub = config.gettensor("default_mean_covar_factory", "ub")
-    mean_prior = ub - lb
+    fixed_mean = config.getboolean(
+        "default_mean_covar_factory", "fixed_mean", fallback=False
+    )
+    lengthscale_prior = config.get(
+        "default_mean_covar_factory", "lengthscale_prior", fallback="invgamma"
+    )
+    outputscale_prior = config.get(
+        "default_mean_covar_factory", "outputscale_prior", fallback="box"
+    )
+    kernel = config.getobj(
+        "default_mean_covar_factory", "kernel", fallback=gpytorch.kernels.RBFKernel
+    )
+
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
     dim = lb.shape[0]
     mean = gpytorch.means.ConstantMean(
         prior=gpytorch.priors.NormalPrior(loc=0, scale=2.0)
     )
+    if fixed_mean:
+        try:
+            target = config.getfloat("default_mean_covar_factory", "target")
+            mean.constant.requires_grad_(False)
+            mean.constant.copy_(torch.tensor([norm.ppf(target)]))
+        except NoOptionError:
+            raise RuntimeError("Config got fixed_mean=True but no target included!")
 
-    ls_prior = gpytorch.priors.GammaPrior(
-        concentration=__default_invgamma_concentration, rate=__default_invgamma_rate, transform=lambda x: 1 / x
-    )
-    ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
+    if lengthscale_prior == "invgamma":
+
+        ls_prior = gpytorch.priors.GammaPrior(
+            concentration=__default_invgamma_concentration, rate=__default_invgamma_rate, transform=lambda x: 1 / x
+        )
+
+        ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
+    elif lengthscale_prior == "gamma":
+        ls_prior = gpytorch.priors.GammaPrior(concentration=3.0, rate=6.0)
+        ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
+    else:
+        raise RuntimeError(
+            f"Lengthscale_prior should be invgamma or gamma, got {lengthscale_prior}"
+        )
+
+    if outputscale_prior == "gamma":
+        os_prior = gpytorch.priors.GammaPrior(concentration=2.0, rate=0.15)
+    elif outputscale_prior == "box":
+        os_prior = gpytorch.priors.SmoothedBoxPrior(a=1, b=4)
+    else:
+        raise RuntimeError(
+            f"Outputscale_prior should be gamma or box, got {outputscale_prior}"
+        )
+
     ls_constraint = gpytorch.constraints.Positive(
         transform=None, initial_value=ls_prior_mode
     )
+
     covar = gpytorch.kernels.ScaleKernel(
-        gpytorch.kernels.RBFKernel(
+        kernel(
             lengthscale_prior=ls_prior,
             lengthscale_constraint=ls_constraint,
             ard_num_dims=dim,
         ),
-        outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
+        outputscale_prior=os_prior,
     )
 
     return mean, covar
@@ -89,20 +129,23 @@ def monotonic_mean_covar_factory(
     """
     lb = config.gettensor("monotonic_mean_covar_factory", "lb")
     ub = config.gettensor("monotonic_mean_covar_factory", "ub")
-
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
     dim = lb.shape[0]
+    fixed_mean = config.getboolean(
+        "monotonic_mean_covar_factory", "fixed_mean", fallback=False
+    )
 
     mean = ConstantMeanPartialObsGrad(
         prior=gpytorch.priors.NormalPrior(loc=0, scale=2.0)
     )
 
-    try:
-        target = config.getfloat("monotonic_mean_covar_factory", "target")
-    except NoOptionError:
-        target = 0.75
-    mean.constant.requires_grad_(False)
-    mean.constant.copy_(torch.tensor([norm.ppf(target)]))
+    if fixed_mean:
+        try:
+            target = config.getfloat("monotonic_mean_covar_factory", "target")
+            mean.constant.requires_grad_(False)
+            mean.constant.copy_(torch.tensor([norm.ppf(target)]))
+        except NoOptionError:
+            raise RuntimeError("Config got fixed_mean=True but no target included!")
 
 
     ls_prior = gpytorch.priors.GammaPrior(
@@ -143,7 +186,6 @@ def song_mean_covar_factory(
     """
     lb = config.gettensor("song_mean_covar_factory", "lb")
     ub = config.gettensor("song_mean_covar_factory", "ub")
-
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
     dim = lb.shape[0]
 

@@ -8,6 +8,7 @@
 import unittest
 
 import gpytorch
+import numpy as np
 from aepsych.config import Config
 from aepsych.factory import (
     default_mean_covar_factory,
@@ -30,9 +31,88 @@ class TestFactories(unittest.TestCase):
         config = Config(config_dict=conf)
         meanfun, covarfun = default_mean_covar_factory(config)
         self.assertTrue(covarfun.base_kernel.ard_num_dims == 1)
+        self.assertTrue(meanfun.constant.requires_grad)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
+        self.assertTrue(
+            isinstance(
+                covarfun.base_kernel._priors["lengthscale_prior"][0],
+                gpytorch.priors.GammaPrior,
+            )
+        )
+        self.assertTrue(
+            isinstance(
+                covarfun._priors["outputscale_prior"][0],
+                gpytorch.priors.SmoothedBoxPrior,
+            )
+        )
         self.assertTrue(isinstance(covarfun.base_kernel, gpytorch.kernels.RBFKernel))
+
+    def test_default_factory_args_1d(self):
+
+        conf = {
+            "default_mean_covar_factory": {
+                "lb": [0],
+                "ub": [1],
+                "fixed_mean": True,
+                "lengthscale_prior": "gamma",
+                "outputscale_prior": "gamma",
+                "target": 0.5,
+                "kernel": "MaternKernel",
+            }
+        }
+        config = Config(config_dict=conf)
+        meanfun, covarfun = default_mean_covar_factory(config)
+        self.assertFalse(meanfun.constant.requires_grad)
+        self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
+        self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
+        self.assertTrue(
+            isinstance(
+                covarfun.base_kernel._priors["lengthscale_prior"][0],
+                gpytorch.priors.GammaPrior,
+            )
+        )
+        self.assertTrue(
+            isinstance(
+                covarfun._priors["outputscale_prior"][0], gpytorch.priors.GammaPrior
+            )
+        )
+
+        self.assertTrue(
+            covarfun.base_kernel._priors["lengthscale_prior"][0].concentration == 3.0
+        )
+        self.assertTrue(
+            covarfun.base_kernel._priors["lengthscale_prior"][0].rate == 6.0
+        )
+        self.assertTrue(covarfun._priors["outputscale_prior"][0].concentration == 2.0)
+        self.assertTrue(covarfun._priors["outputscale_prior"][0].rate == 0.15)
+        self.assertTrue(
+            covarfun.base_kernel._priors["lengthscale_prior"][0]._transform is None
+        )
+        self.assertTrue(isinstance(covarfun.base_kernel, gpytorch.kernels.MaternKernel))
+
+    def test_default_factory_raises(self):
+        bad_confs = [
+            {
+                "default_mean_covar_factory": {
+                    "lb": [0],
+                    "ub": [1],
+                    "lengthscale_prior": "box",
+                }
+            },
+            {
+                "default_mean_covar_factory": {
+                    "lb": [0],
+                    "ub": [1],
+                    "outputscale_prior": "normal",
+                }
+            },
+            {"default_mean_covar_factory": {"lb": [0], "ub": [1], "fixed_mean": True}},
+        ]
+        for conf in bad_confs:
+            with self.assertRaises(RuntimeError):
+                config = Config(conf)
+                _, __ = default_mean_covar_factory(config)
 
     def test_default_factory_2d(self):
         conf = {"default_mean_covar_factory": {"lb": [-2, 3], "ub": [1, 10]}}
@@ -51,14 +131,33 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(isinstance(meanfun, ConstantMeanPartialObsGrad))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
         self.assertTrue(isinstance(covarfun.base_kernel, RBFKernelPartialObsGrad))
-        self.assertTrue(meanfun.constant.requires_grad is False)
-        self.assertTrue(meanfun.constant == norm.ppf(0.75))
+        self.assertTrue(meanfun.constant.requires_grad)
+
+    def test_monotonic_factory_args_1d(self):
+        conf = {
+            "monotonic_mean_covar_factory": {
+                "lb": [0],
+                "ub": [1],
+                "fixed_mean": True,
+                "target": 0.88,
+            }
+        }
+        config = Config(config_dict=conf)
+
+        meanfun, covarfun = monotonic_mean_covar_factory(config)
+        self.assertTrue(covarfun.base_kernel.ard_num_dims == 1)
+        self.assertTrue(isinstance(meanfun, ConstantMeanPartialObsGrad))
+        self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
+        self.assertTrue(isinstance(covarfun.base_kernel, RBFKernelPartialObsGrad))
+        self.assertFalse(meanfun.constant.requires_grad)
+        self.assertTrue(np.allclose(meanfun.constant, norm.ppf(0.88)))
 
     def test_monotonic_factory_2d(self):
         conf = {
             "monotonic_mean_covar_factory": {
                 "lb": [0, 1],
                 "ub": [1, 70],
+                "fixed_mean": True,
                 "target": 0.89,
             }
         }
@@ -68,8 +167,8 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(isinstance(meanfun, ConstantMeanPartialObsGrad))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
         self.assertTrue(isinstance(covarfun.base_kernel, RBFKernelPartialObsGrad))
-        self.assertTrue(meanfun.constant.requires_grad is False)
-        self.assertTrue(meanfun.constant == norm.ppf(0.89))
+        self.assertFalse(meanfun.constant.requires_grad)
+        self.assertTrue(np.allclose(meanfun.constant, norm.ppf(0.89)))
 
     def test_song_factory_1d(self):
         conf = {"song_mean_covar_factory": {"lb": [0], "ub": [1]}}
@@ -101,3 +200,6 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(
             isinstance(covarfun.kernels[1].base_kernel, gpytorch.kernels.LinearKernel)
         )
+
+
+self = TestFactories()
