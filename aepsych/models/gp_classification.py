@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import time
+from copy import deepcopy
 from typing import Optional, Tuple, Union
 
 import gpytorch
@@ -21,7 +22,7 @@ from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
-from gpytorch.variational import MeanFieldVariationalDistribution, VariationalStrategy
+from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 
 logger = getLogger()
 
@@ -61,16 +62,16 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel
                 class. Defaults to scaled RBF with a gamma prior.
         """
-        lb, ub, dim = _process_bounds(lb, ub, dim)
-        self.lb, self.ub, self.dim = lb, ub, dim
+        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
+        self.inducing_size = inducing_size
+
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
-        # inducing points still in original space
-        inducing_points = make_scaled_sobol(lb, ub, inducing_size)
+        inducing_points = make_scaled_sobol(self.lb, self.ub, self.inducing_size)
 
-        variational_distribution = MeanFieldVariationalDistribution(
+        variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0)
         )
         variational_strategy = VariationalStrategy(
@@ -101,6 +102,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         self.mean_module = mean_module
         self.covar_module = covar_module
         self.likelihood = likelihood
+
+        self._fresh_state_dict = self.state_dict()
+        self._fresh_likelihood_dict = self.likelihood.state_dict()
 
     @classmethod
     def from_config(cls, config: Config) -> GPClassificationModel:
@@ -140,13 +144,46 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             max_fit_time=max_fit_time,
         )
 
-    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
+    def fit(
+        self,
+        train_x: torch.Tensor,
+        train_y: torch.Tensor,
+        warmstart_hyperparams: bool = False,
+        warmstart_induc: bool = False,
+    ) -> None:
         """Fit underlying model.
 
         Args:
             train_x (torch.Tensor): Inputs.
             train_y (torch.LongTensor): Responses.
         """
+        self.set_train_data(train_x, train_y)
+
+        # by default we reuse the model state and likelihood. If we
+        # want a fresh fit (no warm start), copy the state from class initialization.
+        if not warmstart_hyperparams:
+            # warmstart_hyperparams affects hyperparams but not the variational strat,
+            # so we keep the old variational strat (which is only refreshed
+            # if warmstart_induc=False).
+            vsd = self.variational_strategy.state_dict()
+            vsd_hack = {f"variational_strategy.{k}": v for k, v in vsd.items()}
+            state_dict = deepcopy(self._fresh_state_dict)
+            state_dict.update(vsd_hack)
+            self.load_state_dict(state_dict)
+            self.likelihood.load_state_dict(self._fresh_likelihood_dict)
+
+        if not warmstart_induc:
+            inducing_points = make_scaled_sobol(self.lb, self.ub, self.inducing_size)
+            variational_distribution = CholeskyVariationalDistribution(
+                inducing_points.size(0)
+            )
+            self.variational_strategy = VariationalStrategy(
+                self,
+                inducing_points,
+                variational_distribution,
+                learn_inducing_locations=False,
+            )
+
         n = train_y.shape[0]
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
         self.train()
@@ -210,11 +247,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             fvar = post.variance.detach().squeeze()
             return fmean, fvar
 
-    def update(
-        self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
-    ):
+    def update(self, train_x: torch.Tensor, train_y: torch.Tensor):
         """Perform a warm-start update of the model from previous fit."""
-        self.fit(train_x, train_y)
+        self.fit(train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True)
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
         """Evaluate GP
