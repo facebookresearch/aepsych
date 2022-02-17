@@ -16,7 +16,6 @@ import torch
 from aepsych.acquisition.rejection_sampler import RejectionSampler
 from aepsych.config import Config
 from aepsych.factory.factory import (
-    compute_invgamma_prior_params,
     monotonic_mean_covar_factory,
 )
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
@@ -118,12 +117,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
 
         if covar_module is None:
             mean_prior = ub - lb
-            alpha, beta = compute_invgamma_prior_params(
-                mean_prior / 10, mean_prior, q=0.01
-            )
 
             ls_prior = gpytorch.priors.GammaPrior(
-                concentration=alpha, rate=beta, transform=lambda x: 1 / x
+                concentration=4.6, rate=1.0, transform=lambda x: 1 / x
             )
             ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
             ls_constraint = gpytorch.constraints.Positive(
@@ -153,16 +149,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
         self.num_rejection_samples = num_rejection_samples
         self.fixed_prior_mean = fixed_prior_mean
         self.inducing_points = inducing_points
-
-    def set_train_data(self, x: torch.Tensor, y: torch.Tensor) -> None:
-        """Set the training data for the model
-
-        Args:
-            x (torch.Tensor): training X points
-            y ([type]): Training y points
-        """
-        self.train_inputs = (x,)
-        self.train_targets = y
 
     def fit(self, train_x: Tensor, train_y: Tensor) -> None:
         """Fit the model
@@ -345,7 +331,11 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
             gpytorch.distributions.MultivariateNormal: Distribution object
                 holding mean and covariance at x.
         """
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
+
+        # final dim is deriv index, we only normalize the "real" dims
+        transformed_x = x.clone()
+        transformed_x[..., :-1] = self.normalize_inputs(transformed_x[..., :-1])
+        mean_x = self.mean_module(transformed_x)
+        covar_x = self.covar_module(transformed_x)
         latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
         return latent_pred

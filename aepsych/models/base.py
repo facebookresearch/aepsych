@@ -289,3 +289,21 @@ class AEPsychMixin:
 
     def dim_grid(self: ModelProtocol, gridsize: int = 30) -> torch.Tensor:
         return dim_grid(self.lb, self.ub, self.dim, gridsize)
+
+    def set_train_data(self, inputs=None, targets=None, strict=False):
+        """
+        :param torch.Tensor inputs: The new training inputs.
+        :param torch.Tensor targets: The new training targets.
+        :param bool strict: (default False, ignored). Here for compatibility with
+        input transformers. TODO: actually use this arg or change input transforms
+        to not require it.
+        """
+        if inputs is not None:
+            self.train_inputs = (inputs,)
+
+        if targets is not None:
+            self.train_targets = targets
+
+    def normalize_inputs(self, x):
+        scale = self.ub - self.lb
+        return (x - self.lb) / scale

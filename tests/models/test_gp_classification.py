@@ -72,6 +72,52 @@ class GPClassificationSmoketest(unittest.TestCase):
         pred = (pm > 0).numpy()
         npt.assert_allclose(pred, y)
 
+    def test_1d_classification_different_scales(self):
+        """
+        Just see if we memorize the training set
+        """
+        np.random.seed(1)
+        torch.manual_seed(1)
+        X, y = make_classification(
+            n_features=2,
+            n_redundant=0,
+            n_informative=1,
+            random_state=1,
+            n_clusters_per_class=1,
+        )
+        X, y = torch.Tensor(X), torch.Tensor(y)
+        X[:, 0] = X[:, 0] * 1000
+        X[:, 1] = X[:, 1] / 1000
+        lb = [-3000, -0.003]
+        ub = [3000, 0.003]
+
+        model = GPClassificationModel(lb=lb, ub=ub)
+
+        model.fit(X[:50], y[:50])
+
+        # pspace
+        pm, _ = model.predict(X[:50], probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # fspace
+        pm, _ = model.predict(X[:50], probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # smoke test update
+        model.update(X, y)
+
+        # pspace
+        pm, _ = model.predict(X, probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y)
+
+        # fspace
+        pm, _ = model.predict(X, probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y)
+
 
 class GPClassificationTest(unittest.TestCase):
     def test_1d_single_probit_new_interface(self):
@@ -512,26 +558,6 @@ class GPClassificationTest(unittest.TestCase):
 
         with self.assertWarns(RuntimeWarning):
             strat.gen()
-
-    def test_1d_classification(self):
-        """
-        Just see if we memorize the training set
-        """
-        np.random.seed(1)
-        torch.manual_seed(1)
-        X, y = make_classification(
-            n_features=1,
-            n_redundant=0,
-            n_informative=1,
-            random_state=1,
-            n_clusters_per_class=1,
-        )
-        X, y = torch.Tensor(X), torch.Tensor(y)
-
-        model = GPClassificationModel(torch.Tensor([-3]), torch.Tensor([3]))
-        model.fit(X, y)
-        pred = (torch.sigmoid(model.posterior(X).mean) > 0.5).numpy()
-        npt.assert_allclose(pred[:, 0], y)
 
     def test_1d_query(self):
         seed = 1

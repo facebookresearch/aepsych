@@ -67,9 +67,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
-        inducing_min = lb
-        inducing_max = ub
-        inducing_points = make_scaled_sobol(inducing_min, inducing_max, inducing_size)
+        # inducing points still in original space
+        inducing_points = make_scaled_sobol(lb, ub, inducing_size)
 
         variational_distribution = MeanFieldVariationalDistribution(
             inducing_points.size(0)
@@ -82,27 +81,22 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         )
         super().__init__(variational_strategy)
 
-        mean_prior = inducing_max - inducing_min
-
         mean_module = mean_module or gpytorch.means.ConstantMean(
             prior=gpytorch.priors.NormalPrior(loc=0.0, scale=2.0)
         )
-        ls_prior = gpytorch.priors.GammaPrior(concentration=3.0, rate=6.0 / mean_prior)
+        ls_prior = gpytorch.priors.GammaPrior(concentration=3.0, rate=6.0)
         ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
         ls_constraint = gpytorch.constraints.Positive(
             transform=None, initial_value=ls_prior_mode
         )
-        ndim = mean_prior.shape[0]
         covar_module = covar_module or gpytorch.kernels.ScaleKernel(
             gpytorch.kernels.RBFKernel(
                 lengthscale_prior=ls_prior,
                 lengthscale_constraint=ls_constraint,
-                ard_num_dims=ndim,
+                ard_num_dims=dim,
             ),
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
-
-        self.bounds_ = torch.stack([self.lb, self.ub])
 
         self.mean_module = mean_module
         self.covar_module = covar_module
@@ -145,16 +139,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             covar_module=covar,
             max_fit_time=max_fit_time,
         )
-
-    def set_train_data(self, x: torch.Tensor, y: torch.Tensor) -> None:
-        """Set the training data for the model
-
-        Args:
-            x (torch.Tensor): training X points
-            y ([type]): Training y points
-        """
-        self.train_inputs = (x,)
-        self.train_targets = y
 
     def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
         """Fit underlying model.
@@ -212,11 +196,14 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         Returns:
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
+
         if probability_space:
-            samps = torch.distributions.Normal(0, 1).cdf(self.sample(x, num_samples=10000))
+            samps = torch.distributions.Normal(0, 1).cdf(
+                self.sample(x, num_samples=10000)
+            )
             pmean = samps.mean(0).squeeze()
             pvar = samps.var(0).squeeze()
-            return  promote_0d(pmean), promote_0d(pvar)
+            return promote_0d(pmean), promote_0d(pvar)
         else:
             post = self.posterior(x)
             fmean = post.mean.detach().squeeze()
@@ -239,7 +226,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             gpytorch.distributions.MultivariateNormal: Distribution object
                 holding mean and covariance at x.
         """
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
+        transformed_x = self.normalize_inputs(x)
+        mean_x = self.mean_module(transformed_x)
+        covar_x = self.covar_module(transformed_x)
         latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
         return latent_pred
