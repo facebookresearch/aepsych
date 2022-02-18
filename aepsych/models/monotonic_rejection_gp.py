@@ -22,9 +22,9 @@ from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
+from aepsych.utils import make_scaled_sobol
 from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
-from botorch.utils.sampling import draw_sobol_samples
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -84,15 +84,13 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
             objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
             extra_acqf_args (Optional[Dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
         """
-        lb, ub, dim = _process_bounds(lb, ub, dim)
+        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
-        bounds_ = torch.stack([lb, ub])
+        self.inducing_size = num_induc
+        inducing_points = self._select_inducing_points(method="sobol")
 
-        inducing_points = draw_sobol_samples(bounds=bounds_, n=num_induc, q=1).squeeze(
-            1
-        )
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points_aug.size(0)
@@ -116,7 +114,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
             mean_module.constant.copy_(torch.tensor([fixed_prior_mean]))
 
         if covar_module is None:
-            mean_prior = ub - lb
 
             ls_prior = gpytorch.priors.GammaPrior(
                 concentration=4.6, rate=1.0, transform=lambda x: 1 / x
@@ -137,7 +134,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
 
         super().__init__(variational_strategy)
 
-        self.lb, self.ub, self.dim = lb, ub, dim
         self.bounds_ = torch.stack([self.lb, self.ub])
         self.mean_module = mean_module
         self.covar_module = covar_module
@@ -157,7 +153,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
             train_x (Tensor): Training x points
             train_y (Tensor): Training y points. Should be (n x 1).
         """
+        self.set_train_data(train_x, train_y)
 
+        self.inducing_points = self._select_inducing_points()
         self._set_model(train_x, train_y)
 
     def _set_model(
@@ -169,7 +167,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
     ) -> None:
         train_x_aug = self._augment_with_deriv_index(train_x, 0)
         self.set_train_data(train_x_aug, train_y)
-
         # Set model parameters
         if model_state_dict is not None:
             self.load_state_dict(model_state_dict)

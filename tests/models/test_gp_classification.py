@@ -37,6 +37,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         np.random.seed(1)
         torch.manual_seed(1)
         X, y = make_classification(
+            n_samples=100,
             n_features=1,
             n_redundant=0,
             n_informative=1,
@@ -618,6 +619,43 @@ class GPClassificationTest(unittest.TestCase):
         val, loc = strat.inv_query(1.0, constraints={})
         self.assertTrue(np.abs(val - 1) < 0.5)
         self.assertTrue(np.abs(loc[0] - 2) < 0.5)
+
+    def test_select_inducing_points(self):
+        """Verify that when we have n_induc > data size, we use data as inducing,
+        and otherwise we correctly select inducing points."""
+        X, y = make_classification(
+            n_samples=100,
+            n_features=1,
+            n_redundant=0,
+            n_informative=1,
+            random_state=1,
+            n_clusters_per_class=1,
+        )
+        X, y = torch.Tensor(X), torch.Tensor(y)
+
+        model = GPClassificationModel(
+            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=20
+        )
+        model.set_train_data(X[:10, ...], y[:10])
+
+        # (inducing point selection sorts the inputs so we sort X to verify)
+        self.assertTrue(
+            np.allclose(
+                model._select_inducing_points(method="auto"),
+                X[:10].sort(0).values,
+            )
+        )
+
+        model.set_train_data(X, y)
+
+        self.assertTrue(len(model._select_inducing_points(method="auto")) <= 20)
+
+        self.assertTrue(len(model._select_inducing_points(method="pivoted_chol")) <= 20)
+
+        self.assertEqual(len(model._select_inducing_points(method="kmeans++")), 20)
+
+        with self.assertRaises(AssertionError):
+            model._select_inducing_points(method="12345")
 
 
 if __name__ == "__main__":

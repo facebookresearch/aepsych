@@ -16,7 +16,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
-from aepsych.utils import _process_bounds, make_scaled_sobol, promote_0d
+from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
@@ -50,8 +50,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: int = 10,
+        inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
+        inducing_point_method: str = "auto",
     ):
         """Initialize the GP Classification model
 
@@ -69,7 +70,10 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
-        inducing_points = make_scaled_sobol(self.lb, self.ub, self.inducing_size)
+        self.max_fit_time = max_fit_time
+        self.inducing_point_method = inducing_point_method
+        # initialize to sobol before we have data
+        inducing_points = self._select_inducing_points(method="sobol")
 
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0)
@@ -134,6 +138,10 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         mean, covar = mean_covar_factory(config)
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
+        inducing_point_method = config.get(
+            classname, "inducing_point_method", fallback="auto"
+        )
+
         return cls(
             lb=lb,
             ub=ub,
@@ -142,6 +150,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             mean_module=mean,
             covar_module=covar,
             max_fit_time=max_fit_time,
+            inducing_point_method=inducing_point_method,
         )
 
     def fit(
@@ -173,7 +182,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             self.likelihood.load_state_dict(self._fresh_likelihood_dict)
 
         if not warmstart_induc:
-            inducing_points = make_scaled_sobol(self.lb, self.ub, self.inducing_size)
+            inducing_points = self._select_inducing_points(
+                method=self.inducing_point_method
+            )
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0)
             )
@@ -187,7 +198,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         n = train_y.shape[0]
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
         self.train()
-        self.set_train_data(train_x, train_y)
 
         if self.max_fit_time is not None:
             # figure out how long evaluating a single samp

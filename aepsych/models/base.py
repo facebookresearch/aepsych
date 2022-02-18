@@ -11,7 +11,16 @@ from typing import Mapping, Optional, Tuple, Union, Protocol, List
 import numpy as np
 import torch
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
+from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
+
+try:
+    from botorch.models.approximate_gp import _select_inducing_points
+
+    _have_pivoted_chol_init = True
+except ImportError:
+    _have_pivoted_chol_init = False
+
 
 torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
 
@@ -52,6 +61,39 @@ class ModelProtocol(Protocol):
 
 class AEPsychMixin:
     """Mixin class that provides AEPsych-specific utility methods."""
+
+    def _select_inducing_points(self, method="auto"):
+        with torch.no_grad():
+            assert method in (
+                "pivoted_chol",
+                "kmeans++",
+                "auto",
+                "sobol",
+            ), f"Inducing point method should be one of pivoted_chol, kmeans++, or auto; got {method}"
+
+            if method == "sobol":
+                return make_scaled_sobol(self.lb, self.ub, self.inducing_size)
+            train_X = torch.unique(self.train_inputs[0], dim=0)
+            if method == "auto":
+                if train_X.shape[0] <= self.inducing_size:
+                    return train_X
+                else:
+                    method = "kmeans++"
+
+            if method == "pivoted_chol":
+                inducing_points = _select_inducing_points(
+                    inputs=train_X,
+                    covar_module=self.covar_module,
+                    num_inducing=self.inducing_size,
+                    input_batch_shape=torch.Size([]),
+                )
+            elif method == "kmeans++":
+                # initialize using kmeans
+                inducing_points = torch.tensor(
+                    kmeans2(train_X.numpy(), self.inducing_size, minit="++")[0],
+                    dtype=train_X.dtype,
+                )
+            return inducing_points
 
     def _get_extremum(
         self: ModelProtocol,
