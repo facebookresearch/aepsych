@@ -21,9 +21,9 @@ Eventually, `AEPsych` will be available on PyPI and pip-installable directly.
 
 The canonical way of using `AEPsych` is to launch it in server mode.
 ```
-python aepsych/server.py
+python aepsych/server/server.py
 ```
-(you can call `python aepsych/server.py --help` to see additional arguments).
+(you can call `python aepsych/server/server.py --help` to see additional arguments).
 The server accepts messages over either a unix socket or [ZMQ](https://zeromq.org/), and
 all messages are formatted using [JSON](https://www.json.org/json-en.html). All messages
 have the following format:

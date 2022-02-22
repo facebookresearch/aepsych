@@ -51,7 +51,10 @@ class ModelProtocol(Protocol):
         pass
 
     def _get_extremum(
-        self, extremum_type: str, locked_dims: Mapping[int, List[float]], n_samples=1000
+        self,
+        extremum_type: str,
+        locked_dims: Optional[Mapping[int, List[float]]],
+        n_samples=1000,
     ) -> Tuple[float, np.ndarray]:
         pass
 
