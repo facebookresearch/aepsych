@@ -11,12 +11,13 @@ import itertools
 import time
 import warnings
 from copy import deepcopy
+from random import shuffle
 from typing import Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.strategy import SequentialStrategy
+from aepsych.strategy import SequentialStrategy, ensure_model_is_fresh
 from tqdm.contrib.itertools import product as tproduct
 
 from .logger import BenchmarkLogger
@@ -57,6 +58,9 @@ class Benchmark:
         self.logger = logger
         self.n_reps = n_reps
         self.combinations = self.make_benchmark_list(**configs)
+
+        # shuffle combinations so that intermediate results have a bit of everything
+        shuffle(self.combinations)
 
         if global_seed is None:
             # explicit cast because int and np.int_ are different types
@@ -142,21 +146,34 @@ class Benchmark:
         np.random.seed(seed)
         strat, flatconfig = self.make_strat_and_flatconfig(config_dict)
         total_gentime = 0.0
+        total_fittime = 0.0
         i = 0
+
         while not strat.finished:
             starttime = time.time()
             next_x = strat.gen()
             gentime = time.time() - starttime
-            total_gentime = total_gentime + gentime
+            total_gentime += gentime
             strat.add_data(next_x, [self.problem.sample_y(next_x)])
+            # strat usually defers model fitting until it is needed
+            # (e.g. for gen or predict) so that we don't refit
+            # unnecessarily. But for benchmarking we want to time
+            # fit and gen separately, so we force a strat update
+            # so we can time fit vs gen. TODO make this less awkward
+            starttime = time.time()
+            ensure_model_is_fresh(lambda x: None)(strat._strat)
+            fittime = time.time() - starttime
+            total_fittime += fittime
             if logger.log_at(i) and strat.has_model:
                 metrics = self.problem.evaluate(strat)
-                logger.log(flatconfig, metrics, i, gentime, rep)
+                logger.log(flatconfig, metrics, i, fittime, gentime, rep)
 
             i = i + 1
 
         metrics = self.problem.evaluate(strat)
-        logger.log(flatconfig, metrics, i, total_gentime, rep, final=True)
+        logger.log(
+            flatconfig, metrics, i, total_fittime, total_gentime, rep, final=True
+        )
         return logger, strat
 
     def run_benchmarks(self):

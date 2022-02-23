@@ -34,9 +34,24 @@ class PathosBenchmark(Benchmark):
             nproc (int, optional): Number of cores to use. Defaults to 1.
         """
         super().__init__(*args, **kwargs)
+
         # parallelize over jobs, so each job should be 1 thread only
-        self.__orig_num_threads = torch.get_num_threads()
-        torch.set_num_threads(1)
+        num_threads = torch.get_num_threads()
+        num_interopt_threads = torch.get_num_interop_threads()
+        if num_threads > 1 or num_interopt_threads > 1:
+            raise RuntimeError(
+                "PathosBenchmark parallelizes over threads,"
+                + "and as such is incompatible with torch being threaded. "
+                + "Please call `torch.set_num_threads(1)` and "
+                + "`torch.set_num_interop_threads(1)` before using PathosBenchmark!"
+            )
+        cores_available = pathos.multiprocessing.cpu_count()
+        if nproc >= cores_available:
+            raise RuntimeError(
+                f"Requesting a benchmark with {nproc} cores but "
+                + f"machine has {cores_available} cores! It is highly "
+                "recommended to leave at least 1-2 cores open for OS tasks."
+            )
         self.pool = pathos.pools.ProcessPool(nodes=nproc)
 
     def __del__(self):
@@ -44,16 +59,13 @@ class PathosBenchmark(Benchmark):
         # multiple benchmarks in one script) but if the GC already
         # cleared the underlying multiprocessing object (usually on
         # the final call), don't do anything.
-        if hasattr(self, "pool"):
+        if hasattr(self, "pool") and self.pool is not None:
             try:
                 self.pool.close()
                 self.pool.join()
                 self.pool.clear()
             except TypeError:
                 pass
-
-        # make pytorch parallel again
-        torch.set_num_threads(self.__orig_num_threads)
 
     def run_experiment(
         self,

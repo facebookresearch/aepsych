@@ -21,10 +21,13 @@ from aepsych.benchmark import (
     BenchmarkLogger,
 )
 
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
+
 
 def f(x, delay=False):
     if delay:
-        time.sleep(1 * random.random())
+        time.sleep(0.1 * random.random())
     if len(x.shape) == 1:
         return x
     else:
@@ -32,11 +35,22 @@ def f(x, delay=False):
 
 
 class TestProblem(Problem):
+    bounds = np.c_[0, 1].T
+    threshold = 0.75
+
     def f(self, x):
         return f(x)
 
 
+class TestSlowProblem(TestProblem):
+    def f(self, x):
+        return f(x, delay=True)
+
+
 class LSETestProblem(LSEProblem):
+    bounds = np.c_[[-1, 1], [-1, 1]].T
+    threshold = 0.75
+
     def f(self, x):
         return f(x)
 
@@ -48,8 +62,9 @@ class BenchmarkTestCase(unittest.TestCase):
         self.oldenv = os.environ.copy()
         os.environ["OMP_NUM_THREADS"] = "1"
         os.environ["NUMEXPR_MAX_THREADS"] = "1"
-        os.environ["MKL_THREADING_LAYER"] = "GNU"
         os.environ["MKL_NUM_THREADS"] = "1"
+        os.environ["KMP_AFFINITY"] = "granularity=fine,compact,1,0"
+        os.environ["KMP_BLOCKTIME"] = "1"
 
         seed = 1
         torch.manual_seed(seed)
@@ -75,10 +90,11 @@ class BenchmarkTestCase(unittest.TestCase):
             "GPClassificationModel": {
                 "inducing_size": 10,
                 "mean_covar_factory": "default_mean_covar_factory",
+                "refit_every": 100,
             },
             "OptimizeAcqfGenerator": {
                 "restarts": 1,
-                "samps": 200,
+                "samps": 20,
             },
         }
 
@@ -89,7 +105,7 @@ class BenchmarkTestCase(unittest.TestCase):
     def test_bench_smoke(self):
 
         logger = BenchmarkLogger(log_every=2)
-        problem = TestProblem(lb=[0], ub=[1])
+        problem = TestProblem()
 
         bench = Benchmark(
             problem=problem, logger=logger, configs=self.bench_config, n_reps=2
@@ -116,7 +132,7 @@ class BenchmarkTestCase(unittest.TestCase):
     def test_bench_pathossmoke(self):
 
         logger = BenchmarkLogger(log_every=2)
-        problem = TestProblem(lb=[0], ub=[1])
+        problem = TestProblem()
 
         bench = PathosBenchmark(
             problem=problem, logger=logger, configs=self.bench_config, n_reps=2
@@ -144,7 +160,7 @@ class BenchmarkTestCase(unittest.TestCase):
         test that we can launch async and get partial results
         """
         logger = BenchmarkLogger(log_every=2)
-        problem = TestProblem(lb=[0], ub=[1], delay=True)
+        problem = TestSlowProblem()
 
         bench = PathosBenchmark(
             problem=problem, logger=logger, configs=self.bench_config, n_reps=1
@@ -167,7 +183,7 @@ class BenchmarkTestCase(unittest.TestCase):
     def test_add_bench(self):
 
         logger = BenchmarkLogger(log_every=2)
-        problem = TestProblem(lb=[0], ub=[1])
+        problem = TestProblem()
 
         bench_1 = Benchmark(
             problem=problem,
@@ -225,7 +241,7 @@ class BenchProblemTestCase(unittest.TestCase):
                 "samps": 1000,
             },
         }
-        problem = LSETestProblem(lb=[-1, -1], ub=[1, 1])
+        problem = LSETestProblem()
         logger = BenchmarkLogger(log_every=100)
         bench = Benchmark(problem=problem, configs=config, logger=logger)
         _, strat = bench.run_experiment(bench.combinations[0], logger, 0, 0)
@@ -252,6 +268,7 @@ class BenchProblemTestCase(unittest.TestCase):
             "MonotonicRejectionGP": {
                 "inducing_size": 10,
                 "mean_covar_factory": "monotonic_mean_covar_factory",
+                "monotonic_idxs": "[1]",
             },
             "MonotonicRejectionGenerator": {
                 "model_gen_options": {
@@ -260,13 +277,16 @@ class BenchProblemTestCase(unittest.TestCase):
                 }
             },
         }
-        problem = LSETestProblem(lb=[-1, -1], ub=[1, 1])
+        problem = LSETestProblem()
         logger = BenchmarkLogger(log_every=100)
         bench = Benchmark(problem=problem, configs=config, logger=logger)
         _, strat = bench.run_experiment(bench.combinations[0], logger, 0, 0)
+        strat = bench.make_strat_and_flatconfig(bench.combinations[0])
+
         e = problem.evaluate(strat)
         self.assertTrue(e["mean_square_err_p"] < 0.05)
 
 
+self = BenchProblemTestCase()
 if __name__ == "__main__":
     unittest.main()

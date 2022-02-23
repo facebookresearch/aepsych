@@ -42,7 +42,8 @@ class BenchmarkLogger:
         flatconfig: Mapping[str, object],
         metrics: Mapping[str, object],
         trial_id: int,
-        elapsed: float,
+        fit_time: float,
+        gen_time: float,
         rep: int,
         final: bool = False,
     ) -> None:
@@ -52,11 +53,18 @@ class BenchmarkLogger:
             flatconfig (Mapping[str, object]): Flattened configuration for this benchmark.
             metrics (Mapping[str, object]): Metrics to log.
             trial_id (int): Current trial index.
-            elapsed (float): Duration of this trial.
+            fit_time (float): Model fitting duration.
+            gen_time (float): Candidate selection duration.
             rep (int): Repetition index of this trial.
             final (bool, optional): Mark this as the final trial in a run? Defaults to False.
         """
-        out: Dict[str, object] = {"elapsed": elapsed, "trial_id": trial_id, "rep": rep, "final": final}
+        out: Dict[str, object] = {
+            "fit_time": fit_time,
+            "gen_time": gen_time,
+            "trial_id": trial_id,
+            "rep": rep,
+            "final": final,
+        }
         out.update(flatconfig)
         out.update(metrics)
         self._log.append(out)
