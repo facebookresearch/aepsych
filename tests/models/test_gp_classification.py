@@ -30,10 +30,7 @@ class GPClassificationSmoketest(unittest.TestCase):
     for single-probit  ("1AFC") model
     """
 
-    def test_1d_classification(self):
-        """
-        Just see if we memorize the training set
-        """
+    def setUp(self):
         np.random.seed(1)
         torch.manual_seed(1)
         X, y = make_classification(
@@ -44,8 +41,13 @@ class GPClassificationSmoketest(unittest.TestCase):
             random_state=1,
             n_clusters_per_class=1,
         )
-        X, y = torch.Tensor(X), torch.Tensor(y)
+        self.X, self.y = torch.Tensor(X), torch.Tensor(y)
 
+    def test_1d_classification(self):
+        """
+        Just see if we memorize the training set
+        """
+        X, y = self.X, self.y
         model = GPClassificationModel(torch.Tensor([-3]), torch.Tensor([3]))
 
         model.fit(X[:50], y[:50])
@@ -118,6 +120,23 @@ class GPClassificationSmoketest(unittest.TestCase):
         pm, _ = model.predict(X, probability_space=False)
         pred = (pm > 0).numpy()
         npt.assert_allclose(pred, y)
+    def test_predict_p(self):
+        """
+        Verify analytic p-space mean and var is correct.
+        """
+        X, y = self.X, self.y
+        model = GPClassificationModel(torch.Tensor([-3]), torch.Tensor([3]))
+        model.fit(X, y)
+
+        pmean_analytic, pvar_analytic = model.predict(X, probability_space=True)
+
+        fsamps = model.sample(X, 100000)
+        psamps = norm.cdf(fsamps)
+        pmean_samp = psamps.mean(0)
+        pvar_samp = psamps.var(0)
+        # TODO these tolerances are a bit loose, verify this is right.
+        self.assertTrue(np.allclose(pmean_analytic, pmean_samp, atol=0.001))
+        self.assertTrue(np.allclose(pvar_analytic, pvar_samp, atol=0.001))
 
 
 class GPClassificationTest(unittest.TestCase):

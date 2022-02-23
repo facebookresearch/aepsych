@@ -23,6 +23,8 @@ from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
+from scipy.special import owens_t
+from torch.distributions import Normal
 
 logger = getLogger()
 
@@ -233,7 +235,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Query the model for posterior mean and variance.
+        """Query the model for posterior mean and variance. The probability-space
+        mean and variance is taken from Proposition 1 in Letham et al. 2022 (AISTATS).
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
@@ -243,19 +246,21 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         Returns:
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
-
+        with torch.no_grad():
+            post = self.posterior(x)
+        fmean = post.mean.squeeze()
+        fvar = post.variance.squeeze()
         if probability_space:
-            samps = torch.distributions.Normal(0, 1).cdf(
-                self.sample(x, num_samples=10000)
+            a_star = fmean / torch.sqrt(1 + fvar)
+            pmean = Normal(0, 1).cdf(a_star)
+            t_term = torch.tensor(
+                owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
+                dtype=a_star.dtype,
             )
-            pmean = samps.mean(0).squeeze()
-            pvar = samps.var(0).squeeze()
+            pvar = pmean - 2 * t_term - pmean.square()
             return promote_0d(pmean), promote_0d(pvar)
         else:
-            post = self.posterior(x)
-            fmean = post.mean.detach().squeeze()
-            fvar = post.variance.detach().squeeze()
-            return fmean, fvar
+            return promote_0d(fmean), promote_0d(fvar)
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor):
         """Perform a warm-start update of the model from previous fit."""
