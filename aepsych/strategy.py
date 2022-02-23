@@ -155,9 +155,21 @@ class Strategy(object):
     def finished(self):
         return self._count >= self.n_trials
 
+    @property
+    def can_fit(self):
+        return self.has_model and self.x is not None and self.y is not None
+
     def add_data(self, x, y):
         self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
+
+    def fit(self):
+        if self.can_fit:
+            self.model.fit(self.x, self.y)
+        else:
+            warnings.warn(
+                "Cannot fit: no model has been initialized!", RuntimeWarning
+            )
 
     @classmethod
     def from_config(cls, config: Config, name: str):

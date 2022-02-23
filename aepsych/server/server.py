@@ -383,6 +383,7 @@ class AEPsychServer(object):
             "update": self.handle_update,
             "query": self.handle_query,
             "parameters": self.handle_params,
+            "can_model": self.handle_can_model,
             "exit": self.handle_exit,
         }
 
@@ -484,6 +485,16 @@ class AEPsychServer(object):
             for i in range(len(self.parnames))
         }
         return config_setup
+
+    def handle_can_model(self, request):
+        #Check if the strategy has finished initialization; i.e.,
+        #if it has a model and data to fit (strat.can_fit)
+        logger.debug("got can_model message!")
+        if not self.is_performing_replay:
+            self.db.record_message(
+                master_table=self._db_master_record, type="can_model", request=request
+            )
+        return {"can_model": self.strat.can_fit}
 
     def handle_query(self, request):
         logger.debug("got query message!")
