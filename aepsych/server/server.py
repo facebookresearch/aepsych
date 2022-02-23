@@ -324,7 +324,7 @@ class AEPsychServer(object):
             warnings.warn(
                 "Got versioned handler but no version, falling back to unversioned!"
             )
-            self.unversioned_handler(request)
+            return self.unversioned_handler(request)
         return ret_val
 
     def handle_setup_v01(self, request):
