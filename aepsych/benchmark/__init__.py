@@ -13,6 +13,8 @@ from .test_functions import (
     make_songetal_testfun,
     novel_detection_testfun,
     novel_discrimination_testfun,
+    modified_hartmann6,
+    discrim_highdim,
 )
 
 __all__ = [
@@ -26,4 +28,6 @@ __all__ = [
     "make_songetal_testfun",
     "novel_detection_testfun",
     "novel_discrimination_testfun",
+    "modified_hartmann6",
+    "discrim_highdim",
 ]

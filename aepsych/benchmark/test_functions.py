@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import io
+import math
 from typing import Callable
 
 import numpy as np
@@ -164,3 +165,58 @@ def novel_detection_testfun(x: np.ndarray) -> np.ndarray:
     amp = x[..., 1]
     context = 2 * (0.05 + 0.4 * (-1 + 0.2 * freq) ** 2 * freq ** 2)
     return 4 * (amp + 1) / context - 4
+
+
+def discrim_highdim(x: np.ndarray) -> np.ndarray:
+    amp = x[..., 0]
+    freq = x[..., 1]
+    vscale = x[..., 2]
+    vshift = x[..., 3]
+    variance = x[..., 4]
+    asym = x[..., 5]
+    phase = x[..., 6]
+    period = x[..., 7]
+
+    context = (
+        -0.5 * vscale * np.cos(period * 0.6 * math.pi * freq + phase)
+        + vscale / 2
+        + vshift
+    ) * (
+        -1 * asym * np.sin(period * 0.6 * math.pi * 0.5 * freq + phase) + (2 - asym)
+    ) - 1
+    z = (amp - context) / (variance + variance * (1 + context))
+    p = norm.cdf(z)
+    p = (1 - 0.5) * p + 0.5  # Floor at p=0.5
+    p = np.clip(p, 0.5, 1-1e-5) # clip so that norm.ppf doesn't go to inf
+    return norm.ppf(p)
+
+
+def modified_hartmann6(X):
+    """
+    The modified Hartmann6 function used in Lyu et al.
+    """
+    C = np.r_[0.2, 0.22, 0.28, 0.3]
+    a_t = np.c_[
+        [8, 3, 10, 3.5, 1.7, 6],
+        [0.5, 8, 10, 1.0, 6, 9],
+        [3, 3.5, 1.7, 8, 10, 6],
+        [10, 6, 0.5, 8, 1.0, 9],
+    ].T
+
+    p_t = (
+        10 ** (-4)
+        * np.c_[
+            [1312, 1696, 5569, 124, 8283, 5886],
+            [2329, 4135, 8307, 3736, 1004, 9991],
+            [2348, 1451, 3522, 2883, 3047, 6650],
+            [4047, 8828, 8732, 5743, 1091, 381],
+        ].T
+    )
+
+    y = 0.0
+    for i, C_i in enumerate(C):
+        t = 0
+        for j in range(6):
+            t += a_t[i, j] * ((X[j] - p_t[i, j]) ** 2)
+        y += C_i * np.exp(-t)
+    return -10 * (float(y) - 0.1)
