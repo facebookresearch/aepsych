@@ -47,6 +47,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                 "beta": 3.98,
                 "target": 0.75,
                 "objective": None,
+                "query_set_size": 512,
             }
             extra_acqf_args = {
                 k: config.getobj(

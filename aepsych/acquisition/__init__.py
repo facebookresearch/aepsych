@@ -8,6 +8,14 @@
 import sys
 
 from ..config import Config
+from .lookahead import (
+    GlobalMI,
+    GlobalSUR,
+    ApproxGlobalSUR,
+    EAVC,
+    LocalMI,
+    LocalSUR,
+)
 from .lse import MCLevelSetEstimation
 from .mc_posterior_variance import MCPosteriorVariance, MonotonicMCPosteriorVariance
 from .monotonic_rejection import MonotonicMCLSE
@@ -17,7 +25,16 @@ from .mutual_information import (
 )
 from .objective import ProbitObjective
 
-lse_acqfs = [MonotonicMCLSE]
+
+lse_acqfs = [
+    MonotonicMCLSE,
+    GlobalMI,
+    GlobalSUR,
+    ApproxGlobalSUR,
+    EAVC,
+    LocalMI,
+    LocalSUR,
+]
 __all__ = [
     "BernoulliMCMutualInformation",
     "MonotonicBernoulliMCMutualInformation",
@@ -27,6 +44,12 @@ __all__ = [
     "MCPosteriorVariance",
     "MCLevelSetEstimation",
     "ProbitObjective",
+    "GlobalMI",
+    "GlobalSUR",
+    "ApproxGlobalSUR",
+    "EAVC",
+    "LocalMI",
+    "LocalSUR",
 ]
 
 Config.register_module(sys.modules[__name__])

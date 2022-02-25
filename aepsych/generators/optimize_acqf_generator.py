@@ -17,8 +17,6 @@ from aepsych.utils import make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import (
     AcquisitionFunction,
-    NoisyExpectedImprovement,
-    qNoisyExpectedImprovement,
 )
 from botorch.optim import optimize_acqf
 
@@ -47,6 +45,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
                 This is only loosely followed by scipy's optimizer, so consider using a number about 1/3 or
                 less of what your true upper bound is.
         """
+
         if acqf_kwargs is None:
             acqf_kwargs = {}
         self.acqf = acqf

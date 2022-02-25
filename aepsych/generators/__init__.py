@@ -15,6 +15,7 @@ from .random_generator import RandomGenerator
 from .sobol_generator import SobolGenerator
 from .epsilon_greedy_generator import EpsilonGreedyGenerator
 
+
 __all__ = [
     "OptimizeAcqfGenerator",
     "MonotonicRejectionGenerator",
