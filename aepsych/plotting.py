@@ -5,12 +5,15 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import warnings
 from typing import Callable, Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
-from aepsych.utils import get_lse_interval, get_lse_contour
-from aepsych.strategy import Strategy
 from scipy.stats import norm
+
+from aepsych.strategy import Strategy
+from aepsych.utils import get_lse_contour, get_lse_interval
 
 
 def plot_strat(
@@ -18,7 +21,7 @@ def plot_strat(
     ax: Optional[plt.Axes] = None,
     true_testfun: Optional[Callable] = None,
     cred_level: float = 0.95,
-    target_level: float = 0.75,
+    target_level: Optional[float] = 0.75,
     xlabel: Optional[str] = None,
     ylabel: Optional[str] = None,
     yes_label: str = "Yes trial",
@@ -59,6 +62,12 @@ def plot_strat(
         include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials.
                                  Default: True.
     """
+
+    if target_level is not None and not hasattr(strat.model, "monotonic_idxs"):
+        warnings.warn(
+            "Threshold estimation may not be accurate for non-monotonic models."
+        )
+
     if ax is None:
         _, ax = plt.subplots()
 
@@ -127,7 +136,7 @@ def _plot_strat_1d(
     ax: plt.Axes,
     true_testfun: Optional[Callable],
     cred_level: float,
-    target_level: float,
+    target_level: Optional[float],
     xlabel: str,
     ylabel: str,
     yes_label: str,
@@ -222,7 +231,7 @@ def _plot_strat_2d(
     ax: plt.Axes,
     true_testfun: Optional[Callable],
     cred_level: float,
-    target_level: float,
+    target_level: Optional[float],
     xlabel: str,
     ylabel: str,
     yes_label: str,
