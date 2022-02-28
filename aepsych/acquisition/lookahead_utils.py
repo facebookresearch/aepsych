@@ -35,7 +35,7 @@ def posterior_at_xstar_xq(
         Sigma_sq: (b x m) covariance between Xstar and each point in Xq.
     """
     # Evaluate posterior and extract needed components
-    Xext = torch.cat((Xstar, Xq), dim=1)
+    Xext = torch.cat((Xstar, Xq), dim=-2)
     posterior = model.posterior(Xext)
     mu = posterior.mean[..., :, 0]
     Mu_s = mu[..., 0].unsqueeze(-1)

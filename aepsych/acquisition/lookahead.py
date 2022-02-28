@@ -113,14 +113,14 @@ class GlobalLookaheadAcquisitionFunction(AcquisitionFunction):
             Xq: (m x d) global reference set.
         """
         super().__init__(model=model)
-        assert Xq or query_set_size, "Must pass either query set size or a query set!"
-        if Xq and query_set_size:
+        assert Xq is not None or query_set_size is not None, "Must pass either query set size or a query set!"
+        if Xq is not None and query_set_size is not None:
             assert Xq.shape[0] == query_set_size, (
                 "If passing both Xq and query_set_size,"
                 + "first dim of Xq should be query_set_size, got {Xq.shape[0]} != {query_set_size}"
             )
         self.gamma = norm.ppf(target)
-        Xq = Xq or make_scaled_sobol(model.lb, model.ub, query_set_size)
+        Xq = Xq if Xq is not None else make_scaled_sobol(model.lb, model.ub, query_set_size)
         self.register_buffer("Xq", Xq)
 
     @t_batch_mode_transform(expected_q=1)
