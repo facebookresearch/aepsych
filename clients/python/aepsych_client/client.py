@@ -11,14 +11,13 @@ from typing import Any, Dict, List
 
 class AEPsychClient:
     def __init__(self, ip: str = "0.0.0.0", port: int = 5555, connect=True) -> None:
-        """Python client for AEPsych using ZMQ. By default it connects
+        """Python client for AEPsych using built-in python sockets. By default it connects
         to a localhost server matching AEPsych defaults.
 
         Args:
             ip (str): IP to connect to (default: localhost).
             port (str): Port to connect on (default: 5555).
             connect (bool, optional): Connect as part of init? Defaults to True.
-            socket type (str): The type of socket to use. Currently only "zmq" is supported.
         """
 
         self.socket = socket.socket()
