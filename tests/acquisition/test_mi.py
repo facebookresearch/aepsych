@@ -6,19 +6,12 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
+
 import numpy as np
 import torch
-
-from scipy.stats import bernoulli, norm, multivariate_normal, pearsonr
-from aepsych.strategy import SequentialStrategy, Strategy
-
 from aepsych.acquisition.mutual_information import (
     BernoulliMCMutualInformation,
     MonotonicBernoulliMCMutualInformation,
-)
-from aepsych.models import (
-    GPClassificationModel,
-    MonotonicRejectionGP,
 )
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.generators import (
@@ -26,9 +19,14 @@ from aepsych.generators import (
     OptimizeAcqfGenerator,
     SobolGenerator,
 )
-
-from gpytorch.means import ConstantMean
+from aepsych.models import (
+    GPClassificationModel,
+    MonotonicRejectionGP,
+)
+from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
+from gpytorch.means import ConstantMean
+from scipy.stats import bernoulli, norm, multivariate_normal, pearsonr
 
 from ..common import f_1d
 
@@ -99,7 +97,7 @@ class SingleProbitMI(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, dim=1),
+                model=GPClassificationModel(lb=lb, ub=ub, dim=1, inducing_size=10),
                 generator=OptimizeAcqfGenerator(acqf, extra_acqf_args),
                 n_trials=n_opt,
             ),

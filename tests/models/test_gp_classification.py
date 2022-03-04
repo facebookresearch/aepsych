@@ -11,7 +11,6 @@ import numpy as np
 import numpy.testing as npt
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
-from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -48,7 +47,9 @@ class GPClassificationSmoketest(unittest.TestCase):
         Just see if we memorize the training set
         """
         X, y = self.X, self.y
-        model = GPClassificationModel(torch.Tensor([-3]), torch.Tensor([3]))
+        model = GPClassificationModel(
+            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10
+        )
 
         model.fit(X[:50], y[:50])
 
@@ -94,7 +95,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         lb = [-3000, -0.003]
         ub = [3000, 0.003]
 
-        model = GPClassificationModel(lb=lb, ub=ub)
+        model = GPClassificationModel(lb=lb, ub=ub, inducing_size=20)
 
         model.fit(X[:50], y[:50])
 
@@ -120,12 +121,15 @@ class GPClassificationSmoketest(unittest.TestCase):
         pm, _ = model.predict(X, probability_space=False)
         pred = (pm > 0).numpy()
         npt.assert_allclose(pred, y)
+
     def test_predict_p(self):
         """
         Verify analytic p-space mean and var is correct.
         """
         X, y = self.X, self.y
-        model = GPClassificationModel(torch.Tensor([-3]), torch.Tensor([3]))
+        model = GPClassificationModel(
+            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10
+        )
         model.fit(X, y)
 
         pmean_analytic, pvar_analytic = model.predict(X, probability_space=True)
@@ -160,7 +164,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -203,7 +207,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -245,7 +249,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -286,7 +290,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -331,7 +335,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -380,7 +384,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -427,7 +431,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -481,7 +485,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 n_trials=n_opt,
                 generator=OptimizeAcqfGenerator(
                     MCLevelSetEstimation, acqf_kwargs=extra_acqf_args
@@ -523,7 +527,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=20),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -562,7 +566,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -607,7 +611,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub),
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound,
                     acqf_kwargs={"beta": 1.96, "objective": GenericMCObjective(obj)},

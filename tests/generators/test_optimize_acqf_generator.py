@@ -33,7 +33,10 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         X, y = torch.Tensor(X), torch.Tensor(y)
 
         model = GPClassificationModel(
-            lb=-3 * torch.ones(8), ub=3 * torch.ones(8), max_fit_time=0.5
+            lb=-3 * torch.ones(8),
+            ub=3 * torch.ones(8),
+            max_fit_time=0.5,
+            inducing_size=10,
         )
 
         model.fit(X, y)
