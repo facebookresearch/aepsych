@@ -116,7 +116,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
                 )
             else:
                 logger.info(f"gen maxfun is {n_eval}, falling back to random search...")
-                nsamp = int(self.max_gen_time / single_eval_time)
+                nsamp = max(int(self.max_gen_time / single_eval_time), 10)
                 # Generate the points at which to sample
                 X = make_scaled_sobol(lb=model.lb, ub=model.ub, size=nsamp)
 
