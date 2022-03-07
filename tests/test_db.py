@@ -121,9 +121,7 @@ class DBTestCase(unittest.TestCase):
         db_path = db_path.joinpath("test_databases/test_original_schema.db")
 
         # copy the db to a new file
-        dst_db_path = current_path.joinpath(
-            "test_databases/test_original_schema_copy.db"
-        )
+        dst_db_path = Path(self._dbname)
         shutil.copy(str(db_path), str(dst_db_path))
         self.assertTrue(dst_db_path.is_file())
 
