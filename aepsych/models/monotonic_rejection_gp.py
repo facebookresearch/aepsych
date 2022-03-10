@@ -15,14 +15,11 @@ import numpy as np
 import torch
 from aepsych.acquisition.rejection_sampler import RejectionSampler
 from aepsych.config import Config
-from aepsych.factory.factory import (
-    monotonic_mean_covar_factory,
-)
+from aepsych.factory.factory import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
-from aepsych.utils import make_scaled_sobol
 from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.kernels import Kernel
@@ -234,7 +231,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
         # Add in monotonicity constraint points
         deriv_cp = self._get_deriv_constraint_points()
         x_aug = torch.cat((x_aug, deriv_cp), dim=0)
-        assert x_aug.shape[0] == X.shape[0] + len(self.monotonic_idxs * self.num_induc)
+        assert x_aug.shape[0] == X.shape[0] + len(
+            self.monotonic_idxs * self.inducing_points.shape[0]
+        )
         constrained_idx = torch.arange(n, x_aug.shape[0])
 
         with torch.no_grad():
