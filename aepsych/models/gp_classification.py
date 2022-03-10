@@ -59,11 +59,23 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         """Initialize the GP Classification model
 
         Args:
-            inducing_size (int, optional): Number of inducing points. Defaults to 10.
-            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults
-                to a constant with a normal prior.
-            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel
-                class. Defaults to scaled RBF with a gamma prior.
+            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
+            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+                of lb and ub.
+            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
+            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
+                gamma prior.
+            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
+                Bernouli likelihood.
+            inducing_size (int): Number of inducing points. Defaults to 100.
+            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
+                there is no limit to the fitting time.
+            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
+                If "sobol", a number of Sobol points equal to inducing_size will be selected.
+                If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
+                If "kmeans++", selects points by performing kmeans++ clustering on the training data.
+                If "auto", tries to determine the best method automatically.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
@@ -167,6 +179,10 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         Args:
             train_x (torch.Tensor): Inputs.
             train_y (torch.LongTensor): Responses.
+            warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters (True) or fit from scratch
+                (False). Defaults to False.
+            warmstart_induc (bool): Whether to reuse the previous inducing points or fit from scratch (False).
+                Defaults to False.
         """
         self.set_train_data(train_x, train_y)
 

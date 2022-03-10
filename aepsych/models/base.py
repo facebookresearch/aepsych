@@ -72,7 +72,7 @@ class AEPsychMixin:
                 "kmeans++",
                 "auto",
                 "sobol",
-            ), f"Inducing point method should be one of pivoted_chol, kmeans++, or auto; got {method}"
+            ), f"Inducing point method should be one of pivoted_chol, kmeans++, sobol, or auto; got {method}"
 
             if method == "sobol":
                 return make_scaled_sobol(self.lb, self.ub, self.inducing_size)
