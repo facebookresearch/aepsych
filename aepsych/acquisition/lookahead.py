@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional
+from typing import Optional, Tuple
 
 import torch
 from aepsych.utils import make_scaled_sobol
@@ -15,10 +15,7 @@ from botorch.utils.transforms import t_batch_mode_transform
 from scipy.stats import norm
 from torch import Tensor
 
-from .lookahead_utils import (
-    lookahead_at_xstar,
-    approximate_lookahead_at_xstar,
-)
+from .lookahead_utils import approximate_lookahead_at_xstar, lookahead_at_xstar
 
 
 def Hb(p: Tensor):
@@ -113,14 +110,20 @@ class GlobalLookaheadAcquisitionFunction(AcquisitionFunction):
             Xq: (m x d) global reference set.
         """
         super().__init__(model=model)
-        assert Xq is not None or query_set_size is not None, "Must pass either query set size or a query set!"
+        assert (
+            Xq is not None or query_set_size is not None
+        ), "Must pass either query set size or a query set!"
         if Xq is not None and query_set_size is not None:
             assert Xq.shape[0] == query_set_size, (
                 "If passing both Xq and query_set_size,"
                 + "first dim of Xq should be query_set_size, got {Xq.shape[0]} != {query_set_size}"
             )
         self.gamma = norm.ppf(target)
-        Xq = Xq if Xq is not None else make_scaled_sobol(model.lb, model.ub, query_set_size)
+        Xq = (
+            Xq
+            if Xq is not None
+            else make_scaled_sobol(model.lb, model.ub, query_set_size)
+        )
         self.register_buffer("Xq", Xq)
 
     @t_batch_mode_transform(expected_q=1)
@@ -136,7 +139,9 @@ class GlobalLookaheadAcquisitionFunction(AcquisitionFunction):
         Px, P1, P0, py1 = self._get_lookahead_posterior(X)
         return self._compute_acqf(Px, P1, P0, py1)
 
-    def _get_lookahead_posterior(self, X: Tensor) -> Tensor:
+    def _get_lookahead_posterior(
+        self, X: Tensor
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         Xq_batch = self.Xq.expand(X.shape[0], *self.Xq.shape)
         return lookahead_at_xstar(
             model=self.model, Xstar=X, Xq=Xq_batch, gamma=self.gamma
@@ -157,7 +162,9 @@ class GlobalSUR(GlobalLookaheadAcquisitionFunction):
 
 
 class ApproxGlobalSUR(GlobalSUR):
-    def _get_lookahead_posterior(self, X: Tensor) -> Tensor:
+    def _get_lookahead_posterior(
+        self, X: Tensor
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         Xq_batch = self.Xq.expand(X.shape[0], *self.Xq.shape)
         return approximate_lookahead_at_xstar(
             model=self.model, Xstar=X, Xq=Xq_batch, gamma=self.gamma

@@ -176,7 +176,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             # warmstart_hyperparams affects hyperparams but not the variational strat,
             # so we keep the old variational strat (which is only refreshed
             # if warmstart_induc=False).
-            vsd = self.variational_strategy.state_dict()
+            vsd = self.variational_strategy.state_dict()  # type: ignore
             vsd_hack = {f"variational_strategy.{k}": v for k, v in vsd.items()}
             state_dict = deepcopy(self._fresh_state_dict)
             state_dict.update(vsd_hack)

@@ -7,4 +7,4 @@
 
 from .server import AEPsychServer
 
-__all__ = [AEPsychServer]
+__all__ = ["AEPsychServer"]

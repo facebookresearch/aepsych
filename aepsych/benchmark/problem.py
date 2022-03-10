@@ -6,11 +6,12 @@
 # LICENSE file in the root directory of this source tree.
 
 from functools import cached_property
-from typing import Dict
+from typing import Dict, Union
 
 import aepsych
 import numpy as np
 import torch
+from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.utils import make_scaled_sobol
 from scipy.stats import bernoulli, norm, pearsonr
 
@@ -109,7 +110,10 @@ class Problem:
         p_hat, _ = model.predict(self.eval_grid, probability_space=True)
         return p_hat
 
-    def evaluate(self, strat: aepsych.strategy.Strategy) -> Dict[str, float]:
+    def evaluate(
+        self,
+        strat: Union[Strategy, SequentialStrategy],
+    ) -> Dict[str, float]:
         """Evaluate the strategy with respect to this problem.
 
         Extend this in subclasses to add additional metrics.
@@ -123,6 +127,7 @@ class Problem:
         # we just use model here but eval gets called on strat in case we need it in downstream evals
         # for example to separate out sobol vs opt trials
         model = strat.model
+        assert model is not None, "Cannot make predictions without a model!"
         # always eval f
         f_hat = self.f_hat(model).detach().numpy()
         p_hat = self.p_hat(model).detach().numpy()
@@ -174,19 +179,21 @@ class LSEProblem(Problem):
     in addition to the function estimate.
     """
 
+    threshold = 0.75
+
     @cached_property
     def f_threshold(self):
         return float(norm.ppf(self.threshold))
 
     @cached_property
-    def true_below_threshold(self) -> torch.Tensor:
+    def true_below_threshold(self) -> np.ndarray:
         """
         Evaluate whether the true function is below threshold over the eval grid
         (used for proper scoring and threshold missclassification metric).
         """
         return (self.p(self.eval_grid) <= self.threshold).astype(float)
 
-    def evaluate(self, strat: aepsych.strategy.Strategy) -> Dict[str, float]:
+    def evaluate(self, strat: Union[Strategy, SequentialStrategy]) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.
 
         Args:
@@ -202,6 +209,7 @@ class LSEProblem(Problem):
         # we just use model here but eval gets called on strat in case we need it in downstream evals
         # for example to separate out sobol vs opt trials
         model = strat.model
+        assert model is not None, "Cannot make predictions without a model!"
 
         # TODO bring back more threshold error metrics when we more clearly
         # define what "threshold" means in high-dim.

@@ -14,7 +14,7 @@ import numpy as np
 import torch
 
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import ModelProtocol
 from aepsych.utils import _process_bounds
 from aepsych.config import Config
 from aepsych.utils_logging import getLogger
@@ -49,7 +49,7 @@ class Strategy(object):
         generator: AEPsychGenerator,
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
-        model: Optional[AEPsychMixin] = None,
+        model: Optional[ModelProtocol] = None,
         dim: Optional[int] = None,
         refit_every: int = 1,
         outcome_type: str = "single_probit",
@@ -167,9 +167,7 @@ class Strategy(object):
         if self.can_fit:
             self.model.fit(self.x, self.y)
         else:
-            warnings.warn(
-                "Cannot fit: no model has been initialized!", RuntimeWarning
-            )
+            warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     @classmethod
     def from_config(cls, config: Config, name: str):
