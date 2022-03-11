@@ -342,3 +342,27 @@ class ConfigTestCase(unittest.TestCase):
 
         self.assertEqual(config["MonotonicRejectionGenerator"]["restarts"], "10")
         self.assertEqual(config["MonotonicRejectionGenerator"]["samps"], "1000")
+
+    def test_warn_about_refit(self):
+        config_str = """
+        [common]
+        lb = [0, 0]
+        ub = [1, 1]
+        outcome_type = single_probit
+        strategy_names = [init_strat]
+        model = GPClassificationModel
+
+        [init_strat]
+        generator = SobolGenerator
+        n_trials = 10
+        refit_every = 5
+        """
+
+        config = Config(config_str=config_str)
+
+        with self.assertWarns(RuntimeWarning):
+            Strategy.from_config(config, "init_strat")
+
+
+if __name__ == "__main__":
+    unittest.main()

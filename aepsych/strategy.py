@@ -195,6 +195,13 @@ class Strategy(object):
 
         outcome_type = config.get(name, "outcome_type", fallback="single_probit")
 
+        if model is not None and not generator._requires_model:
+            if refit_every < n_trials:
+                warnings.warn(
+                    f"Strategy '{name}' has refit_every < n_trials even though its generator does not require a model. Consider making refit_every = n_trials to speed up point generation.",
+                    RuntimeWarning,
+                )
+
         return cls(
             lb=lb,
             ub=ub,
