@@ -13,13 +13,7 @@ import torch
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
 from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
-
-try:
-    from botorch.models.approximate_gp import _select_inducing_points
-
-    _have_pivoted_chol_init = True
-except ImportError:
-    _have_pivoted_chol_init = False
+from botorch.models.approximate_gp import _select_inducing_points
 
 
 torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
