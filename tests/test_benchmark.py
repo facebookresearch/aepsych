@@ -281,8 +281,6 @@ class BenchProblemTestCase(unittest.TestCase):
         logger = BenchmarkLogger(log_every=100)
         bench = Benchmark(problem=problem, configs=config, logger=logger)
         _, strat = bench.run_experiment(bench.combinations[0], logger, 0, 0)
-        strat = bench.make_strat_and_flatconfig(bench.combinations[0])
-
         e = problem.evaluate(strat)
         self.assertTrue(e["mean_square_err_p"] < 0.05)
 
