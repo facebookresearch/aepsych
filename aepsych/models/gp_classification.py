@@ -100,25 +100,19 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         )
         super().__init__(variational_strategy)
 
-        mean_module = mean_module or gpytorch.means.ConstantMean(
-            prior=gpytorch.priors.NormalPrior(loc=0.0, scale=2.0)
-        )
-        ls_prior = gpytorch.priors.GammaPrior(concentration=3.0, rate=6.0)
-        ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
-        ls_constraint = gpytorch.constraints.Positive(
-            transform=None, initial_value=ls_prior_mode
-        )
-        covar_module = covar_module or gpytorch.kernels.ScaleKernel(
-            gpytorch.kernels.RBFKernel(
-                lengthscale_prior=ls_prior,
-                lengthscale_constraint=ls_constraint,
-                ard_num_dims=dim,
-            ),
-            outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
-        )
+        if mean_module is None or covar_module is None:
+            config = Config(
+                config_dict={
+                    "default_mean_covar_factory": {
+                        "lb": str(self.lb.tolist()),
+                        "ub": str(self.ub.tolist()),
+                    }
+                }
+            )
+            default_mean, default_covar = default_mean_covar_factory(config)
 
-        self.mean_module = mean_module
-        self.covar_module = covar_module
+        self.mean_module = mean_module or default_mean
+        self.covar_module = covar_module or default_covar
         self.likelihood = likelihood
 
         self._fresh_state_dict = self.state_dict()

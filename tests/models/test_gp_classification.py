@@ -11,6 +11,7 @@ import numpy as np
 import numpy.testing as npt
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
+from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -679,6 +680,29 @@ class GPClassificationTest(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             model._select_inducing_points(method="12345")
+
+    def test_hyperparam_consistency(self):
+        # verify that creating the model `from_config` or with `__init__` has the same hyperparams
+
+        m1 = GPClassificationModel(lb=[1, 2], ub=[3, 4])
+
+        m2 = GPClassificationModel.from_config(
+            config=Config(config_dict={"common": {"lb": "[1,2]", "ub": "[3,4]"}})
+        )
+        self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))
+        self.assertTrue(
+            isinstance(m1.covar_module.base_kernel, type(m2.covar_module.base_kernel))
+        )
+        self.assertTrue(isinstance(m1.mean_module, type(m2.mean_module)))
+        m1priors = list(m1.covar_module.named_priors())
+        m2priors = list(m2.covar_module.named_priors())
+        for p1, p2 in zip(m1priors, m2priors):
+            name1, parent1, prior1, paramtransforms1, priortransforms1 = p1
+            name2, parent2, prior2, paramtransforms2, priortransforms2 = p2
+            self.assertTrue(name1 == name2)
+            self.assertTrue(isinstance(parent1, type(parent2)))
+            self.assertTrue(isinstance(prior1, type(prior2)))
+            # no obvious way to test paramtransform equivalence
 
 
 if __name__ == "__main__":
