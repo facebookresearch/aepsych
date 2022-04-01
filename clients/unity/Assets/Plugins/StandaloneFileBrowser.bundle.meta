@@ -1,23 +1,24 @@
 fileFormatVersion: 2
 guid: 97bf2e9d9b208ea45a06d483ce30fa5d
 folderAsset: yes
-timeCreated: 1525346243
-licenseType: Free
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
   iconMap: {}
   executionOrder: {}
+  defineConstraints: []
   isPreloaded: 0
   isOverridable: 0
+  isExplicitlyReferenced: 0
+  validateReferences: 1
   platformData:
   - first:
-      '': OSXIntel
+      : OSXIntel
     second:
       enabled: 1
       settings: {}
   - first:
-      '': OSXIntel64
+      : OSXIntel64
     second:
       enabled: 1
       settings: {}

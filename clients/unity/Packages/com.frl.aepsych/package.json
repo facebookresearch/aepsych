@@ -1,7 +1,26 @@
 {
   "name": "com.frl.aepsych",
+  "displayName": "AEPsych Package",
   "version": "0.0.1",
-  "displayName": "AEPsych examples",
-  "description": "Example code for AEPsych Unity Client",
-  "unity": "2018.1"
+  "unity": "2020.3",
+  "description": "This package adds AEPsych functionality to a Unity project.",
+  "author": {
+    "name": "Stryker Buffington",
+    "email": "sbuffington@fb.com",
+    "url": "https://www.internalfb.com/intern/profile/sbuffington/"
+  },
+  "keywords": [
+    "AEPsych",
+    "Package"
+  ],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "1.1.2"
+  },
+  "samples": [
+    {
+      "displayName": "AEPsych Client",
+      "path": "Samples~/Client"
+    }
+
+  ]
 }
