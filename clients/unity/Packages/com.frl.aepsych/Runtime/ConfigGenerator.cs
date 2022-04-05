@@ -103,7 +103,6 @@ public class ConfigGenerator: MonoBehaviour
             experimentParams = new List<Parameter>();
             experimentParams.Add(new Parameter("Dimension 1"));
         }
-        
     }
 
     public bool CheckParamValidity()
@@ -180,7 +179,6 @@ public class ConfigGenerator: MonoBehaviour
         names = names.Remove(names.Length - 2);
         lbs = lbs.Remove(lbs.Length - 2);
         ubs = ubs.Remove(ubs.Length - 2);
-        
 
         // Scale some parameters based on number of dimensions
         samps = 500 * (experimentParams.Count + 1);

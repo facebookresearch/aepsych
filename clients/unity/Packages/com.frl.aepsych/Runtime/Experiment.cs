@@ -97,7 +97,7 @@ namespace AEPsych
         //
         //              Abstract methods for child class to implement
         // _________________________________________________________________________
-        // 
+        //
         public abstract void ShowStimuli(TrialConfig config);
         public abstract string GetName();
 
@@ -180,7 +180,7 @@ namespace AEPsych
 
         // ______________________________ Section 3 ________________________________
         //
-        //   Default experiment methods that you most likely do not need to modify 
+        //   Default experiment methods that you most likely do not need to modify
         // _________________________________________________________________________
         #region
 
@@ -207,7 +207,6 @@ namespace AEPsych
         /// </summary>
         public void ReportResultToServer(int outcome, TrialMetadata metadata = null)
         {
-            
             if (recordToCSV)
             {
                 TrialData trial = new TrialData(DateTime.Now.ToString("hh:mm:ss"), config, outcome, metadata);
@@ -263,7 +262,7 @@ namespace AEPsych
                 yield break;
             }
 
-            // Continue the experiment by asking for a new trial 
+            // Continue the experiment by asking for a new trial
             StartCoroutine(AskForNewConfig(strategy));
             yield return null;
         }
@@ -370,7 +369,6 @@ namespace AEPsych
             {
                 client.onStatusChanged -= OnStatusChanged;
             }
-                
             SetState(ExperimentState.NotConnected);
         }
 
@@ -384,15 +382,15 @@ namespace AEPsych
 
         /// <summary>
         /// Callback for AEPsych Client Status Changes. This syncs the Experiment class with the AEPsychClient class and manages state transitions.
-        /// // Expected order of transitions:                                                                               
-        /// NotConnected =>                           occurs before the experiment begins.           
-        ///   WaitingForResumeResponse =>             occurs after sending Resume() query to server.                     
+        /// // Expected order of transitions:
+        /// NotConnected =>                           occurs before the experiment begins.
+        ///   WaitingForResumeResponse =>             occurs after sending Resume() query to server.
         ///     WaitingForAsk =>                      occurs when resume confirmation is received.
-        ///       WaitingForAskResponse =>            occurs while client awaits AEPsych server's test case selection    
+        ///       WaitingForAskResponse =>            occurs while client awaits AEPsych server's test case selection
         ///         ConfigReady =>                    occurs when suggested test case is received from server
-        ///           WaitingForTell =>               occurs while waiting for the user to respond to stimulus           
+        ///           WaitingForTell =>               occurs while waiting for the user to respond to stimulus
         ///            WaitingForTellResponse =>     occurs as soon as user response is sent to server
-        ///   WaitingForAsk => ...            
+        ///   WaitingForAsk => ...
         /// </summary>
         /// <param name="oldStatus"></param>
         /// <param name="newStatus"></param>
@@ -499,7 +497,7 @@ namespace AEPsych
 
         // ______________________________ Section 4 ________________________________
         //
-        //   Public methods, usually called by other scripts 
+        //   Public methods, usually called by other scripts
         // _________________________________________________________________________
 
         #region
@@ -559,7 +557,7 @@ namespace AEPsych
         /// <summary>
         /// Resumes a paused experiment by re-enabling the Client state change listener and
         /// starting a new trial.If the experiment is uninitialized, it will initialize it.
-        /// 
+        ///
         /// </summary>
         public void Resume()
         {
@@ -590,7 +588,7 @@ namespace AEPsych
 
         // ______________________________ Section 5 ________________________________
         //
-        //   Unity Built-in Methods 
+        //   Unity Built-in Methods
         // _________________________________________________________________________
         #region
         private void Awake()
@@ -694,7 +692,7 @@ namespace AEPsych
 
         // ______________________________ Section 6 ________________________________
         //
-        //  Public Static Methods 
+        //  Public Static Methods
         // _________________________________________________________________________
         #region
         public static GameObject LoadPrefab(string name)

@@ -26,7 +26,7 @@ namespace AEPsych
     //_______________________________________________________________________
     // AEPsych custom data types
     #region
-   
+
     public class Request
     {
         // this should definitely be more narrowly defined
@@ -405,11 +405,10 @@ namespace AEPsych
             {
                 queryResponse = JsonConvert.DeserializeObject<QueryMessage>(reply);
             }
-            catch 
+            catch
             {
                 Debug.LogError("Failed to deserialize invalid server query response: " + reply);
             }
-            
             return queryResponse;
         }
 
@@ -524,16 +523,16 @@ namespace AEPsych
                 Byte[] data = new Byte[1024];
                 while (connected)
                 {
-                    // Get a stream object for reading              
+                    // Get a stream object for reading
                     using (NetworkStream stream = tcpConnection.GetStream())
                     {
                         int length;
-                        // Read incomming stream into byte arrary.                  
+                        // Read incomming stream into byte arrary.
                         while (connected && stream != null && (length = stream.Read(data, 0, data.Length)) != 0)
                         {
                             Byte[] serverData = new byte[length];
                             Array.Copy(data, 0, serverData, 0, length);
-                            // Convert byte array to string message.                        
+                            // Convert byte array to string message.
                             string serverMessage = Encoding.ASCII.GetString(serverData);
                             LogFromInstance("Received: " + serverMessage);
                             serverMessageQueue.Add(serverMessage);

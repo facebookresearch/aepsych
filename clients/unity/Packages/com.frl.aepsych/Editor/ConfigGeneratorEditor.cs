@@ -18,9 +18,7 @@ public class ConfigGeneratorEditor : Editor
         {
             configGenerator.experimentParams.Add(new Parameter("Dimension 1"));
         }
- 
         configGenerator.isAutomatic = EditorGUILayout.ToggleLeft("Use Automatic Config Generation", configGenerator.isAutomatic);
-
         EditorGUILayout.Space();
         if (!configGenerator.isAutomatic)
         {
@@ -44,7 +42,6 @@ public class ConfigGeneratorEditor : Editor
             configGenerator.fileName = EditorGUILayout.TextField("Config File Name", configGenerator.fileName);
             configGenerator.filePath = EditorGUILayout.TextField("Config File Path", configGenerator.filePath);
         }
-        
         EditorGUILayout.Space();
         configGenerator.initialization_trials = EditorGUILayout.IntField("Number of initialization trials", configGenerator.initialization_trials);
         configGenerator.optimization_trials = EditorGUILayout.IntField("Number of optimization trials", configGenerator.optimization_trials);
@@ -58,13 +55,10 @@ public class ConfigGeneratorEditor : Editor
             configGenerator.target = EditorGUILayout.FloatField(Mathf.Clamp(configGenerator.target, 0f, 1f));
         }
         EditorGUILayout.Space();
-
         var experimentParams = serializedObject.FindProperty("experimentParams");
         EditorGUILayout.PropertyField(experimentParams, new GUIContent("Experiment Dimensions"), true);
         serializedObject.ApplyModifiedProperties();
-
         if (GUI.changed) {
-
             EditorUtility.SetDirty(configGenerator);
             // Ensure experiment name is transfered in the case of manual experiment creation
             if (configGenerator.experimentName == "")
@@ -73,5 +67,4 @@ public class ConfigGeneratorEditor : Editor
             }
         }
     }
-
 }

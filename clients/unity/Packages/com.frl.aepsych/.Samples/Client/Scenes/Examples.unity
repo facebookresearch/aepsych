@@ -261,8 +261,8 @@ MonoBehaviour:
   ResponseKey1: 121
   startKey: 32
   useDefaultUI: 0
-  useModelExploration: 1
-  autoDisableOtherCanvases: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
   recordToCSV: 0
   startMode: 2
   client: {fileID: 0}

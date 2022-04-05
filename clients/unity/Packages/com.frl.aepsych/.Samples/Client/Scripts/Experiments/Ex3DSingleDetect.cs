@@ -15,7 +15,7 @@ public class Ex3DSingleDetect : Experiment
 
     // ShowStimuli (MANDATORY)
     // Display a stimulus, and finish when the stimulus is done.
-    // Use the dimension names defined in your config file as string keys to access the float lists 
+    // Use the dimension names defined in your config file as string keys to access the float lists
     // contained in the TrialConfig. Experiment will not continue running until EndShowStimuli is called.
     public override void ShowStimuli(TrialConfig config)
     {
@@ -105,4 +105,3 @@ public class Ex3DSingleDetect : Experiment
         return experimentName;
     }
 }
-
