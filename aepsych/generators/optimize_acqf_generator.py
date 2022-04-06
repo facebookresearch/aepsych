@@ -5,8 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import time
-from inspect import signature
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 import numpy as np
 import torch
@@ -15,9 +14,7 @@ from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils import make_scaled_sobol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition import (
-    AcquisitionFunction,
-)
+from botorch.acquisition import AcquisitionFunction
 from botorch.optim import optimize_acqf
 
 logger = getLogger()
@@ -131,7 +128,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
     @classmethod
     def from_config(cls, config: Config):
         classname = cls.__name__
-        acqf = config.getobj("common", "acqf", fallback=None)
+        acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
 
         restarts = config.getint(classname, "restarts", fallback=10)
