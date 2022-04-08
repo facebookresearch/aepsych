@@ -58,7 +58,7 @@ class ModelProtocol(Protocol):
 
 class AEPsychMixin:
     """Mixin class that provides AEPsych-specific utility methods."""
-
+    extremum_solver = "Nelder-Mead"
     def _select_inducing_points(self, method="auto"):
         with torch.no_grad():
             assert method in (
@@ -132,12 +132,12 @@ class AEPsychMixin:
         if extremum_type == "max":
             estimate = d[torch.where(fmean == torch.max(fmean))[0][0]].numpy()
             a = minimize(
-                signed_model, estimate, args=-1, method="Powell", bounds=bounds
+                signed_model, estimate, args=-1, method=self.extremum_solver, bounds=bounds
             )
             return -a.fun, a.x
         elif extremum_type == "min":
             estimate = d[torch.where(fmean == torch.min(fmean))[0][0]]
-            a = minimize(signed_model, estimate, args=1, method="Powell", bounds=bounds)
+            a = minimize(signed_model, estimate, args=1, method=self.extremum_solver, bounds=bounds)
             return a.fun, a.x
 
         else:
@@ -225,7 +225,7 @@ class AEPsychMixin:
             model_distance,
             estimate,
             args=(y, probability_space),
-            method="Powell",
+            method=self.extremum_solver,
             bounds=bounds,
         )
         val = self.predict(torch.tensor([a.x]), probability_space)[0].item()
