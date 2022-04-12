@@ -115,8 +115,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         self.covar_module = covar_module or default_covar
         self.likelihood = likelihood
 
-        self._fresh_state_dict = self.state_dict()
-        self._fresh_likelihood_dict = self.likelihood.state_dict()
+        self._fresh_state_dict = deepcopy(self.state_dict())
+        self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
 
     @classmethod
     def from_config(cls, config: Config) -> GPClassificationModel:
@@ -161,6 +161,32 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             inducing_point_method=inducing_point_method,
         )
 
+    def _reset_hyperparameters(self):
+        # warmstart_hyperparams affects hyperparams but not the variational strat,
+        # so we keep the old variational strat (which is only refreshed
+        # if warmstart_induc=False).
+        vsd = self.variational_strategy.state_dict()  # type: ignore
+        vsd_hack = {f"variational_strategy.{k}": v for k, v in vsd.items()}
+        state_dict = deepcopy(self._fresh_state_dict)
+        state_dict.update(vsd_hack)
+        self.load_state_dict(state_dict)
+        self.likelihood.load_state_dict(self._fresh_likelihood_dict)
+
+    def _reset_variational_strategy(self):
+
+        inducing_points = self._select_inducing_points(
+            method=self.inducing_point_method
+        )
+        variational_distribution = CholeskyVariationalDistribution(
+            inducing_points.size(0)
+        )
+        self.variational_strategy = VariationalStrategy(
+            self,
+            inducing_points,
+            variational_distribution,
+            learn_inducing_locations=False,
+        )
+
     def fit(
         self,
         train_x: torch.Tensor,
@@ -183,29 +209,10 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         # by default we reuse the model state and likelihood. If we
         # want a fresh fit (no warm start), copy the state from class initialization.
         if not warmstart_hyperparams:
-            # warmstart_hyperparams affects hyperparams but not the variational strat,
-            # so we keep the old variational strat (which is only refreshed
-            # if warmstart_induc=False).
-            vsd = self.variational_strategy.state_dict()  # type: ignore
-            vsd_hack = {f"variational_strategy.{k}": v for k, v in vsd.items()}
-            state_dict = deepcopy(self._fresh_state_dict)
-            state_dict.update(vsd_hack)
-            self.load_state_dict(state_dict)
-            self.likelihood.load_state_dict(self._fresh_likelihood_dict)
+            self._reset_hyperparameters()
 
         if not warmstart_induc:
-            inducing_points = self._select_inducing_points(
-                method=self.inducing_point_method
-            )
-            variational_distribution = CholeskyVariationalDistribution(
-                inducing_points.size(0)
-            )
-            self.variational_strategy = VariationalStrategy(
-                self,
-                inducing_points,
-                variational_distribution,
-                learn_inducing_locations=False,
-            )
+            self._reset_variational_strategy()
 
         n = train_y.shape[0]
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)

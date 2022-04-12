@@ -123,6 +123,63 @@ class GPClassificationSmoketest(unittest.TestCase):
         pred = (pm > 0).numpy()
         npt.assert_allclose(pred, y)
 
+    def test_reset_hyperparams(self):
+        model = GPClassificationModel(lb=[-3], ub=[3], inducing_size=20)
+
+        os_before = model.covar_module.outputscale.clone().detach().numpy()
+        ls_before = model.covar_module.base_kernel.lengthscale.clone().detach().numpy()
+        model.fit(torch.Tensor(self.X), torch.Tensor(self.y))
+
+        os_after = model.covar_module.outputscale.clone().detach().numpy()
+        ls_after = model.covar_module.base_kernel.lengthscale.clone().detach().numpy()
+
+        model._reset_hyperparameters()
+
+        os_reset = model.covar_module.outputscale.clone().detach().numpy()
+        ls_reset = model.covar_module.base_kernel.lengthscale.clone().detach().numpy()
+
+        # before should be different from after and after should be different
+        # from reset but before and reset should be same
+        self.assertFalse(np.allclose(os_before, os_after))
+        self.assertFalse(np.allclose(os_after, os_reset))
+        self.assertTrue(np.allclose(os_before, os_reset))
+        self.assertFalse(np.allclose(ls_before, ls_after))
+        self.assertFalse(np.allclose(ls_after, ls_reset))
+        self.assertTrue(np.allclose(ls_before, ls_reset))
+
+    def test_reset_variational_strategy(self):
+
+        model = GPClassificationModel(lb=[-3], ub=[3], inducing_size=20)
+
+        variational_params_before = [
+            v.clone().detach().numpy() for v in model.variational_parameters()
+        ]
+        induc_before = model.variational_strategy.inducing_points
+
+        model.fit(torch.Tensor(self.X), torch.Tensor(self.y))
+
+        variational_params_after = [
+            v.clone().detach().numpy() for v in model.variational_parameters()
+        ]
+        induc_after = model.variational_strategy.inducing_points
+
+        model._reset_variational_strategy()
+
+        variational_params_reset = [
+            v.clone().detach().numpy() for v in model.variational_parameters()
+        ]
+        induc_reset = model.variational_strategy.inducing_points
+
+        # before should be different from after and after should be different
+        # from reset
+        self.assertFalse(np.allclose(induc_before, induc_after))
+        self.assertFalse(np.allclose(induc_after, induc_reset))
+        for before, after in zip(variational_params_before, variational_params_after):
+            self.assertFalse(np.allclose(before, after))
+
+        for after, reset in zip(variational_params_after, variational_params_reset):
+            self.assertFalse(np.allclose(after, reset))
+
     def test_predict_p(self):
         """
         Verify analytic p-space mean and var is correct.
