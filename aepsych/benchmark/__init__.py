@@ -5,9 +5,8 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from .benchmark import Benchmark, combine_benchmarks
-from .logger import BenchmarkLogger
-from .pathos_benchmark import PathosBenchmark
+from .benchmark import Benchmark, DerivedValue
+from .pathos_benchmark import PathosBenchmark, run_benchmarks_with_checkpoints
 from .problem import Problem, LSEProblem
 from .test_functions import (
     make_songetal_testfun,
@@ -18,10 +17,9 @@ from .test_functions import (
 )
 
 __all__ = [
-    "combine_benchmarks",
     "Benchmark",
+    "DerivedValue",
     "PathosBenchmark",
-    "BenchmarkLogger",
     "PathosBenchmark",
     "Problem",
     "LSEProblem",
@@ -30,4 +28,5 @@ __all__ = [
     "novel_discrimination_testfun",
     "modified_hartmann6",
     "discrim_highdim",
+    "run_benchmarks_with_checkpoints",
 ]

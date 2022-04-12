@@ -9,18 +9,16 @@ from __future__ import annotations
 
 import itertools
 import time
-import warnings
-from copy import deepcopy
 from random import shuffle
-from typing import Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
+import pandas as pd
 import torch
 from aepsych.config import Config
 from aepsych.strategy import SequentialStrategy, ensure_model_is_fresh
 from tqdm.contrib.itertools import product as tproduct
 
-from .logger import BenchmarkLogger
 from .problem import Problem
 
 
@@ -37,27 +35,28 @@ class Benchmark:
 
     def __init__(
         self,
-        problem: Problem,
-        logger: BenchmarkLogger,
+        problems: List[Problem],
         configs: Mapping[str, Union[str, list]],
         global_seed: Optional[int] = None,
         n_reps: int = 1,
+        log_every: Optional[int] = 10,
     ) -> None:
         """Initialize benchmark.
 
         Args:
-            problem (Problem): Problem object containing the test function to evaluate.
-            logger (BenchmarkLogger): BenchmarkLogger object for collecting data from runs.
+            problems (List[Problem]): Problem objects containing the test function to evaluate.
             configs (Mapping[str, Union[str, list]]): Dictionary of configs to run.
                 Lists at leaves are used to construct a cartesian product of configurations.
             global_seed (int, optional): Global seed to use for reproducible benchmarks.
                 Defaults to randomized seeds.
             n_reps (int, optional): Number of repetitions to run of each configuration. Defaults to 1.
+            log_every (int, optional): Logging interval during an experiment. Defaults to logging every 10 trials.
         """
-        self.problem = problem
-        self.logger = logger
+        self.problems = problems
         self.n_reps = n_reps
         self.combinations = self.make_benchmark_list(**configs)
+        self._log: List[Dict[str, object]] = []
+        self.log_every = log_every
 
         # shuffle combinations so that intermediate results have a bit of everything
         shuffle(self.combinations)
@@ -95,6 +94,15 @@ class Benchmark:
             for c in itertools.product(*(gen_combinations(v) for v in values))
         ]
 
+    def materialize_config(self, config_dict):
+        materialized_config = {}
+        for key, value in config_dict.items():
+            materialized_config[key] = {
+                k: v._evaluate(config_dict) if isinstance(v, DerivedValue) else v
+                for k, v in value.items()
+            }
+        return materialized_config
+
     @property
     def num_benchmarks(self) -> int:
         """Return the total number of runs in this benchmark.
@@ -102,7 +110,7 @@ class Benchmark:
         Returns:
             int: Total number of runs in this benchmark.
         """
-        return len(self.combinations) * self.n_reps
+        return len(self.problems) * len(self.combinations) * self.n_reps
 
     def make_strat_and_flatconfig(
         self, config_dict: Mapping[str, str]
@@ -115,7 +123,7 @@ class Benchmark:
 
         Returns:
             Tuple[SequentialStrategy, Dict[str,str]]: A tuple containing a strategy
-                object and a flat config for the logger.
+                object and a flat config.
         """
         config = Config()
         config.update(config_dict=config_dict)
@@ -125,36 +133,42 @@ class Benchmark:
 
     def run_experiment(
         self,
-        config_dict: Mapping[str, str],
-        logger: BenchmarkLogger,
+        problem: Problem,
+        config_dict: Dict[str, Any],
         seed: int,
         rep: int,
-    ) -> Tuple[BenchmarkLogger, Optional[SequentialStrategy]]:
+    ) -> Tuple[List[Dict[str, Any]], SequentialStrategy]:
         """Run one simulated experiment.
 
         Args:
-            config_dict (Mapping[str, str]): AEPsych configuration to use.
-            logger (BenchmarkLogger): BenchmarkLogger object to store data.
+            config_dict (Dict[str, str]): AEPsych configuration to use.
             seed (int): Random seed for this run.
-            rep (int): Index of this repetition (used for the logger).
+            rep (int): Index of this repetition.
 
         Returns:
-            SequentialStrategy: Strategy as of the end of the simulated experiment.
-                This is ignored in large-scale benchmarks but useful for one-off visualization.
+            Tuple[List[Dict[str, object]], SequentialStrategy]: A tuple containing a log of the results and the strategy as
+                of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
+                one-off visualization.
         """
         torch.manual_seed(seed)
         np.random.seed(seed)
-        strat, flatconfig = self.make_strat_and_flatconfig(config_dict)
+        config_dict["common"]["lb"] = str(problem.lb.tolist())
+        config_dict["common"]["ub"] = str(problem.ub.tolist())
+        config_dict["problem"] = problem.metadata
+        materialized_config = self.materialize_config(config_dict)
+
+        strat, flatconfig = self.make_strat_and_flatconfig(materialized_config)
+
         total_gentime = 0.0
         total_fittime = 0.0
         i = 0
-
+        results = []
         while not strat.finished:
             starttime = time.time()
             next_x = strat.gen()
             gentime = time.time() - starttime
             total_gentime += gentime
-            strat.add_data(next_x, [self.problem.sample_y(next_x)])
+            strat.add_data(next_x, [problem.sample_y(next_x)])
             # strat usually defers model fitting until it is needed
             # (e.g. for gen or predict) so that we don't refit
             # unnecessarily. But for benchmarking we want to time
@@ -164,25 +178,37 @@ class Benchmark:
             ensure_model_is_fresh(lambda x: None)(strat._strat)
             fittime = time.time() - starttime
             total_fittime += fittime
-            if logger.log_at(i) and strat.has_model:
-                metrics = self.problem.evaluate(strat)
-                logger.log(flatconfig, metrics, i, fittime, gentime, rep)
+            if self.log_at(i) and strat.has_model:
+                metrics = problem.evaluate(strat)
+                result = self.log(
+                    problem, flatconfig, metrics, i, fittime, gentime, rep
+                )
+                results.append(result)
 
             i = i + 1
 
-        metrics = self.problem.evaluate(strat)
-        logger.log(
-            flatconfig, metrics, i, total_fittime, total_gentime, rep, final=True
+        metrics = problem.evaluate(strat)
+        result = self.log(
+            problem,
+            flatconfig,
+            metrics,
+            i,
+            total_fittime,
+            total_gentime,
+            rep,
+            final=True,
         )
-        return logger, strat
+        results.append(result)
+        return results, strat
 
     def run_benchmarks(self):
         """Run all the benchmarks, sequentially."""
-        for i, (rep, config) in enumerate(
-            tproduct(range(self.n_reps), self.combinations)
+        for i, (rep, config, problem) in enumerate(
+            tproduct(range(self.n_reps), self.combinations, self.problems)
         ):
             local_seed = i + self.global_seed
-            _ = self.run_experiment(config, self.logger, seed=local_seed, rep=rep)
+            results, _ = self.run_experiment(problem, config, seed=local_seed, rep=rep)
+            self._log.extend(results)
 
     def flatten_config(self, config: Config) -> Dict[str, str]:
         """Flatten a config object for logging.
@@ -191,71 +217,112 @@ class Benchmark:
             config (Config): AEPsych config object.
 
         Returns:
-            Dict[str,str]: A flat dictionary that can be used in a
-                logger (which underlyingly builds a flat pandas data frame).
+            Dict[str,str]: A flat dictionary (that can be used to build a flat pandas data frame).
         """
         flatconfig = {}
         for s in config.sections():
             flatconfig.update({f"{s}_{k}": v for k, v in config[s].items()})
         return flatconfig
 
-    def __add__(self, bench_2: Benchmark) -> Benchmark:
-        """Combine this with another benchmark.
-
-        Benchmarks have to match on loggers, seeds, reps, and problems,
-        i.e. only differ in configuration.
+    def log_at(self, i: int) -> bool:
+        """Check if we should log on this trial index.
 
         Args:
-            bench_2 (Benchmark): Other benchmark to combine.
+            i (int): Trial index to (maybe) log at.
 
         Returns:
-            Benchmark: Benchmark object containing both sets of configurations.
+            bool: True if this trial should be logged.
         """
-        assert self.logger == bench_2.logger, (
-            f"Cannot combine benchmarks that have different loggers, "
-            f"logger1={self.logger}, "
-            f"logger2={bench_2.logger}"
-        )
-        assert self.n_reps == bench_2.n_reps, (
-            f"Cannot combine benchmarks that have different n_reps, "
-            f"n_reps1={self.n_reps}, "
-            f"n_reps2={bench_2.n_reps}"
-        )
-        assert self.global_seed == bench_2.global_seed, (
-            f"Cannot combine benchmarks that have different global_seed, "
-            f"global_seed1={self.global_seed}, "
-            f"global_seed2={bench_2.global_seed}"
-        )
-        assert self.problem == bench_2.problem, (
-            f"Cannot combine benchmarks that have different problems, "
-            f"problem1={self.problem}, "
-            f"problem2={bench_2.problem}"
-        )
+        if self.log_every is not None:
+            return i % self.log_every == 0
+        else:
+            return False
 
-        bench_combined = deepcopy(self)
-        bench_combined.combinations.extend(bench_2.combinations)
-        return bench_combined
+    def log(
+        self,
+        problem: Problem,
+        flatconfig: Mapping[str, object],
+        metrics: Mapping[str, object],
+        trial_id: int,
+        fit_time: float,
+        gen_time: float,
+        rep: int,
+        final: bool = False,
+    ) -> Dict[str, object]:
+        """Log trial data.
+
+        Args:
+            flatconfig (Mapping[str, object]): Flattened configuration for this benchmark.
+            metrics (Mapping[str, object]): Metrics to log.
+            trial_id (int): Current trial index.
+            fit_time (float): Model fitting duration.
+            gen_time (float): Candidate selection duration.
+            rep (int): Repetition index of this trial.
+            final (bool, optional): Mark this as the final trial in a run? Defaults to False.
+        """
+        out: Dict[str, object] = {
+            "fit_time": fit_time,
+            "gen_time": gen_time,
+            "trial_id": trial_id,
+            "rep": rep,
+            "final": final,
+        }
+        problem_metadata = {
+            f"problem_{key}": value for key, value in problem.metadata.items()
+        }
+        out.update(problem_metadata)
+        out.update(flatconfig)
+        out.update(metrics)
+        return out
+
+    def pandas(self) -> pd.DataFrame:
+        return pd.DataFrame(self._log)
 
 
-def combine_benchmarks(*benchmarks) -> Benchmark:
-    """Combine a set of benchmarks into one.
-
-    Note that this is much less safe than only adding two benchmarks,
-    since there is less verification that the benchmarks have the same
-    problem, logger, seed, etc. Instead, the Logger and Problem from
-    the first benchmark are used.
-
-    Returns:
-        Benchmark: A combined benchmark.
+class DerivedValue(object):
     """
-    if len(benchmarks) == 1:
-        warnings.warn("Calling combine_benchmarks with only one benchmark!")
-        return benchmarks[0]
-    else:
-        bench_combo = benchmarks[0] + benchmarks[1]
-        for bench in benchmarks[2:]:
-            tmp_bench = deepcopy(bench)
-            tmp_bench.logger = bench_combo.logger
-            tmp_bench.problem = bench_combo.problem
-            bench_combo = bench_combo + tmp_bench
-    return bench_combo
+    A class for dynamically generating config values from other config values during benchmarking.
+    """
+
+    def __init__(self, args: List[Tuple[str, str]], func: Callable) -> None:
+        """Initialize DerivedValue.
+
+        Args:
+            args (List[Tuple[str]]): Each tuple in this list is a pair of strings that refer to keys in a nested dictionary.
+            func (Callable): A function that accepts args as input.
+
+        For example, consider the following:
+
+            benchmark_config = {
+                "common": {
+                    "model": ["GPClassificationModel", "FancyNewModelToBenchmark"],
+                    "acqf": "MCLevelSetEstimation"
+                },
+                "init_strat": {
+                    "n_trials": [10, 20],
+                    "generator": "SobolGenerator"
+                },
+                "opt_strat": {
+                    "generator": "OptimizeAcqfGenerator",
+                    "n_trials":
+                        DerivedValue(
+                            [("init_strat", "n_trials"), ("common", "model")],
+                            lambda x,y : 100 - x if y == "GPClassificationModel" else 50 - x)
+                }
+            }
+
+        Four separate benchmarks would be generated from benchmark_config:
+            1. model = GPClassificationModel; init trials = 10; opt trials = 90
+            2. model = GPClassificationModel; init trials = 20; opt trials = 80
+            3. model = FancyNewModelToBenchmark; init trials = 10; opt trials = 40
+            4. model = FancyNewModelToBenchmark; init trials = 20; opt trials = 30
+
+        Note that if you can also access problem names into func by including ("problem", "name") in args.
+        """
+        self.args = args
+        self.func = func
+
+    def _evaluate(self, benchmark_config: Dict) -> Any:
+        """Fetches values of self.args from benchmark_config and evaluates self.func on them."""
+        _args = [benchmark_config[outer][inner] for outer, inner in self.args]
+        return self.func(*_args)

@@ -7,17 +7,20 @@
 
 import itertools
 import logging
+import time
 import traceback
 from copy import deepcopy
-from typing import Mapping, Tuple, Optional
+from pathlib import Path
+from random import shuffle
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import aepsych.utils_logging as utils_logging
 import multiprocess.context as ctx
 import pathos
 import torch
-from aepsych.benchmark import Benchmark, BenchmarkLogger
+from aepsych.benchmark import Benchmark
+from aepsych.benchmark.problem import Problem
 from aepsych.strategy import SequentialStrategy
-
 
 ctx._force_start_method("spawn")  # fixes problems with CUDA and fork
 
@@ -69,28 +72,28 @@ class PathosBenchmark(Benchmark):
 
     def run_experiment(
         self,
-        config_dict: Mapping[str, str],
-        logger: BenchmarkLogger,
+        problem: Problem,
+        config_dict: Dict[str, Any],
         seed: int,
         rep: int,
-    ) -> Tuple[BenchmarkLogger, Optional[SequentialStrategy]]:
+    ) -> Tuple[List[Dict[str, Any]], SequentialStrategy]:
         """Run one simulated experiment.
 
         Args:
-            config_dict (Mapping[str, str]): AEPsych configuration to use.
-            logger (BenchmarkLogger): BenchmarkLogger object to store data.
+            config_dict (Dict[str, Any]): AEPsych configuration to use.
             seed (int): Random seed for this run.
-            rep (int): Index of this repetition (used for the logger).
+            rep (int): Index of this repetition.
 
         Returns:
-            BenchmarkLogger: Local logger from this run.
+            Tuple[List[Dict[str, Any]], SequentialStrategy]: A tuple containing a log of the results and the strategy as
+                of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
+                one-off visualization.
         """
 
         # copy things that we mutate
         local_config = deepcopy(config_dict)
-        local_logger = deepcopy(logger)
         try:
-            return super().run_experiment(local_config, local_logger, seed, rep)
+            return super().run_experiment(problem, local_config, seed, rep)
         except Exception as e:
 
             logging.error(
@@ -98,7 +101,7 @@ class PathosBenchmark(Benchmark):
                 + f"Traceback follows:\n{traceback.format_exc()}"
             )
 
-            return local_logger, None
+            return [], SequentialStrategy([])
 
     def __getstate__(self):
         self_dict = self.__dict__.copy()
@@ -130,13 +133,13 @@ class PathosBenchmark(Benchmark):
             logger, _ = self.run_experiment(*conf)
             return logger
 
-        self.loggers = []
         self.all_sim_configs = [
-            (config_dict, self.logger, self.global_seed + seed, rep)
-            for seed, (config_dict, rep) in enumerate(
-                itertools.product(self.combinations, range(self.n_reps))
+            (problem, config_dict, self.global_seed + seed, rep)
+            for seed, (problem, config_dict, rep) in enumerate(
+                itertools.product(self.problems, self.combinations, range(self.n_reps))
             )
         ]
+        shuffle(self.all_sim_configs)
         self.futures = [
             self.pool.apipe(run_discard_strat, *conf) for conf in self.all_sim_configs
         ]
@@ -161,21 +164,100 @@ class PathosBenchmark(Benchmark):
         while self.futures:
             item = self.futures.pop()
             if wait or item.ready():
-                result = item.get()
-                if isinstance(result, BenchmarkLogger):
-                    self.loggers.append(result)
+                results = item.get()
+                if isinstance(results, list):
+                    self._log.extend(results)
             else:
                 newfutures.append(item)
 
         self.futures = newfutures
 
-        if len(self.loggers) > 0:
-            out_logger = BenchmarkLogger()
-            for logger in self.loggers:
-                out_logger._log.extend(logger._log)
-            self.logger = out_logger
 
-    def __add__(self, bench_2):
-        out = super().__add__(bench_2)
-        out.pool = self.pool
-        return out
+def run_benchmarks_with_checkpoints(
+    out_path: str,
+    benchmark_name: str,
+    problems: List[Problem],
+    configs: Mapping[str, Union[str, list]],
+    global_seed: Optional[int] = None,
+    n_chunks: int = 1,
+    n_reps_per_chunk: int = 1,
+    log_every: Optional[int] = None,
+    checkpoint_every: int = 60,
+    n_proc: int = 1,
+    serial_debug: bool = False,
+) -> None:
+    """Runs a series of benchmarks, saving both final and intermediate results to .csv files. Benchmarks are run in
+    sequential chunks, each of which runs all combinations of problems/configs/reps in parallel. This function should
+    always be used using the "if __name__ == '__main__': ..." idiom.
+
+    Args:
+        out_path (str): The path to save the results to.
+        benchmark_name (str): A name give to this set of benchmarks. Results will be saved in files named like
+            "out_path/benchmark_name_chunk{chunk_number}_out.csv"
+        problems (List[Problem]): Problem objects containing the test function to evaluate.
+        configs (Mapping[str, Union[str, list]]): Dictionary of configs to run.
+            Lists at leaves are used to construct a cartesian product of configurations.
+        global_seed (int, optional): Global seed to use for reproducible benchmarks.
+            Defaults to randomized seeds.
+        n_chunks (int): The number of chunks to break the results into. Each chunk will contain at least 1 run of every
+            combination of problem and config.
+        n_reps_per_chunk (int, optional): Number of repetitions to run each problem/config in each chunk.
+        log_every (int, optional): Logging interval during an experiment. Defaults to only logging at the end.
+        checkpoint_every (int): Save intermediate results every checkpoint_every seconds.
+        n_proc (int): Number of processors to use.
+        serial_debug: debug serially?
+    """
+    Path(out_path).mkdir(
+        parents=True, exist_ok=True
+    )  # make an output folder if not exist
+    if serial_debug:
+        out_fname = Path(f"{out_path}/{benchmark_name}_out.csv")
+        print(f"Starting {benchmark_name} benchmark (serial debug mode)...")
+        bench = Benchmark(
+            problems=problems,
+            configs=configs,
+            global_seed=global_seed,
+            n_reps=n_reps_per_chunk * n_chunks,
+            log_every=log_every,
+        )
+        bench.run_benchmarks()
+        final_results = bench.pandas()
+        final_results.to_csv(out_fname)
+    else:
+        for chunk in range(n_chunks):
+            out_fname = Path(f"{out_path}/{benchmark_name}_chunk{chunk}_out.csv")
+
+            intermediate_fname = Path(
+                f"{out_path}/{benchmark_name}_chunk{chunk}_checkpoint.csv"
+            )
+            print(f"Starting {benchmark_name} benchmark... chunk {chunk} ")
+
+            bench = PathosBenchmark(
+                nproc=n_proc,
+                problems=problems,
+                configs=configs,
+                global_seed=global_seed,
+                n_reps=n_reps_per_chunk,
+                log_every=log_every,
+            )
+            bench.start_benchmarks()
+
+            while not bench.is_done:
+                time.sleep(checkpoint_every)
+                collate_start = time.time()
+                print(
+                    f"Checkpointing {benchmark_name} chunk {chunk}..., {len(bench.futures)}/{bench.num_benchmarks} alive"
+                )
+                bench.collate_benchmarks(wait=False)
+                temp_results = bench.pandas()
+                if len(temp_results) > 0:
+                    temp_results["rep"] = temp_results["rep"] + n_reps_per_chunk * chunk
+                    temp_results.to_csv(intermediate_fname)
+                print(
+                    f"Collate done in {time.time()-collate_start} seconds, {len(bench.futures)}/{bench.num_benchmarks} left"
+                )
+
+            print(f"{benchmark_name} chunk {chunk} fully done!")
+            final_results = bench.pandas()
+            final_results["rep"] = final_results["rep"] + n_reps_per_chunk * chunk
+            final_results.to_csv(out_fname)

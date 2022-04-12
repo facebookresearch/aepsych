@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from functools import cached_property
-from typing import Dict, Union
+from typing import Any, Dict, Union
 
 import aepsych
 import numpy as np
@@ -45,6 +45,12 @@ class Problem:
     @property
     def bounds(self):
         raise NotImplementedError
+
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        """A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
+        Benchmark's output dataframe, with its associated value stored in each row."""
+        return {"name": self.name}
 
     def p(self, x: np.ndarray) -> np.ndarray:
         """Evaluate response probability from test function.
@@ -127,6 +133,14 @@ class Problem:
         # we just use model here but eval gets called on strat in case we need it in downstream evals
         # for example to separate out sobol vs opt trials
         model = strat.model
+        assert model is not None, "Cannot evaluate strategy without a model!"
+
+        # always refit a fresh model, in case we've been warm-starting
+        assert (
+            strat.x is not None and strat.y is not None
+        ), "Cannot fit model without data!"
+        model.fit(strat.x, strat.y)
+
         assert model is not None, "Cannot make predictions without a model!"
         # always eval f
         f_hat = self.f_hat(model).detach().numpy()
@@ -180,6 +194,14 @@ class LSEProblem(Problem):
     """
 
     threshold = 0.75
+
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        """A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
+        Benchmark's output dataframe, with its associated value stored in each row."""
+        md = super().metadata
+        md["threshold"] = self.threshold
+        return md
 
     @cached_property
     def f_threshold(self):

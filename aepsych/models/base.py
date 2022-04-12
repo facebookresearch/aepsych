@@ -55,6 +55,9 @@ class ModelProtocol(Protocol):
     def dim_grid(self, gridsize: int = 30) -> torch.Tensor:
         pass
 
+    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
+        pass
+
 
 class AEPsychMixin:
     """Mixin class that provides AEPsych-specific utility methods."""
