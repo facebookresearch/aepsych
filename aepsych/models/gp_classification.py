@@ -108,7 +108,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
                         "ub": str(self.ub.tolist()),
                     }
                 }
-            )
+            )  # type: ignore
             default_mean, default_covar = default_mean_covar_factory(config)
 
         self.mean_module = mean_module or default_mean

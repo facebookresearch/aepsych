@@ -8,7 +8,7 @@
 import configparser
 import warnings
 from types import ModuleType
-from typing import Dict, TypeVar, Mapping, Sequence, List
+from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeVar
 
 import botorch
 import gpytorch
@@ -24,9 +24,9 @@ class Config(configparser.ConfigParser):
 
     def __init__(
         self,
-        config_dict: Mapping[str, str] = None,
-        config_fnames: Sequence[str] = None,
-        config_str: str = None,
+        config_dict: Optional[Mapping[str, Any]] = None,
+        config_fnames: Optional[Sequence[str]] = None,
+        config_str: Optional[str] = None,
     ):
         """Initialize the AEPsych config object. This can be used to instantiate most
         objects in AEPsych by calling object.from_config(config).
