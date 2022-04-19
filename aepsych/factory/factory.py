@@ -33,6 +33,7 @@ TODO write a modular AEPsych tutorial.
 __default_invgamma_concentration = 4.6
 __default_invgamma_rate = 1.0
 
+
 def default_mean_covar_factory(
     config: Config,
 ) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
@@ -53,7 +54,7 @@ def default_mean_covar_factory(
         "default_mean_covar_factory", "fixed_mean", fallback=False
     )
     lengthscale_prior = config.get(
-        "default_mean_covar_factory", "lengthscale_prior", fallback="invgamma"
+        "default_mean_covar_factory", "lengthscale_prior", fallback="gamma"
     )
     outputscale_prior = config.get(
         "default_mean_covar_factory", "outputscale_prior", fallback="box"
@@ -64,9 +65,8 @@ def default_mean_covar_factory(
 
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
     dim = lb.shape[0]
-    mean = gpytorch.means.ConstantMean(
-        prior=gpytorch.priors.NormalPrior(loc=0, scale=2.0)
-    )
+    mean = gpytorch.means.ConstantMean()
+
     if fixed_mean:
         try:
             target = config.getfloat("default_mean_covar_factory", "target")
@@ -78,7 +78,9 @@ def default_mean_covar_factory(
     if lengthscale_prior == "invgamma":
 
         ls_prior = gpytorch.priors.GammaPrior(
-            concentration=__default_invgamma_concentration, rate=__default_invgamma_rate, transform=lambda x: 1 / x
+            concentration=__default_invgamma_concentration,
+            rate=__default_invgamma_rate,
+            transform=lambda x: 1 / x,
         )
 
         ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
@@ -135,9 +137,7 @@ def monotonic_mean_covar_factory(
         "monotonic_mean_covar_factory", "fixed_mean", fallback=False
     )
 
-    mean = ConstantMeanPartialObsGrad(
-        prior=gpytorch.priors.NormalPrior(loc=0, scale=2.0)
-    )
+    mean = ConstantMeanPartialObsGrad()
 
     if fixed_mean:
         try:
@@ -147,9 +147,10 @@ def monotonic_mean_covar_factory(
         except NoOptionError:
             raise RuntimeError("Config got fixed_mean=True but no target included!")
 
-
     ls_prior = gpytorch.priors.GammaPrior(
-        concentration=__default_invgamma_concentration, rate=__default_invgamma_rate, transform=lambda x: 1 / x
+        concentration=__default_invgamma_concentration,
+        rate=__default_invgamma_rate,
+        transform=lambda x: 1 / x,
     )
     ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
     ls_constraint = gpytorch.constraints.Positive(
@@ -189,9 +190,8 @@ def song_mean_covar_factory(
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
     dim = lb.shape[0]
 
-    mean = gpytorch.means.ConstantMean(
-        prior=gpytorch.priors.NormalPrior(loc=0, scale=2.0)
-    )
+    mean = gpytorch.means.ConstantMean()
+
     try:
         target = config.getfloat("song_mean_covar_factory", "target")
     except NoOptionError:
@@ -200,7 +200,9 @@ def song_mean_covar_factory(
     mean.constant.copy_(torch.tensor([norm.ppf(target)]))
 
     ls_prior = gpytorch.priors.GammaPrior(
-        concentration=__default_invgamma_concentration, rate=__default_invgamma_rate, transform=lambda x: 1 / x
+        concentration=__default_invgamma_concentration,
+        rate=__default_invgamma_rate,
+        transform=lambda x: 1 / x,
     )
     ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
 

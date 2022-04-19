@@ -100,9 +100,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
         )
 
         if mean_module is None:
-            mean_module = ConstantMeanPartialObsGrad(
-                prior=gpytorch.priors.NormalPrior(loc=0, scale=2.0)
-            )
+            mean_module = ConstantMeanPartialObsGrad()
 
         if fixed_prior_mean is not None:
             if isinstance(likelihood, BernoulliLikelihood):

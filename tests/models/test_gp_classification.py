@@ -192,7 +192,7 @@ class GPClassificationSmoketest(unittest.TestCase):
 
         pmean_analytic, pvar_analytic = model.predict(X, probability_space=True)
 
-        fsamps = model.sample(X, 100000)
+        fsamps = model.sample(X, 150000)
         psamps = norm.cdf(fsamps)
         pmean_samp = psamps.mean(0)
         pvar_samp = psamps.var(0)
