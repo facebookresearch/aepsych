@@ -119,7 +119,16 @@ namespace AEPsych
         }
 
         /// <summary>
-        /// Called after server connection established and before 1st server sample request
+        /// Called as soon as server connection is established
+        /// </summary>
+        public virtual void OnConnectToServer()
+        {
+            Debug.Log("OnConnectToServer");
+            return;
+        }
+
+        /// <summary>
+        /// Starts experiment by beginning the first sample request
         /// </summary>
         public virtual void BeginExperiment()
         {
@@ -281,12 +290,14 @@ namespace AEPsych
 
 
         /// <summary>
-        /// Called when this game object becomes active. Generates strategies if they are
-        /// un-initialized, then calls BeginExperiment.
+        /// Called when this game object becomes active. Generates strategies if they are un-initialized
         /// </summary>
         public IEnumerator ConnectAndGenerateStrategies()
         {
             yield return new WaitForSeconds(0.2f);
+
+            // Set status change callback, which enables our study state machine logic
+            client.onStatusChanged += OnStatusChanged;
 
             // Set up experiment params
             TrialConfig baseConfig = new TrialConfig() { };
@@ -341,8 +352,6 @@ namespace AEPsych
             SetState(ExperimentState.WaitingForResumeResponse);
 
             // All strategies created.
-            // Set status change callback, which enables our study state machine logic
-            client.onStatusChanged += OnStatusChanged;
 
             if (startMode == StartType.Automatic)
             {
@@ -400,7 +409,8 @@ namespace AEPsych
                 "old client: {1}, new client: {2}", _experimentState, oldStatus, newStatus));
             if (_experimentState == ExperimentState.NotConnected)
             {
-                // Should not receive any status change when in NotConnected state
+                if (newStatus == AEPsychClient.ClientStatus.GotResponse)
+                    OnConnectToServer();
             }
             else if (_experimentState == ExperimentState.Exploring)
             {
@@ -501,6 +511,25 @@ namespace AEPsych
         // _________________________________________________________________________
 
         #region
+        /// <summary>
+        /// ShowOptimal should be called once an experiment is complete. It will call a
+        /// coroutine that queries the server for maximized probability of success,
+        /// then calls ShowStimuli() with the resulting parameter values.
+        /// </summary>
+        public void ShowOptimal()
+        {
+            StartCoroutine(QueryAndDisplayOptimal());
+        }
+
+        IEnumerator QueryAndDisplayOptimal()
+        {
+            SetState(ExperimentState.Exploring);
+            yield return StartCoroutine(client.Query(QueryType.max));
+            QueryMessage m = client.GetQueryResponse();
+            TrialConfig maxLoc = m.x;
+            ShowStimuli(maxLoc);
+        }
+
         public IEnumerator CheckQueryReady()
         {
             SetState(ExperimentState.WaitingForCanModelResponse);
@@ -546,6 +575,7 @@ namespace AEPsych
             }
             else
             {
+                Debug.Log("EndShowStimuli");
                 SetState(ExperimentState.WaitingForTell);
                 if (useModelExploration && readyToQuery)
                 {

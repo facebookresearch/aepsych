@@ -28,6 +28,16 @@ public class EXPERIMENTCLASS_NAME : Experiment
         StartCoroutine(EndShowStimuliAfterSeconds(1f));
     }
 
+    // OnConnectToServer (optional)
+    // Overrides the base OnConnectToServer in order to indicate when experiment is ready
+    public override void OnConnectToServer()
+    {
+        if (startMode == StartType.PressAnyKey)
+        {
+            SetText("Press any key to begin.");
+        }
+    }
+
     // BeginExperiment (optional)
     // Overrides the base BeginExperiment in order to setup the OnStateChange callback
     public override void BeginExperiment()
@@ -62,10 +72,7 @@ public class EXPERIMENTCLASS_NAME : Experiment
     }
     private void Start()
     {
-        if (startMode == StartType.PressAnyKey)
-        {
-            SetText("Press any key to begin.");
-        }
+        SetText("Connecting to server...");
     }
     public override string GetName()
     {

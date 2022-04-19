@@ -46,7 +46,7 @@ public class Ex1DSingleDetection : Experiment
 
     public override void ExperimentComplete()
     {
-        SetText("Experiment complete! Displaying optimal color: ");
+        SetText("Experiment complete! Displaying 75% threshold color: ");
         StartCoroutine(DisplayOptimal());
         base.ExperimentComplete();
     }

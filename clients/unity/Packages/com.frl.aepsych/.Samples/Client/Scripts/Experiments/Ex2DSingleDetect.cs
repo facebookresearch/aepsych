@@ -99,6 +99,6 @@ public class Ex2DSingleDetect : Experiment
         FlashSprite fs = circle.GetComponent<FlashSprite>();
         fs.SetGrayscaleColor(maxLoc["gsColor"][0], maxLoc["alpha"][0]);
         fs.flashDuration = -1.0f; //never destroy
-        SetText("Experiment complete! Displaying optimal color: ");
+        SetText("Experiment complete! Displaying 75% threshold color: ");
     }
 }

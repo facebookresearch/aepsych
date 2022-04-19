@@ -199,6 +199,8 @@ namespace AEPsych
         List<string> serverMessageQueue = new List<string>();
         public TrialConfig baseConfig;
         public int currentStrat;
+        int retryConnectCount = 0;
+        int maxRetries = 3;
         public string server_address = "localhost";
         public int server_port = 5555;
         [HideInInspector] public bool finished;
@@ -219,7 +221,7 @@ namespace AEPsych
         #region
         private void Start()
         {
-            ConnectServer();
+
         }
 
         private void Update()
@@ -241,17 +243,17 @@ namespace AEPsych
 
         private void OnValidate() => PlayerPrefs.SetInt("AEPsychDebugEnabled", debugEnabled ? 0 : 1);
 
-        #endregion
+#endregion
         //_______________________________________________________________________
 
 
         //_______________________________________________________________________
         // Public Methods
-        #region
+#region
         public IEnumerator StartServer(string configPath, string version = "0.01", bool isPath = true)
         {
             reply = null;
-            if (tcpConnection != null)
+            if (tcpConnection == null)
             {
                 ConnectServer();
             }
@@ -453,13 +455,13 @@ namespace AEPsych
                 Debug.Log(msg);
             }
         }
-        #endregion
+#endregion
         //_______________________________________________________________________
 
 
         //_______________________________________________________________________
         // Internal Methods
-        #region
+#region
         string ReadFile(string filePath)
         {
             var sr = new StreamReader(filePath);
@@ -499,13 +501,13 @@ namespace AEPsych
             }
         }
 
-        #endregion
+#endregion
         //_______________________________________________________________________
 
 
         //_______________________________________________________________________
         // Server Communication Methods
-        #region
+#region
         private void ConnectToServer()
         {
             if (tcpConnection != null)
@@ -549,7 +551,15 @@ namespace AEPsych
                 }
                 else if (e.GetType() == typeof(System.Net.Sockets.SocketException))
                 {
-                    Debug.LogError(string.Format("AEPsych Server not found at {0}:{1}. Check if the server has been initialized.", server_address, server_port));
+                    if (retryConnectCount++ < maxRetries)
+                    {
+                        Debug.Log("connection timed out. Retrying. Retry count: " + retryConnectCount);
+                        ConnectToServer();
+                    }
+                    else
+                    {
+                        Debug.LogError(string.Format("AEPsych Server not found at {0}:{1}. Check if the server has been initialized.", server_address, server_port));
+                    }
                 }
                 else
                 {
@@ -590,7 +600,7 @@ namespace AEPsych
                 Debug.Log("Socket exception: " + socketException);
             }
         }
-        #endregion
+#endregion
         //_______________________________________________________________________
     }
 }
