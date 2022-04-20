@@ -42,6 +42,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
     """
 
     _num_outputs = 1
+    _batch_size = 1
     outcome_type = "single_probit"
 
     def __init__(
@@ -90,7 +91,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         inducing_points = self._select_inducing_points(method="sobol")
 
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0)
+            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
         variational_strategy = VariationalStrategy(
             self,
@@ -178,7 +179,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             method=self.inducing_point_method
         )
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0)
+            inducing_points.size(0), 
+            batch_shape=torch.Size([self._batch_size])
         )
         self.variational_strategy = VariationalStrategy(
             self,
@@ -193,6 +195,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         train_y: torch.Tensor,
         warmstart_hyperparams: bool = False,
         warmstart_induc: bool = False,
+        **kwargs
     ) -> None:
         """Fit underlying model.
 
@@ -231,7 +234,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             options = {}
         logger.info("Starting fit...")
         starttime = time.time()
-        fit_gpytorch_model(mll, options=options)
+        fit_gpytorch_model(mll, options=options, **kwargs)
         logger.info(f"Fit done, time={time.time()-starttime}")
 
     def sample(
