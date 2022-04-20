@@ -200,6 +200,3 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(
             isinstance(covarfun.kernels[1].base_kernel, gpytorch.kernels.LinearKernel)
         )
-
-
-self = TestFactories()
