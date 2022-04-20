@@ -210,6 +210,10 @@ def song_mean_covar_factory(
         transform=None, initial_value=ls_prior_mode
     )
 
+    stim_dim = config.getint("song_mean_covar_factory", "stim_dim", fallback=-1)
+    context_dims = list(range(dim))
+    stim_dim = context_dims.pop(stim_dim)  # support relative stim dims
+
     if dim == 1:
         # this can just be LinearKernel but for consistency of interface
         # we make it additive with one module
@@ -228,12 +232,12 @@ def song_mean_covar_factory(
                 lengthscale_prior=ls_prior,
                 lengthscale_constraint=ls_constraint,
                 ard_num_dims=dim - 1,
-                active_dims=tuple(range(dim - 1)),
+                active_dims=context_dims,
             ),
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
         intensity_covar = gpytorch.kernels.ScaleKernel(
-            gpytorch.kernels.LinearKernel(active_dims=(dim - 1), ard_num_dims=1),
+            gpytorch.kernels.LinearKernel(active_dims=stim_dim, ard_num_dims=1),
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
 

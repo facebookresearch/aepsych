@@ -197,6 +197,22 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(
             isinstance(covarfun.kernels[0].base_kernel, gpytorch.kernels.RBFKernel)
         )
+        self.assertTrue(covarfun.kernels[0].base_kernel.active_dims == 0)
         self.assertTrue(
             isinstance(covarfun.kernels[1].base_kernel, gpytorch.kernels.LinearKernel)
         )
+        self.assertTrue(covarfun.kernels[1].base_kernel.active_dims == 1)
+
+        # flip the stim dim
+        conf = {
+            "song_mean_covar_factory": {
+                "lb": [0, 1],
+                "ub": [1, 70],
+                "target": 0.75,
+                "stim_dim": 0,
+            }
+        }
+        config = Config(config_dict=conf)
+        meanfun, covarfun = song_mean_covar_factory(config)
+        self.assertTrue(covarfun.kernels[1].base_kernel.active_dims == 0)
+        self.assertTrue(covarfun.kernels[0].base_kernel.active_dims == 1)
