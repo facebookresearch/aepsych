@@ -123,6 +123,13 @@ class Problem:
         """Evaluate the strategy with respect to this problem.
 
         Extend this in subclasses to add additional metrics.
+        Metrics include:
+        - mae (mean absolute error), mae (mean absolute error), max_abs_err (max absolute error),
+            pearson correlation. All of these are computed over the latent variable f and the
+            outcome probability p, w.r.t. the posterior mean. Squared and absolute errors (miae, mise) are
+            also computed in expectation over the posterior, by sampling.
+        - Brier score, which measures how well-calibrated the outcome probability is, both at the posterior
+            mean (plain brier) and in expectation over the posterior (expected_brier).
 
         Args:
             strat (aepsych.strategy.Strategy): Strategy to evaluate.
@@ -135,13 +142,6 @@ class Problem:
         model = strat.model
         assert model is not None, "Cannot evaluate strategy without a model!"
 
-        # always refit a fresh model, in case we've been warm-starting
-        assert (
-            strat.x is not None and strat.y is not None
-        ), "Cannot fit model without data!"
-        model.fit(strat.x, strat.y)
-
-        assert model is not None, "Cannot make predictions without a model!"
         # always eval f
         f_hat = self.f_hat(model).detach().numpy()
         p_hat = self.p_hat(model).detach().numpy()
@@ -157,16 +157,28 @@ class Problem:
         mse_p = np.mean((self.p_true - p_hat) ** 2)
         max_abs_err_p = np.max(np.abs(self.p_true - p_hat))
         corr_p = pearsonr(self.p_true.flatten(), p_hat.flatten())[0]
+        brier = np.mean(2 * np.square(self.p_true - p_hat))
 
         # eval in samp-based expectation over posterior instead of just mean
         fsamps = model.sample(self.eval_grid, num_samples=1000).detach().numpy()
+        try:
+            psamps = (
+                model.sample(self.eval_grid, num_samples=1000, probability_space=True)
+                .detach()
+                .numpy()
+            )
+        except TypeError:  # vanilla models don't have proba_space samps, TODO maybe we should add them
+            psamps = norm.cdf(fsamps)
+
         ferrs = fsamps - self.f_true[None, :]
         miae_f = np.mean(np.abs(ferrs))
         mise_f = np.mean(ferrs ** 2)
 
-        perrs = norm.cdf(fsamps) - self.p_true[None, :]
+        perrs = psamps - self.p_true[None, :]
         miae_p = np.mean(np.abs(perrs))
         mise_p = np.mean(perrs ** 2)
+
+        expected_brier = (2 * np.square(self.p_true[None, :] - psamps)).mean()
 
         metrics = {
             "mean_abs_err_f": mae_f,
@@ -181,6 +193,8 @@ class Problem:
             "mean_integrated_square_err_p": mise_p,
             "max_abs_err_p": max_abs_err_p,
             "pearson_corr_p": corr_p,
+            "brier": brier,
+            "expected_brier": expected_brier,
         }
 
         return metrics
@@ -218,6 +232,11 @@ class LSEProblem(Problem):
     def evaluate(self, strat: Union[Strategy, SequentialStrategy]) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.
 
+        For level set estimation, we add metrics w.r.t. the true threshold:
+        - brier_p_below_{thresh), the brier score w.r.t. p(f(x)<thresh), in contrast to
+            regular brier, which is the brier score for p(phi(f(x))=1), and the same
+            for misclassification error.
+
         Args:
             strat (aepsych.strategy.Strategy): Strategy to evaluate.
 
@@ -243,10 +262,13 @@ class LSEProblem(Problem):
         )
 
         # Brier score on level-set probabilities
-        metrics["brier"] = np.mean(2 * np.square(self.true_below_threshold - p_l))
+        thresh = self.threshold
+        brier_name = f"brier_p_below_{thresh}"
+        metrics[brier_name] = np.mean(2 * np.square(self.true_below_threshold - p_l))
 
         # Classification error
-        metrics["class_errors"] = np.mean(
+        classerr_name = f"missclass_on_thresh_{thresh}"
+        metrics[classerr_name] = np.mean(
             p_l * (1 - self.true_below_threshold)
             + (1 - p_l) * self.true_below_threshold
         )
