@@ -37,7 +37,7 @@ class Benchmark:
         self,
         problems: List[Problem],
         configs: Mapping[str, Union[str, list]],
-        global_seed: Optional[int] = None,
+        seed: Optional[int] = None,
         n_reps: int = 1,
         log_every: Optional[int] = 10,
     ) -> None:
@@ -47,7 +47,7 @@ class Benchmark:
             problems (List[Problem]): Problem objects containing the test function to evaluate.
             configs (Mapping[str, Union[str, list]]): Dictionary of configs to run.
                 Lists at leaves are used to construct a cartesian product of configurations.
-            global_seed (int, optional): Global seed to use for reproducible benchmarks.
+            seed (int, optional): Random seed to use for reproducible benchmarks.
                 Defaults to randomized seeds.
             n_reps (int, optional): Number of repetitions to run of each configuration. Defaults to 1.
             log_every (int, optional): Logging interval during an experiment. Defaults to logging every 10 trials.
@@ -61,11 +61,11 @@ class Benchmark:
         # shuffle combinations so that intermediate results have a bit of everything
         shuffle(self.combinations)
 
-        if global_seed is None:
+        if seed is None:
             # explicit cast because int and np.int_ are different types
-            self.global_seed = int(np.random.randint(0, 200))
+            self.seed = int(np.random.randint(0, 200))
         else:
-            self.global_seed = global_seed
+            self.seed = seed
 
     def make_benchmark_list(self, **bench_config) -> List[Dict[str, float]]:
         """Generate a list of benchmarks to run from configuration.
@@ -181,7 +181,7 @@ class Benchmark:
             if self.log_at(i) and strat.has_model:
                 metrics = problem.evaluate(strat)
                 result = self.log(
-                    problem, flatconfig, metrics, i, fittime, gentime, rep
+                    problem, flatconfig, metrics, i, fittime, gentime, rep, seed
                 )
                 results.append(result)
 
@@ -196,6 +196,7 @@ class Benchmark:
             total_fittime,
             total_gentime,
             rep,
+            seed,
             final=True,
         )
         results.append(result)
@@ -206,7 +207,7 @@ class Benchmark:
         for i, (rep, config, problem) in enumerate(
             tproduct(range(self.n_reps), self.combinations, self.problems)
         ):
-            local_seed = i + self.global_seed
+            local_seed = i + self.seed
             results, _ = self.run_experiment(problem, config, seed=local_seed, rep=rep)
             self._log.extend(results)
 
@@ -247,6 +248,7 @@ class Benchmark:
         fit_time: float,
         gen_time: float,
         rep: int,
+        seed: int,
         final: bool = False,
     ) -> Dict[str, object]:
         """Log trial data.
@@ -265,6 +267,7 @@ class Benchmark:
             "gen_time": gen_time,
             "trial_id": trial_id,
             "rep": rep,
+            "seed": seed,
             "final": final,
         }
         problem_metadata = {

@@ -174,6 +174,9 @@ class BenchmarkTestCase(unittest.TestCase):
         ) + out.opt_strat_n_trials.astype(int)
         self.assertTrue((out.trial_id <= total_trials).all())
 
+        # ensure each simulation has a unique random seed
+        self.assertTrue(out[out["final"]]["seed"].is_unique)
+
     def test_bench_pathossmoke(self):
 
         problem1 = TestProblem()
@@ -230,6 +233,9 @@ class BenchmarkTestCase(unittest.TestCase):
             int
         ) + out.opt_strat_n_trials.astype(int)
         self.assertTrue((out.trial_id <= total_trials).all())
+
+        # ensure each simulation has a unique random seed
+        self.assertTrue(out[out["final"]]["seed"].is_unique)
 
     def test_bench_pathos_partial(self):
         """

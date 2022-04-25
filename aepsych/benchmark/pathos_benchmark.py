@@ -134,7 +134,7 @@ class PathosBenchmark(Benchmark):
             return logger
 
         self.all_sim_configs = [
-            (problem, config_dict, self.global_seed + seed, rep)
+            (problem, config_dict, self.seed + seed, rep)
             for seed, (problem, config_dict, rep) in enumerate(
                 itertools.product(self.problems, self.combinations, range(self.n_reps))
             )
@@ -216,7 +216,7 @@ def run_benchmarks_with_checkpoints(
         bench = Benchmark(
             problems=problems,
             configs=configs,
-            global_seed=global_seed,
+            seed=global_seed,
             n_reps=n_reps_per_chunk * n_chunks,
             log_every=log_every,
         )
@@ -236,10 +236,13 @@ def run_benchmarks_with_checkpoints(
                 nproc=n_proc,
                 problems=problems,
                 configs=configs,
-                global_seed=global_seed,
+                seed=None,
                 n_reps=n_reps_per_chunk,
                 log_every=log_every,
             )
+            bench.seed = (
+                global_seed + chunk * bench.num_benchmarks
+            )  # HACK. TODO: make num_benchmarks a property of bench configs
             bench.start_benchmarks()
 
             while not bench.is_done:
