@@ -193,7 +193,7 @@ class AEPsychServer(object):
             self.replay(uuid_of_replay, skip_computations=True)
             for strat in self._strats:
                 if strat.has_model:
-                    strat.modelbridge.fit(strat.x, strat.y)
+                    strat.model.fit(strat.x, strat.y)
             return self._strats
         else:
             strat_buffers = self.db.get_strats_for(uuid_of_replay)
@@ -223,7 +223,7 @@ class AEPsychServer(object):
             # then if the final strat is model-based, refit
             strat = self._strats[strat_id]
             if strat.has_model:
-                strat.modelbridge.fit(strat.x, strat.y)
+                strat.model.fit(strat.x, strat.y)
             return strat
 
     def _flatten_tell_record(self, rec):
@@ -241,7 +241,7 @@ class AEPsychServer(object):
 
         return out
 
-    def get_dataframe_from_replay(self, uuid_of_replay=None):
+    def get_dataframe_from_replay(self, uuid_of_replay=None, force_replay=False):
         if uuid_of_replay is None:
             records = self.db.get_master_records()
             if len(records) > 0:
@@ -251,7 +251,7 @@ class AEPsychServer(object):
 
         recs = self.db.get_replay_for(uuid_of_replay)
 
-        strats = self.get_strats_from_replay(uuid_of_replay)
+        strats = self.get_strats_from_replay(uuid_of_replay, force_replay=force_replay)
 
         out = pd.DataFrame(
             [
@@ -487,8 +487,8 @@ class AEPsychServer(object):
         return config_setup
 
     def handle_can_model(self, request):
-        #Check if the strategy has finished initialization; i.e.,
-        #if it has a model and data to fit (strat.can_fit)
+        # Check if the strategy has finished initialization; i.e.,
+        # if it has a model and data to fit (strat.can_fit)
         logger.debug("got can_model message!")
         if not self.is_performing_replay:
             self.db.record_message(
