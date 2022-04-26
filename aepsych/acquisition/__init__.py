@@ -23,7 +23,12 @@ from .mutual_information import (
     MonotonicBernoulliMCMutualInformation,
     BernoulliMCMutualInformation,
 )
-from .objective import ProbitObjective
+from .objective import (
+    ProbitObjective,
+    FloorProbitObjective,
+    FloorLogitObjective,
+    FloorGumbelObjective,
+)
 
 
 lse_acqfs = [
@@ -44,6 +49,9 @@ __all__ = [
     "MCPosteriorVariance",
     "MCLevelSetEstimation",
     "ProbitObjective",
+    "FloorProbitObjective",
+    "FloorLogitObjective",
+    "FloorGumbelObjective",
     "GlobalMI",
     "GlobalSUR",
     "ApproxGlobalSUR",

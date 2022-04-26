@@ -18,6 +18,7 @@ from . import (
     generators,
 )
 from .config import Config
+from .likelihoods import BernoulliObjectiveLikelihood
 from .models import GPClassificationModel
 from .strategy import Strategy, SequentialStrategy
 
@@ -35,6 +36,7 @@ __all__ = [
     "GPClassificationModel",
     "Strategy",
     "SequentialStrategy",
+    "BernoulliObjectiveLikelihood",
 ]
 
 Config.register_module(sys.modules[__name__])

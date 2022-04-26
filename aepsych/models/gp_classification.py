@@ -24,6 +24,7 @@ from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 from scipy.special import owens_t
+from scipy.stats import norm
 from torch.distributions import Normal
 
 logger = getLogger()
@@ -151,6 +152,16 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             classname, "inducing_point_method", fallback="auto"
         )
 
+        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
+
+        if likelihood_cls is not None:
+            if hasattr(likelihood_cls, "from_config"):
+                likelihood = likelihood_cls.from_config(config)
+            else:
+                likelihood = likelihood_cls()
+        else:
+            likelihood = None  # fall back to __init__ default
+
         return cls(
             lb=lb,
             ub=ub,
@@ -160,6 +171,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             covar_module=covar,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            likelihood=likelihood,
         )
 
     def _reset_hyperparameters(self):
@@ -179,8 +191,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
             method=self.inducing_point_method
         )
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), 
-            batch_shape=torch.Size([self._batch_size])
+            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
         self.variational_strategy = VariationalStrategy(
             self,
@@ -195,7 +206,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         train_y: torch.Tensor,
         warmstart_hyperparams: bool = False,
         warmstart_induc: bool = False,
-        **kwargs
+        **kwargs,
     ) -> None:
         """Fit underlying model.
 
@@ -255,8 +266,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Query the model for posterior mean and variance. The probability-space
-        mean and variance is taken from Proposition 1 in Letham et al. 2022 (AISTATS).
+        """Query the model for posterior mean and variance.
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
@@ -271,14 +281,26 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         fmean = post.mean.squeeze()
         fvar = post.variance.squeeze()
         if probability_space:
-            a_star = fmean / torch.sqrt(1 + fvar)
-            pmean = Normal(0, 1).cdf(a_star)
-            t_term = torch.tensor(
-                owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
-                dtype=a_star.dtype,
-            )
-            pvar = pmean - 2 * t_term - pmean.square()
-            return promote_0d(pmean), promote_0d(pvar)
+            if isinstance(self.likelihood, BernoulliLikelihood):
+                # Probability-space mean and variance for Bernoulli-probit models is
+                # available in closed form, Proposition 1 in Letham et al. 2022 (AISTATS).
+                a_star = fmean / torch.sqrt(1 + fvar)
+                pmean = Normal(0, 1).cdf(a_star)
+                t_term = torch.tensor(
+                    owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
+                    dtype=a_star.dtype,
+                )
+                pvar = pmean - 2 * t_term - pmean.square()
+                return promote_0d(pmean), promote_0d(pvar)
+            else:
+                fsamps = post.sample(torch.Size([10000]))
+                if hasattr(self.likelihood, "objective"):
+                    psamps = self.likelihood.objective(fsamps)
+                else:
+                    psamps = norm.cdf(fsamps)
+                pmean, pvar = psamps.mean(0), psamps.var(0)
+                return promote_0d(pmean), promote_0d(pvar)
+
         else:
             return promote_0d(fmean), promote_0d(fvar)
 
