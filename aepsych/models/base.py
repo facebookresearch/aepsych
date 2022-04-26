@@ -21,6 +21,10 @@ torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type
 
 class ModelProtocol(Protocol):
     @property
+    def extremum_solver(self) -> str:
+        pass
+
+    @property
     def train_inputs(self) -> torch.Tensor:
         pass
 
@@ -61,7 +65,9 @@ class ModelProtocol(Protocol):
 
 class AEPsychMixin:
     """Mixin class that provides AEPsych-specific utility methods."""
+
     extremum_solver = "Nelder-Mead"
+
     def _select_inducing_points(self, method="auto"):
         with torch.no_grad():
             assert method in (
@@ -135,12 +141,22 @@ class AEPsychMixin:
         if extremum_type == "max":
             estimate = d[torch.where(fmean == torch.max(fmean))[0][0]].numpy()
             a = minimize(
-                signed_model, estimate, args=-1, method=self.extremum_solver, bounds=bounds
+                signed_model,
+                estimate,
+                args=-1,
+                method=self.extremum_solver,
+                bounds=bounds,
             )
             return -a.fun, a.x
         elif extremum_type == "min":
             estimate = d[torch.where(fmean == torch.min(fmean))[0][0]]
-            a = minimize(signed_model, estimate, args=1, method=self.extremum_solver, bounds=bounds)
+            a = minimize(
+                signed_model,
+                estimate,
+                args=1,
+                method=self.extremum_solver,
+                bounds=bounds,
+            )
             return a.fun, a.x
 
         else:

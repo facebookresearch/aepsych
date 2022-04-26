@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import aepsych.utils_logging as utils_logging
 import multiprocess.context as ctx
+import numpy as np
 import pathos
 import torch
 from aepsych.benchmark import Benchmark
@@ -240,6 +241,9 @@ def run_benchmarks_with_checkpoints(
                 n_reps=n_reps_per_chunk,
                 log_every=log_every,
             )
+
+            if global_seed is None:
+                global_seed = int(np.random.randint(0, 200))
             bench.seed = (
                 global_seed + chunk * bench.num_benchmarks
             )  # HACK. TODO: make num_benchmarks a property of bench configs

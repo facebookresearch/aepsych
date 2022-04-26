@@ -163,7 +163,7 @@ class Problem:
         fsamps = model.sample(self.eval_grid, num_samples=1000).detach().numpy()
         try:
             psamps = (
-                model.sample(self.eval_grid, num_samples=1000, probability_space=True)
+                model.sample(self.eval_grid, num_samples=1000, probability_space=True)  # type: ignore
                 .detach()
                 .numpy()
             )
