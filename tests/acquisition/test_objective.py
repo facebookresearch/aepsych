@@ -9,6 +9,7 @@ import unittest
 from itertools import product
 
 import numpy as np
+import torch
 from aepsych.acquisition.objective import (
     FloorLogitObjective,
     FloorProbitObjective,
@@ -36,5 +37,5 @@ class FloorLinkTests(unittest.TestCase):
         scipy_answer = scipy_answer * (1 - floor) + floor
 
         our_link = our_objective(floor=floor)
-        our_answer = our_link(x)
+        our_answer = our_link(torch.Tensor(x).unsqueeze(-1))
         self.assertTrue(np.allclose(scipy_answer, our_answer.numpy()))
