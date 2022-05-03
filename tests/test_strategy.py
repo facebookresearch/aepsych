@@ -20,6 +20,33 @@ from aepsych.generators import (
 
 
 class TestSequenceGenerators(unittest.TestCase):
+    def setUp(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        lb = [-1, -1]
+        ub = [1, 1]
+
+        extra_acqf_args = {"target": 0.75, "beta": 1.96}
+
+        self.strat = Strategy(
+            model=MonotonicRejectionGP(
+                lb=lb,
+                ub=ub,
+                dim=2,
+                monotonic_idxs=[1],
+            ),
+            generator=MonotonicRejectionGenerator(
+                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
+            ),
+            n_trials=50,
+            lb=lb,
+            ub=ub,
+        )
+        self.strat.model.fit = MagicMock()
+        self.strat.model.update = MagicMock()
+        self.strat.generator.gen = MagicMock()
+
     def test_opt_strategy_single(self):
         lbs = [[-1], [-10]]
         ubs = [[1], [-8]]
@@ -46,76 +73,36 @@ class TestSequenceGenerators(unittest.TestCase):
         self.assertTrue(np.max(gen2) <= -8)
 
     def test_warmstart(self):
+        self.strat.refit_every = 10
 
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        lb = [-1, -1]
-        ub = [1, 1]
-
-        extra_acqf_args = {"target": 0.75, "beta": 1.96}
-
-        strat = Strategy(
-            model=MonotonicRejectionGP(
-                lb=lb,
-                ub=ub,
-                dim=2,
-                monotonic_idxs=[1],
-            ),
-            generator=MonotonicRejectionGenerator(
-                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
-            ),
-            n_trials=50,
-            lb=lb,
-            ub=ub,
-            refit_every=10,
-        )
-        strat.model.fit = MagicMock()
-        strat.model.update = MagicMock()
-        strat.generator.gen = MagicMock()
         for _ in range(50):
-            strat.gen()
-            strat.add_data(np.r_[1.0, 1.0], [1])
+            self.strat.gen()
+            self.strat.add_data(np.r_[1.0, 1.0], [1])
 
-        assert (
-            strat.model.fit.call_count == 4
+        self.assertEqual(
+            self.strat.model.fit.call_count, 4
         )  # first fit gets skipped because there is no data
-        assert strat.model.update.call_count == 45
+        self.assertEqual(self.strat.model.update.call_count, 45)
 
     def test_no_warmstart(self):
-
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        lb = [-1, -1]
-        ub = [1, 1]
-
-        extra_acqf_args = {"target": 0.75, "beta": 1.96}
-        strat = Strategy(
-            model=MonotonicRejectionGP(
-                lb=lb,
-                ub=ub,
-                dim=2,
-                monotonic_idxs=[1],
-            ),
-            generator=MonotonicRejectionGenerator(
-                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
-            ),
-            lb=lb,
-            ub=ub,
-            n_trials=50,
-        )
-        strat.model.fit = MagicMock()
-        strat.model.update = MagicMock()
-        strat.generator.gen = MagicMock()
         for _ in range(50):
-            strat.gen()
-            strat.add_data(np.r_[1.0, 1.0], [1])
+            self.strat.gen()
+            self.strat.add_data(np.r_[1.0, 1.0], [1])
 
-        assert (
-            strat.model.fit.call_count == 49
+        self.assertEqual(
+            self.strat.model.fit.call_count, 49
         )  # first fit gets skipped because there is no data
-        assert strat.model.update.call_count == 0
+        self.assertEqual(self.strat.model.update.call_count, 0)
+
+    def test_finish_criteria(self):
+        for _ in range(49):
+            self.strat.gen()
+            self.strat.add_data(np.r_[1.0, 1.0], [1])
+        self.assertFalse(self.strat.finished)
+
+        self.strat.gen()
+        self.strat.add_data(np.r_[1.0, 1.0], [0])
+        self.assertTrue(self.strat.finished)
 
 
 if __name__ == "__main__":
