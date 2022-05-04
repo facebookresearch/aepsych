@@ -17,6 +17,7 @@ public class QueryModel : MonoBehaviour
     List<ModelSlider> xSliders = new List<ModelSlider>();
     Canvas[] otherCanvases = { };
     ModelSlider ySlider;
+    DefaultUI defaultUI;
     bool initialized = false;
     bool probSpace = false;
     TrialConfig initParams;
@@ -35,14 +36,10 @@ public class QueryModel : MonoBehaviour
         {
             experiment = FindObjectOfType<Experiment>();
         }
-        /*
-        if (client.baseConfig == null)
-        {
-            client.ConnectServer();
-        }
-        */
+        defaultUI = GetComponent<DefaultUI>();
+
         if (!experiment.UsesModelExplorer())
-            gameObject.SetActive(false);
+            toggleButton.gameObject.SetActive(false);
 
         if (GetComponent<Canvas>().worldCamera == null)
         {
@@ -204,6 +201,7 @@ public class QueryModel : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
         canvasGroup.alpha = 0;
+        defaultUI.SetTextActive(true);
     }
 
     public void ShowSliders()
@@ -211,6 +209,7 @@ public class QueryModel : MonoBehaviour
         canvasGroup.blocksRaycasts = true;
         canvasGroup.interactable = true;
         canvasGroup.alpha = 1;
+        defaultUI.SetTextActive(false);
     }
 
     public void ToggleSliders()
@@ -234,8 +233,6 @@ public class QueryModel : MonoBehaviour
             StartCoroutine(SpawnSliders());
             ShowSliders();
         }
-
-        
     }
 
     public void QueryEnabled(bool val)

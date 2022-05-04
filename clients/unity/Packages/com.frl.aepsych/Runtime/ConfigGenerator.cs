@@ -5,7 +5,6 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using AEPsych;
-using UnityEditor.SceneManagement;
 
 [System.Serializable]
 public class Parameter
@@ -23,15 +22,13 @@ public class Parameter
 }
 
 [System.Serializable]
+#if UNITY_EDITOR
 [InitializeOnLoad]
+#endif
 public class ConfigGenerator: MonoBehaviour
 {
-
-    [SerializeField] public DefaultAsset manualConfigFile;
-
     [SerializeField] public List<Parameter> experimentParams;
-    public string filePath = "configs";
-    public string fileName = "default_config.ini";
+    [SerializeField] public string filePath = "configs/default_config.ini";
     string[] experiment_types = { "Threshold", "Optimization"};
     public int experiment_idx = 0;
     public float target = 0.5f;
@@ -44,57 +41,21 @@ public class ConfigGenerator: MonoBehaviour
     public bool isEditorVersion = false;
     public bool isValid = true;
 
-    public ConfigGenerator()
-    {
-#if UNITY_EDITOR
-        EditorApplication.playModeStateChanged += ModeStateChanged;
-#endif
-    }
-
     public void SetName(string newName)
     {
         experimentName = newName;
+    }
+
+    public string GetManualConfigPath()
+    {
+        return filePath;
     }
 
     public virtual string[] GetExperimentTypes()
     {
         return experiment_types;
     }
-
-    public void ModeStateChanged(PlayModeStateChange state)
-    {
-        // This callback is triggered mutliple times, so it's necessary to ignore
-        // duplicate calls from default-instance versions of this script
-        if (state == PlayModeStateChange.ExitingEditMode)
-        {
-            if (!isEditorVersion || !this)
-                return;
-
-            GenerateConfig();
-        }
-    }
-
-    public void GenerateConfig()
-    {
-        if (!isAutomatic)
-        {
-            PlayerPrefs.SetString(experimentName + "config", "Manual");
-            return;
-        }
-
-        // Try to cast to Prerelease config
-
-        if (experimentParams != null && experimentParams.Count != 0)
-        {
-            PlayerPrefs.SetString(experimentName + "config", GetConfigText());
-            fullConfigFile = GetConfigText();
-        }
-        else
-        {
-            PlayerPrefs.SetString(experimentName + "config", "Empty");
-        }
-    }
-
+    
     private void OnValidate()
     {
         isEditorVersion = true;
@@ -104,7 +65,7 @@ public class ConfigGenerator: MonoBehaviour
             experimentParams.Add(new Parameter("Dimension 1"));
         }
     }
-
+    
     public bool CheckParamValidity()
     {
         List<string> keys = new List<string>();
@@ -235,19 +196,20 @@ public class ConfigGenerator: MonoBehaviour
         return sb.ToString();
     }
 
+#if UNITY_EDITOR
     public void WriteToFile()
     {
         fullConfigFile = GetConfigText();
-        string finalPath = Path.Combine(Application.streamingAssetsPath, "..", filePath);
-        if (!Directory.Exists(finalPath))
+        string finalPath = Path.Combine(Application.streamingAssetsPath, filePath);
+        if (!Directory.Exists(Path.GetDirectoryName(finalPath)))
         {
-            Directory.CreateDirectory(finalPath);
+            Directory.CreateDirectory(Path.GetDirectoryName(finalPath));
         }
-        finalPath = Path.Combine(finalPath, fileName);
         StreamWriter writer = new StreamWriter(finalPath, false);
         writer.WriteLine(fullConfigFile);
         writer.Close();
         AssetDatabase.Refresh();
         Debug.Log("Wrote config to " + finalPath);
     }
+#endif
 }

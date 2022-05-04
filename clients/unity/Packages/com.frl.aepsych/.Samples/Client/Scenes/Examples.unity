@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &310603142
 Transform:
   m_ObjectHideFlags: 0
@@ -167,7 +167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manualConfigFile: {fileID: 102900000, guid: de0e3756870defc4c8bbf1ae0bd6471c, type: 3}
   experimentParams:
   - lowerBound: 0
     upperBound: 1
@@ -307,9 +306,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Dim: 1
-  m_Method: 1
+  m_Method: 0
   m_Response: 0
-  selectedScript: 2DSingleDetection
+  selectedScript: 2DSingleOpt
 --- !u!4 &329997636
 Transform:
   m_ObjectHideFlags: 0
@@ -404,7 +403,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manualConfigFile: {fileID: 102900000, guid: 1e6f764a67f8d194f92aaa84883ff859, type: 3}
   experimentParams:
   - lowerBound: 0
     upperBound: 1
@@ -523,7 +521,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manualConfigFile: {fileID: 102900000, guid: 7104fa3c42877f64a8675026f93f13e8, type: 3}
   experimentParams:
   - lowerBound: 0
     upperBound: 1
@@ -957,7 +954,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1387304401
 Transform:
   m_ObjectHideFlags: 0
@@ -984,7 +981,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manualConfigFile: {fileID: 102900000, guid: 6fc3103e39d031c44a429f052c7a9574, type: 3}
   experimentParams:
   - lowerBound: 0
     upperBound: 1
@@ -1353,7 +1349,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manualConfigFile: {fileID: 102900000, guid: 44d96c455cbc6474ab8dd1ecaf711ac5, type: 3}
   experimentParams:
   - lowerBound: 0
     upperBound: 1
@@ -1577,7 +1572,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  manualConfigFile: {fileID: 102900000, guid: 2c1a1ba444322e5499088396332f691c, type: 3}
   experimentParams:
   - lowerBound: 0
     upperBound: 1

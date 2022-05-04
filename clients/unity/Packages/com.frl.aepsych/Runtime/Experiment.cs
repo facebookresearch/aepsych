@@ -123,7 +123,6 @@ namespace AEPsych
         /// </summary>
         public virtual void OnConnectToServer()
         {
-            Debug.Log("OnConnectToServer");
             return;
         }
 
@@ -227,7 +226,7 @@ namespace AEPsych
                 StartCoroutine(client.Tell(config, outcome, metadata));
             else
                 StartCoroutine(client.Tell(config, outcome));
-            if (useModelExploration)
+            if (useModelExploration && queryModel != null)
             {
                 queryModel.QueryEnabled(false);
             }
@@ -327,16 +326,16 @@ namespace AEPsych
             else // Initialize each manually added strategy
             {
                 // Ensure that the user has provided at least one strategy config
-                if (configGenerator.manualConfigFile == null)
+                configPath = Path.Combine(Application.streamingAssetsPath, configGenerator.GetManualConfigPath());
+                if (!File.Exists(configPath))
                 {
-                    Debug.LogError("Must assign at least one strategy config file if using manual configs. Assign a config file in the inspector.");
+                    Debug.LogError(string.Format("Invalid manual config location: {0} To use a manual config file, place the file within Assets/StreamingAssets," +
+                        " then write a file name that ends in .ini and specify the path relative to the StreamingAssets folder.", configPath));
                     TerminateExperiment();
                     yield return null;
                 }
                 if (strategy == null)
                 {
-                    configPath = Path.Combine(Application.dataPath, "../",
-                            AssetDatabase.GetAssetPath(configGenerator.manualConfigFile));
                     strategy = gameObject.AddComponent<AEPsychStrategy>();
                     yield return StartCoroutine(strategy.InitStrat(client, configPath: configPath));
                 }
@@ -411,6 +410,11 @@ namespace AEPsych
             {
                 if (newStatus == AEPsychClient.ClientStatus.GotResponse)
                     OnConnectToServer();
+                else if (newStatus == AEPsychClient.ClientStatus.FailedToConnect)
+                {
+                    Debug.LogError("Failed to connect. Please ensure that the server is properly installed and started.");
+                    SetText("Failed to connect to server.");
+                }
             }
             else if (_experimentState == ExperimentState.Exploring)
             {
@@ -575,7 +579,6 @@ namespace AEPsych
             }
             else
             {
-                Debug.Log("EndShowStimuli");
                 SetState(ExperimentState.WaitingForTell);
                 if (useModelExploration && readyToQuery)
                 {
@@ -629,12 +632,8 @@ namespace AEPsych
                 queryModel = FindObjectOfType<QueryModel>(true);
                 if (queryModel == null)
                 {
-                    ModelExplorerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(modelExplorerPath);
-                    if (ModelExplorerPrefab != null)
-                        queryModel = Instantiate(ModelExplorerPrefab).GetComponent<QueryModel>();
-                    else
-                        Debug.LogError(string.Format("Prefab not found at: {0}. Please Manually add the ModelExploreInterface prefab to use model exploration.", modelExplorerPath));
-                    Debug.Log("No Query Model game object detected in scene. Loading default ModelExploreInterface Prefab.");
+                    Debug.Log("No Query Model game object detected in scene. Please manually place the " +
+                        "ExperimentUI prefab into your scene.");
                 }
 
                 // Add Event System if there isn't one already
@@ -703,11 +702,12 @@ namespace AEPsych
             {
                 queryModel = FindObjectOfType<QueryModel>(true);
             }
+            /*
             if (queryModel != null)
             {
                 queryModel.gameObject.SetActive(useModelExploration);
             }
-
+            */
             if (!waiting)
                 Resume();
         }
@@ -718,17 +718,6 @@ namespace AEPsych
                 csvFile.StopRecording();
         }
 
-        #endregion
-
-        // ______________________________ Section 6 ________________________________
-        //
-        //  Public Static Methods
-        // _________________________________________________________________________
-        #region
-        public static GameObject LoadPrefab(string name)
-        {
-            return AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(name)[0]));
-        }
         #endregion
     }
 }

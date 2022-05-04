@@ -8,17 +8,17 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform), typeof(Canvas))]
 public class DefaultUI : MonoBehaviour
 {
-    Canvas canvas;
-    TextMeshProUGUI experimentText;
-
-    private void Awake()
-    {
-        experimentText = GetComponentInChildren<TextMeshProUGUI>();
-    }
+    public TextMeshProUGUI experimentText;
 
     public void SetText(string msg)
     {
-        experimentText.text = msg;
+        if (experimentText != null)
+            experimentText.text = msg;
+    }
+
+    public void SetTextActive(bool active)
+    {
+        experimentText.enabled = active;
     }
 }
 

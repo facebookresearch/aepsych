@@ -1,9 +1,11 @@
 {
-    "name": "com.frl.aepsych.editor",
+    "name": "com.frl.aepsych.samples_editor",
     "rootNamespace": "",
     "references": [
+        "Unity.TextMeshPro",
         "com.frl.aepsych.Runtime",
-        "Unity.TextMeshPro"
+        "com.frl.aepsych.editor",
+        "com.frl.aepsych.samples"
     ],
     "includePlatforms": [
         "Editor"

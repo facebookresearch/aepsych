@@ -22,9 +22,8 @@ public class ConfigGeneratorEditor : Editor
         EditorGUILayout.Space();
         if (!configGenerator.isAutomatic)
         {
-            var manualList = serializedObject.FindProperty("manualConfigFile");
-            EditorGUILayout.PropertyField(manualList, new GUIContent("Manual Config File"), true);
-            serializedObject.ApplyModifiedProperties();
+            EditorGUILayout.LabelField("Path to manual file (including file name) relative to the Assets/StreamingAssets folder");
+            configGenerator.filePath = EditorGUILayout.TextField("Config File Path", configGenerator.filePath);
 
             EditorGUILayout.HelpBox("Configure the following properties, then Click \"Write Config to File\" to generate a config file in the specified directory. To use files generated in this way, assign them in the \"Manual Config Files\" list above.", MessageType.Info);
             if (GUILayout.Button("Write Config to File"))
@@ -39,8 +38,6 @@ public class ConfigGeneratorEditor : Editor
                 }
             }
             EditorGUILayout.Space();
-            configGenerator.fileName = EditorGUILayout.TextField("Config File Name", configGenerator.fileName);
-            configGenerator.filePath = EditorGUILayout.TextField("Config File Path", configGenerator.filePath);
         }
         EditorGUILayout.Space();
         configGenerator.initialization_trials = EditorGUILayout.IntField("Number of initialization trials", configGenerator.initialization_trials);
