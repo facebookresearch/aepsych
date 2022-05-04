@@ -5,16 +5,24 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
+
 import torch
-from botorch.acquisition.objective import IdentityMCObjective
-from botorch.utils.testing import BotorchTestCase
+
+# run on single threads to keep us from deadlocking weirdly in CI
+if "CI" in os.environ or "SANDCASTLE" in os.environ:
+    torch.set_num_threads(1)
+
+
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
-from scipy.stats import norm
-from aepsych.models import MonotonicRejectionGP
-from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
-from aepsych.strategy import Strategy
 from aepsych.generators import MonotonicRejectionGenerator
+from aepsych.models import MonotonicRejectionGP
+from aepsych.strategy import Strategy
+from botorch.acquisition.objective import IdentityMCObjective
+from botorch.utils.testing import BotorchTestCase
+from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
+from scipy.stats import norm
 
 
 class MonotonicRejectionGPLSETest(BotorchTestCase):
