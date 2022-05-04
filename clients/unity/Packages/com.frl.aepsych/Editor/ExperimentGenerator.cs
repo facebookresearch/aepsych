@@ -16,17 +16,18 @@ public class ExperimentGenerator : EditorWindow
 
     #endregion
     
-    private bool needToAttach = false;
-    private float waitForCompile = 1;
-    private string fileDestination = "/Scripts/Experiments";
-    GameObject tempExperiment;
+    public bool needToAttach = false;
+    public float waitForCompile = 1;
+    public string fileDestination = "/Scripts/Experiments";
+    public GameObject tempExperiment;
+    public GameObject ExperimentUIPrefab;
+    public string prefabPath = "Packages/com.frl.aepsych/Runtime/Prefabs/ExperimentUI.prefab";
 
     [MenuItem("AEPsych/Create New Experiment")]
     public static void CreateNew()
     {
         EditorWindow.GetWindow(typeof(ExperimentGenerator));
     }
-
 
     void OnGUI()
     {
@@ -110,26 +111,30 @@ public class ExperimentGenerator : EditorWindow
         if (FindObjectOfType<AEPsychClient>() == null)
         {
             AEPsychClient clientObj = new GameObject("AEPsychClient").AddComponent<AEPsychClient>();
+
+            // Try to attach auto start server component, if it exists. (FB internal access only)
+            var serverAutoStart = GetSubType("ServerAutoStart", typeof(MonoBehaviour));
+            if (serverAutoStart != null)
+            {
+                clientObj.gameObject.AddComponent(serverAutoStart);
+            }
         }
 
         // Add a DefaultUI object if there is not one already
-        if (FindObjectOfType<DefaultUI>() == null)
+        if (FindObjectOfType<DefaultUI>(true) == null)
         {
-            DefaultUI UIObj = new GameObject("Default UI").AddComponent<DefaultUI>();
-            UIObj.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-
-            GameObject textObj = new GameObject("Trial Text");
-            textObj.transform.SetParent(UIObj.transform);
-
-            TextMeshProUGUI experimentText = textObj.AddComponent<TextMeshProUGUI>();
-            experimentText.alignment = TextAlignmentOptions.Center;
-            experimentText.outlineColor = Color.black;
-            experimentText.outlineWidth = 0.2f;
-
-            RectTransform rect = textObj.GetComponent<RectTransform>();
-            rect.anchoredPosition = Vector2.zero;
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 500f);
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 200f);
+            DefaultUI UIObj;
+            ExperimentUIPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (ExperimentUIPrefab != null)
+            {
+                UIObj = Instantiate(ExperimentUIPrefab).GetComponent<DefaultUI>();
+                UIObj.gameObject.name = "Experiment UI";
+            }
+            else
+                Debug.LogError(string.Format("Prefab not found at: {0}. Please Manually add the ExperimentUI prefab to your scene.", prefabPath));
+            
+            //DefaultUI UIObj = new GameObject("Default UI").AddComponent<DefaultUI>();
+            
         }
     }
 
@@ -151,5 +156,10 @@ public class ExperimentGenerator : EditorWindow
             }
         }
         return null;
+    }
+
+    public static GameObject LoadPrefab(string name)
+    {
+        return AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(name)[0]));
     }
 }

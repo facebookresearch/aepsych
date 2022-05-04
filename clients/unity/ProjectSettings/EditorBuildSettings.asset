@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Packages/com.frl.aepsych/Runtime/fb/AutoInstallShim/ServerInstaller.unity
+    guid: df1c31a8776804446a9f54a690b7ed47
   m_configObjects: {}

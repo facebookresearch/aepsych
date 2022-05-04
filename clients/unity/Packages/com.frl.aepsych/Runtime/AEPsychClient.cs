@@ -193,7 +193,7 @@ namespace AEPsych
         //_______________________________________________________________________
         // AEPsych Fields and Refrences
         #region
-        public enum ClientStatus { Ready, QuerySent, GotResponse };
+        public enum ClientStatus { Ready, QuerySent, GotResponse, FailedToConnect };
         ClientStatus status;
         string reply;
         List<string> serverMessageQueue = new List<string>();
@@ -212,6 +212,7 @@ namespace AEPsych
         private volatile TcpClient tcpConnection;
         private Thread ListenThread;
         private volatile bool connected;
+        private volatile bool serverConnectionLost = false;
         #endregion
         //_______________________________________________________________________
 
@@ -221,7 +222,7 @@ namespace AEPsych
         #region
         private void Start()
         {
-
+            //Application.OpenURL("thrift_service_wrapper.exe");
         }
 
         private void Update()
@@ -233,6 +234,11 @@ namespace AEPsych
                     reply += serverMessageQueue[0];
                     serverMessageQueue.RemoveAt(0);
                 }
+            }
+            if (serverConnectionLost)
+            {
+                SetStatus(ClientStatus.FailedToConnect);
+                serverConnectionLost = false;
             }
         }
 
@@ -543,7 +549,8 @@ namespace AEPsych
                 }
                 tcpConnection.Close();
             }
-            catch (SocketException e)
+            //catch (SocketException e)
+            catch (Exception e)
             {
                 if (e.GetType() == typeof(System.Threading.ThreadAbortException))
                 {
@@ -558,12 +565,14 @@ namespace AEPsych
                     }
                     else
                     {
-                        Debug.LogError(string.Format("AEPsych Server not found at {0}:{1}. Check if the server has been initialized.", server_address, server_port));
+                        serverConnectionLost = true;
+                        Debug.LogError(string.Format("AEPsych Server not found at {0}:{1}. Ensure that the server has been installed and initialized.", server_address, server_port));
                     }
                 }
                 else
                 {
-                    Debug.Log("Socket exception: " + e.GetType());
+                    Debug.LogError(String.Format("Socket exception: {0}: {1}", e.GetType(), e.Message));
+                    serverConnectionLost = true;
                 }
 
             }
