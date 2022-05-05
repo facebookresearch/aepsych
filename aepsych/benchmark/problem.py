@@ -180,6 +180,10 @@ class Problem:
 
         expected_brier = (2 * np.square(self.p_true[None, :] - psamps)).mean()
 
+        p_hat_max = p_hat.max()
+        p_hat_min = p_hat.min()
+        p_hat_range = p_hat_max - p_hat_min
+
         metrics = {
             "mean_abs_err_f": mae_f,
             "mean_integrated_abs_err_f": miae_f,
@@ -195,6 +199,9 @@ class Problem:
             "pearson_corr_p": corr_p,
             "brier": brier,
             "expected_brier": expected_brier,
+            "max_p": p_hat_max,
+            "min_p": p_hat_min,
+            "range_p": p_hat_range,
         }
 
         return metrics
