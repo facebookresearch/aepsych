@@ -26,12 +26,14 @@ strategy_names = [init_strat, opt_strat]
 [init_strat]
 n_trials = 2
 generator = SobolGenerator
+min_outcome_occurrences = 0
 
 [opt_strat]
 n_trials = 2
 generator = OptimizeAcqfGenerator
 acqf = MCPosteriorVariance
 model = GPClassificationModel
+min_outcome_occurrences = 0
 
 [GPClassificationModel]
 inducing_size = 10
@@ -352,37 +354,37 @@ class ServerTestCase(unittest.TestCase):
             )
 
     def test_strat_can_model(self):
-            setup_request = {
-                "type": "setup",
-                "version": "0.01",
-                "message": {"config_str": dummy_config},
-            }
-            ask_request = {"type": "ask", "message": ""}
-            tell_request = {
-                "type": "tell",
-                "message": [
-                    {"config": {"x": [0.5]}, "outcome": 1},
-                ],
-            }
-            can_model_request = {
-                "type": "can_model",
-                "message": {},
-            }
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": [
+                {"config": {"x": [0.5]}, "outcome": 1},
+            ],
+        }
+        can_model_request = {
+            "type": "can_model",
+            "message": {},
+        }
 
-            self.s.versioned_handler(setup_request)
-            #At the start there is no model, so can_model returns false
-            response = self.s.unversioned_handler(can_model_request)
-            self.assertTrue(response["can_model"] == 0)
+        self.s.versioned_handler(setup_request)
+        # At the start there is no model, so can_model returns false
+        response = self.s.unversioned_handler(can_model_request)
+        self.assertTrue(response["can_model"] == 0)
 
-            self.s.unversioned_handler(ask_request)
-            self.s.unversioned_handler(tell_request)
-            self.s.unversioned_handler(ask_request)
-            self.s.unversioned_handler(tell_request)
-            self.s.unversioned_handler(ask_request)
+        self.s.unversioned_handler(ask_request)
+        self.s.unversioned_handler(tell_request)
+        self.s.unversioned_handler(ask_request)
+        self.s.unversioned_handler(tell_request)
+        self.s.unversioned_handler(ask_request)
 
-            #Dummy config has 2 init trials; so after third ask, can_model returns true
-            response = self.s.unversioned_handler(can_model_request)
-            self.assertTrue(response["can_model"] == 1)
+        # Dummy config has 2 init trials; so after third ask, can_model returns true
+        response = self.s.unversioned_handler(can_model_request)
+        self.assertTrue(response["can_model"] == 1)
 
     def test_strat_query(self):
         setup_request = {

@@ -38,10 +38,12 @@ class ConfigTestCase(unittest.TestCase):
         [init_strat]
         generator = SobolGenerator
         n_trials = 10
+        min_outcome_occurrences = 5
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
         n_trials = 20
+        min_post_range = 0.01
 
         [MCLevelSetEstimation]
         beta = 3.98
@@ -89,6 +91,12 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+
+        self.assertEqual(strat.strat_list[0].min_outcome_occurrences, 5)
+        self.assertEqual(strat.strat_list[0].min_post_range, None)
+
+        self.assertEqual(strat.strat_list[1].min_outcome_occurrences, 1)
+        self.assertEqual(strat.strat_list[1].min_post_range, 0.01)
 
     def test_missing_config_file(self):
         config_file = "../configs/does_not_exist.ini"
@@ -178,25 +186,6 @@ class ConfigTestCase(unittest.TestCase):
 
         with self.assertWarns(Warning):
             Config.register_object(DummyMod)
-
-    def test_sobol_n_trials(self):
-        for n_trials in [-1, 0, 1]:
-            config_str = f"""
-            [common]
-            lb = [0]
-            ub = [1]
-            parnames = [par1]
-            strategy_names = [init_strat]
-
-            [init_strat]
-            generator = SobolGenerator
-            n_trials = {n_trials}
-            """
-            config = Config()
-            config.update(config_str=config_str)
-            strat = Strategy.from_config(config, "init_strat")
-            self.assertEqual(strat.n_trials, n_trials)
-            self.assertEqual(strat.finished, n_trials <= 0)
 
     def test_multiple_models_and_strats(self):
         config_str = """
