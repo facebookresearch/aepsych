@@ -82,7 +82,11 @@ class BenchmarkTestCase(unittest.TestCase):
                 "acqf": "MCLevelSetEstimation",
                 "model": "GPClassificationModel",
             },
-            "init_strat": {"n_trials": [2, 4], "generator": "SobolGenerator"},
+            "init_strat": {
+                "n_trials": [2, 4],
+                "generator": "SobolGenerator",
+                "min_outcome_occurrences": 0,
+            },
             "opt_strat": {
                 "n_trials": [
                     DerivedValue(
@@ -93,6 +97,7 @@ class BenchmarkTestCase(unittest.TestCase):
                     ),
                 ],
                 "generator": "OptimizeAcqfGenerator",
+                "min_outcome_occurrences": 0,
             },
             "MCLevelSetEstimation": {
                 "target": 0.75,

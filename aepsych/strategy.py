@@ -5,18 +5,18 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import time
 import warnings
 from typing import Optional, Union
-from aepsych.generators.sobol_generator import SobolGenerator
-import time
 
 import numpy as np
 import torch
 
-from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import ModelProtocol
-from aepsych.utils import _process_bounds
 from aepsych.config import Config
+from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.sobol_generator import SobolGenerator
+from aepsych.models.base import ModelProtocol
+from aepsych.utils import _process_bounds, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 
 logger = getLogger()
@@ -53,8 +53,21 @@ class Strategy(object):
         dim: Optional[int] = None,
         refit_every: int = 1,
         outcome_type: str = "single_probit",
+        min_outcome_occurrences: int = 1,
+        max_trials: Optional[int] = None,
+        min_post_range: Optional[float] = None,
+        n_eval_points: int = 1000,
     ):
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
+        self.min_outcome_occurrences = min_outcome_occurrences
+        self.max_trials = max_trials
+
+        self.min_post_range = min_post_range
+        if self.min_post_range is not None:
+            assert model is not None, "min_post_range must be None if model is None!"
+            self.eval_grid = make_scaled_sobol(
+                lb=self.lb, ub=self.ub, size=n_eval_points
+            )
 
         self.x = None
         self.y = None
@@ -153,7 +166,26 @@ class Strategy(object):
 
     @property
     def finished(self):
-        return self._count >= self.n_trials
+        if self.y is None:  # always need some data before switching strats
+            return False
+
+        if self.max_trials is not None and self._count >= self.max_trials:
+            return True
+
+        n_yes_trials = (self.y == 1).sum()
+        n_no_trials = (self.y == 0).sum()
+        if self.min_post_range is not None:
+            fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
+            meets_post_range = (fmean.max() - fmean.min()) >= self.min_post_range
+        else:
+            meets_post_range = True
+        finished = (
+            self._count >= self.n_trials
+            and n_yes_trials >= self.min_outcome_occurrences
+            and n_no_trials >= self.min_outcome_occurrences
+            and meets_post_range
+        )
+        return finished
 
     @property
     def can_fit(self):
@@ -202,6 +234,11 @@ class Strategy(object):
                     RuntimeWarning,
                 )
 
+        min_outcome_occurrences = config.getint(
+            name, "min_outcome_occurrences", fallback=1
+        )
+        min_post_range = config.getfloat(name, "min_post_range", fallback=None)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -211,6 +248,8 @@ class Strategy(object):
             n_trials=n_trials,
             refit_every=refit_every,
             outcome_type=outcome_type,
+            min_outcome_occurrences=min_outcome_occurrences,
+            min_post_range=min_post_range,
         )
 
 

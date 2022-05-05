@@ -50,6 +50,7 @@ class Config(configparser.ConfigParser):
                 "tensor": self._str_to_tensor,
                 "obj": self._str_to_obj,
             },
+            allow_no_value=True
         )
 
         self.update(
