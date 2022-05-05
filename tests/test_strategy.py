@@ -42,6 +42,7 @@ class TestSequenceGenerators(unittest.TestCase):
             n_trials=50,
             lb=lb,
             ub=ub,
+            min_post_range=0.3,
         )
         self.strat.model.fit = MagicMock()
         self.strat.model.update = MagicMock()
@@ -54,7 +55,7 @@ class TestSequenceGenerators(unittest.TestCase):
         strat_list = []
         for lb, ub, n in zip(lbs, ubs, n):
             gen = SobolGenerator(lb, ub)
-            strat = Strategy(n, gen, lb, ub)
+            strat = Strategy(n, gen, lb, ub, min_no_trials=0)
             strat_list.append(strat)
 
         strat = SequentialStrategy(strat_list)
@@ -101,7 +102,18 @@ class TestSequenceGenerators(unittest.TestCase):
         self.assertFalse(self.strat.finished)
 
         self.strat.gen()
+        self.strat.add_data(np.r_[1.0, 1.0], [1])
+        self.assertFalse(self.strat.finished)  # not enough "no" trials
+
+        self.strat.gen()
         self.strat.add_data(np.r_[1.0, 1.0], [0])
+        self.assertFalse(
+            self.strat.finished
+        )  # not enough difference between posterior min/max
+
+        for _ in range(50):
+            self.strat.gen()
+            self.strat.add_data(np.r_[0.0, 0.0], [0])
         self.assertTrue(self.strat.finished)
 
 

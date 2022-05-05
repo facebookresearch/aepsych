@@ -38,10 +38,13 @@ class ConfigTestCase(unittest.TestCase):
         [init_strat]
         generator = SobolGenerator
         n_trials = 10
+        min_yes_trials = 5
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
         n_trials = 20
+        min_post_range = 0.01
+        min_no_trials = 5
 
         [MCLevelSetEstimation]
         beta = 3.98
@@ -89,6 +92,14 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+
+        self.assertEqual(strat.strat_list[0].min_yes_trials, 5)
+        self.assertEqual(strat.strat_list[0].min_no_trials, 1)
+        self.assertEqual(strat.strat_list[0].min_post_range, None)
+
+        self.assertEqual(strat.strat_list[1].min_yes_trials, 1)
+        self.assertEqual(strat.strat_list[1].min_no_trials, 5)
+        self.assertEqual(strat.strat_list[1].min_post_range, 0.01)
 
     def test_missing_config_file(self):
         config_file = "../configs/does_not_exist.ini"
