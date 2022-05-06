@@ -44,6 +44,7 @@ class ConfigTestCase(unittest.TestCase):
         generator = OptimizeAcqfGenerator
         n_trials = 20
         min_post_range = 0.01
+        keep_most_recent = 10
 
         [MCLevelSetEstimation]
         beta = 3.98
@@ -94,9 +95,11 @@ class ConfigTestCase(unittest.TestCase):
 
         self.assertEqual(strat.strat_list[0].min_outcome_occurrences, 5)
         self.assertEqual(strat.strat_list[0].min_post_range, None)
+        self.assertEqual(strat.strat_list[0].keep_most_recent, None)
 
         self.assertEqual(strat.strat_list[1].min_outcome_occurrences, 1)
         self.assertEqual(strat.strat_list[1].min_post_range, 0.01)
+        self.assertEqual(strat.strat_list[1].keep_most_recent, 10)
 
     def test_missing_config_file(self):
         config_file = "../configs/does_not_exist.ini"

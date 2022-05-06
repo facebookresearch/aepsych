@@ -7,16 +7,14 @@
 
 import unittest
 from unittest.mock import MagicMock
+from aepsych.models.gp_classification import GPClassificationModel
 
 import numpy as np
 import torch
-from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
-from aepsych.strategy import Strategy, SequentialStrategy
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.generators import (
-    MonotonicRejectionGenerator,
-    SobolGenerator,
-)
+from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
+from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
+from aepsych.strategy import SequentialStrategy, Strategy
 
 
 class TestSequenceGenerators(unittest.TestCase):
@@ -126,6 +124,36 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat.gen()
         self.strat.add_data(np.r_[1.0, 1.0], [1])
         self.assertTrue(self.strat.finished)
+
+    def test_keep_most_recent(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        lb = [-1, -1]
+        ub = [1, 1]
+
+        self.strat = Strategy(
+            model=GPClassificationModel(
+                lb=lb,
+                ub=ub,
+            ),
+            generator=SobolGenerator(lb=lb, ub=ub),
+            n_trials=50,
+            lb=lb,
+            ub=ub,
+        )
+
+        self.strat.keep_most_recent = 2
+        data = torch.rand(5, 2)
+        for i, d in enumerate(data):
+            self.strat.gen()
+            self.strat.add_data(d, [0])
+            self.strat.fit()
+
+            lb = max(0, i - self.strat.keep_most_recent + 1)
+            self.assertTrue(
+                torch.equal(self.strat.model.train_inputs[0], data[lb : i + 1])
+            )
 
 
 if __name__ == "__main__":

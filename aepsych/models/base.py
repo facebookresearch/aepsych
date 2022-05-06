@@ -62,6 +62,9 @@ class ModelProtocol(Protocol):
     def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
         pass
 
+    def update(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
+        pass
+
 
 class AEPsychMixin:
     """Mixin class that provides AEPsych-specific utility methods."""
