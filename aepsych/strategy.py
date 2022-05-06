@@ -24,18 +24,17 @@ logger = getLogger()
 
 def ensure_model_is_fresh(f):
     def wrapper(self, *args, **kwargs):
-        if self.has_model and not self._model_is_fresh:
-            if self.x is not None and self.y is not None:
-                starttime = time.time()
-                if self._count % self.refit_every == 0 or self.refit_every == 1:
-                    logger.info("Starting fitting (no warm start)...")
-                    # don't warm start
-                    self.model.fit(self.x, self.y)
-                else:
-                    logger.info("Starting fitting (warm start)...")
-                    # warm start
-                    self.model.update(self.x, self.y)
-                logger.info(f"Fitting done, took {time.time()-starttime}")
+        if self.can_fit and not self._model_is_fresh:
+            starttime = time.time()
+            if self._count % self.refit_every == 0 or self.refit_every == 1:
+                logger.info("Starting fitting (no warm start)...")
+                # don't warm start
+                self.fit()
+            else:
+                logger.info("Starting fitting (warm start)...")
+                # warm start
+                self.update()
+            logger.info(f"Fitting done, took {time.time()-starttime}")
         self._model_is_fresh = True
         return f(self, *args, **kwargs)
 
@@ -55,12 +54,14 @@ class Strategy(object):
         outcome_type: str = "single_probit",
         min_outcome_occurrences: int = 1,
         max_trials: Optional[int] = None,
+        keep_most_recent: Optional[int] = None,
         min_post_range: Optional[float] = None,
         n_eval_points: int = 1000,
     ):
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.min_outcome_occurrences = min_outcome_occurrences
         self.max_trials = max_trials
+        self.keep_most_recent = keep_most_recent
 
         self.min_post_range = min_post_range
         if self.min_post_range is not None:
@@ -197,7 +198,23 @@ class Strategy(object):
 
     def fit(self):
         if self.can_fit:
-            self.model.fit(self.x, self.y)
+            if self.keep_most_recent is not None:
+                self.model.fit(
+                    self.x[-self.keep_most_recent :], self.y[-self.keep_most_recent :]
+                )
+            else:
+                self.model.fit(self.x, self.y)
+        else:
+            warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
+
+    def update(self):
+        if self.can_fit:
+            if self.keep_most_recent is not None:
+                self.model.update(
+                    self.x[-self.keep_most_recent :], self.y[-self.keep_most_recent :]
+                )
+            else:
+                self.model.update(self.x, self.y)
         else:
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
@@ -238,6 +255,7 @@ class Strategy(object):
             name, "min_outcome_occurrences", fallback=1
         )
         min_post_range = config.getfloat(name, "min_post_range", fallback=None)
+        keep_most_recent = config.getint(name, "keep_most_recent", fallback=None)
 
         return cls(
             lb=lb,
@@ -250,6 +268,7 @@ class Strategy(object):
             outcome_type=outcome_type,
             min_outcome_occurrences=min_outcome_occurrences,
             min_post_range=min_post_range,
+            keep_most_recent=keep_most_recent,
         )
 
 
