@@ -5,11 +5,17 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
 import unittest
+
+import torch
+
+# run on single threads to keep us from deadlocking weirdly in CI
+if "CI" in os.environ or "SANDCASTLE" in os.environ:
+    torch.set_num_threads(1)
 
 import numpy as np
 import numpy.testing as npt
-import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
