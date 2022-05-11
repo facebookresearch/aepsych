@@ -1,4 +1,12 @@
-﻿using System.Collections;
+﻿/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -55,7 +63,7 @@ public class ConfigGenerator: MonoBehaviour
     {
         return experiment_types;
     }
-    
+
     private void OnValidate()
     {
         isEditorVersion = true;
@@ -65,7 +73,7 @@ public class ConfigGenerator: MonoBehaviour
             experimentParams.Add(new Parameter("Dimension 1"));
         }
     }
-    
+
     public bool CheckParamValidity()
     {
         List<string> keys = new List<string>();
