@@ -1,3 +1,11 @@
+/*
+Copyright (c) Facebook, Inc. and its affiliates.
+All rights reserved.
+
+This source code is licensed under the license found in the
+LICENSE file in the root directory of this source tree.
+*/
+
 using UnityEditor;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -7,7 +15,6 @@ using System.Reflection;
 using AEPsych;
 using TMPro;
 
-// From StackOverflow: https://stackoverflow.com/questions/27802185/unity-4-6-editor-create-a-script-with-predefined-data
 public class ExperimentGenerator : EditorWindow
 {
     #region Experiment Fields
@@ -15,7 +22,7 @@ public class ExperimentGenerator : EditorWindow
     public string experimentName = "Default";
 
     #endregion
-    
+
     public bool needToAttach = false;
     public float waitForCompile = 1;
     public string fileDestination = "/Scripts/Experiments";
@@ -79,7 +86,7 @@ public class ExperimentGenerator : EditorWindow
     private void CreateNewExperiment()
     {
         TextAsset template = AssetDatabase.LoadAssetAtPath("Packages/com.frl.aepsych/Editor/Templates/ExperimentTemplate.txt", typeof(TextAsset)) as TextAsset;
-        
+
         string contents = "";
         if (template != null)
         {
@@ -132,9 +139,9 @@ public class ExperimentGenerator : EditorWindow
             }
             else
                 Debug.LogError(string.Format("Prefab not found at: {0}. Please Manually add the ExperimentUI prefab to your scene.", prefabPath));
-            
+
             //DefaultUI UIObj = new GameObject("Default UI").AddComponent<DefaultUI>();
-            
+
         }
     }
 

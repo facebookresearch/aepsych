@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -86,14 +94,14 @@ public class QueryModel : MonoBehaviour
             }
         }
         //Spawn final slider and query twice for its limits
-        
+
         yield return StartCoroutine(client.Query(QueryType.max));
         QueryMessage m = client.GetQueryResponse();
         maxY = m.y;
         yield return StartCoroutine(client.Query(QueryType.min));
         m = client.GetQueryResponse();
         minY = m.y;
-        
+
         string nameY = yAxisName;
 
         //Spawn + initialize slider, if necessary.
@@ -110,7 +118,7 @@ public class QueryModel : MonoBehaviour
             ySlider.SetQueryModel(this);
             ySlider.DisableLockToggle();
         }
-        
+
         //ySlider.InitSlider(0, 3.4567f, nameY, true);
         ySlider.InitSlider(minY, maxY, nameY, true);
         StartCoroutine(ComputeYFromModel());
