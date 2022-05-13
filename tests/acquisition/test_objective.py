@@ -39,3 +39,6 @@ class FloorLinkTests(unittest.TestCase):
         our_link = our_objective(floor=floor)
         our_answer = our_link(torch.Tensor(x).unsqueeze(-1))
         self.assertTrue(np.allclose(scipy_answer, our_answer.numpy()))
+
+        our_inverse = our_link.inverse(our_answer)
+        self.assertTrue(np.allclose(x, our_inverse.numpy()))
