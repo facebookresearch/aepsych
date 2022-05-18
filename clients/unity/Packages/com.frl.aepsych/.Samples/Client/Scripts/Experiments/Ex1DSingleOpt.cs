@@ -100,7 +100,7 @@ public class Ex1DSingleOpt : Experiment
         fs.SetGrayscaleColor(maxLoc["gsColor"][0]);
     }
 
-    void SetText(string s)
+    public override void SetText(string s)
     {
         trialText.SetText(s);
     }

@@ -36,6 +36,8 @@ namespace AEPsych
         [SerializeField] bool useModelExploration;
         public bool autoDisableOtherCanvases;
         public bool recordToCSV;
+        [Tooltip("Setting Async Ask to true will query the server for the next trial while the current trial is underway, speeding up the experiment.")]
+        public bool asyncAsk = true;
 
         public enum StartType
         {
@@ -50,6 +52,7 @@ namespace AEPsych
         // AEPsych Refrences
         #region
         [HideInInspector] public TrialConfig config;
+        [HideInInspector] public TrialConfig nextConfig;
         [HideInInspector] public AEPsychClient client;
         [HideInInspector] public AEPsychStrategy strategy;
         [HideInInspector] public CSVWriter csvFile;
@@ -61,13 +64,23 @@ namespace AEPsych
         [HideInInspector] public bool isDone = false;
         [HideInInspector] public bool isPaused = false;
         [HideInInspector] public DefaultUI defaultUI;
-        string modelExplorerPath = "Packages/com.frl.aepsych/Runtime/Prefabs/ModelExploreInterface.prefab";
         string configPath;
         bool readyToQuery = false;
         bool hasStarted = false;
+        bool nextConfigReady = false;
         QueryModel queryModel;
         ExperimentState prevState;
         GameObject ModelExplorerPrefab;
+        enum InitStatus
+        {
+            NotStarted,
+            FirstAskSent,
+            FirstAskComplete,
+            SecondAskSent,
+            SecondAskComplete,
+            Done
+        }
+        InitStatus initStatus = InitStatus.NotStarted;
         #endregion
 
         // Experiment state machine states
@@ -83,6 +96,7 @@ namespace AEPsych
             WaitingForCanModelResponse,
             WaitingForAsk,
             WaitingForTell,
+            WaitingForAsyncAsk,
             Exploring,
         };
         ExperimentState _experimentState = ExperimentState.NotConnected;
@@ -163,7 +177,6 @@ namespace AEPsych
         /// </summary>
         public virtual void CheckUserResponse()
         {
-
             if (Input.GetKeyDown(ResponseKey0))
             {
                 ReportResultToServer(0);
@@ -215,6 +228,13 @@ namespace AEPsych
         /// </summary>
         public void ReportResultToServer(int outcome, TrialMetadata metadata = null)
         {
+            if (asyncAsk && _experimentState == ExperimentState.WaitingForAsyncAsk)
+            {
+                AEPsychClient.Log("Received response before async ask has finished. Waiting to tell...");
+                StartCoroutine(TellWhenAskReceived(outcome, metadata));
+                return;
+            }
+
             if (recordToCSV)
             {
                 TrialData trial = new TrialData(DateTime.Now.ToString("hh:mm:ss"), config, outcome, metadata);
@@ -229,6 +249,31 @@ namespace AEPsych
             if (useModelExploration && queryModel != null)
             {
                 queryModel.QueryEnabled(false);
+            }
+
+            if (asyncAsk)
+            {
+                config = nextConfig;
+            }
+        }
+
+        IEnumerator TellWhenAskReceived(int outcome, TrialMetadata metadata = null)
+        {
+            yield return new WaitUntil(() => nextConfigReady);
+            ReportResultToServer(outcome, metadata);
+        }
+
+        IEnumerator WaitForResponse()
+        {
+            yield return new WaitForSeconds(0.1f);
+            yield return new WaitUntil(() => Input.GetKeyDown(ResponseKey0) || Input.GetKeyDown(ResponseKey1));
+            if (Input.GetKeyDown(ResponseKey0))
+            {
+                ReportResultToServer(0);
+            }
+            else
+            {
+                ReportResultToServer(1);
             }
         }
 
@@ -249,10 +294,22 @@ namespace AEPsych
                 SetState(ExperimentState.WaitingForResumeResponse);
                 yield return StartCoroutine(client.Resume(strat.stratId));
             }
-            strategy.currentTrial++;
-            AEPsychClient.Log("strat " + strategy.stratId + " trial# "
-                + strat.currentTrial);
-            SetState(ExperimentState.WaitingForAskResponse);
+            // Don't increment trial for initial double ask
+            if (asyncAsk && initStatus <= InitStatus.FirstAskComplete)
+            {
+                AEPsychClient.Log("Sending initial ask...");
+            }
+            else
+            {
+                strategy.currentTrial++;
+                AEPsychClient.Log("strat " + strategy.stratId + " trial# "
+                    + strat.currentTrial);
+            }
+            if (asyncAsk)
+                SetState(ExperimentState.WaitingForAsyncAsk);
+            else
+                SetState(ExperimentState.WaitingForAskResponse);
+
             yield return StartCoroutine(client.Ask());
         }
 
@@ -262,15 +319,21 @@ namespace AEPsych
         /// </summary>
         public IEnumerator EndTrial()
         {
+            nextConfigReady = false;
             //check if strat or experiment is done
-            if (isDone) //check if this was the final ask for this strat
+            if (client.finished) //check if this was the final ask for this strat
             {
+                isDone = true;
                 strategy.isDone = true;
                 ExperimentComplete();
                 yield break;
             }
 
             // Continue the experiment by asking for a new trial
+            if (asyncAsk)
+            {
+                ShowStimuli(config);
+            }
             StartCoroutine(AskForNewConfig(strategy));
             yield return null;
         }
@@ -281,12 +344,13 @@ namespace AEPsych
             BeginExperiment();
         }
 
+        /*
         public IEnumerator WaitForInput()
         {
             yield return new WaitUntil(() => Input.GetKeyDown(startKey));
             BeginExperiment();
         }
-
+        */
 
         /// <summary>
         /// Called when this game object becomes active. Generates strategies if they are un-initialized
@@ -469,16 +533,73 @@ namespace AEPsych
                 if (newStatus == AEPsychClient.ClientStatus.Ready)
                 {
                     SetState(ExperimentState.WaitingForTell);
-                    // Enable or Disable Model Querying based on client status
-                    CheckUserResponse(); // Should call ReportResultToServer()
-                                         // when response is collected
                 }
+            }
+            else if (_experimentState == ExperimentState.WaitingForAsyncAsk)
+            {
+                if (newStatus == AEPsychClient.ClientStatus.GotResponse)
+                {
+                    // Ask twice initially, to allow async asks going forward
+                    if (asyncAsk && initStatus < InitStatus.FirstAskComplete)
+                    {
+                        nextConfig = client.GetConfig();
+                        initStatus = InitStatus.FirstAskComplete;
+                        //SetState(ExperimentState.WaitingForAsyncAsk);
+                        StartCoroutine(AskForNewConfig(strategy));
+                        return;
+                    }
+
+                    // We recieved a new config. Store it.
+                    config = nextConfig;
+                    nextConfig = client.GetConfig();
+                    SetState(ExperimentState.ConfigReady);
+                    nextConfigReady = true;
+                    if (initStatus < InitStatus.SecondAskComplete)
+                    {
+                        ShowStimuli(config);
+                        initStatus = InitStatus.Done;
+                    }
+                    /*
+                    if (client.finished)
+                    {
+                        isDone = true;
+                        StartCoroutine(EndTrial());
+                    }
+                    */
+                }
+                else if (newStatus == AEPsychClient.ClientStatus.Ready)
+                {
+                    // Ask twice initially, to allow async asks going forward
+                    if (asyncAsk && initStatus <= InitStatus.FirstAskComplete)
+                    {
+                        return;
+                    }
+                    else if (!asyncAsk)
+                    {
+                        SetState(ExperimentState.WaitingForTell);
+                    }
+                }
+                if (newStatus == AEPsychClient.ClientStatus.QuerySent)
+                {
+                    if (initStatus == InitStatus.NotStarted)
+                    {
+                        initStatus = InitStatus.FirstAskSent;
+                    }
+                    else if (initStatus == InitStatus.FirstAskComplete)
+                    {
+                        initStatus = InitStatus.SecondAskSent;
+                    }
+                }
+
             }
             else if (_experimentState == ExperimentState.WaitingForAsk)
             {
                 if (newStatus == AEPsychClient.ClientStatus.QuerySent)
                 {
-                    SetState(ExperimentState.WaitingForAskResponse);
+                    if (asyncAsk)
+                        SetState(ExperimentState.WaitingForAsyncAsk);
+                    else
+                        SetState(ExperimentState.WaitingForAskResponse);
                 }
             }
             else if (_experimentState == ExperimentState.WaitingForTell)
@@ -579,7 +700,11 @@ namespace AEPsych
             }
             else
             {
-                SetState(ExperimentState.WaitingForTell);
+                if (!asyncAsk)
+                    SetState(ExperimentState.WaitingForTell);
+
+                StartCoroutine(WaitForResponse());
+
                 if (useModelExploration && readyToQuery)
                 {
                     queryModel.QueryEnabled(true);
@@ -675,12 +800,16 @@ namespace AEPsych
             }
         }
 
+        /*
         private void Update()
         {
-            if (_experimentState == ExperimentState.WaitingForTell)
+
+            if (_experimentState == ExperimentState.WaitingForTell || _experimentState == ExperimentState.WaitingForAsyncAsk)
                 CheckUserResponse();    // implementation of CheckUserResponse() needs to call
                                         // ReportResultToServer() when response is collected
+
         }
+        */
 
         private void OnEnable()
         {

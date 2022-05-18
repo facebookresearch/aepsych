@@ -468,7 +468,7 @@ namespace AEPsych
         //_______________________________________________________________________
         // Internal Methods
 #region
-        string ReadFile(string filePath)
+        public string ReadFile(string filePath)
         {
             var sr = new StreamReader(filePath);
             string fileContents = sr.ReadToEnd();
@@ -476,7 +476,7 @@ namespace AEPsych
             return fileContents;
         }
 
-        IEnumerator SendRequest(string query)
+        public IEnumerator SendRequest(string query)
         {
             reply = null;
             SendMessageToServer(query);
@@ -486,7 +486,7 @@ namespace AEPsych
             yield return null;
         }
 
-        void SetStatus(ClientStatus newStatus)
+        public void SetStatus(ClientStatus newStatus)
         {
             ClientStatus oldStatus = status;
             if (newStatus != oldStatus)
@@ -499,7 +499,7 @@ namespace AEPsych
             }
         }
 
-        void LogFromInstance(string msg)
+        public void LogFromInstance(string msg)
         {
             if (debugEnabled)
             {
@@ -507,14 +507,14 @@ namespace AEPsych
             }
         }
 
-#endregion
+        #endregion
         //_______________________________________________________________________
 
 
         //_______________________________________________________________________
         // Server Communication Methods
-#region
-        private void ConnectToServer()
+        #region
+        public void ConnectToServer()
         {
             if (tcpConnection != null)
             {
@@ -552,11 +552,11 @@ namespace AEPsych
             //catch (SocketException e)
             catch (Exception e)
             {
-                if (e.GetType() == typeof(System.Threading.ThreadAbortException))
+                if (e.GetType() == typeof(ThreadAbortException))
                 {
                     LogFromInstance("Aborting client listen thread.");
                 }
-                else if (e.GetType() == typeof(System.Net.Sockets.SocketException))
+                else if (e.GetType() == typeof(SocketException))
                 {
                     if (retryConnectCount++ < maxRetries)
                     {
@@ -566,19 +566,19 @@ namespace AEPsych
                     else
                     {
                         serverConnectionLost = true;
-                        Debug.LogError(string.Format("AEPsych Server not found at {0}:{1}. Ensure that the server has been installed and initialized.", server_address, server_port));
+                        ServerFailure(string.Format("AEPsych Server not found at {0}:{1}. Ensure that the server has been installed and initialized.", server_address, server_port));
                     }
                 }
                 else
                 {
-                    Debug.LogError(String.Format("Socket exception: {0}: {1}", e.GetType(), e.Message));
+                    ServerFailure(String.Format("Socket exception: {0}: {1}", e.GetType(), e.Message));
                     serverConnectionLost = true;
                 }
 
             }
         }
 
-        void SendMessageToServer(string msg)
+        public void SendMessageToServer(string msg)
         {
             if (tcpConnection == null || !tcpConnection.Connected)
             {
@@ -608,6 +608,11 @@ namespace AEPsych
             {
                 Debug.Log("Socket exception: " + socketException);
             }
+        }
+
+        public virtual void ServerFailure(string msg)
+        {
+            Debug.LogError(msg);
         }
 #endregion
         //_______________________________________________________________________

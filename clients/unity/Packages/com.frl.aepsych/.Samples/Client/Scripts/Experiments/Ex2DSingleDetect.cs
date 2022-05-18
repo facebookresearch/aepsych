@@ -87,7 +87,7 @@ public class Ex2DSingleDetect : Experiment
         BeginExperiment();
     }
 
-    void SetText(string s)
+    public override void SetText(string s)
     {
         trialText.SetText(s);
     }

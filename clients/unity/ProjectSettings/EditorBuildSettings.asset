@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Packages/com.frl.aepsych/Runtime/fb/AutoInstallShim/ServerInstaller.unity
     guid: df1c31a8776804446a9f54a690b7ed47
+  - enabled: 1
+    path: Assets/Samples/AEPsych Package/1.2.1/AEPsych Client/Scenes/fb/ParticleOptimize.unity
+    guid: 539e4e5c91c684345a05364a22e99e22
   m_configObjects: {}

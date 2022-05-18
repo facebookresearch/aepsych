@@ -17,6 +17,8 @@ public class EXPERIMENTCLASS_NAME : Experiment
     [HideInInspector] public string experimentName = "EXPERIMENT_NAME";
     #endregion
 
+    public float stimulusDuration = 1f;
+
     // ShowStimuli (MANDATORY)
     //      Modify and display a stimulus based on trial parameters.
     //      Use the dimension names defined in your config file as string
@@ -33,7 +35,7 @@ public class EXPERIMENTCLASS_NAME : Experiment
     public override void ShowStimuli(TrialConfig config)
     {
         SetText(string.Format("Show Stimulus: {0}", config));
-        StartCoroutine(EndShowStimuliAfterSeconds(1f));
+        StartCoroutine(EndShowStimuliAfterSeconds(stimulusDuration));
     }
 
     // OnConnectToServer (optional)
@@ -76,6 +78,14 @@ public class EXPERIMENTCLASS_NAME : Experiment
     // additional experiment flow control and visibility into the Experiment State Machine.
     public void OnExperimentStateChange(ExperimentState oldState, ExperimentState newState)
     {
+        if (newState == ExperimentState.WaitingForAskResponse)
+        {
+            SetText("Querying for next trial...");
+        }
+        else if (oldState == ExperimentState.WaitingForTell)
+        {
+            SetText("Querying for next trial...");
+        }
         AEPsychClient.Log(string.Format("SetState: {0} -> {1}", oldState, newState));
     }
     private void Start()
