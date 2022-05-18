@@ -86,7 +86,7 @@ public class Ex3DSingleOptimize : Experiment
         BeginExperiment();
     }
 
-    void SetText(string s)
+    public override void SetText(string s)
     {
         trialText.SetText(s);
     }

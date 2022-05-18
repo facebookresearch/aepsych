@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2022-05-05
+### Added
+- New option to query for next trial while current trial is underway
+- Added public stimulusDuration float to Experiment Template
+### Changed
+- Improved Experiment Template messages
+
 ## [1.1.0] - 2022-04-12
 ### Added
 - New public Experiment method: ShowOptimal() queries server for optimal parameters, then displays result to screen

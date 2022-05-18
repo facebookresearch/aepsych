@@ -99,7 +99,7 @@ public class Ex1DSingleDetection : Experiment
         fs.flashDuration = -1.0f; //never destroy
     }
 
-    void SetText(string s)
+    new void SetText(string s)
     {
         trialText.SetText(s);
     }

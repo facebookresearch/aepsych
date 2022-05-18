@@ -89,7 +89,7 @@ public class Ex2DSingleOptimize : Experiment
         BeginExperiment();
     }
 
-    void SetText(string s)
+    public override void SetText(string s)
     {
         trialText.SetText(s);
     }
