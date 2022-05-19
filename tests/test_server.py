@@ -24,12 +24,12 @@ outcome_type = single_probit
 strategy_names = [init_strat, opt_strat]
 
 [init_strat]
-n_trials = 2
+min_asks = 2
 generator = SobolGenerator
 min_outcome_occurrences = 0
 
 [opt_strat]
-n_trials = 2
+min_asks = 2
 generator = OptimizeAcqfGenerator
 acqf = MCPosteriorVariance
 model = GPClassificationModel

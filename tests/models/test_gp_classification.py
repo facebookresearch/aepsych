@@ -222,7 +222,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -232,7 +232,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -265,7 +265,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -275,7 +275,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -307,7 +307,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -317,7 +317,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -348,7 +348,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -358,7 +358,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -393,7 +393,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -403,7 +403,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -442,7 +442,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -452,7 +452,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -489,7 +489,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -499,7 +499,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -543,14 +543,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
                 lb=lb,
                 ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
-                n_trials=n_opt,
+                min_asks=n_opt,
                 generator=OptimizeAcqfGenerator(
                     MCLevelSetEstimation, acqf_kwargs=extra_acqf_args
                 ),
@@ -585,7 +585,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -595,7 +595,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -624,7 +624,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -634,7 +634,7 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
@@ -669,7 +669,7 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -680,7 +680,7 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound,
                     acqf_kwargs={"beta": 1.96, "objective": GenericMCObjective(obj)},
                 ),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 
