@@ -151,7 +151,7 @@ class AEPsychServer(object):
                 self.strat._strat._count += 1
                 if (
                     isinstance(self.strat, SequentialStrategy)
-                    and self.strat._count >= self.strat._strat.n_trials
+                    and self.strat._count >= self.strat._strat.min_asks
                 ):
                     self.strat._make_next_strat()
                 continue

@@ -50,7 +50,7 @@ class Config(configparser.ConfigParser):
                 "tensor": self._str_to_tensor,
                 "obj": self._str_to_obj,
             },
-            allow_no_value=True
+            allow_no_value=True,
         )
 
         self.update(
@@ -227,12 +227,12 @@ class Config(configparser.ConfigParser):
         if bridge == "PairwiseProbitModelbridge":
             self["init_strat"] = {
                 "generator": "PairwiseSobolGenerator",
-                "n_trials": n_sobol,
+                "min_asks": n_sobol,
             }
             self["opt_strat"] = {
                 "generator": "PairwiseOptimizeAcqfGenerator",
                 "model": "PairwiseProbitModel",
-                "n_trials": n_opt,
+                "min_asks": n_opt,
             }
             if "PairwiseProbitModelbridge" in self:
                 self["PairwiseOptimizeAcqfGenerator"] = self[
@@ -244,12 +244,12 @@ class Config(configparser.ConfigParser):
         elif bridge == "MonotonicSingleProbitModelbridge":
             self["init_strat"] = {
                 "generator": "SobolGenerator",
-                "n_trials": n_sobol,
+                "min_asks": n_sobol,
             }
             self["opt_strat"] = {
                 "generator": "MonotonicRejectionGenerator",
                 "model": "MonotonicRejectionGP",
-                "n_trials": n_opt,
+                "min_asks": n_opt,
             }
             if "MonotonicSingleProbitModelbridge" in self:
                 self["MonotonicRejectionGenerator"] = self[
@@ -259,12 +259,12 @@ class Config(configparser.ConfigParser):
         elif bridge == "SingleProbitModelbridge":
             self["init_strat"] = {
                 "generator": "SobolGenerator",
-                "n_trials": n_sobol,
+                "min_asks": n_sobol,
             }
             self["opt_strat"] = {
                 "generator": "OptimizeAcqfGenerator",
                 "model": "GPClassificationModel",
-                "n_trials": n_opt,
+                "min_asks": n_opt,
             }
             if "SingleProbitModelbridge" in self:
                 self["OptimizeAcqfGenerator"] = self["SingleProbitModelbridge"]
