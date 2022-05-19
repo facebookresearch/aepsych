@@ -85,7 +85,7 @@ class BenchmarkTestCase(unittest.TestCase):
             "init_strat": {
                 "min_asks": [2, 4],
                 "generator": "SobolGenerator",
-                "min_outcome_occurrences": 0,
+                "min_total_outcome_occurrences": 0,
             },
             "opt_strat": {
                 "min_asks": [
@@ -97,7 +97,7 @@ class BenchmarkTestCase(unittest.TestCase):
                     ),
                 ],
                 "generator": "OptimizeAcqfGenerator",
-                "min_outcome_occurrences": 0,
+                "min_total_outcome_occurrences": 0,
             },
             "MCLevelSetEstimation": {
                 "target": 0.75,

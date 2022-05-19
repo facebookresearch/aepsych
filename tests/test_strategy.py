@@ -54,7 +54,7 @@ class TestSequenceGenerators(unittest.TestCase):
         for lb, ub, n in zip(lbs, ubs, n):
             gen = SobolGenerator(lb, ub)
             strat = Strategy(
-                min_asks=n, generator=gen, lb=lb, ub=ub, min_outcome_occurrences=0
+                min_asks=n, generator=gen, lb=lb, ub=ub, min_total_outcome_occurrences=0
             )
             strat_list.append(strat)
 
@@ -116,8 +116,8 @@ class TestSequenceGenerators(unittest.TestCase):
             self.strat.add_data(np.r_[0.0, 0.0], [0])
         self.assertTrue(self.strat.finished)
 
-    def test_max_trials(self):
-        self.strat.max_trials = 50
+    def test_max_asks(self):
+        self.strat.max_asks = 50
         for _ in range(49):
             self.strat.gen()
             self.strat.add_data(np.r_[1.0, 1.0], [1])

@@ -47,12 +47,12 @@ class ClientTestCase(unittest.TestCase):
         [init_strat]
         min_asks = 1
         generator = SobolGenerator
-        min_outcome_occurrences = 0
+        min_total_outcome_occurrences = 0
 
         [opt_strat]
         min_asks = 1
         generator = OptimizeAcqfGenerator
-        min_outcome_occurrences = 0
+        min_total_outcome_occurrences = 0
         """
 
         self.client.configure(config_str=config_str, config_name="first_config")

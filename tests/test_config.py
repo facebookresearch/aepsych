@@ -38,7 +38,7 @@ class ConfigTestCase(unittest.TestCase):
         [init_strat]
         generator = SobolGenerator
         min_asks = 10
-        min_outcome_occurrences = 5
+        min_total_outcome_occurrences = 5
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
@@ -93,11 +93,11 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
-        self.assertEqual(strat.strat_list[0].min_outcome_occurrences, 5)
+        self.assertEqual(strat.strat_list[0].min_total_outcome_occurrences, 5)
         self.assertEqual(strat.strat_list[0].min_post_range, None)
         self.assertEqual(strat.strat_list[0].keep_most_recent, None)
 
-        self.assertEqual(strat.strat_list[1].min_outcome_occurrences, 1)
+        self.assertEqual(strat.strat_list[1].min_total_outcome_occurrences, 1)
         self.assertEqual(strat.strat_list[1].min_post_range, 0.01)
         self.assertEqual(strat.strat_list[1].keep_most_recent, 10)
 
