@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2022-05-18
+### Changed
+- Unity Version is now 2020.3.27f1
+
 ## [1.2.1] - 2022-05-05
 ### Added
 - New option to query for next trial while current trial is underway

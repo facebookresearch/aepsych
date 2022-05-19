@@ -11,7 +11,7 @@ This particular client communicates to the server over pysocket. To run the serv
 
 ## Integrating the client into your Unity Project ##
 
-*You will need Unity 2020.3.16.  A later version may work as well.*
+*You will need Unity 2020.3.27.  A later version may work as well.*
 To import example implementations, expand the `Samples` drop-down menu, and select Import on `AEPsych Client`.
 
 **Add the AEPsych client to your code**
