@@ -6,13 +6,9 @@
 # LICENSE file in the root directory of this source tree.
 
 import configparser
-import pprint
-import warnings
-from types import ModuleType
-from typing import Dict, List, Mapping, Optional, Any, overload, TypeVar, Union
+from typing import Any, List, Mapping, Optional, TypeVar, Union
 
-import botorch
-import gpytorch
+import numpy as np
 import torch
 
 _T = TypeVar("_T")
@@ -54,5 +50,14 @@ class Config(configparser.ConfigParser):
         fallback: _T = ...,
         element_type: _ET = ...,
     ) -> Union[_T, List[_ET]]: ...
+    def getarray(
+        self,
+        section: str,
+        option: str,
+        *,
+        raw: bool = ...,
+        vars: Optional[Mapping[str, str]] = ...,
+        fallback: _T = ...,
+    ) -> Union[np.ndarray, _T]: ...
     @classmethod
     def register_module(cls: _T, module): ...

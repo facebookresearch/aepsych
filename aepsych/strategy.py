@@ -207,6 +207,9 @@ class Strategy(object):
 
     @property
     def finished(self):
+        if hasattr(self.generator, "finished"):  # defer to generator if possible
+            return self.generator.finished
+
         if self.y is None:  # always need some data before switching strats
             return False
 
