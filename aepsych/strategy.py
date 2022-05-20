@@ -52,13 +52,13 @@ class Strategy(object):
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
         dim: Optional[int] = None,
-        min_tells: int = 0,
+        min_total_tells: int = 0,
         min_asks: int = 0,
         model: Optional[ModelProtocol] = None,
         refit_every: int = 1,
         outcome_type: str = "single_probit",
-        min_outcome_occurrences: int = 1,
-        max_trials: Optional[int] = None,
+        min_total_outcome_occurrences: int = 1,
+        max_asks: Optional[int] = None,
         keep_most_recent: Optional[int] = None,
         min_post_range: Optional[float] = None,
     ):
@@ -70,29 +70,30 @@ class Strategy(object):
             ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
-            min_tells (int): The minimum number of total observations needed to complete this strategy.
+            min_total_tells (int): The minimum number of total observations needed to complete this strategy.
             min_asks (int): The minimum number of points that should be generated from this strategy.
             model (ModelProtocol, optional): The AEPsych model of the data.
             refit_every (int): How often to refit the model from scratch.
             outcome_type (str): The type of observations that will be recorded. For now, the only option is "single_probit".
-            min_outcome_occurrences (int): The minimum number of observations needed for each outcome before the strategy will finish.
+            min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.
                 Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).
-            max_trials (int, optional): The maximum number of trials to generate using this strategy.
+            max_asks (int, optional): The maximum number of trials to generate using this strategy.
                 If None, there is no upper bound (default).
-            keep_most_recent (int, optional): The number of most recent data points that the model will be fitted on.
-                When None, the model is fitted on all data.
+            keep_most_recent (int, optional): Experimental. The number of most recent data points that the model will be fitted on.
+                This may be useful for discarding noisy data from trials early in the experiment that are not as informative
+                as data collected from later trials. When None, the model is fitted on all data.
             min_post_range (float, optional): Experimental. The required difference between the posterior's minimum and maximum value in
                 probablity space before the strategy will finish. Ignored if None (default).
         """
 
-        if min_tells > 0 and min_asks > 0:
+        if min_total_tells > 0 and min_asks > 0:
             warnings.warn(
-                "Specifying both min_tells and min_asks > 0 may lead to unintended behavior."
+                "Specifying both min_total_tells and min_asks > 0 may lead to unintended behavior."
             )
 
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
-        self.min_outcome_occurrences = min_outcome_occurrences
-        self.max_trials = max_trials
+        self.min_total_outcome_occurrences = min_total_outcome_occurrences
+        self.max_asks = max_asks
         self.keep_most_recent = keep_most_recent
 
         self.min_post_range = min_post_range
@@ -107,7 +108,7 @@ class Strategy(object):
         self.n = 0
         self.min_asks = min_asks
         self._count = 0
-        self.min_tells = min_tells
+        self.min_total_tells = min_total_tells
 
         # I think this is a correct usage of event_shape
         if type(self.dim) is int:
@@ -123,9 +124,9 @@ class Strategy(object):
         if self.generator._requires_model:
             assert self.model is not None, f"{self.generator} requires a model!"
 
-        if self.min_asks == self.min_tells == 0:
+        if self.min_asks == self.min_total_tells == 0:
             warnings.warn(
-                "strategy.min_asks == strategy.min_tells == 0. This strategy will not generate any points!",
+                "strategy.min_asks == strategy.min_total_tells == 0. This strategy will not generate any points!",
                 UserWarning,
             )
 
@@ -213,7 +214,7 @@ class Strategy(object):
         if self.y is None:  # always need some data before switching strats
             return False
 
-        if self.max_trials is not None and self._count >= self.max_trials:
+        if self.max_asks is not None and self._count >= self.max_asks:
             return True
 
         n_yes_trials = (self.y == 1).sum()
@@ -225,9 +226,9 @@ class Strategy(object):
             meets_post_range = True
         finished = (
             self._count >= self.min_asks
-            and n_yes_trials >= self.min_outcome_occurrences
-            and n_no_trials >= self.min_outcome_occurrences
-            and self.n >= self.min_tells
+            and n_yes_trials >= self.min_total_outcome_occurrences
+            and n_no_trials >= self.min_total_outcome_occurrences
+            and self.n >= self.min_total_tells
             and meets_post_range
         )
         return finished
@@ -280,7 +281,7 @@ class Strategy(object):
                 generator.acqf_kwargs = generator._get_acqf_options(acqf_cls, config)
 
         min_asks = config.getint(name, "min_asks", fallback=0)
-        min_tells = config.getint(name, "min_tells", fallback=0)
+        min_total_tells = config.getint(name, "min_total_tells", fallback=0)
 
         refit_every = config.getint(name, "refit_every", fallback=1)
 
@@ -297,8 +298,8 @@ class Strategy(object):
                     UserWarning,
                 )
 
-        min_outcome_occurrences = config.getint(
-            name, "min_outcome_occurrences", fallback=1
+        min_total_outcome_occurrences = config.getint(
+            name, "min_total_outcome_occurrences", fallback=1
         )
         min_post_range = config.getfloat(name, "min_post_range", fallback=None)
         keep_most_recent = config.getint(name, "keep_most_recent", fallback=None)
@@ -319,10 +320,10 @@ class Strategy(object):
             min_asks=min_asks,
             refit_every=refit_every,
             outcome_type=outcome_type,
-            min_outcome_occurrences=min_outcome_occurrences,
+            min_total_outcome_occurrences=min_total_outcome_occurrences,
             min_post_range=min_post_range,
             keep_most_recent=keep_most_recent,
-            min_tells=min_tells,
+            min_total_tells=min_total_tells,
         )
 
 

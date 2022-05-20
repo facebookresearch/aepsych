@@ -26,14 +26,14 @@ strategy_names = [init_strat, opt_strat]
 [init_strat]
 min_asks = 2
 generator = SobolGenerator
-min_outcome_occurrences = 0
+min_total_outcome_occurrences = 0
 
 [opt_strat]
 min_asks = 2
 generator = OptimizeAcqfGenerator
 acqf = MCPosteriorVariance
 model = GPClassificationModel
-min_outcome_occurrences = 0
+min_total_outcome_occurrences = 0
 
 [GPClassificationModel]
 inducing_size = 10
