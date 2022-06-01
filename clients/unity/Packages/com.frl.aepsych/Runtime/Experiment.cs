@@ -65,6 +65,7 @@ namespace AEPsych
         [HideInInspector] public bool isPaused = false;
         [HideInInspector] public DefaultUI defaultUI;
         string configPath;
+        string prevExpText;
         bool readyToQuery = false;
         bool hasStarted = false;
         bool nextConfigReady = false;
@@ -559,13 +560,10 @@ namespace AEPsych
                         ShowStimuli(config);
                         initStatus = InitStatus.Done;
                     }
-                    /*
-                    if (client.finished)
+                    if (useModelExploration && readyToQuery && queryModel != null)
                     {
-                        isDone = true;
-                        StartCoroutine(EndTrial());
+                        queryModel.QueryEnabled(true);
                     }
-                    */
                 }
                 else if (newStatus == AEPsychClient.ClientStatus.Ready)
                 {
@@ -674,12 +672,20 @@ namespace AEPsych
         public void StartExploration()
         {
             prevState = _experimentState;
+            if (useDefaultUI)
+            {
+                prevExpText = defaultUI.experimentText.text;
+            }
             SetState(ExperimentState.Exploring);
         }
 
         public void StopExploration()
         {
             SetState(prevState);
+            if (useDefaultUI)
+            {
+                SetText(prevExpText);
+            }
         }
 
         public void TerminateExperiment()
@@ -701,14 +707,15 @@ namespace AEPsych
             else
             {
                 if (!asyncAsk)
+                {
                     SetState(ExperimentState.WaitingForTell);
+                    if (useModelExploration && readyToQuery)
+                    {
+                        queryModel.QueryEnabled(true);
+                    }
+                }
 
                 StartCoroutine(WaitForResponse());
-
-                if (useModelExploration && readyToQuery)
-                {
-                    queryModel.QueryEnabled(true);
-                }
             }
         }
 
