@@ -12,10 +12,11 @@ import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
-from aepsych.utils import make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import AcquisitionFunction
 from botorch.optim import optimize_acqf
+from botorch.utils import draw_sobol_samples
+
 
 logger = getLogger()
 
@@ -85,7 +86,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         else:
             # figure out how long evaluating a single samp
             starttime = time.time()
-            _ = acqf(train_x[0:1, :])
+            _ = acqf(train_x[0:num_points, :])
             single_eval_time = time.time() - starttime
 
             # only a heuristic for total num evals since everything is stochastic,
@@ -115,12 +116,14 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
                 logger.info(f"gen maxfun is {n_eval}, falling back to random search...")
                 nsamp = max(int(self.max_gen_time / single_eval_time), 10)
                 # Generate the points at which to sample
-                X = make_scaled_sobol(lb=model.lb, ub=model.ub, size=nsamp)
+                bounds = torch.stack((model.lb, model.ub))
 
-                acqvals = acqf(X[:, None, :])
+                X = draw_sobol_samples(bounds=bounds, n=nsamp, q=num_points)
+
+                acqvals = acqf(X)
 
                 best_indx = torch.argmax(acqvals, dim=0)
-                new_candidate = X[best_indx, None]
+                new_candidate = X[best_indx]
 
         logger.info(f"Gen done, time={time.time()-starttime}")
         return new_candidate.numpy()
