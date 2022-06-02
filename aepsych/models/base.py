@@ -6,14 +6,14 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from typing import Mapping, Optional, Tuple, Union, Protocol, List
+from typing import Any, List, Mapping, Optional, Protocol, Tuple, Union
 
 import numpy as np
 import torch
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
+from botorch.models.approximate_gp import _select_inducing_points
 from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
-from botorch.models.approximate_gp import _select_inducing_points
 
 
 torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
@@ -59,10 +59,12 @@ class ModelProtocol(Protocol):
     def dim_grid(self, gridsize: int = 30) -> torch.Tensor:
         pass
 
-    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
+    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs: Any) -> None:
         pass
 
-    def update(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
+    def update(
+        self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs: Any
+    ) -> None:
         pass
 
 
@@ -117,6 +119,7 @@ class AEPsychMixin:
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
         """
+
         locked_dims = locked_dims or {}
 
         def signed_model(x, sign=1):

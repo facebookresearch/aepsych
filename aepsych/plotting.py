@@ -10,10 +10,9 @@ from typing import Callable, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import norm
-
 from aepsych.strategy import Strategy
 from aepsych.utils import get_lse_contour, get_lse_interval
+from scipy.stats import norm
 
 
 def plot_strat(
@@ -246,6 +245,9 @@ def _plot_strat_2d(
     x, y = strat.x, strat.y
     assert x is not None and y is not None, "No data to plot!"
 
+    # make sure the model is fit well if we've been limiting fit time
+    strat.model.fit(train_x=x, train_y=y, max_fit_time=None)
+
     grid = strat.model.dim_grid(gridsize=gridsize)
     fmean, _ = strat.model.predict(grid)
     phimean = norm.cdf(fmean.reshape(gridsize, gridsize).detach().numpy()).T
@@ -270,7 +272,7 @@ def _plot_strat_2d(
     if logx:
         locs = np.arange(strat.lb[0], strat.ub[0])
         ax.set_xticks(ticks=locs)
-        ax.set_xticklabels(2.0 ** locs)
+        ax.set_xticklabels(2.0**locs)
 
     ax.plot(x[y == 0, 0], x[y == 0, 1], "ro", alpha=0.7, label=no_label)
     ax.plot(x[y == 1, 0], x[y == 1, 1], "bo", alpha=0.7, label=yes_label)
