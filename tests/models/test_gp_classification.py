@@ -14,6 +14,7 @@ import torch
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
+from unittest.mock import MagicMock
 import numpy as np
 import numpy.testing as npt
 from aepsych.acquisition import MCLevelSetEstimation
@@ -26,6 +27,8 @@ from botorch.acquisition.objective import GenericMCObjective
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
+from gpytorch.distributions import MultivariateNormal
+from botorch.posteriors import GPyTorchPosterior
 
 from ..common import cdf_new_novel_det, f_1d, f_2d
 
@@ -651,61 +654,46 @@ class GPClassificationTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 150
-        n_opt = 1
         lb = -4.0
         ub = 4.0
 
-        target = 0.5
-
-        def obj(x):
-            return -((Normal(0, 1).cdf(x[..., 0]) - target) ** 2)
-
-        # Test sine function with period 4
-        def test_fun(x):
-            return np.sin(np.pi * x / 4)
-
-        strat_list = [
-            Strategy(
+        strat = Strategy(
                 lb=lb,
                 ub=ub,
-                min_asks=n_init,
+                min_asks=1,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
-            ),
-            Strategy(
-                lb=lb,
-                ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10),
-                generator=OptimizeAcqfGenerator(
-                    qUpperConfidenceBound,
-                    acqf_kwargs={"beta": 1.96, "objective": GenericMCObjective(obj)},
-                ),
-                min_asks=n_opt,
-            ),
-        ]
+                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=50),
+            )
 
-        strat = SequentialStrategy(strat_list)
+        # mock the posterior call and remove calls that don't need
+        # to happen
+        def get_fake_posterior(X, posterior_transform=None):
+            fmean = torch.sin(torch.pi * X / 4).squeeze(-1)
+            fcov = torch.eye(fmean.shape[0])
+            fake_posterior = GPyTorchPosterior(mvn=MultivariateNormal(mean=fmean, covariance_matrix=fcov))
+            return fake_posterior
 
-        for _i in range(n_init + n_opt):
-            next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(norm.cdf(test_fun(next_x)))])
+        strat.model.posterior = get_fake_posterior
+        strat.model.__call__ = MagicMock()
+        strat.model.fit = MagicMock()
 
+        x = strat.gen(1)
+        y = torch.Tensor([1])
+        strat.add_data(x, y)
+        strat.model.set_train_data(x, y)
         # We expect the global max to be at (2, 1), the min at (-2, -1)
         fmax, argmax = strat.get_max()
-        self.assertTrue(np.abs(fmax - 1) < 0.5)
-        self.assertTrue(np.abs(argmax[0] - 2) < 0.5)
+        self.assertTrue(np.allclose(fmax, 1))
+        self.assertTrue(np.allclose(argmax, 2))
 
         fmin, argmin = strat.get_min()
-        self.assertTrue(np.abs(fmin + 1) < 0.5)
-        self.assertTrue(np.abs(argmin[0] + 2) < 0.5)
+        self.assertTrue(np.allclose(fmin, -1))
+        self.assertTrue(np.allclose(argmin, -2, atol=0.2))
 
-        # Query at x=2 should be f=1
-        self.assertTrue(np.abs(strat.predict(torch.tensor([2]))[0] - 1) < 0.5)
-
-        # Inverse query at val 1 should return (1,[2])
-        val, loc = strat.inv_query(1.0, constraints={})
-        self.assertTrue(np.abs(val - 1) < 0.5)
-        self.assertTrue(np.abs(loc[0] - 2) < 0.5)
+        # Inverse query at val .85 should return (.85,[2.7])
+        val, loc = strat.inv_query(0.85, constraints={})
+        self.assertTrue(np.allclose(val, 0.85))
+        self.assertTrue(np.allclose(loc.item(), 2.7, atol=1e-2))
 
     def test_select_inducing_points(self):
         """Verify that when we have n_induc > data size, we use data as inducing,
