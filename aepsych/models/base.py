@@ -11,10 +11,11 @@ from typing import Any, List, Mapping, Optional, Protocol, Tuple, Union
 import numpy as np
 import torch
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
+from botorch.acquisition import PosteriorMean
 from botorch.models.approximate_gp import _select_inducing_points
+from botorch.optim import optimize_acqf
 from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
-
 
 torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
 
@@ -119,56 +120,23 @@ class AEPsychMixin:
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
         """
-
         locked_dims = locked_dims or {}
 
-        def signed_model(x, sign=1):
-            return sign * self.predict(torch.tensor([x]))[0].detach().numpy()
+        acqf = PosteriorMean(model=self, maximize=(extremum_type == "max"))
+        bounds = torch.stack((self.lb, self.ub))
+        best_point, best_val = optimize_acqf(
+            acq_function=acqf,
+            bounds=bounds,
+            q=1,
+            num_restarts=10,
+            raw_samples=n_samples,
+            fixed_features=locked_dims,
+        )
 
-        query_lb = self.lb.clone()
-        query_ub = self.ub.clone()
-
-        for locked_dim in locked_dims.keys():
-            dim_values = locked_dims[locked_dim]
-            if len(dim_values) == 1:
-                query_lb[locked_dim] = dim_values[0]
-                query_ub[locked_dim] = dim_values[0]
-            else:
-                query_lb[locked_dim] = dim_values[0]
-                query_ub[locked_dim] = dim_values[1]
-
-        # generate a coarse sample to compute an initial estimate.
-        d = make_scaled_sobol(query_lb, query_ub, n_samples, seed=0)
-
-        bounds = zip(query_lb.numpy(), query_ub.numpy())
-
-        fmean, _ = self.predict(d)
-
-        if extremum_type == "max":
-            estimate = d[torch.where(fmean == torch.max(fmean))[0][0]].numpy()
-            a = minimize(
-                signed_model,
-                estimate,
-                args=-1,
-                method=self.extremum_solver,
-                bounds=bounds,
-            )
-            return -a.fun, a.x
-        elif extremum_type == "min":
-            estimate = d[torch.where(fmean == torch.min(fmean))[0][0]]
-            a = minimize(
-                signed_model,
-                estimate,
-                args=1,
-                method=self.extremum_solver,
-                bounds=bounds,
-            )
-            return a.fun, a.x
-
-        else:
-            raise RuntimeError(
-                f"Unknown extremum type: '{extremum_type}'! Valid types: 'min', 'max' "
-            )
+        # PosteriorMean flips the sign on minimize, we flip it back
+        if extremum_type == "min":
+            best_val = -best_val
+        return best_val, best_point.squeeze(0)
 
     def get_max(
         self: ModelProtocol,
