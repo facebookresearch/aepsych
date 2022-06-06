@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 from typing import Optional
+
 import torch
 from botorch.acquisition.objective import MCAcquisitionObjective
 from torch import Tensor
@@ -33,6 +34,19 @@ class ProbitObjective(MCAcquisitionObjective):
         """
         return Normal(loc=0, scale=1).cdf(samples.squeeze(-1))
 
+    def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+        """Evaluates the inverse of the objective (normal PPF).
+
+        Args:
+            samples (Tensor): GP samples.
+            X (Optional[Tensor], optional): ignored, here for compatibility
+                with MCAcquisitionObjective.
+
+        Returns:
+            Tensor: [description]
+        """
+        return Normal(loc=0, scale=1).icdf(samples.squeeze(-1))
+
 
 class FloorLinkObjective(MCAcquisitionObjective):
     """
@@ -57,7 +71,23 @@ class FloorLinkObjective(MCAcquisitionObjective):
         """
         return self.link(samples.squeeze(-1)) * (1 - self.floor) + self.floor
 
+    def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+        """Evaluates the inverse of the objective.
+
+        Args:
+            samples (Tensor): GP samples.
+            X (Optional[Tensor], optional): ignored, here for compatibility
+                with MCAcquisitionObjective.
+
+        Returns:
+            Tensor: [description]
+        """
+        return self.inverse_link((samples - self.floor) / (1 - self.floor))
+
     def link(self, samples):
+        raise NotImplementedError
+
+    def inverse_link(self, samples):
         raise NotImplementedError
 
     @classmethod
@@ -76,6 +106,9 @@ class FloorLogitObjective(FloorLinkObjective):
     def link(self, samples):
         return torch.special.expit(samples)
 
+    def inverse_link(self, samples):
+        return torch.special.logit(samples)
+
 
 class FloorGumbelObjective(FloorLinkObjective):
     """
@@ -88,8 +121,11 @@ class FloorGumbelObjective(FloorLinkObjective):
 
     def link(self, samples):
         return torch.nan_to_num(
-            1 - torch.exp(-torch.exp(samples)), posinf=1.0, neginf=0.0
+            -torch.special.expm1(-torch.exp(samples)), posinf=1.0, neginf=0.0
         )
+
+    def inverse_link(self, samples):
+        return torch.log(-torch.special.log1p(-samples))
 
 
 class FloorProbitObjective(FloorLinkObjective):
@@ -100,3 +136,6 @@ class FloorProbitObjective(FloorLinkObjective):
 
     def link(self, samples):
         return Normal(0, 1).cdf(samples)
+
+    def inverse_link(self, samples):
+        return Normal(0, 1).icdf(samples)
