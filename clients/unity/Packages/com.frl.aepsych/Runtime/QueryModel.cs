@@ -14,7 +14,7 @@ using UnityEngine.UI;
 
 public class QueryModel : MonoBehaviour
 {
-    [SerializeField] string yAxisName = "y-axis";
+    [SerializeField] public string yAxisName = "y-axis";
     public AEPsychClient client;
     public GameObject sliderPrefab;
     public GameObject xslidergroup;
@@ -209,7 +209,8 @@ public class QueryModel : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
         canvasGroup.alpha = 0;
-        defaultUI.SetTextActive(true);
+        if (defaultUI != null)
+            defaultUI.SetTextActive(true);
     }
 
     public void ShowSliders()
@@ -217,7 +218,8 @@ public class QueryModel : MonoBehaviour
         canvasGroup.blocksRaycasts = true;
         canvasGroup.interactable = true;
         canvasGroup.alpha = 1;
-        defaultUI.SetTextActive(false);
+        if (defaultUI != null)
+            defaultUI.SetTextActive(false);
     }
 
     public void ToggleSliders()

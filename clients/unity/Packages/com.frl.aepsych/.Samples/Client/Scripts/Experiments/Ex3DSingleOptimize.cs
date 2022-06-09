@@ -20,8 +20,29 @@ public class Ex3DSingleOptimize : Experiment
 
     public GameObject circlePrefab;
     public GameObject examplePrefab;
-    public TextMeshProUGUI trialText;
+    GameObject circleInstance;
+    GameObject exampleInstance;
     public string configName = "configs/single_opt_3d.ini";
+
+    public override void OnConnectToServer()
+    {
+        // Delete old instance when the experiment restarts
+        if (circleInstance != null)
+        {
+            Destroy(circleInstance);
+            circleInstance = null;
+        }
+        if (exampleInstance != null)
+        {
+            Destroy(exampleInstance);
+            exampleInstance = null;
+        }
+        exampleInstance = Instantiate(examplePrefab, defaultUI.transform);
+        exampleInstance.transform.SetAsFirstSibling();
+        exampleInstance.SetActive(true);
+        SetText("Welcome. Note the color above, which is indigo. Press Y to begin.");
+        StartCoroutine(WaitForInput());
+    }
 
     // ShowStimuli (MANDATORY)
     // Display a stimulus, and finish when the stimulus is done.
@@ -30,8 +51,8 @@ public class Ex3DSingleOptimize : Experiment
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("Now presenting stimulus.");
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.SetColor(config["R"][0], config["G"][0], config["B"][0], 1.0f);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
@@ -66,7 +87,7 @@ public class Ex3DSingleOptimize : Experiment
     // additional experiment flow control and visibility into the Experiment State Machine.
     public void OnExperimentStateChange(ExperimentState oldState, ExperimentState newState)
     {
-        if (oldState == ExperimentState.WaitingForTellResponse)
+        if (newState == ExperimentState.WaitingForTellResponse)
         {
             SetText("Querying for next trial");
         }
@@ -74,21 +95,13 @@ public class Ex3DSingleOptimize : Experiment
 
     private void Start()
     {
-        GameObject example = Instantiate(examplePrefab);
-        example.SetActive(true);
-        SetText("Welcome. Note the color above, which is indigo. Press Y to begin.");
-        StartCoroutine(WaitForInput());
+        SetText("Connecting to server...");
     }
 
     IEnumerator WaitForInput()
     {
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Y));
         BeginExperiment();
-    }
-
-    public override void SetText(string s)
-    {
-        trialText.SetText(s);
     }
 
     public override void ExperimentComplete()
@@ -108,8 +121,8 @@ public class Ex3DSingleOptimize : Experiment
         yield return StartCoroutine(client.Query(QueryType.max));
         QueryMessage m = client.GetQueryResponse();
         TrialConfig maxLoc = m.x;
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.SetColor(maxLoc["R"][0], maxLoc["G"][0], maxLoc["B"][0], 1.0f);
         fs.flashDuration = -1.0f; //never destroy
     }

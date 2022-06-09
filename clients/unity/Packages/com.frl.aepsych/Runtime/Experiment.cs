@@ -64,12 +64,14 @@ namespace AEPsych
         [HideInInspector] public bool isDone = false;
         [HideInInspector] public bool isPaused = false;
         [HideInInspector] public DefaultUI defaultUI;
+        [HideInInspector] public QueryModel queryModel;
         string configPath;
         string prevExpText;
         bool readyToQuery = false;
+        bool tellInProcess = false;
         bool hasStarted = false;
         bool nextConfigReady = false;
-        QueryModel queryModel;
+        Coroutine trialResponseListener;
         ExperimentState prevState;
         GameObject ModelExplorerPrefab;
         enum InitStatus
@@ -198,6 +200,50 @@ namespace AEPsych
             gameObject.SetActive(false);
         }
 
+        public virtual void Replay()
+        {
+            if (IsBusy())
+            {
+                Debug.Log("client is busy, please wait...");
+                return;
+            }
+            if (trialResponseListener != null)
+            {
+                StopCoroutine(trialResponseListener);
+                trialResponseListener = null;
+            }
+
+            ShowStimuli(config);
+        }
+
+        public virtual void Restart()
+        {
+            if (queryModel != null && GetState() == ExperimentState.Exploring)
+            {
+                queryModel.HideSliders();
+            }
+            Disconnect();
+            if (onStateChanged != null)
+            {
+                foreach (Delegate d in onStateChanged.GetInvocationList())
+                {
+                    onStateChanged -= (StateChangeCallback)d;
+                }
+            }
+            //client.onStatusChanged -= OnStatusChanged;
+            //SetState(ExperimentState.NotConnected);
+            Destroy(strategy);
+            strategy = null;
+            isDone = false;
+            isPaused = false;
+            readyToQuery = false;
+            hasStarted = false;
+            nextConfigReady = false;
+            initStatus = InitStatus.NotStarted;
+
+            StartCoroutine(ConnectAndGenerateStrategies());
+        }
+
         #endregion
 
         // ______________________________ Section 3 ________________________________
@@ -272,7 +318,7 @@ namespace AEPsych
             {
                 ReportResultToServer(0);
             }
-            else
+            else if (Input.GetKeyDown(ResponseKey1))
             {
                 ReportResultToServer(1);
             }
@@ -486,12 +532,23 @@ namespace AEPsych
                 if (newStatus == AEPsychClient.ClientStatus.QuerySent)
                 {
                     SetState(ExperimentState.WaitingForQueryResponse);
+                    queryModel.QueryEnabled(false);
+                }
+                else
+                {
+                    queryModel.QueryEnabled(true);
                 }
             }
             else if (_experimentState == ExperimentState.WaitingForTellResponse)
             {
                 if (newStatus == AEPsychClient.ClientStatus.GotResponse)
                 {
+                    if (tellInProcess)
+                    {
+                        Debug.Log("Manual tell success");
+                        tellInProcess = false;
+                    }
+
                     if (useModelExploration && !readyToQuery)
                     {
                         // Check if the model is built and ready for queries
@@ -653,10 +710,72 @@ namespace AEPsych
             ShowStimuli(maxLoc);
         }
 
+        /// <summary>
+        /// ManualTell will send the specified config & outcome to the server. You can use this to
+        /// pass domain knowledge to the AEPsych model. The manual config must match your
+        /// experiment type and dimensions.
+        /// </summary>
+        public void ManualTell(TrialConfig manualConfig, int outcome)
+        {
+            if (isManualTellInProcess())
+            {
+                Debug.LogError("Another manual tell is already underway. Discarding the additional tell.");
+                return;
+            }
+            StartCoroutine(ManualTellServer(manualConfig, outcome));
+        }
+
+        IEnumerator ManualTellServer(TrialConfig manualConfig, int outcome)
+        {
+            if (trialResponseListener != null)
+            {
+                StopCoroutine(trialResponseListener);
+                trialResponseListener = null;
+            }
+            tellInProcess = true;
+            yield return new WaitUntil(() => !IsBusy());
+            SetState(ExperimentState.Exploring);
+            if (recordToCSV)
+            {
+                TrialData trial = new TrialData(DateTime.Now.ToString("hh:mm:ss"), manualConfig, outcome);
+                csvFile.WriteTrial(trial);
+            }
+            SetState(ExperimentState.WaitingForTellResponse);
+            StartCoroutine(client.Tell(manualConfig, outcome));
+            if (useModelExploration && queryModel != null)
+            {
+                queryModel.QueryEnabled(false);
+            }
+            if (asyncAsk)
+            {
+                config = nextConfig;
+            }
+            Debug.Log("Manual tell sent: " + manualConfig);
+        }
+
+        public bool isManualTellInProcess()
+        {
+            return tellInProcess;
+        }
+
         public IEnumerator CheckQueryReady()
         {
             SetState(ExperimentState.WaitingForCanModelResponse);
             yield return StartCoroutine(client.CheckForModel());
+        }
+
+        /// <summary>
+        /// Checks whether or not the client is currently sending/receiveing messages.
+        /// </summary>
+        public bool IsBusy()
+        {
+            if (_experimentState == ExperimentState.ConfigReady || _experimentState == ExperimentState.WaitingForTell)
+            {
+                if (!client.IsBusy())
+                    return false;
+            }
+            Debug.Log("busy...");
+            return true;
         }
 
         public bool UsesModelExplorer()
@@ -676,6 +795,10 @@ namespace AEPsych
             {
                 prevExpText = defaultUI.experimentText.text;
             }
+            if (trialResponseListener != null)
+            {
+                StopCoroutine(trialResponseListener);
+            }
             SetState(ExperimentState.Exploring);
         }
 
@@ -686,6 +809,7 @@ namespace AEPsych
             {
                 SetText(prevExpText);
             }
+            Replay();
         }
 
         public void TerminateExperiment()
@@ -714,14 +838,13 @@ namespace AEPsych
                         queryModel.QueryEnabled(true);
                     }
                 }
-
-                StartCoroutine(WaitForResponse());
+                trialResponseListener = StartCoroutine(WaitForResponse());
             }
         }
 
         /// <summary>
-        /// Resumes a paused experiment by re-enabling the Client state change listener and
-        /// starting a new trial.If the experiment is uninitialized, it will initialize it.
+        /// Resumes a paused experiment by re-enabling the Client state change listener and 
+        /// starting a new trial. If the experiment is uninitialized, it will initialize it.
         ///
         /// </summary>
         public void Resume()
@@ -803,6 +926,10 @@ namespace AEPsych
                         "Please add the DefaultUI component to your scene or uncheck \"Use " +
                         "Default UI\" for your Experiment.");
                     TerminateExperiment();
+                }
+                else
+                {
+                    defaultUI.AssignActiveExperiment(this);
                 }
             }
         }

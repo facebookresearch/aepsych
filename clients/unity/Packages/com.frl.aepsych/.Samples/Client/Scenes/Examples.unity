@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &310603142
 Transform:
   m_ObjectHideFlags: 0
@@ -175,7 +175,6 @@ MonoBehaviour:
     upperBound: 1
     name: B
   filePath: configs/fb
-  fileName: default_config.ini
   experiment_idx: 1
   target: -1
   initialization_trials: 8
@@ -244,6 +243,7 @@ MonoBehaviour:
   experimentName: Ex2DSingleOptimize
   isEditorVersion: 1
   isValid: 1
+  startWithModel: 0
 --- !u!114 &310603144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,10 +259,11 @@ MonoBehaviour:
   ResponseKey0: 110
   ResponseKey1: 121
   startKey: 32
-  useDefaultUI: 0
+  useDefaultUI: 1
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -273,7 +274,6 @@ MonoBehaviour:
   experimentName: Ex2DSingleOptimize
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
   examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
-  trialText: {fileID: 1690873761}
   configName: configs/single_opt_2d.ini
   experimentCanvas: {fileID: 2005403079}
 --- !u!1 &329997634
@@ -305,10 +305,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27468319abc5b9e4fbe24d8840c7b1dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Dim: 1
-  m_Method: 0
+  m_Dim: 0
+  m_Method: 1
   m_Response: 0
-  selectedScript: 2DSingleOpt
+  selectedScript: 1DSingleDetection
 --- !u!4 &329997636
 Transform:
   m_ObjectHideFlags: 0
@@ -376,10 +376,11 @@ MonoBehaviour:
   ResponseKey0: 110
   ResponseKey1: 121
   startKey: 32
-  useDefaultUI: 0
+  useDefaultUI: 1
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -389,7 +390,6 @@ MonoBehaviour:
   defaultUI: {fileID: 0}
   experimentName: Ex1DSingleOpt
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
-  trialText: {fileID: 1690873761}
   configName: configs/single_opt_1d.ini
 --- !u!114 &634023900
 MonoBehaviour:
@@ -408,7 +408,6 @@ MonoBehaviour:
     upperBound: 1
     name: gsColor
   filePath: configs/fb
-  fileName: default_config.ini
   experiment_idx: 1
   target: -1
   initialization_trials: 6
@@ -477,6 +476,7 @@ MonoBehaviour:
   experimentName: Ex1DSingleOpt
   isEditorVersion: 1
   isValid: 1
+  startWithModel: 0
 --- !u!1 &692194537
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,7 +532,6 @@ MonoBehaviour:
     upperBound: 0.8
     name: alpha
   filePath: configs/fb
-  fileName: default_config.ini
   experiment_idx: 0
   target: 0.75
   initialization_trials: 10
@@ -606,6 +605,7 @@ MonoBehaviour:
   experimentName: Ex3DSingleDetect
   isEditorVersion: 1
   isValid: 1
+  startWithModel: 0
 --- !u!114 &692194540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -621,10 +621,11 @@ MonoBehaviour:
   ResponseKey0: 110
   ResponseKey1: 121
   startKey: 32
-  useDefaultUI: 0
-  useModelExploration: 0
+  useDefaultUI: 1
+  useModelExploration: 1
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -635,6 +636,111 @@ MonoBehaviour:
   experimentName: Ex3DSingleDetect
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
   trialText: {fileID: 1690873761}
+--- !u!1001 &758396320
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496200, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 963194227}
+    - target: {fileID: 2416200128082496200, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_PlaneDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496205, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_Name
+      value: Experiment UI
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
 --- !u!1 &774019107
 GameObject:
   m_ObjectHideFlags: 0
@@ -989,7 +1095,6 @@ MonoBehaviour:
     upperBound: 1
     name: alpha
   filePath: configs/fb
-  fileName: default_config.ini
   experiment_idx: 0
   target: 0.75
   initialization_trials: 10
@@ -1063,6 +1168,7 @@ MonoBehaviour:
   experimentName: Ex2DSingleDetect
   isEditorVersion: 1
   isValid: 1
+  startWithModel: 0
 --- !u!114 &1387304403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1078,10 +1184,11 @@ MonoBehaviour:
   ResponseKey0: 110
   ResponseKey1: 121
   startKey: 32
-  useDefaultUI: 0
+  useDefaultUI: 1
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1292,7 +1399,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1789285997
 Transform:
   m_ObjectHideFlags: 0
@@ -1322,10 +1429,11 @@ MonoBehaviour:
   ResponseKey0: 110
   ResponseKey1: 121
   startKey: 32
-  useDefaultUI: 0
+  useDefaultUI: 1
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1354,7 +1462,6 @@ MonoBehaviour:
     upperBound: 1
     name: alpha
   filePath: configs/fb
-  fileName: default_config.ini
   experiment_idx: 0
   target: 0.75
   initialization_trials: 6
@@ -1427,6 +1534,7 @@ MonoBehaviour:
   experimentName: Ex1DSingleLse
   isEditorVersion: 1
   isValid: 1
+  startWithModel: 0
 --- !u!1 &2005403076
 GameObject:
   m_ObjectHideFlags: 0
@@ -1445,7 +1553,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2005403077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1583,7 +1691,6 @@ MonoBehaviour:
     upperBound: 1
     name: B
   filePath: configs/fb
-  fileName: default_config.ini
   experiment_idx: 1
   target: -1
   initialization_trials: 25
@@ -1652,6 +1759,7 @@ MonoBehaviour:
   experimentName: Ex3DSingleOptimize
   isEditorVersion: 1
   isValid: 1
+  startWithModel: 0
 --- !u!114 &2043047479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1667,10 +1775,11 @@ MonoBehaviour:
   ResponseKey0: 110
   ResponseKey1: 121
   startKey: 32
-  useDefaultUI: 0
+  useDefaultUI: 1
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1681,5 +1790,4 @@ MonoBehaviour:
   experimentName: Ex3DSingleOptimize
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
   examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
-  trialText: {fileID: 1690873761}
   configName: configs/single_opt_3d.ini
