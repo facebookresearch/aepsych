@@ -14,6 +14,7 @@ using UnityEngine;
 using System.Reflection;
 using AEPsych;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class ExperimentGenerator : EditorWindow
 {
@@ -136,6 +137,10 @@ public class ExperimentGenerator : EditorWindow
             {
                 UIObj = Instantiate(ExperimentUIPrefab).GetComponent<DefaultUI>();
                 UIObj.gameObject.name = "Experiment UI";
+                if (FindObjectOfType<EventSystem>() == null)
+                {
+                    GameObject eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+                }
             }
             else
                 Debug.LogError(string.Format("Prefab not found at: {0}. Please Manually add the ExperimentUI prefab to your scene.", prefabPath));

@@ -48,6 +48,7 @@ public class ConfigGenerator: MonoBehaviour
     public string experimentName = "";
     public bool isEditorVersion = false;
     public bool isValid = true;
+    public bool startWithModel;
 
     public void SetName(string newName)
     {
@@ -172,6 +173,10 @@ public class ConfigGenerator: MonoBehaviour
         sb.Append("[init_strat]\n");
         sb.Append("n_trials = " + initialization_trials + "\n");
         sb.Append("generator = " + init_generator + "\n");
+        if (startWithModel)
+        {
+            sb.Append("model = " + model + "\n");
+        }
         sb.Append("\n");
 
         // Optimized Strategy

@@ -60,6 +60,8 @@ public class ConfigGeneratorEditor : Editor
             configGenerator.target = EditorGUILayout.FloatField(Mathf.Clamp(configGenerator.target, 0f, 1f));
         }
         EditorGUILayout.Space();
+        configGenerator.startWithModel = EditorGUILayout.ToggleLeft("Initialize Model on Start", configGenerator.startWithModel);
+        EditorGUILayout.Space();
         var experimentParams = serializedObject.FindProperty("experimentParams");
         EditorGUILayout.PropertyField(experimentParams, new GUIContent("Experiment Dimensions"), true);
         serializedObject.ApplyModifiedProperties();

@@ -22,6 +22,7 @@ public class AEPsychStrategy : MonoBehaviour
     public IEnumerator InitStrat(AEPsychClient AEPsychClient, string configPath, bool isPath = true)
     {
         client = AEPsychClient;
+        yield return new WaitUntil(() => !client.IsBusy());
         yield return StartCoroutine(client.StartServer(configPath: configPath, "0.01", isPath));
         stratId = client.GetStrat();
     }

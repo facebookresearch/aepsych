@@ -19,7 +19,26 @@ public class Ex3DSingleDetect : Experiment
     #endregion
 
     public GameObject circlePrefab;
+    GameObject circleInstance;
     public TextMeshProUGUI trialText;
+
+    private void Start()
+    {
+        config = new TrialConfig();
+        SetText("Connecting to server...");
+    }
+
+    public override void OnConnectToServer()
+    {
+        // Delete old instance when the experiment restarts
+        if (circleInstance != null)
+        {
+            Destroy(circleInstance);
+            circleInstance = null;
+        }
+        StartCoroutine(WaitForInput());
+        SetText("Welcome. Press Y to begin.");
+    }
 
     // ShowStimuli (MANDATORY)
     // Display a stimulus, and finish when the stimulus is done.
@@ -27,8 +46,8 @@ public class Ex3DSingleDetect : Experiment
     // contained in the TrialConfig. Experiment will not continue running until EndShowStimuli is called.
     public override void ShowStimuli(TrialConfig config)
     {
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         Color c = Color.HSVToRGB(config["hue"][0], config["saturation"][0], 0.2f);
         fs.SetColor(c.r, c.g, c.b, config["alpha"][0]);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
@@ -66,16 +85,10 @@ public class Ex3DSingleDetect : Experiment
     // additional experiment flow control and visibility into the Experiment State Machine.
     public void OnExperimentStateChange(ExperimentState oldState, ExperimentState newState)
     {
-        if (oldState == ExperimentState.WaitingForTellResponse)
+        if (newState == ExperimentState.WaitingForTellResponse)
         {
             SetText("Querying for next trial");
         }
-    }
-
-    private void Start()
-    {
-        SetText("Welcome. Press Y to begin.");
-        StartCoroutine(WaitForInput());
     }
 
     IEnumerator WaitForInput()
@@ -84,10 +97,11 @@ public class Ex3DSingleDetect : Experiment
         BeginExperiment();
     }
 
+    /*
     public override void SetText(string s)
     {
         trialText.SetText(s);
-    }
+    }*/
 
     public override void ExperimentComplete()
     {
@@ -101,11 +115,12 @@ public class Ex3DSingleDetect : Experiment
         yield return StartCoroutine(client.Query(QueryType.inverse, y: 0.75f, probability_space: true));
         QueryMessage m = client.GetQueryResponse();
         TrialConfig maxLoc = m.x;
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.flashDuration = -1.0f; //never destroy
         Color c = Color.HSVToRGB(maxLoc["hue"][0], maxLoc["saturation"][0], 0.2f);
         fs.SetColor(c.r, c.g, c.b, maxLoc["alpha"][0]);
+        SetText("Experiment complete! Displaying 75% threshold color: ");
     }
 
     public override string GetName()
