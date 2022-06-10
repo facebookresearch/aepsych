@@ -159,6 +159,10 @@ class Benchmark:
 
         strat, flatconfig = self.make_strat_and_flatconfig(materialized_config)
 
+        problem_metadata = {
+            f"problem_{key}": value for key, value in problem.metadata.items()
+        }
+
         total_gentime = 0.0
         total_fittime = 0.0
         i = 0
@@ -168,7 +172,8 @@ class Benchmark:
             next_x = strat.gen()
             gentime = time.time() - starttime
             total_gentime += gentime
-            strat.add_data(next_x, [problem.sample_y(next_x)])
+            next_y = [problem.sample_y(next_x)]
+            strat.add_data(next_x, next_y)
             # strat usually defers model fitting until it is needed
             # (e.g. for gen or predict) so that we don't refit
             # unnecessarily. But for benchmarking we want to time
@@ -178,28 +183,26 @@ class Benchmark:
             ensure_model_is_fresh(lambda x: None)(strat._strat)
             fittime = time.time() - starttime
             total_fittime += fittime
-            if self.log_at(i) and strat.has_model:
+            if (self.log_at(i) or strat.finished) and strat.has_model:
                 metrics = problem.evaluate(strat)
-                result = self.log(
-                    problem, flatconfig, metrics, i, fittime, gentime, rep, seed
-                )
+                result = {
+                    "fit_time": fittime,
+                    "cum_fit_time": total_fittime,
+                    "gen_time": gentime,
+                    "cum_gen_time": total_gentime,
+                    "trial_id": i,
+                    "rep": rep,
+                    "seed": seed,
+                    "final": strat.finished,
+                    "strat_idx": strat._strat_idx,
+                }
+                result.update(problem_metadata)
+                result.update(flatconfig)
+                result.update(metrics)
                 results.append(result)
 
             i = i + 1
 
-        metrics = problem.evaluate(strat)
-        result = self.log(
-            problem,
-            flatconfig,
-            metrics,
-            i,
-            total_fittime,
-            total_gentime,
-            rep,
-            seed,
-            final=True,
-        )
-        results.append(result)
         return results, strat
 
     def run_benchmarks(self):
@@ -238,45 +241,6 @@ class Benchmark:
             return i % self.log_every == 0
         else:
             return False
-
-    def log(
-        self,
-        problem: Problem,
-        flatconfig: Mapping[str, object],
-        metrics: Mapping[str, object],
-        trial_id: int,
-        fit_time: float,
-        gen_time: float,
-        rep: int,
-        seed: int,
-        final: bool = False,
-    ) -> Dict[str, object]:
-        """Log trial data.
-
-        Args:
-            flatconfig (Mapping[str, object]): Flattened configuration for this benchmark.
-            metrics (Mapping[str, object]): Metrics to log.
-            trial_id (int): Current trial index.
-            fit_time (float): Model fitting duration.
-            gen_time (float): Candidate selection duration.
-            rep (int): Repetition index of this trial.
-            final (bool, optional): Mark this as the final trial in a run? Defaults to False.
-        """
-        out: Dict[str, object] = {
-            "fit_time": fit_time,
-            "gen_time": gen_time,
-            "trial_id": trial_id,
-            "rep": rep,
-            "seed": seed,
-            "final": final,
-        }
-        problem_metadata = {
-            f"problem_{key}": value for key, value in problem.metadata.items()
-        }
-        out.update(problem_metadata)
-        out.update(flatconfig)
-        out.update(metrics)
-        return out
 
     def pandas(self) -> pd.DataFrame:
         return pd.DataFrame(self._log)
