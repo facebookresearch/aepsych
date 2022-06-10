@@ -83,12 +83,12 @@ class BenchmarkTestCase(unittest.TestCase):
                 "model": "GPClassificationModel",
             },
             "init_strat": {
-                "n_trials": [2, 4],
+                "min_asks": [2, 4],
                 "generator": "SobolGenerator",
-                "min_outcome_occurrences": 0,
+                "min_total_outcome_occurrences": 0,
             },
             "opt_strat": {
-                "n_trials": [
+                "min_asks": [
                     DerivedValue(
                         [("problem", "name")], lambda x: 1 + int(x == "test problem")
                     ),
@@ -97,7 +97,7 @@ class BenchmarkTestCase(unittest.TestCase):
                     ),
                 ],
                 "generator": "OptimizeAcqfGenerator",
-                "min_outcome_occurrences": 0,
+                "min_total_outcome_occurrences": 0,
             },
             "MCLevelSetEstimation": {
                 "target": 0.75,
@@ -150,7 +150,7 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(
                 out[out["problem_name"] == "test problem"][
-                    "opt_strat_n_trials"
+                    "opt_strat_min_asks"
                 ].unique()
             ),
             ["2", "3"],
@@ -158,7 +158,7 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(
                 out[out["problem_name"] == "test lse problem"][
-                    "opt_strat_n_trials"
+                    "opt_strat_min_asks"
                 ].unique()
             ),
             ["1", "2"],
@@ -174,9 +174,9 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertTrue((out[~out.final].trial_id % 2 == 0).all())
 
         # we don't run extra trials
-        total_trials = out.init_strat_n_trials.astype(
+        total_trials = out.init_strat_min_asks.astype(
             int
-        ) + out.opt_strat_n_trials.astype(int)
+        ) + out.opt_strat_min_asks.astype(int)
         self.assertTrue((out.trial_id <= total_trials).all())
 
         # ensure each simulation has a unique random seed
@@ -210,7 +210,7 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(
                 out[out["problem_name"] == "test problem"][
-                    "opt_strat_n_trials"
+                    "opt_strat_min_asks"
                 ].unique()
             ),
             ["2", "3"],
@@ -218,7 +218,7 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertEqual(
             sorted(
                 out[out["problem_name"] == "test lse problem"][
-                    "opt_strat_n_trials"
+                    "opt_strat_min_asks"
                 ].unique()
             ),
             ["1", "2"],
@@ -234,9 +234,9 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertTrue((out[~out.final].trial_id % 2 == 0).all())
 
         # we don't run extra trials
-        total_trials = out.init_strat_n_trials.astype(
+        total_trials = out.init_strat_min_asks.astype(
             int
-        ) + out.opt_strat_n_trials.astype(int)
+        ) + out.opt_strat_min_asks.astype(int)
         self.assertTrue((out.trial_id <= total_trials).all())
 
         # ensure each simulation has a unique random seed
@@ -282,8 +282,8 @@ class BenchProblemTestCase(unittest.TestCase):
                 "acqf": "MCLevelSetEstimation",
                 "model": "GPClassificationModel",
             },
-            "init_strat": {"generator": "SobolGenerator", "n_trials": 50},
-            "opt_strat": {"generator": "OptimizeAcqfGenerator", "n_trials": 1},
+            "init_strat": {"generator": "SobolGenerator", "min_asks": 50},
+            "opt_strat": {"generator": "OptimizeAcqfGenerator", "min_asks": 1},
             "MCLevelSetEstimation": {
                 "target": 0.75,
                 "beta": 3.98,
@@ -311,8 +311,8 @@ class BenchProblemTestCase(unittest.TestCase):
                 "acqf": "MonotonicMCLSE",
                 "model": "MonotonicRejectionGP",
             },
-            "init_strat": {"generator": "SobolGenerator", "n_trials": 50},
-            "opt_strat": {"generator": "MonotonicRejectionGenerator", "n_trials": 1},
+            "init_strat": {"generator": "SobolGenerator", "min_asks": 50},
+            "opt_strat": {"generator": "MonotonicRejectionGenerator", "min_asks": 1},
             "SobolGenerator": {"seed": 1},
             "MonotonicMCLSE": {
                 "target": 0.75,

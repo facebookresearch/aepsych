@@ -37,7 +37,7 @@ namespace AEPsych
                 {
                     return innerDict[key];
                 }
-                catch (KeyNotFoundException ex)
+                catch (KeyNotFoundException)
                 {
                     string allKeys = "";
                     foreach (KeyValuePair<string, List<float>> pair in this)

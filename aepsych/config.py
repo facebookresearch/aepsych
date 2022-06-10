@@ -5,6 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import ast
 import configparser
 import warnings
 from types import ModuleType
@@ -12,6 +13,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeVar
 
 import botorch
 import gpytorch
+import numpy as np
 import torch
 
 _T = TypeVar("_T")
@@ -49,8 +51,9 @@ class Config(configparser.ConfigParser):
                 "list": self._str_to_list,
                 "tensor": self._str_to_tensor,
                 "obj": self._str_to_obj,
+                "array": self._str_to_array,
             },
-            allow_no_value=True
+            allow_no_value=True,
         )
 
         self.update(
@@ -144,6 +147,10 @@ class Config(configparser.ConfigParser):
         else:
             return [v.strip()]
 
+    def _str_to_array(self, v: str) -> np.ndarray:
+        v = ast.literal_eval(v)
+        return np.array(v, dtype=float)
+
     def _str_to_tensor(self, v: str) -> torch.Tensor:
         return torch.Tensor(self._str_to_list(v))
 
@@ -227,12 +234,12 @@ class Config(configparser.ConfigParser):
         if bridge == "PairwiseProbitModelbridge":
             self["init_strat"] = {
                 "generator": "PairwiseSobolGenerator",
-                "n_trials": n_sobol,
+                "min_asks": n_sobol,
             }
             self["opt_strat"] = {
                 "generator": "PairwiseOptimizeAcqfGenerator",
                 "model": "PairwiseProbitModel",
-                "n_trials": n_opt,
+                "min_asks": n_opt,
             }
             if "PairwiseProbitModelbridge" in self:
                 self["PairwiseOptimizeAcqfGenerator"] = self[
@@ -244,12 +251,12 @@ class Config(configparser.ConfigParser):
         elif bridge == "MonotonicSingleProbitModelbridge":
             self["init_strat"] = {
                 "generator": "SobolGenerator",
-                "n_trials": n_sobol,
+                "min_asks": n_sobol,
             }
             self["opt_strat"] = {
                 "generator": "MonotonicRejectionGenerator",
                 "model": "MonotonicRejectionGP",
-                "n_trials": n_opt,
+                "min_asks": n_opt,
             }
             if "MonotonicSingleProbitModelbridge" in self:
                 self["MonotonicRejectionGenerator"] = self[
@@ -259,12 +266,12 @@ class Config(configparser.ConfigParser):
         elif bridge == "SingleProbitModelbridge":
             self["init_strat"] = {
                 "generator": "SobolGenerator",
-                "n_trials": n_sobol,
+                "min_asks": n_sobol,
             }
             self["opt_strat"] = {
                 "generator": "OptimizeAcqfGenerator",
                 "model": "GPClassificationModel",
-                "n_trials": n_opt,
+                "min_asks": n_opt,
             }
             if "SingleProbitModelbridge" in self:
                 self["OptimizeAcqfGenerator"] = self["SingleProbitModelbridge"]

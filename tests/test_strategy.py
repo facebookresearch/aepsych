@@ -37,7 +37,7 @@ class TestSequenceGenerators(unittest.TestCase):
             generator=MonotonicRejectionGenerator(
                 acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
             ),
-            n_trials=50,
+            min_asks=50,
             lb=lb,
             ub=ub,
             min_post_range=0.3,
@@ -53,7 +53,9 @@ class TestSequenceGenerators(unittest.TestCase):
         strat_list = []
         for lb, ub, n in zip(lbs, ubs, n):
             gen = SobolGenerator(lb, ub)
-            strat = Strategy(n, gen, lb, ub, min_outcome_occurrences=0)
+            strat = Strategy(
+                min_asks=n, generator=gen, lb=lb, ub=ub, min_total_outcome_occurrences=0
+            )
             strat_list.append(strat)
 
         strat = SequentialStrategy(strat_list)
@@ -114,8 +116,8 @@ class TestSequenceGenerators(unittest.TestCase):
             self.strat.add_data(np.r_[0.0, 0.0], [0])
         self.assertTrue(self.strat.finished)
 
-    def test_max_trials(self):
-        self.strat.max_trials = 50
+    def test_max_asks(self):
+        self.strat.max_asks = 50
         for _ in range(49):
             self.strat.gen()
             self.strat.add_data(np.r_[1.0, 1.0], [1])
@@ -138,7 +140,7 @@ class TestSequenceGenerators(unittest.TestCase):
                 ub=ub,
             ),
             generator=SobolGenerator(lb=lb, ub=ub),
-            n_trials=50,
+            min_asks=50,
             lb=lb,
             ub=ub,
         )

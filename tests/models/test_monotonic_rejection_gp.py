@@ -51,7 +51,7 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 acqf_kwargs={"target": target},
                 model_gen_options=model_gen_options,
             ),
-            n_trials=1,
+            min_asks=1,
         )
         # Fit
         train_x = torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])
@@ -104,7 +104,7 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 acqf_kwargs={"target": target, "objective": ProbitObjective()},
                 model_gen_options=model_gen_options,
             ),
-            n_trials=1,
+            min_asks=1,
         )
         # Fit
         train_x = torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])

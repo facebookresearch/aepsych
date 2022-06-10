@@ -47,13 +47,13 @@ class SingleProbitMI(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_opt,
+                min_asks=n_opt,
                 model=MonotonicRejectionGP(lb=lb, ub=ub, dim=1, monotonic_idxs=[0]),
                 generator=MonotonicRejectionGenerator(acqf, acqf_kwargs),
             ),
@@ -91,7 +91,7 @@ class SingleProbitMI(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                n_trials=n_init,
+                min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
             ),
             Strategy(
@@ -99,7 +99,7 @@ class SingleProbitMI(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(lb=lb, ub=ub, dim=1, inducing_size=10),
                 generator=OptimizeAcqfGenerator(acqf, extra_acqf_args),
-                n_trials=n_opt,
+                min_asks=n_opt,
             ),
         ]
 

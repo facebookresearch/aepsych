@@ -36,6 +36,8 @@ namespace AEPsych
         [SerializeField] bool useModelExploration;
         public bool autoDisableOtherCanvases;
         public bool recordToCSV;
+        [Tooltip("Setting Async Ask to true will query the server for the next trial while the current trial is underway, speeding up the experiment.")]
+        public bool asyncAsk = true;
 
         public enum StartType
         {
@@ -50,6 +52,7 @@ namespace AEPsych
         // AEPsych Refrences
         #region
         [HideInInspector] public TrialConfig config;
+        [HideInInspector] public TrialConfig nextConfig;
         [HideInInspector] public AEPsychClient client;
         [HideInInspector] public AEPsychStrategy strategy;
         [HideInInspector] public CSVWriter csvFile;
@@ -61,13 +64,26 @@ namespace AEPsych
         [HideInInspector] public bool isDone = false;
         [HideInInspector] public bool isPaused = false;
         [HideInInspector] public DefaultUI defaultUI;
-        string modelExplorerPath = "Packages/com.frl.aepsych/Runtime/Prefabs/ModelExploreInterface.prefab";
+        [HideInInspector] public QueryModel queryModel;
         string configPath;
+        string prevExpText;
         bool readyToQuery = false;
+        bool tellInProcess = false;
         bool hasStarted = false;
-        QueryModel queryModel;
+        bool nextConfigReady = false;
+        Coroutine trialResponseListener;
         ExperimentState prevState;
         GameObject ModelExplorerPrefab;
+        enum InitStatus
+        {
+            NotStarted,
+            FirstAskSent,
+            FirstAskComplete,
+            SecondAskSent,
+            SecondAskComplete,
+            Done
+        }
+        InitStatus initStatus = InitStatus.NotStarted;
         #endregion
 
         // Experiment state machine states
@@ -83,6 +99,7 @@ namespace AEPsych
             WaitingForCanModelResponse,
             WaitingForAsk,
             WaitingForTell,
+            WaitingForAsyncAsk,
             Exploring,
         };
         ExperimentState _experimentState = ExperimentState.NotConnected;
@@ -163,7 +180,6 @@ namespace AEPsych
         /// </summary>
         public virtual void CheckUserResponse()
         {
-
             if (Input.GetKeyDown(ResponseKey0))
             {
                 ReportResultToServer(0);
@@ -182,6 +198,50 @@ namespace AEPsych
             isPaused = true;
             Disconnect();
             gameObject.SetActive(false);
+        }
+
+        public virtual void Replay()
+        {
+            if (IsBusy())
+            {
+                Debug.Log("client is busy, please wait...");
+                return;
+            }
+            if (trialResponseListener != null)
+            {
+                StopCoroutine(trialResponseListener);
+                trialResponseListener = null;
+            }
+
+            ShowStimuli(config);
+        }
+
+        public virtual void Restart()
+        {
+            if (queryModel != null && GetState() == ExperimentState.Exploring)
+            {
+                queryModel.HideSliders();
+            }
+            Disconnect();
+            if (onStateChanged != null)
+            {
+                foreach (Delegate d in onStateChanged.GetInvocationList())
+                {
+                    onStateChanged -= (StateChangeCallback)d;
+                }
+            }
+            //client.onStatusChanged -= OnStatusChanged;
+            //SetState(ExperimentState.NotConnected);
+            Destroy(strategy);
+            strategy = null;
+            isDone = false;
+            isPaused = false;
+            readyToQuery = false;
+            hasStarted = false;
+            nextConfigReady = false;
+            initStatus = InitStatus.NotStarted;
+
+            StartCoroutine(ConnectAndGenerateStrategies());
         }
 
         #endregion
@@ -215,6 +275,13 @@ namespace AEPsych
         /// </summary>
         public void ReportResultToServer(int outcome, TrialMetadata metadata = null)
         {
+            if (asyncAsk && _experimentState == ExperimentState.WaitingForAsyncAsk)
+            {
+                AEPsychClient.Log("Received response before async ask has finished. Waiting to tell...");
+                StartCoroutine(TellWhenAskReceived(outcome, metadata));
+                return;
+            }
+
             if (recordToCSV)
             {
                 TrialData trial = new TrialData(DateTime.Now.ToString("hh:mm:ss"), config, outcome, metadata);
@@ -229,6 +296,31 @@ namespace AEPsych
             if (useModelExploration && queryModel != null)
             {
                 queryModel.QueryEnabled(false);
+            }
+
+            if (asyncAsk)
+            {
+                config = nextConfig;
+            }
+        }
+
+        IEnumerator TellWhenAskReceived(int outcome, TrialMetadata metadata = null)
+        {
+            yield return new WaitUntil(() => nextConfigReady);
+            ReportResultToServer(outcome, metadata);
+        }
+
+        IEnumerator WaitForResponse()
+        {
+            yield return new WaitForSeconds(0.1f);
+            yield return new WaitUntil(() => Input.GetKeyDown(ResponseKey0) || Input.GetKeyDown(ResponseKey1));
+            if (Input.GetKeyDown(ResponseKey0))
+            {
+                ReportResultToServer(0);
+            }
+            else if (Input.GetKeyDown(ResponseKey1))
+            {
+                ReportResultToServer(1);
             }
         }
 
@@ -249,10 +341,22 @@ namespace AEPsych
                 SetState(ExperimentState.WaitingForResumeResponse);
                 yield return StartCoroutine(client.Resume(strat.stratId));
             }
-            strategy.currentTrial++;
-            AEPsychClient.Log("strat " + strategy.stratId + " trial# "
-                + strat.currentTrial);
-            SetState(ExperimentState.WaitingForAskResponse);
+            // Don't increment trial for initial double ask
+            if (asyncAsk && initStatus <= InitStatus.FirstAskComplete)
+            {
+                AEPsychClient.Log("Sending initial ask...");
+            }
+            else
+            {
+                strategy.currentTrial++;
+                AEPsychClient.Log("strat " + strategy.stratId + " trial# "
+                    + strat.currentTrial);
+            }
+            if (asyncAsk)
+                SetState(ExperimentState.WaitingForAsyncAsk);
+            else
+                SetState(ExperimentState.WaitingForAskResponse);
+
             yield return StartCoroutine(client.Ask());
         }
 
@@ -262,15 +366,21 @@ namespace AEPsych
         /// </summary>
         public IEnumerator EndTrial()
         {
+            nextConfigReady = false;
             //check if strat or experiment is done
-            if (isDone) //check if this was the final ask for this strat
+            if (client.finished) //check if this was the final ask for this strat
             {
+                isDone = true;
                 strategy.isDone = true;
                 ExperimentComplete();
                 yield break;
             }
 
             // Continue the experiment by asking for a new trial
+            if (asyncAsk)
+            {
+                ShowStimuli(config);
+            }
             StartCoroutine(AskForNewConfig(strategy));
             yield return null;
         }
@@ -281,12 +391,13 @@ namespace AEPsych
             BeginExperiment();
         }
 
+        /*
         public IEnumerator WaitForInput()
         {
             yield return new WaitUntil(() => Input.GetKeyDown(startKey));
             BeginExperiment();
         }
-
+        */
 
         /// <summary>
         /// Called when this game object becomes active. Generates strategies if they are un-initialized
@@ -421,12 +532,23 @@ namespace AEPsych
                 if (newStatus == AEPsychClient.ClientStatus.QuerySent)
                 {
                     SetState(ExperimentState.WaitingForQueryResponse);
+                    queryModel.QueryEnabled(false);
+                }
+                else
+                {
+                    queryModel.QueryEnabled(true);
                 }
             }
             else if (_experimentState == ExperimentState.WaitingForTellResponse)
             {
                 if (newStatus == AEPsychClient.ClientStatus.GotResponse)
                 {
+                    if (tellInProcess)
+                    {
+                        Debug.Log("Manual tell success");
+                        tellInProcess = false;
+                    }
+
                     if (useModelExploration && !readyToQuery)
                     {
                         // Check if the model is built and ready for queries
@@ -469,16 +591,70 @@ namespace AEPsych
                 if (newStatus == AEPsychClient.ClientStatus.Ready)
                 {
                     SetState(ExperimentState.WaitingForTell);
-                    // Enable or Disable Model Querying based on client status
-                    CheckUserResponse(); // Should call ReportResultToServer()
-                                         // when response is collected
                 }
+            }
+            else if (_experimentState == ExperimentState.WaitingForAsyncAsk)
+            {
+                if (newStatus == AEPsychClient.ClientStatus.GotResponse)
+                {
+                    // Ask twice initially, to allow async asks going forward
+                    if (asyncAsk && initStatus < InitStatus.FirstAskComplete)
+                    {
+                        nextConfig = client.GetConfig();
+                        initStatus = InitStatus.FirstAskComplete;
+                        //SetState(ExperimentState.WaitingForAsyncAsk);
+                        StartCoroutine(AskForNewConfig(strategy));
+                        return;
+                    }
+
+                    // We recieved a new config. Store it.
+                    config = nextConfig;
+                    nextConfig = client.GetConfig();
+                    SetState(ExperimentState.ConfigReady);
+                    nextConfigReady = true;
+                    if (initStatus < InitStatus.SecondAskComplete)
+                    {
+                        ShowStimuli(config);
+                        initStatus = InitStatus.Done;
+                    }
+                    if (useModelExploration && readyToQuery && queryModel != null)
+                    {
+                        queryModel.QueryEnabled(true);
+                    }
+                }
+                else if (newStatus == AEPsychClient.ClientStatus.Ready)
+                {
+                    // Ask twice initially, to allow async asks going forward
+                    if (asyncAsk && initStatus <= InitStatus.FirstAskComplete)
+                    {
+                        return;
+                    }
+                    else if (!asyncAsk)
+                    {
+                        SetState(ExperimentState.WaitingForTell);
+                    }
+                }
+                if (newStatus == AEPsychClient.ClientStatus.QuerySent)
+                {
+                    if (initStatus == InitStatus.NotStarted)
+                    {
+                        initStatus = InitStatus.FirstAskSent;
+                    }
+                    else if (initStatus == InitStatus.FirstAskComplete)
+                    {
+                        initStatus = InitStatus.SecondAskSent;
+                    }
+                }
+
             }
             else if (_experimentState == ExperimentState.WaitingForAsk)
             {
                 if (newStatus == AEPsychClient.ClientStatus.QuerySent)
                 {
-                    SetState(ExperimentState.WaitingForAskResponse);
+                    if (asyncAsk)
+                        SetState(ExperimentState.WaitingForAsyncAsk);
+                    else
+                        SetState(ExperimentState.WaitingForAskResponse);
                 }
             }
             else if (_experimentState == ExperimentState.WaitingForTell)
@@ -534,10 +710,72 @@ namespace AEPsych
             ShowStimuli(maxLoc);
         }
 
+        /// <summary>
+        /// ManualTell will send the specified config & outcome to the server. You can use this to
+        /// pass domain knowledge to the AEPsych model. The manual config must match your
+        /// experiment type and dimensions.
+        /// </summary>
+        public void ManualTell(TrialConfig manualConfig, int outcome)
+        {
+            if (isManualTellInProcess())
+            {
+                Debug.LogError("Another manual tell is already underway. Discarding the additional tell.");
+                return;
+            }
+            StartCoroutine(ManualTellServer(manualConfig, outcome));
+        }
+
+        IEnumerator ManualTellServer(TrialConfig manualConfig, int outcome)
+        {
+            if (trialResponseListener != null)
+            {
+                StopCoroutine(trialResponseListener);
+                trialResponseListener = null;
+            }
+            tellInProcess = true;
+            yield return new WaitUntil(() => !IsBusy());
+            SetState(ExperimentState.Exploring);
+            if (recordToCSV)
+            {
+                TrialData trial = new TrialData(DateTime.Now.ToString("hh:mm:ss"), manualConfig, outcome);
+                csvFile.WriteTrial(trial);
+            }
+            SetState(ExperimentState.WaitingForTellResponse);
+            StartCoroutine(client.Tell(manualConfig, outcome));
+            if (useModelExploration && queryModel != null)
+            {
+                queryModel.QueryEnabled(false);
+            }
+            if (asyncAsk)
+            {
+                config = nextConfig;
+            }
+            Debug.Log("Manual tell sent: " + manualConfig);
+        }
+
+        public bool isManualTellInProcess()
+        {
+            return tellInProcess;
+        }
+
         public IEnumerator CheckQueryReady()
         {
             SetState(ExperimentState.WaitingForCanModelResponse);
             yield return StartCoroutine(client.CheckForModel());
+        }
+
+        /// <summary>
+        /// Checks whether or not the client is currently sending/receiveing messages.
+        /// </summary>
+        public bool IsBusy()
+        {
+            if (_experimentState == ExperimentState.ConfigReady || _experimentState == ExperimentState.WaitingForTell)
+            {
+                if (!client.IsBusy())
+                    return false;
+            }
+            Debug.Log("busy...");
+            return true;
         }
 
         public bool UsesModelExplorer()
@@ -553,12 +791,25 @@ namespace AEPsych
         public void StartExploration()
         {
             prevState = _experimentState;
+            if (useDefaultUI)
+            {
+                prevExpText = defaultUI.experimentText.text;
+            }
+            if (trialResponseListener != null)
+            {
+                StopCoroutine(trialResponseListener);
+            }
             SetState(ExperimentState.Exploring);
         }
 
         public void StopExploration()
         {
             SetState(prevState);
+            if (useDefaultUI)
+            {
+                SetText(prevExpText);
+            }
+            Replay();
         }
 
         public void TerminateExperiment()
@@ -579,17 +830,21 @@ namespace AEPsych
             }
             else
             {
-                SetState(ExperimentState.WaitingForTell);
-                if (useModelExploration && readyToQuery)
+                if (!asyncAsk)
                 {
-                    queryModel.QueryEnabled(true);
+                    SetState(ExperimentState.WaitingForTell);
+                    if (useModelExploration && readyToQuery)
+                    {
+                        queryModel.QueryEnabled(true);
+                    }
                 }
+                trialResponseListener = StartCoroutine(WaitForResponse());
             }
         }
 
         /// <summary>
-        /// Resumes a paused experiment by re-enabling the Client state change listener and
-        /// starting a new trial.If the experiment is uninitialized, it will initialize it.
+        /// Resumes a paused experiment by re-enabling the Client state change listener and 
+        /// starting a new trial. If the experiment is uninitialized, it will initialize it.
         ///
         /// </summary>
         public void Resume()
@@ -672,15 +927,23 @@ namespace AEPsych
                         "Default UI\" for your Experiment.");
                     TerminateExperiment();
                 }
+                else
+                {
+                    defaultUI.AssignActiveExperiment(this);
+                }
             }
         }
 
+        /*
         private void Update()
         {
-            if (_experimentState == ExperimentState.WaitingForTell)
+
+            if (_experimentState == ExperimentState.WaitingForTell || _experimentState == ExperimentState.WaitingForAsyncAsk)
                 CheckUserResponse();    // implementation of CheckUserResponse() needs to call
                                         // ReportResultToServer() when response is collected
+
         }
+        */
 
         private void OnEnable()
         {

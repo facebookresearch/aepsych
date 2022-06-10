@@ -45,20 +45,20 @@ class ClientTestCase(unittest.TestCase):
         model = GPClassificationModel
 
         [init_strat]
-        n_trials = 1
+        min_asks = 1
         generator = SobolGenerator
-        min_outcome_occurrences = 0
+        min_total_outcome_occurrences = 0
 
         [opt_strat]
-        n_trials = 1
+        min_asks = 1
         generator = OptimizeAcqfGenerator
-        min_outcome_occurrences = 0
+        min_total_outcome_occurrences = 0
         """
 
         self.client.configure(config_str=config_str, config_name="first_config")
         self.assertEqual(self.s.strat_id, 0)
-        self.assertEqual(self.s.strat.strat_list[0].n_trials, 1)
-        self.assertEqual(self.s.strat.strat_list[1].n_trials, 1)
+        self.assertEqual(self.s.strat.strat_list[0].min_asks, 1)
+        self.assertEqual(self.s.strat.strat_list[1].min_asks, 1)
         self.assertIsInstance(self.s.strat.strat_list[0].generator, SobolGenerator)
         self.assertIsInstance(
             self.s.strat.strat_list[1].generator, OptimizeAcqfGenerator

@@ -7,7 +7,7 @@
 
 import time
 import warnings
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import numpy as np
 import torch
@@ -42,38 +42,73 @@ def ensure_model_is_fresh(f):
 
 
 class Strategy(object):
+    """Object that combines models and generators to generate points to sample."""
+
+    _n_eval_points: int = 1000
+
     def __init__(
         self,
-        n_trials: int,
         generator: AEPsychGenerator,
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
-        model: Optional[ModelProtocol] = None,
         dim: Optional[int] = None,
+        min_total_tells: int = 0,
+        min_asks: int = 0,
+        model: Optional[ModelProtocol] = None,
         refit_every: int = 1,
         outcome_type: str = "single_probit",
-        min_outcome_occurrences: int = 1,
-        max_trials: Optional[int] = None,
+        min_total_outcome_occurrences: int = 1,
+        max_asks: Optional[int] = None,
         keep_most_recent: Optional[int] = None,
         min_post_range: Optional[float] = None,
-        n_eval_points: int = 1000,
     ):
+        """Initialize the strategy object.
+
+        Args:
+            generator (AEPsychGenerator): The generator object that determines how points are sampled.
+            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
+            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+                of lb and ub.
+            min_total_tells (int): The minimum number of total observations needed to complete this strategy.
+            min_asks (int): The minimum number of points that should be generated from this strategy.
+            model (ModelProtocol, optional): The AEPsych model of the data.
+            refit_every (int): How often to refit the model from scratch.
+            outcome_type (str): The type of observations that will be recorded. For now, the only option is "single_probit".
+            min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.
+                Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).
+            max_asks (int, optional): The maximum number of trials to generate using this strategy.
+                If None, there is no upper bound (default).
+            keep_most_recent (int, optional): Experimental. The number of most recent data points that the model will be fitted on.
+                This may be useful for discarding noisy data from trials early in the experiment that are not as informative
+                as data collected from later trials. When None, the model is fitted on all data.
+            min_post_range (float, optional): Experimental. The required difference between the posterior's minimum and maximum value in
+                probablity space before the strategy will finish. Ignored if None (default).
+        """
+
+        if min_total_tells > 0 and min_asks > 0:
+            warnings.warn(
+                "Specifying both min_total_tells and min_asks > 0 may lead to unintended behavior."
+            )
+
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
-        self.min_outcome_occurrences = min_outcome_occurrences
-        self.max_trials = max_trials
+        self.min_total_outcome_occurrences = min_total_outcome_occurrences
+        self.max_asks = max_asks
         self.keep_most_recent = keep_most_recent
 
         self.min_post_range = min_post_range
         if self.min_post_range is not None:
             assert model is not None, "min_post_range must be None if model is None!"
             self.eval_grid = make_scaled_sobol(
-                lb=self.lb, ub=self.ub, size=n_eval_points
+                lb=self.lb, ub=self.ub, size=self._n_eval_points
             )
 
         self.x = None
         self.y = None
-        self.n_trials = n_trials
+        self.n = 0
+        self.min_asks = min_asks
         self._count = 0
+        self.min_total_tells = min_total_tells
 
         # I think this is a correct usage of event_shape
         if type(self.dim) is int:
@@ -88,6 +123,12 @@ class Strategy(object):
         self.has_model = self.model is not None
         if self.generator._requires_model:
             assert self.model is not None, f"{self.generator} requires a model!"
+
+        if self.min_asks == self.min_total_tells == 0:
+            warnings.warn(
+                "strategy.min_asks == strategy.min_total_tells == 0. This strategy will not generate any points!",
+                UserWarning,
+            )
 
     def normalize_inputs(self, x, y):
         """converts inputs into normalized format for this strategy
@@ -167,10 +208,13 @@ class Strategy(object):
 
     @property
     def finished(self):
+        if hasattr(self.generator, "finished"):  # defer to generator if possible
+            return self.generator.finished
+
         if self.y is None:  # always need some data before switching strats
             return False
 
-        if self.max_trials is not None and self._count >= self.max_trials:
+        if self.max_asks is not None and self._count >= self.max_asks:
             return True
 
         n_yes_trials = (self.y == 1).sum()
@@ -181,9 +225,10 @@ class Strategy(object):
         else:
             meets_post_range = True
         finished = (
-            self._count >= self.n_trials
-            and n_yes_trials >= self.min_outcome_occurrences
-            and n_no_trials >= self.min_outcome_occurrences
+            self._count >= self.min_asks
+            and n_yes_trials >= self.min_total_outcome_occurrences
+            and n_no_trials >= self.min_total_outcome_occurrences
+            and self.n >= self.min_total_tells
             and meets_post_range
         )
         return finished
@@ -235,7 +280,9 @@ class Strategy(object):
                 generator.acqf = acqf_cls
                 generator.acqf_kwargs = generator._get_acqf_options(acqf_cls, config)
 
-        n_trials = config.getint(name, "n_trials")
+        min_asks = config.getint(name, "min_asks", fallback=0)
+        min_total_tells = config.getint(name, "min_total_tells", fallback=0)
+
         refit_every = config.getint(name, "refit_every", fallback=1)
 
         lb = config.gettensor(name, "lb")
@@ -245,17 +292,24 @@ class Strategy(object):
         outcome_type = config.get(name, "outcome_type", fallback="single_probit")
 
         if model is not None and not generator._requires_model:
-            if refit_every < n_trials:
+            if refit_every < min_asks:
                 warnings.warn(
-                    f"Strategy '{name}' has refit_every < n_trials even though its generator does not require a model. Consider making refit_every = n_trials to speed up point generation.",
-                    RuntimeWarning,
+                    f"Strategy '{name}' has refit_every < min_asks even though its generator does not require a model. Consider making refit_every = min_asks to speed up point generation.",
+                    UserWarning,
                 )
 
-        min_outcome_occurrences = config.getint(
-            name, "min_outcome_occurrences", fallback=1
+        min_total_outcome_occurrences = config.getint(
+            name, "min_total_outcome_occurrences", fallback=1
         )
         min_post_range = config.getfloat(name, "min_post_range", fallback=None)
         keep_most_recent = config.getint(name, "keep_most_recent", fallback=None)
+
+        n_trials = config.getint(name, "n_trials", fallback=None)
+        if n_trials is not None:
+            warnings.warn(
+                "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead."
+            )
+            min_asks = n_trials
 
         return cls(
             lb=lb,
@@ -263,12 +317,13 @@ class Strategy(object):
             dim=dim,
             model=model,
             generator=generator,
-            n_trials=n_trials,
+            min_asks=min_asks,
             refit_every=refit_every,
             outcome_type=outcome_type,
-            min_outcome_occurrences=min_outcome_occurrences,
+            min_total_outcome_occurrences=min_total_outcome_occurrences,
             min_post_range=min_post_range,
             keep_most_recent=keep_most_recent,
+            min_total_tells=min_total_tells,
         )
 
 
@@ -281,7 +336,7 @@ class SequentialStrategy(object):
         strat_list (list[Strategy]): TODO make this nicely typed / doc'd
     """
 
-    def __init__(self, strat_list):
+    def __init__(self, strat_list: List[Strategy]):
         self.strat_list = strat_list
         self._strat_idx = 0
         self._suggest_count = 0
@@ -290,7 +345,7 @@ class SequentialStrategy(object):
     def _strat(self):
         return self.strat_list[self._strat_idx]
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         # return current strategy's attr if it's not a container attr
         if "strat_list" not in vars(self):
             raise AttributeError("Have no strategies in container, what happened?")
@@ -312,7 +367,7 @@ class SequentialStrategy(object):
         self._suggest_count = 0
         self._strat_idx = self._strat_idx + 1
 
-    def gen(self, num_points=1, **kwargs):
+    def gen(self, num_points: int = 1, **kwargs):
         if self._strat.finished:
             self._make_next_strat()
         self._suggest_count = self._suggest_count + num_points

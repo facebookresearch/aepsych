@@ -23,7 +23,7 @@ public class Ex1DSingleOpt : Experiment
 
     //This is specific to this example
     public GameObject circlePrefab;
-    public TextMeshProUGUI trialText;
+    GameObject circleInstance;
     public string configName = "configs/single_opt_1d.ini";
     float startTime = -1f;
 
@@ -31,15 +31,26 @@ public class Ex1DSingleOpt : Experiment
     private void Start()
     {
         config = new TrialConfig();
-        SetText("Welcome. Press Y to begin.");
+        SetText("Connecting to server...");
+    }
+
+    public override void OnConnectToServer()
+    {
+        // Delete old instance when the experiment restarts
+        if (circleInstance != null)
+        {
+            Destroy(circleInstance);
+            circleInstance = null;
+        }
         StartCoroutine(WaitForInput());
+        SetText("Welcome. Press Y to begin.");
     }
 
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("Now presenting stimulus.");
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.SetGrayscaleColor(config["gsColor"][0]);
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
@@ -94,16 +105,12 @@ public class Ex1DSingleOpt : Experiment
         yield return StartCoroutine(client.Query(QueryType.max));
         QueryMessage m = client.GetQueryResponse();
         TrialConfig maxLoc = m.x;
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.flashDuration = -1.0f; //never destroy
         fs.SetGrayscaleColor(maxLoc["gsColor"][0]);
     }
 
-    void SetText(string s)
-    {
-        trialText.SetText(s);
-    }
 
     public override string GetName()
     {

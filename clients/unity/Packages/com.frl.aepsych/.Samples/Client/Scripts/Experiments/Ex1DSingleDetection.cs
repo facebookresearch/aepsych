@@ -23,6 +23,7 @@ public class Ex1DSingleDetection : Experiment
 
     //This is specific to this example
     public GameObject circlePrefab;
+    GameObject circleInstance;
     public TextMeshProUGUI trialText;
     public string configName = "configs/single_lse_1d.ini";
     float startTime = -1f;
@@ -31,15 +32,26 @@ public class Ex1DSingleDetection : Experiment
     private void Start()
     {
         config = new TrialConfig();
-        SetText("Welcome. Press Y to begin.");
+        SetText("Connecting to server...");
+    }
+
+    public override void OnConnectToServer()
+    {
+        // Delete old instance when the experiment restarts
+        if (circleInstance != null)
+        {
+            Destroy(circleInstance);
+            circleInstance = null;
+        }
         StartCoroutine(WaitForYInput());
+        SetText("Welcome. Press Y to begin.");
     }
 
     public override void ShowStimuli(TrialConfig config)
     {
         SetText("Now presenting stimulus.");
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.alpha = config["alpha"][0];
         StartCoroutine(EndShowStimuliAfterSeconds(fs.flashDuration));
     }
@@ -93,16 +105,17 @@ public class Ex1DSingleDetection : Experiment
         yield return StartCoroutine(client.Query(QueryType.inverse, y: 0.75f, probability_space: true));
         QueryMessage m = client.GetQueryResponse();
         TrialConfig maxLoc = m.x;
-        GameObject circle = Instantiate(circlePrefab);
-        FlashSprite fs = circle.GetComponent<FlashSprite>();
+        circleInstance = Instantiate(circlePrefab);
+        FlashSprite fs = circleInstance.GetComponent<FlashSprite>();
         fs.alpha = maxLoc["alpha"][0];
         fs.flashDuration = -1.0f; //never destroy
+        SetText("Experiment complete! Displaying 75% threshold color: ");
     }
 
-    void SetText(string s)
+    /*new void SetText(string s)
     {
         trialText.SetText(s);
-    }
+    }*/
 
     public override string GetName()
     {

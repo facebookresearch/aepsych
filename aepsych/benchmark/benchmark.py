@@ -302,14 +302,14 @@ class DerivedValue(object):
                     "acqf": "MCLevelSetEstimation"
                 },
                 "init_strat": {
-                    "n_trials": [10, 20],
+                    "min_asks": [10, 20],
                     "generator": "SobolGenerator"
                 },
                 "opt_strat": {
                     "generator": "OptimizeAcqfGenerator",
-                    "n_trials":
+                    "min_asks":
                         DerivedValue(
-                            [("init_strat", "n_trials"), ("common", "model")],
+                            [("init_strat", "min_asks"), ("common", "model")],
                             lambda x,y : 100 - x if y == "GPClassificationModel" else 50 - x)
                 }
             }

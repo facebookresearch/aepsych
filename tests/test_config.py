@@ -37,12 +37,12 @@ class ConfigTestCase(unittest.TestCase):
 
         [init_strat]
         generator = SobolGenerator
-        n_trials = 10
-        min_outcome_occurrences = 5
+        min_asks = 10
+        min_total_outcome_occurrences = 5
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
-        n_trials = 20
+        min_asks = 20
         min_post_range = 0.01
         keep_most_recent = 10
 
@@ -85,19 +85,19 @@ class ConfigTestCase(unittest.TestCase):
 
         self.assertTrue(strat.strat_list[1].generator.restarts == 10)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
-        self.assertTrue(strat.strat_list[0].n_trials == 10)
+        self.assertTrue(strat.strat_list[0].min_asks == 10)
         self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
-        self.assertTrue(strat.strat_list[1].n_trials == 20)
+        self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
-        self.assertEqual(strat.strat_list[0].min_outcome_occurrences, 5)
+        self.assertEqual(strat.strat_list[0].min_total_outcome_occurrences, 5)
         self.assertEqual(strat.strat_list[0].min_post_range, None)
         self.assertEqual(strat.strat_list[0].keep_most_recent, None)
 
-        self.assertEqual(strat.strat_list[1].min_outcome_occurrences, 1)
+        self.assertEqual(strat.strat_list[1].min_total_outcome_occurrences, 1)
         self.assertEqual(strat.strat_list[1].min_post_range, 0.01)
         self.assertEqual(strat.strat_list[1].keep_most_recent, 10)
 
@@ -140,9 +140,9 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             strat.strat_list[1].generator.model_gen_options["raw_samples"] == 1000
         )
-        self.assertTrue(strat.strat_list[0].n_trials == 10)
+        self.assertTrue(strat.strat_list[0].min_asks == 10)
         self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
-        self.assertTrue(strat.strat_list[1].n_trials == 20)
+        self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
@@ -173,9 +173,9 @@ class ConfigTestCase(unittest.TestCase):
             )
         )
 
-        self.assertTrue(strat.strat_list[0].n_trials == 10)
+        self.assertTrue(strat.strat_list[0].min_asks == 10)
         self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
-        self.assertTrue(strat.strat_list[1].n_trials == 20)
+        self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
@@ -201,17 +201,17 @@ class ConfigTestCase(unittest.TestCase):
 
         [init_strat]
         generator = SobolGenerator
-        n_trials = 1
+        min_asks = 1
 
         [opt_strat1]
         generator = OptimizeAcqfGenerator
-        n_trials = 1
+        min_asks = 1
         model = GPClassificationModel
         acqf = MCLevelSetEstimation
 
         [opt_strat2]
         generator = MonotonicRejectionGenerator
-        n_trials = 1
+        min_asks = 1
         model = MonotonicRejectionGP
         acqf = MonotonicMCLSE
         """
@@ -259,10 +259,10 @@ class ConfigTestCase(unittest.TestCase):
             acqf = LevelSetEstimation
             [init_strat]
             generator = SobolGenerator
-            n_trials = 10
+            min_asks = 10
             [opt_strat]
             generator = OptimizeAcqfGenerator
-            n_trials = 20
+            min_asks = 20
             [LevelSetEstimation]
             beta = 3.98
             objective = ProbitObjective
@@ -322,10 +322,10 @@ class ConfigTestCase(unittest.TestCase):
         self.assertEqual(config["common"]["strategy_names"], "[init_strat, opt_strat]")
         self.assertEqual(config["common"]["acqf"], "MonotonicMCLSE")
 
-        self.assertEqual(config["init_strat"]["n_trials"], "10")
+        self.assertEqual(config["init_strat"]["min_asks"], "10")
         self.assertEqual(config["init_strat"]["generator"], "SobolGenerator")
 
-        self.assertEqual(config["opt_strat"]["n_trials"], "20")
+        self.assertEqual(config["opt_strat"]["min_asks"], "20")
         self.assertEqual(config["opt_strat"]["refit_every"], "5")
         self.assertEqual(
             config["opt_strat"]["generator"], "MonotonicRejectionGenerator"
@@ -346,13 +346,13 @@ class ConfigTestCase(unittest.TestCase):
 
         [init_strat]
         generator = SobolGenerator
-        n_trials = 10
+        min_asks = 10
         refit_every = 5
         """
 
         config = Config(config_str=config_str)
 
-        with self.assertWarns(RuntimeWarning):
+        with self.assertWarns(UserWarning):
             Strategy.from_config(config, "init_strat")
 
 

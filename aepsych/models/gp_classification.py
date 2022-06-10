@@ -86,7 +86,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
-        self.max_fit_time = max_fit_time
         self.inducing_point_method = inducing_point_method
         # initialize to sobol before we have data
         inducing_points = self._select_inducing_points(method="sobol")
@@ -232,12 +231,14 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
         self.train()
 
-        if self.max_fit_time is not None:
+        max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
+
+        if max_fit_time is not None:
             # figure out how long evaluating a single samp
             starttime = time.time()
             _ = mll(self(train_x), train_y)
             single_eval_time = time.time() - starttime
-            n_eval = self.max_fit_time // single_eval_time
+            n_eval = max_fit_time // single_eval_time
             options = {"maxfun": n_eval}
             logger.info(f"fit maxfun is {n_eval}")
 
