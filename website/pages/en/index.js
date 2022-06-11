@@ -62,7 +62,8 @@ class HomeSplash extends React.Component {
 
     return (
       <SplashContainer>
-           <Logo img_src={`${baseUrl}img/placeholder.png`} />
+            {/* Main logo */}
+           {/* <Logo img_src={`${baseUrl}img/placeholder.png`} /> */}
         <div className="inner">
           <ProjectTitle tagline={siteConfig.tagline} title={siteConfig.title} />
           <PromoSection>
@@ -99,18 +100,32 @@ class Index extends React.Component {
 
     // getStartedSection
     const pre = '```';
-    // Example for model fitting
-    const modelFitCodeExample = `${pre}python
-    <-- code goes here -->
+    // For 1) pip install
+    const firstCodeSection = `${pre}python
+    cd aepsych
+    pip install -r requirements.txt
+    pip install -e .
     `;
 
-    // Example for defining an acquisition function
-    const constrAcqFuncExample = `${pre}python
-    <-- code goes here -->
+    // For 2) Usage - first
+    const secondCodeSection = `${pre}python
+    python aepsych/server/server.py
     `;
-    // Example for optimizing candidates
-    const optAcqFuncExample = `${pre}python
-    <-- code goes here -->
+    // For 3) Usage - second
+    const thirdCodeSection  = `${pre}python
+    {
+     "type":<TYPE>,
+     "version":<VERSION>,
+     "message":<MESSAGE>,
+    }
+    `;
+    // For 4) Setup
+    const forthCodeSection = `${pre}python
+    {
+    "type":"setup",
+    "version":"0.01",
+    "message":{"config_str":<PASTED CONFIG STRING>}
+    }
     `;
 
 
@@ -121,26 +136,49 @@ class Index extends React.Component {
         style={{textAlign: 'center'}}>
         <h2>Get Started</h2>
         <Container>
+        <p>
+        AEPsych supports python 3.8+. We recommend
+        installing AEPsych under a virtual environment like Anaconda.
+        Created a virtual environment for AEPsych once it is activated
+        you can install our requirements and then install AEPsych.
+        </p>
+        </Container>
+        <Container>
           <ol>
             <li>
               <h4>Install AEPsych:</h4>
-              <a>via ##Insert here## (recommended):</a>
-              <MarkdownBlock>{bash` <-- install aepsych -->`}</MarkdownBlock>
-              <a>via pip:</a>
-              <MarkdownBlock>{bash`<-- pip install aepsych -->`}</MarkdownBlock>
+              <p className="disable">via pip</p>
+              <MarkdownBlock>{firstCodeSection}</MarkdownBlock>
             </li>
             <li>
-              <h4>Fit a model:</h4>
-              <MarkdownBlock>{modelFitCodeExample}</MarkdownBlock>
+              <h4>Usage:</h4>
+              <p className="disable">The canonical way of using AEPsych is to launch it in server mode.</p>
+              <MarkdownBlock>{secondCodeSection}</MarkdownBlock>
+              <p className="disable">(you can call python aepsych/server/server.py --help to see
+              additional arguments). The server accepts messages over either p
+              unix socket or ZMQ, and all messages are formatted using JSON. All
+              messages have the following format:
+              </p>
+              <MarkdownBlock>{thirdCodeSection}</MarkdownBlock>
+              <p className="disable">
+              Version can be omitted, in which case we default to the
+              oldest / unversioned handler for this message type. There are
+              five message types: setup, resume, ask, tell and exit.
+              </p>
             </li>
             <li>
-              <h4>Construct an acquisition function:</h4>
-              <MarkdownBlock>{constrAcqFuncExample}</MarkdownBlock>
+              <h4>Setup:</h4>
+              <p className="disable">
+              The setup message prepares the server for making
+              suggestions and accepting data. The setup message can be
+              formatted as either INI or a python dict (similar to JSON)
+              format, and an example for psychometric threshold estimation
+              is given in configs/single_lse_example.ini. It looks like this:
+              </p>
+              <MarkdownBlock>{forthCodeSection}</MarkdownBlock>
+              <a href="https://github.com/facebookresearch/aepsych">More examples</a>
             </li>
-            <li>
-              <h4>Optimize the acquisition function:</h4>
-              <MarkdownBlock>{optAcqFuncExample}</MarkdownBlock>
-            </li>
+
           </ol>
         </Container>
       </div>
@@ -155,14 +193,14 @@ class Index extends React.Component {
             {
               content:
                 'Text goes here...',
-              image: `${baseUrl}img/expanding_arrows.svg`,
+              image: `${baseUrl}img/puzzle.svg`,
               imageAlign: 'top',
               title: 'Header',
             },
             {
               content:
                 'Text goes here...',
-              image: `${baseUrl}img/placeholder.png`,
+              image: `${baseUrl}img/arrow-up-right.svg`,
               imageAlign: 'top',
               title: 'Header',
             },
@@ -178,29 +216,30 @@ class Index extends React.Component {
       </div>
     );
 
-    const Reference = () => (
-      <div
-        className="productShowcaseSection"
-        id="reference"
-        style={{textAlign: 'center'}}>
-        <h2>References</h2>
-        <Container>
-         <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-            when an unknown printer took a galley of type and scrambled it to make a type
-            specimen book.
-          </p>
-        </Container>
-      </div>
-    );
+// May not need for V1 of site
+    // const Reference = () => (
+    //   <div
+    //     className="productShowcaseSection"
+    //     id="reference"
+    //     style={{textAlign: 'center'}}>
+    //     <h2>References</h2>
+    //     <Container>
+    //      <p>
+    //         Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+    //         Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+    //         when an unknown printer took a galley of type and scrambled it to make a type
+    //         specimen book.
+    //       </p>
+    //     </Container>
+    //   </div>
+    // );
 
     return (
       <div>
         <HomeSplash siteConfig={siteConfig} language={language} />
         <div className="mainContainer">
           <Features />
-          <Reference />
+          {/* <Reference /> */}
           <QuickStart />
         </div>
       </div>

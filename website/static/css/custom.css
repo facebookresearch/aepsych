@@ -12,6 +12,14 @@
      --primary-color: #219ebc;
      --secondary-color: #FB8500;
 }
+
+/* link to favicon.ico generator https://favicon.io/logo-generator/ */
+p.disable {
+  display: inline;
+  vertical-align: baseline;
+}
+
+
 /* ======== */
 .headerTitle {
     color: #ffffff;
