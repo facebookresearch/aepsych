@@ -52,6 +52,7 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 model_gen_options=model_gen_options,
             ),
             min_asks=1,
+            outcome_type="single_continous",
         )
         # Fit
         train_x = torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])

@@ -23,7 +23,7 @@ from aepsych.utils import _process_bounds, promote_0d
 from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.kernels import Kernel
-from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
+from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood, Likelihood
 from gpytorch.means import Mean
 from gpytorch.mlls.variational_elbo import VariationalELBO
 from gpytorch.models import ApproximateGP
@@ -46,7 +46,19 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
     """
 
     _num_outputs = 1
-    outcome_type = "single_probit"
+
+    @property
+    def outcome_type(self):
+        if isinstance(self.likelihood, BernoulliLikelihood):
+            return "single_probit"
+
+        elif isinstance(self.likelihood, GaussianLikelihood):
+            return "single_continuous"
+
+        else:
+            raise RuntimeError(
+                f"Unknown outcome_type with likelihood {self.likelihood}!"
+            )
 
     def __init__(
         self,
@@ -141,7 +153,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
         self.fixed_prior_mean = fixed_prior_mean
         self.inducing_points = inducing_points
 
-    def fit(self, train_x: Tensor, train_y: Tensor) -> None:
+    def fit(self, train_x: Tensor, train_y: Tensor, **kwargs) -> None:
         """Fit the model
 
         Args:

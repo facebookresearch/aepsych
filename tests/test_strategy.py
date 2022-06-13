@@ -7,14 +7,14 @@
 
 import unittest
 from unittest.mock import MagicMock
-from aepsych.models.gp_classification import GPClassificationModel
 
 import numpy as np
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
+from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
-from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.strategy import Strategy
 
 
 class TestSequenceGenerators(unittest.TestCase):
@@ -46,39 +46,12 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat.model.update = MagicMock()
         self.strat.generator.gen = MagicMock()
 
-    def test_opt_strategy_single(self):
-        lbs = [[-1], [-10]]
-        ubs = [[1], [-8]]
-        n = [3, 5]
-        strat_list = []
-        for lb, ub, n in zip(lbs, ubs, n):
-            gen = SobolGenerator(lb, ub)
-            strat = Strategy(
-                min_asks=n, generator=gen, lb=lb, ub=ub, min_total_outcome_occurrences=0
-            )
-            strat_list.append(strat)
-
-        strat = SequentialStrategy(strat_list)
-        out = np.zeros(8)
-        for i in range(8):
-            next_x = strat.gen()
-            strat.add_data(next_x, [1])
-            out[i] = next_x
-
-        gen1 = out[:3]
-        gen2 = out[3:]
-
-        self.assertTrue(np.min(gen1) >= -1)
-        self.assertTrue(np.min(gen2) >= -10)
-        self.assertTrue(np.max(gen1) <= 1)
-        self.assertTrue(np.max(gen2) <= -8)
-
     def test_warmstart(self):
         self.strat.refit_every = 10
 
         for _ in range(50):
             self.strat.gen()
-            self.strat.add_data(np.r_[1.0, 1.0], [1])
+            self.strat.add_data(np.array([[1.0, 1.0]]), [1])
 
         self.assertEqual(
             self.strat.model.fit.call_count, 4
@@ -88,7 +61,7 @@ class TestSequenceGenerators(unittest.TestCase):
     def test_no_warmstart(self):
         for _ in range(50):
             self.strat.gen()
-            self.strat.add_data(np.r_[1.0, 1.0], [1])
+            self.strat.add_data(np.array([[1.0, 1.0]]), [1])
 
         self.assertEqual(
             self.strat.model.fit.call_count, 49
@@ -98,33 +71,33 @@ class TestSequenceGenerators(unittest.TestCase):
     def test_finish_criteria(self):
         for _ in range(49):
             self.strat.gen()
-            self.strat.add_data(np.r_[1.0, 1.0], [1])
+            self.strat.add_data(np.array([[1.0, 1.0]]), [1])
         self.assertFalse(self.strat.finished)
 
         self.strat.gen()
-        self.strat.add_data(np.r_[1.0, 1.0], [1])
+        self.strat.add_data(np.array([[1.0, 1.0]]), [1])
         self.assertFalse(self.strat.finished)  # not enough "no" trials
 
         self.strat.gen()
-        self.strat.add_data(np.r_[1.0, 1.0], [0])
+        self.strat.add_data(np.array([[1.0, 1.0]]), [0])
         self.assertFalse(
             self.strat.finished
         )  # not enough difference between posterior min/max
 
         for _ in range(50):
             self.strat.gen()
-            self.strat.add_data(np.r_[0.0, 0.0], [0])
+            self.strat.add_data(np.array([[1.0, 1.0]]), [0])
         self.assertTrue(self.strat.finished)
 
     def test_max_asks(self):
         self.strat.max_asks = 50
         for _ in range(49):
             self.strat.gen()
-            self.strat.add_data(np.r_[1.0, 1.0], [1])
+            self.strat.add_data(np.array([[1.0, 1.0]]), [1])
         self.assertFalse(self.strat.finished)
 
         self.strat.gen()
-        self.strat.add_data(np.r_[1.0, 1.0], [1])
+        self.strat.add_data(np.array([[1.0, 1.0]]), [1])
         self.assertTrue(self.strat.finished)
 
     def test_keep_most_recent(self):
@@ -149,13 +122,29 @@ class TestSequenceGenerators(unittest.TestCase):
         data = torch.rand(5, 2)
         for i, d in enumerate(data):
             self.strat.gen()
-            self.strat.add_data(d, [0])
+            self.strat.add_data(np.expand_dims(d, axis=0), [0])
             self.strat.fit()
 
             lb = max(0, i - self.strat.keep_most_recent + 1)
             self.assertTrue(
                 torch.equal(self.strat.model.train_inputs[0], data[lb : i + 1])
             )
+
+    def test_add_data(self):
+        # this should work
+        self.strat.add_data(np.array([[0, 0]]), [0])
+
+        with self.assertRaises(AssertionError):
+            # x < lb
+            self.strat.add_data(np.array([[-10, 0]]), [1])
+
+        with self.assertRaises(AssertionError):
+            # x > ub
+            self.strat.add_data(np.array([[0, 10]]), [1])
+
+        with self.assertRaises(AssertionError):
+            # y != 0 or 1
+            self.strat.add_data(np.array([[-10, 0]]), [-1])
 
 
 if __name__ == "__main__":
