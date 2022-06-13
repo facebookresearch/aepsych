@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-import time
 from copy import deepcopy
 from typing import Optional, Tuple, Union
 
@@ -18,7 +17,6 @@ from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
-from botorch.fit import fit_gpytorch_model
 from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
@@ -229,25 +227,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
 
         n = train_y.shape[0]
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
-        self.train()
 
-        max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
-
-        if max_fit_time is not None:
-            # figure out how long evaluating a single samp
-            starttime = time.time()
-            _ = mll(self(train_x), train_y)
-            single_eval_time = time.time() - starttime
-            n_eval = max_fit_time // single_eval_time
-            options = {"maxfun": n_eval}
-            logger.info(f"fit maxfun is {n_eval}")
-
-        else:
-            options = {}
-        logger.info("Starting fit...")
-        starttime = time.time()
-        fit_gpytorch_model(mll, options=options, **kwargs)
-        logger.info(f"Fit done, time={time.time()-starttime}")
+        self._fit_mll(train_x, train_y, mll, **kwargs)
 
     def sample(
         self, x: Union[torch.Tensor, np.ndarray], num_samples: int
@@ -308,19 +289,3 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor):
         """Perform a warm-start update of the model from previous fit."""
         self.fit(train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True)
-
-    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
-        """Evaluate GP
-
-        Args:
-            x (torch.Tensor): Tensor of points at which GP should be evaluated.
-
-        Returns:
-            gpytorch.distributions.MultivariateNormal: Distribution object
-                holding mean and covariance at x.
-        """
-        transformed_x = self.normalize_inputs(x)
-        mean_x = self.mean_module(transformed_x)
-        covar_x = self.covar_module(transformed_x)
-        latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
-        return latent_pred

@@ -6,21 +6,32 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
+import time
 from typing import Any, List, Mapping, Optional, Protocol, Tuple, Union
 
+import gpytorch
 import numpy as np
 import torch
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
+from aepsych.utils_logging import getLogger
 from botorch.acquisition import PosteriorMean
+from botorch.fit import fit_gpytorch_model
 from botorch.models.approximate_gp import _select_inducing_points
 from botorch.optim import optimize_acqf
 from scipy.cluster.vq import kmeans2
+from gpytorch.mlls import MarginalLogLikelihood
 from scipy.optimize import minimize
+
+logger = getLogger()
 
 torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
 
 
 class ModelProtocol(Protocol):
+    @property
+    def outcome_type(self) -> str:
+        pass
+
     @property
     def extremum_solver(self) -> str:
         pass
@@ -41,9 +52,7 @@ class ModelProtocol(Protocol):
     def dim(self) -> int:
         pass
 
-    def predict(
-        self, points: torch.Tensor, probability_space: bool = False
-    ) -> torch.Tensor:
+    def predict(self, points: torch.Tensor, **kwargs) -> torch.Tensor:
         pass
 
     def sample(self, points: torch.Tensor, num_samples: int) -> torch.Tensor:
@@ -183,12 +192,19 @@ class AEPsychMixin:
             Tuple[float, np.ndarray]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
         """
+        if probability_space:
+            assert (
+                self.outcome_type == "single_probit"
+                or self.outcome_type == "pairwise_probit"
+            ), f"Cannot get probability space for outcome_type '{self.outcome_type}'"
 
         locked_dims = locked_dims or {}
 
         def model_distance(x, pt, probability_space):
             return np.abs(
-                self.predict(torch.tensor([x]), probability_space)[0].detach().numpy()
+                self.predict(torch.tensor([x]), probability_space=probability_space)[0]
+                .detach()
+                .numpy()
                 - pt
             )
 
@@ -210,7 +226,7 @@ class AEPsychMixin:
 
         bounds = zip(query_lb.numpy(), query_ub.numpy())
 
-        fmean, _ = self.predict(d, probability_space)
+        fmean, _ = self.predict(d, probability_space=probability_space)
 
         f = torch.abs(fmean - y)
         estimate = d[torch.where(f == torch.min(f))[0][0]].numpy()
@@ -221,7 +237,9 @@ class AEPsychMixin:
             method=self.extremum_solver,
             bounds=bounds,
         )
-        val = self.predict(torch.tensor([a.x]), probability_space)[0].item()
+        val = self.predict(torch.tensor([a.x]), probability_space=probability_space)[
+            0
+        ].item()
         return val, torch.Tensor(a.x)
 
     def get_jnd(
@@ -339,3 +357,46 @@ class AEPsychMixin:
     def normalize_inputs(self, x):
         scale = self.ub - self.lb
         return (x - self.lb) / scale
+
+    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
+        """Evaluate GP
+
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+
+        Returns:
+            gpytorch.distributions.MultivariateNormal: Distribution object
+                holding mean and covariance at x.
+        """
+        transformed_x = self.normalize_inputs(x)
+        mean_x = self.mean_module(transformed_x)
+        covar_x = self.covar_module(transformed_x)
+        pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
+        return pred
+
+    def _fit_mll(
+        self,
+        train_x: torch.Tensor,
+        train_y: torch.Tensor,
+        mll: MarginalLogLikelihood,
+        **kwargs,
+    ) -> None:
+        self.train()
+
+        max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
+
+        if max_fit_time is not None:
+            # figure out how long evaluating a single samp
+            starttime = time.time()
+            _ = mll(self(train_x), train_y)
+            single_eval_time = time.time() - starttime
+            n_eval = max_fit_time // single_eval_time
+            options = {"maxfun": n_eval}
+            logger.info(f"fit maxfun is {n_eval}")
+
+        else:
+            options = {}
+        logger.info("Starting fit...")
+        starttime = time.time()
+        fit_gpytorch_model(mll, options=options, **kwargs)
+        logger.info(f"Fit done, time={time.time()-starttime}")

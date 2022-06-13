@@ -217,8 +217,16 @@ class Strategy(object):
         if self.max_asks is not None and self._count >= self.max_asks:
             return True
 
-        n_yes_trials = (self.y == 1).sum()
-        n_no_trials = (self.y == 0).sum()
+        if self.outcome_type == "single_probit":
+            n_yes_trials = (self.y == 1).sum()
+            n_no_trials = (self.y == 0).sum()
+            sufficient_outcomes = (
+                n_yes_trials >= self.min_total_outcome_occurrences
+                and n_no_trials >= self.min_total_outcome_occurrences
+            )
+        else:
+            sufficient_outcomes = True
+
         if self.min_post_range is not None:
             fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
             meets_post_range = (fmean.max() - fmean.min()) >= self.min_post_range
@@ -226,9 +234,8 @@ class Strategy(object):
             meets_post_range = True
         finished = (
             self._count >= self.min_asks
-            and n_yes_trials >= self.min_total_outcome_occurrences
-            and n_no_trials >= self.min_total_outcome_occurrences
             and self.n >= self.min_total_tells
+            and sufficient_outcomes
             and meets_post_range
         )
         return finished
