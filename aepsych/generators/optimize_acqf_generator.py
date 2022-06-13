@@ -58,7 +58,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
-    def gen(self, num_points: int, model: ModelProtocol) -> np.ndarray:
+    def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> np.ndarray:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int, optional): Number of points to query.
@@ -82,6 +82,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
                 q=num_points,
                 num_restarts=self.restarts,
                 raw_samples=self.samps,
+                **gen_options,
             )
         else:
             # figure out how long evaluating a single samp
