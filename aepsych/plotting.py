@@ -62,6 +62,10 @@ def plot_strat(
                                  Default: True.
     """
 
+    assert (
+        strat.outcome_type == "single_probit"
+    ), f"Plotting not supported for outcome_type {strat.outcome_type}"
+
     if target_level is not None and not hasattr(strat.model, "monotonic_idxs"):
         warnings.warn(
             "Threshold estimation may not be accurate for non-monotonic models."
@@ -272,7 +276,7 @@ def _plot_strat_2d(
     if logx:
         locs = np.arange(strat.lb[0], strat.ub[0])
         ax.set_xticks(ticks=locs)
-        ax.set_xticklabels(2.0**locs)
+        ax.set_xticklabels(2.0 ** locs)
 
     ax.plot(x[y == 0, 0], x[y == 0, 1], "ro", alpha=0.7, label=no_label)
     ax.plot(x[y == 1, 0], x[y == 1, 1], "bo", alpha=0.7, label=yes_label)
