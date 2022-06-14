@@ -26,7 +26,7 @@ const users = [
 
 const siteConfig = {
   title: 'AEPsych', // Title for your website.
-  tagline: 'tagline goes here',
+  // tagline: 'tagline goes here', // ========== Need to add
   url: 'https://aepsych.ai', // Your website URL
   baseUrl: baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
@@ -98,7 +98,8 @@ const siteConfig = {
     'https://buttons.github.io/buttons.js',
      // Copy-to-clipboard button for code blocks
      `${baseUrl}js/code_block_buttons.js`,
-     "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"
+     "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js",
+      `${baseUrl}js/image_fail_to_load.js`,
   ],
 
   // CSS sources to load
@@ -122,8 +123,10 @@ const siteConfig = {
 
   cleanUrl: true,
 
-  // URL for editing docs
-  editUrl: "https://github.com/Eric-Cortez/aepsych-fork/blob/main/docs/",
+  // URL for editing docs - will link the edit button on the doc page once diff has landed
+  editUrl: "https://github.com/facebookresearch/aepsych/blob/main/docs/",
+  // testing link
+  // editUrl: "https://github.com/Eric-Cortez/aepsych-fork/blob/main/docs/",
 
   // Disable logo text so we can just show the logo
   // disableHeaderTitle: true,
