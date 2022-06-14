@@ -1,0 +1,31 @@
+
+:github_url: https://github.com/facebookresearch/aepsych
+
+AEPsych API Reference
+===================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+.. toctree::
+   :maxdepth: 1
+   :caption: API Reference
+
+   aepsych.acquisition
+   aepsych.benchmark
+   aepsych.database
+   aepsych.factory
+   aepsych.generators
+   aepsych.kernels
+   aepsych.means
+   aepsych.models
+   aepsych.server
+
+
+Indices and Tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
