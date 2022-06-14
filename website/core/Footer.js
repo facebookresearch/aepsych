@@ -102,7 +102,7 @@ class Footer extends React.Component {
             height="45"
           />
         </a>
-        <section className="copyright">{this.props.config.copyright}</section>
+        <section className="copyright">{this.props.config.copyright}  Built with Docusaurus.</section>
       </footer>
     );
   }

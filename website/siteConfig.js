@@ -46,21 +46,21 @@ const siteConfig = {
     { href: `${baseUrl}tutorials/`, label: "Tutorials" },
     { href: `${baseUrl}api/`, label: "API Reference" },
     { href: "https://github.com/facebookresearch/aepsych", label: "GitHub" },
-    { search: true },
+    // { search: false } disabled agnolia searchbar for now
   ],
 
   // If you have users set above, you add it here:
   users,
 
     // search integration w/ algolia
-    algolia: {
-      apiKey: "",// will need to setup
-      indexName: "aepsych" // will need to create and setup
-    },
+    // algolia: {
+    //   apiKey: "",// will need to setup
+    //   indexName: "aepsych" // will need to create and setup
+    // },
 
 
   /* path to images for header/footer */
-  headerIcon: 'img/favicon.ico',
+  // headerIcon: 'img/favicon.ico',
   footerIcon: 'img/favicon.ico',
   favicon: 'img/favicon.ico',
 
@@ -102,7 +102,12 @@ const siteConfig = {
   ],
 
   // CSS sources to load
-  stylesheets: [],
+  stylesheets: [
+    `${baseUrl}css/basic.css`,
+    `${baseUrl}css/custom.css`,
+    `${baseUrl}css/code_block_buttons.css`,
+    `${baseUrl}css/alabaster.css`
+  ],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',

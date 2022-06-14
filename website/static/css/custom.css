@@ -5,25 +5,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-/* your custom css */
+ /* Please note: CSS changs have been made to the MIT licensed source code*/
+
+ /* === USE TO SELECT PRIMARY ANDY SECONDARY WEBSITE COLORS ===*/
+:root {
+     --primary-color: #219ebc;
+     --secondary-color: #FB8500;
+}
+/* ======== */
+.headerTitle {
+    color: #ffffff;
+    font-variant: small-caps;
+    font-weight: 300;
+}
+
+.headerTitle {
+  color: #ffffff;
+  font-variant: small-caps;
+  font-weight: 300;
+}
+.headerTitle:hover {
+  color: var(--secondary-color);
+  font-variant: small-caps;
+  font-weight: 300;
+}
 
 
 @import url('https://fonts.googleapis.com/css?family=Montserrat');
 @import url('https://fonts.googleapis.com/css?family=IBM+Plex+Mono');
 
-
 html body {
 font-family: 'Montserrat', sans-serif;
 overflow-x: hidden;
 }
-
-/* PRIMARY ANDY SECONDARY WEBSITE COLORS */
-:root {
-    --primary-color: #219ebc;
-    --secondary-color: #FB8500;
-  }
-
-
 
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
