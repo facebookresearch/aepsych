@@ -7,20 +7,22 @@
 
 import sys
 
+from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
+
 from . import (
     acquisition,
+    benchmark,
     config,
     factory,
-    benchmark,
+    generators,
     models,
     strategy,
     utils,
-    generators,
 )
 from .config import Config
 from .likelihoods import BernoulliObjectiveLikelihood
 from .models import GPClassificationModel
-from .strategy import Strategy, SequentialStrategy
+from .strategy import SequentialStrategy, Strategy
 
 __all__ = [
     # modules
@@ -37,6 +39,8 @@ __all__ = [
     "Strategy",
     "SequentialStrategy",
     "BernoulliObjectiveLikelihood",
+    "BernoulliLikelihood",
+    "GaussianLikelihood",
 ]
 
 Config.register_module(sys.modules[__name__])
