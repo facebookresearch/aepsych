@@ -146,6 +146,19 @@ class Strategy(object):
             assert (
                 x.shape[-1:] == self.event_shape
             ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
+            assert np.all(
+                np.logical_or(y == 0, y == 1)
+            ), f"y must be 0 or 1 for probit outcomes, got {y[~np.logical_or(y == 0, y == 1)]} instead!"
+
+        for d in range(self.dim):
+            assert np.all(
+                x[:, d] >= self.lb[d].numpy()
+            ), f"{x[x[:, d] < self.lb[d].numpy(), d]} less than lower bound {self.lb[d]} on dimension {d}!"
+
+        for d in range(self.dim):
+            assert np.all(
+                x[:, d] <= self.ub[d].numpy()
+            ), f"{x[x[:, d] > self.ub[d].numpy(), d]} greater than upper bound {self.ub[d]} on dimension {d}!"
 
         if x.shape == self.event_shape:
             x = x[None, :]
@@ -244,7 +257,11 @@ class Strategy(object):
     def can_fit(self):
         return self.has_model and self.x is not None and self.y is not None
 
-    def add_data(self, x, y):
+    def add_data(
+        self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
+    ):
+        x = np.array(x)
+        y = np.array(y)
         self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
 

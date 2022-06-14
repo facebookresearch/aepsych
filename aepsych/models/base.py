@@ -21,6 +21,7 @@ from botorch.models.gpytorch import GPyTorchModel
 from botorch.optim import optimize_acqf
 from gpytorch.mlls import MarginalLogLikelihood
 from scipy.cluster.vq import kmeans2
+from gpytorch.mlls import MarginalLogLikelihood
 from scipy.optimize import minimize
 
 logger = getLogger()

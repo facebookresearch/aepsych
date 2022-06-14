@@ -22,7 +22,7 @@ from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from botorch.fit import fit_gpytorch_model
 from gpytorch.kernels import Kernel
-from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
+from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood, Likelihood
 from gpytorch.means import Mean
 from gpytorch.mlls.variational_elbo import VariationalELBO
 from gpytorch.models import ApproximateGP
@@ -45,7 +45,19 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     """
 
     _num_outputs = 1
-    outcome_type = "single_probit"
+
+    @property
+    def outcome_type(self):
+        if isinstance(self.likelihood, BernoulliLikelihood):
+            return "single_probit"
+
+        elif isinstance(self.likelihood, GaussianLikelihood):
+            return "single_continuous"
+
+        else:
+            raise RuntimeError(
+                f"Unknown outcome_type with likelihood {self.likelihood}!"
+            )
 
     def __init__(
         self,

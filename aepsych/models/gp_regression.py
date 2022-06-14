@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+
 from typing import Optional, Tuple, Union
 
 import gpytorch
@@ -21,6 +22,7 @@ from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ExactGP
 
 logger = getLogger()
+
 
 
 class GPRegressionModel(AEPsychMixin, ExactGP):

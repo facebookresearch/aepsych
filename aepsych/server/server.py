@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.strategy import SequentialStrategy
 from aepsych.server.sockets import DummySocket, createSocket
+from aepsych.strategy import SequentialStrategy
 
 logger = utils_logging.getLogger(logging.INFO)
 
@@ -627,7 +627,7 @@ class AEPsychServer(object):
         if isinstance(unpacked[0], list):
             x = np.stack(unpacked, axis=1)
         else:
-            x = np.stack(unpacked)
+            x = np.expand_dims(np.stack(unpacked), axis=0)
         return x
 
     def tell(self, outcome, config):
