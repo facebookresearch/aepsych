@@ -7,12 +7,12 @@
 
 import unittest
 from unittest.mock import MagicMock
-from aepsych.models.gp_classification import GPClassificationModel
 
 import numpy as np
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
+from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
 
@@ -156,6 +156,22 @@ class TestSequenceGenerators(unittest.TestCase):
             self.assertTrue(
                 torch.equal(self.strat.model.train_inputs[0], data[lb : i + 1])
             )
+
+    def test_n_trials_deprecation(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        lb = [-1, -1]
+        ub = [1, 1]
+
+        self.strat = Strategy(
+            generator=SobolGenerator(lb=lb, ub=ub),
+            min_asks=50,
+            lb=lb,
+            ub=ub,
+        )
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(self.strat.n_trials, 50)
 
 
 if __name__ == "__main__":

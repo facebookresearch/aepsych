@@ -237,6 +237,14 @@ class Strategy(object):
     def can_fit(self):
         return self.has_model and self.x is not None and self.y is not None
 
+    @property
+    def n_trials(self):
+        warnings.warn(
+            "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead.",
+            DeprecationWarning,
+        )
+        return self.min_asks
+
     def add_data(self, x, y):
         self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
@@ -307,7 +315,8 @@ class Strategy(object):
         n_trials = config.getint(name, "n_trials", fallback=None)
         if n_trials is not None:
             warnings.warn(
-                "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead."
+                "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead.",
+                DeprecationWarning,
             )
             min_asks = n_trials
 
