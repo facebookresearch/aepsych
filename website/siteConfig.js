@@ -43,6 +43,12 @@ const siteConfig = {
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
 
+  // NOINDEX - GOOGLE SEARCH web crawlers while testing website 
+  metadata: [
+    {name: 'googlebot', content: 'noindex'},
+    {name: 'robots', content: 'noindex'},
+  ],
+ // This would become <meta name="keywords" content="cooking, blog"> in the generated HTML
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     {doc: 'introduction', label: 'Docs'},
