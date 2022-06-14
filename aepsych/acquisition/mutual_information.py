@@ -13,18 +13,18 @@ from __future__ import annotations
 from typing import Optional
 
 import torch
+from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
 from botorch.sampling.samplers import MCSampler, SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
-from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from torch import Tensor
 from torch.distributions.bernoulli import Bernoulli
 
 
 def bald_acq(obj_samples: torch.Tensor) -> torch.Tensor:
-    """Evaluate Mutual Information acquisition function. 
+    """Evaluate Mutual Information acquisition function.
 
     With latent function F and X a hypothetical observation at a new point,
     I(F; X) = I(X; F) = H(X) - H(X |F),
@@ -51,12 +51,12 @@ def bald_acq(obj_samples: torch.Tensor) -> torch.Tensor:
 
 class BernoulliMCMutualInformation(MCAcquisitionFunction):
     """Mutual Information acquisition function for a bernoulli outcome.
-    
+
     Given a model and an objective link function, calculate the mutual
     information of a trial at a new point and the distribution on the
     latent function.
-    
-    Objective here should give values in (0, 1) (e.g. logit or probit). 
+
+    Objective here should give values in (0, 1) (e.g. logit or probit).
     """
 
     def __init__(
@@ -93,16 +93,16 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
         post = self.model.posterior(X)
         samples = self.sampler(post)
 
-        return self.acquisition(self.objective(samples))
+        return self.acquisition(self.objective(samples, X))
 
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
-        """Evaluate the acquisition function value based on samples. 
+        """Evaluate the acquisition function value based on samples.
 
         Args:
-            obj_samples (torch.Tensor): Samples from the model, transformed through the objective. 
+            obj_samples (torch.Tensor): Samples from the model, transformed through the objective.
 
         Returns:
-            torch.Tensor: value of the acquisition function (BALD) at the input samples. 
+            torch.Tensor: value of the acquisition function (BALD) at the input samples.
         """
         # RejectionSampler drops the final dim so we reaugment it
         # here for compatibility with non-Monotonic MCAcquisition
@@ -113,16 +113,16 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
 
 class MonotonicBernoulliMCMutualInformation(MonotonicMCAcquisition):
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
-        """Evaluate the acquisition function value based on samples. 
+        """Evaluate the acquisition function value based on samples.
 
         Args:
-            obj_samples (torch.Tensor): Samples from the model, transformed through the objective. 
+            obj_samples (torch.Tensor): Samples from the model, transformed through the objective.
 
         Returns:
-            torch.Tensor: value of the acquisition function (BALD) at the input samples. 
+            torch.Tensor: value of the acquisition function (BALD) at the input samples.
         """
-        # TODO this is identical to nono-monotonic BALV acquisition with a different 
-        # base class mixin, consider redesigning? 
+        # TODO this is identical to nono-monotonic BALV acquisition with a different
+        # base class mixin, consider redesigning?
         # RejectionSampler drops the final dim so we reaugment it
         # here for compatibility with non-Monotonic MCAcquisition
         if len(obj_samples.shape) == 2:

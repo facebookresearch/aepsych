@@ -8,25 +8,25 @@
 from typing import Optional
 
 import torch
+from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
+from aepsych.acquisition.objective import ProbitObjective
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
 from botorch.sampling.samplers import MCSampler, SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
-from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
-from aepsych.acquisition.objective import ProbitObjective
 from torch import Tensor
 
 
 def balv_acq(obj_samps: torch.Tensor) -> torch.Tensor:
-    """Evaluate BALV (posterior variance) on a set of objective samples. 
+    """Evaluate BALV (posterior variance) on a set of objective samples.
 
     Args:
-        obj_samps (torch.Tensor): Samples from the GP, transformed by the objective. 
-            Should be samples x batch_shape. 
+        obj_samps (torch.Tensor): Samples from the GP, transformed by the objective.
+            Should be samples x batch_shape.
 
     Returns:
-        torch.Tensor: Acquisition function value. 
+        torch.Tensor: Acquisition function value.
     """
 
     # the output of objective is of shape num_samples x batch_shape x d_out
@@ -36,8 +36,7 @@ def balv_acq(obj_samps: torch.Tensor) -> torch.Tensor:
 
 
 class MCPosteriorVariance(MCAcquisitionFunction):
-    r"""Posterior variance, computed using samples so we can use objective/transform
-    """
+    r"""Posterior variance, computed using samples so we can use objective/transform"""
 
     def __init__(
         self,
@@ -76,7 +75,7 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         post = self.model.posterior(X)
         samples = self.sampler(post)  # num_samples x batch_shape x q x d_out
 
-        return self.acquisition(self.objective(samples))
+        return self.acquisition(self.objective(samples, X))
 
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
         # RejectionSampler drops the final dim so we reaugment it

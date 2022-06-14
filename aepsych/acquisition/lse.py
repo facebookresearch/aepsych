@@ -83,4 +83,4 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
 
         post = self.model.posterior(X)
         samples = self.sampler(post)  # num_samples x batch_shape x q x d_out
-        return self.acquisition(self.objective(samples)).squeeze(-1)
+        return self.acquisition(self.objective(samples, X)).squeeze(-1)
