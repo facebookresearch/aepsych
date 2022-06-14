@@ -9,7 +9,8 @@
 // site configuration options.
 
 // Define this so it can be easily modified in scripts (to host elsewhere)
-const baseUrl = "/";
+// const baseUrl = "/"; // main aepsych branch
+const baseUrl = "/aepsych-fork/"; // test branch
 
 
 // List of projects/orgs using your project for the users page.
@@ -27,15 +28,17 @@ const users = [
 const siteConfig = {
   title: 'AEPsych', // Title for your website.
   // tagline: 'tagline goes here', // ========== Need to add
-  url: 'https://aepsych.ai', // Your website URL
+  url: 'https://aepsych.github.io', // Your website URL
   baseUrl: baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
   cleanUrl: true, // No .html extensions for paths
   // Used for publishing and more
-  projectName: 'aepsych',
-  organizationName: 'facebookresearch',
+   // projectName: 'aepsych',
+  // organizationName: 'facebookresearch',
+  projectName: 'aepsych-fork',
+  organizationName: 'Eric-Cortez',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
