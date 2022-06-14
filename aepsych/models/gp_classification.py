@@ -17,7 +17,6 @@ from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
-from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
@@ -28,7 +27,7 @@ from torch.distributions import Normal
 logger = getLogger()
 
 
-class GPClassificationModel(AEPsychMixin, ApproximateGP, GPyTorchModel):
+class GPClassificationModel(AEPsychMixin, ApproximateGP):
     """Probit-GP model with variational inference.
 
     From a conventional ML perspective this is a GP Classification model,

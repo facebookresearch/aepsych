@@ -17,7 +17,9 @@ from aepsych.utils_logging import getLogger
 from botorch.acquisition import PosteriorMean
 from botorch.fit import fit_gpytorch_model
 from botorch.models.approximate_gp import _select_inducing_points
+from botorch.models.gpytorch import GPyTorchModel
 from botorch.optim import optimize_acqf
+from gpytorch.mlls import MarginalLogLikelihood
 from scipy.cluster.vq import kmeans2
 from gpytorch.mlls import MarginalLogLikelihood
 from scipy.optimize import minimize
@@ -78,7 +80,7 @@ class ModelProtocol(Protocol):
         pass
 
 
-class AEPsychMixin:
+class AEPsychMixin(GPyTorchModel):
     """Mixin class that provides AEPsych-specific utility methods."""
 
     extremum_solver = "Nelder-Mead"

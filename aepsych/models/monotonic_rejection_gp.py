@@ -21,7 +21,6 @@ from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from botorch.fit import fit_gpytorch_model
-from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -32,7 +31,7 @@ from scipy.stats import norm
 from torch import Tensor
 
 
-class MonotonicRejectionGP(AEPsychMixin, ApproximateGP, GPyTorchModel):
+class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     """A monotonic GP using rejection sampling.
 
     This takes the same insight as in e.g. Riihimäki & Vehtari 2010 (that the derivative of a GP

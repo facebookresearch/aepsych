@@ -7,7 +7,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Optional, Union, Tuple
+
+from typing import Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -17,14 +18,14 @@ from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
-from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ExactGP
 
 logger = getLogger()
 
 
-class GPRegressionModel(AEPsychMixin, ExactGP, GPyTorchModel):
+
+class GPRegressionModel(AEPsychMixin, ExactGP):
     """GP Regression model for continuous outcomes, using exact inference."""
 
     _num_outputs = 1
