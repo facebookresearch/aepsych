@@ -1,0 +1,200 @@
+
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for aepsych.generators.optimize_acqf_generator</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">make_scaled_sobol</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span> <span class="nn">botorch.acquisition</span> <span class="kn">import</span> <span class="n">AcquisitionFunction</span>
+<span class="kn">from</span> <span class="nn">botorch.optim</span> <span class="kn">import</span> <span class="n">optimize_acqf</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="OptimizeAcqfGenerator"><a class="viewcode-back" href="../../../aepsych.generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator">[docs]</a><span class="k">class</span> <span class="nc">OptimizeAcqfGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">):</span>
+    <span class="sd">"""Generator that chooses points by minimizing an acquisition function."""</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span>
+        <span class="n">acqf_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">restarts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">samps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">max_gen_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">"""Initialize OptimizeAcqfGenerator.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            acqf (AcquisitionFunction): Acquisition function to use.</span>
+<span class="sd">            acqf_kwargs (Dict[str, object], optional): Extra arguments to</span>
+<span class="sd">                pass to acquisition function. Defaults to no arguments.</span>
+<span class="sd">            restarts (int): Number of restarts for acquisition function optimization.</span>
+<span class="sd">            samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer.</span>
+<span class="sd">            max_gen_time (optional, float): Maximum time (in seconds) to optimize the acquisition function.</span>
+<span class="sd">                This is only loosely followed by scipy's optimizer, so consider using a number about 1/3 or</span>
+<span class="sd">                less of what your true upper bound is.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="n">acqf_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">acqf_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="o">=</span> <span class="n">acqf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span> <span class="o">=</span> <span class="n">acqf_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restarts</span> <span class="o">=</span> <span class="n">restarts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samps</span> <span class="o">=</span> <span class="n">samps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_gen_time</span> <span class="o">=</span> <span class="n">max_gen_time</span>
+
+    <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="n">train_x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_requiring_acqfs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">X_baseline</span><span class="o">=</span><span class="n">train_x</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OptimizeAcqfGenerator.gen"><a class="viewcode-back" href="../../../aepsych.generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            num_points (int, optional): Number of points to query.</span>
+<span class="sd">            model (ModelProtocol): Fitted model of the data.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].</span>
+<span class="sd">        """</span>
+
+        <span class="c1"># eval should be inherited from superclass</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="n">train_x</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">acqf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_acquisition_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_x</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting gen..."</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_gen_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_candidate</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">optimize_acqf</span><span class="p">(</span>
+                <span class="n">acq_function</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
+                <span class="n">bounds</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">train_x</span><span class="p">),</span>
+                <span class="n">q</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span>
+                <span class="n">num_restarts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restarts</span><span class="p">,</span>
+                <span class="n">raw_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># figure out how long evaluating a single samp</span>
+            <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">acqf</span><span class="p">(</span><span class="n">train_x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">single_eval_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span>
+
+            <span class="c1"># only a heuristic for total num evals since everything is stochastic,</span>
+            <span class="c1"># but the reasoning is: we initialize with self.samps samps, subsample</span>
+            <span class="c1"># self.restarts from them in proportion to the value of the acqf, and</span>
+            <span class="c1"># run that many optimization. So:</span>
+            <span class="c1"># total_time = single_eval_time * n_eval * restarts + single_eval_time * samps</span>
+            <span class="c1"># and we solve for n_eval</span>
+            <span class="n">n_eval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_gen_time</span> <span class="o">-</span> <span class="n">single_eval_time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">)</span>
+                <span class="o">/</span> <span class="p">(</span><span class="n">single_eval_time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">restarts</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">n_eval</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="c1"># heuristic, if we can't afford 10 evals per restart, just use quasi-random search</span>
+                <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"maxfun"</span><span class="p">:</span> <span class="n">n_eval</span><span class="p">}</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"gen maxfun is </span><span class="si">{</span><span class="n">n_eval</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+                <span class="n">new_candidate</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">optimize_acqf</span><span class="p">(</span>
+                    <span class="n">acq_function</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
+                    <span class="n">bounds</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">train_x</span><span class="p">),</span>
+                    <span class="n">q</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span>
+                    <span class="n">num_restarts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restarts</span><span class="p">,</span>
+                    <span class="n">raw_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">,</span>
+                    <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"gen maxfun is </span><span class="si">{</span><span class="n">n_eval</span><span class="si">}</span><span class="s2">, falling back to random search..."</span><span class="p">)</span>
+                <span class="n">nsamp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_gen_time</span> <span class="o">/</span> <span class="n">single_eval_time</span><span class="p">),</span> <span class="mi">10</span><span class="p">)</span>
+                <span class="c1"># Generate the points at which to sample</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">nsamp</span><span class="p">)</span>
+
+                <span class="n">acqvals</span> <span class="o">=</span> <span class="n">acqf</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:])</span>
+
+                <span class="n">best_indx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">acqvals</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">new_candidate</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">best_indx</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gen done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_candidate</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OptimizeAcqfGenerator.from_config"><a class="viewcode-back" href="../../../aepsych.generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+        <span class="n">restarts</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"restarts"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">samps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"samps"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+        <span class="n">max_gen_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_gen_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">acqf</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
+            <span class="n">acqf_kwargs</span><span class="o">=</span><span class="n">extra_acqf_args</span><span class="p">,</span>
+            <span class="n">restarts</span><span class="o">=</span><span class="n">restarts</span><span class="p">,</span>
+            <span class="n">samps</span><span class="o">=</span><span class="n">samps</span><span class="p">,</span>
+            <span class="n">max_gen_time</span><span class="o">=</span><span class="n">max_gen_time</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div>
