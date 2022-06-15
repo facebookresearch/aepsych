@@ -1,9 +1,14 @@
 {
   "docs": {
-    "About": ["introduction"],
-    "General": ["getting_started"],
-    "Basic Concepts": ["overview", "models", "posteriors", "acquisition", "optimization"],
-    "Advanced Topics": ["constraints", "objectives", "batching", "samplers"],
-    "Multi-Objective Optimization": ["multi_objective"]
+    "About": [
+      "introduction"
+    ],
+    "Basic Concepts": [
+      "api_overview",
+      "configs"
+    ],
+    "Advanced Topics": [
+      "finish_criteria"
+    ]
   }
 }
