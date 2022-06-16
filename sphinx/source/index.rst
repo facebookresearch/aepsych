@@ -12,15 +12,15 @@ AEPsych API Reference
    :maxdepth: 1
    :caption: API Reference
 
-   aepsych.acquisition
-   aepsych.benchmark
-   aepsych.database
-   aepsych.factory
-   aepsych.generators
-   aepsych.kernels
-   aepsych.means
-   aepsych.models
-   aepsych.server
+   acquisition
+   benchmark
+   database
+   factory
+   generators
+   kernels
+   means
+   models
+   server
 
 
 Indices and Tables
