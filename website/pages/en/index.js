@@ -135,15 +135,17 @@ class Index extends React.Component {
         id="quickstart"
         style={{textAlign: 'center'}}>
         <h2>Get Started</h2>
+        <div className="start-info-splash">
+        </div>
         <Container>
-        <p>
+        <div className="start-info-div">
+          <p className="disable start-info">
         AEPsych supports python 3.8+. We recommend
         installing AEPsych under a virtual environment like Anaconda.
         Created a virtual environment for AEPsych once it is activated
         you can install our requirements and then install AEPsych.
         </p>
-        </Container>
-        <Container>
+        </div>
           <ol>
             <li>
               <h4>Install AEPsych:</h4>

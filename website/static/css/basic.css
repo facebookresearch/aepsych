@@ -9,6 +9,8 @@
  *
  */
 
+ /* Used to style API Reference page */
+
 /* -- main layout ----------------------------------------------------------- */
 
 div.clearer {
@@ -230,7 +232,7 @@ dl {
 
 dl.class > dt  {
   background-color: #f8f8f8;
-  border-left: 3px solid #F15A24;
+  border-left: 3px solid var(--secondary-color);
   padding: 2px 0px 2px 5px;
 }
 
@@ -239,20 +241,20 @@ dl.class > dt > code  {
 }
 
 dl.class > dt > em.property {
-  color: #F15A24;
+  color: var(--secondary-color);
   font-style: normal;
   font-variant: small-caps;
 }
 
 dl.class em.property {
-  color: #F15A24;
+  color: var(--secondary-color);
   font-style: normal;
   font-variant: small-caps;
 }
 
 dl.function > dt  {
   background-color: #f8f8f8;
-  border-left: 3px solid #F15A24;
+  border-left: 3px solid var(--secondary-color);
   padding: 2px 0px 2px 5px;
 }
 
