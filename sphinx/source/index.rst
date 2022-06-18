@@ -21,6 +21,12 @@ AEPsych API Reference
    means
    models
    server
+   config
+   likelihoods
+   plotting
+   strategy
+   utils_logging
+   utils
 
 
 Indices and Tables
