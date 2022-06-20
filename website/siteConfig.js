@@ -28,22 +28,23 @@ const users = [
 const siteConfig = {
   title: 'AEPsych', // Title for your website.
   // tagline: 'tagline goes here', // ========== Need to add
-  url: 'https://aepsych.github.io', // Your website URL
+  url: 'https://aepsych.io', // Your website URL
   baseUrl: baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
   cleanUrl: true, // No .html extensions for paths
   // Used for publishing and more
-   // projectName: 'aepsych',
-  // organizationName: 'facebookresearch',
-  projectName: 'aepsych-fork',
-  organizationName: 'Eric-Cortez',
+  projectName: 'aepsych',
+  organizationName: 'facebookresearch',
+  // Below for testing: 
+  // projectName: 'aepsych-fork',
+  // organizationName: 'Eric-Cortez',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
 
-  // NOINDEX - GOOGLE SEARCH web crawlers while testing website 
+  // NOINDEX - GOOGLE SEARCH web crawlers while testing website
   metadata: [
     {name: 'googlebot', content: 'noindex'},
     {name: 'robots', content: 'noindex'},
@@ -131,12 +132,8 @@ const siteConfig = {
 
 
   cleanUrl: true,
-
   // URL for editing docs - will link the edit button on the doc page once diff has landed
   editUrl: "https://github.com/facebookresearch/aepsych/blob/main/docs/",
-  // testing link
-  // editUrl: "https://github.com/Eric-Cortez/aepsych-fork/blob/main/docs/",
-
   // Disable logo text so we can just show the logo
   // disableHeaderTitle: true,
 
