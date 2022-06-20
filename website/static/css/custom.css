@@ -8,9 +8,12 @@
  /* Please note: CSS changs have been made to the MIT licensed source code*/
 
  /* === USE TO SELECT PRIMARY ANDY SECONDARY WEBSITE COLORS ===*/
+
+/* -- custom-css --------------------------------------------------------- */
+
 :root {
-     --primary-color: #219ebc;
-     --secondary-color: #FB8500;
+    --primary-color: #219ebc;
+    --secondary-color: #FB8500;
 }
 
 /* link to favicon.ico generator https://favicon.io/logo-generator/ */
@@ -19,12 +22,24 @@ p.disable {
   vertical-align: baseline;
 }
 
+.start-info-div {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
 
-/* ======== */
+.start-info-div > p{
+  max-width: none;
+  margin: 0 55px;
+  width: max-content;
+}
+
+/* ---------------------------------------------------------------- */
+
 .headerTitle {
-    color: #ffffff;
-    font-variant: small-caps;
-    font-weight: 300;
+  color: #ffffff;
+  font-variant: small-caps;
+  font-weight: 300;
 }
 
 .headerTitle {
@@ -70,11 +85,16 @@ overflow-x: hidden;
   flex-direction: column;
 } */
 
+/* Style logo */
+/* ----------------------------------------------------------- */
 
 .splash-logo {
   width: 100px;
   height: 100px;
 }
+
+/* Style Navbar */
+/* ----------------------------------------------------------- */
 
 .fixedHeaderContainer {
     background-color: #222222;
@@ -121,6 +141,9 @@ overflow-x: hidden;
     background-color: inherit;
   }
 
+/* Style home page gradient and overlay content */
+/* ----------------------------------------------------------- */
+
   .homeContainer {
     background: rgb(2, 0, 36);
     background: linear-gradient(
@@ -155,6 +178,10 @@ overflow-x: hidden;
     border: 1px solid var(--secondary-color);
     color: var(--secondary-color);
   }
+
+/* Style home page showcase content*/
+/* ----------------------------------------------------------- */
+
 
   .landingPage {
     padding: 0px;
@@ -231,7 +258,10 @@ overflow-x: hidden;
     color: var(--primary-color);
   }
 
-  /* Style docs */
+/* Style docs */
+
+/* ----------------------------------------------------------- */
+
   .toc .toggleNav .navGroup .navGroupCategoryTitle {
     color: #222222;
   }
@@ -291,6 +321,7 @@ overflow-x: hidden;
   }
 
   /* Style tutorials */
+  /* ----------------------------------------------------------- */
   .tutorialBody {
     margin-top: -20px;
     color: #6c6c6c;
@@ -400,6 +431,11 @@ pre {
 .highlight .nd {
   color: #555555;
   font-weight: bold;
+}
+
+.highlight .ch, .highlight .cm {
+  color: #408090;
+  font-style: italic;
 }
 
 .highlight .sd {
