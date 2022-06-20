@@ -1,5 +1,12 @@
-# Minimal makefile for Sphinx documentation
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved
+# Makefile for the Sphinx documentation builder.
 #
+# Makefile for Sphinx documentation
+# for more information visit
+# http://www.sphinx-doc.org/
+
+
+
 
 # You can set these variables from the command line.
 SPHINXOPTS    =

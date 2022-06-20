@@ -1,3 +1,11 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved
+# make.bat for the Sphinx documentation builder.
+#
+# make.bat for Sphinx documentation
+# for more information visit
+# http://www.sphinx-doc.org/
+
+
 @ECHO OFF
 
 pushd %~dp0
