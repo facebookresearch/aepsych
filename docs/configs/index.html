@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Writing Config Files · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="While AEPsych is based on state of the art machine learning models, users are able to easily configure experiments by writing config files without having to understand any of the underlying code. Example configs can be found in the main repository and in the pre-release repository for common experimental paradigms. This page provides an in-depth explanation of these configs so that you can understand how to write your own from scratch."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Writing Config Files · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych-fork/"/><meta property="og:description" content="While AEPsych is based on state of the art machine learning models, users are able to easily configure experiments by writing config files without having to understand any of the underlying code. Example configs can be found in the main repository and in the pre-release repository for common experimental paradigms. This page provides an in-depth explanation of these configs so that you can understand how to write your own from scratch."/><meta property="og:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych-fork/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych-fork/css/basic.css"/><link rel="stylesheet" href="/aepsych-fork/css/custom.css"/><link rel="stylesheet" href="/aepsych-fork/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych-fork/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych-fork/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych-fork/js/image_fail_to_load.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/aepsych-fork/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych-fork/css/main.css"/><script src="/aepsych-fork/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych-fork/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/aepsych-fork/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych-fork/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych-fork/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Basic Concepts</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">About</h3><ul class=""><li class="navListItem"><a class="navItem" href="/aepsych-fork/docs/introduction">Introduction</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Basic Concepts</h3><ul class=""><li class="navListItem"><a class="navItem" href="/aepsych-fork/docs/api_overview">API Overview</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/aepsych-fork/docs/configs">Writing Config Files</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Advanced Topics</h3><ul class=""><li class="navListItem"><a class="navItem" href="/aepsych-fork/docs/finish_criteria">Advanced Strategy Configuration</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/configs.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Writing Config Files</h1></header><article><div><span><p>While AEPsych is based on state of the art machine learning models, users are able to easily configure experiments by writing config files without having to understand any of the underlying code. Example configs can be found in the main repository and in the pre-release repository for common experimental paradigms. This page provides an in-depth explanation of these configs so that you can understand how to write your own from scratch.</p>
+<p>You may wish to familiarize yourself with the workflow of psychophysics experiments and the <a href="/docs/api_overview">components of the AEPsych API</a> before reading this tutorial. Also note that AEPsych is built on top of <a href="https://botorch.org/">Botorch</a>, so we may occasionally refer to those docs.</p>
+<p><h2>Config File Format</h2>
+Config files are text files that specify the settings of an AEPsych experiment using the <a href="https://en.wikipedia.org/wiki/INI_file">INI format</a>. The files are broken into named sections, with each section specifying the settings of a different component of AEPsych. Here is an example of what a config file may look like:</p>
+<pre><code class="hljs"><span class="hljs-section">[SectionName]</span>
+<span class="hljs-comment"># Anything that comes after a '#' on a line is a comment</span>
+<span class="hljs-attr">setting1</span> = <span class="hljs-number">1</span> <span class="hljs-comment"># this setting is set to a numerical value</span>
+<span class="hljs-attr">setting2</span> = [a, b, c] <span class="hljs-comment"># this setting is set to a list of strings</span>
+
+<span class="hljs-section">[SectionName2]</span>
+<span class="hljs-attr">setting1</span> = <span class="hljs-number">2</span> <span class="hljs-comment"># this is a different section, so setting1 above is unaffected</span>
+</code></pre>
+<p><h1>Breaking Down an Example Config</h1>
+To be more concrete, we will break down <a href="https://github.com/facebookresearch/aepsych/blob/main/configs/nonmonotonic_optimization_example.ini">one of the example config files</a>. This example config specifies a 2-dimensional optimization experiment. In other words, we want to find the values of our 2 parameters that maximize the probability of a binary outcome (e.g., the probability that the participant detected the stimulus). The comments explain how you can easily modify the file for your own experiment. Let's look at each of the sections so that we can understand them better.</p>
+<p><h3>common</h3></p>
+<pre><code class="hljs"><span class="hljs-section">[common]</span>
+<span class="hljs-attr">parnames</span> = [par1, par2] <span class="hljs-comment"># names of the parameters</span>
+<span class="hljs-attr">lb</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>] <span class="hljs-comment"># lower bounds of the parameters, in the same order as above</span>
+<span class="hljs-attr">ub</span> = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>] <span class="hljs-comment"># upper bounds of parameter, in the same order as above</span>
+<span class="hljs-attr">outcome_type</span> = single_probit <span class="hljs-comment"># we show a single stimulus and receive a binary outcome e</span>
+<span class="hljs-attr">strategy_names</span> = [init_strat, opt_strat] <span class="hljs-comment"># the names we give to our strategies</span>
+</code></pre>
+<p>The first section in the file is the <code>common</code> section. All AEPsych config files will have this section because it specifies global settings that all experiments use. Here is an explanation of each of these settings:</p>
+<p><strong><code>parnames</code></strong>: This is a list of parameter names. This example uses the generic names par1 and par2, but you can name your parameters whatever you would like. Note that this list should be the same length as lb and ub.</p>
+<p><strong><code>lb</code></strong>: This is a list of numbers specifying the lower bounds of each of your parameters.</p>
+<p><strong><code>ub</code></strong>: This is a list of numbers specifying the upper bounds of each of your parameters.</p>
+<p><strong><code>outcome_type</code></strong>: This is the type of outcome you will receive on each trial of your experiment. <code>single_probit</code> should be used for experiments where participants are shown a single stimulus and asked to make a binary choice, such as whether they detected the stimulus or not. <code>single_continuous</code> should be used for experiments where participants are shown a single stimulus and asked to provide a continous rating, such as how bright or loud the stimulus is.</p>
+<p><strong><code>strategy_names</code></strong>: This is a list of the data-collection strategies you plan on using in your experiment. Each named strategy in this list will receive its own section later in the config where we can specify the settings we want. This example follows a typical AEPsych paradigm where we first sample points in a quasi-random way to initialize our model, then we search for the optimal points using the model. Therefore we specify two strategies: <code>init_strat</code> (the initialization strategy) and <code>opt_strat</code> (the optimization strategy). Note that we chose these names to be mnemonic, but we could have named them whatever we wanted.</p>
+<p><h3>init_strat</h3></p>
+<pre><code class="hljs">[init_strat]
+min_asks = 10 # <span class="hljs-keyword">number</span> of sobol trials <span class="hljs-keyword">to</span> run
+generator = SobolGenerator # The generator class used <span class="hljs-keyword">to</span> generate new parameter <span class="hljs-keyword">values</span>
+This section specifies our <span class="hljs-keyword">first</span> data-<span class="hljs-keyword">collection</span> strategy. It <span class="hljs-keyword">is</span> called init_strat because that <span class="hljs-keyword">is</span> what we named our <span class="hljs-keyword">first</span> strategy <span class="hljs-keyword">in</span> strategy_names above. Here <span class="hljs-keyword">is</span> an explanation of <span class="hljs-keyword">each</span> of the settings:
+</code></pre>
+<p><strong><code>min_asks</code></strong>: This is the number of trials that this strategy will run for. After 10 trials, the next strategy will begin.</p>
+<p><strong><code>generator</code></strong>: This specifies how this strategy will recommend points to sample. This strategy uses <code>SobolGenerator</code> to sample points quasi-randomly from the parameter space using the <a href="https://en.wikipedia.org/wiki/Sobol_sequence">Sobol sequence</a>. These points will be used to initialize the model that will guide data-collection in the following strategy.  If for some reason we wanted to use Python's pseudo-random number generator instead of the Sobol sequence, we could have set the generator to <code>RandomGenerator</code>.</p>
+<p><h3>opt_strat</h3></p>
+<pre><code class="hljs">[opt_strat]
+min_asks = <span class="hljs-number">20</span> # number of model-based trials to run
+<span class="hljs-built_in">ref</span>it_every = <span class="hljs-number">5</span> # how often to <span class="hljs-built_in">ref</span>it the model
+generator = OptimizeAcqfGenerator # The generator <span class="hljs-keyword">class</span> <span class="hljs-symbol">used</span> <span class="hljs-symbol">to</span> <span class="hljs-symbol">generate</span> <span class="hljs-symbol">new</span> <span class="hljs-symbol">parameter</span> <span class="hljs-symbol">values</span>
+<span class="hljs-symbol">model</span> = <span class="hljs-symbol">GPClassificationModel</span> # <span class="hljs-symbol">The</span> <span class="hljs-symbol">model</span> <span class="hljs-symbol">class</span>
+<span class="hljs-symbol">acqf</span> = <span class="hljs-symbol">qNoisyExpectedImprovement</span> # <span class="hljs-symbol">The</span> <span class="hljs-symbol">acquisition</span> <span class="hljs-symbol">function</span>
+</code></pre>
+<p>This section specifies the model-based data-collection strategy. It is called opt_strat because that is what we named our second strategy in <code>strategy_names</code> above. Here is an explanation of each of the settings:</p>
+<p><strong><code>min_asks</code></strong>:This is the number of trials that this strategy will run for. After 20 trials, the experiment will complete.</p>
+<p><strong><code>refit_every</code></strong>:  On every trial, a new model is always fitted on the latest data, but the model's hyperparameters can be either initialized randomly and refit from scratch, or they can be initialized to the previous model's hyperparameters to save time. This setting determines how often the former happens instead of the latter. In this case, the model will be refit from scratch after every 5 trials. Refitting the mode from scratch often helps ensure that the best points will be sampled, but it also increases the amount of time it takes to generate new points. If trials are taking too long to run, try increasing this number.</p>
+<p><strong><code>generator</code></strong>: This specifies how this strategy will recommend points to sample. This strategy uses OptimizeAcqfGenerator, which uses an acquisition function in conjunction with the model to generate points. For pairwise experiments, you should use PairwiseOptimizeAcqfGenerator. Unlike SobolGenerator, OptimizeAcqfGenerator requires the strategy to have both a model and an acquisition function. If you do not specify them, you will receive an error. Refer to the generators folder for more options.
+model: This specifies the model used to generate points. The model can also be used to analyze the data after the experiment is completed. This strategy uses a GPClassificationModel, a Gaussian process classifier.  Refer to the models folder for more options.</p>
+<p><strong><code>acqf</code></strong>: This specifies the acquisition function used to generate points. This strategy uses <code>qNoisyExpectedImprovement</code>, the recommended acquisition function for optimization experiments. If you wanted to do global exploration you could change this to <code>MCPosteriorVariance</code>, or if you wanted to do threshold finding you could change this to <code>MCLevelSetEstimation</code>. Refer to the documentation for A<a href="/api/aepsych.acquisition">EPsych acquisition functions</a> and <a href="https://botorch.org/api/acquisition.html">Botorch acquisition functions</a> for more options.</p>
+<p><h3>GPClassificationModel</h3></p>
+<pre><code class="hljs"><span class="hljs-section">[GPClassificationModel]</span>
+<span class="hljs-attr">inducing_size</span> = <span class="hljs-number">100</span> <span class="hljs-comment"># Number of inducing points for approximate inference.</span>
+<span class="hljs-attr">mean_covar_factory</span> = default_mean_covar_factory <span class="hljs-comment"># the GP mean and convariance</span>
+</code></pre>
+<p>This section specifies the settings for the GPClassificationModel used within opt_strat.  Here is an explanation of each of the settings:</p>
+<p><strong><code>inducing_size</code></strong>: This specifies the number of inducing points that are used in the Gaussian process model, which determine the quality of the approximate model posterior. A rule of thumb you can use is to set <code>inducing_size</code> to 50 times your number of dimensions.</p>
+<p><strong><code>mean_covar_factory</code></strong>: This determines the mean and covariance functions used in the Gaussian process model. Advanced users can specify their own factory functions to customize their models, but you should leave this alone unless you are sure you know what you are doing.</p>
+<p><h3>OptimizeAcqfGenerator</h3></p>
+<pre><code class="hljs"><span class="hljs-section">[OptimizeAcqfGenerator]</span>
+<span class="hljs-attr">restarts</span> = <span class="hljs-number">10</span> <span class="hljs-comment"># number of restarts for acquisition function optimization.</span>
+<span class="hljs-attr">samps</span> = <span class="hljs-number">1000</span> <span class="hljs-comment"># number of samples for random initialization of the acquisition function</span>
+</code></pre>
+<p>This section specifies the settings for the <code>OptimizeAcqfGenerator</code> used in the model-based strategy. The restarts and samps settings determine how much time is spent finding the optimal values of the acquisition function (note that these settings correspond to <code>num_restarts</code> and <code>raw_samples</code> in Botorch's optimization function. Decreasing these values may increase the speed at which points are generated at the cost of decreasing the quality of the samples.</p>
+<p><h3>qNoisyExpectedImprovement</h3></p>
+<pre><code class="hljs"><span class="hljs-section">[qNoisyExpectedImprovement]</span>
+<span class="hljs-attr">objective</span> = ProbitObjective <span class="hljs-comment"># The transformation of the latent function</span>
+</code></pre>
+<p>This section specifies the settings for the <code>qNoisyExpectedImprovement</code> acquisition function used in the model-based strategy. The only setting that needs to be specified for this acquisition function is the <code>objective</code>, which we set to <code>ProbitObjective</code> because we have a binary outcome variable. Other acquisition functions may have other settings that can be specified.</p>
+<p><h2>Default Values</h2>
+Some settings have default values and do not have to be explicitly set in the config. For example, the default values of restarts and samps within <code>OptimizeAcqfGenerator</code> are already 10 and 1000, respectively, so we could have left the <code>OptimizeAcqfGenerator</code> section out of the config, and its behavior would have been the same.</p>
+<p>Similarly, <code>SobolGenerator</code> has a parameter called seed, which determines the random seed used to generate points. We did not include a <code>SobolGenerator</code> section in our config, so we used the default value of None, which means that a different random seed will be used each time the experiment is conducted. If we wanted to get the same Sobol points every time, we could specify a seed in the config like so:</p>
+<pre><code class="hljs"><span class="hljs-section">[SobolGenerator]</span>
+<span class="hljs-attr">seed</span> = <span class="hljs-number">123</span>
+</code></pre>
+<p>To see all the settings that AEPsych components make use of, and their default values where applicable, refer to the <a href="/api">API Reference</a>.</p>
+<p>You can also specify settings within the common section  to make them the default values used throughout the experiment. For example, adding the lines below  to the common section would make 5 the default number of trials and GPClassificationModel the default model for all strategies.</p>
+<pre><code class="hljs"><span class="hljs-attr">min_asks</span> = <span class="hljs-number">5</span>
+<span class="hljs-attr">model</span> = GPClassificationModel
+</code></pre>
+<p><h2>Multiple Model-Based Strategies</h2>
+AEPsych configs allow you mix-and-match as many strategies as you would like, and each strategy can have its own generator, model, and acquisition function. For example, the config below first does 5 Sobol trials, then 10 global exploration trials, and then finally 15 optimization trials.</p>
+<pre><code class="hljs"><span class="hljs-section">[common]</span>
+<span class="hljs-attr">parnames</span> = [par1, par2]
+<span class="hljs-attr">lb</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>]
+<span class="hljs-attr">ub</span> = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
+<span class="hljs-attr">outcome_type</span> = single_probit
+<span class="hljs-attr">strategy_names</span> = [sobol_strat, explore_strat, opt_strat]
+
+<span class="hljs-section">[sobol_strat]</span>
+<span class="hljs-attr">min_asks</span> = <span class="hljs-number">5</span>
+<span class="hljs-attr">generator</span> = SobolGenerator
+
+<span class="hljs-section">[explore_strat]</span>
+<span class="hljs-attr">min_asks</span> = <span class="hljs-number">10</span>
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">acqf</span> = MCPosteriorVariance
+
+<span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">min_asks</span> = <span class="hljs-number">15</span>
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">acqf</span> = qNoisyExpectedImprovement
+
+<span class="hljs-section">[MCPosteriorVariance]</span>
+<span class="hljs-attr">objective</span> = ProbitObjective
+
+<span class="hljs-section">[qNoisyExpectedImprovement]</span>
+<span class="hljs-attr">objective</span> = ProbitObjective
+</code></pre>
+<p><h2>Adding Models to Model-less Generators</h2>
+Some generators, such as <code>SobolGenerator</code> and <code>RandomGenerator</code>, do not use models to generate points, so you do not have to specify a model in their strategies. However, there may be situations where you want to generate points using a model-less generator, but still fit a model. For example, if you have a very high-dimensional problem, it may be more efficient to sample the parameter space using <code>SobolGenerator</code> than to try to optimize an acquisition function with <code>OptimizeAcqfGenerator</code>, but a model is still required to analyze your data. In that case, you can specify a model in your strategy section, but you should set <code>refit_every</code> to be equal to <code>min_asks</code> so that you wait to fit the model at the end of the experiment and do not unnecessarily waste time fitting it while generating points (see the example below).</p>
+<pre><code class="hljs">[common]
+parnames = [par1, par2, par3, par4, par5, par6, par7, par8, par9, par10, par11, par12]
+lb = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>]
+ub = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
+outcome_type = single_probit
+strategy_names = [sobol_strat]
+[sobol_strat]
+min_asks = <span class="hljs-number">20</span>
+<span class="hljs-built_in">ref</span>it_every = <span class="hljs-number">20</span>
+generator = SobolGenerator
+model = GPClassificationModel
+</code></pre>
+<p><h2>Controlling the Timing of Trials (Experimental)</h2>
+It is often important that each trial in a psychophysics experiment can be completed quickly so that the participant's and experimenter's time is not wasted. As noted elsewhere in this document, there are many settings that can be tweaked to make point generation and model fitting faster, but determining what values these settings should take to meet your timing constraints can take a lot of trial and error. To eliminate this guesswork, we have introduced two settings to explicitly control trial timing. You can set the maximum amount of time, in seconds, that should be spent generating points using max_gen_time under <code>OptimizeAcqfGenerator</code>, and you can set the maximum amount of time, in seconds, that should be spent fitting the model using <code>max_fit_time</code> under <code>GPClassificationModel</code>. These settings are considered experimental because they are still undergoing testing, but our initial findings indicate that they can be used to dramatically decrease computation time with minimal impact on results.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/aepsych-fork/docs/api_overview"><span class="arrow-prev">← </span><span>API Overview</span></a><a class="docs-next button" href="/aepsych-fork/docs/finish_criteria"><span>Advanced Strategy Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych-fork/" class="nav-home"><img src="/aepsych-fork/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych-fork/docs/introduction">Introduction</a><a href="/aepsych-fork/docs/getting_started">Getting Started</a><a href="/aepsych-fork/tutorials/">Tutorials</a><a href="/aepsych-fork/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych-fork/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section></footer></div></body></html>

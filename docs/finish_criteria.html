@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Advanced Strategy Configuration · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="This page provides an overview of some new configuration options for AEPsych strategies that give you more control over which points will be sampled and when the strategy will end. You should have some familiarity with the [AEPsych API]((/docs/api_overview)) and [basic configs](/docs/configs) before reading this note."/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Advanced Strategy Configuration · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych-fork/"/><meta property="og:description" content="This page provides an overview of some new configuration options for AEPsych strategies that give you more control over which points will be sampled and when the strategy will end. You should have some familiarity with the [AEPsych API]((/docs/api_overview)) and [basic configs](/docs/configs) before reading this note."/><meta property="og:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych-fork/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych-fork/css/basic.css"/><link rel="stylesheet" href="/aepsych-fork/css/custom.css"/><link rel="stylesheet" href="/aepsych-fork/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych-fork/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych-fork/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych-fork/js/image_fail_to_load.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/aepsych-fork/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych-fork/css/main.css"/><script src="/aepsych-fork/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych-fork/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/aepsych-fork/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych-fork/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych-fork/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Advanced Topics</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">About</h3><ul class=""><li class="navListItem"><a class="navItem" href="/aepsych-fork/docs/introduction">Introduction</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Basic Concepts</h3><ul class=""><li class="navListItem"><a class="navItem" href="/aepsych-fork/docs/api_overview">API Overview</a></li><li class="navListItem"><a class="navItem" href="/aepsych-fork/docs/configs">Writing Config Files</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Advanced Topics</h3><ul class=""><li class="navListItem navListItemActive"><a class="navItem" href="/aepsych-fork/docs/finish_criteria">Advanced Strategy Configuration</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/finish_criteria.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Advanced Strategy Configuration</h1></header><article><div><span><p>This page provides an overview of some new configuration options for AEPsych strategies that give you more control over which points will be sampled and when the strategy will end. You should have some familiarity with the <a href="(/docs/api_overview)">AEPsych API</a> and <a href="/docs/configs">basic configs</a> before reading this note.</p>
+<p><h2>Ending Strategies Based on the Amount of Data Collected</h2>
+The <a href="https://github.com/facebookresearch/aepsych/blob/main/configs/">example configs</a> tell AEPsych when to stop a strategy by specifying <code>min_asks</code> in a strategy's config. This setting tells AEPsych to end the strategy after it has generated a certain number of points (in other words, after <code>server.ask</code> has been called a certain number of times on the strategy). This isn't always ideal, though. There may be scenarios where you ask the AEPsych server for points to sample, but don't tell it any responses (e.g., because the participant wasn't paying attention and didn't respond). To remedy this, you can instead use <code>min_total_tells</code> to specify that a strategy will end only after a certain number of responses have been recorded (in other words, after a certain number of calls to <code>server.tell</code>). For example,  the experiment specified by the config below starts by sampling points from the Sobol sequence. After 5 responses have been recorded, it moves on to model-based optimization. The experiment ends after 100 total observations have been recorded (i.e., 5 observations from Sobol trials and 95 observations from  model-based trials).</p>
+<pre><code class="hljs"><span class="hljs-section">[common]</span>
+<span class="hljs-attr">parnames</span> = [par1, par2]
+<span class="hljs-attr">lb</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>]
+<span class="hljs-attr">ub</span> = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
+<span class="hljs-attr">outcome_type</span> = single_probit
+<span class="hljs-attr">target</span> = <span class="hljs-number">0.75</span>
+<span class="hljs-attr">strategy_names</span> = [init_strat, opt_strat]
+
+<span class="hljs-section">[init_strat]</span>
+<span class="hljs-attr">generator</span> = SobolGenerator <span class="hljs-comment"># points will be generated from Sobol sequence</span>
+<span class="hljs-attr">min_total_tells</span> = <span class="hljs-number">5</span> <span class="hljs-comment"># next strategy will start after at least 5 responses are recorded</span>
+
+<span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">acqf</span> = qNoisyExpectedImprovement
+<span class="hljs-attr">min_total_tells</span> = <span class="hljs-number">100</span> <span class="hljs-comment"># experiment will end after 100 total responses are recorded</span>
+</code></pre>
+<p><h2>Ending Strategies Based on Responses</h2>
+Typically AEPsych experiments start by sampling points quasi-randomly to gain some initial data to fit a model. If the participant provides the same response to all of these initialization trials, then the model may think that the participant will always provide the same response no matter what. This prevents the model from properly exploring the parameter space and makes its predictions useless. To prevent this, you can specify <code>min_total_outcome_occurrences</code> within a strategy to specify how many responses of each possible outcome are required for a strategy to finish. For example, the strategy specified in the config below will generate Sobol points until at least 10 observations have been recorded, and at least 3 of those observations need to be &quot;yes&quot; responses and at least 3 need to be &quot;no&quot; responses. The strategy will continue to generate Sobol points until ALL of these criteria have been satisfied. Note that the counts of outcome occurrences are cumulative across all strategies, so if 3 &quot;yes&quot;s and 2 &quot;no&quot;s had been collected from a previous strategy, you would only need 2 more &quot;yes&quot;s and 3 &quot;no&quot;s.</p>
+<pre><code class="hljs"><span class="hljs-section">[example_strat]</span>
+<span class="hljs-attr">generator</span> = SobolGenerator <span class="hljs-comment"># points will be generated from Sobol sequence</span>
+<span class="hljs-attr">min_total_tells</span> = <span class="hljs-number">10</span> <span class="hljs-comment"># need at least 10 recorded observations</span>
+<span class="hljs-attr">min_total_outcome_occurrences</span> = <span class="hljs-number">3</span> <span class="hljs-comment"># need at least 3 yes/no responses each</span>
+</code></pre>
+<p>To prevent bad model fits when using binary outcomes, you should always have at least 1 &quot;yes&quot; and &quot;no&quot; trial each, so <strong>the default value of <code>min_total_outcome_occurrences</code> is 1</strong>. If you would like to disable this behavior, you must explicitly set <code>min_total_outcome_occurrences = 0</code>.</p>
+<p><h2>Enforcing a Hard Limit on the Duration of a Strategy</h2>
+There may be scenarios where a participant really does have the same response for every point in the parameter space, so to prevent never-ending experiments, you can specify a maximum number of points a strategy should generate using using max_asks. For example, the below strategy will generate Sobol points until there are at least 10 &quot;yes&quot; and &quot;no&quot; responses each, but the strategy will end if these criteria have not been met after it has generated 50 trials.</p>
+<pre><code class="hljs"><span class="hljs-section">[example_strat]</span>
+<span class="hljs-attr">generator</span> = SobolGenerator <span class="hljs-comment"># points will be generated from Sobol sequence</span>
+<span class="hljs-attr">min_outcome_occurrences</span> = <span class="hljs-number">10</span> <span class="hljs-comment"># need at least 10 yes/no responses each</span>
+<span class="hljs-attr">max_trials</span> = <span class="hljs-number">50</span> <span class="hljs-comment"># maximum number of points to generate</span>
+</code></pre>
+<p><h2>Manually Specifying Points to be Sampled</h2>
+If you want to ensure that specific points in the parameter space will be sampled, you can specify them using ManualGenerator. For example, the strategy below will sample four points in 2-d space. Note that since ManualGenerator generates a fixed number of points, other stopping criteria in the strategy will be ignored.</p>
+<pre><code class="hljs"><span class="hljs-section">[example_strat]</span>
+<span class="hljs-attr">generator</span> = ManualGenerator <span class="hljs-comment"># manually specify a set of points to sample</span>
+
+<span class="hljs-section">[ManualGenerator]</span>
+<span class="hljs-attr">points</span> = [[<span class="hljs-number">0</span>,<span class="hljs-number">0</span>], [<span class="hljs-number">0</span>,<span class="hljs-number">1</span>], [<span class="hljs-number">1</span>,<span class="hljs-number">0</span>], [<span class="hljs-number">1</span>,<span class="hljs-number">1</span>]] <span class="hljs-comment"># the points to sample</span>
+<span class="hljs-attr">shuffle</span> = <span class="hljs-literal">True</span> <span class="hljs-comment"># whether to randomize the order of the points (True by default)</span>
+</code></pre>
+<p><h1>Experimental Features</h1>
+The following features have not yet been tested on real problems, but they are still available for use if you would like to try them.</p>
+<p><h2>Only Fit the Model to the Most Recent Data</h2>
+AEPsych uses a model to select which points in the parameter space should be sampled next, and these choices become more intelligent as the model collects more data. This means that data collected early on in the experiment, especially during the initialization phase where points are selected quasi-randomly, may not be as informative as those collected later on. To get rid of this noise, you can specify keep_most_recent within a strategy. For example, the strategy below performs optimization for 100 trials, but on each iteration it only models the 20 most recently-collected data points.</p>
+<pre><code class="hljs"><span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">acqf</span> = qNoisyExpectedImprovement
+<span class="hljs-attr">n_asks</span> = <span class="hljs-number">100</span> <span class="hljs-comment"># generate 100 points</span>
+<span class="hljs-attr">keep_most_recent</span> = <span class="hljs-number">20</span> <span class="hljs-comment"># only fit model on 20 most recent points</span>
+</code></pre>
+<p><h2>Ending Strategies Based on Model Predictions</h2></p>
+<p>As explained earlier, for experiments with binary outcomes we have set the default value of <code>min_outcome_occurrences</code> to 1 to prevent poor-fitting models from improperly exploring the parameter space. An alternative way to prevent this scenario is to only start model-based exploration when the model's posterior has an appropriate range of values. This can be specified using <code>min_post_range</code>. For example, the strategy below will only finish when the difference between the model posterior's minimum and maximum (in probability space) is at least 50%.</p>
+<pre><code class="hljs"><span class="hljs-section">[init_strat]</span>
+<span class="hljs-attr">generator</span> = SobolGenerator
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">min_post_range</span> = <span class="hljs-number">0.5</span> <span class="hljs-comment"># required difference between min and max of the posterior probability</span>
+</code></pre>
+<p>While we have yet to conduct thorough simulations to assess how well this strategy-switching rule works in practice, we are hoping that this functionality will pave the way for more sophisticated methods that will allow AEPsych to switch strategies or end data collection automatically.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/aepsych-fork/docs/configs"><span class="arrow-prev">← </span><span>Writing Config Files</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych-fork/" class="nav-home"><img src="/aepsych-fork/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych-fork/docs/introduction">Introduction</a><a href="/aepsych-fork/docs/getting_started">Getting Started</a><a href="/aepsych-fork/tutorials/">Tutorials</a><a href="/aepsych-fork/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych-fork/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section></footer></div></body></html>
