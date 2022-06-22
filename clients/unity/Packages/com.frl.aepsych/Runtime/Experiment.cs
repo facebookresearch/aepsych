@@ -143,6 +143,12 @@ namespace AEPsych
             return;
         }
 
+        public virtual void OnFailedToConnect()
+        {
+            Debug.LogError("Failed to connect. Please ensure that the server is properly installed and started.");
+            SetText("Failed to connect to server.");
+        }
+
         /// <summary>
         /// Starts experiment by beginning the first sample request
         /// </summary>
@@ -523,8 +529,7 @@ namespace AEPsych
                     OnConnectToServer();
                 else if (newStatus == AEPsychClient.ClientStatus.FailedToConnect)
                 {
-                    Debug.LogError("Failed to connect. Please ensure that the server is properly installed and started.");
-                    SetText("Failed to connect to server.");
+                    OnFailedToConnect();
                 }
             }
             else if (_experimentState == ExperimentState.Exploring)
