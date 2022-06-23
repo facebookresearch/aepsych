@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych/static/css/basic.css"/><link rel="stylesheet" href="/aepsych/static/css/custom.css"/><link rel="stylesheet" href="/aepsych/static/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych/static/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/aepsych/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych/css/main.css"/><script src="/aepsych/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/aepsych/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for tests.test_db</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">aepsych.database.db</span> <span class="k">as</span> <span class="nn">db</span>
+<span class="kn">import</span> <span class="nn">aepsych.database.tables</span> <span class="k">as</span> <span class="nn">tables</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span>
+
+
+<div class="viewcode-block" id="DBTestCase"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase">[docs]</a><span class="k">class</span> <span class="nc">DBTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="DBTestCase.setUp"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># random datebase path name without dashes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dbname</span> <span class="o">=</span> <span class="s2">"./</span><span class="si">{}</span><span class="s2">.db"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Database</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbname</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.tearDown"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.tearDown">[docs]</a>    <span class="k">def</span> <span class="nf">tearDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">delete_db</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_db_create"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_db_create">[docs]</a>    <span class="k">def</span> <span class="nf">test_db_create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">get_engine</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_record_setup_basic"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_record_setup_basic">[docs]</a>    <span class="k">def</span> <span class="nf">test_record_setup_basic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">get_replay_for</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_message</span><span class="p">(</span>
+            <span class="n">master_table</span><span class="o">=</span><span class="n">master_table</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">"test_type"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a follow on request"</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">get_replay_for</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_record_setup_doublesetup_goodid"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_record_setup_doublesetup_goodid">[docs]</a>    <span class="k">def</span> <span class="nf">test_record_setup_doublesetup_goodid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">master_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">children_replay</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">master_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">children_replay</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_record_setup_doublesetup_badid"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_record_setup_doublesetup_badid">[docs]</a>    <span class="k">def</span> <span class="nf">test_record_setup_doublesetup_badid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">master_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">children_replay</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span>
+            <span class="ne">RuntimeError</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+            <span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_record_setup_master_children"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_record_setup_master_children">[docs]</a>    <span class="k">def</span> <span class="nf">test_record_setup_master_children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNotNone</span><span class="p">(</span><span class="n">master_table</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">children_replay</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_message</span><span class="p">(</span>
+            <span class="n">master_table</span><span class="p">,</span> <span class="s2">"test"</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">children_replay</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_extra_info"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_extra_info">[docs]</a>    <span class="k">def</span> <span class="nf">test_extra_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">extra_info_setup</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is extra_info"</span><span class="p">}</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">,</span> <span class="s2">"extra_info"</span><span class="p">:</span> <span class="n">extra_info_setup</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">extra_info_record</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"This is another extra_info"</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_message</span><span class="p">(</span>
+            <span class="n">master_table</span><span class="p">,</span>
+            <span class="s2">"test"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">,</span> <span class="s2">"extra_info"</span><span class="p">:</span> <span class="n">extra_info_record</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="n">new_master</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">new_master</span><span class="o">.</span><span class="n">children_replay</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">extra_info</span><span class="p">,</span> <span class="n">extra_info_setup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">new_master</span><span class="o">.</span><span class="n">children_replay</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">extra_info</span><span class="p">,</span> <span class="n">extra_info_record</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_update_db"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_update_db">[docs]</a>    <span class="k">def</span> <span class="nf">test_update_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">current_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">db_path</span> <span class="o">=</span> <span class="n">current_path</span>
+        <span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">"test_databases/test_original_schema.db"</span><span class="p">)</span>
+
+        <span class="c1"># copy the db to a new file</span>
+        <span class="n">dst_db_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dbname</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">db_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">dst_db_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">dst_db_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">())</span>
+
+        <span class="c1"># open the new db</span>
+        <span class="n">test_database</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Database</span><span class="p">(</span><span class="n">db_path</span><span class="o">=</span><span class="n">dst_db_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="o">.</span><span class="n">_has_extra_info</span><span class="p">(</span><span class="n">test_database</span><span class="o">.</span><span class="n">_engine</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_database</span><span class="o">.</span><span class="n">is_update_required</span><span class="p">())</span>
+
+        <span class="c1"># make sure we raise the exception on newer columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span>
+            <span class="n">sqlalchemy</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">OperationalError</span><span class="p">,</span>
+            <span class="n">test_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">test_database</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="n">test_database</span><span class="o">.</span><span class="n">perform_updates</span><span class="p">()</span>
+
+        <span class="c1"># retry adding rows</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="n">test_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">test_database</span><span class="o">.</span><span class="n">record_message</span><span class="p">(</span>
+            <span class="n">master_table</span><span class="p">,</span> <span class="s2">"test"</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="c1"># make sure the new column exists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="o">.</span><span class="n">_has_extra_info</span><span class="p">(</span><span class="n">test_database</span><span class="o">.</span><span class="n">_engine</span><span class="p">))</span>
+
+        <span class="n">test_database</span><span class="o">.</span><span class="n">delete_db</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_update_configs"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_update_configs">[docs]</a>    <span class="k">def</span> <span class="nf">test_update_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">config_str</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">        [common]</span>
+<span class="s2">        parnames = [par1, par2]</span>
+<span class="s2">        lb = [0, 0]</span>
+<span class="s2">        ub = [1, 1]</span>
+<span class="s2">        outcome_type = single_probit</span>
+<span class="s2">        target = 0.75</span>
+
+<span class="s2">        [SobolStrategy]</span>
+<span class="s2">        n_trials = 10</span>
+
+<span class="s2">        [ModelWrapperStrategy]</span>
+<span class="s2">        n_trials = 20</span>
+<span class="s2">        refit_every = 5</span>
+
+<span class="s2">        [experiment]</span>
+<span class="s2">        acqf = MonotonicMCLSE</span>
+<span class="s2">        init_strat_cls = SobolStrategy</span>
+<span class="s2">        opt_strat_cls = ModelWrapperStrategy</span>
+<span class="s2">        modelbridge_cls = MonotonicSingleProbitModelbridge</span>
+<span class="s2">        model = MonotonicRejectionGP</span>
+
+<span class="s2">        [MonotonicMCLSE]</span>
+<span class="s2">        beta = 3.98</span>
+
+<span class="s2">        [MonotonicRejectionGP]</span>
+<span class="s2">        inducing_size = 100</span>
+<span class="s2">        mean_covar_factory = monotonic_mean_covar_factory</span>
+
+<span class="s2">        [MonotonicSingleProbitModelbridge]</span>
+<span class="s2">        restarts = 10</span>
+<span class="s2">        samps = 1000</span>
+<span class="s2">        """</span>
+
+        <span class="n">request</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"setup"</span><span class="p">,</span>
+            <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"0.01"</span><span class="p">,</span>
+            <span class="s2">"message"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"config_str"</span><span class="p">:</span> <span class="n">config_str</span><span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="n">dbname</span> <span class="o">=</span> <span class="s2">"./</span><span class="si">{}</span><span class="s2">.db"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">))</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Database</span><span class="p">(</span><span class="n">dbname</span><span class="p">)</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"default description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"default name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">is_update_required</span><span class="p">())</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">perform_updates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">is_update_required</span><span class="p">())</span>
+        <span class="n">database</span><span class="o">.</span><span class="n">delete_db</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_strat_table"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_strat_table">[docs]</a>    <span class="k">def</span> <span class="nf">test_strat_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">test_strat</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"strat"</span><span class="p">:</span> <span class="s2">"this is nothing like a strat"</span><span class="p">}</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="c1"># record a strat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_strat</span><span class="p">(</span><span class="n">master_table</span><span class="p">,</span> <span class="n">strat</span><span class="o">=</span><span class="n">test_strat</span><span class="p">)</span>
+        <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span>
+        <span class="n">strat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">get_strat_for</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">test_strat</span><span class="p">,</span> <span class="n">strat</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DBTestCase.test_config_table"><a class="viewcode-back" href="../../tests.html#tests.test_db.DBTestCase.test_config_table">[docs]</a>    <span class="k">def</span> <span class="nf">test_config_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">test_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="s2">"this is nothing like a config but it works."</span><span class="p">}</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"test description"</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"test name"</span><span class="p">,</span>
+            <span class="n">request</span><span class="o">=</span><span class="p">{</span><span class="s2">"test"</span><span class="p">:</span> <span class="s2">"this is a test request"</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="c1"># record a strat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">record_config</span><span class="p">(</span><span class="n">master_table</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">test_config</span><span class="p">)</span>
+
+        <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span><span class="o">.</span><span class="n">get_config_for</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">test_config</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.acquisition.html">aepsych.acquisition package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.benchmark.html">aepsych.benchmark package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.database.html">aepsych.database package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.factory.html">aepsych.factory package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.generators.html">aepsych.generators package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.kernels.html">aepsych.kernels package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.means.html">aepsych.means package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.models.html">aepsych.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aepsych.server.html">aepsych.server package</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../index.html">Documentation overview</a><ul>
+<li><a href="../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych/" class="nav-home"><img src="/aepsych/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych/docs/introduction">Introduction</a><a href="/aepsych/docs/getting_started">Getting Started</a><a href="/aepsych/tutorials/">Tutorials</a><a href="/aepsych/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

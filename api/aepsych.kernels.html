@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych/static/css/basic.css"/><link rel="stylesheet" href="/aepsych/static/css/custom.css"/><link rel="stylesheet" href="/aepsych/static/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych/static/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/aepsych/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych/css/main.css"/><script src="/aepsych/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/aepsych/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-kernels">
+<h1>aepsych.kernels<a class="headerlink" href="#aepsych-kernels" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-aepsych.kernels.rbf_partial_grad">
+<span id="aepsych-kernels-rbf-partial-grad-module"></span><h2>aepsych.kernels.rbf_partial_grad module<a class="headerlink" href="#module-aepsych.kernels.rbf_partial_grad" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.kernels.rbf_partial_grad.</span></span><span class="sig-name descname"><span class="pre">RBFKernelPartialObsGrad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ard_num_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.Size([])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthscale_prior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthscale_constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.kernels.rbf_kernel_grad.RBFKernelGrad</span></code></p>
+<p>An RBF kernel over observations of f, and partial/non-overlapping
+observations of the gradient of f.</p>
+<p>gpytorch.kernels.rbf_kernel_grad assumes a block structure where every
+partial derivative is observed at the same set of points at which x is
+observed. This generalizes that by allowing f and any subset of the
+derivatives of f to be observed at different sets of points.</p>
+<p>The final column of x1 and x2 needs to be an index that identifies what is
+observed at that point. It should be 0 if this observation is of f, and i
+if it is of df/dxi.</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ard_num_dims</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>batch_shape</strong> (<em>Optional</em><em>[</em><em>torch.Size</em><em>]</em>) – </p></li>
+<li><p><strong>active_dims</strong> (<em>Optional</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>lengthscale_prior</strong> (<em>Optional</em><em>[</em><em>gpytorch.priors.prior.Prior</em><em>]</em>) – </p></li>
+<li><p><strong>lengthscale_constraint</strong> (<em>Optional</em><em>[</em><em>gpytorch.constraints.constraints.Interval</em><em>]</em>) – </p></li>
+<li><p><strong>eps</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance between x1 and x2.
+This method should be imlemented by all Kernel subclasses.</p>
+<p>:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">x1</span></code>: First set of data
+:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">x1</span></code>: Tensor <cite>n x d</cite> or <cite>b x n x d</cite>
+:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">x2</span></code>: Second set of data
+:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">x2</span></code>: Tensor <cite>m x d</cite> or <cite>b x m x d</cite>
+:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">diag</span></code>: Should the Kernel compute the whole kernel, or just the diag?
+:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">diag</span></code>: bool
+:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">last_dim_is_batch</span></code>: If this is true, it treats the last dimension of the data as another batch dimension.</p>
+<blockquote>
+<div><p>(Useful for additive structure over the dimensions). Default: False</p>
+</div></blockquote>
+<p>:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">last_dim_is_batch</span></code>: tuple, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
+<ul class="simple">
+<li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
+<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n x m</cite> or <cite>b x k x n x m</cite></p></li>
+<li><p><cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p></li>
+<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n</cite> or <cite>b x k x n</cite></p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>x1</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>x2</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>params</strong> (<em>Any</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input">
+<span class="sig-name descname"><span class="pre">num_outputs_per_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad.num_outputs_per_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many outputs are produced per input (default 1)
+if x1 is size <cite>n x d</cite> and x2 is size <cite>m x d</cite>, then the size of the kernel
+will be <cite>(n * num_outputs_per_input) x (m * num_outputs_per_input)</cite>
+Default: 1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>x2</strong> (<em>torch.Tensor</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-aepsych.kernels">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.kernels" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="aepsych.acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.generators.html">aepsych.generators</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.server.html">aepsych.server</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="aepsych.generators.html" title="previous chapter">aepsych.generators</a></li>
+<li>Next: <a href="aepsych.means.html" title="next chapter">aepsych.means</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych/" class="nav-home"><img src="/aepsych/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych/docs/introduction">Introduction</a><a href="/aepsych/docs/getting_started">Getting Started</a><a href="/aepsych/tutorials/">Tutorials</a><a href="/aepsych/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

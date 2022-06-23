@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych/static/css/basic.css"/><link rel="stylesheet" href="/aepsych/static/css/custom.css"/><link rel="stylesheet" href="/aepsych/static/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych/static/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/aepsych/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych/css/main.css"/><script src="/aepsych/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/aepsych/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-fork">
+<h1>aepsych-fork<a class="headerlink" href="#aepsych-fork" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.html">aepsych package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.acquisition.html">aepsych.acquisition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.bvn">aepsych.acquisition.bvn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.lookahead">aepsych.acquisition.lookahead module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.lookahead_utils">aepsych.acquisition.lookahead_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.lse">aepsych.acquisition.lse module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.mc_posterior_variance">aepsych.acquisition.mc_posterior_variance module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.monotonic_rejection">aepsych.acquisition.monotonic_rejection module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.mutual_information">aepsych.acquisition.mutual_information module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.objective">aepsych.acquisition.objective module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition.rejection_sampler">aepsych.acquisition.rejection_sampler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.acquisition.html#module-aepsych.acquisition">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.benchmark.html">aepsych.benchmark</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.benchmark.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.benchmark.html#module-aepsych.benchmark.benchmark">aepsych.benchmark.benchmark module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.benchmark.html#module-aepsych.benchmark.pathos_benchmark">aepsych.benchmark.pathos_benchmark module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.benchmark.html#module-aepsych.benchmark.problem">aepsych.benchmark.problem module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.benchmark.html#module-aepsych.benchmark.test_functions">aepsych.benchmark.test_functions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.benchmark.html#module-aepsych.benchmark">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.database.html">aepsych.database</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.database.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.database.html#module-aepsych.database.db">aepsych.database.db module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.database.html#module-aepsych.database.tables">aepsych.database.tables module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.database.html#module-aepsych.database">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.factory.html">aepsych.factory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.factory.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.factory.html#module-aepsych.factory.factory">aepsych.factory.factory module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.factory.html#module-aepsych.factory">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.generators.html">aepsych.generators</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.base">aepsych.generators.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.epsilon_greedy_generator">aepsych.generators.epsilon_greedy_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.manual_generator">aepsych.generators.manual_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.monotonic_rejection_generator">aepsych.generators.monotonic_rejection_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.monotonic_thompson_sampler_generator">aepsych.generators.monotonic_thompson_sampler_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.optimize_acqf_generator">aepsych.generators.optimize_acqf_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.random_generator">aepsych.generators.random_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators.sobol_generator">aepsych.generators.sobol_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.generators.html#module-aepsych.generators">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.kernels.html">aepsych.kernels</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.kernels.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.kernels.html#module-aepsych.kernels.rbf_partial_grad">aepsych.kernels.rbf_partial_grad module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.kernels.html#module-aepsych.kernels">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.means.html">aepsych.means</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.means.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.means.html#module-aepsych.means.constant_partial_grad">aepsych.means.constant_partial_grad module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.means.html#module-aepsych.means">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.models.html">aepsych.models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.models.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.models.html#module-aepsych.models.base">aepsych.models.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.models.html#module-aepsych.models.derivative_gp">aepsych.models.derivative_gp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.models.html#module-aepsych.models.gp_classification">aepsych.models.gp_classification module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.models.html#module-aepsych.models.monotonic_rejection_gp">aepsych.models.monotonic_rejection_gp module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.models.html#module-aepsych.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="aepsych.server.html">aepsych.server</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.server.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.server.html#module-aepsych.server.server">aepsych.server.server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.server.html#module-aepsych.server.sockets">aepsych.server.sockets module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="aepsych.server.html#module-aepsych.server">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#module-aepsych.config">aepsych.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#module-aepsych.likelihoods">aepsych.likelihoods module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#module-aepsych.plotting">aepsych.plotting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#module-aepsych.strategy">aepsych.strategy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#module-aepsych.utils">aepsych.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#module-aepsych.utils_logging">aepsych.utils_logging module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aepsych.html#module-aepsych">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">setup module</a></li>
+</ul>
+</div>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.server.html">aepsych.server</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych/" class="nav-home"><img src="/aepsych/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych/docs/introduction">Introduction</a><a href="/aepsych/docs/getting_started">Getting Started</a><a href="/aepsych/tutorials/">Tutorials</a><a href="/aepsych/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

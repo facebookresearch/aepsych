@@ -1,0 +1,1424 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych/static/css/basic.css"/><link rel="stylesheet" href="/aepsych/static/css/custom.css"/><link rel="stylesheet" href="/aepsych/static/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych/static/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/aepsych/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych/css/main.css"/><script src="/aepsych/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/aepsych/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-benchmark">
+<h1>aepsych.benchmark<a class="headerlink" href="#aepsych-benchmark" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-aepsych.benchmark.benchmark">
+<span id="aepsych-benchmark-benchmark-module"></span><h2>aepsych.benchmark.benchmark module<a class="headerlink" href="#module-aepsych.benchmark.benchmark" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">Benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Benchmark base class.</p>
+<p>This class wraps standard functionality for benchmarking models including
+generating cartesian products of run configurations, running the simulated
+experiment loop, and logging results.</p>
+<p>TODO make a benchmarking tutorial and link/refer to it here.</p>
+<p>Initialize benchmark.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problems</strong> (<em>List</em><em>[</em><a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>Problem</em></a><em>]</em>) – Problem objects containing the test function to evaluate.</p></li>
+<li><p><strong>configs</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>str</em><em>, </em><em>list</em><em>]</em><em>]</em>) – Dictionary of configs to run.
+Lists at leaves are used to construct a cartesian product of configurations.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed to use for reproducible benchmarks.
+Defaults to randomized seeds.</p></li>
+<li><p><strong>n_reps</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of repetitions to run of each configuration. Defaults to 1.</p></li>
+<li><p><strong>log_every</strong> (<em>int</em><em>, </em><em>optional</em>) – Logging interval during an experiment. Defaults to logging every 10 trials.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.make_benchmark_list">
+<span class="sig-name descname"><span class="pre">make_benchmark_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">bench_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.make_benchmark_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.make_benchmark_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of benchmarks to run from configuration.</p>
+<blockquote>
+<div><p>This constructs a cartesian product of config dicts using lists at
+the leaves of the base config</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>List of dictionaries, each of which can be passed</dt><dd><p>to aepsych.config.Config.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[dict[str, float]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.materialize_config">
+<span class="sig-name descname"><span class="pre">materialize_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.materialize_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.materialize_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.num_benchmarks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_benchmarks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.num_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the total number of runs in this benchmark.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Total number of runs in this benchmark.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.make_strat_and_flatconfig">
+<span class="sig-name descname"><span class="pre">make_strat_and_flatconfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.make_strat_and_flatconfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.make_strat_and_flatconfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>From a config dict, generate a strategy (for running) and</dt><dd><p>flattened config (for logging)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_dict</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – A run configuration dictionary.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing a strategy</dt><dd><p>object and a flat config.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[<a class="reference internal" href="aepsych.html#aepsych.strategy.SequentialStrategy" title="aepsych.strategy.SequentialStrategy">SequentialStrategy</a>, Dict[str,str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.run_experiment">
+<span class="sig-name descname"><span class="pre">run_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.run_experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.run_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one simulated experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – AEPsych configuration to use.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed for this run.</p></li>
+<li><p><strong>rep</strong> (<em>int</em>) – Index of this repetition.</p></li>
+<li><p><strong>problem</strong> (<a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>aepsych.benchmark.problem.Problem</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing a log of the results and the strategy as</dt><dd><p>of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
+one-off visualization.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[List[Dict[str, object]], <a class="reference internal" href="aepsych.html#aepsych.strategy.SequentialStrategy" title="aepsych.strategy.SequentialStrategy">SequentialStrategy</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.run_benchmarks">
+<span class="sig-name descname"><span class="pre">run_benchmarks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.run_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.run_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all the benchmarks, sequentially.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.flatten_config">
+<span class="sig-name descname"><span class="pre">flatten_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.flatten_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.flatten_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flatten a config object for logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – AEPsych config object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A flat dictionary (that can be used to build a flat pandas data frame).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str,str]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.log_at">
+<span class="sig-name descname"><span class="pre">log_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.log_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.log_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if we should log on this trial index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – Trial index to (maybe) log at.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if this trial should be logged.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatconfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log trial data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flatconfig</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Flattened configuration for this benchmark.</p></li>
+<li><p><strong>metrics</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Metrics to log.</p></li>
+<li><p><strong>trial_id</strong> (<em>int</em>) – Current trial index.</p></li>
+<li><p><strong>fit_time</strong> (<em>float</em>) – Model fitting duration.</p></li>
+<li><p><strong>gen_time</strong> (<em>float</em>) – Candidate selection duration.</p></li>
+<li><p><strong>rep</strong> (<em>int</em>) – Repetition index of this trial.</p></li>
+<li><p><strong>final</strong> (<em>bool</em><em>, </em><em>optional</em>) – Mark this as the final trial in a run? Defaults to False.</p></li>
+<li><p><strong>problem</strong> (<a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>aepsych.benchmark.problem.Problem</em></a>) – </p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Dict</em>[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.Benchmark.pandas">
+<span class="sig-name descname"><span class="pre">pandas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.pandas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.Benchmark.pandas" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.core.frame.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.benchmark.DerivedValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.benchmark.</span></span><span class="sig-name descname"><span class="pre">DerivedValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#DerivedValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.benchmark.DerivedValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for dynamically generating config values from other config values during benchmarking.</p>
+<p>Initialize DerivedValue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> (<em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Each tuple in this list is a pair of strings that refer to keys in a nested dictionary.</p></li>
+<li><p><strong>func</strong> (<em>Callable</em>) – A function that accepts args as input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p>For example, consider the following:</p>
+<blockquote>
+<div><dl>
+<dt>benchmark_config = {</dt><dd><dl class="simple">
+<dt>“common”: {</dt><dd><p>“model”: [“GPClassificationModel”, “FancyNewModelToBenchmark”],
+“acqf”: “MCLevelSetEstimation”</p>
+</dd>
+</dl>
+<p>},
+“init_strat”: {</p>
+<blockquote>
+<div><p>“min_asks”: [10, 20],
+“generator”: “SobolGenerator”</p>
+</div></blockquote>
+<p>},
+“opt_strat”: {</p>
+<blockquote>
+<div><p>“generator”: “OptimizeAcqfGenerator”,
+“min_asks”:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>DerivedValue(</dt><dd><p>[(“init_strat”, “min_asks”), (“common”, “model”)],
+lambda x,y : 100 - x if y == “GPClassificationModel” else 50 - x)</p>
+</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Four separate benchmarks would be generated from benchmark_config:</dt><dd><ol class="arabic simple">
+<li><p>model = GPClassificationModel; init trials = 10; opt trials = 90</p></li>
+<li><p>model = GPClassificationModel; init trials = 20; opt trials = 80</p></li>
+<li><p>model = FancyNewModelToBenchmark; init trials = 10; opt trials = 40</p></li>
+<li><p>model = FancyNewModelToBenchmark; init trials = 20; opt trials = 30</p></li>
+</ol>
+</dd>
+</dl>
+<p>Note that if you can also access problem names into func by including (“problem”, “name”) in args.</p>
+</dd></dl>
+</section>
+<section id="module-aepsych.benchmark.pathos_benchmark">
+<span id="aepsych-benchmark-pathos-benchmark-module"></span><h2>aepsych.benchmark.pathos_benchmark module<a class="headerlink" href="#module-aepsych.benchmark.pathos_benchmark" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.pathos_benchmark.PathosBenchmark">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.pathos_benchmark.</span></span><span class="sig-name descname"><span class="pre">PathosBenchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nproc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.pathos_benchmark.PathosBenchmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.benchmark.Benchmark" title="aepsych.benchmark.benchmark.Benchmark"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.benchmark.benchmark.Benchmark</span></code></a></p>
+<p>Benchmarking class for parallelized benchmarks using pathos</p>
+<p>Initialize pathos benchmark.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nproc</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of cores to use. Defaults to 1.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_experiment">
+<span class="sig-name descname"><span class="pre">run_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.run_experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one simulated experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – AEPsych configuration to use.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed for this run.</p></li>
+<li><p><strong>rep</strong> (<em>int</em>) – Index of this repetition.</p></li>
+<li><p><strong>problem</strong> (<a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>aepsych.benchmark.problem.Problem</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing a log of the results and the strategy as</dt><dd><p>of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
+one-off visualization.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[List[Dict[str, Any]], <a class="reference internal" href="aepsych.html#aepsych.strategy.SequentialStrategy" title="aepsych.strategy.SequentialStrategy">SequentialStrategy</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks">
+<span class="sig-name descname"><span class="pre">run_benchmarks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.run_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all the benchmarks,</p>
+<p>Note that this blocks while waiting for benchmarks to complete. If you
+would like to start benchmarks and periodically collect partial results,
+use start_benchmarks and then call collate_benchmarks(wait=False) on some
+interval.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks">
+<span class="sig-name descname"><span class="pre">start_benchmarks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.start_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start benchmark run.</p>
+<p>This does not block: after running it, self.futures holds the
+status of benchmarks running in parallel.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.pathos_benchmark.PathosBenchmark.is_done">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_done</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.benchmark.pathos_benchmark.PathosBenchmark.is_done" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the benchmark is done.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if all futures are cleared and benchmark is done.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.pathos_benchmark.PathosBenchmark.collate_benchmarks">
+<span class="sig-name descname"><span class="pre">collate_benchmarks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.collate_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.pathos_benchmark.PathosBenchmark.collate_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect benchmark results from completed futures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wait</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true, this method blocks and waits</p></li>
+<li><p><strong>False.</strong> (<em>on all futures to complete. Defaults to</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.pathos_benchmark.run_benchmarks_with_checkpoints">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.pathos_benchmark.</span></span><span class="sig-name descname"><span class="pre">run_benchmarks_with_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps_per_chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_proc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serial_debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#run_benchmarks_with_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.pathos_benchmark.run_benchmarks_with_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a series of benchmarks, saving both final and intermediate results to .csv files. Benchmarks are run in
+sequential chunks, each of which runs all combinations of problems/configs/reps in parallel. This function should
+always be used using the “if __name__ == ‘__main__’: …” idiom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out_path</strong> (<em>str</em>) – The path to save the results to.</p></li>
+<li><p><strong>benchmark_name</strong> (<em>str</em>) – A name give to this set of benchmarks. Results will be saved in files named like
+“out_path/benchmark_name_chunk{chunk_number}_out.csv”</p></li>
+<li><p><strong>problems</strong> (<em>List</em><em>[</em><a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>Problem</em></a><em>]</em>) – Problem objects containing the test function to evaluate.</p></li>
+<li><p><strong>configs</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>str</em><em>, </em><em>list</em><em>]</em><em>]</em>) – Dictionary of configs to run.
+Lists at leaves are used to construct a cartesian product of configurations.</p></li>
+<li><p><strong>global_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Global seed to use for reproducible benchmarks.
+Defaults to randomized seeds.</p></li>
+<li><p><strong>n_chunks</strong> (<em>int</em>) – The number of chunks to break the results into. Each chunk will contain at least 1 run of every
+combination of problem and config.</p></li>
+<li><p><strong>n_reps_per_chunk</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of repetitions to run each problem/config in each chunk.</p></li>
+<li><p><strong>log_every</strong> (<em>int</em><em>, </em><em>optional</em>) – Logging interval during an experiment. Defaults to only logging at the end.</p></li>
+<li><p><strong>checkpoint_every</strong> (<em>int</em>) – Save intermediate results every checkpoint_every seconds.</p></li>
+<li><p><strong>n_proc</strong> (<em>int</em>) – Number of processors to use.</p></li>
+<li><p><strong>serial_debug</strong> (<em>bool</em>) – debug serially?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="module-aepsych.benchmark.problem">
+<span id="aepsych-benchmark-problem-module"></span><h2>aepsych.benchmark.problem module<a class="headerlink" href="#module-aepsych.benchmark.problem" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.problem.</span></span><span class="sig-name descname"><span class="pre">Problem</span></span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.Problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for a problem or test function. Subclass from this
+and override f() to define your test function.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.n_eval_points">
+<span class="sig-name descname"><span class="pre">n_eval_points</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#aepsych.benchmark.problem.Problem.n_eval_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.eval_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eval_grid</span></span><a class="headerlink" href="#aepsych.benchmark.problem.Problem.eval_grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aepsych.benchmark.problem.Problem.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.Problem.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.lb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lb</span></span><a class="headerlink" href="#aepsych.benchmark.problem.Problem.lb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.ub">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ub</span></span><a class="headerlink" href="#aepsych.benchmark.problem.Problem.ub" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.bounds">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#aepsych.benchmark.problem.Problem.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.benchmark.problem.Problem.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
+Benchmark’s output dataframe, with its associated value stored in each row.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.p">
+<span class="sig-name descname"><span class="pre">p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.Problem.p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate response probability from test function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Response probability at queries points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.sample_y">
+<span class="sig-name descname"><span class="pre">sample_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.sample_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.Problem.sample_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample a response from test function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to sample.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A single (bernoulli) sample at points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.f_hat">
+<span class="sig-name descname"><span class="pre">f_hat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.f_hat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.Problem.f_hat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate mean predictions from the model over the evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="aepsych.models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – Model to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Posterior mean from underlying model over the evaluation grid.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.f_true">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">f_true</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#aepsych.benchmark.problem.Problem.f_true" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate true test function over evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Values of true test function over evaluation grid.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.p_true">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p_true</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#aepsych.benchmark.problem.Problem.p_true" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate true response probability over evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Values of true response probability over evaluation grid.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.p_hat">
+<span class="sig-name descname"><span class="pre">p_hat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.p_hat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.Problem.p_hat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate mean predictions from the model over the evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="aepsych.models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – Model to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Posterior mean from underlying model over the evaluation grid.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.Problem.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.Problem.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the strategy with respect to this problem.</p>
+<p>Extend this in subclasses to add additional metrics.
+Metrics include:
+- mae (mean absolute error), mae (mean absolute error), max_abs_err (max absolute error),</p>
+<blockquote>
+<div><p>pearson correlation. All of these are computed over the latent variable f and the
+outcome probability p, w.r.t. the posterior mean. Squared and absolute errors (miae, mise) are
+also computed in expectation over the posterior, by sampling.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Brier score, which measures how well-calibrated the outcome probability is, both at the posterior</dt><dd><p>mean (plain brier) and in expectation over the posterior (expected_brier).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>strat</strong> (<a class="reference internal" href="aepsych.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>aepsych.strategy.Strategy</em></a>) – Strategy to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing metrics and their values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.problem.</span></span><span class="sig-name descname"><span class="pre">LSEProblem</span></span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.benchmark.problem.Problem</span></code></a></p>
+<p>Level set estimation problem.</p>
+<p>This extends the base problem class to evaluate the LSE/threshold estimate
+in addition to the function estimate.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblem.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblem.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblem.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblem.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
+Benchmark’s output dataframe, with its associated value stored in each row.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblem.f_threshold">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">f_threshold</span></span><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblem.f_threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblem.true_below_threshold">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">true_below_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblem.true_below_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate whether the true function is below threshold over the eval grid
+(used for proper scoring and threshold missclassification metric).</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblem.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblem.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblem.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the model with respect to this problem.</p>
+<p>For level set estimation, we add metrics w.r.t. the true threshold:
+- brier_p_below_{thresh), the brier score w.r.t. p(f(x)&lt;thresh), in contrast to</p>
+<blockquote>
+<div><p>regular brier, which is the brier score for p(phi(f(x))=1), and the same
+for misclassification error.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>strat</strong> (<a class="reference internal" href="aepsych.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>aepsych.strategy.Strategy</em></a>) – Strategy to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing metrics and their values,
+including parent class metrics.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="module-aepsych.benchmark.test_functions">
+<span id="aepsych-benchmark-test-functions-module"></span><h2>aepsych.benchmark.test_functions module<a class="headerlink" href="#module-aepsych.benchmark.test_functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.test_functions.make_songetal_threshfun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">make_songetal_threshfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#make_songetal_threshfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.make_songetal_threshfun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a synthetic threshold function by interpolation of real data.</p>
+<p>Real data is from Dubno et al. 2013, and procedure follows Song et al. 2017, 2018.
+See make_songetal_testfun for more detail.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Frequency</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – Threshold</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Function that interpolates the given</dt><dd><p>frequencies and thresholds and returns threshold as a function
+of frequency.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Callable[[float], float]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.test_functions.make_songetal_testfun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">make_songetal_testfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phenotype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Metabolic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#make_songetal_testfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.make_songetal_testfun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make an audiometric test function following Song et al. 2017.</p>
+<p>To do so,we first compute a threshold by interpolation/extrapolation
+from real data, then assume a linear psychometric function in intensity
+with slope beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phenotype</strong> (<em>str</em><em>, </em><em>optional</em>) – Audiometric phenotype from Dubno et al. 2013.
+Specifically, one of “Metabolic”, “Sensory”, “Metabolic+Sensory”,
+or “Older-normal”. Defaults to “Metabolic”.</p></li>
+<li><p><strong>beta</strong> (<em>float</em><em>, </em><em>optional</em>) – Psychometric function slope. Defaults to 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A test function taking a [b x 2] array of points and returning the psychometric function value at those points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Callable[[np.ndarray, bool], np.ndarray]</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – if an invalid phenotype is passed.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="simple">
+<dt>Song, X. D., Garnett, R., &amp; Barbour, D. L. (2017).</dt><dd><p>Psychometric function estimation by probabilistic classification.
+The Journal of the Acoustical Society of America, 141(4), 2513–2525.
+<a class="reference external" href="https://doi.org/10.1121/1.4979594">https://doi.org/10.1121/1.4979594</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.test_functions.novel_discrimination_testfun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">novel_discrimination_testfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#novel_discrimination_testfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.novel_discrimination_testfun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate novel discrimination test function from Owen et al.</p>
+<p>The threshold is roughly parabolic with context, and the slope
+varies with the threshold. Adding to the difficulty is the fact
+that the function is minimized at f=0 (or p=0.5), corresponding
+to discrimination being at chance at zero stimulus intensity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of function at these points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.test_functions.novel_detection_testfun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">novel_detection_testfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#novel_detection_testfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.novel_detection_testfun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate novel detection test function from Owen et al.</p>
+<p>The threshold is roughly parabolic with context, and the slope
+varies with the threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of function at these points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.test_functions.discrim_highdim">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">discrim_highdim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#discrim_highdim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.discrim_highdim" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>numpy.ndarray</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.test_functions.modified_hartmann6">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">modified_hartmann6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#modified_hartmann6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.modified_hartmann6" title="Permalink to this definition">¶</a></dt>
+<dd><p>The modified Hartmann6 function used in Lyu et al.</p>
+</dd></dl>
+</section>
+<section id="module-aepsych.benchmark">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.benchmark" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">Benchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Benchmark base class.</p>
+<p>This class wraps standard functionality for benchmarking models including
+generating cartesian products of run configurations, running the simulated
+experiment loop, and logging results.</p>
+<p>TODO make a benchmarking tutorial and link/refer to it here.</p>
+<p>Initialize benchmark.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problems</strong> (<em>List</em><em>[</em><a class="reference internal" href="#aepsych.benchmark.Problem" title="aepsych.benchmark.Problem"><em>Problem</em></a><em>]</em>) – Problem objects containing the test function to evaluate.</p></li>
+<li><p><strong>configs</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>str</em><em>, </em><em>list</em><em>]</em><em>]</em>) – Dictionary of configs to run.
+Lists at leaves are used to construct a cartesian product of configurations.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed to use for reproducible benchmarks.
+Defaults to randomized seeds.</p></li>
+<li><p><strong>n_reps</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of repetitions to run of each configuration. Defaults to 1.</p></li>
+<li><p><strong>log_every</strong> (<em>int</em><em>, </em><em>optional</em>) – Logging interval during an experiment. Defaults to logging every 10 trials.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.make_benchmark_list">
+<span class="sig-name descname"><span class="pre">make_benchmark_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">bench_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.make_benchmark_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.make_benchmark_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of benchmarks to run from configuration.</p>
+<blockquote>
+<div><p>This constructs a cartesian product of config dicts using lists at
+the leaves of the base config</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>List of dictionaries, each of which can be passed</dt><dd><p>to aepsych.config.Config.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[dict[str, float]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.materialize_config">
+<span class="sig-name descname"><span class="pre">materialize_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.materialize_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.materialize_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.num_benchmarks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_benchmarks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.benchmark.Benchmark.num_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the total number of runs in this benchmark.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Total number of runs in this benchmark.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.make_strat_and_flatconfig">
+<span class="sig-name descname"><span class="pre">make_strat_and_flatconfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.make_strat_and_flatconfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.make_strat_and_flatconfig" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>From a config dict, generate a strategy (for running) and</dt><dd><p>flattened config (for logging)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config_dict</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – A run configuration dictionary.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing a strategy</dt><dd><p>object and a flat config.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[<a class="reference internal" href="aepsych.html#aepsych.strategy.SequentialStrategy" title="aepsych.strategy.SequentialStrategy">SequentialStrategy</a>, Dict[str,str]]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.run_experiment">
+<span class="sig-name descname"><span class="pre">run_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.run_experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.run_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one simulated experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – AEPsych configuration to use.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed for this run.</p></li>
+<li><p><strong>rep</strong> (<em>int</em>) – Index of this repetition.</p></li>
+<li><p><strong>problem</strong> (<a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>aepsych.benchmark.problem.Problem</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing a log of the results and the strategy as</dt><dd><p>of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
+one-off visualization.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[List[Dict[str, object]], <a class="reference internal" href="aepsych.html#aepsych.strategy.SequentialStrategy" title="aepsych.strategy.SequentialStrategy">SequentialStrategy</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.run_benchmarks">
+<span class="sig-name descname"><span class="pre">run_benchmarks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.run_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.run_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all the benchmarks, sequentially.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.flatten_config">
+<span class="sig-name descname"><span class="pre">flatten_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.flatten_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.flatten_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flatten a config object for logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – AEPsych config object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A flat dictionary (that can be used to build a flat pandas data frame).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str,str]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.log_at">
+<span class="sig-name descname"><span class="pre">log_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.log_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.log_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if we should log on this trial index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> (<em>int</em>) – Trial index to (maybe) log at.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if this trial should be logged.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatconfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trial_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log trial data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flatconfig</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Flattened configuration for this benchmark.</p></li>
+<li><p><strong>metrics</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em>) – Metrics to log.</p></li>
+<li><p><strong>trial_id</strong> (<em>int</em>) – Current trial index.</p></li>
+<li><p><strong>fit_time</strong> (<em>float</em>) – Model fitting duration.</p></li>
+<li><p><strong>gen_time</strong> (<em>float</em>) – Candidate selection duration.</p></li>
+<li><p><strong>rep</strong> (<em>int</em>) – Repetition index of this trial.</p></li>
+<li><p><strong>final</strong> (<em>bool</em><em>, </em><em>optional</em>) – Mark this as the final trial in a run? Defaults to False.</p></li>
+<li><p><strong>problem</strong> (<a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>aepsych.benchmark.problem.Problem</em></a>) – </p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><em>Dict</em>[str, object]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Benchmark.pandas">
+<span class="sig-name descname"><span class="pre">pandas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#Benchmark.pandas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Benchmark.pandas" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.core.frame.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.DerivedValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">DerivedValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/benchmark.html#DerivedValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.DerivedValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class for dynamically generating config values from other config values during benchmarking.</p>
+<p>Initialize DerivedValue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> (<em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Each tuple in this list is a pair of strings that refer to keys in a nested dictionary.</p></li>
+<li><p><strong>func</strong> (<em>Callable</em>) – A function that accepts args as input.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p>For example, consider the following:</p>
+<blockquote>
+<div><dl>
+<dt>benchmark_config = {</dt><dd><dl class="simple">
+<dt>“common”: {</dt><dd><p>“model”: [“GPClassificationModel”, “FancyNewModelToBenchmark”],
+“acqf”: “MCLevelSetEstimation”</p>
+</dd>
+</dl>
+<p>},
+“init_strat”: {</p>
+<blockquote>
+<div><p>“min_asks”: [10, 20],
+“generator”: “SobolGenerator”</p>
+</div></blockquote>
+<p>},
+“opt_strat”: {</p>
+<blockquote>
+<div><p>“generator”: “OptimizeAcqfGenerator”,
+“min_asks”:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>DerivedValue(</dt><dd><p>[(“init_strat”, “min_asks”), (“common”, “model”)],
+lambda x,y : 100 - x if y == “GPClassificationModel” else 50 - x)</p>
+</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Four separate benchmarks would be generated from benchmark_config:</dt><dd><ol class="arabic simple">
+<li><p>model = GPClassificationModel; init trials = 10; opt trials = 90</p></li>
+<li><p>model = GPClassificationModel; init trials = 20; opt trials = 80</p></li>
+<li><p>model = FancyNewModelToBenchmark; init trials = 10; opt trials = 40</p></li>
+<li><p>model = FancyNewModelToBenchmark; init trials = 20; opt trials = 30</p></li>
+</ol>
+</dd>
+</dl>
+<p>Note that if you can also access problem names into func by including (“problem”, “name”) in args.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.PathosBenchmark">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">PathosBenchmark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nproc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.PathosBenchmark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.benchmark.Benchmark" title="aepsych.benchmark.benchmark.Benchmark"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.benchmark.benchmark.Benchmark</span></code></a></p>
+<p>Benchmarking class for parallelized benchmarks using pathos</p>
+<p>Initialize pathos benchmark.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nproc</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of cores to use. Defaults to 1.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.PathosBenchmark.run_experiment">
+<span class="sig-name descname"><span class="pre">run_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.run_experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.PathosBenchmark.run_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run one simulated experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – AEPsych configuration to use.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – Random seed for this run.</p></li>
+<li><p><strong>rep</strong> (<em>int</em>) – Index of this repetition.</p></li>
+<li><p><strong>problem</strong> (<a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><em>aepsych.benchmark.problem.Problem</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing a log of the results and the strategy as</dt><dd><p>of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for
+one-off visualization.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[List[Dict[str, Any]], <a class="reference internal" href="aepsych.html#aepsych.strategy.SequentialStrategy" title="aepsych.strategy.SequentialStrategy">SequentialStrategy</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.PathosBenchmark.run_benchmarks">
+<span class="sig-name descname"><span class="pre">run_benchmarks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.run_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.PathosBenchmark.run_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all the benchmarks,</p>
+<p>Note that this blocks while waiting for benchmarks to complete. If you
+would like to start benchmarks and periodically collect partial results,
+use start_benchmarks and then call collate_benchmarks(wait=False) on some
+interval.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.PathosBenchmark.start_benchmarks">
+<span class="sig-name descname"><span class="pre">start_benchmarks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.start_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.PathosBenchmark.start_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start benchmark run.</p>
+<p>This does not block: after running it, self.futures holds the
+status of benchmarks running in parallel.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.PathosBenchmark.is_done">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_done</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.benchmark.PathosBenchmark.is_done" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the benchmark is done.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if all futures are cleared and benchmark is done.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.PathosBenchmark.collate_benchmarks">
+<span class="sig-name descname"><span class="pre">collate_benchmarks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#PathosBenchmark.collate_benchmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.PathosBenchmark.collate_benchmarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect benchmark results from completed futures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wait</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true, this method blocks and waits</p></li>
+<li><p><strong>False.</strong> (<em>on all futures to complete. Defaults to</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">Problem</span></span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for a problem or test function. Subclass from this
+and override f() to define your test function.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.n_eval_points">
+<span class="sig-name descname"><span class="pre">n_eval_points</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#aepsych.benchmark.Problem.n_eval_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.eval_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eval_grid</span></span><a class="headerlink" href="#aepsych.benchmark.Problem.eval_grid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aepsych.benchmark.Problem.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Problem.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.lb">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lb</span></span><a class="headerlink" href="#aepsych.benchmark.Problem.lb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.ub">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ub</span></span><a class="headerlink" href="#aepsych.benchmark.Problem.ub" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.bounds">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#aepsych.benchmark.Problem.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.benchmark.Problem.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
+Benchmark’s output dataframe, with its associated value stored in each row.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.p">
+<span class="sig-name descname"><span class="pre">p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.p"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Problem.p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate response probability from test function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Response probability at queries points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.sample_y">
+<span class="sig-name descname"><span class="pre">sample_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.sample_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Problem.sample_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample a response from test function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to sample.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A single (bernoulli) sample at points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.f_hat">
+<span class="sig-name descname"><span class="pre">f_hat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.f_hat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Problem.f_hat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate mean predictions from the model over the evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="aepsych.models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – Model to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Posterior mean from underlying model over the evaluation grid.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.f_true">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">f_true</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#aepsych.benchmark.Problem.f_true" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate true test function over evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Values of true test function over evaluation grid.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.p_true">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p_true</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#aepsych.benchmark.Problem.p_true" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate true response probability over evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Values of true response probability over evaluation grid.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.p_hat">
+<span class="sig-name descname"><span class="pre">p_hat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.p_hat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Problem.p_hat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate mean predictions from the model over the evaluation grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="aepsych.models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – Model to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Posterior mean from underlying model over the evaluation grid.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Problem.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#Problem.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Problem.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the strategy with respect to this problem.</p>
+<p>Extend this in subclasses to add additional metrics.
+Metrics include:
+- mae (mean absolute error), mae (mean absolute error), max_abs_err (max absolute error),</p>
+<blockquote>
+<div><p>pearson correlation. All of these are computed over the latent variable f and the
+outcome probability p, w.r.t. the posterior mean. Squared and absolute errors (miae, mise) are
+also computed in expectation over the posterior, by sampling.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Brier score, which measures how well-calibrated the outcome probability is, both at the posterior</dt><dd><p>mean (plain brier) and in expectation over the posterior (expected_brier).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>strat</strong> (<a class="reference internal" href="aepsych.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>aepsych.strategy.Strategy</em></a>) – Strategy to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing metrics and their values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">LSEProblem</span></span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.LSEProblem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.benchmark.problem.Problem</span></code></a></p>
+<p>Level set estimation problem.</p>
+<p>This extends the base problem class to evaluate the LSE/threshold estimate
+in addition to the function estimate.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblem.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#aepsych.benchmark.LSEProblem.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblem.metadata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.benchmark.LSEProblem.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
+Benchmark’s output dataframe, with its associated value stored in each row.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblem.f_threshold">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">f_threshold</span></span><a class="headerlink" href="#aepsych.benchmark.LSEProblem.f_threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblem.true_below_threshold">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">true_below_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#aepsych.benchmark.LSEProblem.true_below_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate whether the true function is below threshold over the eval grid
+(used for proper scoring and threshold missclassification metric).</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblem.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblem.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.LSEProblem.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the model with respect to this problem.</p>
+<p>For level set estimation, we add metrics w.r.t. the true threshold:
+- brier_p_below_{thresh), the brier score w.r.t. p(f(x)&lt;thresh), in contrast to</p>
+<blockquote>
+<div><p>regular brier, which is the brier score for p(phi(f(x))=1), and the same
+for misclassification error.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>strat</strong> (<a class="reference internal" href="aepsych.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>aepsych.strategy.Strategy</em></a>) – Strategy to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary containing metrics and their values,
+including parent class metrics.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.make_songetal_testfun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">make_songetal_testfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phenotype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Metabolic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#make_songetal_testfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.make_songetal_testfun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make an audiometric test function following Song et al. 2017.</p>
+<p>To do so,we first compute a threshold by interpolation/extrapolation
+from real data, then assume a linear psychometric function in intensity
+with slope beta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phenotype</strong> (<em>str</em><em>, </em><em>optional</em>) – Audiometric phenotype from Dubno et al. 2013.
+Specifically, one of “Metabolic”, “Sensory”, “Metabolic+Sensory”,
+or “Older-normal”. Defaults to “Metabolic”.</p></li>
+<li><p><strong>beta</strong> (<em>float</em><em>, </em><em>optional</em>) – Psychometric function slope. Defaults to 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A test function taking a [b x 2] array of points and returning the psychometric function value at those points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Callable[[np.ndarray, bool], np.ndarray]</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – if an invalid phenotype is passed.</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="simple">
+<dt>Song, X. D., Garnett, R., &amp; Barbour, D. L. (2017).</dt><dd><p>Psychometric function estimation by probabilistic classification.
+The Journal of the Acoustical Society of America, 141(4), 2513–2525.
+<a class="reference external" href="https://doi.org/10.1121/1.4979594">https://doi.org/10.1121/1.4979594</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.novel_detection_testfun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">novel_detection_testfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#novel_detection_testfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.novel_detection_testfun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate novel detection test function from Owen et al.</p>
+<p>The threshold is roughly parabolic with context, and the slope
+varies with the threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of function at these points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.novel_discrimination_testfun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">novel_discrimination_testfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#novel_discrimination_testfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.novel_discrimination_testfun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate novel discrimination test function from Owen et al.</p>
+<p>The threshold is roughly parabolic with context, and the slope
+varies with the threshold. Adding to the difficulty is the fact
+that the function is minimized at f=0 (or p=0.5), corresponding
+to discrimination being at chance at zero stimulus intensity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value of function at these points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.modified_hartmann6">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">modified_hartmann6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#modified_hartmann6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.modified_hartmann6" title="Permalink to this definition">¶</a></dt>
+<dd><p>The modified Hartmann6 function used in Lyu et al.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.discrim_highdim">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">discrim_highdim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#discrim_highdim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.discrim_highdim" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>numpy.ndarray</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.benchmark.run_benchmarks_with_checkpoints">
+<span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">run_benchmarks_with_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps_per_chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_proc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serial_debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#run_benchmarks_with_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.run_benchmarks_with_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a series of benchmarks, saving both final and intermediate results to .csv files. Benchmarks are run in
+sequential chunks, each of which runs all combinations of problems/configs/reps in parallel. This function should
+always be used using the “if __name__ == ‘__main__’: …” idiom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out_path</strong> (<em>str</em>) – The path to save the results to.</p></li>
+<li><p><strong>benchmark_name</strong> (<em>str</em>) – A name give to this set of benchmarks. Results will be saved in files named like
+“out_path/benchmark_name_chunk{chunk_number}_out.csv”</p></li>
+<li><p><strong>problems</strong> (<em>List</em><em>[</em><a class="reference internal" href="#aepsych.benchmark.Problem" title="aepsych.benchmark.Problem"><em>Problem</em></a><em>]</em>) – Problem objects containing the test function to evaluate.</p></li>
+<li><p><strong>configs</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>str</em><em>, </em><em>list</em><em>]</em><em>]</em>) – Dictionary of configs to run.
+Lists at leaves are used to construct a cartesian product of configurations.</p></li>
+<li><p><strong>global_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Global seed to use for reproducible benchmarks.
+Defaults to randomized seeds.</p></li>
+<li><p><strong>n_chunks</strong> (<em>int</em>) – The number of chunks to break the results into. Each chunk will contain at least 1 run of every
+combination of problem and config.</p></li>
+<li><p><strong>n_reps_per_chunk</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of repetitions to run each problem/config in each chunk.</p></li>
+<li><p><strong>log_every</strong> (<em>int</em><em>, </em><em>optional</em>) – Logging interval during an experiment. Defaults to only logging at the end.</p></li>
+<li><p><strong>checkpoint_every</strong> (<em>int</em>) – Save intermediate results every checkpoint_every seconds.</p></li>
+<li><p><strong>n_proc</strong> (<em>int</em>) – Number of processors to use.</p></li>
+<li><p><strong>serial_debug</strong> (<em>bool</em>) – debug serially?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="aepsych.acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.server.html">aepsych.server</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="aepsych.acquisition.html" title="previous chapter">aepsych.acquisition</a></li>
+<li>Next: <a href="aepsych.database.html" title="next chapter">aepsych.database</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych/" class="nav-home"><img src="/aepsych/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych/docs/introduction">Introduction</a><a href="/aepsych/docs/getting_started">Getting Started</a><a href="/aepsych/tutorials/">Tutorials</a><a href="/aepsych/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

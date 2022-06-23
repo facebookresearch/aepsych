@@ -1,0 +1,778 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych/static/css/basic.css"/><link rel="stylesheet" href="/aepsych/static/css/custom.css"/><link rel="stylesheet" href="/aepsych/static/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych/static/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/aepsych/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych/css/main.css"/><script src="/aepsych/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/aepsych/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="tests-package">
+<h1>tests package<a class="headerlink" href="#tests-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tests.acquisition.html">tests.acquisition package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests.acquisition.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.acquisition.html#module-tests.acquisition.test_lse">tests.acquisition.test_lse module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.acquisition.html#module-tests.acquisition.test_mi">tests.acquisition.test_mi module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.acquisition.html#module-tests.acquisition.test_monotonic">tests.acquisition.test_monotonic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.acquisition.html#tests-acquisition-test-objective-module">tests.acquisition.test_objective module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.acquisition.html#module-tests.acquisition.test_rejection_sampler">tests.acquisition.test_rejection_sampler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.acquisition.html#module-tests.acquisition">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests.generators.html">tests.generators package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests.generators.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.generators.html#module-tests.generators.test_epsilon_greedy_generator">tests.generators.test_epsilon_greedy_generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.generators.html#module-tests.generators.test_manual_generator">tests.generators.test_manual_generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.generators.html#module-tests.generators.test_optimize_acqf_generator">tests.generators.test_optimize_acqf_generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.generators.html#module-tests.generators.test_random_generator">tests.generators.test_random_generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.generators.html#module-tests.generators.test_sobol_generator">tests.generators.test_sobol_generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.generators.html#module-tests.generators">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests.models.html">tests.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.models.html#module-tests.models.test_derivative_gp">tests.models.test_derivative_gp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.models.html#module-tests.models.test_gp_classification">tests.models.test_gp_classification module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.models.html#module-tests.models.test_monotonic_rejection_gp">tests.models.test_monotonic_rejection_gp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.models.html#module-tests.models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-tests.common">
+<span id="tests-common-module"></span><h2>tests.common module<a class="headerlink" href="#module-tests.common" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.f_1d">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">f_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#f_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.f_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>latent is just a gaussian bump at mu</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.f_2d">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">f_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#f_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.f_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>a gaussian bump at 0 , 0</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.new_novel_det_params">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">new_novel_det_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#new_novel_det_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.new_novel_det_params" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the loc and scale params for 2D synthetic novel_det(frequency) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+</dl>
+<p>freq – 1D array of frequencies whose thresholds to return
+scale factor – scale for the novel_det function, where higher is steeper/lower SD
+target – target threshold</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.target_new_novel_det">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">target_new_novel_det</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#target_new_novel_det"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.target_new_novel_det" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the target (i.e. threshold) for 2D synthetic novel_det(frequency) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+</dl>
+<p>freq – 1D array of frequencies whose thresholds to return
+scale factor – scale for the novel_det function, where higher is steeper/lower SD
+target – target threshold</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.new_novel_det">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">new_novel_det</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#new_novel_det"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.new_novel_det" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the cdf for 2D synthetic novel_det(frequency) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+<dt>x – array of shape (n,2) of locations to sample;</dt><dd><p>x[…,0] is frequency from -1 to 1; x[…,1] is intensity from -1 to 1</p>
+</dd>
+</dl>
+<p>scale factor – scale for the novel_det function, where higher is steeper/lower SD</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.cdf_new_novel_det">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">cdf_new_novel_det</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#cdf_new_novel_det"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.cdf_new_novel_det" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the cdf for 2D synthetic novel_det(frequency) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+<dt>x – array of shape (n,2) of locations to sample;</dt><dd><p>x[…,0] is frequency from -1 to 1; x[…,1] is intensity from -1 to 1</p>
+</dd>
+</dl>
+<p>scale factor – scale for the novel_det function, where higher is steeper/lower SD</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.new_novel_det_channels_params">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">new_novel_det_channels_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#new_novel_det_channels_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.new_novel_det_channels_params" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the target parameters for 2D synthetic novel_det(channel) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+</dl>
+<p>channel – 1D array of channel locations whose thresholds to return
+scale factor – scale for the novel_det function, where higher is steeper/lower SD
+wave_freq – frequency of location waveform on [-1,1]
+target – target threshold</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.target_new_novel_det_channels">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">target_new_novel_det_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#target_new_novel_det_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.target_new_novel_det_channels" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the target (i.e. threshold) for 2D synthetic novel_det(channel) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+</dl>
+<p>channel – 1D array of channel locations whose thresholds to return
+scale factor – scale for the novel_det function, where higher is steeper/lower SD
+wave_freq – frequency of location waveform on [-1,1]
+target – target threshold</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.new_novel_det_channels">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">new_novel_det_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#new_novel_det_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.new_novel_det_channels" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the 2D synthetic novel_det(channel) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+<dt>x – array of shape (n,2) of locations to sample;</dt><dd><p>x[…,0] is channel from -1 to 1; x[…,1] is intensity from -1 to 1</p>
+</dd>
+</dl>
+<p>scale factor – scale for the novel_det function, where higher is steeper/lower SD
+wave_freq – frequency of location waveform on [-1,1]</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.cdf_new_novel_det_channels">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">cdf_new_novel_det_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#cdf_new_novel_det_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.cdf_new_novel_det_channels" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Get the cdf for 2D synthetic novel_det(channel) function</dt><dd><p>Keyword arguments:</p>
+</dd>
+<dt>x – array of shape (n,2) of locations to sample;</dt><dd><p>x[…,0] is channel from -1 to 1; x[…,1] is intensity from -1 to 1</p>
+</dd>
+</dl>
+<p>scale factor – scale for the novel_det function, where higher is steeper/lower SD
+wave_freq – frequency of location waveform on [-1,1]</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.new_novel_det_3D_params">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">new_novel_det_3D_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#new_novel_det_3D_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.new_novel_det_3D_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.new_novel_det_3D">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">new_novel_det_3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#new_novel_det_3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.new_novel_det_3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the synthetic 3D novel_det
+function over freqs,channels and amplitudes</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.cdf_new_novel_det_3D">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">cdf_new_novel_det_3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#cdf_new_novel_det_3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.cdf_new_novel_det_3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the cdf for 3D synthetic novel_det function</p>
+<dl class="simple">
+<dt>x – array of shape (n,3) of locations to sample</dt><dd><p>x[…,0] is frequency, x[…,1] is channel, x[…,2] is intensity</p>
+</dd>
+</dl>
+<p>scale factor – scale for the novel_det function, where higher is steeper/lower SD</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.common.target_new_novel_det_3D">
+<span class="sig-prename descclassname"><span class="pre">tests.common.</span></span><span class="sig-name descname"><span class="pre">target_new_novel_det_3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/common.html#target_new_novel_det_3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.common.target_new_novel_det_3D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get target for 3D synthetic novel_det function at location x</p>
+<dl class="simple">
+<dt>x – array of shape (n,2) of locations to sample</dt><dd><p>x[…,0] is frequency, x[…,1] is channel,</p>
+</dd>
+</dl>
+<p>scale factor – scale for the novel_det function, where higher is steeper/lower SD
+target – target threshold</p>
+</dd></dl>
+</section>
+<section id="tests-test-thriftsocketwrapper-module">
+<h2>tests.test_ThriftSocketWrapper module<a class="headerlink" href="#tests-test-thriftsocketwrapper-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-tests.test_bench_testfuns">
+<span id="tests-test-bench-testfuns-module"></span><h2>tests.test_bench_testfuns module<a class="headerlink" href="#module-tests.test_bench_testfuns" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_bench_testfuns.BenchmarkTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_bench_testfuns.</span></span><span class="sig-name descname"><span class="pre">BenchmarkTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_bench_testfuns.html#BenchmarkTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_bench_testfuns.BenchmarkTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_bench_testfuns.BenchmarkTestCase.test_songetal_funs_smoke">
+<span class="sig-name descname"><span class="pre">test_songetal_funs_smoke</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_bench_testfuns.html#BenchmarkTestCase.test_songetal_funs_smoke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_bench_testfuns.BenchmarkTestCase.test_songetal_funs_smoke" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_benchmark">
+<span id="tests-test-benchmark-module"></span><h2>tests.test_benchmark module<a class="headerlink" href="#module-tests.test_benchmark" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tests.test_benchmark.f">
+<span class="sig-prename descclassname"><span class="pre">tests.test_benchmark.</span></span><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_benchmark.</span></span><span class="sig-name descname"><span class="pre">TestProblem</span></span><a class="reference internal" href="_modules/tests/test_benchmark.html#TestProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.TestProblem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="aepsych.benchmark.html#aepsych.benchmark.problem.Problem" title="aepsych.benchmark.problem.Problem"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.benchmark.problem.Problem</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestProblem.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'test</span> <span class="pre">problem'</span></em><a class="headerlink" href="#tests.test_benchmark.TestProblem.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestProblem.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">array([[0],</span>        <span class="pre">[1]])</span></em><a class="headerlink" href="#tests.test_benchmark.TestProblem.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestProblem.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#tests.test_benchmark.TestProblem.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestProblem.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#TestProblem.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.TestProblem.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestSlowProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_benchmark.</span></span><span class="sig-name descname"><span class="pre">TestSlowProblem</span></span><a class="reference internal" href="_modules/tests/test_benchmark.html#TestSlowProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.TestSlowProblem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.test_benchmark.TestProblem" title="tests.test_benchmark.TestProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">tests.test_benchmark.TestProblem</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestSlowProblem.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'test</span> <span class="pre">slow</span> <span class="pre">problem'</span></em><a class="headerlink" href="#tests.test_benchmark.TestSlowProblem.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.TestSlowProblem.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#TestSlowProblem.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.TestSlowProblem.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_benchmark.LSETestProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_benchmark.</span></span><span class="sig-name descname"><span class="pre">LSETestProblem</span></span><a class="reference internal" href="_modules/tests/test_benchmark.html#LSETestProblem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.LSETestProblem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="aepsych.benchmark.html#aepsych.benchmark.problem.LSEProblem" title="aepsych.benchmark.problem.LSEProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.benchmark.problem.LSEProblem</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tests.test_benchmark.LSETestProblem.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'test</span> <span class="pre">lse</span> <span class="pre">problem'</span></em><a class="headerlink" href="#tests.test_benchmark.LSETestProblem.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tests.test_benchmark.LSETestProblem.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">array([[-1,</span> <span class="pre">-1],</span>        <span class="pre">[</span> <span class="pre">1,</span>  <span class="pre">1]])</span></em><a class="headerlink" href="#tests.test_benchmark.LSETestProblem.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tests.test_benchmark.LSETestProblem.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#tests.test_benchmark.LSETestProblem.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.LSETestProblem.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#LSETestProblem.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.LSETestProblem.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchmarkTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_benchmark.</span></span><span class="sig-name descname"><span class="pre">BenchmarkTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchmarkTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchmarkTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchmarkTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchmarkTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchmarkTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchmarkTestCase.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchmarkTestCase.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchmarkTestCase.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchmarkTestCase.test_bench_smoke">
+<span class="sig-name descname"><span class="pre">test_bench_smoke</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchmarkTestCase.test_bench_smoke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchmarkTestCase.test_bench_smoke" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchmarkTestCase.test_bench_pathossmoke">
+<span class="sig-name descname"><span class="pre">test_bench_pathossmoke</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchmarkTestCase.test_bench_pathossmoke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchmarkTestCase.test_bench_pathossmoke" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchmarkTestCase.test_bench_pathos_partial">
+<span class="sig-name descname"><span class="pre">test_bench_pathos_partial</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchmarkTestCase.test_bench_pathos_partial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchmarkTestCase.test_bench_pathos_partial" title="Permalink to this definition">¶</a></dt>
+<dd><p>test that we can launch async and get partial results</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchProblemTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_benchmark.</span></span><span class="sig-name descname"><span class="pre">BenchProblemTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchProblemTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchProblemTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchProblemTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchProblemTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchProblemTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchProblemTestCase.test_nonmonotonic_single_lse_eval">
+<span class="sig-name descname"><span class="pre">test_nonmonotonic_single_lse_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchProblemTestCase.test_nonmonotonic_single_lse_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchProblemTestCase.test_nonmonotonic_single_lse_eval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_benchmark.BenchProblemTestCase.test_monotonic_single_lse_eval">
+<span class="sig-name descname"><span class="pre">test_monotonic_single_lse_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_benchmark.html#BenchProblemTestCase.test_monotonic_single_lse_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_benchmark.BenchProblemTestCase.test_monotonic_single_lse_eval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_config">
+<span id="tests-test-config-module"></span><h2>tests.test_config module<a class="headerlink" href="#module-tests.test_config" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_config.</span></span><span class="sig-name descname"><span class="pre">ConfigTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_single_probit_config">
+<span class="sig-name descname"><span class="pre">test_single_probit_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_single_probit_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_single_probit_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_missing_config_file">
+<span class="sig-name descname"><span class="pre">test_missing_config_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_missing_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_missing_config_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_monotonic_single_probit_config_file">
+<span class="sig-name descname"><span class="pre">test_monotonic_single_probit_config_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_monotonic_single_probit_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_monotonic_single_probit_config_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_nonmonotonic_optimization_config_file">
+<span class="sig-name descname"><span class="pre">test_nonmonotonic_optimization_config_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_nonmonotonic_optimization_config_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_nonmonotonic_optimization_config_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_name_conflict_warns">
+<span class="sig-name descname"><span class="pre">test_name_conflict_warns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_name_conflict_warns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_name_conflict_warns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_multiple_models_and_strats">
+<span class="sig-name descname"><span class="pre">test_multiple_models_and_strats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_multiple_models_and_strats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_multiple_models_and_strats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_experiment_deprecation">
+<span class="sig-name descname"><span class="pre">test_experiment_deprecation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_experiment_deprecation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_experiment_deprecation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_to_string">
+<span class="sig-name descname"><span class="pre">test_to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_conversion">
+<span class="sig-name descname"><span class="pre">test_conversion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_conversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_conversion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_config.ConfigTestCase.test_warn_about_refit">
+<span class="sig-name descname"><span class="pre">test_warn_about_refit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_config.html#ConfigTestCase.test_warn_about_refit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_config.ConfigTestCase.test_warn_about_refit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_db">
+<span id="tests-test-db-module"></span><h2>tests.test_db module<a class="headerlink" href="#module-tests.test_db" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_db.</span></span><span class="sig-name descname"><span class="pre">DBTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_db_create">
+<span class="sig-name descname"><span class="pre">test_db_create</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_db_create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_db_create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_record_setup_basic">
+<span class="sig-name descname"><span class="pre">test_record_setup_basic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_record_setup_basic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_record_setup_basic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_record_setup_doublesetup_goodid">
+<span class="sig-name descname"><span class="pre">test_record_setup_doublesetup_goodid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_record_setup_doublesetup_goodid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_record_setup_doublesetup_goodid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_record_setup_doublesetup_badid">
+<span class="sig-name descname"><span class="pre">test_record_setup_doublesetup_badid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_record_setup_doublesetup_badid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_record_setup_doublesetup_badid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_record_setup_master_children">
+<span class="sig-name descname"><span class="pre">test_record_setup_master_children</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_record_setup_master_children"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_record_setup_master_children" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_extra_info">
+<span class="sig-name descname"><span class="pre">test_extra_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_extra_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_extra_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_update_db">
+<span class="sig-name descname"><span class="pre">test_update_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_update_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_update_db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_update_configs">
+<span class="sig-name descname"><span class="pre">test_update_configs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_update_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_update_configs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_strat_table">
+<span class="sig-name descname"><span class="pre">test_strat_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_strat_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_strat_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_db.DBTestCase.test_config_table">
+<span class="sig-name descname"><span class="pre">test_config_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_db.html#DBTestCase.test_config_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_db.DBTestCase.test_config_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_lookahead">
+<span id="tests-test-lookahead-module"></span><h2>tests.test_lookahead module<a class="headerlink" href="#module-tests.test_lookahead" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_lookahead.BvNCDFTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_lookahead.</span></span><span class="sig-name descname"><span class="pre">BvNCDFTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#BvNCDFTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.BvNCDFTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_lookahead.BvNCDFTestCase.test_bvncdf">
+<span class="sig-name descname"><span class="pre">test_bvncdf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#BvNCDFTestCase.test_bvncdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.BvNCDFTestCase.test_bvncdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_lookahead.LookaheadPosteriorTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_lookahead.</span></span><span class="sig-name descname"><span class="pre">LookaheadPosteriorTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#LookaheadPosteriorTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.LookaheadPosteriorTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_lookahead.LookaheadPosteriorTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#LookaheadPosteriorTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.LookaheadPosteriorTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_lookahead.LookaheadPosteriorTestCase.test_posterior_extraction">
+<span class="sig-name descname"><span class="pre">test_posterior_extraction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#LookaheadPosteriorTestCase.test_posterior_extraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.LookaheadPosteriorTestCase.test_posterior_extraction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_lookahead.LookaheadPosteriorTestCase.mi_smoketest">
+<span class="sig-name descname"><span class="pre">mi_smoketest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#LookaheadPosteriorTestCase.mi_smoketest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.LookaheadPosteriorTestCase.mi_smoketest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_lookahead.LookaheadPosteriorTestCase.sur_smoketest">
+<span class="sig-name descname"><span class="pre">sur_smoketest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#LookaheadPosteriorTestCase.sur_smoketest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.LookaheadPosteriorTestCase.sur_smoketest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_lookahead.LookaheadPosteriorTestCase.global_lookahead_smoketest">
+<span class="sig-name descname"><span class="pre">global_lookahead_smoketest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#LookaheadPosteriorTestCase.global_lookahead_smoketest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.LookaheadPosteriorTestCase.global_lookahead_smoketest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_lookahead.LookaheadPosteriorTestCase.local_lookahead_smoketest">
+<span class="sig-name descname"><span class="pre">local_lookahead_smoketest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_lookahead.html#LookaheadPosteriorTestCase.local_lookahead_smoketest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_lookahead.LookaheadPosteriorTestCase.local_lookahead_smoketest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_mean_covar_factories">
+<span id="tests-test-mean-covar-factories-module"></span><h2>tests.test_mean_covar_factories module<a class="headerlink" href="#module-tests.test_mean_covar_factories" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_mean_covar_factories.</span></span><span class="sig-name descname"><span class="pre">TestFactories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_default_factory_1d">
+<span class="sig-name descname"><span class="pre">test_default_factory_1d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_default_factory_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_default_factory_1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_default_factory_args_1d">
+<span class="sig-name descname"><span class="pre">test_default_factory_args_1d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_default_factory_args_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_default_factory_args_1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_default_factory_raises">
+<span class="sig-name descname"><span class="pre">test_default_factory_raises</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_default_factory_raises"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_default_factory_raises" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_default_factory_2d">
+<span class="sig-name descname"><span class="pre">test_default_factory_2d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_default_factory_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_default_factory_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_monotonic_factory_1d">
+<span class="sig-name descname"><span class="pre">test_monotonic_factory_1d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_monotonic_factory_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_monotonic_factory_1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_monotonic_factory_args_1d">
+<span class="sig-name descname"><span class="pre">test_monotonic_factory_args_1d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_monotonic_factory_args_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_monotonic_factory_args_1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_monotonic_factory_2d">
+<span class="sig-name descname"><span class="pre">test_monotonic_factory_2d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_monotonic_factory_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_monotonic_factory_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_song_factory_1d">
+<span class="sig-name descname"><span class="pre">test_song_factory_1d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_song_factory_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_song_factory_1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_mean_covar_factories.TestFactories.test_song_factory_2d">
+<span class="sig-name descname"><span class="pre">test_song_factory_2d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_mean_covar_factories.html#TestFactories.test_song_factory_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_mean_covar_factories.TestFactories.test_song_factory_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_server">
+<span id="tests-test-server-module"></span><h2>tests.test_server module<a class="headerlink" href="#module-tests.test_server" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_server.</span></span><span class="sig-name descname"><span class="pre">ServerTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for deconstructing the test fixture after testing it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_unversioned_handler_untyped">
+<span class="sig-name descname"><span class="pre">test_unversioned_handler_untyped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_unversioned_handler_untyped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_unversioned_handler_untyped" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_unversioned_handler_type_invalid">
+<span class="sig-name descname"><span class="pre">test_unversioned_handler_type_invalid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_unversioned_handler_type_invalid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_unversioned_handler_type_invalid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_unversioned_handler_types_ask">
+<span class="sig-name descname"><span class="pre">test_unversioned_handler_types_ask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_unversioned_handler_types_ask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_unversioned_handler_types_ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_unversioned_handler_types_tell">
+<span class="sig-name descname"><span class="pre">test_unversioned_handler_types_tell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_unversioned_handler_types_tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_unversioned_handler_types_tell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_unversioned_handler_types_update">
+<span class="sig-name descname"><span class="pre">test_unversioned_handler_types_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_unversioned_handler_types_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_unversioned_handler_types_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_v01_handler_types_resume">
+<span class="sig-name descname"><span class="pre">test_v01_handler_types_resume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_v01_handler_types_resume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_v01_handler_types_resume" title="Permalink to this definition">¶</a></dt>
+<dd><p>test setup v01</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.dummy_create_setup">
+<span class="sig-name descname"><span class="pre">dummy_create_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.dummy_create_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.dummy_create_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_handle_ask">
+<span class="sig-name descname"><span class="pre">test_handle_ask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_handle_ask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_handle_ask" title="Permalink to this definition">¶</a></dt>
+<dd><p>test_handle_ask - Doesn’t mock the db, this will create a real db entry</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_handle_tell">
+<span class="sig-name descname"><span class="pre">test_handle_tell</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_handle_tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_handle_tell" title="Permalink to this definition">¶</a></dt>
+<dd><p>test_handle_tell - Doesn’t mock the db, this will create a real db entry</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_handle_update">
+<span class="sig-name descname"><span class="pre">test_handle_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_handle_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_handle_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>test_handle_update - Doesn’t mock the db, this will create a real db entry</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_handle_exit">
+<span class="sig-name descname"><span class="pre">test_handle_exit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_handle_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_handle_exit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_receive">
+<span class="sig-name descname"><span class="pre">test_receive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mock_accept</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_receive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_receive" title="Permalink to this definition">¶</a></dt>
+<dd><p>test_receive - verifies the receive is working when server receives unexpected messages</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_replay_order">
+<span class="sig-name descname"><span class="pre">test_replay_order</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_replay_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_replay_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>test_replay - verifies the replay is working, uses a test db version but does some
+amount of integration work.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_replay_server_none_uuid">
+<span class="sig-name descname"><span class="pre">test_replay_server_none_uuid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_replay_server_none_uuid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_replay_server_none_uuid" title="Permalink to this definition">¶</a></dt>
+<dd><p>test_replay_server_failed_uuid - check expected behavior on None UUID</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_replay_server_none_db">
+<span class="sig-name descname"><span class="pre">test_replay_server_none_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_replay_server_none_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_replay_server_none_db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_replay_server_uuid_fails">
+<span class="sig-name descname"><span class="pre">test_replay_server_uuid_fails</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_replay_server_uuid_fails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_replay_server_uuid_fails" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_replay_server_func">
+<span class="sig-name descname"><span class="pre">test_replay_server_func</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_replay_server_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_replay_server_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_replay_server_skip_computations">
+<span class="sig-name descname"><span class="pre">test_replay_server_skip_computations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_replay_server_skip_computations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_replay_server_skip_computations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_serve_versioned_handler">
+<span class="sig-name descname"><span class="pre">test_serve_versioned_handler</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_serve_versioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_serve_versioned_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_serve_unversioned_handler">
+<span class="sig-name descname"><span class="pre">test_serve_unversioned_handler</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_serve_unversioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_serve_unversioned_handler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_final_strat_serialization">
+<span class="sig-name descname"><span class="pre">test_final_strat_serialization</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_final_strat_serialization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_final_strat_serialization" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_strat_can_model">
+<span class="sig-name descname"><span class="pre">test_strat_can_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_strat_can_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_strat_can_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_strat_query">
+<span class="sig-name descname"><span class="pre">test_strat_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_strat_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_strat_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_pandadf_dump_single">
+<span class="sig-name descname"><span class="pre">test_pandadf_dump_single</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_pandadf_dump_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_pandadf_dump_single" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_pandadf_dump_multistrat">
+<span class="sig-name descname"><span class="pre">test_pandadf_dump_multistrat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_pandadf_dump_multistrat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_pandadf_dump_multistrat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_pandadf_dump_flat">
+<span class="sig-name descname"><span class="pre">test_pandadf_dump_flat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_pandadf_dump_flat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_pandadf_dump_flat" title="Permalink to this definition">¶</a></dt>
+<dd><p>This test handles the case where the config values are flat
+scalars and not lists</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_server.ServerTestCase.test_error_handling">
+<span class="sig-name descname"><span class="pre">test_error_handling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_server.html#ServerTestCase.test_error_handling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_server.ServerTestCase.test_error_handling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_strategy">
+<span id="tests-test-strategy-module"></span><h2>tests.test_strategy module<a class="headerlink" href="#module-tests.test_strategy" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_strategy.</span></span><span class="sig-name descname"><span class="pre">TestSequenceGenerators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook method for setting up the test fixture before exercising it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators.test_opt_strategy_single">
+<span class="sig-name descname"><span class="pre">test_opt_strategy_single</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators.test_opt_strategy_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators.test_opt_strategy_single" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators.test_warmstart">
+<span class="sig-name descname"><span class="pre">test_warmstart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators.test_warmstart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators.test_warmstart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators.test_no_warmstart">
+<span class="sig-name descname"><span class="pre">test_no_warmstart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators.test_no_warmstart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators.test_no_warmstart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators.test_finish_criteria">
+<span class="sig-name descname"><span class="pre">test_finish_criteria</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators.test_finish_criteria"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators.test_finish_criteria" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators.test_max_asks">
+<span class="sig-name descname"><span class="pre">test_max_asks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators.test_max_asks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators.test_max_asks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_strategy.TestSequenceGenerators.test_keep_most_recent">
+<span class="sig-name descname"><span class="pre">test_keep_most_recent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_strategy.html#TestSequenceGenerators.test_keep_most_recent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_strategy.TestSequenceGenerators.test_keep_most_recent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests.test_utils">
+<span id="tests-test-utils-module"></span><h2>tests.test_utils module<a class="headerlink" href="#module-tests.test_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.test_utils.TestSequenceGenerators">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.test_utils.</span></span><span class="sig-name descname"><span class="pre">TestSequenceGenerators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_utils.html#TestSequenceGenerators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_utils.TestSequenceGenerators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Create an instance of the class that will use the named test
+method when executed. Raises a ValueError if the instance does
+not have a method with the specified name.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_utils.TestSequenceGenerators.test_scaled_sobol_asserts">
+<span class="sig-name descname"><span class="pre">test_scaled_sobol_asserts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_utils.html#TestSequenceGenerators.test_scaled_sobol_asserts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_utils.TestSequenceGenerators.test_scaled_sobol_asserts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_utils.TestSequenceGenerators.test_scaled_sobol_sizes">
+<span class="sig-name descname"><span class="pre">test_scaled_sobol_sizes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_utils.html#TestSequenceGenerators.test_scaled_sobol_sizes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_utils.TestSequenceGenerators.test_scaled_sobol_sizes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.test_utils.TestSequenceGenerators.test_dim_grid_model_size">
+<span class="sig-name descname"><span class="pre">test_dim_grid_model_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/test_utils.html#TestSequenceGenerators.test_dim_grid_model_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.test_utils.TestSequenceGenerators.test_dim_grid_model_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-tests">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tests" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.server.html">aepsych.server</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych/" class="nav-home"><img src="/aepsych/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych/docs/introduction">Introduction</a><a href="/aepsych/docs/getting_started">Getting Started</a><a href="/aepsych/tutorials/">Tutorials</a><a href="/aepsych/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
