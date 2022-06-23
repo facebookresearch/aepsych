@@ -1,46 +1,50 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych-fork/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych-fork/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych-fork/css/basic.css"/><link rel="stylesheet" href="/aepsych-fork/css/custom.css"/><link rel="stylesheet" href="/aepsych-fork/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych-fork/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych-fork/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych-fork/js/image_fail_to_load.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych-fork/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych-fork/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych-fork/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/aepsych-fork/css/basic.css"/><link rel="stylesheet" href="/aepsych-fork/css/custom.css"/><link rel="stylesheet" href="/aepsych-fork/css/code_block_buttons.css"/><link rel="stylesheet" href="/aepsych-fork/css/alabaster.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych-fork/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych-fork/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych-fork/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
           )
         });
         </script><script src="/aepsych-fork/js/scrollSpy.js"></script><link rel="stylesheet" href="/aepsych-fork/css/main.css"/><script src="/aepsych-fork/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/aepsych-fork/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/aepsych-fork/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/aepsych-fork/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/aepsych-fork/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych-fork/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych-fork/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych-fork/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych-fork/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych-fork/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych-fork/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="aepsych-models">
-<h1>aepsych.models<a class="headerlink" href="#aepsych-models" title="Permalink to this headline">¶</a></h1>
+<h1>aepsych.models<a class="headerlink" href="#aepsych-models" title="Permalink to this heading">¶</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-aepsych.models.base">
-<span id="aepsych-models-base-module"></span><h2>aepsych.models.base module<a class="headerlink" href="#module-aepsych.models.base" title="Permalink to this headline">¶</a></h2>
+<span id="aepsych-models-base-module"></span><h2>aepsych.models.base module<a class="headerlink" href="#module-aepsych.models.base" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.base.</span></span><span class="sig-name descname"><span class="pre">ModelProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.outcome_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.outcome_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.extremum_solver">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extremum_solver</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.extremum_solver" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.train_inputs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.train_inputs" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.train_inputs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.lb">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.lb" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.lb" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.ub">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ub</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.ub" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ub</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#aepsych.models.base.ModelProtocol.ub" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.dim">
@@ -48,16 +52,13 @@
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.predict" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.predict" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>points</strong> (<em>torch.Tensor</em>) – </p></li>
-<li><p><strong>probability_space</strong> (<em>bool</em>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>points</strong> (<em>Tensor</em>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -67,12 +68,12 @@
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>points</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>num_samples</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -84,18 +85,19 @@
 <dd class="field-odd"><p><strong>gridsize</strong> (<em>int</em>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.fit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.fit" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – </p></li>
-<li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>train_x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>train_y</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -105,12 +107,13 @@
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.update" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.update" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – </p></li>
-<li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>train_x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>train_y</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -122,8 +125,11 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.base.</span></span><span class="sig-name descname"><span class="pre">AEPsychMixin</span></span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GPyTorchModel</span></code></p>
 <p>Mixin class that provides AEPsych-specific utility methods.</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.extremum_solver">
 <span class="sig-name descname"><span class="pre">extremum_solver</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Nelder-Mead'</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.extremum_solver" title="Permalink to this definition">¶</a></dt>
@@ -145,7 +151,7 @@
 </dd>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – </p></li>
+<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
 <li><p><strong>locked_dims</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -168,7 +174,7 @@
 </dd>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – </p></li>
+<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
 <li><p><strong>locked_dims</strong> (<em>Optional</em><em>[</em><em>Mapping</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -191,7 +197,7 @@ inverse is along a slice of the full surface.</p></li>
 <li><p><strong>probability_space</strong> (<em>bool</em><em>, </em><em>optional</em>) – Is y (and therefore the
 returned nearest_y) in probability space instead of latent
 function space? Defaults to False.</p></li>
-<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – </p></li>
+<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
 <li><p><strong>n_samples</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
@@ -233,7 +239,7 @@ Defaults to -1.</p></li>
 computing the credible interval. Defaults to 500.</p></li>
 <li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – “taylor” or “step” method (see docstring).
 Defaults to “step”.</p></li>
-<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – </p></li>
+<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -257,12 +263,12 @@ Defaults to “step”.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>aepsych.models.base.ModelProtocol</em></a>) – </p></li>
+<li><p><strong>self</strong> (<a class="reference internal" href="#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
 <li><p><strong>gridsize</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -285,14 +291,34 @@ to not require it.</p>
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.normalize_inputs">
 <span class="sig-name descname"><span class="pre">normalize_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.normalize_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.normalize_inputs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate GP</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Tensor of points at which GP should be evaluated.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Distribution object</dt><dd><p>holding mean and covariance at x.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>gpytorch.distributions.MultivariateNormal</p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 </section>
 <section id="module-aepsych.models.derivative_gp">
-<span id="aepsych-models-derivative-gp-module"></span><h2>aepsych.models.derivative_gp module<a class="headerlink" href="#module-aepsych.models.derivative_gp" title="Permalink to this headline">¶</a></h2>
+<span id="aepsych-models-derivative-gp-module"></span><h2>aepsych.models.derivative_gp module<a class="headerlink" href="#module-aepsych.models.derivative_gp" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.derivative_gp.MixedDerivativeVariationalGP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.derivative_gp.</span></span><span class="sig-name descname"><span class="pre">MixedDerivativeVariationalGP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inducing_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_prior_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/derivative_gp.html#MixedDerivativeVariationalGP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.derivative_gp.MixedDerivativeVariationalGP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.models.approximate_gp.ApproximateGP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">botorch.models.gpytorch.GPyTorchModel</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GPyTorchModel</span></code></p>
 <p>A variational GP with mixed derivative observations.</p>
 <p>For more on GPs with derivative observations, see e.g. Riihimaki &amp; Vehtari 2010.</p>
 <p class="rubric">References</p>
@@ -321,9 +347,6 @@ constant mean. Often setting this to the target threshold speeds
 up experiments. Defaults to None, in which case the mean will be inferred.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
-</dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward">
@@ -348,11 +371,11 @@ up experiments. Defaults to None, in which case the mean will be inferred.</p></
 </dd></dl>
 </section>
 <section id="module-aepsych.models.gp_classification">
-<span id="aepsych-models-gp-classification-module"></span><h2>aepsych.models.gp_classification module<a class="headerlink" href="#module-aepsych.models.gp_classification" title="Permalink to this headline">¶</a></h2>
+<span id="aepsych-models-gp-classification-module"></span><h2>aepsych.models.gp_classification module<a class="headerlink" href="#module-aepsych.models.gp_classification" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.gp_classification.</span></span><span class="sig-name descname"><span class="pre">GPClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inducing_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fit_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inducing_point_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.models.base.AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.models.approximate_gp.ApproximateGP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">botorch.models.gpytorch.GPyTorchModel</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code></p>
 <p>Probit-GP model with variational inference.</p>
 <p>From a conventional ML perspective this is a GP Classification model,
 though in the psychophysics context it can also be thought of as a
@@ -396,7 +419,7 @@ If “auto”, tries to determine the best method automatically.</p></li>
 from a configuration. TODO: document how this works in some tutorial.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Configured class instance.</p>
@@ -473,29 +496,9 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – </p></li>
-<li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>train_x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>train_y</strong> (<em>Tensor</em>) – </p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate GP</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Tensor of points at which GP should be evaluated.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Distribution object</dt><dd><p>holding mean and covariance at x.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>gpytorch.distributions.MultivariateNormal</p>
 </dd>
 </dl>
 </dd></dl>
@@ -506,11 +509,11 @@ response probability instead of latent function value. Defaults to False.</p></l
 </dd></dl>
 </section>
 <section id="module-aepsych.models.monotonic_rejection_gp">
-<span id="aepsych-models-monotonic-rejection-gp-module"></span><h2>aepsych.models.monotonic_rejection_gp module<a class="headerlink" href="#module-aepsych.models.monotonic_rejection_gp" title="Permalink to this headline">¶</a></h2>
+<span id="aepsych-models-monotonic-rejection-gp-module"></span><h2>aepsych.models.monotonic_rejection_gp module<a class="headerlink" href="#module-aepsych.models.monotonic_rejection_gp" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.monotonic_rejection_gp.</span></span><span class="sig-name descname"><span class="pre">MonotonicRejectionGP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monotonic_idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_prior_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_induc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rejection_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.models.base.AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.models.approximate_gp.ApproximateGP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">botorch.models.gpytorch.GPyTorchModel</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code></p>
 <p>A monotonic GP using rejection sampling.</p>
 <p>This takes the same insight as in e.g. Riihimäki &amp; Vehtari 2010 (that the derivative of a GP
 is likewise a GP) but instead of approximately optimizing the likelihood of the model
@@ -545,9 +548,6 @@ by rejection sampling.</p>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
-</dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.outcome_type">
@@ -555,7 +555,7 @@ by rejection sampling.</p>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.fit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -600,7 +600,7 @@ by rejection sampling.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 <p>Returns: a Tensor of shape [n_samp, n]</p>
@@ -612,12 +612,12 @@ by rejection sampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>torch.Tensor</em>) – tensor of n points at which to predict.</p></li>
+<li><p><strong>X</strong> (<em>Tensor</em>) – tensor of n points at which to predict.</p></li>
 <li><p><strong>probability_space</strong> (<em>bool</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><em>Tuple</em>[torch.Tensor, torch.Tensor]</p>
+<dd class="field-even"><p><em>Tuple</em>[<em>Tensor</em>, <em>Tensor</em>]</p>
 </dd>
 </dl>
 <p>Returns: tuple (f, var) where f is (n,) and var is (n,)</p>
@@ -627,10 +627,10 @@ by rejection sampling.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.html#aepsych.config.Config" title="aepsych.config.Config"><em>aepsych.config.Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP">aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP</a></p>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><em>MonotonicRejectionGP</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -654,14 +654,18 @@ by rejection sampling.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 </dd></dl>
 </section>
 <section id="module-aepsych.models">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.models" title="Permalink to this headline">¶</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.models" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.GPClassificationModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">GPClassificationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inducing_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fit_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inducing_point_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.models.base.AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.models.approximate_gp.ApproximateGP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">botorch.models.gpytorch.GPyTorchModel</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code></p>
 <p>Probit-GP model with variational inference.</p>
 <p>From a conventional ML perspective this is a GP Classification model,
 though in the psychophysics context it can also be thought of as a
@@ -705,7 +709,7 @@ If “auto”, tries to determine the best method automatically.</p></li>
 from a configuration. TODO: document how this works in some tutorial.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Configured class instance.</p>
@@ -782,29 +786,9 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – </p></li>
-<li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>train_x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>train_y</strong> (<em>Tensor</em>) – </p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate GP</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Tensor of points at which GP should be evaluated.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Distribution object</dt><dd><p>holding mean and covariance at x.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>gpytorch.distributions.MultivariateNormal</p>
 </dd>
 </dl>
 </dd></dl>
@@ -816,7 +800,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.MonotonicRejectionGP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">MonotonicRejectionGP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monotonic_idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_prior_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_induc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rejection_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MonotonicRejectionGP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.models.base.AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.models.approximate_gp.ApproximateGP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">botorch.models.gpytorch.GPyTorchModel</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code></p>
 <p>A monotonic GP using rejection sampling.</p>
 <p>This takes the same insight as in e.g. Riihimäki &amp; Vehtari 2010 (that the derivative of a GP
 is likewise a GP) but instead of approximately optimizing the likelihood of the model
@@ -851,9 +835,6 @@ by rejection sampling.</p>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
-</dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.MonotonicRejectionGP.outcome_type">
@@ -861,7 +842,7 @@ by rejection sampling.</p>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.MonotonicRejectionGP.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MonotonicRejectionGP.fit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MonotonicRejectionGP.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -906,7 +887,7 @@ by rejection sampling.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>torch.Tensor</p>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 <p>Returns: a Tensor of shape [n_samp, n]</p>
@@ -918,12 +899,12 @@ by rejection sampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>torch.Tensor</em>) – tensor of n points at which to predict.</p></li>
+<li><p><strong>X</strong> (<em>Tensor</em>) – tensor of n points at which to predict.</p></li>
 <li><p><strong>probability_space</strong> (<em>bool</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><em>Tuple</em>[torch.Tensor, torch.Tensor]</p>
+<dd class="field-even"><p><em>Tuple</em>[<em>Tensor</em>, <em>Tensor</em>]</p>
 </dd>
 </dl>
 <p>Returns: tuple (f, var) where f is (n,) and var is (n,)</p>
@@ -933,10 +914,10 @@ by rejection sampling.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_rejection_gp.html#MonotonicRejectionGP.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MonotonicRejectionGP.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.html#aepsych.config.Config" title="aepsych.config.Config"><em>aepsych.config.Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP">aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP</a></p>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><em>MonotonicRejectionGP</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -965,6 +946,129 @@ by rejection sampling.</p>
 <span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.MonotonicRejectionGP.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">GPRegressionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fit_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ExactGP</span></code></p>
+<p>GP Regression model for continuous outcomes, using exact inference.</p>
+<p>Initialize the GP regression model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
+of lb and ub.</p></li>
+<li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
+<li><p><strong>covar_module</strong> (<em>gpytorch.kernels.Kernel</em><em>, </em><em>optional</em>) – GP covariance kernel class. Defaults to scaled RBF with a
+gamma prior.</p></li>
+<li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
+Gaussian likelihood.</p></li>
+<li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
+there is no limit to the fitting time.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.num_inputs">
+<span class="sig-name descname"><span class="pre">num_inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.num_inputs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.outcome_type">
+<span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'continuous'</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.outcome_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternate constructor for GP regression model.</p>
+<p>This is used when we recursively build a full sampling strategy
+from a configuration. TODO: document how this works in some tutorial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="aepsych.config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Configured class instance.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.GPRegressionModel" title="aepsych.models.GPRegressionModel">GPRegressionModel</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit underlying model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – Inputs.</p></li>
+<li><p><strong>train_y</strong> (<em>torch.LongTensor</em>) – Responses.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from underlying model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to sample.</p></li>
+<li><p><strong>num_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples to return. Defaults to None.</p></li>
+<li><p><strong>ignored</strong> (<em>kwargs are</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Posterior samples [num_samples x dim]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a warm-start update of the model from previous fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>train_y</strong> (<em>Tensor</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the model for posterior mean and variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to predict from the model.</p></li>
+<li><p><strong>probability_space</strong> (<em>bool</em><em>, </em><em>optional</em>) – Return outputs in units of
+response probability instead of latent function value. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Posterior mean and variance at queries points.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
 </section>
 </section>
 </div>
@@ -985,6 +1089,12 @@ by rejection sampling.</p>
 <li class="toctree-l1"><a class="reference internal" href="aepsych.means.html">aepsych.means</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aepsych.config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -1004,8 +1114,8 @@ by rejection sampling.</p>
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>
-</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych-fork/" class="nav-home"><img src="/aepsych-fork/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych-fork/docs/introduction">Introduction</a><a href="/aepsych-fork/docs/getting_started">Getting Started</a><a href="/aepsych-fork/tutorials/">Tutorials</a><a href="/aepsych-fork/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych-fork/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section></footer></div></body></html>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/aepsych-fork/" class="nav-home"><img src="/aepsych-fork/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/aepsych-fork/docs/introduction">Introduction</a><a href="/aepsych-fork/docs/getting_started">Getting Started</a><a href="/aepsych-fork/tutorials/">Tutorials</a><a href="/aepsych-fork/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/aepsych-fork/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2022 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
