@@ -28,7 +28,7 @@ const users = [
 const siteConfig = {
   title: 'AEPsych', // Title for your website.
   // tagline: 'tagline goes here', // ========== Need to add
-  url: 'https://aepsych.io', // Your website URL
+  url: 'https://facebookresearch.github.io', // Your website URL
   baseUrl: baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
@@ -37,7 +37,7 @@ const siteConfig = {
   // Used for publishing and more
   projectName: 'aepsych',
   organizationName: 'facebookresearch',
-  // Below for testing: 
+  // Below for testing:
   // projectName: 'aepsych-fork',
   // organizationName: 'Eric-Cortez',
   // For top-level user or org sites, the organization is still the same.
