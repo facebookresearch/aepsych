@@ -40,7 +40,9 @@ class HomeSplash extends React.Component {
     const ProjectTitle = (props) => (
       <h2 className="projectTitle">
         {props.title}
-        <small>{props.tagline}</small>
+        <div className="tagline">
+        <small className="inner-tag">{props.tagline}</small>
+        </div>
       </h2>
     );
 
@@ -178,7 +180,7 @@ class Index extends React.Component {
               is given in configs/single_lse_example.ini. It looks like this:
               </p>
               <MarkdownBlock>{forthCodeSection}</MarkdownBlock>
-              <a href="https://github.com/facebookresearch/aepsych">More examples</a>
+              <a href="https://github.com/facebookresearch/aepsych" target="_blank">More examples</a>
             </li>
 
           </ol>
@@ -194,54 +196,70 @@ class Index extends React.Component {
           {[
             {
               content:
-                'Text goes here...',
+                'PyTorch under the hood',
               image: `${baseUrl}img/puzzle.svg`,
               imageAlign: 'top',
-              title: 'Header',
+              title: 'Built on top of the modern ML ecosystem',
             },
             {
               content:
-                'Text goes here...',
+                'Write your stimulus presentation code in whatever language you like via client-server architecture (Python, C#/Unity and MATLAB PsychToolbox supported out of the box)',
               image: `${baseUrl}img/arrow-up-right.svg`,
               imageAlign: 'top',
-              title: 'Header',
+              title: 'Works where you work',
             },
             {
               content:
-              'Text goes here...',
+              'Full compatibility with GPyTorch / BoTorch: make your new models or acquisition functions available to experimentalists in a few lines of code',
               image: `${baseUrl}img/blocks.svg`,
               imageAlign: 'top',
-              title: 'Header',
+              title: 'Modular and extensible',
             },
           ]}
         </Block>
       </div>
     );
 
+  const referenceCodeBlock  = `${pre}python
+  @misc{https://doi.org/10.48550/arxiv.2104.09549,
+  doi = {10.48550/ARXIV.2104.09549},
+  url = {https://arxiv.org/abs/2104.09549},
+  author = {Owen, Lucy and Browder, Jonathan and Letham, Benjamin and Stocek, Gideon and Tymms, Chase and Shvartsman, Michael},
+  keywords = {Methodology (stat.ME), Neurons and Cognition (q-bio.NC), FOS: Computer and information sciences, FOS: Computer and information sciences, FOS: Biological sciences, FOS: Biological sciences},
+  title = {Adaptive Nonparametric Psychophysics},
+  publisher = {arXiv},
+  year = {2021},
+  copyright = {Creative Commons Attribution Non Commercial No Derivatives 4.0 International}
+  }
+    `;
+
+
+
 // May not need for V1 of site
-    // const Reference = () => (
-    //   <div
-    //     className="productShowcaseSection"
-    //     id="reference"
-    //     style={{textAlign: 'center'}}>
-    //     <h2>References</h2>
-    //     <Container>
-    //      <p>
-    //         Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-    //         Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-    //         when an unknown printer took a galley of type and scrambled it to make a type
-    //         specimen book.
-    //       </p>
-    //     </Container>
-    //   </div>
-    // );
+    const Reference = () => (
+      <div
+        className="productShowcaseSection"
+        id="reference"
+        style={{textAlign: 'center'}}>
+        <h2>References</h2>
+        <Container>
+         <p className="refe-text">
+          If you use AEPsych, the current canonical package reference is:
+        </p>
+         <MarkdownBlock >{referenceCodeBlock}</MarkdownBlock>
+         <p className="refe-text">You can check out additional papers contributing to or using AEPsych here
+        <a href="#" target="_blank">(LINK TO PAPERS PAGE)</a>.
+        </p>
+        </Container>
+      </div>
+    );
 
     return (
       <div>
         <HomeSplash siteConfig={siteConfig} language={language} />
         <div className="mainContainer">
           <Features />
-          {/* <Reference /> */}
+          <Reference />
           <QuickStart />
         </div>
       </div>

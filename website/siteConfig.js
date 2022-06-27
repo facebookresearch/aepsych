@@ -27,7 +27,7 @@ const users = [
 
 const siteConfig = {
   title: 'AEPsych', // Title for your website.
-  // tagline: 'tagline goes here', // ========== Need to add
+  tagline: 'Adaptive experimentation for human perception and perceptually-informed outcomes',
   url: 'https://facebookresearch.github.io', // Your website URL
   baseUrl: baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
