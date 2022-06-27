@@ -3,35 +3,22 @@ id: introduction
 title: Introduction
 ---
 
-AEPsych is a tool that uses state-of-the-art applied statistics to create a model of an experiment as it is running and suggest the next trials to maximize sample-efficiency. It is built on state-of-the-art tools including PyTorch, GPyTorch and BoTorch, and targeted primarily at user studies / experiments in the domains of perception and user preferences. What you get out of AEPsych is not just your data, but a state-of-the-art model tailored to your specific research question, that also plays well with the broader statistics and machine learning ecosystem.
+AEPsych is a modeling and human-in-the-loop experimentation framework focused on human psychophysics, as well as related domains such as perceptually-informed preferences. It combines state of the art flexible models for the psychometric field, novel active learning objectives targeting psychophysics problems like threshold estimation, and a client-server architecture that supports stimulus presentation using standard packages such as PsychToolbox.
 
-## Why AEPsych?
+## Why AEPsych (for psychophysics researchers)?
 
-### Improved Developer Efficiency
+AEPsych shines in high-dimensional psychophysics (as many as 6 or 8 dimensions such as stimulus orientation, size, spatial frequency, etc). In these settings, it can be used to characterize psychometric functions orders of magnitude faster than the method of constant stimuli, and substantially faster than staircase methods as well.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+Unlike parametric or heuristic staircase methods, the models in AEPsych make fewer assumptions about the psychometric function, which makes them safer to use in domains where we don’t know if Weber-type scaling laws will hold.
 
-### State-of-the-art Modeling
+AEPsych always builds a model of the full psychometric field, so even if you focus on threshold estimation you can get some useful signal on JNDs and other properties.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-laboris nisi.
+Interactive model exploration and visualization built in.
 
-### Harnessing Features
+While the AEPsych modeling is in PyTorch, our innovative client-server architecture means you can write your stimulus presentation code in carefully controlled other environments such as PsychToolbox or PsychoPy, and even run the modeling and stimulus adaptation code on a completely different computer from your presentation computer.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-laboris nisi ut aliquip ex ea commodo consequat.
+## Why AEPsych (for statistics / ML researchers)
 
-### Bridging the Gap Between Research and Production
+Full API compatibility with BoTorch (LINK) and GPyTorch (LINK) and a full benchmarking suite with novel test functions mean you can evaluate your methods in the ways you are used to while also making it accessible to experimentalists who are not ML experts.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-laboris nisi ut aliquip ex ea commodo consequat.
-
-
-## Target Audience
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-ut labore et dolore magna aliqua.
+Text-based experiment configuration registry means the same code you use for benchmarking can be used by experimentalists in human-in-the-loop experiments, without them writing any python code.

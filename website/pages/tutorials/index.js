@@ -33,7 +33,7 @@ class TutorialHome extends React.Component {
               sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </p>
 
-              <p>
+              {/* <p>
                 <h4>Why AEPsych?</h4>
                   <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit,
@@ -54,7 +54,7 @@ class TutorialHome extends React.Component {
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                     sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                   </p>
-              </p>
+              </p> */}
             </body>
           </div>
         </Container>

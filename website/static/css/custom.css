@@ -178,6 +178,42 @@ overflow-x: hidden;
     border: 1px solid var(--secondary-color);
     color: var(--secondary-color);
   }
+  .tagline {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  small.inner-tag {
+    align-self: center;
+    display: block;
+    font-weight: normal !important;
+    font-size: 33% !important;
+    line-height: 1em;
+    max-width: 400px;
+    margin: 0.7em 0 1.3em;
+  }
+
+  div.container .wrapper .alignCenter h2 {
+    font-size: 20px !important;
+    /* height: 65px !important; */
+    /* display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700 !important; */
+  }
+  div.blockContent  {
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+  }
+
+  .refe-text {
+    display: inline;
+    margin: 70px 0 !important;
+    margin: 0 55px !important;
+  }
+
 
 /* Style home page showcase content*/
 /* ----------------------------------------------------------- */
