@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 #The base_url must match the base url in the /website/siteConfig.js
 # Note if it is not updated API doc searchbar will not be displayed
 # 1) update base_url below
-base_url = "/aepsych-fork/"
+base_url = "/aepsych/"
 
 js_scripts = """
 <script type="text/javascript" id="documentation_options" data-url_root="./" src="{0}js/documentation_options.js"></script>
@@ -29,7 +29,7 @@ js_scripts = """
 # Search.loadIndex("/<<update to match baseUrl>>/js/searchindex.js"
 search_js_scripts = """
   <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("/aepsych-fork/js/searchindex.js"); });
+    jQuery(function() { Search.loadIndex("/aepsych/js/searchindex.js"); });
   </script>
 
   <script type="text/javascript" id="searchindexloader"></script>

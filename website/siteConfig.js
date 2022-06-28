@@ -10,7 +10,7 @@
 
 // Define this so it can be easily modified in scripts (to host elsewhere)
 // const baseUrl = "/"; // main aepsych branch
-const baseUrl = "/aepsych-fork/"; // test branch
+const baseUrl = "/aepsych/"; // test branch
 
 
 // List of projects/orgs using your project for the users page.
@@ -115,10 +115,10 @@ const siteConfig = {
 
   // CSS sources to load
   stylesheets: [
-    `${baseUrl}css/basic.css`,
-    `${baseUrl}css/custom.css`,
-    `${baseUrl}css/code_block_buttons.css`,
-    `${baseUrl}css/alabaster.css`
+    `${baseUrl}static/css/basic.css`,
+    `${baseUrl}static/css/custom.css`,
+    `${baseUrl}static/css/code_block_buttons.css`,
+    `${baseUrl}static/css/alabaster.css`
   ],
 
   // On page navigation for the current documentation page.
