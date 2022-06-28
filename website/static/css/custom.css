@@ -294,6 +294,49 @@ overflow-x: hidden;
     color: var(--primary-color);
   }
 
+ /* Style Cookie Consent */
+  /* ----------------------------------------------------------- */
+.cookie-container {
+  position: fixed;
+  left: 1rem;
+  bottom: -100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+   /* dark mode */
+  color: #f5f6fa;
+  background-color: #2f3640;
+  /* light mode */
+  /* background: #f4f6f5; */
+  align-items: center;
+  border-radius: .8rem;
+  box-shadow: 0 4px 15px 2px rgba(0,0,0,.1);
+  max-width: 30rem;
+  padding: 15px;
+  z-index: 2;
+}
+.cookie-links {
+  cursor: pointer;
+  padding: 0 3px;
+}
+
+.cookie-container.active {
+  bottom: 1.5rem;
+}
+
+.cookie-btn {
+  background-color: var(--secondary-color);
+  color: #f5f6fa;
+  border: 0;
+  padding: 12px 48px;
+  font-size: 18px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  align-self: flex-end;
+  margin-right: 30px;
+}
+
 /* Style docs */
 
 /* ----------------------------------------------------------- */

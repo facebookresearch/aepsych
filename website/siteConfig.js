@@ -110,6 +110,7 @@ const siteConfig = {
      `${baseUrl}js/code_block_buttons.js`,
      "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js",
       `${baseUrl}js/image_fail_to_load.js`,
+       `${baseUrl}js/cookie_consent.js`,
   ],
 
   // CSS sources to load
