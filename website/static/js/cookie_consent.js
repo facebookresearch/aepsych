@@ -1,3 +1,5 @@
+// Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved
+
 window.addEventListener('load', function() {
     const cookieConsentContainer = document.querySelector(".cookie-container");
     const cookieConsentBtn = document.querySelector(".cookie-btn");
