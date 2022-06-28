@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.strategy import SequentialStrategy
 from aepsych.server.sockets import DummySocket, createSocket
+from aepsych.strategy import SequentialStrategy
 
 logger = utils_logging.getLogger(logging.INFO)
 
@@ -845,7 +845,7 @@ def start_server(server_class, args):
         raise RuntimeError(e)
 
 
-def main(server_class):
+def main(server_class=AEPsychServer):
     args = parse_argument()
     if args.logs:
         # overide logger path
