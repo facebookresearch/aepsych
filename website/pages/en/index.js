@@ -17,8 +17,8 @@ const bash = (...args) => `~~~bash\n${String.raw(...args)}\n~~~`;
 
 class HomeSplash extends React.Component {
   render() {
-    const {siteConfig, language = ''} = this.props;
-    const {baseUrl, docsUrl} = siteConfig;
+    const { siteConfig, language = '' } = this.props;
+    const { baseUrl, docsUrl } = siteConfig;
     const docsPart = `${docsUrl ? `${docsUrl}/` : ''}`;
     const langPart = `${language ? `${language}/` : ''}`;
     const docUrl = (doc) => `${baseUrl}${docsPart}${langPart}${doc}`;
@@ -33,7 +33,7 @@ class HomeSplash extends React.Component {
 
     const Logo = (props) => (
       // <div className="projectLogo">
-        <img className="splash-logo" src={props.img_src} alt="Project Logo" />
+      <img className="splash-logo" src={props.img_src} alt="Project Logo" />
       // </div>
     );
 
@@ -41,7 +41,7 @@ class HomeSplash extends React.Component {
       <h2 className="projectTitle">
         {props.title}
         <div className="tagline">
-        <small className="inner-tag">{props.tagline}</small>
+          <small className="inner-tag">{props.tagline}</small>
         </div>
       </h2>
     );
@@ -64,8 +64,8 @@ class HomeSplash extends React.Component {
 
     return (
       <SplashContainer>
-            {/* Main logo */}
-           {/* <Logo img_src={`${baseUrl}img/placeholder.png`} /> */}
+        {/* Main logo */}
+        {/* <Logo img_src={`${baseUrl}img/placeholder.png`} /> */}
         <div className="inner">
           <ProjectTitle tagline={siteConfig.tagline} title={siteConfig.title} />
           <PromoSection>
@@ -83,8 +83,8 @@ class HomeSplash extends React.Component {
 
 class Index extends React.Component {
   render() {
-    const {config: siteConfig, language = ''} = this.props;
-    const {baseUrl} = siteConfig;
+    const { config: siteConfig, language = '' } = this.props;
+    const { baseUrl } = siteConfig;
 
     const Block = (props) => (
       <Container
@@ -102,27 +102,31 @@ class Index extends React.Component {
 
     // getStartedSection
     const pre = '```';
-    // For 1) pip install
-    const firstCodeSection = `${pre}python
+
+    const pipInstallBlock = `${pre}bash
+    pip install aepsych
+    `;
+
+    const devInstallBlock = `${pre}bash
+    git clone https://github.com/facebookresearch/aepsych.git
     cd aepsych
     pip install -r requirements.txt
     pip install -e .
     `;
 
-    // For 2) Usage - first
-    const secondCodeSection = `${pre}python
-    python aepsych/server/server.py
+    const runServerBlock = `${pre}bash
+    aepsych_server --port 5555 --ip 0.0.0.0 database --db mydatabase.db
     `;
-    // For 3) Usage - second
-    const thirdCodeSection  = `${pre}python
+
+    const messageTemplateBlock = `${pre}json
     {
      "type":<TYPE>,
      "version":<VERSION>,
      "message":<MESSAGE>,
     }
     `;
-    // For 4) Setup
-    const forthCodeSection = `${pre}python
+
+    const setupMessageBlock = `${pre}json
     {
     "type":"setup",
     "version":"0.01",
@@ -135,52 +139,52 @@ class Index extends React.Component {
       <div
         className="productShowcaseSection"
         id="quickstart"
-        style={{textAlign: 'center'}}>
+        style={{ textAlign: 'center' }}>
         <h2>Get Started</h2>
         <div className="start-info-splash">
         </div>
         <Container>
-        <div className="start-info-div">
-          <p className="disable start-info">
-        AEPsych supports python 3.8+. We recommend
-        installing AEPsych under a virtual environment like Anaconda.
-        Created a virtual environment for AEPsych once it is activated
-        you can install our requirements and then install AEPsych.
-        </p>
-        </div>
           <ol>
             <li>
               <h4>Install AEPsych:</h4>
-              <p className="disable">via pip</p>
-              <MarkdownBlock>{firstCodeSection}</MarkdownBlock>
+              <p className="disable">
+                AEPsych only supports python 3.8+. We recommend installing AEPsych under a virtual environment like
+                <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html" target="_blank"> Anaconda</a>. Once you've created a virtual environment for AEPsych and activated it, you can install AEPsych
+                using pip:
+              </p>
+              <MarkdownBlock>{pipInstallBlock}</MarkdownBlock>
+              <p className="disable">
+                If you're a developer or want to use the latest features, you can install from GitHub using:
+              </p>
+              <MarkdownBlock>{devInstallBlock}</MarkdownBlock>
             </li>
             <li>
               <h4>Usage:</h4>
-              <p className="disable">The canonical way of using AEPsych is to launch it in server mode.</p>
-              <MarkdownBlock>{secondCodeSection}</MarkdownBlock>
-              <p className="disable">(you can call python aepsych/server/server.py --help to see
-              additional arguments). The server accepts messages over either p
-              unix socket or ZMQ, and all messages are formatted using JSON. All
-              messages have the following format:
+              <p className="disable">The canonical way of using AEPsych is to launch it in server mode (you can run aepsych_server --help to see
+                additional arguments):</p>
+              <MarkdownBlock>{runServerBlock}</MarkdownBlock>
+              <p className="disable">The server accepts messages over either p
+                unix socket or ZMQ, and all messages are formatted using JSON. All
+                messages have the following format:
               </p>
-              <MarkdownBlock>{thirdCodeSection}</MarkdownBlock>
+              <MarkdownBlock>{messageTemplateBlock}</MarkdownBlock>
               <p className="disable">
-              Version can be omitted, in which case we default to the
-              oldest / unversioned handler for this message type. There are
-              five message types: setup, resume, ask, tell and exit.
+                Version can be omitted, in which case we default to the
+                oldest / unversioned handler for this message type. There are
+                five message types: setup, resume, ask, tell and exit.
               </p>
             </li>
             <li>
               <h4>Setup:</h4>
               <p className="disable">
-              The setup message prepares the server for making
-              suggestions and accepting data. The setup message can be
-              formatted as either INI or a python dict (similar to JSON)
-              format, and an example for psychometric threshold estimation
-              is given in configs/single_lse_example.ini. It looks like this:
+                The setup message prepares the server for making
+                suggestions and accepting data. The setup message can be
+                formatted as either INI or a python dict (similar to JSON)
+                format, and an example for psychometric threshold estimation
+                is given in configs/single_lse_example.ini. It looks like this:
               </p>
-              <MarkdownBlock>{forthCodeSection}</MarkdownBlock>
-              <a href="https://github.com/facebookresearch/aepsych" target="_blank">More examples</a>
+              <MarkdownBlock>{setupMessageBlock}</MarkdownBlock>
+              <a href="https://github.com/facebookresearch/aepsych/tree/main/examples" target="_blank">More examples</a>
             </li>
 
           </ol>
@@ -190,9 +194,9 @@ class Index extends React.Component {
 
 
     const Features = () => (
-      <div className="productShowcaseSection" style={{textAlign: 'center'}}>
-      <h2>Key Features</h2>
-      <Block layout="threeColumn">
+      <div className="productShowcaseSection" style={{ textAlign: 'center' }}>
+        <h2>Key Features</h2>
+        <Block layout="threeColumn">
           {[
             {
               content:
@@ -210,7 +214,7 @@ class Index extends React.Component {
             },
             {
               content:
-              'Full compatibility with GPyTorch / BoTorch: make your new models or acquisition functions available to experimentalists in a few lines of code',
+                'Full compatibility with GPyTorch / BoTorch: make your new models or acquisition functions available to experimentalists in a few lines of code',
               image: `${baseUrl}img/blocks.svg`,
               imageAlign: 'top',
               title: 'Modular and extensible',
@@ -220,7 +224,7 @@ class Index extends React.Component {
       </div>
     );
 
-  const referenceCodeBlock  = `${pre}python
+    const referenceCodeBlock = `${pre}python
   @misc{https://doi.org/10.48550/arxiv.2104.09549,
   doi = {10.48550/ARXIV.2104.09549},
   url = {https://arxiv.org/abs/2104.09549},
@@ -235,21 +239,21 @@ class Index extends React.Component {
 
 
 
-// May not need for V1 of site
+    // May not need for V1 of site
     const Reference = () => (
       <div
         className="productShowcaseSection"
         id="reference"
-        style={{textAlign: 'center'}}>
+        style={{ textAlign: 'center' }}>
         <h2>References</h2>
         <Container>
-         <p className="refe-text">
-          If you use AEPsych, the current canonical package reference is:
-        </p>
-         <MarkdownBlock >{referenceCodeBlock}</MarkdownBlock>
-         <p className="refe-text">You can check out additional papers contributing to or using AEPsych here
-        <a href="#" target="_blank">(LINK TO PAPERS PAGE)</a>.
-        </p>
+          <p className="refe-text">
+            If you use AEPsych, the current canonical package reference is:
+          </p>
+          <MarkdownBlock >{referenceCodeBlock}</MarkdownBlock>
+          <p className="refe-text">You can check out additional papers contributing to or using AEPsych here
+            <a href="#" target="_blank">(LINK TO PAPERS PAGE)</a>.
+          </p>
         </Container>
       </div>
     );
