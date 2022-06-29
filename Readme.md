@@ -5,25 +5,30 @@ AEPsych is a framework and library for adaptive experimetation in psychophysics 
 ## Installation
 `AEPsych` only supports python 3.8+. We recommend installing `AEPsych` under a virtual environment like
 [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
-Once you've created a virtual environment for `AEPsych` and activated it, you can install our
-requirements and then install AEPsych:
+Once you've created a virtual environment for `AEPsych` and activated it, you can install `AEPsych` using pip:
 
 ```
+pip install aepsych
+```
+
+If you're a developer or want to use the latest features, you can install from GitHub using:
+
+```
+git clone https://github.com/facebookresearch/aepsych.git
 cd aepsych
 pip install -r requirements.txt
 pip install -e .
 ```
 
-Eventually, `AEPsych` will be available on PyPI and pip-installable directly.
-
 ## Usage
 **See the code examples [here](https://github.com/facebookresearch/aepsych/tree/main/examples).**
 
-The canonical way of using `AEPsych` is to launch it in server mode.
+The canonical way of using `AEPsych` is to launch it in server mode (you can modify the `port` and `ip` arguments):
+
 ```
-python aepsych/server/server.py
+aepsych_server --port 5555 --ip 0.0.0.0
 ```
-(you can call `python aepsych/server/server.py --help` to see additional arguments).
+
 The server accepts messages over either a unix socket or [ZMQ](https://zeromq.org/), and
 all messages are formatted using [JSON](https://www.json.org/json-en.html). All messages
 have the following format:
