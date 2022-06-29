@@ -23,10 +23,10 @@ pip install -e .
 ## Usage
 **See the code examples [here](https://github.com/facebookresearch/aepsych/tree/main/examples).**
 
-The canonical way of using `AEPsych` is to launch it in server mode (you can modify the `port` and `ip` arguments):
+The canonical way of using AEPsych is to launch it in server mode (you can run `aepsych_server` --help to see additional arguments):
 
 ```
-aepsych_server --port 5555 --ip 0.0.0.0
+aepsych_server --port 5555 --ip 0.0.0.0 database --db mydatabase.db
 ```
 
 The server accepts messages over either a unix socket or [ZMQ](https://zeromq.org/), and
