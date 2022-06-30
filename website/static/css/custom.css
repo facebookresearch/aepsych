@@ -479,6 +479,9 @@ overflow-x: hidden;
       position: absolute;
       right: 200px;
     }
+    .mainContainer {
+      min-height: 90vh;
+    }
   }
 
   @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
