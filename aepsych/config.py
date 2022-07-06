@@ -10,6 +10,7 @@ import configparser
 import warnings
 from types import ModuleType
 from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeVar
+import json
 
 import botorch
 import gpytorch
@@ -103,7 +104,27 @@ class Config(configparser.ConfigParser):
                 ),
                 **kwargs,
             )
+    # Convert config into a dictionary (but as it is, excludes "common")
+    def to_dict(config):
+        _dict = {}
+        for section in config:
+            _dict[section] = {}
+            for setting in config[section]:
+                if section != "common" and setting in config["common"]:
+                    continue
+                _dict[section][setting] = config[section][setting]
+        return _dict
 
+
+    # Turn the metadata section into JSON.
+    def jsonifyMetadata(self):
+        configdict = self.to_dict()
+        return json.dumps(configdict["metadata"])
+        
+    @classmethod
+    # Turn the entire config into JSON format.
+    def jsonifyAll(self) -> str:
+        return json.dumps(self.to_dict())
     def update(
         self,
         config_dict: Mapping[str, str] = None,
