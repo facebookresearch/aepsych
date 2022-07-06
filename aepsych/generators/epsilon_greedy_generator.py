@@ -7,9 +7,10 @@
 
 import numpy as np
 from aepsych.config import Config
-from aepsych.generators import OptimizeAcqfGenerator
-from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import ModelProtocol
+
+from ..models.base import ModelProtocol
+from .base import AEPsychGenerator
+from .optimize_acqf_generator import OptimizeAcqfGenerator
 
 
 class EpsilonGreedyGenerator(AEPsychGenerator):

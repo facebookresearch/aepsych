@@ -8,13 +8,15 @@
 import sys
 
 from ..config import Config
+from .epsilon_greedy_generator import EpsilonGreedyGenerator
 from .manual_generator import ManualGenerator
 from .monotonic_rejection_generator import MonotonicRejectionGenerator
 from .monotonic_thompson_sampler_generator import MonotonicThompsonSamplerGenerator
 from .optimize_acqf_generator import OptimizeAcqfGenerator
+from .pairwise_optimize_acqf_generator import PairwiseOptimizeAcqfGenerator
+from .pairwise_sobol_generator import PairwiseSobolGenerator
 from .random_generator import RandomGenerator
 from .sobol_generator import SobolGenerator
-from .epsilon_greedy_generator import EpsilonGreedyGenerator
 
 __all__ = [
     "OptimizeAcqfGenerator",
@@ -24,6 +26,8 @@ __all__ = [
     "SobolGenerator",
     "EpsilonGreedyGenerator",
     "ManualGenerator",
+    "PairwiseOptimizeAcqfGenerator",
+    "PairwiseSobolGenerator",
 ]
 
 Config.register_module(sys.modules[__name__])

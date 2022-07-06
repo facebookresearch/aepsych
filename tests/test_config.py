@@ -7,6 +7,7 @@
 
 import os
 import unittest
+import uuid
 
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
@@ -16,11 +17,19 @@ from aepsych.config import Config
 from aepsych.generators import (
     MonotonicRejectionGenerator,
     OptimizeAcqfGenerator,
+    PairwiseOptimizeAcqfGenerator,
+    PairwiseSobolGenerator,
     SobolGenerator,
 )
-from aepsych.models import GPClassificationModel, MonotonicRejectionGP
+from aepsych.models import (
+    GPClassificationModel,
+    MonotonicRejectionGP,
+    PairwiseProbitModel,
+)
+from aepsych.server import AEPsychServer
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qNoisyExpectedImprovement
+from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -354,6 +363,195 @@ class ConfigTestCase(unittest.TestCase):
 
         with self.assertWarns(UserWarning):
             Strategy.from_config(config, "init_strat")
+
+    def test_pairwise_probit_config(self):
+        config_str = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            outcome_type = pairwise_probit
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            acqf = PairwiseMCPosteriorVariance
+            model = PairwiseProbitModel
+
+            [init_strat]
+            min_asks = 10
+            generator = PairwiseSobolGenerator
+
+            [opt_strat]
+            min_asks = 20
+            generator = PairwiseOptimizeAcqfGenerator
+
+            [PairwiseProbitModel]
+            mean_covar_factory = default_mean_covar_factory
+
+            [PairwiseMCPosteriorVariance]
+            objective = ProbitObjective
+
+            [PairwiseOptimizeAcqfGenerator]
+            restarts = 10
+            samps = 1000
+
+            [PairwiseSobolGenerator]
+            n_points = 20
+            """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        self.assertTrue(
+            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
+        )
+        self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
+        self.assertTrue(
+            strat.strat_list[1].generator.acqf is PairwiseMCPosteriorVariance
+        )
+        # because ProbitObjective() is an object, test keys then vals
+        self.assertTrue(
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
+        )
+        self.assertTrue(
+            isinstance(
+                strat.strat_list[1].generator.acqf_kwargs["objective"],
+                ProbitObjective,
+            )
+        )
+
+        self.assertTrue(strat.strat_list[1].generator.restarts == 10)
+        self.assertTrue(strat.strat_list[1].generator.samps == 1000)
+        self.assertTrue(strat.strat_list[0].min_asks == 10)
+        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[1].min_asks == 20)
+        self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
+        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
+        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+
+    def test_pairwise_probit_config_file(self):
+        config_file = "../configs/pairwise_al_example.ini"
+        config_file = os.path.join(os.path.dirname(__file__), config_file)
+
+        config = Config()
+        config.update(config_fnames=[config_file])
+        strat = SequentialStrategy.from_config(config)
+
+        self.assertTrue(
+            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
+        )
+        self.assertTrue(strat.strat_list[0].model is None)
+
+        self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
+        self.assertTrue(
+            strat.strat_list[1].generator.acqf is PairwiseMCPosteriorVariance
+        )
+        # because ProbitObjective() is an object, we have to be a bit careful with
+        # this test
+        self.assertTrue(
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
+        )
+        self.assertTrue(
+            isinstance(
+                strat.strat_list[1].generator.acqf_kwargs["objective"],
+                ProbitObjective,
+            )
+        )
+
+        self.assertTrue(strat.strat_list[1].generator.restarts == 10)
+        self.assertTrue(strat.strat_list[1].generator.samps == 1000)
+        self.assertTrue(strat.strat_list[0].min_asks == 10)
+        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[1].min_asks == 20)
+        self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
+        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
+        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+
+    def test_pairwise_al_config_file(self):
+        # random datebase path name without dashes
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        server = AEPsychServer(database_path=database_path)
+
+        config_file = "../configs/pairwise_al_example.ini"
+        config_file = os.path.join(os.path.dirname(__file__), config_file)
+        server.configure(config_fnames=[config_file])
+        strat = server.strat
+
+        self.assertTrue(
+            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
+        )
+        self.assertTrue(strat.strat_list[0].model is None)
+
+        self.assertTrue(
+            isinstance(strat.strat_list[1].generator, PairwiseOptimizeAcqfGenerator)
+        )
+        self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
+        self.assertTrue(
+            strat.strat_list[1].generator.acqf is PairwiseMCPosteriorVariance
+        )
+        self.assertTrue(
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
+        )
+        self.assertTrue(
+            isinstance(
+                strat.strat_list[1].generator.acqf_kwargs["objective"],
+                ProbitObjective,
+            )
+        )
+
+        self.assertTrue(strat.strat_list[1].generator.restarts == 10)
+        self.assertTrue(strat.strat_list[1].generator.samps == 1000)
+        self.assertTrue(strat.strat_list[0].min_asks == 10)
+        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[1].min_asks == 20)
+        self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
+        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
+        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        # cleanup the db
+        if server.db is not None:
+            server.db.delete_db()
+
+    def test_pairwise_opt_config(self):
+        # random datebase path name without dashes
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        server = AEPsychServer(database_path=database_path)
+
+        config_file = "../configs/pairwise_opt_example.ini"
+        config_file = os.path.join(os.path.dirname(__file__), config_file)
+        server.configure(config_fnames=[config_file])
+        strat = server.strat
+
+        self.assertTrue(
+            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
+        )
+        self.assertTrue(strat.strat_list[0].model is None)
+
+        self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
+        self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
+        self.assertTrue(
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
+        )
+        self.assertTrue(
+            isinstance(
+                strat.strat_list[1].generator.acqf_kwargs["objective"],
+                ProbitObjective,
+            )
+        )
+
+        self.assertTrue(strat.strat_list[1].generator.restarts == 10)
+        self.assertTrue(strat.strat_list[1].generator.samps == 1000)
+        self.assertTrue(strat.strat_list[0].min_asks == 10)
+        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[1].min_asks == 20)
+        self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
+        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
+        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        # cleanup the db
+        if server.db is not None:
+            server.db.delete_db()
 
 
 if __name__ == "__main__":
