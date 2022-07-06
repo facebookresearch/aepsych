@@ -10,5 +10,10 @@
   },
   "devDependencies": {
     "docusaurus": "^1.14.7"
+  },
+  "dependencies": {
+    "hast-util-is-element": "1.1.0",
+    "rehype-katex": "5",
+    "remark-math": "3"
   }
 }
