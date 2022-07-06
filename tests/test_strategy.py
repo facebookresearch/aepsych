@@ -11,7 +11,11 @@ from unittest.mock import MagicMock
 import numpy as np
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
+from aepsych.generators import (
+    MonotonicRejectionGenerator,
+    PairwiseSobolGenerator,
+    SobolGenerator,
+)
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -172,6 +176,59 @@ class TestSequenceGenerators(unittest.TestCase):
         )
         with self.assertWarns(DeprecationWarning):
             self.assertEqual(self.strat.n_trials, 50)
+
+    def test_batchsobol_pairwise(self):
+        lb = [1, 2, 3]
+        ub = [2, 3, 4]
+        min_asks = 10
+        mod = Strategy(
+            lb=lb,
+            ub=ub,
+            generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=12345),
+            min_asks=min_asks,
+            outcome_type="pairwise_probit",
+        )
+        acq1 = mod.gen(num_points=2)
+        self.assertEqual(acq1.shape, (2, 3, 2))
+        acq2 = mod.gen(num_points=3)
+        self.assertEqual(acq2.shape, (3, 3, 2))
+        acq3 = mod.gen()
+        self.assertEqual(acq3.shape, (1, 3, 2))
+
+    def test_opt_strategy_pairwise(self):
+        strat_list = [
+            Strategy(
+                lb=[-1],
+                ub=[1],
+                min_asks=3,
+                generator=PairwiseSobolGenerator(lb=[-1], ub=[1]),
+                outcome_type="pairwise_probit",
+                min_total_outcome_occurrences=0,
+            ),
+            Strategy(
+                lb=[-10],
+                ub=[-8],
+                min_asks=5,
+                generator=PairwiseSobolGenerator(lb=[-10], ub=[-8]),
+                outcome_type="pairwise_probit",
+                min_total_outcome_occurrences=0,
+            ),
+        ]
+
+        strat = SequentialStrategy(strat_list)
+        out = np.zeros((8, 2))
+        for i in range(8):
+            next_x = strat.gen()
+            strat.add_data(next_x, [1])
+            out[i] = next_x
+
+        gen1 = out[:3]
+        gen2 = out[3:]
+
+        self.assertTrue(np.min(gen2) >= -10)
+        self.assertTrue(np.min(gen1) >= -1)
+        self.assertTrue(np.max(gen1) <= 1)
+        self.assertTrue(np.max(gen2) <= -8)
 
 
 if __name__ == "__main__":

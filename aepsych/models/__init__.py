@@ -9,10 +9,15 @@ import sys
 
 from ..config import Config
 from .gp_classification import GPClassificationModel
-from .monotonic_rejection_gp import MonotonicRejectionGP
 from .gp_regression import GPRegressionModel
+from .monotonic_rejection_gp import MonotonicRejectionGP
+from .pairwise_probit import PairwiseProbitModel
 
-
-__all__ = ["GPClassificationModel", "MonotonicRejectionGP", "GPRegressionModel"]
+__all__ = [
+    "GPClassificationModel",
+    "MonotonicRejectionGP",
+    "GPRegressionModel",
+    "PairwiseProbitModel",
+]
 
 Config.register_module(sys.modules[__name__])

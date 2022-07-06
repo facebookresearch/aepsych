@@ -110,12 +110,19 @@ class Strategy(object):
         self._count = 0
         self.min_total_tells = min_total_tells
 
+        self.outcome_type = outcome_type
+
         # I think this is a correct usage of event_shape
         if type(self.dim) is int:
             self.event_shape = (self.dim,)
         else:
             self.event_shape = self.dim
-        self.outcome_type = outcome_type
+
+        if (
+            self.outcome_type == "pairwise_probit"
+        ):  # temporary hack until models are refactored
+            self.event_shape = (*self.event_shape, 2)  # type: ignore
+
         self.model = model
         self.refit_every = refit_every
         self._model_is_fresh = False
@@ -145,6 +152,11 @@ class Strategy(object):
         if self.outcome_type == "single_probit":
             assert (
                 x.shape[-1:] == self.event_shape
+            ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
+
+        if self.outcome_type == "pairwise_probit":
+            assert (
+                x.shape[-2:] == self.event_shape
             ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
         if x.shape == self.event_shape:
