@@ -61,6 +61,10 @@ class DBMasterTable(Base):
     experiment_name = Column(String(256))
     experiment_description = Column(String(2048))
     experiment_id = Column(String(10), unique=True)
+    participant_id = Column(String(50), unique=True, nullable=True)
+    
+    extra_metadata = Column(String(4096)) #JSON-formatted metadata 
+
 
     children_replay = relationship("DbReplayTable", back_populates="parent")
     children_strat = relationship("DbStratTable", back_populates="parent")
@@ -87,11 +91,66 @@ class DBMasterTable(Base):
     @staticmethod
     def update(engine):
         logger.info("DBMasterTable : update called")
+        if (not DBMasterTable._has_extra_metadata(engine)):
+            DBMasterTable._add_extra_metadata(engine)
+        if (not DBMasterTable._has_participant_id(engine)):
+            DBMasterTable._add_participant_id(engine)
+
+
 
     @staticmethod
     def requires_update(engine):
-        return False
+        return not DBMasterTable._has_extra_metadata(engine) or not DBMasterTable._has_participant_id(engine)
+    @staticmethod
+    def _has_extra_metadata(engine):
+        result = engine.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='extra_metadata'"
+        )
+        rows = result.fetchall()
+        count = rows[0][0]
+        return count != 0
+    @staticmethod
+    def _has_participant_id(engine):
+        result = engine.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='participant_id'"
+        )
+        rows = result.fetchall()
+        count = rows[0][0]
+        return count != 0
+    @staticmethod
+    def _add_participant_id(engine):
+        try:
+            result = engine.execute(
+                "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='participant_id'"
+            )
+            rows = result.fetchall()
+            count = rows[0][0]
 
+            if 0 == count:
+                logger.debug(
+                    "Altering the master table to add the participant_id column"
+                )
+                engine.execute("ALTER TABLE master ADD COLUMN participant_id VARCHAR")
+                engine.commit()
+        except Exception as e:
+            logger.debug(f"Column already exists, no need to alter. [{e}]")
+    @staticmethod
+    def _add_extra_metadata(engine):
+        try:
+            result = engine.execute(
+                "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='extra_metadata'"
+            )
+            rows = result.fetchall()
+            count = rows[0][0]
+
+            if 0 == count:
+                logger.debug(
+                    "Altering the master table to add the extra_metadata column"
+                )
+                engine.execute("ALTER TABLE master ADD COLUMN extra_metadata VARCHAR")
+                engine.commit()
+        except Exception as e:
+            logger.debug(f"Column already exists, no need to alter. [{e}]")
 
 # link back to the master table entry
 #
