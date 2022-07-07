@@ -149,7 +149,7 @@ class Database:
             return master_record.children_config[0].config
         return None
 
-    def record_setup(self, description, name, id=None, request=None) -> str:
+    def record_setup(self, description, name, extrametadata=None, id=None, request=None, participant_id=None) -> str:
         self.get_engine()
 
         if id is None:
@@ -157,6 +157,12 @@ class Database:
             master_table.experiment_description = description
             master_table.experiment_name = name
             master_table.experiment_id = str(uuid.uuid4())
+            if (participant_id is not None):
+                master_table.participant_id = participant_id
+            else:
+                master_table.participant_id = str(uuid.uuid4()) # no p_id specified will result in a generated UUID
+            
+            master_table.extra_metadata = extrametadata
 
             self._session.add(master_table)
 
