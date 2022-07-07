@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -678,6 +678,8 @@
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.fit">(aepsych.models.MonotonicRejectionGP method)</a>
 </li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.fit">(aepsych.models.PairwiseProbitModel method)</a>
+</li>
 <li><a href="aepsych.html#aepsych.Strategy.fit">(aepsych.Strategy method)</a>
 </li>
 <li><a href="aepsych.html#aepsych.strategy.Strategy.fit">(aepsych.strategy.Strategy method)</a>, <a href="strategy.html#aepsych.strategy.Strategy.fit">[1]</a>
@@ -800,6 +802,8 @@
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.from_config">(aepsych.models.MonotonicRejectionGP class method)</a>
 </li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.from_config">(aepsych.models.PairwiseProbitModel class method)</a>
+</li>
 <li><a href="aepsych.html#aepsych.SequentialStrategy.from_config">(aepsych.SequentialStrategy class method)</a>
 </li>
 <li><a href="aepsych.html#aepsych.Strategy.from_config">(aepsych.Strategy class method)</a>
@@ -844,6 +848,10 @@
 <li><a href="generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">(aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.gen">(aepsych.generators.OptimizeAcqfGenerator method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.PairwiseOptimizeAcqfGenerator.gen">(aepsych.generators.PairwiseOptimizeAcqfGenerator method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.PairwiseSobolGenerator.gen">(aepsych.generators.PairwiseSobolGenerator method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.random_generator.RandomGenerator.gen">(aepsych.generators.random_generator.RandomGenerator method)</a>
 </li>
@@ -1418,6 +1426,8 @@
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.outcome_type">(aepsych.models.MonotonicRejectionGP attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.outcome_type">(aepsych.models.PairwiseProbitModel attribute)</a>
+</li>
 <li><a href="server.html#aepsych.server.AEPsychServer.outcome_type">(aepsych.server.AEPsychServer property)</a>
 </li>
 <li><a href="server.html#aepsych.server.server.AEPsychServer.outcome_type">(aepsych.server.server.AEPsychServer property)</a>
@@ -1443,6 +1453,12 @@
 <li><a href="benchmark.html#aepsych.benchmark.problem.Problem.p_true">(aepsych.benchmark.problem.Problem property)</a>
 </li>
 </ul></li>
+<li><a href="generators.html#aepsych.generators.PairwiseOptimizeAcqfGenerator">PairwiseOptimizeAcqfGenerator (class in aepsych.generators)</a>
+</li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel">PairwiseProbitModel (class in aepsych.models)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.PairwiseSobolGenerator">PairwiseSobolGenerator (class in aepsych.generators)</a>
+</li>
 <li><a href="benchmark.html#aepsych.benchmark.Benchmark.pandas">pandas() (aepsych.benchmark.Benchmark method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.benchmark.Benchmark.pandas">(aepsych.benchmark.benchmark.Benchmark method)</a>
@@ -1467,10 +1483,10 @@
 <li><a href="benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">(class in aepsych.benchmark.pathos_benchmark)</a>
 </li>
 </ul></li>
-<li><a href="database.html#aepsych.database.db.Database.perform_updates">perform_updates() (aepsych.database.db.Database method)</a>
-</li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="database.html#aepsych.database.db.Database.perform_updates">perform_updates() (aepsych.database.db.Database method)</a>
+</li>
 <li><a href="aepsych.html#aepsych.plotting.plot_strat">plot_strat() (in module aepsych.plotting)</a>, <a href="plotting.html#aepsych.plotting.plot_strat">[1]</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead_utils.posterior_at_xstar_xq">posterior_at_xstar_xq() (in module aepsych.acquisition.lookahead_utils)</a>
@@ -1488,6 +1504,8 @@
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.predict">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP method)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.predict">(aepsych.models.MonotonicRejectionGP method)</a>
+</li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.predict">(aepsych.models.PairwiseProbitModel method)</a>
 </li>
 <li><a href="aepsych.html#aepsych.Strategy.predict">(aepsych.Strategy method)</a>
 </li>
@@ -1614,6 +1632,8 @@
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.sample">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP method)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.sample">(aepsych.models.MonotonicRejectionGP method)</a>
+</li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.sample">(aepsych.models.PairwiseProbitModel method)</a>
 </li>
 <li><a href="aepsych.html#aepsych.Strategy.sample">(aepsych.Strategy method)</a>
 </li>
@@ -1787,6 +1807,8 @@
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.training">(aepsych.models.MonotonicRejectionGP attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.training">(aepsych.models.PairwiseProbitModel attribute)</a>
+</li>
 </ul></li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
@@ -1844,6 +1866,8 @@
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.update">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP method)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.update">(aepsych.models.MonotonicRejectionGP method)</a>
+</li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.update">(aepsych.models.PairwiseProbitModel method)</a>
 </li>
 <li><a href="aepsych.html#aepsych.Strategy.update">(aepsych.Strategy method)</a>
 </li>

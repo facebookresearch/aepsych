@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -839,6 +839,100 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.generators.PairwiseOptimizeAcqfGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseOptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizeAcqfGenerator</span></code></a></p>
+<p>Initialize OptimizeAcqfGenerator.
+:param acqf: Acquisition function to use.
+:type acqf: AcquisitionFunction
+:param acqf_kwargs: Extra arguments to</p>
+<blockquote>
+<div><p>pass to acquisition function. Defaults to no arguments.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization.</p></li>
+<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer.</p></li>
+<li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
+This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
+less of what your true upper bound is.</p></li>
+<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.generators.PairwiseOptimizeAcqfGenerator.gen">
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query next point(s) to run by optimizing the acquisition function.
+:param num_points: Number of points to query.
+:type num_points: int, optional
+:param model: Fitted model of the data.
+:type model: ModelProtocol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.generators.PairwiseSobolGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseSobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_sobol_generator.html#PairwiseSobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SobolGenerator</span></code></a></p>
+<p>Generator that generates pairs of points from the Sobol Sequence.</p>
+<p>Iniatialize SobolGenerator.
+:param lb: Lower bounds of each parameter.
+:type lb: Union[np.ndarray, torch.Tensor]
+:param ub: Upper bounds of each parameter.
+:type ub: Union[np.ndarray, torch.Tensor]
+:param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
+:type dim: int, optional
+:param seed: Random seed.
+:type seed: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.generators.PairwiseSobolGenerator.gen">
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_sobol_generator.html#PairwiseSobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
+:param num_points: Number of points to query.
+:type num_points: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
+<li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

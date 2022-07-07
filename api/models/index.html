@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/aepsych/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://facebookresearch.github.io/aepsych/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/aepsych/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/aepsych/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script type="text/javascript" src="/aepsych/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/aepsych/js/image_fail_to_load.js"></script><script type="text/javascript" src="/aepsych/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -1067,6 +1067,70 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.training">
 <span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">PairwiseProbitModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fit_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PairwiseGP</span></code>, <a class="reference internal" href="#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychMixin</span></code></a></p>
+<dl class="simple">
+<dt>A probit-likelihood GP with Laplace approximation model that learns via</dt><dd><p>pairwise comparison data. By default it uses a scaled RBF kernel.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datapoints</strong> – A <cite>batch_shape x n x d</cite> tensor of training features.</p></li>
+<li><p><strong>comparisons</strong> – A <cite>batch_shape x m x 2</cite> training comparisons;
+comparisons[i] is a noisy indicator suggesting the utility value
+of comparisons[i, 0]-th is greater than comparisons[i, 1]-th.</p></li>
+<li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>Kernel</em><em>]</em>) – Covariance module.</p></li>
+<li><p><strong>input_transform</strong> – An input transform that is applied in the model’s
+forward pass.</p></li>
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.outcome_type">
+<span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pairwise_probit'</span></em><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.outcome_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmstart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a warm-start update of the model from previous fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>train_y</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>warmstart</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rereference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x_min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rereference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x_min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.from_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 </section>
