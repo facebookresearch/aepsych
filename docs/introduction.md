@@ -3,22 +3,27 @@ id: introduction
 title: Introduction
 ---
 
-AEPsych is a modeling and human-in-the-loop experimentation framework focused on human psychophysics, as well as related domains such as perceptually-informed preferences. It combines state of the art flexible models for the psychometric field, novel active learning objectives targeting psychophysics problems like threshold estimation, and a client-server architecture that supports stimulus presentation using standard packages such as PsychToolbox.
+AEPsych (short for **A**daptive **E**xperimentation in **Psych**ophysics) is a modeling and human-in-the-loop experimentation framework focused on human psychophysics, as well as related domains such as perceptually-informed preferences. It combines state of the art flexible models for the psychometric field, novel active learning objectives targeting psychophysics problems like threshold estimation, and a client-server architecture that supports stimulus presentation using standard packages such as PsychToolbox.
 
 ## Why AEPsych (for psychophysics researchers)?
 
-AEPsych shines in high-dimensional psychophysics (as many as 6 or 8 dimensions such as stimulus orientation, size, spatial frequency, etc). In these settings, it can be used to characterize psychometric functions orders of magnitude faster than the method of constant stimuli, and substantially faster than staircase methods as well.
-
-Unlike parametric or heuristic staircase methods, the models in AEPsych make fewer assumptions about the psychometric function, which makes them safer to use in domains where we don’t know if Weber-type scaling laws will hold.
-
-AEPsych always builds a model of the full psychometric field, so even if you focus on threshold estimation you can get some useful signal on JNDs and other properties.
-
-Interactive model exploration and visualization built in.
-
-While the AEPsych modeling is in PyTorch, our innovative client-server architecture means you can write your stimulus presentation code in carefully controlled other environments such as PsychToolbox or PsychoPy, and even run the modeling and stimulus adaptation code on a completely different computer from your presentation computer.
+* **High-d psychophysics in tractable time.** AEPsych shines in high-dimensional psychophysics (as many as 6 or 8 dimensions such as stimulus orientation, size, eccentricity or temporal frequency for visual stimuli, frequency for auditory or vibrotactile stimuli, etc). In these settings, it can be used to characterize psychometric functions orders of magnitude faster than the method of constant stimuli, and substantially faster than staircase methods as well.
+* **As flexible as MOCS, faster than staircases**. Unlike parametric or heuristic staircase methods, the models in AEPsych make fewer assumptions about the psychometric function, which makes them safer to use in domains where we don’t know if Weber-type scaling laws will hold. At the same time, the use of flexible interpolation and model-based active learning means data collections can take orders of magnitude less time than the method of constant stimuli.
+* **Always estimate the psychometric field.** AEPsych always builds a model of the full psychometric field, so even if you focus on threshold estimation you can get some useful signal on JNDs and other properties.
+* **Plotting and interactive visualization built in**. Spend more time interpreting your data and less time with boilerplate data loading, saving, and plotting code.
+* **Use whatever stimulus display package you like.** While the AEPsych modeling is in PyTorch, our innovative client-server architecture means you can write your stimulus presentation code in carefully controlled other environments such as [PsychToolbox](http://psychtoolbox.org/) or [PsychoPy](https://www.psychopy.org/), and even run the modeling and stimulus adaptation code on a completely different computer from your presentation computer.
 
 ## Why AEPsych (for statistics / ML researchers)
 
-Full API compatibility with BoTorch (LINK) and GPyTorch (LINK) and a full benchmarking suite with novel test functions mean you can evaluate your methods in the ways you are used to while also making it accessible to experimentalists who are not ML experts.
+* **Minimal overhead for bringing models and methods to human experiments**. Full API compatibility with [BoTorch](https://botorch.org/) and [GPyTorch](https://gpytorch.ai/) and a full benchmarking suite with novel test functions mean you can evaluate your methods in the ways you are used to while also making it accessible to experimentalists who are not ML experts.
+* **Benchmarking and evaluation built in.**. AEPsych includes [novel test functions](../api/benchmark.html#module-aepsych.benchmark.test_functions) for the psychophysics domain you can use to evaluate your models. A [full benchmarking suite](../api/benchmark.html) compatible with parallel execution means you can use AEPsych to run your benchmarks, and our text-based experiment configuration registry means the same code you use for benchmarking can be used by experimentalists in human-in-the-loop experiments, without them writing any python code.
 
-Text-based experiment configuration registry means the same code you use for benchmarking can be used by experimentalists in human-in-the-loop experiments, without them writing any python code.
+## Target audience(s) and design philosophy
+
+* **Bridge domains.** We recognize that pursuing interdisciplinary work requires paying a sometimes-substantial coordination cost between domains in terms of definitions and problem formulations, domain and technical expertise, understanding of common tools, etc. AEPsych is built in part to help bridge this divide between experimentalists in psychophysics and psychology domains on the one hand, and machine learning and statistics researchers on the other hand. This means AEPsych maintains compatibility with standard stimulus display paradigms (e.g. [PsychToolbox](http://psychtoolbox.org/)) via its client-server architecture while also maintaining API compatibility with ML tools such as BoTorch.
+* **Good research code.** Research code does not mean bad code. AEPsych moves quickly to make new methods available, but we try to maintain high code readability and good testing coverage, so that you can trust your results.
+
+## AEPsych relative to other methods and packages
+* **Other adaptive psychophysics methods**. In contrast with parametric adaptive psychophysics methods such as (which tend to use some flavor of the Generalized Linear Model), AEPsych defaults to flexible, nonparametric [Gaussian Process](../gp_intro.html) models, which can approximate arbitrary functions given enough data, and have sensible smoothing behavior in low-data regimes. Relative to recent methods using GPs (notably, [BALaudiogram](https://github.com/cambridge-mlg/BALaudiogram)), AEPsych uses black box variational inference rather than expectation propagation for inference, which makes it easier to introduce new models without having to hand-derive inference algorithms. AEPsych does support the models and acquisition functions in that prior work, however.
+
+* **Other GP active learning**. In contrast with Bayesian Optimization, which finds the maximum or minimum of a function, AEPsych’s primary focus is on other kinds of active learning problems, notably level set (threshold) estimation and global uncertainty reduction. In addition, while continuous outcome models are supported, AEPsych’s primary focus is on other kinds of observations more common in psychophysics experiments (e.g. yes/no Bernoulli trials). While it is not the package's primary focus, AEPsych can still be used to enable human-in-the-loop Bayesian Optimization with continuous outcomes via full compatibility with our upstream packages [BoTorch](https://botorch.org/) and [GPyTorch](https://gpytorch.ai/).
