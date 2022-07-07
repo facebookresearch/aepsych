@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 import warnings
-
+from aepsych import config
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
 import dill
@@ -334,13 +334,27 @@ class AEPsychServer(object):
             experiment_id = None
             if self._db_master_record is not None:
                 experiment_id = self._db_master_record.experiment_id
-
-            self._db_master_record = self.db.record_setup(
-                description="default description",
-                name="default name",
-                request=request,
-                id=experiment_id,
-            )
+            ### make a temporary config object to derive parameters because server handles config after table
+            tempconfig = Config(**request["message"])
+            if "metadata" in tempconfig.keys():
+                cdesc = tempconfig["metadata"]["experiment_description"] if ("experiment_description" in tempconfig["metadata"].keys()) else "Default Description"
+                cname = tempconfig["metadata"]["experiment_name"] if ("experiment_name" in tempconfig["metadata"].keys()) else "Default Name"
+                cid = tempconfig["metadata"]["experiment_id"] if ("experiment_id" in tempconfig["metadata"].keys()) else None
+                self._db_master_record = self.db.record_setup(
+                    description=cdesc,
+                    name=cname,
+                    request=request,
+                    id=cid,
+                    extrametadata=tempconfig.jsonifyMetadata()
+                )
+            ### if the metadata does not exist, we are going to log nothing
+            else:
+                self._db_master_record = self.db.record_setup(
+                    description="default description",
+                    name="default name",
+                    request=request,
+                    id=experiment_id,
+                )
 
         if (
             "config_str" in request["message"].keys()
@@ -409,12 +423,12 @@ class AEPsychServer(object):
             experiment_id = None
             if self._db_master_record is not None:
                 experiment_id = self._db_master_record.experiment_id
-
+            
             self._db_master_record = self.db.record_setup(
-                description="default description",
-                name="default name",
+                description="Default Description",
+                name="Default Name",
                 request=request,
-                id=experiment_id,
+                id=experiment_id
             )
 
         if (
