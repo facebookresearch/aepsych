@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.strategy import SequentialStrategy
 from aepsych.server.sockets import DummySocket, createSocket
+from aepsych.strategy import SequentialStrategy
 
 logger = utils_logging.getLogger(logging.INFO)
 
@@ -631,18 +631,48 @@ class AEPsychServer(object):
     def _tensor_to_config(self, next_x):
         config = {}
         for name, val in zip(self.parnames, next_x):
-            config[name] = [float(val)]
+            if (
+                self.outcome_type == "single_probit"
+                or self.outcome_type == "single_continuous"
+            ):
+                config[name] = [float(val)]
+            elif self.outcome_type == "pairwise_probit":
+                config[name] = np.array(val)
+            else:
+                raise RuntimeError(f"Unknown outcome_type {self.outcome_type}")
         return config
 
     def _config_to_tensor(self, config):
-        unpacked = [config[name] for name in self.parnames]
-
-        # handle config elements being either scalars or length-1 lists
-        if isinstance(unpacked[0], list):
-            x = np.stack(unpacked, axis=1)
+        if (
+            self.outcome_type == "single_probit"
+            or self.outcome_type == "single_continuous"
+        ):
+            unpacked = [config[name] for name in self.parnames]
+            # handle config elements being either scalars or length-1 lists
+            if isinstance(unpacked[0], list):
+                x = np.stack(unpacked, axis=1)
+            else:
+                x = np.stack(unpacked)
+            return x
         else:
-            x = np.stack(unpacked)
-        return x
+            unpacked = [config[name] for name in self.parnames]
+
+            ### we want x.shape to be
+            # [batch, d] or [d] for single and [batch, d, 2]  or [d, 2]
+            # for pairwise. This means we have to transpose for pairwise but not single
+            # which is pretty terrible (since the same data has different semantics
+            # depending on something set in a completely different place)
+            # TODO make this less terrible)
+            x = np.stack(unpacked, axis=1)
+            if len(x.shape) == 1:
+                warnings.warn(
+                    "Outcome is pairwise but just got a 1d input, assuming this is a pair of 1d trials"
+                )
+                x = x[None, :]
+            else:
+                x = x.T
+
+            return x
 
     def tell(self, outcome, config):
         """tell the model which input was run and what the outcome was
@@ -859,7 +889,7 @@ def start_server(server_class, args):
         raise RuntimeError(e)
 
 
-def main(server_class):
+def main(server_class=AEPsychServer):
     args = parse_argument()
     if args.logs:
         # overide logger path

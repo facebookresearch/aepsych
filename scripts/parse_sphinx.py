@@ -11,19 +11,25 @@ import os
 
 from bs4 import BeautifulSoup
 
+#The base_url must match the base url in the /website/siteConfig.js
+# Note if it is not updated API doc searchbar will not be displayed
+# 1) update base_url below
+base_url = "/aepsych/"
 
 js_scripts = """
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
-"""  # noqa: E501
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="{0}js/documentation_options.js"></script>
+<script type="text/javascript" src="{0}js/jquery.js"></script>
+<script type="text/javascript" src="{0}js/underscore.js"></script>
+<script type="text/javascript" src="{0}js/doctools.js"></script>
+<script type="text/javascript" src="{0}js/language_data.js"></script>
+<script type="text/javascript" src="{0}js/searchtools.js"></script>
+""".format(base_url)  # noqa: E501
 
+# 2) update
+# Search.loadIndex("/<<update to match baseUrl>>/js/searchindex.js"
 search_js_scripts = """
   <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("/js/searchindex.js"); });
+    jQuery(function() { Search.loadIndex("/aepsych/js/searchindex.js"); });
   </script>
 
   <script type="text/javascript" id="searchindexloader"></script>

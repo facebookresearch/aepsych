@@ -22,10 +22,7 @@ public class YannyLaurel_1D : Experiment
 
     private void Start()
     {
-        if (startMode == StartType.PressAnyKey)
-        {
-            SetText("Press any key to begin.");
-        }
+        SetText("Connecting to server...");
     }
 
     // ShowStimuli (MANDATORY)
@@ -49,6 +46,11 @@ public class YannyLaurel_1D : Experiment
         StartCoroutine(EndShowStimuliAfterSeconds(1f));
     }
 
+    public override void OnConnectToServer()
+    {
+        SetText("Ensure you have a audio device connected. Press any key to begin.");
+    }
+
     // BeginExperiment (optional)
     // Overrides the base BeginExperiment in order to setup the OnStateChange callback
     public override void BeginExperiment()
@@ -63,6 +65,12 @@ public class YannyLaurel_1D : Experiment
     {
         onStateChanged -= OnExperimentStateChange;
         base.PauseExperiment();
+    }
+
+    public override void ExperimentComplete()
+    {
+        base.ExperimentComplete();
+        SetText("Experiment Complete! Open the Model Explorer to query the model.");
     }
 
     // EndShowStimuliAfterSeconds (optional)

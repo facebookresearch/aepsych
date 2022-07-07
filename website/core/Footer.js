@@ -33,7 +33,18 @@ SocialFooter.propTypes = {
   config: PropTypes.object,
 };
 
-
+const CookieConsent = () => (
+    <div className="cookie-container">
+    <p>
+      We use cookies to enhance your experience,
+      and to analyse the use of our website. By clicking or navigating,
+      you agree to allow our usage of cookies.
+    </p>
+    <button className="cookie-btn">
+    accept
+    </button>
+    </div>
+  )
 
 
 class Footer extends React.Component {
@@ -88,6 +99,7 @@ class Footer extends React.Component {
             <SocialFooter config={this.props.config} />
 
           </div>
+
         </section>
 
         <a
@@ -103,6 +115,7 @@ class Footer extends React.Component {
           />
         </a>
         <section className="copyright">{this.props.config.copyright}  Built with Docusaurus.</section>
+        <CookieConsent />
       </footer>
     );
   }

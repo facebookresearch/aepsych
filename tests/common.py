@@ -172,3 +172,7 @@ def target_new_novel_det_3D(x, scale_factor=1.0, target=0.75):
     """
     locs, scale = new_novel_det_3D_params(x, scale_factor)
     return norm.ppf(target, loc=locs, scale=scale)
+
+
+def f_pairwise(f, x, noise_scale=1):
+    return norm.cdf((f(x[..., 1]) - f(x[..., 0])) / (noise_scale * np.sqrt(2)))

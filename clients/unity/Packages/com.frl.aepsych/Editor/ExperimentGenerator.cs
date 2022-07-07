@@ -15,6 +15,7 @@ using System.Reflection;
 using AEPsych;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 public class ExperimentGenerator : EditorWindow
 {
@@ -25,16 +26,20 @@ public class ExperimentGenerator : EditorWindow
     #endregion
 
     public bool needToAttach = false;
-    public float waitForCompile = 1;
+
+    // Number of frames to wait before checking for successful compilation.
+    // Semi-arbitrary, no need to check during the first 200-ish frames.
+    public int waitFramesForCompile = 200;
+
     public string fileDestination = "/Scripts/Experiments";
     public GameObject tempExperiment;
     public GameObject ExperimentUIPrefab;
     public string prefabPath = "Packages/com.frl.aepsych/Runtime/Prefabs/ExperimentUI.prefab";
 
     [MenuItem("AEPsych/Create New Experiment")]
-    public static void CreateNew()
+    public static EditorWindow CreateNew()
     {
-        EditorWindow.GetWindow(typeof(ExperimentGenerator));
+        return EditorWindow.GetWindow(typeof(ExperimentGenerator));
     }
 
     void OnGUI()
@@ -51,69 +56,47 @@ public class ExperimentGenerator : EditorWindow
 
         if (GUILayout.Button("Create", new GUILayoutOption[0]))
             CreateNewExperiment();
-
     }
 
     void Update()
     {
+        //Debug.Log("update");
         if (needToAttach)
         {
-            waitForCompile -= 0.01f;
-            EditorUtility.DisplayProgressBar("AEPsych Client", "Generating new experiment script...", 1 - waitForCompile);
-            if (waitForCompile <= 0)
+            // Decrement frame wait count before checking for compilation
+            waitFramesForCompile -= 1;
+            EditorUtility.DisplayProgressBar("AEPsych Client", "Generating new experiment script...", 1f - (waitFramesForCompile / 200));
+            if (waitFramesForCompile <= 0)
             {
                 if (!EditorApplication.isCompiling)
                 {
-                    tempExperiment = new GameObject();
-                    tempExperiment.name = experimentName;
-                    var experimentType = GetSubType(experimentName.Replace(" ", ""), typeof(Experiment));
-                    if (experimentType != null)
-                    {
-                        tempExperiment.AddComponent(experimentType);
-                    }
-                    else
-                    {
-                        Debug.LogError(string.Format("Unable to find dynamically generated Type: {0}. Please manually assign the {0}.cs script onto the {0} gameobject in the scene.", experimentName));
-                    }
-                    needToAttach = false;
-                    waitForCompile = 1;
-                    tempExperiment.AddComponent<ConfigGenerator>().SetName(experimentName);
+                    AddExperimentToScene();
                     EditorUtility.ClearProgressBar();
+                }
+                else
+                {
+                    //Debug.Log("trying to attach, but editor is compiling. Waiting...");
                 }
             }
         }
     }
 
-    private void CreateNewExperiment()
+    public void AddExperimentToScene()
     {
-        TextAsset template = AssetDatabase.LoadAssetAtPath("Packages/com.frl.aepsych/Editor/Templates/ExperimentTemplate.txt", typeof(TextAsset)) as TextAsset;
-
-        string contents = "";
-        if (template != null)
+        tempExperiment = new GameObject();
+        tempExperiment.name = experimentName;
+        var experimentType = GetSubType(experimentName.Replace(" ", ""), typeof(Experiment));
+        if (experimentType != null)
         {
-            contents = template.text;
-            contents = contents.Replace("EXPERIMENTCLASS_NAME", experimentName.Replace(" ", ""));
-            contents = contents.Replace("EXPERIMENT_NAME", experimentName);
+            tempExperiment.AddComponent(experimentType);
         }
         else
         {
-            Debug.LogError("Packages/com.frl.aepsych/Editor/Templates/ExperimentTemplate.txt is Missing!");
+            Debug.LogError(string.Format("Unable to find dynamically generated Type: {0}. Please manually assign the {0}.cs script onto the {0} gameobject in the scene.", experimentName));
         }
-
-        if (!Directory.Exists(Application.dataPath + fileDestination))
-        {
-            Directory.CreateDirectory(Application.dataPath + fileDestination);
-        }
-
-        using (StreamWriter sw = new StreamWriter(string.Format(Application.dataPath + fileDestination + "/{0}.cs",
-                                                           new object[] { experimentName.Replace(" ", "") })))
-        {
-            sw.Write(contents);
-        }
-        //Refresh the Asset Database
-        AssetDatabase.Refresh();
-
-        needToAttach = true;
+        needToAttach = false;
+        waitFramesForCompile = 200;
+        tempExperiment.AddComponent<ConfigGenerator>().SetName(experimentName);
 
         // Add an AEPsychClient object if there is not one already
         if (FindObjectOfType<AEPsychClient>() == null)
@@ -148,6 +131,41 @@ public class ExperimentGenerator : EditorWindow
             //DefaultUI UIObj = new GameObject("Default UI").AddComponent<DefaultUI>();
 
         }
+    }
+
+    public void CreateNewExperiment()
+    {
+        waitFramesForCompile = 200;
+        TextAsset template = AssetDatabase.LoadAssetAtPath("Packages/com.frl.aepsych/Editor/Templates/ExperimentTemplate.txt", typeof(TextAsset)) as TextAsset;
+
+        string contents = "";
+        if (template != null)
+        {
+            contents = template.text;
+            contents = contents.Replace("EXPERIMENTCLASS_NAME", experimentName.Replace(" ", ""));
+            contents = contents.Replace("EXPERIMENT_NAME", experimentName);
+        }
+        else
+        {
+            Debug.LogError("Packages/com.frl.aepsych/Editor/Templates/ExperimentTemplate.txt is Missing!");
+        }
+
+        if (!Directory.Exists(Application.dataPath + fileDestination))
+        {
+            Directory.CreateDirectory(Application.dataPath + fileDestination);
+        }
+
+        using (StreamWriter sw = new StreamWriter(string.Format(Application.dataPath + fileDestination + "/{0}.cs",
+                                                           new object[] { experimentName.Replace(" ", "") })))
+        {
+            sw.Write(contents);
+        }
+        //Refresh the Asset Database
+        AssetDatabase.Refresh();
+
+        needToAttach = true;
+
+
     }
 
     public static Type GetSubType(string typeName, Type baseClass)

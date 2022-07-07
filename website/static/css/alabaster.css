@@ -96,7 +96,7 @@ div.sphinx div.sphinxsidebar a:hover {
 }
 
 div.sphinx div.sphinxsidebarwrapper {
-  padding: 18px 10px;
+  padding: 18px 25px;
 }
 
 div.sphinx div.sphinxsidebarwrapper p.logo {
@@ -543,7 +543,7 @@ div.sphinx a:hover code {
 
 @media screen and (max-width: 870px) {
   div.sphinx div.sphinxsidebar {
-    display: none;
+    display: none !important;
   }
 
   div.sphinx div.document {
@@ -583,6 +583,10 @@ div.sphinx a:hover code {
 
   div.sphinx .github {
     display: none;
+  }
+
+  div.body {
+    padding: 15px 10% !important;
   }
 }
 

@@ -222,7 +222,7 @@ namespace AEPsych
         #region
         private void Start()
         {
-            //Application.OpenURL("thrift_service_wrapper.exe");
+            Application.runInBackground = true;
         }
 
         private void Update()

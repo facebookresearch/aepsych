@@ -17,14 +17,15 @@ usage() {
   exit 1
 }
 
-
-# Build site
+echo "============ Building docs ==============="
 ./scripts/build_docs.sh -b
+echo "=========================================="
 
-
-# Push changes to gh-pages ---> test pages at "aepsych-fork-gh-pages"
+echo "===== Publishing website to gh-pages ====="
     cd website/ || exit
-    GIT_USER=Eric-Cortez \
-    CURRENT_BRANCH=test-build \
+    GIT_USER=facebookresearch \
+    CURRENT_BRANCH=main \
     USE_SSH=true \
     yarn run publish-gh-pages
+    rm -rf build/
+echo "=========================================="
