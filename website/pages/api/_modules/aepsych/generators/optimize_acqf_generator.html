@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -24,15 +24,16 @@
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
-<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">make_scaled_sobol</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition</span> <span class="kn">import</span> <span class="n">AcquisitionFunction</span>
 <span class="kn">from</span> <span class="nn">botorch.optim</span> <span class="kn">import</span> <span class="n">optimize_acqf</span>
+<span class="kn">from</span> <span class="nn">botorch.utils</span> <span class="kn">import</span> <span class="n">draw_sobol_samples</span>
+
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="OptimizeAcqfGenerator"><a class="viewcode-back" href="../../../aepsych.generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator">[docs]</a><span class="k">class</span> <span class="nc">OptimizeAcqfGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">):</span>
+<div class="viewcode-block" id="OptimizeAcqfGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator">[docs]</a><span class="k">class</span> <span class="nc">OptimizeAcqfGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">):</span>
     <span class="sd">"""Generator that chooses points by minimizing an acquisition function."""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -69,7 +70,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OptimizeAcqfGenerator.gen"><a class="viewcode-back" href="../../../aepsych.generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="OptimizeAcqfGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int, optional): Number of points to query.</span>
@@ -93,11 +94,12 @@
                 <span class="n">q</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span>
                 <span class="n">num_restarts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restarts</span><span class="p">,</span>
                 <span class="n">raw_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># figure out how long evaluating a single samp</span>
             <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">acqf</span><span class="p">(</span><span class="n">train_x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">acqf</span><span class="p">(</span><span class="n">train_x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">num_points</span><span class="p">,</span> <span class="p">:])</span>
             <span class="n">single_eval_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span>
 
             <span class="c1"># only a heuristic for total num evals since everything is stochastic,</span>
@@ -127,17 +129,19 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"gen maxfun is </span><span class="si">{</span><span class="n">n_eval</span><span class="si">}</span><span class="s2">, falling back to random search..."</span><span class="p">)</span>
                 <span class="n">nsamp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_gen_time</span> <span class="o">/</span> <span class="n">single_eval_time</span><span class="p">),</span> <span class="mi">10</span><span class="p">)</span>
                 <span class="c1"># Generate the points at which to sample</span>
-                <span class="n">X</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">nsamp</span><span class="p">)</span>
+                <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">))</span>
 
-                <span class="n">acqvals</span> <span class="o">=</span> <span class="n">acqf</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:])</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">draw_sobol_samples</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">nsamp</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">num_points</span><span class="p">)</span>
+
+                <span class="n">acqvals</span> <span class="o">=</span> <span class="n">acqf</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
                 <span class="n">best_indx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">acqvals</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">new_candidate</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">best_indx</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+                <span class="n">new_candidate</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">best_indx</span><span class="p">]</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gen done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_candidate</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="OptimizeAcqfGenerator.from_config"><a class="viewcode-back" href="../../../aepsych.generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="OptimizeAcqfGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -165,15 +169,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -193,7 +203,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

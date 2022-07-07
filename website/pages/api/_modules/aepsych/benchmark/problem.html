@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -28,7 +28,7 @@
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">bernoulli</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">pearsonr</span>
 
 
-<div class="viewcode-block" id="Problem"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.Problem">[docs]</a><span class="k">class</span> <span class="nc">Problem</span><span class="p">:</span>
+<div class="viewcode-block" id="Problem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem">[docs]</a><span class="k">class</span> <span class="nc">Problem</span><span class="p">:</span>
     <span class="sd">"""Wrapper for a problem or test function. Subclass from this</span>
 <span class="sd">    and override f() to define your test function.</span>
 <span class="sd">    """</span>
@@ -43,7 +43,7 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="Problem.f"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.Problem.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="Problem.f"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
     <span class="nd">@cached_property</span>
@@ -64,7 +64,7 @@
 <span class="sd">        Benchmark's output dataframe, with its associated value stored in each row."""</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
 
-<div class="viewcode-block" id="Problem.p"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.Problem.p">[docs]</a>    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="Problem.p"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p">[docs]</a>    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">"""Evaluate response probability from test function.</span>
 
 <span class="sd">        Args:</span>
@@ -75,7 +75,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Problem.sample_y"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.Problem.sample_y">[docs]</a>    <span class="k">def</span> <span class="nf">sample_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="Problem.sample_y"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.sample_y">[docs]</a>    <span class="k">def</span> <span class="nf">sample_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">"""Sample a response from test function.</span>
 
 <span class="sd">        Args:</span>
@@ -86,7 +86,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">bernoulli</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Problem.f_hat"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.Problem.f_hat">[docs]</a>    <span class="k">def</span> <span class="nf">f_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="Problem.f_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.f_hat">[docs]</a>    <span class="k">def</span> <span class="nf">f_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
 
 <span class="sd">        Args:</span>
@@ -116,7 +116,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Problem.p_hat"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.Problem.p_hat">[docs]</a>    <span class="k">def</span> <span class="nf">p_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="Problem.p_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p_hat">[docs]</a>    <span class="k">def</span> <span class="nf">p_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
 
 <span class="sd">        Args:</span>
@@ -128,7 +128,7 @@
         <span class="n">p_hat</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">p_hat</span></div>
 
-<div class="viewcode-block" id="Problem.evaluate"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.Problem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span>
+<div class="viewcode-block" id="Problem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
@@ -212,7 +212,7 @@
         <span class="k">return</span> <span class="n">metrics</span></div></div>
 
 
-<div class="viewcode-block" id="LSEProblem"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.LSEProblem">[docs]</a><span class="k">class</span> <span class="nc">LSEProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
+<div class="viewcode-block" id="LSEProblem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem">[docs]</a><span class="k">class</span> <span class="nc">LSEProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
     <span class="sd">"""Level set estimation problem.</span>
 
 <span class="sd">    This extends the base problem class to evaluate the LSE/threshold estimate</span>
@@ -241,7 +241,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LSEProblem.evaluate"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.problem.LSEProblem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="LSEProblem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="sd">"""Evaluate the model with respect to this problem.</span>
 
 <span class="sd">        For level set estimation, we add metrics w.r.t. the true threshold:</span>
@@ -296,15 +296,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -324,7 +330,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

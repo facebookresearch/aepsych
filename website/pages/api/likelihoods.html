@@ -1,0 +1,112 @@
+
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-likelihoods">
+<h1>aepsych.likelihoods<a class="headerlink" href="#aepsych-likelihoods" title="Permalink to this heading">¶</a></h1>
+<section id="module-aepsych.likelihoods">
+<span id="aepsych-likelihoods-module"></span><h2>aepsych.likelihoods module<a class="headerlink" href="#module-aepsych.likelihoods" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.likelihoods.BernoulliObjectiveLikelihood">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.likelihoods.</span></span><span class="sig-name descname"><span class="pre">BernoulliObjectiveLikelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objective</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods.html#BernoulliObjectiveLikelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_OneDimensionalLikelihood</span></code></p>
+<p>Bernoulli likelihood with a flexible link (objective) defined by a callable (which can be a botorch
+objective)</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>objective</strong> (<em>Callable</em>) – </p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.likelihoods.BernoulliObjectiveLikelihood.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_samples</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods.html#BernoulliObjectiveLikelihood.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the conditional distribution <span class="math notranslate nohighlight">\(p(\mathbf y \mid
+\mathbf f, \ldots)\)</span> that defines the likelihood.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function_samples</strong> (<em>torch.Tensor</em>) – Samples from the function (<span class="math notranslate nohighlight">\(\mathbf f\)</span>)</p></li>
+<li><p><strong>data</strong> (<em>dict {str: torch.Tensor}</em><em>, </em><em>optional - Pyro integration only</em>) – Additional variables that the likelihood needs to condition
+on. The keys of the dictionary will correspond to Pyro sample sites
+in the likelihood’s model/guide.</p></li>
+<li><p><strong>args</strong> – Additional args</p></li>
+<li><p><strong>kwargs</strong> – Additional kwargs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Distribution</span></code> (with same shape as <code class="xref py py-attr docutils literal notranslate"><span class="pre">function_samples</span></code> )</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.likelihoods.BernoulliObjectiveLikelihood.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods.html#BernoulliObjectiveLikelihood.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.likelihoods.BernoulliObjectiveLikelihood.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">aepsych.config</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="config.html" title="previous chapter">aepsych.config</a></li>
+<li>Next: <a href="plotting.html" title="next chapter">aepsych.plotting</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div>

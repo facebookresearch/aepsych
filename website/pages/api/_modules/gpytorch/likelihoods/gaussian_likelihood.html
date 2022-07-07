@@ -1,0 +1,439 @@
+
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for gpytorch.likelihoods.gaussian_likelihood</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+
+<span class="kn">from</span> <span class="nn">..distributions</span> <span class="kn">import</span> <span class="n">MultivariateNormal</span><span class="p">,</span> <span class="n">base_distributions</span>
+<span class="kn">from</span> <span class="nn">..lazy</span> <span class="kn">import</span> <span class="n">ZeroLazyTensor</span>
+<span class="kn">from</span> <span class="nn">..utils.warnings</span> <span class="kn">import</span> <span class="n">GPInputWarning</span>
+<span class="kn">from</span> <span class="nn">.likelihood</span> <span class="kn">import</span> <span class="n">Likelihood</span>
+<span class="kn">from</span> <span class="nn">.noise_models</span> <span class="kn">import</span> <span class="n">FixedGaussianNoise</span><span class="p">,</span> <span class="n">HomoskedasticNoise</span><span class="p">,</span> <span class="n">Noise</span>
+
+
+<span class="k">class</span> <span class="nc">_GaussianLikelihoodBase</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
+    <span class="sd">"""Base class for Gaussian Likelihoods, supporting general heteroskedastic noise models."""</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noise_covar</span><span class="p">:</span> <span class="n">Noise</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">param_transform</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"param_transform"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">param_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"The 'param_transform' argument is now deprecated. If you want to use a different "</span>
+                <span class="s2">"transformaton, specify a different 'noise_constraint' instead."</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span> <span class="o">=</span> <span class="n">noise_covar</span>
+
+    <span class="k">def</span> <span class="nf">_shaped_noise_covar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">base_shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">expected_log_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">MultivariateNormal</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">mean</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="nb">input</span><span class="o">.</span><span class="n">variance</span>
+        <span class="n">num_event_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="o">.</span><span class="n">event_shape</span><span class="p">)</span>
+
+        <span class="n">noise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shaped_noise_covar</span><span class="p">(</span><span class="n">mean</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">diag</span><span class="p">()</span>
+        <span class="c1"># Potentially reshape the noise to deal with the multitask case</span>
+        <span class="n">noise</span> <span class="o">=</span> <span class="n">noise</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">*</span><span class="n">noise</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">*</span><span class="nb">input</span><span class="o">.</span><span class="n">event_shape</span><span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="p">((</span><span class="n">target</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">variance</span><span class="p">)</span> <span class="o">/</span> <span class="n">noise</span> <span class="o">+</span> <span class="n">noise</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_event_dim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Do appropriate summation for multitask Gaussian likelihoods</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">num_event_dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">base_distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">:</span>
+        <span class="n">noise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shaped_noise_covar</span><span class="p">(</span><span class="n">function_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">diag</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">base_distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">function_samples</span><span class="p">,</span> <span class="n">noise</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">log_marginal</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">:</span> <span class="n">MultivariateNormal</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">marginal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">marginal</span><span class="p">(</span><span class="n">function_dist</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># We're making everything conditionally independent</span>
+        <span class="n">indep_dist</span> <span class="o">=</span> <span class="n">base_distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">marginal</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">marginal</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">clamp_min</span><span class="p">(</span><span class="mf">1e-8</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">())</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">indep_dist</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+
+        <span class="c1"># Do appropriate summation for multitask Gaussian likelihoods</span>
+        <span class="n">num_event_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">function_dist</span><span class="o">.</span><span class="n">event_shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_event_dim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">num_event_dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">marginal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">:</span> <span class="n">MultivariateNormal</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultivariateNormal</span><span class="p">:</span>
+        <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">function_dist</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">function_dist</span><span class="o">.</span><span class="n">lazy_covariance_matrix</span>
+        <span class="n">noise_covar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shaped_noise_covar</span><span class="p">(</span><span class="n">mean</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">full_covar</span> <span class="o">=</span> <span class="n">covar</span> <span class="o">+</span> <span class="n">noise_covar</span>
+        <span class="k">return</span> <span class="n">function_dist</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">full_covar</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="GaussianLikelihood"><a class="viewcode-back" href="../../../aepsych.html#aepsych.GaussianLikelihood">[docs]</a><span class="k">class</span> <span class="nc">GaussianLikelihood</span><span class="p">(</span><span class="n">_GaussianLikelihoodBase</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">    The standard likelihood for regression.</span>
+<span class="sd">    Assumes a standard homoskedastic noise model:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        p(y \mid f) = f + \epsilon, \quad \epsilon \sim \mathcal N (0, \sigma^2)</span>
+
+<span class="sd">    where :math:`\sigma^2` is a noise parameter.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This likelihood can be used for exact or approximate inference.</span>
+
+<span class="sd">    :param noise_prior: Prior for noise parameter :math:`\sigma^2`.</span>
+<span class="sd">    :type noise_prior: ~gpytorch.priors.Prior, optional</span>
+<span class="sd">    :param noise_constraint: Constraint for noise parameter :math:`\sigma^2`.</span>
+<span class="sd">    :type noise_constraint: ~gpytorch.constraints.Interval, optional</span>
+<span class="sd">    :param batch_shape: The batch shape of the learned noise parameter (default: []).</span>
+<span class="sd">    :type batch_shape: torch.Size, optional</span>
+
+<span class="sd">    :var torch.Tensor noise: :math:`\sigma^2` parameter (noise)</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noise_prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">noise_constraint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">noise_covar</span> <span class="o">=</span> <span class="n">HomoskedasticNoise</span><span class="p">(</span>
+            <span class="n">noise_prior</span><span class="o">=</span><span class="n">noise_prior</span><span class="p">,</span> <span class="n">noise_constraint</span><span class="o">=</span><span class="n">noise_constraint</span><span class="p">,</span> <span class="n">batch_shape</span><span class="o">=</span><span class="n">batch_shape</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">noise_covar</span><span class="o">=</span><span class="n">noise_covar</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="o">.</span><span class="n">noise</span>
+
+    <span class="nd">@noise</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">raw_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="o">.</span><span class="n">raw_noise</span>
+
+    <span class="nd">@raw_noise</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">raw_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">raw_noise</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">GaussianLikelihoodWithMissingObs</span><span class="p">(</span><span class="n">GaussianLikelihood</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">    The standard likelihood for regression with support for missing values.</span>
+<span class="sd">    Assumes a standard homoskedastic noise model:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        p(y \mid f) = f + \epsilon, \quad \epsilon \sim \mathcal N (0, \sigma^2)</span>
+
+<span class="sd">    where :math:`\sigma^2` is a noise parameter. Values of y that are nan do</span>
+<span class="sd">    not impact the likelihood calculation.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This likelihood can be used for exact or approximate inference.</span>
+
+<span class="sd">    :param noise_prior: Prior for noise parameter :math:`\sigma^2`.</span>
+<span class="sd">    :type noise_prior: ~gpytorch.priors.Prior, optional</span>
+<span class="sd">    :param noise_constraint: Constraint for noise parameter :math:`\sigma^2`.</span>
+<span class="sd">    :type noise_constraint: ~gpytorch.constraints.Interval, optional</span>
+<span class="sd">    :param batch_shape: The batch shape of the learned noise parameter (default: []).</span>
+<span class="sd">    :type batch_shape: torch.Size, optional</span>
+
+<span class="sd">    :var torch.Tensor noise: :math:`\sigma^2` parameter (noise)</span>
+<span class="sd">    """</span>
+
+    <span class="n">MISSING_VALUE_FILL</span> <span class="o">=</span> <span class="o">-</span><span class="mf">999.0</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_masked_obs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">missing_idx</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">isnan</span><span class="p">()</span>
+        <span class="n">x_masked</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">masked_fill</span><span class="p">(</span><span class="n">missing_idx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MISSING_VALUE_FILL</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">missing_idx</span><span class="p">,</span> <span class="n">x_masked</span>
+
+    <span class="k">def</span> <span class="nf">expected_log_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">missing_idx</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_masked_obs</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">expected_log_prob</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span> <span class="o">*</span> <span class="o">~</span><span class="n">missing_idx</span>
+
+    <span class="k">def</span> <span class="nf">log_marginal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">missing_idx</span><span class="p">,</span> <span class="n">observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_masked_obs</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">log_marginal</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span> <span class="o">*</span> <span class="o">~</span><span class="n">missing_idx</span>
+
+
+<span class="k">class</span> <span class="nc">FixedNoiseGaussianLikelihood</span><span class="p">(</span><span class="n">_GaussianLikelihoodBase</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    A Likelihood that assumes fixed heteroscedastic noise. This is useful when you have fixed, known observation</span>
+<span class="sd">    noise for each training example.</span>
+
+<span class="sd">    Note that this likelihood takes an additional argument when you call it, `noise`, that adds a specified amount</span>
+<span class="sd">    of noise to the passed MultivariateNormal. This allows for adding known observational noise to test data.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This likelihood can be used for exact or approximate inference.</span>
+
+<span class="sd">    :param noise: Known observation noise (variance) for each training example.</span>
+<span class="sd">    :type noise: torch.Tensor (... x N)</span>
+<span class="sd">    :param learn_additional_noise: Set to true if you additionally want to</span>
+<span class="sd">        learn added diagonal noise, similar to GaussianLikelihood.</span>
+<span class="sd">    :type learn_additional_noise: bool, optional</span>
+<span class="sd">    :param batch_shape: The batch shape of the learned noise parameter (default</span>
+<span class="sd">        []) if :obj:`learn_additional_noise=True`.</span>
+<span class="sd">    :type batch_shape: torch.Size, optional</span>
+
+<span class="sd">    :var torch.Tensor noise: :math:`\sigma^2` parameter (noise)</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; train_x = torch.randn(55, 2)</span>
+<span class="sd">        &gt;&gt;&gt; noises = torch.ones(55) * 0.01</span>
+<span class="sd">        &gt;&gt;&gt; likelihood = FixedNoiseGaussianLikelihood(noise=noises, learn_additional_noise=True)</span>
+<span class="sd">        &gt;&gt;&gt; pred_y = likelihood(gp_model(train_x))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; test_x = torch.randn(21, 2)</span>
+<span class="sd">        &gt;&gt;&gt; test_noises = torch.ones(21) * 0.02</span>
+<span class="sd">        &gt;&gt;&gt; pred_y = likelihood(gp_model(test_x), noise=test_noises)</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">noise</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">learn_additional_noise</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">batch_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(),</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">noise_covar</span><span class="o">=</span><span class="n">FixedGaussianNoise</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">learn_additional_noise</span><span class="p">:</span>
+            <span class="n">noise_prior</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"noise_prior"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">noise_constraint</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"noise_constraint"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span> <span class="o">=</span> <span class="n">HomoskedasticNoise</span><span class="p">(</span>
+                <span class="n">noise_prior</span><span class="o">=</span><span class="n">noise_prior</span><span class="p">,</span> <span class="n">noise_constraint</span><span class="o">=</span><span class="n">noise_constraint</span><span class="p">,</span> <span class="n">batch_shape</span><span class="o">=</span><span class="n">batch_shape</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="o">.</span><span class="n">noise</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_noise</span>
+
+    <span class="nd">@noise</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">second_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span><span class="o">.</span><span class="n">noise</span>
+
+    <span class="nd">@second_noise</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">second_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"Attempting to set secondary learned noise for FixedNoiseGaussianLikelihood, "</span>
+                <span class="s2">"but learn_additional_noise must have been False!"</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_fantasy_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">"noise"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"FixedNoiseGaussianLikelihood.fantasize requires a `noise` kwarg"</span><span class="p">)</span>
+        <span class="n">old_noise_covar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">fantasy_liklihood</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span> <span class="o">=</span> <span class="n">old_noise_covar</span>
+
+        <span class="n">old_noise</span> <span class="o">=</span> <span class="n">old_noise_covar</span><span class="o">.</span><span class="n">noise</span>
+        <span class="n">new_noise</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"noise"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">old_noise</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">!=</span> <span class="n">new_noise</span><span class="o">.</span><span class="n">dim</span><span class="p">():</span>
+            <span class="n">old_noise</span> <span class="o">=</span> <span class="n">old_noise</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">*</span><span class="n">new_noise</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">old_noise</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">fantasy_liklihood</span><span class="o">.</span><span class="n">noise_covar</span> <span class="o">=</span> <span class="n">FixedGaussianNoise</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">old_noise</span><span class="p">,</span> <span class="n">new_noise</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">fantasy_liklihood</span>
+
+    <span class="k">def</span> <span class="nf">_shaped_noise_covar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># we can infer the shape from the params</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># here shape[:-1] is the batch shape requested, and shape[-1] is `n`, the number of points</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">base_shape</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">res</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">second_noise_covar</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">ZeroLazyTensor</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"You have passed data through a FixedNoiseGaussianLikelihood that did not match the size "</span>
+                <span class="s2">"of the fixed noise, *and* you did not specify noise. This is treated as a no-op."</span><span class="p">,</span>
+                <span class="n">GPInputWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">res</span>
+
+
+<span class="k">class</span> <span class="nc">DirichletClassificationLikelihood</span><span class="p">(</span><span class="n">FixedNoiseGaussianLikelihood</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    A classification likelihood that treats the labels as regression targets with fixed heteroscedastic noise.</span>
+<span class="sd">    From Milios et al, NeurIPS, 2018 [https://arxiv.org/abs/1805.10915].</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        This likelihood can be used for exact or approximate inference.</span>
+
+<span class="sd">    :param targets: classification labels.</span>
+<span class="sd">    :type targets: torch.Tensor (N).</span>
+<span class="sd">    :param alpha_epsilon: tuning parameter for the scaling of the likeihood targets. We'd suggest 0.01 or setting</span>
+<span class="sd">        via cross-validation.</span>
+<span class="sd">    :type alpha_epsilon: int.</span>
+
+<span class="sd">    :param learn_additional_noise: Set to true if you additionally want to</span>
+<span class="sd">        learn added diagonal noise, similar to GaussianLikelihood.</span>
+<span class="sd">    :type learn_additional_noise: bool, optional</span>
+<span class="sd">    :param batch_shape: The batch shape of the learned noise parameter (default</span>
+<span class="sd">        []) if :obj:`learn_additional_noise=True`.</span>
+<span class="sd">    :type batch_shape: torch.Size, optional</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; train_x = torch.randn(55, 1)</span>
+<span class="sd">        &gt;&gt;&gt; labels = torch.round(train_x).long()</span>
+<span class="sd">        &gt;&gt;&gt; likelihood = DirichletClassificationLikelihood(targets=labels, learn_additional_noise=True)</span>
+<span class="sd">        &gt;&gt;&gt; pred_y = likelihood(gp_model(train_x))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; test_x = torch.randn(21, 1)</span>
+<span class="sd">        &gt;&gt;&gt; test_labels = torch.round(test_x).long()</span>
+<span class="sd">        &gt;&gt;&gt; pred_y = likelihood(gp_model(test_x), targets=labels)</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">alpha_epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">):</span>
+        <span class="n">num_classes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">targets</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># set alpha = \alpha_\epsilon</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha_epsilon</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">targets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_classes</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">targets</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="c1"># alpha[class_labels] = 1 + \alpha_\epsilon</span>
+        <span class="n">alpha</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)),</span> <span class="n">targets</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)),</span> <span class="n">targets</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+        <span class="c1"># sigma^2 = log(1 / alpha + 1)</span>
+        <span class="n">sigma2_i</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">alpha</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="c1"># y = log(alpha) - 0.5 * sigma^2</span>
+        <span class="n">transformed_targets</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">log</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">sigma2_i</span>
+
+        <span class="k">return</span> <span class="n">sigma2_i</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">dtype</span><span class="p">),</span> <span class="n">transformed_targets</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">dtype</span><span class="p">),</span> <span class="n">num_classes</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">targets</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">alpha_epsilon</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">learn_additional_noise</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">batch_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(),</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">sigma2_labels</span><span class="p">,</span> <span class="n">transformed_targets</span><span class="p">,</span> <span class="n">num_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_targets</span><span class="p">(</span>
+            <span class="n">targets</span><span class="p">,</span> <span class="n">alpha_epsilon</span><span class="o">=</span><span class="n">alpha_epsilon</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">noise</span><span class="o">=</span><span class="n">sigma2_labels</span><span class="p">,</span>
+            <span class="n">learn_additional_noise</span><span class="o">=</span><span class="n">learn_additional_noise</span><span class="p">,</span>
+            <span class="n">batch_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">((</span><span class="n">num_classes</span><span class="p">,)),</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformed_targets</span> <span class="o">=</span> <span class="n">transformed_targets</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_epsilon</span> <span class="o">=</span> <span class="n">alpha_epsilon</span>
+
+    <span class="k">def</span> <span class="nf">get_fantasy_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># we assume that the number of classes does not change.</span>
+
+        <span class="k">if</span> <span class="s2">"targets"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"FixedNoiseGaussianLikelihood.fantasize requires a `targets` kwarg"</span><span class="p">)</span>
+
+        <span class="n">old_noise_covar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">fantasy_liklihood</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_covar</span> <span class="o">=</span> <span class="n">old_noise_covar</span>
+
+        <span class="n">old_noise</span> <span class="o">=</span> <span class="n">old_noise_covar</span><span class="o">.</span><span class="n">noise</span>
+        <span class="n">new_targets</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"noise"</span><span class="p">)</span>
+        <span class="n">new_noise</span><span class="p">,</span> <span class="n">new_targets</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fantasy_liklihood</span><span class="o">.</span><span class="n">_prepare_targets</span><span class="p">(</span><span class="n">new_targets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_epsilon</span><span class="p">)</span>
+        <span class="n">fantasy_liklihood</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">fantasy_liklihood</span><span class="o">.</span><span class="n">targets</span><span class="p">,</span> <span class="n">new_targets</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">old_noise</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">!=</span> <span class="n">new_noise</span><span class="o">.</span><span class="n">dim</span><span class="p">():</span>
+            <span class="n">old_noise</span> <span class="o">=</span> <span class="n">old_noise</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="o">*</span><span class="n">new_noise</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">old_noise</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">fantasy_liklihood</span><span class="o">.</span><span class="n">noise_covar</span> <span class="o">=</span> <span class="n">FixedGaussianNoise</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">old_noise</span><span class="p">,</span> <span class="n">new_noise</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">fantasy_liklihood</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">"targets"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"targets"</span><span class="p">)</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformed_targets</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">new_noise</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"noise"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_noise</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div>

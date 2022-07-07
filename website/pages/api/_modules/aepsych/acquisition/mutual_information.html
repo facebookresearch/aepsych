@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -25,18 +25,18 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.acquisition.monotonic_rejection</span> <span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.monte_carlo</span> <span class="kn">import</span> <span class="n">MCAcquisitionFunction</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.objective</span> <span class="kn">import</span> <span class="n">MCAcquisitionObjective</span>
 <span class="kn">from</span> <span class="nn">botorch.models.model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">botorch.sampling.samplers</span> <span class="kn">import</span> <span class="n">MCSampler</span><span class="p">,</span> <span class="n">SobolQMCNormalSampler</span>
 <span class="kn">from</span> <span class="nn">botorch.utils.transforms</span> <span class="kn">import</span> <span class="n">t_batch_mode_transform</span>
-<span class="kn">from</span> <span class="nn">aepsych.acquisition.monotonic_rejection</span> <span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torch.distributions.bernoulli</span> <span class="kn">import</span> <span class="n">Bernoulli</span>
 
 
-<div class="viewcode-block" id="bald_acq"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mutual_information.bald_acq">[docs]</a><span class="k">def</span> <span class="nf">bald_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Evaluate Mutual Information acquisition function. </span>
+<div class="viewcode-block" id="bald_acq"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mutual_information.bald_acq">[docs]</a><span class="k">def</span> <span class="nf">bald_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Evaluate Mutual Information acquisition function.</span>
 
 <span class="sd">    With latent function F and X a hypothetical observation at a new point,</span>
 <span class="sd">    I(F; X) = I(X; F) = H(X) - H(X |F),</span>
@@ -61,14 +61,14 @@
     <span class="k">return</span> <span class="n">posterior_entropies</span> <span class="o">-</span> <span class="n">conditional_entropies</span></div>
 
 
-<div class="viewcode-block" id="BernoulliMCMutualInformation"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation">[docs]</a><span class="k">class</span> <span class="nc">BernoulliMCMutualInformation</span><span class="p">(</span><span class="n">MCAcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="BernoulliMCMutualInformation"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation">[docs]</a><span class="k">class</span> <span class="nc">BernoulliMCMutualInformation</span><span class="p">(</span><span class="n">MCAcquisitionFunction</span><span class="p">):</span>
     <span class="sd">"""Mutual Information acquisition function for a bernoulli outcome.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Given a model and an objective link function, calculate the mutual</span>
 <span class="sd">    information of a trial at a new point and the distribution on the</span>
 <span class="sd">    latent function.</span>
-<span class="sd">    </span>
-<span class="sd">    Objective here should give values in (0, 1) (e.g. logit or probit). </span>
+
+<span class="sd">    Objective here should give values in (0, 1) (e.g. logit or probit).</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -91,7 +91,7 @@
             <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="n">objective</span><span class="p">,</span> <span class="n">X_pending</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="BernoulliMCMutualInformation.forward"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">()</span>
+<div class="viewcode-block" id="BernoulliMCMutualInformation.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">"""Evaluate mutual information on the candidate set `X`.</span>
 
@@ -105,16 +105,16 @@
         <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">samples</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="BernoulliMCMutualInformation.acquisition"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Evaluate the acquisition function value based on samples. </span>
+<div class="viewcode-block" id="BernoulliMCMutualInformation.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Evaluate the acquisition function value based on samples.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obj_samples (torch.Tensor): Samples from the model, transformed through the objective. </span>
+<span class="sd">            obj_samples (torch.Tensor): Samples from the model, transformed through the objective.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: value of the acquisition function (BALD) at the input samples. </span>
+<span class="sd">            torch.Tensor: value of the acquisition function (BALD) at the input samples.</span>
 <span class="sd">        """</span>
         <span class="c1"># RejectionSampler drops the final dim so we reaugment it</span>
         <span class="c1"># here for compatibility with non-Monotonic MCAcquisition</span>
@@ -123,18 +123,18 @@
         <span class="k">return</span> <span class="n">bald_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="MonotonicBernoulliMCMutualInformation"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mutual_information.MonotonicBernoulliMCMutualInformation">[docs]</a><span class="k">class</span> <span class="nc">MonotonicBernoulliMCMutualInformation</span><span class="p">(</span><span class="n">MonotonicMCAcquisition</span><span class="p">):</span>
-<div class="viewcode-block" id="MonotonicBernoulliMCMutualInformation.acquisition"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mutual_information.MonotonicBernoulliMCMutualInformation.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Evaluate the acquisition function value based on samples. </span>
+<div class="viewcode-block" id="MonotonicBernoulliMCMutualInformation"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mutual_information.MonotonicBernoulliMCMutualInformation">[docs]</a><span class="k">class</span> <span class="nc">MonotonicBernoulliMCMutualInformation</span><span class="p">(</span><span class="n">MonotonicMCAcquisition</span><span class="p">):</span>
+<div class="viewcode-block" id="MonotonicBernoulliMCMutualInformation.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mutual_information.MonotonicBernoulliMCMutualInformation.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Evaluate the acquisition function value based on samples.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obj_samples (torch.Tensor): Samples from the model, transformed through the objective. </span>
+<span class="sd">            obj_samples (torch.Tensor): Samples from the model, transformed through the objective.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: value of the acquisition function (BALD) at the input samples. </span>
+<span class="sd">            torch.Tensor: value of the acquisition function (BALD) at the input samples.</span>
 <span class="sd">        """</span>
-        <span class="c1"># TODO this is identical to nono-monotonic BALV acquisition with a different </span>
-        <span class="c1"># base class mixin, consider redesigning? </span>
+        <span class="c1"># TODO this is identical to nono-monotonic BALV acquisition with a different</span>
+        <span class="c1"># base class mixin, consider redesigning?</span>
         <span class="c1"># RejectionSampler drops the final dim so we reaugment it</span>
         <span class="c1"># here for compatibility with non-Monotonic MCAcquisition</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -150,15 +150,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -178,7 +184,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

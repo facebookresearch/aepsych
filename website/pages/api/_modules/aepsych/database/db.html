@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -33,7 +33,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="Database"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database">[docs]</a><span class="k">class</span> <span class="nc">Database</span><span class="p">:</span>
+<div class="viewcode-block" id="Database"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database">[docs]</a><span class="k">class</span> <span class="nc">Database</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">db_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">db_path</span> <span class="o">=</span> <span class="s2">"./databases/default.db"</span>
@@ -49,7 +49,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_engine</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Database.get_engine"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.get_engine">[docs]</a>    <span class="k">def</span> <span class="nf">get_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.get_engine"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_engine">[docs]</a>    <span class="k">def</span> <span class="nf">get_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_engine"</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_full_db_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_dir</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_full_db_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -67,12 +67,12 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span></div>
 
-<div class="viewcode-block" id="Database.delete_db"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.delete_db">[docs]</a>    <span class="k">def</span> <span class="nf">delete_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.delete_db"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.delete_db">[docs]</a>    <span class="k">def</span> <span class="nf">delete_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_full_db_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.is_update_required"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.is_update_required">[docs]</a>    <span class="k">def</span> <span class="nf">is_update_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.is_update_required"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.is_update_required">[docs]</a>    <span class="k">def</span> <span class="nf">is_update_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
             <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
@@ -80,14 +80,14 @@
             <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbConfigTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Database.perform_updates"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.perform_updates">[docs]</a>    <span class="k">def</span> <span class="nf">perform_updates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.perform_updates"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.perform_updates">[docs]</a>    <span class="k">def</span> <span class="nf">perform_updates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Perform updates on known tables. SQLAlchemy doesn't do alters so they're done the old fashioned way."""</span>
         <span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         <span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         <span class="n">tables</span><span class="o">.</span><span class="n">DbStratTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         <span class="n">tables</span><span class="o">.</span><span class="n">DbConfigTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Database.session_scope"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.session_scope">[docs]</a>    <span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="Database.session_scope"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.session_scope">[docs]</a>    <span class="nd">@contextmanager</span>
     <span class="k">def</span> <span class="nf">session_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Provide a transactional scope around a series of operations."""</span>
         <span class="n">Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_engine</span><span class="p">())</span>
@@ -103,17 +103,17 @@
             <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
     <span class="c1"># @retry(stop_max_attempt_number=8, wait_exponential_multiplier=1.8)</span>
-<div class="viewcode-block" id="Database.execute_sql_query"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.execute_sql_query">[docs]</a>    <span class="k">def</span> <span class="nf">execute_sql_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vals</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+<div class="viewcode-block" id="Database.execute_sql_query"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.execute_sql_query">[docs]</a>    <span class="k">def</span> <span class="nf">execute_sql_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vals</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
         <span class="sd">"""Execute an arbitrary query written in sql."""</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_scope</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Database.get_master_records"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.get_master_records">[docs]</a>    <span class="k">def</span> <span class="nf">get_master_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.get_master_records"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_master_records">[docs]</a>    <span class="k">def</span> <span class="nf">get_master_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Grab the list of master records."""</span>
         <span class="n">records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">records</span></div>
 
-<div class="viewcode-block" id="Database.get_master_record"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.get_master_record">[docs]</a>    <span class="k">def</span> <span class="nf">get_master_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.get_master_record"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_master_record">[docs]</a>    <span class="k">def</span> <span class="nf">get_master_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">):</span>
         <span class="sd">"""Grab the list of master record for a specific experiment (master) id."""</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">)</span>
@@ -126,7 +126,7 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_replay_for"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.get_replay_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_replay_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.get_replay_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_replay_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_replay_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">):</span>
         <span class="sd">"""Get the replay records for a specific master row."""</span>
         <span class="n">master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
 
@@ -135,7 +135,7 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_strats_for"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.get_strats_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_strats_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.get_strats_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_strats_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_strats_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">"""Get the strat records for a specific master row."""</span>
         <span class="n">master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
 
@@ -144,7 +144,7 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_strat_for"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.get_strat_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_strat_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">,</span> <span class="n">strat_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.get_strat_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_strat_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_strat_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">,</span> <span class="n">strat_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">"""Get a specific strat record for a specific master row."""</span>
         <span class="n">master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
 
@@ -153,7 +153,7 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_config_for"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.get_config_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_config_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.get_config_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_config_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_config_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">):</span>
         <span class="sd">"""Get the strat records for a specific master row."""</span>
         <span class="n">master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
 
@@ -161,7 +161,7 @@
             <span class="k">return</span> <span class="n">master_record</span><span class="o">.</span><span class="n">children_config</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">config</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.record_setup"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.record_setup">[docs]</a>    <span class="k">def</span> <span class="nf">record_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="Database.record_setup"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_setup">[docs]</a>    <span class="k">def</span> <span class="nf">record_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_engine</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -196,7 +196,7 @@
         <span class="c1"># tis needs to be passed into all future calls to link properly</span>
         <span class="k">return</span> <span class="n">master_table</span></div>
 
-<div class="viewcode-block" id="Database.record_message"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.record_message">[docs]</a>    <span class="k">def</span> <span class="nf">record_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Database.record_message"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_message">[docs]</a>    <span class="k">def</span> <span class="nf">record_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># create a linked setup table</span>
         <span class="n">record</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="p">()</span>
         <span class="n">record</span><span class="o">.</span><span class="n">message_type</span> <span class="o">=</span> <span class="nb">type</span>
@@ -211,7 +211,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Database.record_strat"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.record_strat">[docs]</a>    <span class="k">def</span> <span class="nf">record_strat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="n">strat</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.record_strat"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_strat">[docs]</a>    <span class="k">def</span> <span class="nf">record_strat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="n">strat</span><span class="p">):</span>
         <span class="n">strat_entry</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbStratTable</span><span class="p">()</span>
         <span class="n">strat_entry</span><span class="o">.</span><span class="n">strat</span> <span class="o">=</span> <span class="n">strat</span>
         <span class="n">strat_entry</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
@@ -220,7 +220,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">strat_entry</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Database.record_config"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.record_config">[docs]</a>    <span class="k">def</span> <span class="nf">record_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.record_config"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_config">[docs]</a>    <span class="k">def</span> <span class="nf">record_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">config_entry</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbConfigTable</span><span class="p">()</span>
         <span class="n">config_entry</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="n">config_entry</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
@@ -229,7 +229,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">config_entry</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Database.list_master_records"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.db.Database.list_master_records">[docs]</a>    <span class="k">def</span> <span class="nf">list_master_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Database.list_master_records"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.list_master_records">[docs]</a>    <span class="k">def</span> <span class="nf">list_master_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">master_records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_records</span><span class="p">()</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Listing master records:"</span><span class="p">)</span>
@@ -247,15 +247,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -275,7 +281,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

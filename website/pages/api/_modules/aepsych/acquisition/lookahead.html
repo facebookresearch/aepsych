@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -31,7 +31,7 @@
 <span class="kn">from</span> <span class="nn">.lookahead_utils</span> <span class="kn">import</span> <span class="n">approximate_lookahead_at_xstar</span><span class="p">,</span> <span class="n">lookahead_at_xstar</span>
 
 
-<div class="viewcode-block" id="Hb"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.Hb">[docs]</a><span class="k">def</span> <span class="nf">Hb</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">):</span>
+<div class="viewcode-block" id="Hb"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.Hb">[docs]</a><span class="k">def</span> <span class="nf">Hb</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">    Binary entropy.</span>
 
@@ -45,7 +45,7 @@
     <span class="k">return</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">p</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="MI_fn"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.MI_fn">[docs]</a><span class="k">def</span> <span class="nf">MI_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="MI_fn"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.MI_fn">[docs]</a><span class="k">def</span> <span class="nf">MI_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""</span>
 <span class="sd">    Average mutual information.</span>
 <span class="sd">    H(p) - E_y*[H(p | y*)]</span>
@@ -62,14 +62,14 @@
     <span class="k">return</span> <span class="n">mi</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ClassErr"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.ClassErr">[docs]</a><span class="k">def</span> <span class="nf">ClassErr</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="ClassErr"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.ClassErr">[docs]</a><span class="k">def</span> <span class="nf">ClassErr</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""</span>
 <span class="sd">    Expected classification error, min(p, 1-p).</span>
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="SUR_fn"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.SUR_fn">[docs]</a><span class="k">def</span> <span class="nf">SUR_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="SUR_fn"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.SUR_fn">[docs]</a><span class="k">def</span> <span class="nf">SUR_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""</span>
 <span class="sd">    Stepwise uncertainty reduction.</span>
 
@@ -88,7 +88,7 @@
     <span class="k">return</span> <span class="n">sur</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="EAVC_fn"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.EAVC_fn">[docs]</a><span class="k">def</span> <span class="nf">EAVC_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="EAVC_fn"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.EAVC_fn">[docs]</a><span class="k">def</span> <span class="nf">EAVC_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
     <span class="sd">"""</span>
 <span class="sd">    Expected absolute value change.</span>
 
@@ -108,7 +108,7 @@
 
 
 <span class="c1">## Global look-ahead acquisitions</span>
-<div class="viewcode-block" id="GlobalLookaheadAcquisitionFunction"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction">[docs]</a><span class="k">class</span> <span class="nc">GlobalLookaheadAcquisitionFunction</span><span class="p">(</span><span class="n">AcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="GlobalLookaheadAcquisitionFunction"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction">[docs]</a><span class="k">class</span> <span class="nc">GlobalLookaheadAcquisitionFunction</span><span class="p">(</span><span class="n">AcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span>
@@ -141,7 +141,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"Xq"</span><span class="p">,</span> <span class="n">Xq</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GlobalLookaheadAcquisitionFunction.forward"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">(</span><span class="n">expected_q</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="viewcode-block" id="GlobalLookaheadAcquisitionFunction.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">(</span><span class="n">expected_q</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""</span>
 <span class="sd">        Evaluate acquisition function at X.</span>
@@ -166,17 +166,17 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="GlobalMI"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.GlobalMI">[docs]</a><span class="k">class</span> <span class="nc">GlobalMI</span><span class="p">(</span><span class="n">GlobalLookaheadAcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="GlobalMI"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.GlobalMI">[docs]</a><span class="k">class</span> <span class="nc">GlobalMI</span><span class="p">(</span><span class="n">GlobalLookaheadAcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_compute_acqf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">MI_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P0</span><span class="p">,</span> <span class="n">py1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="GlobalSUR"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.GlobalSUR">[docs]</a><span class="k">class</span> <span class="nc">GlobalSUR</span><span class="p">(</span><span class="n">GlobalLookaheadAcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="GlobalSUR"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.GlobalSUR">[docs]</a><span class="k">class</span> <span class="nc">GlobalSUR</span><span class="p">(</span><span class="n">GlobalLookaheadAcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_compute_acqf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">SUR_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P0</span><span class="p">,</span> <span class="n">py1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ApproxGlobalSUR"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.ApproxGlobalSUR">[docs]</a><span class="k">class</span> <span class="nc">ApproxGlobalSUR</span><span class="p">(</span><span class="n">GlobalSUR</span><span class="p">):</span>
+<div class="viewcode-block" id="ApproxGlobalSUR"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.ApproxGlobalSUR">[docs]</a><span class="k">class</span> <span class="nc">ApproxGlobalSUR</span><span class="p">(</span><span class="n">GlobalSUR</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_get_lookahead_posterior</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
@@ -186,7 +186,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="EAVC"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.EAVC">[docs]</a><span class="k">class</span> <span class="nc">EAVC</span><span class="p">(</span><span class="n">GlobalLookaheadAcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="EAVC"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.EAVC">[docs]</a><span class="k">class</span> <span class="nc">EAVC</span><span class="p">(</span><span class="n">GlobalLookaheadAcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_compute_acqf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">EAVC_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P0</span><span class="p">,</span> <span class="n">py1</span><span class="p">)</span></div>
 
@@ -194,7 +194,7 @@
 <span class="c1">## Local look-ahead acquisitions</span>
 
 
-<div class="viewcode-block" id="LocalLookaheadAcquisitionFunction"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction">[docs]</a><span class="k">class</span> <span class="nc">LocalLookaheadAcquisitionFunction</span><span class="p">(</span><span class="n">AcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalLookaheadAcquisitionFunction"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction">[docs]</a><span class="k">class</span> <span class="nc">LocalLookaheadAcquisitionFunction</span><span class="p">(</span><span class="n">AcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""</span>
 <span class="sd">        A localized look-ahead acquisition function.</span>
@@ -206,7 +206,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LocalLookaheadAcquisitionFunction.forward"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">(</span><span class="n">expected_q</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="viewcode-block" id="LocalLookaheadAcquisitionFunction.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">(</span><span class="n">expected_q</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""</span>
 <span class="sd">        Evaluate acquisition function at X.</span>
@@ -225,12 +225,12 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="LocalMI"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.LocalMI">[docs]</a><span class="k">class</span> <span class="nc">LocalMI</span><span class="p">(</span><span class="n">LocalLookaheadAcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalMI"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.LocalMI">[docs]</a><span class="k">class</span> <span class="nc">LocalMI</span><span class="p">(</span><span class="n">LocalLookaheadAcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_compute_acqf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">MI_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P0</span><span class="p">,</span> <span class="n">py1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="LocalSUR"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.lookahead.LocalSUR">[docs]</a><span class="k">class</span> <span class="nc">LocalSUR</span><span class="p">(</span><span class="n">LocalLookaheadAcquisitionFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="LocalSUR"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.LocalSUR">[docs]</a><span class="k">class</span> <span class="nc">LocalSUR</span><span class="p">(</span><span class="n">LocalLookaheadAcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">_compute_acqf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Px</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">P0</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">py1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">SUR_fn</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P0</span><span class="p">,</span> <span class="n">py1</span><span class="p">)</span></div>
 </pre></div>
@@ -243,15 +243,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -271,7 +277,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

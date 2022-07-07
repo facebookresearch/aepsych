@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -40,7 +40,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="PathosBenchmark"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">[docs]</a><span class="k">class</span> <span class="nc">PathosBenchmark</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">):</span>
+<div class="viewcode-block" id="PathosBenchmark"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">[docs]</a><span class="k">class</span> <span class="nc">PathosBenchmark</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">):</span>
     <span class="sd">"""Benchmarking class for parallelized benchmarks using pathos"""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nproc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -83,7 +83,7 @@
             <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-<div class="viewcode-block" id="PathosBenchmark.run_experiment"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">run_experiment</span><span class="p">(</span>
+<div class="viewcode-block" id="PathosBenchmark.run_experiment"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">run_experiment</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
         <span class="n">config_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
@@ -124,7 +124,7 @@
             <span class="k">del</span> <span class="n">self_dict</span><span class="p">[</span><span class="s2">"futures"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">self_dict</span>
 
-<div class="viewcode-block" id="PathosBenchmark.run_benchmarks"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">run_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PathosBenchmark.run_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">run_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Run all the benchmarks,</span>
 
 <span class="sd">        Note that this blocks while waiting for benchmarks to complete. If you</span>
@@ -135,7 +135,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">start_benchmarks</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collate_benchmarks</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PathosBenchmark.start_benchmarks"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">start_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PathosBenchmark.start_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">start_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Start benchmark run.</span>
 
 <span class="sd">        This does not block: after running it, self.futures holds the</span>
@@ -166,7 +166,7 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">futures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="PathosBenchmark.collate_benchmarks"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.collate_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">collate_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="PathosBenchmark.collate_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.collate_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">collate_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Collect benchmark results from completed futures.</span>
 
 <span class="sd">        Args:</span>
@@ -186,7 +186,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">futures</span> <span class="o">=</span> <span class="n">newfutures</span></div></div>
 
 
-<div class="viewcode-block" id="run_benchmarks_with_checkpoints"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.pathos_benchmark.run_benchmarks_with_checkpoints">[docs]</a><span class="k">def</span> <span class="nf">run_benchmarks_with_checkpoints</span><span class="p">(</span>
+<div class="viewcode-block" id="run_benchmarks_with_checkpoints"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.run_benchmarks_with_checkpoints">[docs]</a><span class="k">def</span> <span class="nf">run_benchmarks_with_checkpoints</span><span class="p">(</span>
     <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">benchmark_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">problems</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Problem</span><span class="p">],</span>
@@ -290,15 +290,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -318,7 +324,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

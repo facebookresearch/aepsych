@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -25,7 +25,7 @@
 <span class="kn">from</span> <span class="nn">torch.quasirandom</span> <span class="kn">import</span> <span class="n">SobolEngine</span>
 
 
-<div class="viewcode-block" id="make_scaled_sobol"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.make_scaled_sobol">[docs]</a><span class="k">def</span> <span class="nf">make_scaled_sobol</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="make_scaled_sobol"><a class="viewcode-back" href="../../utils.html#aepsych.utils.make_scaled_sobol">[docs]</a><span class="k">def</span> <span class="nf">make_scaled_sobol</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">ndim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">SobolEngine</span><span class="p">(</span><span class="n">dimension</span><span class="o">=</span><span class="n">ndim</span><span class="p">,</span> <span class="n">scramble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
 
@@ -35,13 +35,13 @@
     <span class="k">return</span> <span class="n">grid</span></div>
 
 
-<div class="viewcode-block" id="promote_0d"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.promote_0d">[docs]</a><span class="k">def</span> <span class="nf">promote_0d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="promote_0d"><a class="viewcode-back" href="../../utils.html#aepsych.utils.promote_0d">[docs]</a><span class="k">def</span> <span class="nf">promote_0d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">x</span></div>
 
 
-<div class="viewcode-block" id="dim_grid"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.dim_grid">[docs]</a><span class="k">def</span> <span class="nf">dim_grid</span><span class="p">(</span>
+<div class="viewcode-block" id="dim_grid"><a class="viewcode-back" href="../../utils.html#aepsych.utils.dim_grid">[docs]</a><span class="k">def</span> <span class="nf">dim_grid</span><span class="p">(</span>
     <span class="n">lower</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">upper</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -104,7 +104,7 @@
     <span class="k">return</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span>
 
 
-<div class="viewcode-block" id="interpolate_monotonic"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.interpolate_monotonic">[docs]</a><span class="k">def</span> <span class="nf">interpolate_monotonic</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">min_x</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">max_x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+<div class="viewcode-block" id="interpolate_monotonic"><a class="viewcode-back" href="../../utils.html#aepsych.utils.interpolate_monotonic">[docs]</a><span class="k">def</span> <span class="nf">interpolate_monotonic</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">min_x</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">max_x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
     <span class="c1"># Ben Letham's 1d interpolation code, assuming monotonicity.</span>
     <span class="c1"># basic idea is find the nearest two points to the LSE and</span>
     <span class="c1"># linearly interpolate between them (I think this is bisection</span>
@@ -123,7 +123,7 @@
     <span class="k">return</span> <span class="n">x_star</span></div>
 
 
-<div class="viewcode-block" id="get_lse_interval"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.get_lse_interval">[docs]</a><span class="k">def</span> <span class="nf">get_lse_interval</span><span class="p">(</span>
+<div class="viewcode-block" id="get_lse_interval"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_lse_interval">[docs]</a><span class="k">def</span> <span class="nf">get_lse_interval</span><span class="p">(</span>
     <span class="n">model</span><span class="p">,</span>
     <span class="n">mono_grid</span><span class="p">,</span>
     <span class="n">target_level</span><span class="p">,</span>
@@ -171,7 +171,7 @@
         <span class="k">return</span> <span class="n">median</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span></div>
 
 
-<div class="viewcode-block" id="get_lse_contour"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.get_lse_contour">[docs]</a><span class="k">def</span> <span class="nf">get_lse_contour</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">mono_dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lb</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+<div class="viewcode-block" id="get_lse_contour"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_lse_contour">[docs]</a><span class="k">def</span> <span class="nf">get_lse_contour</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">mono_dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lb</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">interpolate_monotonic</span><span class="p">(</span><span class="n">mono_grid</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">),</span>
         <span class="n">mono_dim</span><span class="p">,</span>
@@ -179,7 +179,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_jnd_1d"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.get_jnd_1d">[docs]</a><span class="k">def</span> <span class="nf">get_jnd_1d</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mono_dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lb</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+<div class="viewcode-block" id="get_jnd_1d"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_jnd_1d">[docs]</a><span class="k">def</span> <span class="nf">get_jnd_1d</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mono_dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lb</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
     <span class="n">interpolate_to</span> <span class="o">=</span> <span class="n">post_mean</span> <span class="o">+</span> <span class="n">df</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -189,7 +189,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_jnd_multid"><a class="viewcode-back" href="../../aepsych.html#aepsych.utils.get_jnd_multid">[docs]</a><span class="k">def</span> <span class="nf">get_jnd_multid</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mono_dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lb</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+<div class="viewcode-block" id="get_jnd_multid"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_jnd_multid">[docs]</a><span class="k">def</span> <span class="nf">get_jnd_multid</span><span class="p">(</span><span class="n">post_mean</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mono_dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lb</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">get_jnd_1d</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">mono_dim</span><span class="o">=</span><span class="n">mono_dim</span><span class="p">,</span> <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">),</span>
         <span class="n">mono_dim</span><span class="p">,</span>
@@ -205,15 +205,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -233,7 +239,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

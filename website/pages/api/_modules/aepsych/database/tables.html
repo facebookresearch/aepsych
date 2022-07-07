@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -62,7 +62,7 @@
 <span class="sd">"""</span>
 
 
-<div class="viewcode-block" id="DBMasterTable"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DBMasterTable">[docs]</a><span class="k">class</span> <span class="nc">DBMasterTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<div class="viewcode-block" id="DBMasterTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable">[docs]</a><span class="k">class</span> <span class="nc">DBMasterTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">    Master table to keep track of all experiments and unique keys associated with the experiment</span>
 <span class="sd">    """</span>
@@ -96,18 +96,18 @@
             <span class="sa">f</span><span class="s2">"experiment_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_id</span><span class="si">}</span><span class="s2">)&gt;"</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="DBMasterTable.update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DBMasterTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DBMasterTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DBMasterTable : update called"</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DBMasterTable.requires_update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DBMasterTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DBMasterTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div></div>
 
 
 <span class="c1"># link back to the master table entry</span>
 <span class="c1">#</span>
-<div class="viewcode-block" id="DbReplayTable"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbReplayTable">[docs]</a><span class="k">class</span> <span class="nc">DbReplayTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<div class="viewcode-block" id="DbReplayTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbReplayTable">[docs]</a><span class="k">class</span> <span class="nc">DbReplayTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"replay_data"</span>
 
     <span class="n">use_extra_info</span> <span class="o">=</span> <span class="kc">False</span>
@@ -126,7 +126,7 @@
 
     <span class="n">__mapper_args__</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="DbReplayTable.from_sqlite"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbReplayTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DbReplayTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbReplayTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
         <span class="n">this</span> <span class="o">=</span> <span class="n">DbReplayTable</span><span class="p">()</span>
         <span class="n">this</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"unique_id"</span><span class="p">]</span>
@@ -176,7 +176,7 @@
 
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="DbReplayTable.update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbReplayTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DbReplayTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbReplayTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbReplayTable : update called"</span><span class="p">)</span>
 
@@ -186,7 +186,7 @@
         <span class="k">if</span> <span class="n">DbReplayTable</span><span class="o">.</span><span class="n">_configs_require_conversion</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
             <span class="n">DbReplayTable</span><span class="o">.</span><span class="n">_convert_configs</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DbReplayTable.requires_update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbReplayTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DbReplayTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbReplayTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="n">DbReplayTable</span><span class="o">.</span><span class="n">_has_extra_info</span><span class="p">(</span>
             <span class="n">engine</span>
@@ -234,7 +234,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbReplayTable : updated old configs."</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="DbStratTable"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbStratTable">[docs]</a><span class="k">class</span> <span class="nc">DbStratTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<div class="viewcode-block" id="DbStratTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbStratTable">[docs]</a><span class="k">class</span> <span class="nc">DbStratTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"strat_data"</span>
 
     <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -244,7 +244,7 @@
     <span class="n">master_table_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"master.unique_id"</span><span class="p">))</span>
     <span class="n">parent</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DBMasterTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"children_strat"</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DbStratTable.from_sqlite"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbStratTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DbStratTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbStratTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
         <span class="n">this</span> <span class="o">=</span> <span class="n">DbStratTable</span><span class="p">()</span>
         <span class="n">this</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"unique_id"</span><span class="p">]</span>
@@ -261,16 +261,16 @@
             <span class="sa">f</span><span class="s2">", master_table_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_table_id</span><span class="si">}</span><span class="s2">)&gt;"</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="DbStratTable.update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbStratTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DbStratTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbStratTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbStratTable : update called"</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DbStratTable.requires_update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbStratTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DbStratTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbStratTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div></div>
 
 
-<div class="viewcode-block" id="DbConfigTable"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbConfigTable">[docs]</a><span class="k">class</span> <span class="nc">DbConfigTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<div class="viewcode-block" id="DbConfigTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbConfigTable">[docs]</a><span class="k">class</span> <span class="nc">DbConfigTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"config_data"</span>
 
     <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -280,7 +280,7 @@
     <span class="n">master_table_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"master.unique_id"</span><span class="p">))</span>
     <span class="n">parent</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DBMasterTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"children_config"</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DbConfigTable.from_sqlite"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbConfigTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DbConfigTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbConfigTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
         <span class="n">this</span> <span class="o">=</span> <span class="n">DbConfigTable</span><span class="p">()</span>
         <span class="n">this</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"unique_id"</span><span class="p">]</span>
@@ -297,11 +297,11 @@
             <span class="sa">f</span><span class="s2">", master_table_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_table_id</span><span class="si">}</span><span class="s2">)&gt;"</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="DbConfigTable.update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbConfigTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DbConfigTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbConfigTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbConfigTable : update called"</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DbConfigTable.requires_update"><a class="viewcode-back" href="../../../aepsych.database.html#aepsych.database.tables.DbConfigTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DbConfigTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbConfigTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div></div>
 </pre></div>
@@ -314,15 +314,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -342,7 +348,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

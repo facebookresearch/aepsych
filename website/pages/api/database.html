@@ -1,0 +1,395 @@
+
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-database">
+<h1>aepsych.database<a class="headerlink" href="#aepsych-database" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-aepsych.database.db">
+<span id="aepsych-database-db-module"></span><h2>aepsych.database.db module<a class="headerlink" href="#module-aepsych.database.db" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.database.db.Database">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.db.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.get_engine">
+<span class="sig-name descname"><span class="pre">get_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_engine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.delete_db">
+<span class="sig-name descname"><span class="pre">delete_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.delete_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.delete_db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.is_update_required">
+<span class="sig-name descname"><span class="pre">is_update_required</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.is_update_required"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.is_update_required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.perform_updates">
+<span class="sig-name descname"><span class="pre">perform_updates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.perform_updates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.perform_updates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform updates on known tables. SQLAlchemy doesn’t do alters so they’re done the old fashioned way.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.session_scope">
+<span class="sig-name descname"><span class="pre">session_scope</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.session_scope"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.session_scope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide a transactional scope around a series of operations.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.execute_sql_query">
+<span class="sig-name descname"><span class="pre">execute_sql_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.execute_sql_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.execute_sql_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute an arbitrary query written in sql.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – </p></li>
+<li><p><strong>vals</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.get_master_records">
+<span class="sig-name descname"><span class="pre">get_master_records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_master_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_master_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab the list of master records.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.get_master_record">
+<span class="sig-name descname"><span class="pre">get_master_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_master_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_master_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab the list of master record for a specific experiment (master) id.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.get_replay_for">
+<span class="sig-name descname"><span class="pre">get_replay_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_replay_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_replay_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the replay records for a specific master row.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.get_strats_for">
+<span class="sig-name descname"><span class="pre">get_strats_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_strats_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_strats_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the strat records for a specific master row.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.get_strat_for">
+<span class="sig-name descname"><span class="pre">get_strat_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strat_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_strat_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_strat_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a specific strat record for a specific master row.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.get_config_for">
+<span class="sig-name descname"><span class="pre">get_config_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_config_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_config_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the strat records for a specific master row.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.record_setup">
+<span class="sig-name descname"><span class="pre">record_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_setup" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.record_message">
+<span class="sig-name descname"><span class="pre">record_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_message" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.record_strat">
+<span class="sig-name descname"><span class="pre">record_strat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_strat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.record_config">
+<span class="sig-name descname"><span class="pre">record_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.db.Database.list_master_records">
+<span class="sig-name descname"><span class="pre">list_master_records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.list_master_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.list_master_records" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-aepsych.database.tables">
+<span id="aepsych-database-tables-module"></span><h2>aepsych.database.tables module<a class="headerlink" href="#module-aepsych.database.tables" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.database.tables.Base">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">Base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aepsych.database.tables.Base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The base class of the class hierarchy.</p>
+<p>When called, it accepts no arguments and returns a new featureless
+instance that has no instance attributes and cannot be given any.</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
+<p>Only keys that are present as
+attributes of the instance’s class are allowed. These could be,
+for example, any mapped columns or relationships.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.Base.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">MetaData()</span></em><a class="headerlink" href="#aepsych.database.tables.Base.metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.Base.registry">
+<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sqlalchemy.orm.decl_api.registry</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#aepsych.database.tables.Base.registry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DBMasterTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DBMasterTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DBMasterTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<p>Master table to keep track of all experiments and unique keys associated with the experiment</p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
+<p>Only keys that are present as
+attributes of the instance’s class are allowed. These could be,
+for example, any mapped columns or relationships.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.unique_id">
+<span class="sig-name descname"><span class="pre">unique_id</span></span><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.unique_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.experiment_name">
+<span class="sig-name descname"><span class="pre">experiment_name</span></span><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.experiment_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.experiment_description">
+<span class="sig-name descname"><span class="pre">experiment_description</span></span><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.experiment_description" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.experiment_id">
+<span class="sig-name descname"><span class="pre">experiment_id</span></span><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.experiment_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.children_replay">
+<span class="sig-name descname"><span class="pre">children_replay</span></span><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.children_replay" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.children_strat">
+<span class="sig-name descname"><span class="pre">children_strat</span></span><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.children_strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.children_config">
+<span class="sig-name descname"><span class="pre">children_config</span></span><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.children_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>@classmethod
+def from_sqlite(cls, row):</p>
+<blockquote>
+<div><p>this = DBMasterTable()
+this.unique_id = row[“unique_id”]
+this.experiment_name = row[“experiment_name”]
+this.experiment_description = row[“experiment_description”]
+this.experiment_id = row[“experiment_id”]
+return this</p>
+</div></blockquote>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DBMasterTable.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable.requires_update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requires_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DBMasterTable.requires_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DBMasterTable.requires_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbReplayTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbReplayTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbReplayTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
+<p>Only keys that are present as
+attributes of the instance’s class are allowed. These could be,
+for example, any mapped columns or relationships.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.use_extra_info">
+<span class="sig-name descname"><span class="pre">use_extra_info</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.use_extra_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.unique_id">
+<span class="sig-name descname"><span class="pre">unique_id</span></span><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.unique_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.message_type">
+<span class="sig-name descname"><span class="pre">message_type</span></span><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.message_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.message_contents">
+<span class="sig-name descname"><span class="pre">message_contents</span></span><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.message_contents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.extra_info">
+<span class="sig-name descname"><span class="pre">extra_info</span></span><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.extra_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.master_table_id">
+<span class="sig-name descname"><span class="pre">master_table_id</span></span><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.master_table_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.parent">
+<span class="sig-name descname"><span class="pre">parent</span></span><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.from_sqlite">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_sqlite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbReplayTable.from_sqlite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.from_sqlite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbReplayTable.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable.requires_update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requires_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbReplayTable.requires_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbReplayTable.requires_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbStratTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbStratTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbStratTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
+<p>Only keys that are present as
+attributes of the instance’s class are allowed. These could be,
+for example, any mapped columns or relationships.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.unique_id">
+<span class="sig-name descname"><span class="pre">unique_id</span></span><a class="headerlink" href="#aepsych.database.tables.DbStratTable.unique_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#aepsych.database.tables.DbStratTable.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.strat">
+<span class="sig-name descname"><span class="pre">strat</span></span><a class="headerlink" href="#aepsych.database.tables.DbStratTable.strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.master_table_id">
+<span class="sig-name descname"><span class="pre">master_table_id</span></span><a class="headerlink" href="#aepsych.database.tables.DbStratTable.master_table_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.parent">
+<span class="sig-name descname"><span class="pre">parent</span></span><a class="headerlink" href="#aepsych.database.tables.DbStratTable.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.from_sqlite">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_sqlite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbStratTable.from_sqlite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbStratTable.from_sqlite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbStratTable.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbStratTable.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable.requires_update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requires_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbStratTable.requires_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbStratTable.requires_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbConfigTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbConfigTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbConfigTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<p>A simple constructor that allows initialization from kwargs.</p>
+<p>Sets attributes on the constructed instance using the names and
+values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
+<p>Only keys that are present as
+attributes of the instance’s class are allowed. These could be,
+for example, any mapped columns or relationships.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.unique_id">
+<span class="sig-name descname"><span class="pre">unique_id</span></span><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.unique_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.master_table_id">
+<span class="sig-name descname"><span class="pre">master_table_id</span></span><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.master_table_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.parent">
+<span class="sig-name descname"><span class="pre">parent</span></span><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.from_sqlite">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_sqlite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbConfigTable.from_sqlite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.from_sqlite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbConfigTable.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable.requires_update">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requires_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbConfigTable.requires_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbConfigTable.requires_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-aepsych.database">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.database" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="benchmark.html" title="previous chapter">aepsych.benchmark</a></li>
+<li>Next: <a href="factory.html" title="next chapter">aepsych.factory</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div>

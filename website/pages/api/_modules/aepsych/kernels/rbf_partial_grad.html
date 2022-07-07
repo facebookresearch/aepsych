@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -25,7 +25,7 @@
 <span class="kn">from</span> <span class="nn">gpytorch.kernels.rbf_kernel_grad</span> <span class="kn">import</span> <span class="n">RBFKernelGrad</span>
 
 
-<div class="viewcode-block" id="RBFKernelPartialObsGrad"><a class="viewcode-back" href="../../../aepsych.kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad">[docs]</a><span class="k">class</span> <span class="nc">RBFKernelPartialObsGrad</span><span class="p">(</span><span class="n">RBFKernelGrad</span><span class="p">):</span>
+<div class="viewcode-block" id="RBFKernelPartialObsGrad"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad">[docs]</a><span class="k">class</span> <span class="nc">RBFKernelPartialObsGrad</span><span class="p">(</span><span class="n">RBFKernelGrad</span><span class="p">):</span>
     <span class="sd">"""An RBF kernel over observations of f, and partial/non-overlapping</span>
 <span class="sd">    observations of the gradient of f.</span>
 
@@ -39,7 +39,7 @@
 <span class="sd">    if it is of df/dxi.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="RBFKernelPartialObsGrad.forward"><a class="viewcode-back" href="../../../aepsych.kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+<div class="viewcode-block" id="RBFKernelPartialObsGrad.forward"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">diag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="c1"># Extract grad index from each</span>
@@ -57,7 +57,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">K</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">p1</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="RBFKernelPartialObsGrad.num_outputs_per_input"><a class="viewcode-back" href="../../../aepsych.kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input">[docs]</a>    <span class="k">def</span> <span class="nf">num_outputs_per_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="RBFKernelPartialObsGrad.num_outputs_per_input"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input">[docs]</a>    <span class="k">def</span> <span class="nf">num_outputs_per_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span></div></div>
 </pre></div>
 </div>
@@ -69,15 +69,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -97,7 +103,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

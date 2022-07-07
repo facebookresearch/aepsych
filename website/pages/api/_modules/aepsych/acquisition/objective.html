@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -20,19 +20,20 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.objective</span> <span class="kn">import</span> <span class="n">MCAcquisitionObjective</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torch.distributions.normal</span> <span class="kn">import</span> <span class="n">Normal</span>
 
 
-<div class="viewcode-block" id="ProbitObjective"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.ProbitObjective">[docs]</a><span class="k">class</span> <span class="nc">ProbitObjective</span><span class="p">(</span><span class="n">MCAcquisitionObjective</span><span class="p">):</span>
+<div class="viewcode-block" id="ProbitObjective"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.ProbitObjective">[docs]</a><span class="k">class</span> <span class="nc">ProbitObjective</span><span class="p">(</span><span class="n">MCAcquisitionObjective</span><span class="p">):</span>
     <span class="sd">"""Probit objective</span>
 
 <span class="sd">    Transforms the input through the normal CDF (probit).</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="ProbitObjective.forward"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.ProbitObjective.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="ProbitObjective.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.ProbitObjective.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Evaluates the objective (normal CDF).</span>
 
 <span class="sd">        Args:</span>
@@ -43,10 +44,23 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: [description]</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span></div></div>
+        <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ProbitObjective.inverse"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.ProbitObjective.inverse">[docs]</a>    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Evaluates the inverse of the objective (normal PPF).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            samples (Tensor): GP samples.</span>
+<span class="sd">            X (Optional[Tensor], optional): ignored, here for compatibility</span>
+<span class="sd">                with MCAcquisitionObjective.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tensor: [description]</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">icdf</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span></div></div>
 
 
-<div class="viewcode-block" id="FloorLinkObjective"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorLinkObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorLinkObjective</span><span class="p">(</span><span class="n">MCAcquisitionObjective</span><span class="p">):</span>
+<div class="viewcode-block" id="FloorLinkObjective"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLinkObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorLinkObjective</span><span class="p">(</span><span class="n">MCAcquisitionObjective</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">    Wrapper for objectives to add a floor, when</span>
 <span class="sd">    the probability is known not to go below it.</span>
@@ -56,7 +70,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">floor</span> <span class="o">=</span> <span class="n">floor</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="FloorLinkObjective.forward"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="FloorLinkObjective.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Evaluates the objective for input x and floor f</span>
 
 <span class="sd">        Args:</span>
@@ -69,27 +83,46 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor</span></div>
 
-<div class="viewcode-block" id="FloorLinkObjective.link"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+<div class="viewcode-block" id="FloorLinkObjective.inverse"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.inverse">[docs]</a>    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Evaluates the inverse of the objective.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            samples (Tensor): GP samples.</span>
+<span class="sd">            X (Optional[Tensor], optional): ignored, here for compatibility</span>
+<span class="sd">                with MCAcquisitionObjective.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tensor: [description]</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_link</span><span class="p">((</span><span class="n">samples</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="FloorLinkObjective.link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="FloorLinkObjective.from_config"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FloorLinkObjective.inverse_link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.inverse_link">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="FloorLinkObjective.from_config"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">floor</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"floor"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">floor</span><span class="o">=</span><span class="n">floor</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FloorLogitObjective"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorLogitObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorLogitObjective</span><span class="p">(</span><span class="n">FloorLinkObjective</span><span class="p">):</span>
+<div class="viewcode-block" id="FloorLogitObjective"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLogitObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorLogitObjective</span><span class="p">(</span><span class="n">FloorLinkObjective</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">    Logistic sigmoid (aka expit, aka logistic CDF),</span>
 <span class="sd">    but with a floor so that its output is</span>
 <span class="sd">    between floor and 1.0.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="FloorLogitObjective.link"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorLogitObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="FloorLogitObjective.link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLogitObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FloorLogitObjective.inverse_link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorLogitObjective.inverse_link">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">logit</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FloorGumbelObjective"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorGumbelObjective</span><span class="p">(</span><span class="n">FloorLinkObjective</span><span class="p">):</span>
+<div class="viewcode-block" id="FloorGumbelObjective"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorGumbelObjective</span><span class="p">(</span><span class="n">FloorLinkObjective</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">    Gumbel CDF but with a floor so that its output</span>
 <span class="sd">    is between floor and 1.0. Note that this is not</span>
@@ -98,20 +131,26 @@
 <span class="sd">    distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="FloorGumbelObjective.link"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+<div class="viewcode-block" id="FloorGumbelObjective.link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span>
-            <span class="mi">1</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">samples</span><span class="p">)),</span> <span class="n">posinf</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">neginf</span><span class="o">=</span><span class="mf">0.0</span>
-        <span class="p">)</span></div></div>
+            <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">expm1</span><span class="p">(</span><span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">samples</span><span class="p">)),</span> <span class="n">posinf</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">neginf</span><span class="o">=</span><span class="mf">0.0</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="FloorGumbelObjective.inverse_link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective.inverse_link">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">samples</span><span class="p">))</span></div></div>
 
 
-<div class="viewcode-block" id="FloorProbitObjective"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorProbitObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorProbitObjective</span><span class="p">(</span><span class="n">FloorLinkObjective</span><span class="p">):</span>
+<div class="viewcode-block" id="FloorProbitObjective"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorProbitObjective">[docs]</a><span class="k">class</span> <span class="nc">FloorProbitObjective</span><span class="p">(</span><span class="n">FloorLinkObjective</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">    Probit (aka Gaussian CDF), but with a floor</span>
 <span class="sd">    so that its output is between floor and 1.0.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="FloorProbitObjective.link"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.objective.FloorProbitObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="FloorProbitObjective.link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorProbitObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FloorProbitObjective.inverse_link"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.objective.FloorProbitObjective.inverse_link">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">icdf</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
@@ -122,15 +161,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -150,7 +195,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

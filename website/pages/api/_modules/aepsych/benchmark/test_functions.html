@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -65,7 +65,7 @@
 <span class="n">dubno_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="make_songetal_threshfun"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.test_functions.make_songetal_threshfun">[docs]</a><span class="k">def</span> <span class="nf">make_songetal_threshfun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="make_songetal_threshfun"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.make_songetal_threshfun">[docs]</a><span class="k">def</span> <span class="nf">make_songetal_threshfun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
     <span class="sd">"""Generate a synthetic threshold function by interpolation of real data.</span>
 
 <span class="sd">    Real data is from Dubno et al. 2013, and procedure follows Song et al. 2017, 2018.</span>
@@ -93,7 +93,7 @@
     <span class="k">return</span> <span class="n">f_combo</span></div>
 
 
-<div class="viewcode-block" id="make_songetal_testfun"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.test_functions.make_songetal_testfun">[docs]</a><span class="k">def</span> <span class="nf">make_songetal_testfun</span><span class="p">(</span>
+<div class="viewcode-block" id="make_songetal_testfun"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.make_songetal_testfun">[docs]</a><span class="k">def</span> <span class="nf">make_songetal_testfun</span><span class="p">(</span>
     <span class="n">phenotype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Metabolic"</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
     <span class="sd">"""Make an audiometric test function following Song et al. 2017.</span>
@@ -141,7 +141,7 @@
     <span class="k">return</span> <span class="n">song_testfun</span></div>
 
 
-<div class="viewcode-block" id="novel_discrimination_testfun"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.test_functions.novel_discrimination_testfun">[docs]</a><span class="k">def</span> <span class="nf">novel_discrimination_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="novel_discrimination_testfun"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.novel_discrimination_testfun">[docs]</a><span class="k">def</span> <span class="nf">novel_discrimination_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">"""Evaluate novel discrimination test function from Owen et al.</span>
 
 <span class="sd">    The threshold is roughly parabolic with context, and the slope</span>
@@ -161,7 +161,7 @@
     <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">amp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">context</span></div>
 
 
-<div class="viewcode-block" id="novel_detection_testfun"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.test_functions.novel_detection_testfun">[docs]</a><span class="k">def</span> <span class="nf">novel_detection_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="novel_detection_testfun"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.novel_detection_testfun">[docs]</a><span class="k">def</span> <span class="nf">novel_detection_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">"""Evaluate novel detection test function from Owen et al.</span>
 
 <span class="sd">    The threshold is roughly parabolic with context, and the slope</span>
@@ -179,7 +179,7 @@
     <span class="k">return</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">amp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">context</span> <span class="o">-</span> <span class="mi">4</span></div>
 
 
-<div class="viewcode-block" id="discrim_highdim"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.test_functions.discrim_highdim">[docs]</a><span class="k">def</span> <span class="nf">discrim_highdim</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="discrim_highdim"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.discrim_highdim">[docs]</a><span class="k">def</span> <span class="nf">discrim_highdim</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">amp</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">freq</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">vscale</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
@@ -203,7 +203,7 @@
     <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="modified_hartmann6"><a class="viewcode-back" href="../../../aepsych.benchmark.html#aepsych.benchmark.test_functions.modified_hartmann6">[docs]</a><span class="k">def</span> <span class="nf">modified_hartmann6</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<div class="viewcode-block" id="modified_hartmann6"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.modified_hartmann6">[docs]</a><span class="k">def</span> <span class="nf">modified_hartmann6</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
     <span class="sd">"""</span>
 <span class="sd">    The modified Hartmann6 function used in Lyu et al.</span>
 <span class="sd">    """</span>
@@ -242,15 +242,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -270,7 +276,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

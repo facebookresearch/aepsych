@@ -1,10 +1,10 @@
 
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
-<script type="text/javascript" src="/js/underscore.js"></script>
-<script type="text/javascript" src="/js/doctools.js"></script>
-<script type="text/javascript" src="/js/language_data.js"></script>
-<script type="text/javascript" src="/js/searchtools.js"></script>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/aepsych/js/documentation_options.js"></script>
+<script type="text/javascript" src="/aepsych/js/jquery.js"></script>
+<script type="text/javascript" src="/aepsych/js/underscore.js"></script>
+<script type="text/javascript" src="/aepsych/js/doctools.js"></script>
+<script type="text/javascript" src="/aepsych/js/language_data.js"></script>
+<script type="text/javascript" src="/aepsych/js/searchtools.js"></script>
 <div class="sphinx"><div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
@@ -20,25 +20,25 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.acquisition.monotonic_rejection</span> <span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
+<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="n">ProbitObjective</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.monte_carlo</span> <span class="kn">import</span> <span class="n">MCAcquisitionFunction</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.objective</span> <span class="kn">import</span> <span class="n">MCAcquisitionObjective</span>
 <span class="kn">from</span> <span class="nn">botorch.models.model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">botorch.sampling.samplers</span> <span class="kn">import</span> <span class="n">MCSampler</span><span class="p">,</span> <span class="n">SobolQMCNormalSampler</span>
 <span class="kn">from</span> <span class="nn">botorch.utils.transforms</span> <span class="kn">import</span> <span class="n">t_batch_mode_transform</span>
-<span class="kn">from</span> <span class="nn">aepsych.acquisition.monotonic_rejection</span> <span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
-<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="n">ProbitObjective</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 
-<div class="viewcode-block" id="balv_acq"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mc_posterior_variance.balv_acq">[docs]</a><span class="k">def</span> <span class="nf">balv_acq</span><span class="p">(</span><span class="n">obj_samps</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-    <span class="sd">"""Evaluate BALV (posterior variance) on a set of objective samples. </span>
+<div class="viewcode-block" id="balv_acq"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.balv_acq">[docs]</a><span class="k">def</span> <span class="nf">balv_acq</span><span class="p">(</span><span class="n">obj_samps</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="sd">"""Evaluate BALV (posterior variance) on a set of objective samples.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        obj_samps (torch.Tensor): Samples from the GP, transformed by the objective. </span>
-<span class="sd">            Should be samples x batch_shape. </span>
+<span class="sd">        obj_samps (torch.Tensor): Samples from the GP, transformed by the objective.</span>
+<span class="sd">            Should be samples x batch_shape.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        torch.Tensor: Acquisition function value. </span>
+<span class="sd">        torch.Tensor: Acquisition function value.</span>
 <span class="sd">    """</span>
 
     <span class="c1"># the output of objective is of shape num_samples x batch_shape x d_out</span>
@@ -47,9 +47,8 @@
     <span class="k">return</span> <span class="n">obj_samps</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MCPosteriorVariance"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance">[docs]</a><span class="k">class</span> <span class="nc">MCPosteriorVariance</span><span class="p">(</span><span class="n">MCAcquisitionFunction</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">"""Posterior variance, computed using samples so we can use objective/transform</span>
-<span class="sd">    """</span>
+<div class="viewcode-block" id="MCPosteriorVariance"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance">[docs]</a><span class="k">class</span> <span class="nc">MCPosteriorVariance</span><span class="p">(</span><span class="n">MCAcquisitionFunction</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">"""Posterior variance, computed using samples so we can use objective/transform"""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -73,7 +72,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X_pending</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
 
-<div class="viewcode-block" id="MCPosteriorVariance.forward"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">()</span>
+<div class="viewcode-block" id="MCPosteriorVariance.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance.forward">[docs]</a>    <span class="nd">@t_batch_mode_transform</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">"""Evaluate MCPosteriorVariance on the candidate set `X`.</span>
 
@@ -88,9 +87,9 @@
         <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>  <span class="c1"># num_samples x batch_shape x q x d_out</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">samples</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="MCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="MCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="c1"># RejectionSampler drops the final dim so we reaugment it</span>
         <span class="c1"># here for compatibility with non-Monotonic MCAcquisition</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -98,8 +97,8 @@
         <span class="k">return</span> <span class="n">balv_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="MonotonicMCPosteriorVariance"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance">[docs]</a><span class="k">class</span> <span class="nc">MonotonicMCPosteriorVariance</span><span class="p">(</span><span class="n">MonotonicMCAcquisition</span><span class="p">):</span>
-<div class="viewcode-block" id="MonotonicMCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../aepsych.acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="MonotonicMCPosteriorVariance"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance">[docs]</a><span class="k">class</span> <span class="nc">MonotonicMCPosteriorVariance</span><span class="p">(</span><span class="n">MonotonicMCAcquisition</span><span class="p">):</span>
+<div class="viewcode-block" id="MonotonicMCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">balv_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
@@ -111,15 +110,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -139,7 +144,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>
