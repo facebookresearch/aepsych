@@ -5,14 +5,15 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from aepsych.generators.base import AEPsychGenerator
-import torch
+from typing import Optional, Union
+
 import numpy as np
-from typing import Union, Optional
+import torch
+from aepsych.config import Config
+from aepsych.generators.base import AEPsychGenerator
+from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds
 from torch.quasirandom import SobolEngine
-from aepsych.config import Config
-from aepsych.models.base import AEPsychMixin
 
 
 class SobolGenerator(AEPsychGenerator):
