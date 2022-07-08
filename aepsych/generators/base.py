@@ -5,16 +5,17 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import abc
+from inspect import signature
+from typing import Generic, TypeVar
+
+import numpy as np
 from aepsych.config import Config
 from aepsych.models.base import AEPsychMixin
-import numpy as np
-from typing import Generic, TypeVar
 from botorch.acquisition import (
     AcquisitionFunction,
     qNoisyExpectedImprovement,
     NoisyExpectedImprovement,
 )
-from inspect import signature
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
