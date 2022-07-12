@@ -8,9 +8,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-
 import pickle
 
+from aepsych.config import Config
 from sqlalchemy import (
     Column,
     ForeignKey,
@@ -21,8 +21,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
-
-from aepsych.config import Config
 
 logger = logging.getLogger()
 

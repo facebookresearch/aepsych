@@ -16,7 +16,6 @@ using UnityEngine.UI;
 
 using AEPsych;
 using UnityEditor;
-using Newtonsoft.Json;
 using System;
 using UnityEngine.EventSystems;
 
@@ -537,11 +536,13 @@ namespace AEPsych
                 if (newStatus == AEPsychClient.ClientStatus.QuerySent)
                 {
                     SetState(ExperimentState.WaitingForQueryResponse);
-                    queryModel.QueryEnabled(false);
+                    if (useModelExploration)
+                        queryModel.QueryEnabled(false);
                 }
                 else
                 {
-                    queryModel.QueryEnabled(true);
+                    if (useModelExploration)
+                        queryModel.QueryEnabled(true);
                 }
             }
             else if (_experimentState == ExperimentState.WaitingForTellResponse)
@@ -848,7 +849,7 @@ namespace AEPsych
         }
 
         /// <summary>
-        /// Resumes a paused experiment by re-enabling the Client state change listener and 
+        /// Resumes a paused experiment by re-enabling the Client state change listener and
         /// starting a new trial. If the experiment is uninitialized, it will initialize it.
         ///
         /// </summary>

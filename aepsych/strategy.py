@@ -11,7 +11,6 @@ from typing import List, Optional, Union
 
 import numpy as np
 import torch
-
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
