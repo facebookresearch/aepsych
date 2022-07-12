@@ -29,32 +29,12 @@ class TutorialHome extends React.Component {
             </header>
             <body>
               <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                The tutorials here are designed to help you get familiar with the parts of
+                AEPsych relevant to you, whether from a psychophysics or CSML perspective.
+                Additional tutorials will be available soon.
               </p>
 
-              {/* <p>
-                <h4>Why AEPsych?</h4>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                    ed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  </p>
-                <h4>Header</h4>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  </p>
-                <h4>Header</h4>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  </p>
-                <h4>Header</h4>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  </p>
-              </p> */}
+              {}
             </body>
           </div>
         </Container>

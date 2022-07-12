@@ -224,7 +224,7 @@ class Index extends React.Component {
       </div>
     );
 
-    const referenceCodeBlock = `${pre}python
+  const referenceCodeBlock  = `${pre}plaintext
   @misc{https://doi.org/10.48550/arxiv.2104.09549,
   doi = {10.48550/ARXIV.2104.09549},
   url = {https://arxiv.org/abs/2104.09549},
@@ -247,13 +247,12 @@ class Index extends React.Component {
         style={{ textAlign: 'center' }}>
         <h2>References</h2>
         <Container>
-          <p className="refe-text">
-            If you use AEPsych, the current canonical package reference is:
-          </p>
-          <MarkdownBlock >{referenceCodeBlock}</MarkdownBlock>
-          <p className="refe-text">You can check out additional papers contributing to or using AEPsych here
-            <a href="#" target="_blank">(LINK TO PAPERS PAGE)</a>.
-          </p>
+         <p className="refe-text">
+          <a href="https://arxiv.org/abs/2104.09549">Adaptive Nonparametric Psychophysics</a>
+        </p>
+         <MarkdownBlock >{referenceCodeBlock}</MarkdownBlock>
+         <p className="refe-text"><a href="docs/papers">Check out additional papers contributing to or using AEPsych</a>
+        </p>
         </Container>
       </div>
     );

@@ -121,7 +121,7 @@ def get_lse_interval(
     lb=-np.inf,
     ub=np.inf,
     gridsize=30,
-    **kwargs
+    **kwargs,
 ):
 
     xgrid = torch.Tensor(

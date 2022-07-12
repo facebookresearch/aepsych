@@ -1,13 +1,22 @@
 {
   "docs": {
     "About": [
-      "introduction"
+      "introduction",
+      "papers"
     ],
-    "Basic Concepts": [
-      "api_overview",
-      "configs"
+    "General": [
+      "getting_started",
+      "configs",
+      "clients"
     ],
-    "Advanced Topics": [
+    "Background materials": [
+      "psychophysics_intro",
+      "gp_intro"
+    ],
+    "For developers": [
+      "api_overview"
+    ],
+    "Advanced topics": [
       "finish_criteria"
     ]
   }

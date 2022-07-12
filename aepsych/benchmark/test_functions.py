@@ -187,7 +187,7 @@ def discrim_highdim(x: np.ndarray) -> np.ndarray:
     z = (amp - context) / (variance + variance * (1 + context))
     p = norm.cdf(z)
     p = (1 - 0.5) * p + 0.5  # Floor at p=0.5
-    p = np.clip(p, 0.5, 1-1e-5) # clip so that norm.ppf doesn't go to inf
+    p = np.clip(p, 0.5, 1 - 1e-5)  # clip so that norm.ppf doesn't go to inf
     return norm.ppf(p)
 
 

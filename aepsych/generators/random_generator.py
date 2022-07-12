@@ -11,8 +11,8 @@ import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.utils import _process_bounds
 from aepsych.models.base import AEPsychMixin
+from aepsych.utils import _process_bounds
 
 
 class RandomGenerator(AEPsychGenerator):
