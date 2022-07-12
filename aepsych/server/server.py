@@ -23,6 +23,8 @@ from aepsych.server.sockets import DummySocket, createSocket
 from aepsych.strategy import SequentialStrategy
 
 logger = utils_logging.getLogger(logging.INFO)
+DEFAULT_DESC = "default description"
+DEFAULT_NAME = "default name"
 
 
 def get_next_filename(folder, fname, ext):
@@ -329,29 +331,28 @@ class AEPsychServer(object):
 
     def handle_setup_v01(self, request):
         logger.debug("got setup message!")
-
+        ### make a temporary config object to derive parameters because server handles config after table
+        tempconfig = Config(**request["message"])
         if not self.is_performing_replay:
             experiment_id = None
             if self._db_master_record is not None:
                 experiment_id = self._db_master_record.experiment_id
-            ### make a temporary config object to derive parameters because server handles config after table
-            tempconfig = Config(**request["message"])
             if "metadata" in tempconfig.keys():
-                cdesc = tempconfig["metadata"]["experiment_description"] if ("experiment_description" in tempconfig["metadata"].keys()) else "Default Description"
-                cname = tempconfig["metadata"]["experiment_name"] if ("experiment_name" in tempconfig["metadata"].keys()) else "Default Name"
+                cdesc = tempconfig["metadata"]["experiment_description"] if ("experiment_description" in tempconfig["metadata"].keys()) else DEFAULT_DESC
+                cname = tempconfig["metadata"]["experiment_name"] if ("experiment_name" in tempconfig["metadata"].keys()) else DEFAULT_NAME
                 cid = tempconfig["metadata"]["experiment_id"] if ("experiment_id" in tempconfig["metadata"].keys()) else None
                 self._db_master_record = self.db.record_setup(
                     description=cdesc,
                     name=cname,
                     request=request,
                     id=cid,
-                    extrametadata=tempconfig.jsonifyMetadata()
+                    extra_metadata=tempconfig.jsonifyMetadata()
                 )
             ### if the metadata does not exist, we are going to log nothing
             else:
                 self._db_master_record = self.db.record_setup(
-                    description="default description",
-                    name="default name",
+                    description=DEFAULT_DESC,
+                    name=DEFAULT_NAME,
                     request=request,
                     id=experiment_id,
                 )
@@ -360,7 +361,8 @@ class AEPsychServer(object):
             "config_str" in request["message"].keys()
             or "config_dict" in request["message"].keys()
         ):
-            strat_id = self.configure(**request["message"])
+
+            strat_id = self.configure(tempconfig)
         else:
             raise RuntimeError("Missing a configure message!")
 
@@ -425,8 +427,8 @@ class AEPsychServer(object):
                 experiment_id = self._db_master_record.experiment_id
             
             self._db_master_record = self.db.record_setup(
-                description="Default Description",
-                name="Default Name",
+                description=DEFAULT_DESC,
+                name=DEFAULT_NAME,
                 request=request,
                 id=experiment_id
             )
@@ -435,7 +437,9 @@ class AEPsychServer(object):
             "config_str" in request["message"].keys()
             or "config_dict" in request["message"].keys()
         ):
-            _ = self.configure(**request["message"])
+            # Generate a config object since configure will just accept one directly.
+            generated_configobj = Config(**request["message"])
+            _ = self.configure(generated_configobj)
         else:
             raise RuntimeError("Missing a configure message!")
         new_config = self.handle_ask(request)
@@ -700,8 +704,8 @@ class AEPsychServer(object):
         self.strat_id = self.n_strats - 1  # 0-index strats
         return self.strat_id
 
-    def configure(self, **config_args):
-        config = Config(**config_args)
+    def configure(self, configobj: Config):
+        config = configobj
         if "experiment" in config:
             logger.warning(
                 'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'

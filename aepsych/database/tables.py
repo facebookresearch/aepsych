@@ -61,7 +61,7 @@ class DBMasterTable(Base):
     experiment_name = Column(String(256))
     experiment_description = Column(String(2048))
     experiment_id = Column(String(10), unique=True)
-    participant_id = Column(String(50), unique=True, nullable=True)
+    participant_id = Column(String(50), unique=True)
     
     extra_metadata = Column(String(4096)) #JSON-formatted metadata 
 

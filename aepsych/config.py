@@ -104,7 +104,7 @@ class Config(configparser.ConfigParser):
                 ),
                 **kwargs,
             )
-    # Convert config into a dictionary (but as it is, excludes "common")
+    # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
     def to_dict(config):
         _dict = {}
         for section in config:
