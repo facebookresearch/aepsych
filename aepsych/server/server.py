@@ -11,13 +11,14 @@ import logging
 import os
 import sys
 import warnings
-from aepsych import config
+
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
 import dill
 import numpy as np
 import pandas as pd
 import torch
+from aepsych import config
 from aepsych.config import Config
 from aepsych.server.sockets import DummySocket, createSocket
 from aepsych.strategy import SequentialStrategy
@@ -338,15 +339,27 @@ class AEPsychServer(object):
             if self._db_master_record is not None:
                 experiment_id = self._db_master_record.experiment_id
             if "metadata" in tempconfig.keys():
-                cdesc = tempconfig["metadata"]["experiment_description"] if ("experiment_description" in tempconfig["metadata"].keys()) else DEFAULT_DESC
-                cname = tempconfig["metadata"]["experiment_name"] if ("experiment_name" in tempconfig["metadata"].keys()) else DEFAULT_NAME
-                cid = tempconfig["metadata"]["experiment_id"] if ("experiment_id" in tempconfig["metadata"].keys()) else None
+                cdesc = (
+                    tempconfig["metadata"]["experiment_description"]
+                    if ("experiment_description" in tempconfig["metadata"].keys())
+                    else DEFAULT_DESC
+                )
+                cname = (
+                    tempconfig["metadata"]["experiment_name"]
+                    if ("experiment_name" in tempconfig["metadata"].keys())
+                    else DEFAULT_NAME
+                )
+                cid = (
+                    tempconfig["metadata"]["experiment_id"]
+                    if ("experiment_id" in tempconfig["metadata"].keys())
+                    else None
+                )
                 self._db_master_record = self.db.record_setup(
                     description=cdesc,
                     name=cname,
                     request=request,
                     id=cid,
-                    extra_metadata=tempconfig.jsonifyMetadata()
+                    extra_metadata=tempconfig.jsonifyMetadata(),
                 )
             ### if the metadata does not exist, we are going to log nothing
             else:
@@ -425,12 +438,12 @@ class AEPsychServer(object):
             experiment_id = None
             if self._db_master_record is not None:
                 experiment_id = self._db_master_record.experiment_id
-            
+
             self._db_master_record = self.db.record_setup(
                 description=DEFAULT_DESC,
                 name=DEFAULT_NAME,
                 request=request,
-                id=experiment_id
+                id=experiment_id,
             )
 
         if (

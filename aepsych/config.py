@@ -7,10 +7,10 @@
 
 import ast
 import configparser
+import json
 import warnings
 from types import ModuleType
 from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeVar
-import json
 
 import botorch
 import gpytorch
@@ -104,6 +104,7 @@ class Config(configparser.ConfigParser):
                 ),
                 **kwargs,
             )
+
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
     def to_dict(config):
         _dict = {}
@@ -115,16 +116,16 @@ class Config(configparser.ConfigParser):
                 _dict[section][setting] = config[section][setting]
         return _dict
 
-
     # Turn the metadata section into JSON.
     def jsonifyMetadata(self):
         configdict = self.to_dict()
         return json.dumps(configdict["metadata"])
-        
+
     @classmethod
     # Turn the entire config into JSON format.
     def jsonifyAll(self) -> str:
         return json.dumps(self.to_dict())
+
     def update(
         self,
         config_dict: Mapping[str, str] = None,

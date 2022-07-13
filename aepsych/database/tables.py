@@ -60,9 +60,8 @@ class DBMasterTable(Base):
     experiment_description = Column(String(2048))
     experiment_id = Column(String(10), unique=True)
     participant_id = Column(String(50), unique=True)
-    
-    extra_metadata = Column(String(4096)) #JSON-formatted metadata 
 
+    extra_metadata = Column(String(4096))  # JSON-formatted metadata
 
     children_replay = relationship("DbReplayTable", back_populates="parent")
     children_strat = relationship("DbStratTable", back_populates="parent")
@@ -89,16 +88,17 @@ class DBMasterTable(Base):
     @staticmethod
     def update(engine):
         logger.info("DBMasterTable : update called")
-        if (not DBMasterTable._has_extra_metadata(engine)):
+        if not DBMasterTable._has_extra_metadata(engine):
             DBMasterTable._add_extra_metadata(engine)
-        if (not DBMasterTable._has_participant_id(engine)):
+        if not DBMasterTable._has_participant_id(engine):
             DBMasterTable._add_participant_id(engine)
-
-
 
     @staticmethod
     def requires_update(engine):
-        return not DBMasterTable._has_extra_metadata(engine) or not DBMasterTable._has_participant_id(engine)
+        return not DBMasterTable._has_extra_metadata(
+            engine
+        ) or not DBMasterTable._has_participant_id(engine)
+
     @staticmethod
     def _has_extra_metadata(engine):
         result = engine.execute(
@@ -107,6 +107,7 @@ class DBMasterTable(Base):
         rows = result.fetchall()
         count = rows[0][0]
         return count != 0
+
     @staticmethod
     def _has_participant_id(engine):
         result = engine.execute(
@@ -115,6 +116,7 @@ class DBMasterTable(Base):
         rows = result.fetchall()
         count = rows[0][0]
         return count != 0
+
     @staticmethod
     def _add_participant_id(engine):
         try:
@@ -132,6 +134,7 @@ class DBMasterTable(Base):
                 engine.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
+
     @staticmethod
     def _add_extra_metadata(engine):
         try:
@@ -149,6 +152,7 @@ class DBMasterTable(Base):
                 engine.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
+
 
 # link back to the master table entry
 #
