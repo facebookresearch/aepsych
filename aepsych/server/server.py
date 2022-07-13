@@ -375,7 +375,7 @@ class AEPsychServer(object):
             or "config_dict" in request["message"].keys()
         ):
 
-            strat_id = self.configure(tempconfig)
+            strat_id = self.configure(configasobject=tempconfig)
         else:
             raise RuntimeError("Missing a configure message!")
 
@@ -452,7 +452,7 @@ class AEPsychServer(object):
         ):
             # Generate a config object since configure will just accept one directly.
             generated_configobj = Config(**request["message"])
-            _ = self.configure(generated_configobj)
+            _ = self.configure(configasobject=generated_configobj)
         else:
             raise RuntimeError("Missing a configure message!")
         new_config = self.handle_ask(request)
@@ -717,8 +717,13 @@ class AEPsychServer(object):
         self.strat_id = self.n_strats - 1  # 0-index strats
         return self.strat_id
 
-    def configure(self, configobj: Config):
-        config = configobj
+    def configure(self, configasobject=False, **config_args):
+        # To preserve backwards compatibility, I have made config_args still usable for unittests and old functions.
+        # But if configasobject is specified, it will use it rather than create a new config object. 
+        if (configasobject is None):
+            config = Config(config_args)
+        else :
+            config = configasobject
         if "experiment" in config:
             logger.warning(
                 'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'
