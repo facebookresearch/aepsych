@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from collections.abc import Iterable
+from typing import Optional, Mapping
 
 import numpy as np
 import torch
@@ -34,36 +35,38 @@ def dim_grid(
     upper: torch.Tensor,
     dim: int,
     gridsize: int = 30,
+    slice_dims: Optional[Mapping[int, float]] = None,
 ) -> torch.Tensor:
 
     """Create a grid
-    Create a grid based on either model dimensions, or pass in lower, upper, and dim separately.
+    Create a grid based on lower, upper, and dim.
     Parameters
     ----------
-    model : Model
-        Input Model object that defines:
-        - lower ('int') - lower bound
-        - upper ('int') - upper bound
-        - dim ('int) - dimension
     - lower ('int') - lower bound
     - upper ('int') - upper bound
     - dim ('int) - dimension
     - gridsize ('int') - size for grid
+    - slice_dims (Optional, dict) - values to use for slicing axes, as an {index:value} dict
     Returns
     ----------
     grid : torch.FloatTensor
         Tensor
     """
+    slice_dims = slice_dims or {}
 
     lower, upper, _ = _process_bounds(lower, upper, None)
 
-    return torch.tensor(
-        np.mgrid[
-            [slice(lower[i].item(), upper[i].item(), gridsize * 1j) for i in range(dim)]
-        ]
-        .reshape(dim, -1)
-        .T
-    )
+    mesh_vals = []
+
+    for i in range(dim):
+        if i in slice_dims.keys():
+            mesh_vals.append(slice(slice_dims[i] - 1e-10, slice_dims[i] + 1e-10, 1))
+        else:
+            mesh_vals.append(slice(lower[i].item(), upper[i].item(), gridsize * 1j))
+
+    return torch.Tensor(np.mgrid[mesh_vals].reshape(dim, -1).T)
+
+
 
 
 def _process_bounds(lb, ub, dim):

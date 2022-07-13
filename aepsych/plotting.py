@@ -6,13 +6,14 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Callable, Optional
+from typing import Callable, Iterable, List, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from aepsych.strategy import Strategy
-from aepsych.utils import get_lse_contour, get_lse_interval
 from scipy.stats import norm
+
+from aepsych.strategy import Strategy
+from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
 
 
 def plot_strat(
@@ -113,9 +114,11 @@ def plot_strat(
             include_colorbar,
         )
 
-    # TODO implement 3d plots
+    elif dim == 3:
+        raise RuntimeError("Use plot_strat_3d for 3d plots!")
+
     else:
-        raise NotImplementedError("No plots for >2d")
+        raise NotImplementedError("No plots for >3d!")
 
     ax.set_title(title)
 
@@ -316,3 +319,157 @@ def _plot_strat_2d(
     if include_colorbar:
         colorbar = plt.colorbar(colormap, ax=ax)
         colorbar.set_label(f"Probability of {yes_label}")
+
+
+def plot_strat_3d(
+    strat: Strategy,
+    parnames: List[str] = None,
+    outcome_label: str = "Yes Trial",
+    slice_dim: int = 0,
+    slice_vals: Union[List[float], int] = 5,
+    contour_levels: Optional[Union[Iterable[float], bool]] = None,
+    probability_space: bool = False,
+    gridsize: int = 30,
+    extent_multiplier: Optional[List[float]] = None,
+    save_path: Optional[str] = None,
+    show: bool = True,
+):
+    """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
+    Args:
+        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
+        parnames (str list): list of the parameter names
+        outcome_label (str): The label of the outcome variable
+        slice_dim (int): dimension to slice on
+        dim_vals (list of floats or int): values to take slices; OR number of values to take even slices from
+        contour_levels (iterable of floats or bool, optional): List contour values to plot. Default: None. If true, all integer levels.
+        probability_space (bool): Whether to plot probability. Default: False
+        gridsize (int): The number of points to sample each dimension at. Default: 30.
+        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None
+        save_path (str, optional): File name to save the plot to. Default: None.
+        show (bool): Whether the plot should be shown in an interactive window. Default: True.
+    """
+    assert strat.model is not None, "Cannot plot without a model!"
+
+    contour_levels_list = contour_levels or []
+    if parnames is None:
+        parnames = ["x1", "x2", "x3"]
+    # Get global min/max for all slices
+    if probability_space:
+        vmax = 1
+        vmin = 0
+        if contour_levels is True:
+            contour_levels_list = [0.75]
+    else:
+        d = make_scaled_sobol(strat.lb, strat.ub, 2000)
+        post = strat.model.posterior(d)
+        fmean = post.mean.squeeze().detach().numpy()
+        vmax = np.max(fmean)
+        vmin = np.min(fmean)
+        if contour_levels is True:
+            contour_levels_list = np.arange(np.ceil(vmin), vmax + 1)
+    # slice_vals is either a list of values or an integer number of values to slice on
+    if type(slice_vals) is int:
+        slices = np.linspace(strat.lb[slice_dim], strat.ub[slice_dim], slice_vals)
+        slices = np.around(slices, 4)
+    elif type(slice_vals) is not list:
+        raise TypeError("slice_vals must be either an integer or a list of values")
+    else:
+        slices = np.array(slice_vals)
+
+    _, axs = plt.subplots(1, len(slices), constrained_layout=True, figsize=(20, 3))
+
+    for _i, dim_val in enumerate(slices):
+        img = plot_slice(
+            axs[_i],
+            strat,
+            parnames,
+            slice_dim,
+            dim_val,
+            vmin,
+            vmax,
+            gridsize,
+            contour_levels_list,
+            probability_space,
+            extent_multiplier,
+        )
+    plt_parnames = np.delete(parnames, slice_dim)
+    axs[0].set_ylabel(plt_parnames[1])
+    cbar = plt.colorbar(img, ax=axs[-1])
+    if probability_space:
+        cbar.ax.set_ylabel(f"Probability of {outcome_label}")
+    else:
+        cbar.ax.set_ylabel(outcome_label)
+    for clevel in contour_levels_list:  # type: ignore
+        cbar.ax.axhline(y=clevel, c="w")
+
+    if save_path is not None:
+        plt.savefig(save_path)
+
+    if show:
+        plt.show()
+
+
+def plot_slice(
+    ax,
+    strat,
+    parnames,
+    slice_dim,
+    slice_val,
+    vmin,
+    vmax,
+    gridsize=30,
+    contour_levels=None,
+    lse=False,
+    extent_multiplier=None,
+):
+    """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
+    Args:
+        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
+        ax (plt.Axes): Matplotlib axis to plot on
+        parnames (str list): list of the parameter names
+        slice_dim (int): dimension to slice on
+        slice_vals (float): value to take the slice along that dimension
+        vmin (float): global model minimum to use for plotting
+        vmax (float): global model maximum to use for plotting
+        gridsize (int): The number of points to sample each dimension at. Default: 30.
+        contour_levels (int list): Contours to plot. Default: None
+        lse (bool): Whether to plot probability. Default: False
+        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None
+    """
+    extent = np.c_[strat.lb, strat.ub].reshape(-1)
+    x = strat.model.dim_grid(gridsize=gridsize, slice_dims={slice_dim: slice_val})
+    if lse:
+        fmean, fvar = strat.predict(x)
+        fmean = fmean.detach().numpy().reshape(gridsize, gridsize)
+        fmean = norm.cdf(fmean)
+    else:
+        post = strat.model.posterior(x)
+        fmean = post.mean.squeeze().detach().numpy().reshape(gridsize, gridsize)
+
+    # optionally rescale extents to correct values
+    if extent_multiplier is not None:
+        extent_scaled = extent * np.repeat(extent_multiplier, 2)
+        dim_val_scaled = slice_val * extent_multiplier[slice_dim]
+    else:
+        extent_scaled = extent
+        dim_val_scaled = slice_val
+
+    plt_extents = np.delete(extent_scaled, [slice_dim * 2, slice_dim * 2 + 1])
+    plt_parnames = np.delete(parnames, slice_dim)
+
+    img = ax.imshow(
+        fmean.T, extent=plt_extents, origin="lower", aspect="auto", vmin=vmin, vmax=vmax
+    )
+    ax.set_title(parnames[slice_dim] + "=" + str(dim_val_scaled))
+    ax.set_xlabel(plt_parnames[0])
+
+    if len(contour_levels) > 0:
+        ax.contour(
+            fmean.T,
+            contour_levels,
+            colors="w",
+            extent=plt_extents,
+            origin="lower",
+            aspect="auto",
+        )
+    return img
