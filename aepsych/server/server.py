@@ -717,7 +717,7 @@ class AEPsychServer(object):
         self.strat_id = self.n_strats - 1  # 0-index strats
         return self.strat_id
 
-    def configure(self, configasobject=False, **config_args):
+    def configure(self, configasobject=None, **config_args):
         # To preserve backwards compatibility, I have made config_args still usable for unittests and old functions.
         # But if configasobject is specified, it will use it rather than create a new config object. 
         if (configasobject is None):
