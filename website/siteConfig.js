@@ -10,7 +10,7 @@
 
 // Define this so it can be easily modified in scripts (to host elsewhere)
 // const baseUrl = "/"; // main aepsych branch
-const baseUrl = "/aepsych/"; // test branch
+const baseUrl = "/"; // test branch
 
 
 // List of projects/orgs using your project for the users page.
@@ -28,7 +28,7 @@ const users = [
 const siteConfig = {
   title: 'AEPsych', // Title for your website.
   tagline: 'Adaptive experimentation for human perception and perceptually-informed outcomes',
-  url: 'https://facebookresearch.github.io', // Your website URL
+  url: 'https://aepsych.org', // Your website URL
   baseUrl: baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
