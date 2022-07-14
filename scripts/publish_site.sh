@@ -29,3 +29,15 @@ echo "===== Publishing website to gh-pages ====="
     yarn run publish-gh-pages
     rm -rf build/
 echo "=========================================="
+
+
+echo "======== Cleanup for github ==============="
+  cd .. || exit
+  find . -type d -name __pycache__ -exec rm -r {} \+
+  pwd
+  cd website/ || exit
+  rm -rf node_modules/
+  cd ../
+  cd sphinx/ || exit
+  rm -rf build/ || exit
+echo "=========================================="
