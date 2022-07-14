@@ -119,7 +119,7 @@ class MonotonicMCLSE(MonotonicMCAcquisition):
             num_samples (int, optional): Number of MC samples to draw in MC acquisition. Defaults to 32.
             num_rejection_samples (int, optional): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.
             beta (float, optional): Parameter of the LSE acquisition function that governs exploration vs
-                exploitation (similarly to the same parameter in UCB). Defaults to 3.84, which maps to the straddle
+                exploitation (similarly to the same parameter in UCB). Defaults to 3.84 (1.96 ** 2), which maps to the straddle
                 heuristic of Bryan et al. 2005.
             objective (Optional[MCAcquisitionObjective], optional): Objective transform. Defaults to identity transform.
         """
