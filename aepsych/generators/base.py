@@ -45,7 +45,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
         if acqf is not None:
             acqf_name = acqf.__name__
             default_extra_acqf_args = {
-                "beta": 3.98,
+                "beta": 3.84,
                 "target": 0.75,
                 "objective": None,
                 "query_set_size": 512,

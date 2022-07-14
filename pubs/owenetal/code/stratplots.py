@@ -53,7 +53,7 @@ def plot_audiometric_lse_grids(
         },
         "MonotonicMCLSE": {
             "target": 0.75,
-            "beta": 3.98,
+            "beta": 3.84,
         },
         "MonotonicRejectionGP": {
             "inducing_size": 100,
@@ -183,7 +183,7 @@ def plot_novel_lse_grids(sobol_trials, opt_trials, funtype="detection"):
         },
         "MonotonicMCLSE": {
             "target": 0.75,
-            "beta": 3.98,
+            "beta": 3.84,
         },
         "MonotonicRejectionGP": {
             "inducing_size": 100,
@@ -325,7 +325,7 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
         },
         "MonotonicMCLSE": {
             "target": target_level,
-            "beta": 3.98,
+            "beta": 3.84,
         },
         "MonotonicRejectionGP": {
             "inducing_size": 100,

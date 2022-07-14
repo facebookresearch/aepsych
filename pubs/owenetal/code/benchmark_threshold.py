@@ -77,7 +77,7 @@ bench_config_nonsobol_song = {
     },
     "MCLevelSetEstimation": {
         "target": 0.75,
-        "beta": 3.98,
+        "beta": 3.84,
         "objective": "ProbitObjective",
     },
     "GPClassificationModel": {
@@ -108,7 +108,7 @@ bench_config_sobol_song = {
     },
     "MCLevelSetEstimation": {
         "target": 0.75,
-        "beta": 3.98,
+        "beta": 3.84,
         "objective": "ProbitObjective",
     },
     "GPClassificationModel": {
@@ -141,7 +141,7 @@ bench_config_sobol_rbf = {
     },
     "MonotonicMCLSE": {
         "target": 0.75,
-        "beta": 3.98,
+        "beta": 3.84,
     },
     "MonotonicGPLSETS": {
         "inducing_size": 100,
@@ -176,7 +176,7 @@ bench_config_all_but_gplsets_rbf = {
     },
     "MonotonicMCLSE": {
         "target": 0.75,
-        "beta": 3.98,
+        "beta": 3.84,
     },
     "MonotonicBernoulliMCMutualInformation": {},
     "MonotonicMCPosteriorVariance": {},
@@ -209,7 +209,7 @@ bench_config_gplsets_rbf = {
     },
     "MonotonicMCLSE": {
         "target": 0.75,
-        "beta": 3.98,
+        "beta": 3.84,
     },
     "MonotonicGPLSETS": {
         "inducing_size": 100,

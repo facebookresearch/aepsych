@@ -87,7 +87,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         n_opt = 1
         lb = [-4.0, 1e-5]
         ub = [-1e-5, 4.0]
-        extra_acqf_args = {"beta": 3.98}
+        extra_acqf_args = {"beta": 3.84}
         model_list = [
             Strategy(
                 lb=lb,
@@ -188,7 +188,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         n_opt = 1
         lb = -4.0
         ub = 4.0
-        extra_acqf_args = {"beta": 3.98}
+        extra_acqf_args = {"beta": 3.84}
         model_list = [
             Strategy(
                 lb=lb,
@@ -294,7 +294,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         n_opt = 1
         lb = np.r_[-1, -1]
         ub = np.r_[1, 1]
-        extra_acqf_args = {"beta": 3.98}
+        extra_acqf_args = {"beta": 3.84}
 
         model_list = [
             Strategy(

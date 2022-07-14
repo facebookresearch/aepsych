@@ -101,7 +101,7 @@ class BenchmarkTestCase(unittest.TestCase):
             },
             "MCLevelSetEstimation": {
                 "target": 0.75,
-                "beta": 3.98,
+                "beta": 3.84,
             },
             "GPClassificationModel": {
                 "inducing_size": 10,
@@ -286,7 +286,7 @@ class BenchProblemTestCase(unittest.TestCase):
             "opt_strat": {"generator": "OptimizeAcqfGenerator", "min_asks": 1},
             "MCLevelSetEstimation": {
                 "target": 0.75,
-                "beta": 3.98,
+                "beta": 3.84,
             },
             "GPClassificationModel": {
                 "inducing_size": 10,
@@ -316,7 +316,7 @@ class BenchProblemTestCase(unittest.TestCase):
             "SobolGenerator": {"seed": 1},
             "MonotonicMCLSE": {
                 "target": 0.75,
-                "beta": 3.98,
+                "beta": 3.84,
             },
             "MonotonicRejectionGP": {
                 "inducing_size": 10,
