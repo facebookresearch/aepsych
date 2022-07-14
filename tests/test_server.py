@@ -56,7 +56,6 @@ class ServerTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.s.cleanup()
-
         # cleanup the db
         if self.s.db is not None:
             self.s.db.delete_db()
@@ -300,7 +299,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_serve_versioned_handler(self):
         request = {"version": 0}
-        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.queue.append(request)
         self.s.versioned_handler = MagicMock()
         self.s.unversioned_handler = MagicMock()
         self.s.exit_server_loop = True
@@ -310,7 +309,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_serve_unversioned_handler(self):
         request = {}
-        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.queue.append(request)
         self.s.versioned_handler = MagicMock()
         self.s.unversioned_handler = MagicMock()
         self.s.exit_server_loop = True
@@ -562,7 +561,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_error_handling(self):
         request = {"bad request"}
-        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.queue.append(request)
         self.s.socket.send = MagicMock()
         self.s.exit_server_loop = True
         with self.assertRaises(SystemExit):
