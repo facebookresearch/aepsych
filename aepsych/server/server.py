@@ -83,8 +83,8 @@ class AEPsychServer(object):
 
 
     def handle_queue(self):
-        request = self.queue[0]
         if self.queue:
+            request = self.queue[0]
             try:
                 if "version" in request.keys():
                     result = self.versioned_handler(request)
