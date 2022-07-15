@@ -5,11 +5,13 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 import torch
 from gpytorch.models import GP
+from gpytorch.utils.quadrature import GaussHermiteQuadrature1D
 from torch import Tensor
+from torch.distributions import Normal
 
 from .bvn import bvn_cdf
 
@@ -47,11 +49,8 @@ def posterior_at_xstar_xq(
     return Mu_s, Sigma2_s, Mu_q, Sigma2_q, Sigma_sq
 
 
-def lookahead_at_xstar(
-    model: GP,
-    Xstar: Tensor,
-    Xq: Tensor,
-    gamma: float,
+def lookahead_levelset_at_xstar(
+    model: GP, Xstar: Tensor, Xq: Tensor, **kwargs: Dict[str, Any]
 ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
     """
     Evaluate the look-ahead level-set posterior at Xq given observation at xstar.
@@ -69,6 +68,11 @@ def lookahead_at_xstar(
         py1: (b x 1) Probability of observing 1 at xstar.
     """
     Mu_s, Sigma2_s, Mu_q, Sigma2_q, Sigma_sq = posterior_at_xstar_xq(model, Xstar, Xq)
+
+    try:
+        gamma = kwargs.get("gamma")
+    except KeyError:
+        raise RuntimeError("lookahead_levelset_at_xtar requires passing gamma!")
 
     # Compute look-ahead components
     Norm = torch.distributions.Normal(0, 1)
@@ -88,7 +92,56 @@ def lookahead_at_xstar(
     return Px, P1, P0, py1
 
 
-def approximate_lookahead_at_xstar(
+def lookahead_p_at_xstar(
+    model: GP, Xstar: Tensor, Xq: Tensor, **kwargs: Dict[str, Any]
+) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+    """
+    Evaluate the look-ahead response probability posterior at Xq given observation at xstar.
+
+    Uses the approximation given in expr. 9 in:
+    Zhao, Guang, et al. "Efficient active learning for Gaussian process classification by
+    error reduction." Advances in Neural Information Processing Systems 34 (2021): 9734-9746.
+
+
+    Args:
+        model: The model to evaluate.
+        Xstar: (b x 1 x d) observation point.
+        Xq: (b x m x d) reference points.
+        kwargs: ignored (here for compatibility with other kinds of lookahead)
+
+    Returns:
+        Px: (b x m) Response posterior at Xq, before observation at xstar.
+        P1: (b x m) Response posterior at Xq, given observation of 1 at xstar.
+        P0: (b x m) Response posterior at Xq, given observation of 0 at xstar.
+        py1: (b x 1) Probability of observing 1 at xstar.
+    """
+    Mu_s, Sigma2_s, Mu_q, Sigma2_q, Sigma_sq = posterior_at_xstar_xq(
+        model=model, Xstar=Xstar, Xq=Xq
+    )
+
+    probit = Normal(0, 1).cdf
+
+    def lookahead_inner(f_q):
+        mu_tilde_star = Mu_s + (f_q - Mu_q) * Sigma_sq / Sigma2_q
+        sigma_tilde_star = Sigma2_s - (Sigma_sq**2) / Sigma2_q
+        return probit(mu_tilde_star / torch.sqrt(sigma_tilde_star + 1)) * probit(f_q)
+
+    pstar_marginal_1 = probit(Mu_s / torch.sqrt(1 + Sigma2_s))
+    pstar_marginal_0 = 1 - pstar_marginal_1
+    pq_marginal_1 = probit(Mu_q / torch.sqrt(1 + Sigma2_q))
+
+    quad = GaussHermiteQuadrature1D()
+    fq_mvn = Normal(Mu_q, torch.sqrt(Sigma2_q))
+    joint_ystar1_yq1 = quad(lookahead_inner, fq_mvn)
+    joint_ystar0_yq1 = pq_marginal_1 - joint_ystar1_yq1
+
+    # now we need from the joint to the marginal on xq
+    lookahead_pq1 = joint_ystar1_yq1 / pstar_marginal_1
+    lookahead_pq0 = joint_ystar0_yq1 / pstar_marginal_0
+    return pq_marginal_1, lookahead_pq1, lookahead_pq0, pstar_marginal_1
+
+
+def approximate_lookahead_levelset_at_xstar(
     model: GP,
     Xstar: Tensor,
     Xq: Tensor,
@@ -116,17 +169,17 @@ def approximate_lookahead_at_xstar(
     Mu_s_cdf = Norm.cdf(Mu_s)
 
     # Formulae from the supplement of the paper (Result 2)
-    vnp1_p = Mu_s_pdf ** 2 / Mu_s_cdf ** 2 + Mu_s * Mu_s_pdf / Mu_s_cdf  # (C.4)
+    vnp1_p = Mu_s_pdf**2 / Mu_s_cdf**2 + Mu_s * Mu_s_pdf / Mu_s_cdf  # (C.4)
     p_p = Norm.cdf(Mu_s / torch.sqrt(1 + Sigma2_s))  # (C.5)
 
-    vnp1_n = Mu_s_pdf ** 2 / (1 - Mu_s_cdf) ** 2 - Mu_s * Mu_s_pdf / (
+    vnp1_n = Mu_s_pdf**2 / (1 - Mu_s_cdf) ** 2 - Mu_s * Mu_s_pdf / (
         1 - Mu_s_cdf
     )  # (C.6)
     p_n = 1 - p_p  # (C.7)
 
     vtild = vnp1_p * p_p + vnp1_n * p_n
 
-    Sigma2_q_np1 = Sigma2_q - Sigma_sq ** 2 / ((1 / vtild) + Sigma2_s)  # (C.8)
+    Sigma2_q_np1 = Sigma2_q - Sigma_sq**2 / ((1 / vtild) + Sigma2_s)  # (C.8)
 
     Px = Norm.cdf((gamma - Mu_q) / torch.sqrt(Sigma2_q))
     P1 = Norm.cdf((gamma - Mu_q) / torch.sqrt(Sigma2_q_np1))
