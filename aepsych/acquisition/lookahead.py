@@ -120,6 +120,7 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
             self.gamma = norm.ppf(target)
         elif lookahead_type == "posterior":
             self.lookahead_fn = lookahead_p_at_xstar
+            self.gamma = None
         else:
             raise RuntimeError(f"Got unknown lookahead type {lookahead_type}!")
 
@@ -129,8 +130,8 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
     def __init__(
         self,
         model: GPyTorchModel,
-        target: Optional[float],
         lookahead_type="levelset",
+        target: Optional[float] = None,
         query_set_size: Optional[int] = None,
         Xq: Optional[Tensor] = None,
     ) -> None:
@@ -198,8 +199,8 @@ class ApproxGlobalSUR(GlobalSUR):
     def __init__(
         self,
         model: GPyTorchModel,
-        target: Optional[float],
         lookahead_type="levelset",
+        target: Optional[float] = None,
         query_set_size: Optional[int] = None,
         Xq: Optional[Tensor] = None,
     ) -> None:
@@ -235,8 +236,8 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
     def __init__(
         self,
         model: GPyTorchModel,
-        target: Optional[float],
         lookahead_type: str = "levelset",
+        target: Optional[float] = None,
     ) -> None:
         """
         A localized look-ahead acquisition function.
@@ -257,7 +258,7 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
 
         Returns: (b) tensor of acquisition values.
         """
-        Px, P1, P0, py1 = lookahead_levelset_at_xstar(
+        Px, P1, P0, py1 = self.lookahead_fn(
             model=self.model, Xstar=X, Xq=X, gamma=self.gamma
         )  # Return shape here has m=1.
         return self._compute_acqf(Px, P1, P0, py1)
@@ -274,3 +275,64 @@ class LocalMI(LocalLookaheadAcquisitionFunction):
 class LocalSUR(LocalLookaheadAcquisitionFunction):
     def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
         return SUR_fn(Px, P1, P0, py1)
+
+
+class MOCU(GlobalLookaheadAcquisitionFunction):
+    """
+    MOCU acquisition function given in expr. 4 of:
+
+        Zhao, Guang, et al. "Uncertainty-aware active learning for optimal Bayesian classifier."
+        International Conference on Learning Representations (ICLR) 2021.
+    """
+
+    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        current_max_query = torch.maximum(Px, 1 - Px)
+        # expectation w.r.t. y* of the max of pq
+        lookahead_pq1_max = torch.maximum(P1, 1 - P1)
+        lookahead_pq0_max = torch.maximum(P0, 1 - P0)
+        lookahead_max_query = lookahead_pq1_max * py1 + lookahead_pq0_max * (1 - py1)
+        return (lookahead_max_query - current_max_query).mean(-1)
+
+
+class SMOCU(GlobalLookaheadAcquisitionFunction):
+    """
+    SMOCU acquisition function given in expr. 11 of:
+
+       Zhao, Guang, et al. "Bayesian active learning by soft mean objective cost of uncertainty."
+       International Conference on Artificial Intelligence and Statistics (AISTATS) 2021.
+    """
+
+    def __init__(self, k, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.k = k
+
+    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        stacked = torch.stack((Px, 1 - Px), dim=-1)
+        current_softmax_query = torch.logsumexp(self.k * stacked, dim=-1) / self.k
+        # expectation w.r.t. y* of the max of pq
+        lookahead_pq1_max = torch.maximum(P1, 1 - P1)
+        lookahead_pq0_max = torch.maximum(P0, 1 - P0)
+        lookahead_max_query = lookahead_pq1_max * py1 + lookahead_pq0_max * (1 - py1)
+        return (lookahead_max_query - current_softmax_query).mean(-1)
+
+
+class BEMPS(GlobalLookaheadAcquisitionFunction):
+    """
+    BEMPS acquisition function given in:
+
+        Tan, Wei, et al. "Diversity Enhanced Active Learning with Strictly Proper Scoring Rules."
+        Advances in Neural Information Processing Systems 34 (2021).
+    """
+
+    def __init__(self, scorefun, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.scorefun = scorefun
+
+    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        current_score = self.scorefun(Px)
+        lookahead_pq1_score = self.scorefun(P1)
+        lookahead_pq0_score = self.scorefun(P0)
+        lookahead_expected_score = lookahead_pq1_score * py1 + lookahead_pq0_score * (
+            1 - py1
+        )
+        return (lookahead_expected_score - current_score).mean(-1)
