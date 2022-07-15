@@ -182,7 +182,7 @@ class DBTestCase(unittest.TestCase):
         model = MonotonicRejectionGP
 
         [MonotonicMCLSE]
-        beta = 3.98
+        beta = 3.84
 
         [MonotonicRejectionGP]
         inducing_size = 100

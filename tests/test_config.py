@@ -56,7 +56,7 @@ class ConfigTestCase(unittest.TestCase):
         keep_most_recent = 10
 
         [MCLevelSetEstimation]
-        beta = 3.98
+        beta = 3.84
         objective = ProbitObjective
 
         [GPClassificationModel]
@@ -84,7 +84,7 @@ class ConfigTestCase(unittest.TestCase):
             == {"beta", "target", "objective"}
         )
         self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
-        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.98)
+        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.84)
         self.assertTrue(
             isinstance(
                 strat.strat_list[1].generator.acqf_kwargs["objective"],
@@ -139,7 +139,7 @@ class ConfigTestCase(unittest.TestCase):
             == {"beta", "target", "objective"}
         )
         self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
-        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.98)
+        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.84)
         self.assertTrue(
             isinstance(
                 strat.strat_list[1].generator.acqf_kwargs["objective"],
@@ -273,7 +273,7 @@ class ConfigTestCase(unittest.TestCase):
             generator = OptimizeAcqfGenerator
             min_asks = 20
             [LevelSetEstimation]
-            beta = 3.98
+            beta = 3.84
             objective = ProbitObjective
             [GPClassificationModel]
             inducing_size = 10
@@ -312,7 +312,7 @@ class ConfigTestCase(unittest.TestCase):
         model = MonotonicRejectionGP
 
         [MonotonicMCLSE]
-        beta = 3.98
+        beta = 3.84
 
         [MonotonicRejectionGP]
         inducing_size = 100

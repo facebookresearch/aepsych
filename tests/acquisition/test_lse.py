@@ -24,7 +24,7 @@ class TestLSE(unittest.TestCase):
 
     def test_mclse(self):
         mclse = MCLevelSetEstimation(
-            model=self.model, target=5.0, beta=3.98, objective=ProbitObjective()
+            model=self.model, target=5.0, beta=3.84, objective=ProbitObjective()
         )
-        expected = np.sqrt(3.98) * np.sqrt(1e-5) - np.abs(norm.cdf(1.7) - 5)
+        expected = np.sqrt(3.84) * np.sqrt(1e-5) - np.abs(norm.cdf(1.7) - 5)
         self.assertAlmostEqual(mclse(torch.zeros(1, 1)), expected)
