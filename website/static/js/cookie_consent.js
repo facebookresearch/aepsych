@@ -3,6 +3,12 @@
 window.addEventListener('load', function() {
     const cookieConsentContainer = document.querySelector(".cookie-container");
     const cookieConsentBtn = document.querySelector(".cookie-btn");
+    const originalUrl = window.location.href
+
+    if (originalUrl.includes("internalfb") || originalUrl.includes("staticdocs")) {
+        cookieConsentContainer.classList.remove("active");
+        localStorage.setItem("cookieConsentDisplayed", true)
+    }
 
     cookieConsentBtn.addEventListener("click", () => {
         cookieConsentContainer.classList.remove("active");
