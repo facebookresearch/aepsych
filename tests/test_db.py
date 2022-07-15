@@ -13,6 +13,7 @@ from pathlib import Path
 import os
 import shutil
 import sqlalchemy
+import aepsych.config as configuration
 
 
 class DBTestCase(unittest.TestCase):
@@ -238,3 +239,57 @@ class DBTestCase(unittest.TestCase):
         config = self._database.get_config_for(experiment_id)
 
         self.assertEqual(test_config, config)
+    # Test some metadata flow stuff and see if it is working.
+    def test_metadata(self):
+        # Run tests using the native config_str functionality.
+        config_str = """
+        [common]
+        parnames = [par1, par2]
+        lb = [0, 0]
+        ub = [1, 1]
+        outcome_type = single_probit
+        target = 0.75
+
+        [SobolStrategy]
+        n_trials = 10
+
+        [ModelWrapperStrategy]
+        n_trials = 20
+        refit_every = 5
+
+        [experiment]
+        acqf = MonotonicMCLSE
+        init_strat_cls = SobolStrategy
+        opt_strat_cls = ModelWrapperStrategy
+        modelbridge_cls = MonotonicSingleProbitModelbridge
+        model = MonotonicRejectionGP
+
+        [MonotonicMCLSE]
+        beta = 3.98
+
+        [MonotonicRejectionGP]
+        inducing_size = 100
+        mean_covar_factory = monotonic_mean_covar_factory
+
+        [MonotonicSingleProbitModelbridge]
+        restarts = 10
+        samps = 1000
+
+        [metadata]
+        experiment_name = Lucas
+        experiment_description = Test
+        metadata1 = one
+        metadata2 = two
+
+
+        """
+
+        request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": config_str},
+        }
+        # Generate a config for later to run .jsonifyMetadata() on.
+        generated_config = configuration.Config(**request["message"])
+        master_table = self._database.record_setup(description=generated_config["metadata"]["experiment_description"], name=generated_config["metadata"]["experiment_name"], request=request, extra_metadata=generated_config.jsonifyMetadata())
+        self.assertEqual(generated_config.jsonifyMetadata(), master_table.extra_metadata)
