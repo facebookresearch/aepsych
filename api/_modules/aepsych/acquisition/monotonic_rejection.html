@@ -137,7 +137,7 @@
 <span class="sd">            num_samples (int, optional): Number of MC samples to draw in MC acquisition. Defaults to 32.</span>
 <span class="sd">            num_rejection_samples (int, optional): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.</span>
 <span class="sd">            beta (float, optional): Parameter of the LSE acquisition function that governs exploration vs</span>
-<span class="sd">                exploitation (similarly to the same parameter in UCB). Defaults to 3.84, which maps to the straddle</span>
+<span class="sd">                exploitation (similarly to the same parameter in UCB). Defaults to 3.84 (1.96 ** 2), which maps to the straddle</span>
 <span class="sd">                heuristic of Bryan et al. 2005.</span>
 <span class="sd">            objective (Optional[MCAcquisitionObjective], optional): Objective transform. Defaults to identity transform.</span>
 <span class="sd">        """</span>

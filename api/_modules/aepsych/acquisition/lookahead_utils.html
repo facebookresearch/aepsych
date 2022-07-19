@@ -23,11 +23,13 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">gpytorch.models</span> <span class="kn">import</span> <span class="n">GP</span>
+<span class="kn">from</span> <span class="nn">gpytorch.utils.quadrature</span> <span class="kn">import</span> <span class="n">GaussHermiteQuadrature1D</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Normal</span>
 
 <span class="kn">from</span> <span class="nn">.bvn</span> <span class="kn">import</span> <span class="n">bvn_cdf</span>
 
@@ -65,11 +67,8 @@
     <span class="k">return</span> <span class="n">Mu_s</span><span class="p">,</span> <span class="n">Sigma2_s</span><span class="p">,</span> <span class="n">Mu_q</span><span class="p">,</span> <span class="n">Sigma2_q</span><span class="p">,</span> <span class="n">Sigma_sq</span></div>
 
 
-<div class="viewcode-block" id="lookahead_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.lookahead_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">lookahead_at_xstar</span><span class="p">(</span>
-    <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span>
-    <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<div class="viewcode-block" id="lookahead_levelset_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.lookahead_levelset_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">lookahead_levelset_at_xstar</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span> <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
     <span class="sd">"""</span>
 <span class="sd">    Evaluate the look-ahead level-set posterior at Xq given observation at xstar.</span>
@@ -87,6 +86,11 @@
 <span class="sd">        py1: (b x 1) Probability of observing 1 at xstar.</span>
 <span class="sd">    """</span>
     <span class="n">Mu_s</span><span class="p">,</span> <span class="n">Sigma2_s</span><span class="p">,</span> <span class="n">Mu_q</span><span class="p">,</span> <span class="n">Sigma2_q</span><span class="p">,</span> <span class="n">Sigma_sq</span> <span class="o">=</span> <span class="n">posterior_at_xstar_xq</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">Xstar</span><span class="p">,</span> <span class="n">Xq</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gamma"</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"lookahead_levelset_at_xtar requires passing gamma!"</span><span class="p">)</span>
 
     <span class="c1"># Compute look-ahead components</span>
     <span class="n">Norm</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -106,7 +110,56 @@
     <span class="k">return</span> <span class="n">Px</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P0</span><span class="p">,</span> <span class="n">py1</span></div>
 
 
-<div class="viewcode-block" id="approximate_lookahead_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.approximate_lookahead_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">approximate_lookahead_at_xstar</span><span class="p">(</span>
+<div class="viewcode-block" id="lookahead_p_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.lookahead_p_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">lookahead_p_at_xstar</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span> <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
+    <span class="sd">"""</span>
+<span class="sd">    Evaluate the look-ahead response probability posterior at Xq given observation at xstar.</span>
+
+<span class="sd">    Uses the approximation given in expr. 9 in:</span>
+<span class="sd">    Zhao, Guang, et al. "Efficient active learning for Gaussian process classification by</span>
+<span class="sd">    error reduction." Advances in Neural Information Processing Systems 34 (2021): 9734-9746.</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: The model to evaluate.</span>
+<span class="sd">        Xstar: (b x 1 x d) observation point.</span>
+<span class="sd">        Xq: (b x m x d) reference points.</span>
+<span class="sd">        kwargs: ignored (here for compatibility with other kinds of lookahead)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Px: (b x m) Response posterior at Xq, before observation at xstar.</span>
+<span class="sd">        P1: (b x m) Response posterior at Xq, given observation of 1 at xstar.</span>
+<span class="sd">        P0: (b x m) Response posterior at Xq, given observation of 0 at xstar.</span>
+<span class="sd">        py1: (b x 1) Probability of observing 1 at xstar.</span>
+<span class="sd">    """</span>
+    <span class="n">Mu_s</span><span class="p">,</span> <span class="n">Sigma2_s</span><span class="p">,</span> <span class="n">Mu_q</span><span class="p">,</span> <span class="n">Sigma2_q</span><span class="p">,</span> <span class="n">Sigma_sq</span> <span class="o">=</span> <span class="n">posterior_at_xstar_xq</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">Xstar</span><span class="o">=</span><span class="n">Xstar</span><span class="p">,</span> <span class="n">Xq</span><span class="o">=</span><span class="n">Xq</span>
+    <span class="p">)</span>
+
+    <span class="n">probit</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span>
+
+    <span class="k">def</span> <span class="nf">lookahead_inner</span><span class="p">(</span><span class="n">f_q</span><span class="p">):</span>
+        <span class="n">mu_tilde_star</span> <span class="o">=</span> <span class="n">Mu_s</span> <span class="o">+</span> <span class="p">(</span><span class="n">f_q</span> <span class="o">-</span> <span class="n">Mu_q</span><span class="p">)</span> <span class="o">*</span> <span class="n">Sigma_sq</span> <span class="o">/</span> <span class="n">Sigma2_q</span>
+        <span class="n">sigma_tilde_star</span> <span class="o">=</span> <span class="n">Sigma2_s</span> <span class="o">-</span> <span class="p">(</span><span class="n">Sigma_sq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">Sigma2_q</span>
+        <span class="k">return</span> <span class="n">probit</span><span class="p">(</span><span class="n">mu_tilde_star</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_tilde_star</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">probit</span><span class="p">(</span><span class="n">f_q</span><span class="p">)</span>
+
+    <span class="n">pstar_marginal_1</span> <span class="o">=</span> <span class="n">probit</span><span class="p">(</span><span class="n">Mu_s</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Sigma2_s</span><span class="p">))</span>
+    <span class="n">pstar_marginal_0</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">pstar_marginal_1</span>
+    <span class="n">pq_marginal_1</span> <span class="o">=</span> <span class="n">probit</span><span class="p">(</span><span class="n">Mu_q</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Sigma2_q</span><span class="p">))</span>
+
+    <span class="n">quad</span> <span class="o">=</span> <span class="n">GaussHermiteQuadrature1D</span><span class="p">()</span>
+    <span class="n">fq_mvn</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">Mu_q</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Sigma2_q</span><span class="p">))</span>
+    <span class="n">joint_ystar1_yq1</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">lookahead_inner</span><span class="p">,</span> <span class="n">fq_mvn</span><span class="p">)</span>
+    <span class="n">joint_ystar0_yq1</span> <span class="o">=</span> <span class="n">pq_marginal_1</span> <span class="o">-</span> <span class="n">joint_ystar1_yq1</span>
+
+    <span class="c1"># now we need from the joint to the marginal on xq</span>
+    <span class="n">lookahead_pq1</span> <span class="o">=</span> <span class="n">joint_ystar1_yq1</span> <span class="o">/</span> <span class="n">pstar_marginal_1</span>
+    <span class="n">lookahead_pq0</span> <span class="o">=</span> <span class="n">joint_ystar0_yq1</span> <span class="o">/</span> <span class="n">pstar_marginal_0</span>
+    <span class="k">return</span> <span class="n">pq_marginal_1</span><span class="p">,</span> <span class="n">lookahead_pq1</span><span class="p">,</span> <span class="n">lookahead_pq0</span><span class="p">,</span> <span class="n">pstar_marginal_1</span></div>
+
+
+<div class="viewcode-block" id="approximate_lookahead_levelset_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.approximate_lookahead_levelset_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">approximate_lookahead_levelset_at_xstar</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span>
     <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
     <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
@@ -134,17 +187,17 @@
     <span class="n">Mu_s_cdf</span> <span class="o">=</span> <span class="n">Norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">Mu_s</span><span class="p">)</span>
 
     <span class="c1"># Formulae from the supplement of the paper (Result 2)</span>
-    <span class="n">vnp1_p</span> <span class="o">=</span> <span class="n">Mu_s_pdf</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">Mu_s_cdf</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">Mu_s</span> <span class="o">*</span> <span class="n">Mu_s_pdf</span> <span class="o">/</span> <span class="n">Mu_s_cdf</span>  <span class="c1"># (C.4)</span>
+    <span class="n">vnp1_p</span> <span class="o">=</span> <span class="n">Mu_s_pdf</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">Mu_s_cdf</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Mu_s</span> <span class="o">*</span> <span class="n">Mu_s_pdf</span> <span class="o">/</span> <span class="n">Mu_s_cdf</span>  <span class="c1"># (C.4)</span>
     <span class="n">p_p</span> <span class="o">=</span> <span class="n">Norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">Mu_s</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Sigma2_s</span><span class="p">))</span>  <span class="c1"># (C.5)</span>
 
-    <span class="n">vnp1_n</span> <span class="o">=</span> <span class="n">Mu_s_pdf</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Mu_s_cdf</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">Mu_s</span> <span class="o">*</span> <span class="n">Mu_s_pdf</span> <span class="o">/</span> <span class="p">(</span>
+    <span class="n">vnp1_n</span> <span class="o">=</span> <span class="n">Mu_s_pdf</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Mu_s_cdf</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">Mu_s</span> <span class="o">*</span> <span class="n">Mu_s_pdf</span> <span class="o">/</span> <span class="p">(</span>
         <span class="mi">1</span> <span class="o">-</span> <span class="n">Mu_s_cdf</span>
     <span class="p">)</span>  <span class="c1"># (C.6)</span>
     <span class="n">p_n</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">p_p</span>  <span class="c1"># (C.7)</span>
 
     <span class="n">vtild</span> <span class="o">=</span> <span class="n">vnp1_p</span> <span class="o">*</span> <span class="n">p_p</span> <span class="o">+</span> <span class="n">vnp1_n</span> <span class="o">*</span> <span class="n">p_n</span>
 
-    <span class="n">Sigma2_q_np1</span> <span class="o">=</span> <span class="n">Sigma2_q</span> <span class="o">-</span> <span class="n">Sigma_sq</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span> <span class="o">/</span> <span class="n">vtild</span><span class="p">)</span> <span class="o">+</span> <span class="n">Sigma2_s</span><span class="p">)</span>  <span class="c1"># (C.8)</span>
+    <span class="n">Sigma2_q_np1</span> <span class="o">=</span> <span class="n">Sigma2_q</span> <span class="o">-</span> <span class="n">Sigma_sq</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span> <span class="o">/</span> <span class="n">vtild</span><span class="p">)</span> <span class="o">+</span> <span class="n">Sigma2_s</span><span class="p">)</span>  <span class="c1"># (C.8)</span>
 
     <span class="n">Px</span> <span class="o">=</span> <span class="n">Norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">gamma</span> <span class="o">-</span> <span class="n">Mu_q</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Sigma2_q</span><span class="p">))</span>
     <span class="n">P1</span> <span class="o">=</span> <span class="n">Norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">gamma</span> <span class="o">-</span> <span class="n">Mu_q</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Sigma2_q_np1</span><span class="p">))</span>
