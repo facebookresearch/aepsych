@@ -300,7 +300,7 @@ overflow-x: hidden;
 .cookie-container {
   position: fixed;
   left: 1rem;
-  bottom: -100;
+  bottom: -200;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -322,7 +322,8 @@ overflow-x: hidden;
 }
 
 .cookie-container.active {
-  bottom: 1.5rem;
+  /* bottom: 1.5rem; */
+  bottom: 2.5rem;
 }
 
 .cookie-btn {
