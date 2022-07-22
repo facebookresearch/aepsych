@@ -19,6 +19,7 @@ from botorch.fit import fit_gpytorch_model
 from botorch.models.approximate_gp import _select_inducing_points
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.optim import optimize_acqf
+from botorch.posteriors import GPyTorchPosterior
 from gpytorch.mlls import MarginalLogLikelihood
 from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
@@ -51,6 +52,9 @@ class ModelProtocol(Protocol):
 
     @property
     def dim(self) -> int:
+        pass
+
+    def posterior(self, X: torch.Tensor) -> GPyTorchPosterior:
         pass
 
     def predict(self, points: torch.Tensor, **kwargs) -> torch.Tensor:
@@ -158,6 +162,7 @@ class AEPsychMixin(GPyTorchModel):
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
         """
+        locked_dims = locked_dims or {}
         return self._get_extremum("max", locked_dims)
 
     def get_min(
@@ -170,6 +175,7 @@ class AEPsychMixin(GPyTorchModel):
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
         """
+        locked_dims = locked_dims or {}
         return self._get_extremum("min", locked_dims)
 
     def inv_query(
@@ -338,8 +344,12 @@ class AEPsychMixin(GPyTorchModel):
         median = torch.clip(torch.quantile(jnds, 0.5, axis=0), 0, np.inf)  # type: ignore
         return median, lower, upper
 
-    def dim_grid(self: ModelProtocol, gridsize: int = 30) -> torch.Tensor:
-        return dim_grid(self.lb, self.ub, self.dim, gridsize)
+    def dim_grid(
+        self: ModelProtocol,
+        gridsize: int = 30,
+        slice_dims: Mapping[int, float] = None,
+    ) -> torch.Tensor:
+        return dim_grid(self.lb, self.ub, self.dim, gridsize, slice_dims)
 
     def set_train_data(self, inputs=None, targets=None, strict=False):
         """
