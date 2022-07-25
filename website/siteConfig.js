@@ -9,8 +9,7 @@
 // site configuration options.
 
 // Define this so it can be easily modified in scripts (to host elsewhere)
-// const baseUrl = "/"; // main aepsych branch
-const baseUrl = "/"; // test branch
+const baseUrl = "/";
 
 
 // List of projects/orgs using your project for the users page.
@@ -41,10 +40,7 @@ const siteConfig = {
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
 
-  // NOINDEX - GOOGLE SEARCH web crawlers while testing website
   metadata: [
-    { name: 'googlebot', content: 'noindex' },
-    { name: 'robots', content: 'noindex' },
   ],
   // This would become <meta name="keywords" content="cooking, blog"> in the generated HTML
   // For no header links in the top nav bar -> headerLinks: [],
@@ -92,8 +88,6 @@ const siteConfig = {
      `${baseUrl}js/code_block_buttons.js`,
      "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js",
      `${baseUrl}js/cookie_consent.js`,
-    // Copy-to-clipboard button for code blocks
-    `${baseUrl}js/code_block_buttons.js`,
     "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js",
     `${baseUrl}js/image_fail_to_load.js`,
     `${baseUrl}js/cookie_consent.js`,
