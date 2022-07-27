@@ -36,6 +36,12 @@ public class ExperimentGenerator : EditorWindow
     public GameObject ExperimentUIPrefab;
     public string prefabPath = "Packages/com.frl.aepsych/Runtime/Prefabs/ExperimentUI.prefab";
 
+    [MenuItem("AEPsych/Documentation")]
+    public static void OpenAEPsychWebsite()
+    {
+        Application.OpenURL("https://aepsych.org/docs/getting_started");
+    }
+
     [MenuItem("AEPsych/Create New Experiment")]
     public static EditorWindow CreateNew()
     {

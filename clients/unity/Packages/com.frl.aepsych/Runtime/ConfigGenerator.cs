@@ -36,8 +36,12 @@ public class Parameter
 public class ConfigGenerator: MonoBehaviour
 {
     [SerializeField] public List<Parameter> experimentParams;
-    [SerializeField] public string filePath = "configs/default_config.ini";
-    string[] experiment_types = { "Threshold", "Optimization"};
+
+#if UNITY_EDITOR
+    [SerializeField] public DefaultAsset manualConfig;
+#endif
+    [SerializeField] public string relativeFilePath;
+    string[] experiment_types = { "Threshold", "Optimization", "Pairwise Exploration", "Pairwise Optimization" };
     public int experiment_idx = 0;
     public float target = 0.5f;
     public int initialization_trials = 10;
@@ -46,24 +50,10 @@ public class ConfigGenerator: MonoBehaviour
     public bool isAutomatic = true;
     public string fullConfigFile;
     public string experimentName = "";
+    public string defaultFilePath = "configs/default_config.ini";
     public bool isEditorVersion = false;
     public bool isValid = true;
     public bool startWithModel;
-
-    public void SetName(string newName)
-    {
-        experimentName = newName;
-    }
-
-    public string GetManualConfigPath()
-    {
-        return filePath;
-    }
-
-    public virtual string[] GetExperimentTypes()
-    {
-        return experiment_types;
-    }
 
     private void OnValidate()
     {
@@ -73,6 +63,40 @@ public class ConfigGenerator: MonoBehaviour
             experimentParams = new List<Parameter>();
             experimentParams.Add(new Parameter("Dimension 1"));
         }
+
+#if UNITY_EDITOR
+        if (BuildPipeline.isBuildingPlayer)
+            return;
+
+        if (manualConfig != null)
+        {
+            string temp = AssetDatabase.GetAssetPath(manualConfig);
+            if (temp.StartsWith(@"Assets/StreamingAssets") || temp.StartsWith(@"Assets\StreamingAssets"))
+            {
+                // Remove the Assets/StreamingAssets directory from path
+                relativeFilePath = temp.Substring(23);
+            }
+            else
+            {
+                Debug.LogError("Manual Config must be moved under Assets/StreamingAssets. Current location: " + temp);
+            }
+        }
+#endif
+    }
+
+    public void SetName(string newName)
+    {
+        experimentName = newName;
+    }
+
+    public string GetManualConfigPath()
+    {
+        return relativeFilePath;
+    }
+
+    public virtual string[] GetExperimentTypes()
+    {
+        return experiment_types;
     }
 
     public bool CheckParamValidity()
@@ -130,6 +154,26 @@ public class ConfigGenerator: MonoBehaviour
                 outcome_type = "single_probit";
                 acqf = "qNoisyExpectedImprovement";
                 model = "GPClassificationModel";
+                mean_covar_factory = "default_mean_covar_factory";
+                objective = "ProbitObjective";
+                target = -1f;
+                break;
+            case "Pairwise Optimization":
+                init_generator = "PairwiseSobolGenerator";
+                opt_generator = "PairwiseOptimizeAcqfGenerator";
+                outcome_type = "pairwise_probit";
+                acqf = "qNoisyExpectedImprovement";
+                model = "PairwiseProbitModel";
+                mean_covar_factory = "default_mean_covar_factory";
+                objective = "ProbitObjective";
+                target = -1f;
+                break;
+            case "Pairwise Exploration":
+                init_generator = "PairwiseSobolGenerator";
+                opt_generator = "PairwiseOptimizeAcqfGenerator";
+                outcome_type = "pairwise_probit";
+                acqf = "PairwiseMCPosteriorVariance";
+                model = "PairwiseProbitModel";
                 mean_covar_factory = "default_mean_covar_factory";
                 objective = "ProbitObjective";
                 target = -1f;
@@ -213,7 +257,12 @@ public class ConfigGenerator: MonoBehaviour
     public void WriteToFile()
     {
         fullConfigFile = GetConfigText();
-        string finalPath = Path.Combine(Application.streamingAssetsPath, filePath);
+        string finalPath;
+        if (manualConfig == null)
+            finalPath = Path.Combine(Application.streamingAssetsPath, defaultFilePath);
+        else
+            finalPath = Path.Combine(Application.streamingAssetsPath, GetManualConfigPath());
+
         if (!Directory.Exists(Path.GetDirectoryName(finalPath)))
         {
             Directory.CreateDirectory(Path.GetDirectoryName(finalPath));

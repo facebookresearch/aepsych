@@ -30,10 +30,19 @@ public class ConfigGeneratorEditor : Editor
         EditorGUILayout.Space();
         if (!configGenerator.isAutomatic)
         {
-            EditorGUILayout.LabelField("Path to manual file (including file name) relative to the Assets/StreamingAssets folder");
-            configGenerator.filePath = EditorGUILayout.TextField("Config File Path", configGenerator.filePath);
+            EditorGUILayout.LabelField("Manual config reference (should be within the StreamingAssets folder)", new GUIStyle()
+            {
+                fontSize = 18,
+                richText = true,
+                wordWrap = true,
+                normal = new GUIStyleState() { textColor = Color.white }
+            }); ;
+            var experimentConfig = serializedObject.FindProperty("manualConfig");
+            EditorGUILayout.PropertyField(experimentConfig, new GUIContent("Manual Config File"), true);
 
-            EditorGUILayout.HelpBox("Configure the following properties, then Click \"Write Config to File\" to generate a config file in the specified directory. To use files generated in this way, assign them in the \"Manual Config Files\" list above.", MessageType.Info);
+            EditorGUILayout.Space();
+
+            EditorGUILayout.HelpBox("Configure the following properties, then Click \"Write Config to File\" to overwrite the config file specified above. If null, the new config will default to " + configGenerator.defaultFilePath, MessageType.Info);
             if (GUILayout.Button("Write Config to File"))
             {
                 if (configGenerator.experimentParams != null && configGenerator.experimentParams.Count != 0)

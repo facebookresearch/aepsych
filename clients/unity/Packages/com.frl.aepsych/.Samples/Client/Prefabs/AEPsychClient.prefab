@@ -40,10 +40,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7429437447731183727}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f2f14f83f94349158244b35d0be3fa2, type: 3}
+  m_Script: {fileID: 11500000, guid: 66678f3fd91e1bc4c9b8b60968b5a725, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentStrat: 0
   server_address: localhost
   server_port: 5555
   finished: 0
+  debugEnabled: 0

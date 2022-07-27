@@ -439,14 +439,14 @@ namespace AEPsych
                     yield return StartCoroutine(strategy.InitStrat(client, configPath: configPath, false));
                 }
             }
-            else // Initialize each manually added strategy
+            else // Initialize manually added strategy
             {
                 // Ensure that the user has provided at least one strategy config
                 configPath = Path.Combine(Application.streamingAssetsPath, configGenerator.GetManualConfigPath());
                 if (!File.Exists(configPath))
                 {
                     Debug.LogError(string.Format("Invalid manual config location: {0} To use a manual config file, place the file within Assets/StreamingAssets," +
-                        " then write a file name that ends in .ini and specify the path relative to the StreamingAssets folder.", configPath));
+                        " assign the file refrence in the ConfigGenerator, and ensure that the file name ends in .ini", configPath));
                     TerminateExperiment();
                     yield return null;
                 }
