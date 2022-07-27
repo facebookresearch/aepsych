@@ -10,3 +10,4 @@ dill
 pandas
 tqdm
 pathos
+aepsych_client

@@ -24,6 +24,7 @@ REQUIRES = [
     "pandas",
     "tqdm",
     "pathos",
+    "aepsych_client",
 ]
 
 DEV_REQUIRES = [
