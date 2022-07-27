@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 865295936}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 2298ec89485aad64f8492ca5800936f0, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -123,159 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &310603141
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 310603142}
-  - component: {fileID: 310603144}
-  - component: {fileID: 310603143}
-  m_Layer: 0
-  m_Name: 2DSingleOpt
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &310603142
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 310603141}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.75, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 329997636}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &310603143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 310603141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  experimentParams:
-  - lowerBound: 0
-    upperBound: 1
-    name: R
-  - lowerBound: 0
-    upperBound: 1
-    name: B
-  filePath: configs/fb
-  experiment_idx: 1
-  target: -1
-  initialization_trials: 8
-  optimization_trials: 12
-  isInitialized: 0
-  isAutomatic: 1
-  fullConfigFile: '[common]
-
-    parnames = [R, B]
-
-    lb = [0, 0]
-
-    ub = [1,
-    1]
-
-    outcome_type = single_probit
-
-
-    strategy_names = [init_strat, opt_strat]
-
-
-    [init_strat]
-
-    n_trials
-    = 8
-
-    generator = SobolGenerator
-
-
-    [opt_strat]
-
-    n_trials = 12
-
-    refit_every
-    = 5
-
-    generator = OptimizeAcqfGenerator
-
-    acqf = qNoisyExpectedImprovement
-
-    model
-    = GPClassificationModel
-
-
-    [GPClassificationModel]
-
-    inducing_size = 100
-
-    mean_covar_factory
-    = default_mean_covar_factory
-
-
-    [OptimizeAcqfGenerator]
-
-    restarts = 10
-
-    samps
-    = 1500
-
-
-    [qNoisyExpectedImprovement]
-
-    objective = ProbitObjective
-
-'
-  experimentName: Ex2DSingleOptimize
-  isEditorVersion: 1
-  isValid: 1
-  startWithModel: 0
---- !u!114 &310603144
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 310603141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c13438773a3f0b44995031155c51a6a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ResponseKey0: 110
-  ResponseKey1: 121
-  startKey: 32
-  useDefaultUI: 1
-  useModelExploration: 0
-  autoDisableOtherCanvases: 0
-  recordToCSV: 0
-  asyncAsk: 1
-  startMode: 2
-  client: {fileID: 0}
-  strategy: {fileID: 0}
-  configGenerator: {fileID: 0}
-  isDone: 0
-  isPaused: 0
-  defaultUI: {fileID: 0}
-  experimentName: Ex2DSingleOptimize
-  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
-  examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
-  configName: configs/single_opt_2d.ini
-  experimentCanvas: {fileID: 2005403079}
 --- !u!1 &329997634
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,10 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27468319abc5b9e4fbe24d8840c7b1dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Dim: 0
-  m_Method: 1
-  m_Response: 0
-  selectedScript: 1DSingleDetection
+  m_Dim: 2
+  m_Method: 2
+  m_Response: 1
+  selectedScript: 3DPairwiseExploration
 --- !u!4 &329997636
 Transform:
   m_ObjectHideFlags: 0
@@ -320,15 +167,179 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.75, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 1523462406}
+  - {fileID: 1171856327}
   - {fileID: 1789285997}
   - {fileID: 634023898}
-  - {fileID: 1387304401}
-  - {fileID: 310603142}
-  - {fileID: 692194538}
-  - {fileID: 2043047477}
+  - {fileID: 824151511}
+  - {fileID: 1912671822}
+  - {fileID: 576863801}
+  - {fileID: 1218501588}
+  - {fileID: 922443017}
+  - {fileID: 953885843}
+  - {fileID: 1636215477}
+  - {fileID: 1363892222}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &576863800
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 576863801}
+  - component: {fileID: 576863803}
+  - component: {fileID: 576863802}
+  m_Layer: 0
+  m_Name: 2DSingleDetection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &576863801
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576863800}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &576863802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576863800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: gsColor
+  - lowerBound: 0
+    upperBound: 1
+    name: alpha
+  filePath: configs/fb
+  experiment_idx: 0
+  target: 0.75
+  initialization_trials: 10
+  optimization_trials: 20
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: '[common]
+
+    parnames = [gsColor, alpha]
+
+    lb = [0, 0]
+
+    ub
+    = [1, 1]
+
+    outcome_type = single_probit
+
+    target = 0.75
+
+
+    strategy_names
+    = [init_strat, opt_strat]
+
+
+    [init_strat]
+
+    n_trials = 10
+
+    generator
+    = SobolGenerator
+
+
+    [opt_strat]
+
+    n_trials = 20
+
+    refit_every = 5
+
+    generator
+    = OptimizeAcqfGenerator
+
+    acqf = MCLevelSetEstimation
+
+    model = GPClassificationModel
+
+
+    [GPClassificationModel]
+
+    inducing_size
+    = 100
+
+    mean_covar_factory = default_mean_covar_factory
+
+
+    [OptimizeAcqfGenerator]
+
+    restarts
+    = 10
+
+    samps = 1500
+
+
+    [MCLevelSetEstimation]
+
+    beta = 3.98
+
+    objective
+    = ProbitObjective
+
+'
+  experimentName: Ex2DSingleDetect
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &576863803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576863800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26337a3ad87d95b4fbac601352dbcc9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex2DSingleDetect
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+  trialText: {fileID: 0}
+  configName: configs/single_lse_2d.ini
 --- !u!1 &634023897
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,7 +370,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &634023899
 MonoBehaviour:
@@ -381,13 +392,14 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   asyncAsk: 1
-  startMode: 2
+  startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
   defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
   experimentName: Ex1DSingleOpt
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
   configName: configs/single_opt_1d.ini
@@ -477,7 +489,7 @@ MonoBehaviour:
   isEditorVersion: 1
   isValid: 1
   startWithModel: 0
---- !u!1 &692194537
+--- !u!1 &824151510
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -485,9 +497,201 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 692194538}
-  - component: {fileID: 692194540}
-  - component: {fileID: 692194539}
+  - component: {fileID: 824151511}
+  - component: {fileID: 824151513}
+  - component: {fileID: 824151512}
+  m_Layer: 0
+  m_Name: 2DPairwiseOpt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &824151511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824151510}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &824151512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824151510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: R
+  - lowerBound: 0
+    upperBound: 1
+    name: B
+  filePath: configs/default_config.ini
+  experiment_idx: 3
+  target: 0.5
+  initialization_trials: 10
+  optimization_trials: 12
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex2DPairOptimize
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &824151513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824151510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7607e725a724bab438e52a81d8b1d854, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 49
+  ResponseKey1: 50
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 2
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex2DPairOptimize
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+  examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
+--- !u!1 &922443016
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 922443017}
+  - component: {fileID: 922443020}
+  - component: {fileID: 922443018}
+  m_Layer: 0
+  m_Name: 3DPairwiseOpt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &922443017
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922443016}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &922443018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922443016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: R
+  - lowerBound: 0
+    upperBound: 1
+    name: G
+  - lowerBound: 0
+    upperBound: 1
+    name: B
+  filePath: configs/default_config.ini
+  experiment_idx: 3
+  target: 0.5
+  initialization_trials: 12
+  optimization_trials: 20
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex3DPairOptimize
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &922443020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922443016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eec3274f841d8d340854ccfc62df6690, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 49
+  ResponseKey1: 50
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 2
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex3DPairOptimize
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+  outlinePrefab: {fileID: 3009724874960365139, guid: c50087476afa4034fa1a7c1a2cae4488, type: 3}
+  examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
+--- !u!1 &953885842
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 953885843}
+  - component: {fileID: 953885844}
+  - component: {fileID: 953885845}
   m_Layer: 0
   m_Name: 3DSingleDetection
   m_TagString: Untagged
@@ -495,27 +699,58 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!4 &692194538
+--- !u!4 &953885843
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 692194537}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_GameObject: {fileID: 953885842}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 4
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &692194539
+--- !u!114 &953885844
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 692194537}
+  m_GameObject: {fileID: 953885842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4ffcdc4e9429048994300282cf0d0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 1
+  autoDisableOtherCanvases: 1
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 2
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex3DSingleDetect
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+  trialText: {fileID: 0}
+--- !u!114 &953885845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953885842}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
@@ -606,294 +841,6 @@ MonoBehaviour:
   isEditorVersion: 1
   isValid: 1
   startWithModel: 0
---- !u!114 &692194540
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 692194537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc4ffcdc4e9429048994300282cf0d0a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ResponseKey0: 110
-  ResponseKey1: 121
-  startKey: 32
-  useDefaultUI: 1
-  useModelExploration: 1
-  autoDisableOtherCanvases: 0
-  recordToCSV: 0
-  asyncAsk: 1
-  startMode: 2
-  client: {fileID: 0}
-  strategy: {fileID: 0}
-  configGenerator: {fileID: 0}
-  isDone: 0
-  isPaused: 0
-  defaultUI: {fileID: 0}
-  experimentName: Ex3DSingleDetect
-  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
-  trialText: {fileID: 1690873761}
---- !u!1001 &758396320
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_Pivot.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496200, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_Camera
-      value: 
-      objectReference: {fileID: 963194227}
-    - target: {fileID: 2416200128082496200, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_PlaneDistance
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2416200128082496205, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
-      propertyPath: m_Name
-      value: Experiment UI
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
---- !u!1 &774019107
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 774019108}
-  - component: {fileID: 774019111}
-  - component: {fileID: 774019110}
-  - component: {fileID: 774019109}
-  m_Layer: 5
-  m_Name: Text
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &774019108
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774019107}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 2005403080}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 292, y: -124}
-  m_SizeDelta: {x: 177.46, y: 103.3}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &774019109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774019107}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c46516f97118a94f88f47ae414dc9ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &774019110
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774019107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.6775098, g: 0.990566, b: 0.978906, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 48
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 50
-    m_Alignment: 4
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: 
---- !u!222 &774019111
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774019107}
-  m_CullTransparentMesh: 0
---- !u!850595691 &865295936
-LightingSettings:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Settings.lighting
-  serializedVersion: 3
-  m_GIWorkflowMode: 0
-  m_EnableBakedLightmaps: 1
-  m_EnableRealtimeLightmaps: 0
-  m_RealtimeEnvironmentLighting: 1
-  m_BounceScale: 1
-  m_AlbedoBoost: 1
-  m_IndirectOutputScale: 1
-  m_UsingShadowmask: 1
-  m_BakeBackend: 1
-  m_LightmapMaxSize: 1024
-  m_BakeResolution: 40
-  m_Padding: 2
-  m_TextureCompression: 1
-  m_AO: 0
-  m_AOMaxDistance: 1
-  m_CompAOExponent: 1
-  m_CompAOExponentDirect: 0
-  m_ExtractAO: 0
-  m_MixedBakeMode: 2
-  m_LightmapsBakeMode: 1
-  m_FilterMode: 1
-  m_LightmapParameters: {fileID: 15204, guid: 0000000000000000f000000000000000, type: 0}
-  m_ExportTrainingData: 0
-  m_TrainingDataDestination: TrainingData
-  m_RealtimeResolution: 2
-  m_ForceWhiteAlbedo: 0
-  m_ForceUpdates: 0
-  m_FinalGather: 0
-  m_FinalGatherRayCount: 256
-  m_FinalGatherFiltering: 1
-  m_PVRCulling: 1
-  m_PVRSampling: 1
-  m_PVRDirectSampleCount: 32
-  m_PVRSampleCount: 500
-  m_PVREnvironmentSampleCount: 500
-  m_PVREnvironmentReferencePointCount: 2048
-  m_LightProbeSampleCountMultiplier: 4
-  m_PVRBounces: 2
-  m_PVRMinBounces: 2
-  m_PVREnvironmentMIS: 0
-  m_PVRFilteringMode: 2
-  m_PVRDenoiserTypeDirect: 0
-  m_PVRDenoiserTypeIndirect: 0
-  m_PVRDenoiserTypeAO: 0
-  m_PVRFilterTypeDirect: 0
-  m_PVRFilterTypeIndirect: 0
-  m_PVRFilterTypeAO: 0
-  m_PVRFilteringGaussRadiusDirect: 1
-  m_PVRFilteringGaussRadiusIndirect: 5
-  m_PVRFilteringGaussRadiusAO: 2
-  m_PVRFilteringAtrousPositionSigmaDirect: 0.5
-  m_PVRFilteringAtrousPositionSigmaIndirect: 2
-  m_PVRFilteringAtrousPositionSigmaAO: 1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -977,7 +924,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1019117539
+--- !u!1 &1171856326
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -985,204 +932,44 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1019117542}
-  - component: {fileID: 1019117541}
-  - component: {fileID: 1019117540}
+  - component: {fileID: 1171856327}
+  - component: {fileID: 1171856328}
+  - component: {fileID: 1171856329}
   m_Layer: 0
-  m_Name: EventSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1019117540
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019117539}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
---- !u!114 &1019117541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019117539}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 10
---- !u!4 &1019117542
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019117539}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1387304400
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1387304401}
-  - component: {fileID: 1387304403}
-  - component: {fileID: 1387304402}
-  m_Layer: 0
-  m_Name: 2DSingleDetection
+  m_Name: 1DPairwiseExploration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!4 &1387304401
+--- !u!4 &1171856327
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1387304400}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_GameObject: {fileID: 1171856326}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1387304402
+--- !u!114 &1171856328
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1387304400}
+  m_GameObject: {fileID: 1171856326}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Script: {fileID: 11500000, guid: 2b9dbeff5f823cc4a94bb1ddbf912c0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  experimentParams:
-  - lowerBound: 0
-    upperBound: 1
-    name: gsColor
-  - lowerBound: 0
-    upperBound: 1
-    name: alpha
-  filePath: configs/fb
-  experiment_idx: 0
-  target: 0.75
-  initialization_trials: 10
-  optimization_trials: 20
-  isInitialized: 0
-  isAutomatic: 1
-  fullConfigFile: '[common]
-
-    parnames = [gsColor, alpha]
-
-    lb = [0, 0]
-
-    ub
-    = [1, 1]
-
-    outcome_type = single_probit
-
-    target = 0.75
-
-
-    strategy_names
-    = [init_strat, opt_strat]
-
-
-    [init_strat]
-
-    n_trials = 10
-
-    generator
-    = SobolGenerator
-
-
-    [opt_strat]
-
-    n_trials = 20
-
-    refit_every = 5
-
-    generator
-    = OptimizeAcqfGenerator
-
-    acqf = MCLevelSetEstimation
-
-    model = GPClassificationModel
-
-
-    [GPClassificationModel]
-
-    inducing_size
-    = 100
-
-    mean_covar_factory = default_mean_covar_factory
-
-
-    [OptimizeAcqfGenerator]
-
-    restarts
-    = 10
-
-    samps = 1500
-
-
-    [MCLevelSetEstimation]
-
-    beta = 3.98
-
-    objective
-    = ProbitObjective
-
-'
-  experimentName: Ex2DSingleDetect
-  isEditorVersion: 1
-  isValid: 1
-  startWithModel: 0
---- !u!114 &1387304403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1387304400}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26337a3ad87d95b4fbac601352dbcc9e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ResponseKey0: 110
-  ResponseKey1: 121
+  ResponseKey0: 49
+  ResponseKey1: 50
   startKey: 32
   useDefaultUI: 1
   useModelExploration: 0
@@ -1196,11 +983,38 @@ MonoBehaviour:
   isDone: 0
   isPaused: 0
   defaultUI: {fileID: 0}
-  experimentName: Ex2DSingleDetect
-  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
-  trialText: {fileID: 1690873761}
-  configName: configs/single_lse_2d.ini
---- !u!1 &1413427543
+  queryModel: {fileID: 0}
+  experimentName: Ex1DPairExplore
+  sqPrefab: {fileID: 3009724874960365139, guid: 876d731c09e8b854ab84e7d361afa357, type: 3}
+--- !u!114 &1171856329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1171856326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experimentParams:
+  - lowerBound: 0.6
+    upperBound: 1.5
+    name: width
+  filePath: configs/default_config.ini
+  experiment_idx: 2
+  target: 0.5
+  initialization_trials: 10
+  optimization_trials: 20
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex1DPairExplore
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!1 &1218501587
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1208,22 +1022,176 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1413427545}
-  - component: {fileID: 1413427544}
+  - component: {fileID: 1218501588}
+  - component: {fileID: 1218501589}
+  - component: {fileID: 1218501590}
   m_Layer: 0
-  m_Name: AEPsychClient
+  m_Name: 2DSingleOpt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1413427544
+  m_IsActive: 0
+--- !u!4 &1218501588
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218501587}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1218501589
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1413427543}
+  m_GameObject: {fileID: 1218501587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c13438773a3f0b44995031155c51a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex2DSingleOptimize
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+  examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
+  configName: configs/single_opt_2d.ini
+  experimentCanvas: {fileID: 0}
+--- !u!114 &1218501590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218501587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: R
+  - lowerBound: 0
+    upperBound: 1
+    name: B
+  filePath: configs/fb
+  experiment_idx: 1
+  target: -1
+  initialization_trials: 8
+  optimization_trials: 12
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: '[common]
+
+    parnames = [R, B]
+
+    lb = [0, 0]
+
+    ub = [1,
+    1]
+
+    outcome_type = single_probit
+
+
+    strategy_names = [init_strat, opt_strat]
+
+
+    [init_strat]
+
+    n_trials
+    = 8
+
+    generator = SobolGenerator
+
+
+    [opt_strat]
+
+    n_trials = 12
+
+    refit_every
+    = 5
+
+    generator = OptimizeAcqfGenerator
+
+    acqf = qNoisyExpectedImprovement
+
+    model
+    = GPClassificationModel
+
+
+    [GPClassificationModel]
+
+    inducing_size = 100
+
+    mean_covar_factory
+    = default_mean_covar_factory
+
+
+    [OptimizeAcqfGenerator]
+
+    restarts = 10
+
+    samps
+    = 1500
+
+
+    [qNoisyExpectedImprovement]
+
+    objective = ProbitObjective
+
+'
+  experimentName: Ex2DSingleOptimize
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!1 &1345180132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1345180134}
+  - component: {fileID: 1345180133}
+  m_Layer: 0
+  m_Name: AEPsych Client
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1345180133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1345180132}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66678f3fd91e1bc4c9b8b60968b5a725, type: 3}
@@ -1233,22 +1201,22 @@ MonoBehaviour:
   server_address: localhost
   server_port: 5555
   finished: 0
-  debugEnabled: 1
---- !u!4 &1413427545
+  debugEnabled: 0
+--- !u!4 &1345180134
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1413427543}
+  m_GameObject: {fileID: 1345180132}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: 90}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1690873759
+--- !u!1 &1363892221
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1256,132 +1224,512 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1690873760}
-  - component: {fileID: 1690873762}
-  - component: {fileID: 1690873761}
-  m_Layer: 5
-  m_Name: TrialStartText
+  - component: {fileID: 1363892222}
+  - component: {fileID: 1363892225}
+  - component: {fileID: 1363892223}
+  m_Layer: 0
+  m_Name: 3DPairwiseExploration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1690873760
-RectTransform:
+--- !u!4 &1363892222
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1690873759}
+  m_GameObject: {fileID: 1363892221}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 2005403080}
-  m_RootOrder: 0
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 7.2, y: 0}
-  m_SizeDelta: {x: 263.5, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1690873761
+--- !u!114 &1363892223
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1690873759}
+  m_GameObject: {fileID: 1363892221}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_text: Waiting to begin...
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: -1183493901
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
-  m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
-  m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
-  m_linkedTextComponent: {fileID: 0}
-  parentLinkedComponent: {fileID: 0}
-  m_enableKerning: 1
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_IsTextObjectScaleStatic: 0
-  m_VertexBufferAutoSizeReduction: 1
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!222 &1690873762
-CanvasRenderer:
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: hue
+  - lowerBound: 0
+    upperBound: 1
+    name: saturation
+  - lowerBound: 0
+    upperBound: 1
+    name: value
+  filePath: configs/default_config.ini
+  experiment_idx: 2
+  target: 0.5
+  initialization_trials: 2
+  optimization_trials: 40
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex3DPairExplore
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &1363892225
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1690873759}
-  m_CullTransparentMesh: 0
+  m_GameObject: {fileID: 1363892221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d40eb29d27d0e3449318ae147e2d88f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 49
+  ResponseKey1: 50
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 1
+  autoDisableOtherCanvases: 1
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 2
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex3DPairExplore
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+  outlinePrefab: {fileID: 3009724874960365139, guid: c50087476afa4034fa1a7c1a2cae4488, type: 3}
+--- !u!1 &1523462405
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1523462406}
+  - component: {fileID: 1523462409}
+  - component: {fileID: 1523462407}
+  m_Layer: 0
+  m_Name: 1DPairwiseOpt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1523462406
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523462405}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1523462407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523462405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: gsColor
+  filePath: configs/default_config.ini
+  experiment_idx: 3
+  target: 0.5
+  initialization_trials: 6
+  optimization_trials: 6
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex1DPairOptimize
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &1523462409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523462405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb1e97458cbe2f41ba49b5a5cbd488a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 49
+  ResponseKey1: 50
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 2
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex1DPairOptimize
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+--- !u!1 &1636215476
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1636215477}
+  - component: {fileID: 1636215478}
+  - component: {fileID: 1636215479}
+  m_Layer: 0
+  m_Name: 3DSingleOpt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1636215477
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636215476}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1636215478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636215476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa798068594e0244aa5b2e61727c01c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 1
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  experimentName: Ex3DSingleOptimize
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+  examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
+  configName: configs/single_opt_3d.ini
+--- !u!114 &1636215479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636215476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: R
+  - lowerBound: 0
+    upperBound: 1
+    name: G
+  - lowerBound: 0
+    upperBound: 1
+    name: B
+  filePath: configs/fb
+  experiment_idx: 1
+  target: -1
+  initialization_trials: 25
+  optimization_trials: 15
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: '[common]
+
+    parnames = [R, G, B]
+
+    lb = [0, 0, 0]
+
+    ub
+    = [1, 1, 1]
+
+    outcome_type = single_probit
+
+
+    strategy_names = [init_strat,
+    opt_strat]
+
+
+    [init_strat]
+
+    n_trials = 25
+
+    generator = SobolGenerator
+
+
+    [opt_strat]
+
+    n_trials
+    = 15
+
+    refit_every = 5
+
+    generator = OptimizeAcqfGenerator
+
+    acqf =
+    qNoisyExpectedImprovement
+
+    model = GPClassificationModel
+
+
+    [GPClassificationModel]
+
+    inducing_size
+    = 150
+
+    mean_covar_factory = default_mean_covar_factory
+
+
+    [OptimizeAcqfGenerator]
+
+    restarts
+    = 10
+
+    samps = 2000
+
+
+    [qNoisyExpectedImprovement]
+
+    objective = ProbitObjective
+
+'
+  experimentName: Ex3DSingleOptimize
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!1 &1647964753
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1647964756}
+  - component: {fileID: 1647964755}
+  - component: {fileID: 1647964754}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1647964754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647964753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
+--- !u!114 &1647964755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647964753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &1647964756
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647964753}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1691051070
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496201, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: enableTrialReplay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496201, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: enableExperimentRestart
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2416200128082496205, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_Name
+      value: Experiment UI
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
 --- !u!1 &1789285996
 GameObject:
   m_ObjectHideFlags: 0
@@ -1399,7 +1747,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1789285997
 Transform:
   m_ObjectHideFlags: 0
@@ -1412,7 +1760,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1789285998
 MonoBehaviour:
@@ -1441,9 +1789,10 @@ MonoBehaviour:
   isDone: 0
   isPaused: 0
   defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
   experimentName: Ex1DSingleLse
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
-  trialText: {fileID: 1690873761}
+  trialText: {fileID: 0}
   configName: configs/single_lse_1d.ini
 --- !u!114 &1789285999
 MonoBehaviour:
@@ -1535,7 +1884,7 @@ MonoBehaviour:
   isEditorVersion: 1
   isValid: 1
   startWithModel: 0
---- !u!1 &2005403076
+--- !u!1 &1912671821
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1543,138 +1892,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2005403080}
-  - component: {fileID: 2005403079}
-  - component: {fileID: 2005403078}
-  - component: {fileID: 2005403077}
-  m_Layer: 5
-  m_Name: Canvas
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &2005403077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2005403076}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
---- !u!114 &2005403078
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2005403076}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
-  m_ReferencePixelsPerUnit: 100
-  m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
-  m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
-  m_PhysicalUnit: 3
-  m_FallbackScreenDPI: 96
-  m_DefaultSpriteDPI: 96
-  m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
---- !u!223 &2005403079
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2005403076}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 1
-  m_Camera: {fileID: 963194227}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
-  m_TargetDisplay: 0
---- !u!224 &2005403080
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2005403076}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
-  m_Children:
-  - {fileID: 1690873760}
-  - {fileID: 774019108}
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
---- !u!1 &2043047476
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2043047477}
-  - component: {fileID: 2043047479}
-  - component: {fileID: 2043047478}
+  - component: {fileID: 1912671822}
+  - component: {fileID: 1912671824}
+  - component: {fileID: 1912671823}
   m_Layer: 0
-  m_Name: 3DSingleOpt
+  m_Name: 2DPairwiseExploration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!4 &2043047477
+--- !u!4 &1912671822
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2043047476}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_GameObject: {fileID: 1912671821}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2043047478
+--- !u!114 &1912671823
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2043047476}
+  m_GameObject: {fileID: 1912671821}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
@@ -1683,101 +1931,40 @@ MonoBehaviour:
   experimentParams:
   - lowerBound: 0
     upperBound: 1
-    name: R
+    name: saturation
   - lowerBound: 0
     upperBound: 1
-    name: G
-  - lowerBound: 0
-    upperBound: 1
-    name: B
-  filePath: configs/fb
-  experiment_idx: 1
-  target: -1
-  initialization_trials: 25
-  optimization_trials: 15
+    name: value
+  filePath: configs/default_config.ini
+  experiment_idx: 2
+  target: 0.5
+  initialization_trials: 12
+  optimization_trials: 25
   isInitialized: 0
   isAutomatic: 1
-  fullConfigFile: '[common]
-
-    parnames = [R, G, B]
-
-    lb = [0, 0, 0]
-
-    ub
-    = [1, 1, 1]
-
-    outcome_type = single_probit
-
-
-    strategy_names = [init_strat,
-    opt_strat]
-
-
-    [init_strat]
-
-    n_trials = 25
-
-    generator = SobolGenerator
-
-
-    [opt_strat]
-
-    n_trials
-    = 15
-
-    refit_every = 5
-
-    generator = OptimizeAcqfGenerator
-
-    acqf =
-    qNoisyExpectedImprovement
-
-    model = GPClassificationModel
-
-
-    [GPClassificationModel]
-
-    inducing_size
-    = 150
-
-    mean_covar_factory = default_mean_covar_factory
-
-
-    [OptimizeAcqfGenerator]
-
-    restarts
-    = 10
-
-    samps = 2000
-
-
-    [qNoisyExpectedImprovement]
-
-    objective = ProbitObjective
-
-'
-  experimentName: Ex3DSingleOptimize
+  fullConfigFile: 
+  experimentName: Ex2DPairExplore
   isEditorVersion: 1
   isValid: 1
   startWithModel: 0
---- !u!114 &2043047479
+--- !u!114 &1912671824
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2043047476}
+  m_GameObject: {fileID: 1912671821}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa798068594e0244aa5b2e61727c01c9, type: 3}
+  m_Script: {fileID: 11500000, guid: 01a855c9dbc07b84d8cf47ae6188aa3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ResponseKey0: 110
-  ResponseKey1: 121
+  ResponseKey0: 49
+  ResponseKey1: 50
   startKey: 32
   useDefaultUI: 1
-  useModelExploration: 0
-  autoDisableOtherCanvases: 0
+  useModelExploration: 1
+  autoDisableOtherCanvases: 1
   recordToCSV: 0
   asyncAsk: 1
   startMode: 2
@@ -1787,7 +1974,6 @@ MonoBehaviour:
   isDone: 0
   isPaused: 0
   defaultUI: {fileID: 0}
-  experimentName: Ex3DSingleOptimize
+  queryModel: {fileID: 0}
+  experimentName: Ex2DPairExplore
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
-  examplePrefab: {fileID: 1097749217152763744, guid: 65624deb641a9464e98a90c4e7ece905, type: 3}
-  configName: configs/single_opt_3d.ini
