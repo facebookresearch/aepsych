@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
@@ -5,6 +6,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import json
 import os
 import shutil
 import unittest
@@ -15,7 +17,7 @@ import aepsych.config as configuration
 import aepsych.database.db as db
 import aepsych.database.tables as tables
 import sqlalchemy
-import json
+
 
 class DBTestCase(unittest.TestCase):
     def setUp(self):
@@ -300,13 +302,17 @@ class DBTestCase(unittest.TestCase):
             extra_metadata=generated_config.jsonifyMetadata(),
         )
         self.assertEqual(
-            generated_config.jsonifyMetadata(), master_table.extra_metadata #Test in JSON form
+            generated_config.jsonifyMetadata(),
+            master_table.extra_metadata,  # Test in JSON form
         )
         # Next I can deserialize into a dictionary and make sure each element is 1-to-1.
         ## Important thing to note is generated_config will have extra fields because of configparser's.
-        ## Run comparison of json.loads -> generated_config, NOT the other way around. 
+        ## Run comparison of json.loads -> generated_config, NOT the other way around.
 
-        deserializedjson = json.loads(master_table.extra_metadata) # Directly from master table entry.
-        self.assertEqual(dict(deserializedjson), dict(json.loads(generated_config.jsonifyMetadata()))) #Test in dict form.
-        
-
+        deserializedjson = json.loads(
+            master_table.extra_metadata
+        )  # Directly from master table entry.
+        self.assertEqual(
+            dict(deserializedjson), dict(json.loads(generated_config.jsonifyMetadata()))
+        )  # Test in dict form.
+>>>>>>> 07cbfbe1b4d002bc39e4aa61ee9709153d30aa87
