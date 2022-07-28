@@ -15,7 +15,7 @@ import aepsych.config as configuration
 import aepsych.database.db as db
 import aepsych.database.tables as tables
 import sqlalchemy
-
+import json
 
 class DBTestCase(unittest.TestCase):
     def setUp(self):
@@ -300,5 +300,13 @@ class DBTestCase(unittest.TestCase):
             extra_metadata=generated_config.jsonifyMetadata(),
         )
         self.assertEqual(
-            generated_config.jsonifyMetadata(), master_table.extra_metadata
+            generated_config.jsonifyMetadata(), master_table.extra_metadata #Test in JSON form
         )
+        # Next I can deserialize into a dictionary and make sure each element is 1-to-1.
+        ## Important thing to note is generated_config will have extra fields because of configparser's.
+        ## Run comparison of json.loads -> generated_config, NOT the other way around. 
+
+        deserializedjson = json.loads(master_table.extra_metadata) # Directly from master table entry.
+        self.assertEqual(dict(deserializedjson), dict(json.loads(generated_config.jsonifyMetadata()))) #Test in dict form.
+        
+
