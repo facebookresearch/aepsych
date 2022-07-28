@@ -315,4 +315,3 @@ class DBTestCase(unittest.TestCase):
         self.assertEqual(
             dict(deserializedjson), dict(json.loads(generated_config.jsonifyMetadata()))
         )  # Test in dict form.
->>>>>>> 07cbfbe1b4d002bc39e4aa61ee9709153d30aa87
