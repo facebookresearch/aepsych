@@ -1,17 +1,14 @@
-# AEPsych Python client
+# AEPsych Python client v0.1
 
 This lets you use Python to interface with the AEPsych server to do model-based adaptive experimentation.
 
 ## Installation
 We recommend installing the client under a virtual environment like
 [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
-Once you've created a virtual environment for `AEPsychClient` and activated it, you can install our
-requirements and then install:
+Once you've created a virtual environment for `AEPsychClient` and activated it, you can install through pip:
 
 ```
-cd aepsych_client
-pip install -r requirements.txt
-pip install -e .
+pip install aepsych_client
 ```
 
 If you are a developer, you should also install the [main AEPsych package](https://github.com/facebookresearch/aepsych) so that you can run the tests.
