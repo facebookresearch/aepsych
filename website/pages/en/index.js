@@ -186,7 +186,16 @@ class Index extends React.Component {
               <MarkdownBlock>{setupMessageBlock}</MarkdownBlock>
               <a href="https://github.com/facebookresearch/aepsych/tree/main/examples" target="_blank">More examples</a>
             </li>
+            <li>
+              <h4>AEPsych clients:</h4>
+               <p className="disable">
+                AEPsych modeling and sample selection algorithms are
+                accessible via a server with
+                <a className="splash-btns" href={`${baseUrl}docs/clients`}> clients </a>
+                available in Python, MATLAB, and Unity.
+               </p>
 
+            </li>
           </ol>
         </Container>
       </div>
