@@ -11,6 +11,7 @@ from typing import List, Optional, Union
 
 import numpy as np
 import torch
+
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
@@ -207,7 +208,7 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def predict(self, x, probability_space=False):
-        return self.model.predict(x, probability_space)
+        return self.model.predict(x, probability_space=probability_space)
 
     @ensure_model_is_fresh
     def get_jnd(self, *args, **kwargs):
