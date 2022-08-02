@@ -95,10 +95,15 @@ class DBMasterTable(Base):
 
     @staticmethod
     def requires_update(engine):
-        return not DBMasterTable._has_extra_metadata(
-            engine
-        ) or not DBMasterTable._has_participant_id(engine)
-
+        return not DBMasterTable._has_column(engine, "extra_metadata") or not DBMasterTable._has_column(engine, "participant_id")
+    @staticmethod
+    def _has_column(engine, column: str):
+        result = engine.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(column)
+        )
+        rows = result.fetchall()
+        count = rows[0][0]
+        return count != 0
     @staticmethod
     def _has_extra_metadata(engine):
         result = engine.execute(
