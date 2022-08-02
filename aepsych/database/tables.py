@@ -89,9 +89,9 @@ class DBMasterTable(Base):
     def update(engine):
         logger.info("DBMasterTable : update called")
         if not DBMasterTable._has_extra_metadata(engine):
-            DBMasterTable._add_extra_metadata(engine)
+            DBMasterTable._add_column(engine, "extra_metadata")
         if not DBMasterTable._has_participant_id(engine):
-            DBMasterTable._add_participant_id(engine)
+            DBMasterTable._add_column(engine, "participant_id")
 
     @staticmethod
     def requires_update(engine):
@@ -105,23 +105,23 @@ class DBMasterTable(Base):
         count = rows[0][0]
         return count != 0
     @staticmethod
-    def _has_extra_metadata(engine):
-        result = engine.execute(
-            "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='extra_metadata'"
-        )
-        rows = result.fetchall()
-        count = rows[0][0]
-        return count != 0
+    def _add_column(engine, column: str):
+        try:
+            result = engine.execute(
+                "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(column)
+            )
+            rows = result.fetchall()
+            count = rows[0][0]
 
-    @staticmethod
-    def _has_participant_id(engine):
-        result = engine.execute(
-            "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='participant_id'"
-        )
-        rows = result.fetchall()
-        count = rows[0][0]
-        return count != 0
-
+            if 0 == count:
+                logger.debug(
+                    "Altering the master table to add the {0} column".format(column)
+                )
+                engine.execute("ALTER TABLE master ADD COLUMN {0} VARCHAR".format(column))
+                engine.commit()
+        except Exception as e:
+            logger.debug(f"Column already exists, no need to alter. [{e}]")
+            
     @staticmethod
     def _add_participant_id(engine):
         try:
