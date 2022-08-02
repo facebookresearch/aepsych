@@ -88,9 +88,9 @@ class DBMasterTable(Base):
     @staticmethod
     def update(engine):
         logger.info("DBMasterTable : update called")
-        if not DBMasterTable._has_extra_metadata(engine):
+        if not DBMasterTable._has_column(engine, "extra_metadata"):
             DBMasterTable._add_column(engine, "extra_metadata")
-        if not DBMasterTable._has_participant_id(engine):
+        if not DBMasterTable._has_column(engine, "participant_id"):
             DBMasterTable._add_column(engine, "participant_id")
 
     @staticmethod
