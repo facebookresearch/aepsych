@@ -450,9 +450,8 @@ class AEPsychServer(object):
             "config_str" in request["message"].keys()
             or "config_dict" in request["message"].keys()
         ):
-            # Generate a config object since configure will just accept one directly.
-            generated_configobj = Config(**request["message"])
-            _ = self.configure(configasobject=generated_configobj)
+            
+            _ = self.configure(**request["message"])
         else:
             raise RuntimeError("Missing a configure message!")
         new_config = self.handle_ask(request)
