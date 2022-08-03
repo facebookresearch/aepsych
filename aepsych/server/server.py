@@ -375,7 +375,7 @@ class AEPsychServer(object):
             or "config_dict" in request["message"].keys()
         ):
 
-            strat_id = self.configure(configasobject=tempconfig)
+            strat_id = self.configure(config=tempconfig)
         else:
             raise RuntimeError("Missing a configure message!")
 
@@ -716,22 +716,22 @@ class AEPsychServer(object):
         self.strat_id = self.n_strats - 1  # 0-index strats
         return self.strat_id
 
-    def configure(self, configasobject=None, **config_args):
+    def configure(self, config=None, **config_args):
         # To preserve backwards compatibility, I have made config_args still usable for unittests and old functions.
-        # But if configasobject is specified, it will use it rather than create a new config object.
-        if configasobject is None:
-            config = Config(**config_args)
+        # But if config is specified, it will use it rather than create a new config object.
+        if config is None:
+            usedconfig = Config(**config_args)
         else:
-            config = configasobject
-        if "experiment" in config:
+            usedconfig = config
+        if "experiment" in usedconfig:
             logger.warning(
                 'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'
             )
-            for i in config["experiment"]:
-                config["common"][i] = config["experiment"][i]
-            del config["experiment"]
-        self.db.record_config(master_table=self._db_master_record, config=config)
-        return self._configure(config)
+            for i in usedconfig["experiment"]:
+                usedconfig["common"][i] = usedconfig["experiment"][i]
+            del usedconfig["experiment"]
+        self.db.record_config(master_table=self._db_master_record, config=usedconfig)
+        return self._configure(usedconfig)
 
     def __getstate__(self):
         ### nuke the socket since it's not pickleble
