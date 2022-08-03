@@ -319,6 +319,6 @@ class DBTestCase(unittest.TestCase):
         self.assertEqual(deserializedjson["experiment_name"], "Lucas")
         self.assertEqual(deserializedjson["experiment_description"], "Test")
         self.assertEqual(deserializedjson["experiment_name"], master_table.experiment_name)
-        self.assertEqual(deserializedjson["participant_id"], master_table.participant_id)
+        self.assertEqual(deserializedjson["experiment_description"], master_table.experiment_description)
         
 
