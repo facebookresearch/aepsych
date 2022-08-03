@@ -6,15 +6,15 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
+
 import numpy as np
 import torch
-from aepsych.utils import make_scaled_sobol
 from aepsych.models import GPClassificationModel
+from aepsych.utils import _process_bounds, make_scaled_sobol
 
 
-class TestSequenceGenerators(unittest.TestCase):
+class UtilsTestCase(unittest.TestCase):
     def test_scaled_sobol_asserts(self):
-
         lb = np.r_[0, 0, 1]
         ub = np.r_[1]
         with self.assertRaises(AssertionError):
@@ -35,6 +35,20 @@ class TestSequenceGenerators(unittest.TestCase):
         mb = GPClassificationModel(lb=lb, ub=ub, dim=dim)
         grid = GPClassificationModel.dim_grid(mb, gridsize=gridsize)
         self.assertEqual(grid.shape, torch.Size([10, 1]))
+
+    def test_process_bounds(self):
+        lb, ub, dim = _process_bounds(np.r_[0, 1], np.r_[2, 3], None)
+        self.assertTrue(torch.all(lb == torch.tensor([0.0, 1.0])))
+        self.assertTrue(torch.all(ub == torch.tensor([2.0, 3.0])))
+        self.assertEqual(dim, 2)
+
+        # Wrong dim
+        with self.assertRaises(AssertionError):
+            _process_bounds(np.r_[0], np.r_[0], 2)
+
+        # ub = lb
+        with self.assertRaises(AssertionError):
+            _process_bounds(np.r_[0], np.r_[0], None)
 
 
 if __name__ == "__main__":

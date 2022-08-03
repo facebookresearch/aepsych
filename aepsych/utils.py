@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from collections.abc import Iterable
-from typing import Optional, Mapping
+from typing import Mapping, Optional
 
 import numpy as np
 import torch
@@ -67,8 +67,6 @@ def dim_grid(
     return torch.Tensor(np.mgrid[mesh_vals].reshape(dim, -1).T)
 
 
-
-
 def _process_bounds(lb, ub, dim):
     """Helper function for ensuring bounds are correct shape and type."""
     lb = promote_0d(lb)
@@ -91,6 +89,11 @@ def _process_bounds(lb, ub, dim):
             assert lb.shape[0] == dim, "dim does not match shape of bounds!"
     else:
         dim = lb.shape[0]
+
+    for i, (l, u) in enumerate(zip(lb, ub)):
+        assert (
+            l < u
+        ), f"Lower bound {l} is not less than upper bound {u} on dimension {i}!"
 
     return lb, ub, dim
 
