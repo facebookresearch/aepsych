@@ -314,10 +314,10 @@ class DBTestCase(unittest.TestCase):
 
         ## Going to check each value in the deserialized json from the DB to the expected values along with the config prior to insertion.
         ## This will check if it retains the individual values. 
-        self.assertEqual(deserializedjson["metadata"]["metadata1"], "one")
-        self.assertEqual(deserializedjson["metadata"]["metadata2"], "two")
-        self.assertEqual(deserializedjson["metadata"]["experiment_name"], "Lucas")
-        self.assertEqual(deserializedjson["metadata"]["experiment_description"], "Test")
-        self.assertEqual(deserializedjson["metadata"]["experiment_id"], generated_config["metadata"]["experiment_id"])
+        self.assertEqual(deserializedjson["metadata1"], "one")
+        self.assertEqual(deserializedjson["metadata2"], "two")
+        self.assertEqual(deserializedjson["experiment_name"], "Lucas")
+        self.assertEqual(deserializedjson["experiment_description"], "Test")
+        self.assertEqual(deserializedjson["experiment_id"], generated_config["metadata"]["experiment_id"])
         
 
