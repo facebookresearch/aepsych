@@ -311,6 +311,13 @@ class DBTestCase(unittest.TestCase):
         deserializedjson = json.loads(
             master_table.extra_metadata
         )  # Directly from master table entry.
-        self.assertEqual(
-            dict(deserializedjson), dict(json.loads(generated_config.jsonifyMetadata()))
-        )  # Test in dict form.
+
+        ## Going to check each value in the deserialized json from the DB to the expected values along with the config prior to insertion.
+        ## This will check if it retains the individual values. 
+        self.assertEqual(deserializedjson["metadata"]["metadata1"], "one")
+        self.assertEqual(deserializedjson["metadata"]["metadata2"], "two")
+        self.assertEqual(deserializedjson["metadata"]["experiment_name"], "Lucas")
+        self.assertEqual(deserializedjson["metadata"]["experiment_description"], "Test")
+        self.assertEqual(deserializedjson["metadata"]["experiment_id"], generated_config["metadata"]["experiment_id"])
+        
+
