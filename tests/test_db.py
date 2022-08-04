@@ -11,6 +11,7 @@ from http import server
 import json
 import os
 import shutil
+from typing import KeysView
 import unittest
 import uuid
 from pathlib import Path
@@ -424,9 +425,10 @@ class DBTestCase(unittest.TestCase):
         with self.assertRaises(DuplicateOptionError):
             configuration.Config(**request["message"])
         generated_config = configuration.Config(**request2["message"])
+        
         master_table = self._database.record_setup(
-            description=generated_config["metadata"]["experiment_description"],
-            name=generated_config["metadata"]["experiment_name"],
+            description=(generated_config["metadata"]["experiment_description"] if ("experiment_description" in generated_config["metadata"].keys()) else "default description"),
+            name=(generated_config["metadata"]["experiment_name"] if ("experiment_name" in generated_config["metadata"].keys()) else "default name"),
             request=request,
             extra_metadata=generated_config.jsonifyMetadata(),
         )
