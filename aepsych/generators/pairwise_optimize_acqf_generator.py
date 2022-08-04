@@ -12,6 +12,8 @@ from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 
 
 class PairwiseOptimizeAcqfGenerator(OptimizeAcqfGenerator):
+    stimuli_per_trial = 2
+
     def _instantiate_acquisition_fn(self, model, train_x):
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)

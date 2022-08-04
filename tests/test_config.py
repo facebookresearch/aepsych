@@ -38,7 +38,8 @@ class ConfigTestCase(unittest.TestCase):
         [common]
         lb = [0, 0]
         ub = [1, 1]
-        outcome_type = single_probit
+        stimuli_per_trial = 1
+        outcome_types = [binary]
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat]
         model = GPClassificationModel
@@ -95,7 +96,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.restarts == 10)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].min_asks == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
+        self.assertTrue(strat.strat_list[0].stimuli_per_trial == 1)
+        self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
@@ -150,7 +152,8 @@ class ConfigTestCase(unittest.TestCase):
             strat.strat_list[1].generator.model_gen_options["raw_samples"] == 1000
         )
         self.assertTrue(strat.strat_list[0].min_asks == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
+        self.assertTrue(strat.strat_list[0].stimuli_per_trial == 1)
+        self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
@@ -183,7 +186,8 @@ class ConfigTestCase(unittest.TestCase):
         )
 
         self.assertTrue(strat.strat_list[0].min_asks == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "single_probit")
+        self.assertTrue(strat.strat_list[0].stimuli_per_trial == 1)
+        self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
@@ -204,7 +208,8 @@ class ConfigTestCase(unittest.TestCase):
         [common]
         lb = [0, 0]
         ub = [1, 1]
-        outcome_type = single_probit
+        stimuli_per_trial = 1
+        outcome_types = [binary]
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat1, opt_strat2]
 
@@ -261,7 +266,8 @@ class ConfigTestCase(unittest.TestCase):
             [common]
             lb = [0, 0]
             ub = [1, 1]
-            outcome_type = single_probit
+            stimuli_per_trial = 1
+            outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
             model = GPClassificationModel
@@ -294,7 +300,8 @@ class ConfigTestCase(unittest.TestCase):
         parnames = [par1, par2]
         lb = [0, 0]
         ub = [1, 1]
-        outcome_type = single_probit
+        stimuli_per_trial = 1
+        outcome_types = [binary]
         target = 0.75
 
         [SobolStrategy]
@@ -349,7 +356,8 @@ class ConfigTestCase(unittest.TestCase):
         [common]
         lb = [0, 0]
         ub = [1, 1]
-        outcome_type = single_probit
+        stimuli_per_trial = 1
+        outcome_types = [binary]
         strategy_names = [init_strat]
         model = GPClassificationModel
 
@@ -369,7 +377,8 @@ class ConfigTestCase(unittest.TestCase):
             [common]
             lb = [0, 0]
             ub = [1, 1]
-            outcome_type = pairwise_probit
+            stimuli_per_trial = 2
+            outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
@@ -422,7 +431,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.restarts == 10)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].min_asks == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[0].stimuli_per_trial == 2)
+        self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
@@ -461,7 +471,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.restarts == 10)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].min_asks == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[0].stimuli_per_trial == 2)
+        self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
@@ -503,7 +514,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.restarts == 10)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].min_asks == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[0].stimuli_per_trial == 2)
+        self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
@@ -543,7 +555,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.restarts == 10)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].min_asks == 10)
-        self.assertTrue(strat.strat_list[0].outcome_type == "pairwise_probit")
+        self.assertTrue(strat.strat_list[0].stimuli_per_trial == 2)
+        self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
@@ -552,6 +565,66 @@ class ConfigTestCase(unittest.TestCase):
         # cleanup the db
         if server.db is not None:
             server.db.delete_db()
+
+    def test_stimuli_compatibility(self):
+        config_str1 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPClassificationModel
+            """
+        config1 = Config()
+        config1.update(config_str=config_str1)
+
+        config_str2 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = PairwiseSobolGenerator
+            model = GPClassificationModel
+            """
+        config2 = Config()
+        config2.update(config_str=config_str2)
+
+        config_str3 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = PairwiseProbitModel
+            """
+        config3 = Config()
+        config3.update(config_str=config_str3)
+
+        # this should work
+        SequentialStrategy.from_config(config1)
+
+        # this should fail
+        with self.assertRaises(AssertionError):
+            SequentialStrategy.from_config(config3)
+
+        # this should fail too
+        with self.assertRaises(AssertionError):
+            SequentialStrategy.from_config(config3)
 
 
 if __name__ == "__main__":

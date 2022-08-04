@@ -15,9 +15,9 @@ import torch
 from aepsych.benchmark import (
     Benchmark,
     DerivedValue,
+    LSEProblem,
     PathosBenchmark,
     Problem,
-    LSEProblem,
 )
 
 torch.set_num_threads(1)
@@ -75,7 +75,8 @@ class BenchmarkTestCase(unittest.TestCase):
 
         self.bench_config = {
             "common": {
-                "outcome_type": "single_probit",
+                "stimuli_per_trial": 1,
+                "outcome_types": ["binary"],
                 "strategy_names": "[init_strat, opt_strat]",
             },
             "experiment": {
@@ -277,7 +278,8 @@ class BenchProblemTestCase(unittest.TestCase):
     def test_nonmonotonic_single_lse_eval(self):
         config = {
             "common": {
-                "outcome_type": "single_probit",
+                "stimuli_per_trial": 1,
+                "outcome_types": ["binary"],
                 "strategy_names": "[init_strat, opt_strat]",
                 "acqf": "MCLevelSetEstimation",
                 "model": "GPClassificationModel",
@@ -306,7 +308,8 @@ class BenchProblemTestCase(unittest.TestCase):
     def test_monotonic_single_lse_eval(self):
         config = {
             "common": {
-                "outcome_type": "single_probit",
+                "stimuli_per_trial": 1,
+                "outcome_types": ["binary"],
                 "strategy_names": "[init_strat, opt_strat]",
                 "acqf": "MonotonicMCLSE",
                 "model": "MonotonicRejectionGP",

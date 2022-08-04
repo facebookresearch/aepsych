@@ -19,14 +19,11 @@ from aepsych.generators import (
     OptimizeAcqfGenerator,
     SobolGenerator,
 )
-from aepsych.models import (
-    GPClassificationModel,
-    MonotonicRejectionGP,
-)
+from aepsych.models import GPClassificationModel, MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean
-from scipy.stats import bernoulli, norm, multivariate_normal, pearsonr
+from scipy.stats import bernoulli, multivariate_normal, norm, pearsonr
 
 from ..common import f_1d
 
@@ -49,6 +46,8 @@ class SingleProbitMI(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -56,6 +55,8 @@ class SingleProbitMI(unittest.TestCase):
                 min_asks=n_opt,
                 model=MonotonicRejectionGP(lb=lb, ub=ub, dim=1, monotonic_idxs=[0]),
                 generator=MonotonicRejectionGenerator(acqf, acqf_kwargs),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -93,6 +94,8 @@ class SingleProbitMI(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -100,6 +103,8 @@ class SingleProbitMI(unittest.TestCase):
                 model=GPClassificationModel(lb=lb, ub=ub, dim=1, inducing_size=10),
                 generator=OptimizeAcqfGenerator(acqf, extra_acqf_args),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 

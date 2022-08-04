@@ -56,7 +56,6 @@ class AEPsychServer(object):
 
         self._strats = []
         self._parnames = []
-        self._outcome_types = []
         self.strat_id = -1
 
         self.debug = False
@@ -589,17 +588,6 @@ class AEPsychServer(object):
         self._parnames.append(s)
 
     @property
-    def outcome_type(self):
-        if self.strat_id == -1:
-            return None
-        else:
-            return self._outcome_types[self.strat_id]
-
-    @outcome_type.setter
-    def outcome_type(self, s):
-        self._outcome_types.append(s)
-
-    @property
     def n_strats(self):
         return len(self._strats)
 
@@ -617,48 +605,21 @@ class AEPsychServer(object):
     def _tensor_to_config(self, next_x):
         config = {}
         for name, val in zip(self.parnames, next_x):
-            if (
-                self.outcome_type == "single_probit"
-                or self.outcome_type == "single_continuous"
-            ):
+            if val.dim() == 0:
                 config[name] = [float(val)]
-            elif self.outcome_type == "pairwise_probit":
-                config[name] = np.array(val)
             else:
-                raise RuntimeError(f"Unknown outcome_type {self.outcome_type}")
+                config[name] = np.array(val)
         return config
 
     def _config_to_tensor(self, config):
-        if (
-            self.outcome_type == "single_probit"
-            or self.outcome_type == "single_continuous"
-        ):
-            unpacked = [config[name] for name in self.parnames]
-            # handle config elements being either scalars or length-1 lists
-            if isinstance(unpacked[0], list):
-                x = np.stack(unpacked, axis=1)
-            else:
-                x = np.stack(unpacked)
-            return x
-        else:
-            unpacked = [config[name] for name in self.parnames]
+        unpacked = [config[name] for name in self.parnames]
 
-            ### we want x.shape to be
-            # [batch, d] or [d] for single and [batch, d, 2]  or [d, 2]
-            # for pairwise. This means we have to transpose for pairwise but not single
-            # which is pretty terrible (since the same data has different semantics
-            # depending on something set in a completely different place)
-            # TODO make this less terrible)
+        # handle config elements being either scalars or length-1 lists
+        if isinstance(unpacked[0], list):
             x = np.stack(unpacked, axis=1)
-            if len(x.shape) == 1:
-                warnings.warn(
-                    "Outcome is pairwise but just got a 1d input, assuming this is a pair of 1d trials"
-                )
-                x = x[None, :]
-            else:
-                x = x.T
-
-            return x
+        else:
+            x = np.stack(unpacked)
+        return x
 
     def tell(self, outcome, config):
         """tell the model which input was run and what the outcome was
@@ -677,9 +638,6 @@ class AEPsychServer(object):
     def _configure(self, config):
         self.parnames = config._str_to_list(
             config.get("common", "parnames"), element_type=str
-        )
-        self.outcome_type = config.get(
-            "common", "outcome_type", fallback="single_probit"
         )
 
         self.strat = SequentialStrategy.from_config(config)
