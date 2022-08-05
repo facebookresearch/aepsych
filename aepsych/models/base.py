@@ -20,6 +20,7 @@ from botorch.models.approximate_gp import _select_inducing_points
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
+from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
 from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
@@ -54,13 +55,21 @@ class ModelProtocol(Protocol):
     def dim(self) -> int:
         pass
 
-    def posterior(self, X: torch.Tensor) -> GPyTorchPosterior:
+    def posterior(self, x: torch.Tensor) -> GPyTorchPosterior:
         pass
 
-    def predict(self, points: torch.Tensor, **kwargs) -> torch.Tensor:
+    def predict(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
         pass
 
-    def sample(self, points: torch.Tensor, num_samples: int) -> torch.Tensor:
+    @property
+    def stimuli_per_trial(self) -> int:
+        pass
+
+    @property
+    def likelihood(self) -> Likelihood:
+        pass
+
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         pass
 
     def _get_extremum(
@@ -87,6 +96,7 @@ class AEPsychMixin(GPyTorchModel):
     """Mixin class that provides AEPsych-specific utility methods."""
 
     extremum_solver = "Nelder-Mead"
+    outcome_types: List[str] = []
 
     def _select_inducing_points(self, method="auto"):
         with torch.no_grad():

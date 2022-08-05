@@ -39,9 +39,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
     https://docs.gpytorch.ai/en/v1.1.1/examples/04_Variational_and_Approximate_GPs/
     """
 
-    _num_outputs = 1
     _batch_size = 1
-    outcome_type = "single_probit"
+    _num_outputs = 1
+    stimuli_per_trial = 1
 
     def __init__(
         self,

@@ -127,7 +127,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
                 new_candidate = X[best_indx]
 
         logger.info(f"Gen done, time={time.time()-starttime}")
-        return new_candidate.numpy()
+        return new_candidate
 
     @classmethod
     def from_config(cls, config: Config):

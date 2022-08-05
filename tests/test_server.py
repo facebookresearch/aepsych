@@ -14,13 +14,13 @@ from unittest.mock import MagicMock, call, patch
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 
-
 dummy_config = """
 [common]
 lb = [0]
 ub = [1]
 parnames = [x]
-outcome_type = single_probit
+stimuli_per_trial = 1
+outcome_types = [binary]
 strategy_names = [init_strat, opt_strat]
 
 [init_strat]

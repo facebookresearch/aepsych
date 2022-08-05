@@ -21,6 +21,7 @@ class PairwiseSobolGenerator(SobolGenerator):
     """Generator that generates pairs of points from the Sobol Sequence."""
 
     _requires_model = False
+    stimuli_per_trial = 2
 
     def __init__(
         self,
@@ -55,4 +56,6 @@ class PairwiseSobolGenerator(SobolGenerator):
         """
         grid = self.engine.draw(num_points)
         grid = self._pair_lb + (self._pair_ub - self._pair_lb) * grid
-        return np.moveaxis(grid.reshape(num_points, 2, -1).numpy(), -1, -2)
+        return torch.tensor(
+            np.moveaxis(grid.reshape(num_points, 2, -1).numpy(), -1, -2)
+        )

@@ -45,7 +45,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     """
 
     _num_outputs = 1
-    outcome_type = "single_probit"
+    stimuli_per_trial = 1
 
     def __init__(
         self,
@@ -199,14 +199,14 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
     def sample(
         self,
-        X: Tensor,
+        x: Tensor,
         num_samples: Optional[int] = None,
         num_rejection_samples: Optional[int] = None,
     ) -> torch.Tensor:
         """Sample from monotonic GP
 
         Args:
-            X (Tensor): tensor of n points at which to sample
+            x (Tensor): tensor of n points at which to sample
             num_samples (int, optional): how many points to sample (default: self.num_samples)
 
         Returns: a Tensor of shape [n_samp, n]
@@ -222,13 +222,13 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
                 f"num_rejection_samples should be at least {rejection_ratio} times greater than num_samples."
             )
 
-        n = X.shape[0]
+        n = x.shape[0]
         # Augment with derivative index
-        x_aug = self._augment_with_deriv_index(X, 0)
+        x_aug = self._augment_with_deriv_index(x, 0)
         # Add in monotonicity constraint points
         deriv_cp = self._get_deriv_constraint_points()
         x_aug = torch.cat((x_aug, deriv_cp), dim=0)
-        assert x_aug.shape[0] == X.shape[0] + len(
+        assert x_aug.shape[0] == x.shape[0] + len(
             self.monotonic_idxs * self.inducing_points.shape[0]
         )
         constrained_idx = torch.arange(n, x_aug.shape[0])
@@ -245,16 +245,16 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         return samples_f
 
     def predict(
-        self, X: Tensor, probability_space: bool = False
+        self, x: Tensor, probability_space: bool = False
     ) -> Tuple[Tensor, Tensor]:
         """Predict
 
         Args:
-            X: tensor of n points at which to predict.
+            x: tensor of n points at which to predict.
 
         Returns: tuple (f, var) where f is (n,) and var is (n,)
         """
-        samples_f = self.sample(X)
+        samples_f = self.sample(x)
         mean = torch.mean(samples_f, dim=0).squeeze()
         variance = torch.var(samples_f, dim=0).clamp_min(0).squeeze()
 
@@ -266,9 +266,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         return mean, variance
 
-    def _augment_with_deriv_index(self, X: Tensor, indx):
+    def _augment_with_deriv_index(self, x: Tensor, indx):
         return torch.cat(
-            (X, indx * torch.ones(X.shape[0], 1)),
+            (x, indx * torch.ones(x.shape[0], 1)),
             dim=1,
         )
 

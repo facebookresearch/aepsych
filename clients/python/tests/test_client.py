@@ -39,7 +39,8 @@ class ClientTestCase(unittest.TestCase):
         lb = [0]
         ub = [1]
         parnames = [x]
-        outcome_type = single_probit
+        stimuli_per_trial = 1
+        outcome_types = [binary]
         strategy_names = [init_strat, opt_strat]
         acqf = MCPosteriorVariance
         model = GPClassificationModel

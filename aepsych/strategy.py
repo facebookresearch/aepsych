@@ -7,10 +7,11 @@
 
 import time
 import warnings
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
+
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
@@ -50,12 +51,13 @@ class Strategy(object):
         generator: AEPsychGenerator,
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
+        stimuli_per_trial: int,
+        outcome_types: Sequence[Type[str]],
         dim: Optional[int] = None,
         min_total_tells: int = 0,
         min_asks: int = 0,
         model: Optional[ModelProtocol] = None,
         refit_every: int = 1,
-        outcome_type: str = "single_probit",
         min_total_outcome_occurrences: int = 1,
         max_asks: Optional[int] = None,
         keep_most_recent: Optional[int] = None,
@@ -73,7 +75,6 @@ class Strategy(object):
             min_asks (int): The minimum number of points that should be generated from this strategy.
             model (ModelProtocol, optional): The AEPsych model of the data.
             refit_every (int): How often to refit the model from scratch.
-            outcome_type (str): The type of observations that will be recorded. For now, the only option is "single_probit".
             min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.
                 Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).
             max_asks (int, optional): The maximum number of trials to generate using this strategy.
@@ -89,6 +90,17 @@ class Strategy(object):
             warnings.warn(
                 "Specifying both min_total_tells and min_asks > 0 may lead to unintended behavior."
             )
+        assert len(outcome_types) == 1, "Multiple outcome types are not yet supported!"
+        assert stimuli_per_trial in [
+            1,
+            2,
+        ], "Number of stimuli per trial must be 1 or 2!"
+
+        for outcome in outcome_types:
+            assert outcome in [
+                "continuous",
+                "binary",
+            ], f"Unknown outcome_type '{outcome}'!"
 
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.min_total_outcome_occurrences = min_total_outcome_occurrences
@@ -108,19 +120,14 @@ class Strategy(object):
         self.min_asks = min_asks
         self._count = 0
         self.min_total_tells = min_total_tells
+        self.stimuli_per_trial = stimuli_per_trial
+        self.outcome_types = outcome_types
 
-        self.outcome_type = outcome_type
+        if self.stimuli_per_trial == 1:
+            self.event_shape: Tuple[int, ...] = (self.dim,)
 
-        # I think this is a correct usage of event_shape
-        if type(self.dim) is int:
-            self.event_shape = (self.dim,)
-        else:
-            self.event_shape = self.dim
-
-        if (
-            self.outcome_type == "pairwise_probit"
-        ):  # temporary hack until models are refactored
-            self.event_shape = (*self.event_shape, 2)  # type: ignore
+        if self.stimuli_per_trial == 2:
+            self.event_shape = (self.dim, self.stimuli_per_trial)
 
         self.model = model
         self.refit_every = refit_every
@@ -148,15 +155,9 @@ class Strategy(object):
             y (np.ndarray): training outputs, normalized
             n (int): number of observations
         """
-        if self.outcome_type == "single_probit":
-            assert (
-                x.shape[-1:] == self.event_shape
-            ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
-
-        if self.outcome_type == "pairwise_probit":
-            assert (
-                x.shape[-2:] == self.event_shape
-            ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
+        assert (
+            x.shape[-self.stimuli_per_trial :] == self.event_shape
+        ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
         if x.shape == self.event_shape:
             x = x[None, :]
@@ -207,7 +208,7 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def predict(self, x, probability_space=False):
-        return self.model.predict(x, probability_space)
+        return self.model.predict(x=x, probability_space=probability_space)
 
     @ensure_model_is_fresh
     def get_jnd(self, *args, **kwargs):
@@ -228,7 +229,7 @@ class Strategy(object):
         if self.max_asks is not None and self._count >= self.max_asks:
             return True
 
-        if self.outcome_type == "single_probit":
+        if "binary" in self.outcome_types:
             n_yes_trials = (self.y == 1).sum()
             n_no_trials = (self.y == 0).sum()
             sufficient_outcomes = (
@@ -291,12 +292,27 @@ class Strategy(object):
 
     @classmethod
     def from_config(cls, config: Config, name: str):
+        lb = config.gettensor(name, "lb")
+        ub = config.gettensor(name, "ub")
+        dim = config.getint(name, "dim", fallback=None)
+
+        stimuli_per_trial = config.getint(name, "stimuli_per_trial", fallback=1)
+        outcome_types = config.getlist(name, "outcome_types", element_type=str)
+
         gen_cls = config.getobj(name, "generator", fallback=SobolGenerator)
         generator = gen_cls.from_config(config)
 
         model_cls = config.getobj(name, "model", fallback=None)
         if model_cls is not None:
             model = model_cls.from_config(config)
+            assert (
+                stimuli_per_trial == model.stimuli_per_trial
+            ), f"stimuli_per_trial, {stimuli_per_trial}, does not match model {model}, which takes {model.stimuli_per_trial} stimuli!"
+
+            assert (
+                stimuli_per_trial == generator.stimuli_per_trial
+            ), f"stimuli_per_trial, {stimuli_per_trial}, does not match model {generator}, which takes {generator.stimuli_per_trial} stimuli!"
+
         else:
             model = None
 
@@ -311,21 +327,18 @@ class Strategy(object):
 
         refit_every = config.getint(name, "refit_every", fallback=1)
 
-        lb = config.gettensor(name, "lb")
-        ub = config.gettensor(name, "ub")
-        dim = config.getint(name, "dim", fallback=None)
-
-        outcome_type = config.get(name, "outcome_type", fallback="single_probit")
-
         if model is not None and not generator._requires_model:
             if refit_every < min_asks:
                 warnings.warn(
                     f"Strategy '{name}' has refit_every < min_asks even though its generator does not require a model. Consider making refit_every = min_asks to speed up point generation.",
                     UserWarning,
                 )
+        keep_most_recent = config.getint(name, "keep_most_recent", fallback=None)
 
         min_total_outcome_occurrences = config.getint(
-            name, "min_total_outcome_occurrences", fallback=1
+            name,
+            "min_total_outcome_occurrences",
+            fallback=1 if "binary" in outcome_types else 0,
         )
         min_post_range = config.getfloat(name, "min_post_range", fallback=None)
         keep_most_recent = config.getint(name, "keep_most_recent", fallback=None)
@@ -341,12 +354,13 @@ class Strategy(object):
         return cls(
             lb=lb,
             ub=ub,
+            stimuli_per_trial=stimuli_per_trial,
+            outcome_types=outcome_types,
             dim=dim,
             model=model,
             generator=generator,
             min_asks=min_asks,
             refit_every=refit_every,
-            outcome_type=outcome_type,
             min_total_outcome_occurrences=min_total_outcome_occurrences,
             min_post_range=min_post_range,
             keep_most_recent=keep_most_recent,

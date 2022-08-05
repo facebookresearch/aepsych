@@ -15,6 +15,7 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
 from unittest.mock import MagicMock
+
 import numpy as np
 import numpy.testing as npt
 from aepsych.acquisition import MCLevelSetEstimation
@@ -23,12 +24,11 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
-from botorch.acquisition.objective import GenericMCObjective
+from botorch.posteriors import GPyTorchPosterior
+from gpytorch.distributions import MultivariateNormal
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
-from gpytorch.distributions import MultivariateNormal
-from botorch.posteriors import GPyTorchPosterior
 
 from ..common import cdf_new_novel_det, f_1d, f_2d
 
@@ -227,6 +227,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -236,6 +238,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -270,6 +274,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -279,6 +285,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -312,6 +320,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -321,6 +331,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -353,6 +365,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -362,6 +376,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -398,6 +414,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -407,6 +425,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -447,6 +467,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -456,6 +478,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -494,6 +518,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -503,6 +529,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -548,6 +576,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -557,6 +587,8 @@ class GPClassificationTest(unittest.TestCase):
                 generator=OptimizeAcqfGenerator(
                     MCLevelSetEstimation, acqf_kwargs=extra_acqf_args
                 ),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -590,6 +622,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -599,6 +633,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -629,6 +665,8 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 min_asks=n_init,
                 generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -638,6 +676,8 @@ class GPClassificationTest(unittest.TestCase):
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
                 min_asks=n_opt,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -658,19 +698,23 @@ class GPClassificationTest(unittest.TestCase):
         ub = 4.0
 
         strat = Strategy(
-                lb=lb,
-                ub=ub,
-                min_asks=1,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=50),
-            )
+            lb=lb,
+            ub=ub,
+            min_asks=1,
+            generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
+            model=GPClassificationModel(lb=lb, ub=ub, inducing_size=50),
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
+        )
 
         # mock the posterior call and remove calls that don't need
         # to happen
         def get_fake_posterior(X, posterior_transform=None):
             fmean = torch.sin(torch.pi * X / 4).squeeze(-1)
             fcov = torch.eye(fmean.shape[0])
-            fake_posterior = GPyTorchPosterior(mvn=MultivariateNormal(mean=fmean, covariance_matrix=fcov))
+            fake_posterior = GPyTorchPosterior(
+                mvn=MultivariateNormal(mean=fmean, covariance_matrix=fcov)
+            )
             return fake_posterior
 
         strat.model.posterior = get_fake_posterior

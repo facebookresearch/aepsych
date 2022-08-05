@@ -24,7 +24,8 @@ logger = getLogger()
 
 
 class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
-    outcome_type = "pairwise_probit"
+    _num_outputs = 1
+    stimuli_per_trial = 2
 
     def _pairs_to_comparisons(self, x, y):
         """

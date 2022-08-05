@@ -8,10 +8,11 @@
 import os
 import unittest
 import uuid
+
 import numpy as np
+import numpy.testing as npt
 import torch
 from aepsych.server import AEPsychServer
-import numpy.testing as npt
 from gpytorch.likelihoods import GaussianLikelihood
 
 # run on single threads to keep us from deadlocking weirdly in CI
@@ -38,7 +39,8 @@ class GPRegressionTest(unittest.TestCase):
             parnames = [par1]
             lb = [-1]
             ub = [3]
-            outcome_type = single_continuous
+            stimuli_per_trial=1
+            outcome_types=[continuous]
             strategy_names = [init_strat, opt_strat]
 
             [init_strat]
