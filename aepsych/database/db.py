@@ -16,7 +16,7 @@ from typing import Dict
 import aepsych.database.tables as tables
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy.orm.session import close_all_sessions
 
 logger = logging.getLogger()
 
@@ -57,7 +57,8 @@ class Database:
 
     def delete_db(self):
         if self._engine is not None and self._full_db_path.exists():
-            os.remove(self._full_db_path.as_posix())
+            close_all_sessions()
+            self._full_db_path.unlink()
             self._engine = None
 
     def is_update_required(self):
