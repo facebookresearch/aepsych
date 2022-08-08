@@ -7,9 +7,10 @@
 
 import json
 import logging
+import select
 import unittest
 import uuid
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import call, MagicMock, patch
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
@@ -60,6 +61,12 @@ class ServerTestCase(unittest.TestCase):
         # cleanup the db
         if self.s.db is not None:
             self.s.db.delete_db()
+
+    """
+    Unit tests that test the handlers and the server functionality.
+    Ask, Tell, Resume, etc.
+
+    """
 
     def test_unversioned_handler_untyped(self):
         """test_unversioned_handler_untyped"""
@@ -157,6 +164,7 @@ class ServerTestCase(unittest.TestCase):
     def test_handle_exit(self):
         request = {}
         request["type"] = "exit"
+        self.s.socket.accept_client = MagicMock()
         self.s.socket.receive = MagicMock(return_value=request)
         self.s.dump = MagicMock()
 
@@ -164,20 +172,6 @@ class ServerTestCase(unittest.TestCase):
             self.s.serve()
 
         self.assertEqual(cm.exception.code, 0)
-
-    @patch("socket.socket.accept")
-    def test_receive(self, mock_accept):
-        """test_receive - verifies the receive is working when server receives unexpected messages"""
-        conn = MagicMock()
-        mock_accept.return_value = (conn, MagicMock())
-
-        message1 = b"\x16\x03\x01\x00\xaf\x01\x00\x00\xab\x03\x03\xa9\x80\xcc"  # invalid message
-        message2 = b"\xec\xec\x14M\xfb\xbd\xac\xe7jF\xbe\xf9\x9bM\x92\x15b\xb5"  # invalid message
-        message3 = {"message": {"target": "test request"}}  # valid message
-
-        conn.recv = MagicMock()
-        conn.recv.side_effect = iter([message1, message2, json.dumps(message3)])
-        self.assertEqual(self.s.socket.receive(), message3)
 
     def test_replay_order(self):
         """test_replay - verifies the replay is working, uses a test db version but does some
@@ -297,26 +291,6 @@ class ServerTestCase(unittest.TestCase):
         print(f"replay called with check = {test_calls}")
         self.s.unversioned_handler.assert_has_calls(test_calls, any_order=False)
         self.assertEqual(self.s.unversioned_handler.call_count, len(test_calls))
-
-    def test_serve_versioned_handler(self):
-        request = {"version": 0}
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        self.s.versioned_handler.assert_called_once_with(request)
-
-    def test_serve_unversioned_handler(self):
-        request = {}
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        self.s.unversioned_handler.assert_called_once_with(request)
 
     def test_final_strat_serialization(self):
         setup_request = {
@@ -560,14 +534,76 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
 
+    """
+    Tests that test the server connections, as well as message routing
+    """
+
+    def test_receive(self):
+        """test_receive - verifies the receive is working when server receives unexpected messages"""
+
+        message1 = b"\x16\x03\x01\x00\xaf\x01\x00\x00\xab\x03\x03\xa9\x80\xcc"  # invalid message
+        message2 = b"\xec\xec\x14M\xfb\xbd\xac\xe7jF\xbe\xf9\x9bM\x92\x15b\xb5"  # invalid message
+        message3 = {"message": {"target": "test request"}}  # valid message
+        message_list = [message1, message2, json.dumps(message3)]
+
+        self.s.socket.conn = MagicMock()
+
+        for i, message in enumerate(message_list):
+            select.select = MagicMock(return_value=[[self.s.socket.conn], [], []])
+            self.s.socket.conn.recv = MagicMock(return_value=message)
+            if i != 2:
+                self.assertEqual(self.s.socket.receive(False), "bad request")
+            else:
+                self.assertEqual(self.s.socket.receive(False), message3)
+
+    def test_serve_versioned_handler(self):
+        """Tests that the full pipeline is working. Message should go from _receive_send to _handle_queue
+        to the version handler"""
+        request = {"version": 0}
+        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.socket.accept_client = MagicMock()
+
+        self.s.versioned_handler = MagicMock()
+        self.s.unversioned_handler = MagicMock()
+        self.s.exit_server_loop = True
+        with self.assertRaises(SystemExit):
+            self.s.serve()
+
+    def test_serve_unversioned_handler(self):
+        request = {}
+        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.socket.accept_client = MagicMock()
+
+        self.s.versioned_handler = MagicMock()
+        self.s.unversioned_handler = MagicMock()
+        self.s.exit_server_loop = True
+        with self.assertRaises(SystemExit):
+            self.s.serve()
+
     def test_error_handling(self):
+
         request = {"bad request"}
+
+        self.s.socket.accept_client = MagicMock()
+
         self.s.socket.receive = MagicMock(return_value=request)
         self.s.socket.send = MagicMock()
         self.s.exit_server_loop = True
         with self.assertRaises(SystemExit):
             self.s.serve()
         self.s.socket.send.assert_called_once_with("bad request")
+
+    def test_queue(self):
+        """Test to see that the queue is being handled correctly"""
+
+        self.s.socket.accept_client = MagicMock()
+        ask_request = {"type": "ask", "message": ""}
+        self.s.socket.receive = MagicMock(return_value=ask_request)
+        self.s.socket.send = MagicMock()
+        self.s.exit_server_loop = True
+        with self.assertRaises(SystemExit):
+            self.s.serve()
+        assert len(self.s.queue) == 0
 
 
 if __name__ == "__main__":
