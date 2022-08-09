@@ -82,7 +82,7 @@ class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel)
         if fixed_prior_mean is not None:
             self.mean_module.constant.requires_grad_(False)
             self.mean_module.constant.copy_(
-                torch.tensor([fixed_prior_mean], dtype=train_x.dtype)
+                torch.tensor(fixed_prior_mean, dtype=train_x.dtype)
             )
 
         if covar_module is None:

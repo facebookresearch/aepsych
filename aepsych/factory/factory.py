@@ -71,7 +71,7 @@ def default_mean_covar_factory(
         try:
             target = config.getfloat("default_mean_covar_factory", "target")
             mean.constant.requires_grad_(False)
-            mean.constant.copy_(torch.tensor([norm.ppf(target)]))
+            mean.constant.copy_(torch.tensor(norm.ppf(target)))
         except NoOptionError:
             raise RuntimeError("Config got fixed_mean=True but no target included!")
 
@@ -143,7 +143,7 @@ def monotonic_mean_covar_factory(
         try:
             target = config.getfloat("monotonic_mean_covar_factory", "target")
             mean.constant.requires_grad_(False)
-            mean.constant.copy_(torch.tensor([norm.ppf(target)]))
+            mean.constant.copy_(torch.tensor(norm.ppf(target)))
         except NoOptionError:
             raise RuntimeError("Config got fixed_mean=True but no target included!")
 
@@ -197,7 +197,7 @@ def song_mean_covar_factory(
     except NoOptionError:
         target = 0.75
     mean.constant.requires_grad_(False)
-    mean.constant.copy_(torch.tensor([norm.ppf(target)]))
+    mean.constant.copy_(torch.tensor(norm.ppf(target)))
 
     ls_prior = gpytorch.priors.GammaPrior(
         concentration=__default_invgamma_concentration,

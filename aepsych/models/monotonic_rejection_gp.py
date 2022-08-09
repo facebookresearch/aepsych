@@ -105,7 +105,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             if isinstance(likelihood, BernoulliLikelihood):
                 fixed_prior_mean = norm.ppf(fixed_prior_mean)
             mean_module.constant.requires_grad_(False)
-            mean_module.constant.copy_(torch.tensor([fixed_prior_mean]))
+            mean_module.constant.copy_(torch.tensor(fixed_prior_mean))
 
         if covar_module is None:
 
