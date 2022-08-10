@@ -16,6 +16,8 @@ import gpytorch
 import numpy as np
 import torch
 
+from aepsych.version import __version__
+
 _T = TypeVar("_T")
 
 
@@ -208,6 +210,9 @@ class Config(configparser.ConfigParser):
                 _str += f"{setting} = {self[section][setting]}\n"
         return _str
 
+    def convert_to_latest(self):
+        self.convert(self.version, __version__)
+
     def convert(self, from_version: str, to_version: str) -> None:
         """Converts a config from an older version to a newer version.
 
@@ -216,78 +221,89 @@ class Config(configparser.ConfigParser):
             to_version (str): The version the config should be converted to.
         """
 
-        # For now, we can only convert modelbridge era configs (version 0.0) to the latest version (0.1)
-        assert (
-            from_version == "0.0" and to_version == "0.1"
-        ), f"Received from_version '{from_version}' and to_version '{to_version}', but only converting '0.0' to '0.1' is supported!"
+        if from_version == "0.0":
+            self["common"]["strategy_names"] = "[init_strat, opt_strat]"
 
-        self["common"]["strategy_names"] = "[init_strat, opt_strat]"
+            if "experiment" in self:
+                for i in self["experiment"]:
+                    self["common"][i] = self["experiment"][i]
 
-        if "experiment" in self:
-            for i in self["experiment"]:
-                self["common"][i] = self["experiment"][i]
+            bridge = self["common"]["modelbridge_cls"]
+            n_sobol = self["SobolStrategy"]["n_trials"]
+            n_opt = self["ModelWrapperStrategy"]["n_trials"]
 
-        bridge = self["common"]["modelbridge_cls"]
-        n_sobol = self["SobolStrategy"]["n_trials"]
-        n_opt = self["ModelWrapperStrategy"]["n_trials"]
+            if bridge == "PairwiseProbitModelbridge":
+                self["init_strat"] = {
+                    "generator": "PairwiseSobolGenerator",
+                    "min_asks": n_sobol,
+                }
+                self["opt_strat"] = {
+                    "generator": "PairwiseOptimizeAcqfGenerator",
+                    "model": "PairwiseProbitModel",
+                    "min_asks": n_opt,
+                }
+                if "PairwiseProbitModelbridge" in self:
+                    self["PairwiseOptimizeAcqfGenerator"] = self[
+                        "PairwiseProbitModelbridge"
+                    ]
+                if "PairwiseGP" in self:
+                    self["PairwiseProbitModel"] = self["PairwiseGP"]
 
-        if bridge == "PairwiseProbitModelbridge":
-            self["init_strat"] = {
-                "generator": "PairwiseSobolGenerator",
-                "min_asks": n_sobol,
-            }
-            self["opt_strat"] = {
-                "generator": "PairwiseOptimizeAcqfGenerator",
-                "model": "PairwiseProbitModel",
-                "min_asks": n_opt,
-            }
-            if "PairwiseProbitModelbridge" in self:
-                self["PairwiseOptimizeAcqfGenerator"] = self[
-                    "PairwiseProbitModelbridge"
-                ]
-            if "PairwiseGP" in self:
-                self["PairwiseProbitModel"] = self["PairwiseGP"]
+            elif bridge == "MonotonicSingleProbitModelbridge":
+                self["init_strat"] = {
+                    "generator": "SobolGenerator",
+                    "min_asks": n_sobol,
+                }
+                self["opt_strat"] = {
+                    "generator": "MonotonicRejectionGenerator",
+                    "model": "MonotonicRejectionGP",
+                    "min_asks": n_opt,
+                }
+                if "MonotonicSingleProbitModelbridge" in self:
+                    self["MonotonicRejectionGenerator"] = self[
+                        "MonotonicSingleProbitModelbridge"
+                    ]
 
-        elif bridge == "MonotonicSingleProbitModelbridge":
-            self["init_strat"] = {
-                "generator": "SobolGenerator",
-                "min_asks": n_sobol,
-            }
-            self["opt_strat"] = {
-                "generator": "MonotonicRejectionGenerator",
-                "model": "MonotonicRejectionGP",
-                "min_asks": n_opt,
-            }
-            if "MonotonicSingleProbitModelbridge" in self:
-                self["MonotonicRejectionGenerator"] = self[
-                    "MonotonicSingleProbitModelbridge"
-                ]
+            elif bridge == "SingleProbitModelbridge":
+                self["init_strat"] = {
+                    "generator": "SobolGenerator",
+                    "min_asks": n_sobol,
+                }
+                self["opt_strat"] = {
+                    "generator": "OptimizeAcqfGenerator",
+                    "model": "GPClassificationModel",
+                    "min_asks": n_opt,
+                }
+                if "SingleProbitModelbridge" in self:
+                    self["OptimizeAcqfGenerator"] = self["SingleProbitModelbridge"]
 
-        elif bridge == "SingleProbitModelbridge":
-            self["init_strat"] = {
-                "generator": "SobolGenerator",
-                "min_asks": n_sobol,
-            }
-            self["opt_strat"] = {
-                "generator": "OptimizeAcqfGenerator",
-                "model": "GPClassificationModel",
-                "min_asks": n_opt,
-            }
-            if "SingleProbitModelbridge" in self:
-                self["OptimizeAcqfGenerator"] = self["SingleProbitModelbridge"]
+            else:
+                raise NotImplementedError(
+                    f"Refactor for {bridge} has not been implemented!"
+                )
 
-        else:
-            raise NotImplementedError(
-                f"Refactor for {bridge} has not been implemented!"
-            )
+            if "ModelWrapperStrategy" in self:
+                if "refit_every" in self["ModelWrapperStrategy"]:
+                    self["opt_strat"]["refit_every"] = self["ModelWrapperStrategy"][
+                        "refit_every"
+                    ]
 
-        if "ModelWrapperStrategy" in self:
-            if "refit_every" in self["ModelWrapperStrategy"]:
-                self["opt_strat"]["refit_every"] = self["ModelWrapperStrategy"][
-                    "refit_every"
-                ]
+            del self["common"]["model"]
 
-        del self["common"]["model"]
+        if to_version == __version__:
+            if self["common"]["outcome_type"] == "single_probit":
+                self["common"]["stimuli_per_trial"] = "1"
+                self["common"]["outcome_types"] = "[binary]"
+
+            if self["common"]["outcome_type"] == "single_continuous":
+                self["common"]["stimuli_per_trial"] = "1"
+                self["common"]["outcome_types"] = "[continuous]"
+
+            if self["common"]["outcome_type"] == "pairwise_probit":
+                self["common"]["stimuli_per_trial"] = "2"
+                self["common"]["outcome_types"] = "[binary]"
+
+            del self["common"]["outcome_type"]
 
     @property
     def version(self) -> str:
@@ -295,6 +311,9 @@ class Config(configparser.ConfigParser):
         # TODO: implement an explicit versioning system
 
         # Try to infer the version
+        if "stimuli_per_trial" in self["common"] and "outcome_types" in self["common"]:
+            return __version__
+
         if "common" in self and "strategy_names" in self["common"]:
             return "0.1"
 

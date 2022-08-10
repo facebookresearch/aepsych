@@ -21,6 +21,7 @@ import torch
 from aepsych.config import Config
 from aepsych.server.sockets import DummySocket, createSocket
 from aepsych.strategy import SequentialStrategy
+from aepsych.version import __version__
 
 logger = utils_logging.getLogger(logging.INFO)
 
@@ -653,6 +654,19 @@ class AEPsychServer(object):
             for i in config["experiment"]:
                 config["common"][i] = config["experiment"][i]
             del config["experiment"]
+
+        version = config.version
+        if version < __version__:
+            try:
+                config.convert_to_latest()
+                logger.warning(
+                    f"Config version {version} is less than AEPsych version {__version__}. The config was automatically modified to be compatible. Check the config table in the db to see the changes."
+                )
+            except:
+                logger.warning(
+                    f"Config version {version} is less than AEPsych version {__version__}, but couldn't automatically update the config! Trying to configure the server anyway..."
+                )
+
         self.db.record_config(master_table=self._db_master_record, config=config)
         return self._configure(config)
 
