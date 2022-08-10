@@ -10,7 +10,6 @@ import logging
 import select
 import socket
 import sys
-import time
 
 import aepsych.utils_logging as utils_logging
 import numpy as np

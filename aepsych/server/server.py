@@ -20,10 +20,8 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import createSocket, DummySocket
+from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
 from aepsych.strategy import SequentialStrategy
-
-BAD_REQUEST = "bad request"
 
 logger = utils_logging.getLogger(logging.INFO)
 

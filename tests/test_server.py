@@ -14,6 +14,7 @@ from unittest.mock import call, MagicMock, patch
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
+from aepsych.server.sockets import BAD_REQUEST
 
 dummy_config = """
 [common]
@@ -136,6 +137,7 @@ class ServerTestCase(unittest.TestCase):
         self.dummy_create_setup(self.s)
 
         result = self.s.handle_ask(request)
+        print(result)
         self.assertEqual("ask success", result)
 
     def test_handle_tell(self):
@@ -552,7 +554,7 @@ class ServerTestCase(unittest.TestCase):
             select.select = MagicMock(return_value=[[self.s.socket.conn], [], []])
             self.s.socket.conn.recv = MagicMock(return_value=message)
             if i != 2:
-                self.assertEqual(self.s.socket.receive(False), "bad request")
+                self.assertEqual(self.s.socket.receive(False), BAD_REQUEST)
             else:
                 self.assertEqual(self.s.socket.receive(False), message3)
 
@@ -582,7 +584,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_error_handling(self):
 
-        request = {"bad request"}
+        request = {BAD_REQUEST}
 
         self.s.socket.accept_client = MagicMock()
 
@@ -591,7 +593,7 @@ class ServerTestCase(unittest.TestCase):
         self.s.exit_server_loop = True
         with self.assertRaises(SystemExit):
             self.s.serve()
-        self.s.socket.send.assert_called_once_with("bad request")
+        self.s.socket.send.assert_called_once_with(BAD_REQUEST)
 
     def test_queue(self):
         """Test to see that the queue is being handled correctly"""
