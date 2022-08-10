@@ -122,43 +122,6 @@ class DBMasterTable(Base):
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
             
-    @staticmethod
-    def _add_participant_id(engine):
-        try:
-            result = engine.execute(
-                "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='participant_id'"
-            )
-            rows = result.fetchall()
-            count = rows[0][0]
-
-            if 0 == count:
-                logger.debug(
-                    "Altering the master table to add the participant_id column"
-                )
-                engine.execute("ALTER TABLE master ADD COLUMN participant_id VARCHAR")
-                engine.commit()
-        except Exception as e:
-            logger.debug(f"Column already exists, no need to alter. [{e}]")
-
-    @staticmethod
-    def _add_extra_metadata(engine):
-        try:
-            result = engine.execute(
-                "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='extra_metadata'"
-            )
-            rows = result.fetchall()
-            count = rows[0][0]
-
-            if 0 == count:
-                logger.debug(
-                    "Altering the master table to add the extra_metadata column"
-                )
-                engine.execute("ALTER TABLE master ADD COLUMN extra_metadata VARCHAR")
-                engine.commit()
-        except Exception as e:
-            logger.debug(f"Column already exists, no need to alter. [{e}]")
-
-
 # link back to the master table entry
 #
 class DbReplayTable(Base):
