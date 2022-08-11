@@ -5,18 +5,18 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from configparser import DuplicateOptionError
-from doctest import master
-from http import server
 import json
 import os
 import shutil
-from typing import KeysView
 import unittest
 import uuid
+from configparser import DuplicateOptionError
+from doctest import master
+from http import server
 from pathlib import Path
-import aepsych
+from typing import KeysView
 
+import aepsych
 import aepsych.config as configuration
 import aepsych.database.db as db
 import aepsych.database.tables as tables
@@ -318,16 +318,21 @@ class DBTestCase(unittest.TestCase):
         )  # Directly from master table entry.
 
         ## Going to check each value in the deserialized json from the DB to the expected values along with the config prior to insertion.
-        ## This will check if it retains the individual values. 
+        ## This will check if it retains the individual values.
         self.assertEqual(deserializedjson["metadata1"], "one")
         self.assertEqual(deserializedjson["metadata2"], "two")
         self.assertEqual(deserializedjson["experiment_name"], "Lucas")
         self.assertEqual(deserializedjson["experiment_description"], "Test")
-        self.assertEqual(deserializedjson["experiment_name"], master_table.experiment_name)
-        self.assertEqual(deserializedjson["experiment_description"], master_table.experiment_description)
-        
+        self.assertEqual(
+            deserializedjson["experiment_name"], master_table.experiment_name
+        )
+        self.assertEqual(
+            deserializedjson["experiment_description"],
+            master_table.experiment_description,
+        )
+
     def test_broken_metadata(self):
-        #We are going to be testing some broken metadata here. We need to make sure it does not misbehave. 
+        # We are going to be testing some broken metadata here. We need to make sure it does not misbehave.
         config_strdupe = """
         [common]
         parnames = [par1, par2]
@@ -419,24 +424,35 @@ class DBTestCase(unittest.TestCase):
         request2 = {
             "type": "setup",
             "version": "0.01",
-            "message": {"config_str": config_str}
+            "message": {"config_str": config_str},
         }
         # Generate a config for later to run .jsonifyMetadata() on.
         with self.assertRaises(DuplicateOptionError):
             configuration.Config(**request["message"])
         generated_config = configuration.Config(**request2["message"])
-        
+
         master_table = self._database.record_setup(
-            description=(generated_config["metadata"]["experiment_description"] if ("experiment_description" in generated_config["metadata"].keys()) else "default description"),
-            name=(generated_config["metadata"]["experiment_name"] if ("experiment_name" in generated_config["metadata"].keys()) else "default name"),
+            description=(
+                generated_config["metadata"]["experiment_description"]
+                if ("experiment_description" in generated_config["metadata"].keys())
+                else "default description"
+            ),
+            name=(
+                generated_config["metadata"]["experiment_name"]
+                if ("experiment_name" in generated_config["metadata"].keys())
+                else "default name"
+            ),
             request=request,
             extra_metadata=generated_config.jsonifyMetadata(),
         )
         deserializedjson = json.loads(
             master_table.extra_metadata
-        ) # This is initial process is exactly the same but now we switch things up...
-        self.assertEqual(deserializedjson["metadata2"], "three") #test normal value
-        self.assertEqual(deserializedjson["metadata1"], "") #test an empty value
-        self.assertEqual(master_table.experiment_name, "default name") #test default name value
-        self.assertEqual(master_table.experiment_description, "default description") #test default description value
-
+        )  # This is initial process is exactly the same but now we switch things up...
+        self.assertEqual(deserializedjson["metadata2"], "three")  # test normal value
+        self.assertEqual(deserializedjson["metadata1"], "")  # test an empty value
+        self.assertEqual(
+            master_table.experiment_name, "default name"
+        )  # test default name value
+        self.assertEqual(
+            master_table.experiment_description, "default description"
+        )  # test default description value

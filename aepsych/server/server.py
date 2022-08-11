@@ -373,7 +373,7 @@ class AEPsychServer(object):
                         request=request,
                         id=experiment_id,
                     )
-                
+
             strat_id = self.configure(config=tempconfig)
         else:
             raise RuntimeError("Missing a configure message!")
@@ -449,7 +449,7 @@ class AEPsychServer(object):
             "config_str" in request["message"].keys()
             or "config_dict" in request["message"].keys()
         ):
-            
+
             _ = self.configure(**request["message"])
         else:
             raise RuntimeError("Missing a configure message!")
