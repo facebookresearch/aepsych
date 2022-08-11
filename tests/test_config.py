@@ -8,7 +8,7 @@
 import os
 import unittest
 import uuid
-
+import json
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
@@ -30,7 +30,7 @@ from aepsych.server import AEPsychServer
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
-
+from pathlib import Path
 
 class ConfigTestCase(unittest.TestCase):
     def test_single_probit_config(self):
@@ -591,6 +591,17 @@ class ConfigTestCase(unittest.TestCase):
         }
         # Generate a configuration object.
         temporaryconfig = Config(**request["message"])
+        configedjson = temporaryconfig.jsonifyAll()
+        referencejsonstr = Path(os.path.join(os.path.dirname(__file__)), "json_files/sampleconfig.json").read_text().strip("\n")
+        # Rather than comparing strings, we should convert to json and then convert back to test equal dicts
+        testconfig = json.loads(configedjson)
+        testsample = json.loads(referencejsonstr)
+        #most depth is option within section
+        self.assertEqual(testconfig, testsample)
+        
+
+
+
         
 
 if __name__ == "__main__":

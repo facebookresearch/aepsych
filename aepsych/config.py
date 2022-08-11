@@ -106,14 +106,14 @@ class Config(configparser.ConfigParser):
             )
 
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
-    def to_dict(config):
+    def to_dict(self):
         _dict = {}
-        for section in config:
+        for section in self:
             _dict[section] = {}
-            for setting in config[section]:
-                if section != "common" and setting in config["common"]:
+            for setting in self[section]:
+                if section != "common" and setting in self["common"]:
                     continue
-                _dict[section][setting] = config[section][setting]
+                _dict[section][setting] = self[section][setting]
         return _dict
 
     # Turn the metadata section into JSON.
@@ -121,10 +121,10 @@ class Config(configparser.ConfigParser):
         configdict = self.to_dict()
         return json.dumps(configdict["metadata"])
 
-    @classmethod
     # Turn the entire config into JSON format.
-    def jsonifyAll(self) -> str:
-        return json.dumps(self.to_dict())
+    def jsonifyAll(self):
+        configdict = self.to_dict()
+        return json.dumps(configdict)
 
     def update(
         self,
