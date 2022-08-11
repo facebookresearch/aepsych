@@ -11,14 +11,8 @@ import logging
 import pickle
 
 from aepsych.config import Config
-from sqlalchemy import (
-    Column,
-    ForeignKey,
-    String,
-    Integer,
-    DateTime,
-    PickleType,
-)
+from aepsych.version import __version__
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -188,7 +182,7 @@ class DbReplayTable(Base):
             if result.message_contents["type"] == "setup":
                 config_str = result.message_contents["message"]["config_str"]
                 config = Config(config_str=config_str)
-                if config.version == "0.0":
+                if config.version < __version__:
                     return True  # assume that if any config needs to be refactored, all of them do
 
         return False
@@ -237,8 +231,8 @@ class DbReplayTable(Base):
             if result.message_contents["type"] == "setup":
                 config_str = result.message_contents["message"]["config_str"]
                 config = Config(config_str=config_str)
-                if config.version == "0.0":
-                    config.convert("0.0", "0.1")
+                if config.version < __version__:
+                    config.convert_to_latest()
                 new_str = str(config)
 
                 new_message = {"type": "setup", "message": {"config_str": new_str}}

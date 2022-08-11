@@ -94,7 +94,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
                 min_asks=n_init,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -104,7 +105,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                     acqf=qUpperConfidenceBound, acqf_kwargs=extra_acqf_args
                 ),
                 min_asks=n_opt,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -195,7 +197,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
                 min_asks=n_init,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -205,7 +208,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                     acqf=qUpperConfidenceBound, acqf_kwargs=extra_acqf_args
                 ),
                 min_asks=n_opt,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -241,7 +245,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
                 min_asks=n_init,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -251,7 +256,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                     acqf=acqf, acqf_kwargs=extra_acqf_args
                 ),
                 min_asks=n_opt,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -302,7 +308,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
                 min_asks=n_init,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -312,7 +319,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                     acqf=qUpperConfidenceBound, acqf_kwargs=extra_acqf_args
                 ),
                 min_asks=n_opt,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -349,7 +357,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
                 min_asks=n_init,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
             Strategy(
                 lb=lb,
@@ -359,7 +368,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                     acqf=acqf, acqf_kwargs=extra_acqf_args
                 ),
                 min_asks=n_opt,
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
             ),
         ]
 
@@ -388,7 +398,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             lb=[1, 2, 3],
             ub=[2, 3, 4],
             min_asks=10,
-            outcome_type="pairwise_probit",
+            stimuli_per_trial=2,
+            outcome_types=["binary"],
             generator=PairwiseSobolGenerator(
                 lb=[1, 2, 3],
                 ub=[2, 3, 4],
@@ -457,7 +468,8 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [common]
             lb = [-4]
             ub = [4]
-            outcome_type = pairwise_probit
+            stimuli_per_trial = 2
+            outcome_types =[binary]
             parnames = [x]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
@@ -506,7 +518,8 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [common]
             lb = [-1, -1]
             ub = [1, 1]
-            outcome_type = pairwise_probit
+            stimuli_per_trial=2
+            outcome_types=[binary]
             parnames = [x, y]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
@@ -559,7 +572,8 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [common]
             lb = [-4]
             ub = [4]
-            outcome_type = pairwise_probit
+            stimuli_per_trial=2
+            outcome_types=[binary]
             parnames = [x]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
@@ -617,7 +631,8 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [common]
             lb = [-1, -1]
             ub = [1, 1]
-            outcome_type = pairwise_probit
+            stimuli_per_trial=2
+            outcome_types=[binary]
             parnames = [x, y]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
@@ -670,7 +685,8 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [common]
             lb = [-1]
             ub = [1]
-            outcome_type = pairwise_probit
+            stimuli_per_trial=2
+            outcome_types=[binary]
             parnames = [x]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
@@ -706,7 +722,8 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [common]
             lb = [-1, -1]
             ub = [1, 1]
-            outcome_type = pairwise_probit
+            stimuli_per_trial=2
+            outcome_types=[binary]
             parnames = [x, y]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
@@ -741,7 +758,8 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [common]
             lb = [-1, -1, -1]
             ub = [1, 1, 1]
-            outcome_type = pairwise_probit
+            stimuli_per_trial=2
+            outcome_types=[binary]
             parnames = [x, y, z]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance

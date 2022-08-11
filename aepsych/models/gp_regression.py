@@ -28,8 +28,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
 
     _num_outputs = 1
     _batch_size = 1
-    num_inputs = 1
-    outcome_type = "continuous"
+    stimuli_per_trial = 1
 
     def __init__(
         self,

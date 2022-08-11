@@ -15,7 +15,6 @@ from doctest import master
 from http import server
 from pathlib import Path
 from typing import KeysView
-
 import aepsych
 import aepsych.config as configuration
 import aepsych.database.db as db
@@ -456,3 +455,5 @@ class DBTestCase(unittest.TestCase):
         self.assertEqual(
             master_table.experiment_description, "default description"
         )  # test default description value
+if __name__ == "__main__":
+    unittest.main()

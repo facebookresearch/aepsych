@@ -14,8 +14,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Text;
 using System;
-using Unity.Plastic.Newtonsoft.Json;
-using Unity.Plastic.Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace AEPsych
 {

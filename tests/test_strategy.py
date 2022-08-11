@@ -45,6 +45,8 @@ class TestSequenceGenerators(unittest.TestCase):
             lb=lb,
             ub=ub,
             min_post_range=0.3,
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
         )
         self.strat.model.fit = MagicMock()
         self.strat.model.update = MagicMock()
@@ -58,7 +60,13 @@ class TestSequenceGenerators(unittest.TestCase):
         for lb, ub, n in zip(lbs, ubs, n):
             gen = SobolGenerator(lb, ub)
             strat = Strategy(
-                min_asks=n, generator=gen, lb=lb, ub=ub, min_total_outcome_occurrences=0
+                min_asks=n,
+                generator=gen,
+                lb=lb,
+                ub=ub,
+                min_total_outcome_occurrences=0,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
             )
             strat_list.append(strat)
 
@@ -147,6 +155,8 @@ class TestSequenceGenerators(unittest.TestCase):
             min_asks=50,
             lb=lb,
             ub=ub,
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
         )
 
         self.strat.keep_most_recent = 2
@@ -173,6 +183,8 @@ class TestSequenceGenerators(unittest.TestCase):
             min_asks=50,
             lb=lb,
             ub=ub,
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
         )
         with self.assertWarns(DeprecationWarning):
             self.assertEqual(self.strat.n_trials, 50)
@@ -186,7 +198,8 @@ class TestSequenceGenerators(unittest.TestCase):
             ub=ub,
             generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=12345),
             min_asks=min_asks,
-            outcome_type="pairwise_probit",
+            stimuli_per_trial=2,
+            outcome_types=["binary"],
         )
         acq1 = mod.gen(num_points=2)
         self.assertEqual(acq1.shape, (2, 3, 2))
@@ -202,7 +215,8 @@ class TestSequenceGenerators(unittest.TestCase):
                 ub=[1],
                 min_asks=3,
                 generator=PairwiseSobolGenerator(lb=[-1], ub=[1]),
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
                 min_total_outcome_occurrences=0,
             ),
             Strategy(
@@ -210,7 +224,8 @@ class TestSequenceGenerators(unittest.TestCase):
                 ub=[-8],
                 min_asks=5,
                 generator=PairwiseSobolGenerator(lb=[-10], ub=[-8]),
-                outcome_type="pairwise_probit",
+                stimuli_per_trial=2,
+                outcome_types=["binary"],
                 min_total_outcome_occurrences=0,
             ),
         ]

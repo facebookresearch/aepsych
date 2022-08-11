@@ -52,6 +52,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 model_gen_options=model_gen_options,
             ),
             min_asks=1,
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
         )
         # Fit
         train_x = torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])
@@ -105,6 +107,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 model_gen_options=model_gen_options,
             ),
             min_asks=1,
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
         )
         # Fit
         train_x = torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])

@@ -13,8 +13,8 @@ from aepsych.config import Config
 from aepsych.models.base import AEPsychMixin
 from botorch.acquisition import (
     AcquisitionFunction,
-    qNoisyExpectedImprovement,
     NoisyExpectedImprovement,
+    qNoisyExpectedImprovement,
 )
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
@@ -25,6 +25,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
 
     _requires_model = True
     baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
+    stimuli_per_trial = 1
 
     def __init__(
         self,

@@ -64,8 +64,8 @@ def plot_strat(
     """
 
     assert (
-        strat.outcome_type == "single_probit"
-    ), f"Plotting not supported for outcome_type {strat.outcome_type}"
+        "binary" in strat.outcome_types
+    ), f"Plotting not supported for outcome_type {strat.outcome_types[0]}"
 
     if target_level is not None and not hasattr(strat.model, "monotonic_idxs"):
         warnings.warn(

@@ -24,6 +24,7 @@ REQUIRES = [
     "pandas",
     "tqdm",
     "pathos",
+    "aepsych_client",
 ]
 
 DEV_REQUIRES = [
@@ -38,9 +39,15 @@ DEV_REQUIRES = [
 with open(os.path.join(root_dir, "README.md"), "r") as fh:
     long_description = fh.read()
 
+with open(os.path.join(root_dir, "aepsych", "version.py"), "r") as fh:
+    for line in fh.readlines():
+        if line.startswith("__version__"):
+            version = line.split('"')[1]
+
+
 setup(
     name="aepsych",
-    version="0.1.0",
+    version=version,
     python_requires=">=3.8",
     packages=find_packages(),
     description="Adaptive experimetation for psychophysics",
