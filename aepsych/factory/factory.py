@@ -212,33 +212,47 @@ def song_mean_covar_factory(
 
     stim_dim = config.getint("song_mean_covar_factory", "stim_dim", fallback=-1)
     context_dims = list(range(dim))
-    stim_dim = context_dims.pop(stim_dim)  # support relative stim dims
+    # if intensity_RBF is true, the indensity dimention will have both the RBF and linear kenrals
+    intensity_RBF = config.getboolean(
+        "song_mean_covar_factory", "intensity_RBF", fallback=False
+    )
+    if not intensity_RBF:
+        intensity_dim = 1
+        stim_dim = context_dims.pop(stim_dim)  # support relative stim dims
+    else:
+        intensity_dim = 0
+        stim_dim = context_dims[stim_dim]
+
+    # create the LinearKernel
+    intensity_covar = gpytorch.kernels.ScaleKernel(
+        gpytorch.kernels.LinearKernel(active_dims=stim_dim, ard_num_dims=1),
+        outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
+    )
 
     if dim == 1:
         # this can just be LinearKernel but for consistency of interface
         # we make it additive with one module
-        return (
-            mean,
-            gpytorch.kernels.AdditiveKernel(
-                gpytorch.kernels.ScaleKernel(
-                    gpytorch.kernels.LinearKernel(ard_num_dims=1),
-                    outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
-                )
-            ),
-        )
+        if not intensity_RBF:
+            return  mean, gpytorch.kernels.AdditiveKernel(intensity_covar),
+        else:
+            context_covar = gpytorch.kernels.ScaleKernel(
+                gpytorch.kernels.RBFKernel(
+                    lengthscale_prior=ls_prior,
+                    lengthscale_constraint=ls_constraint,
+                    ard_num_dims=dim,
+                    active_dims=context_dims,
+                ),
+                outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
+            )
+            return mean, context_covar + intensity_covar
     else:
         context_covar = gpytorch.kernels.ScaleKernel(
             gpytorch.kernels.RBFKernel(
                 lengthscale_prior=ls_prior,
                 lengthscale_constraint=ls_constraint,
-                ard_num_dims=dim - 1,
+                ard_num_dims=dim - intensity_dim,
                 active_dims=context_dims,
             ),
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
-        intensity_covar = gpytorch.kernels.ScaleKernel(
-            gpytorch.kernels.LinearKernel(active_dims=stim_dim, ard_num_dims=1),
-            outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
-        )
-
-    return mean, context_covar + intensity_covar
+        return mean, context_covar + intensity_covar
