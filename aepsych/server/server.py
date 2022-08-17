@@ -617,9 +617,9 @@ class AEPsychServer(object):
 
         # handle config elements being either scalars or length-1 lists
         if isinstance(unpacked[0], list):
-            x = np.stack(unpacked, axis=1)
+            x = torch.tensor(np.stack(unpacked, axis=0)).squeeze(-1)
         else:
-            x = np.stack(unpacked)
+            x = torch.tensor(np.stack(unpacked))
         return x
 
     def tell(self, outcome, config):
