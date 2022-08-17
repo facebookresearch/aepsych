@@ -156,7 +156,7 @@ class Strategy(object):
             n (int): number of observations
         """
         assert (
-            x.shape[-self.stimuli_per_trial :] == self.event_shape
+            x.shape == self.event_shape or x.shape[1:] == self.event_shape
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
         if x.shape == self.event_shape:
