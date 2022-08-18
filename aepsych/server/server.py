@@ -694,6 +694,7 @@ class AEPsychServer(object):
         if version < __version__:
             try:
                 usedconfig.convert_to_latest()
+                self.db.perform_updates()
                 logger.warning(
                     f"Config version {version} is less than AEPsych version {__version__}. The config was automatically modified to be compatible. Check the config table in the db to see the changes."
                 )
