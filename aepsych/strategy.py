@@ -313,6 +313,10 @@ class Strategy(object):
                 stimuli_per_trial == generator.stimuli_per_trial
             ), f"stimuli_per_trial, {stimuli_per_trial}, does not match model {generator}, which takes {generator.stimuli_per_trial} stimuli!"
 
+            assert (
+                model.outcome_type in outcome_types
+            ), f"model outcome type, {model.outcome_type}, not found in outcome_types, {outcome_types}!"
+
         else:
             model = None
 
