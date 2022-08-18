@@ -211,8 +211,7 @@ class AEPsychMixin(GPyTorchModel):
         """
         if probability_space:
             assert (
-                self.outcome_type == "single_probit"
-                or self.outcome_type == "pairwise_probit"
+                self.outcome_type == 'binary'
             ), f"Cannot get probability space for outcome_type '{self.outcome_type}'"
 
         locked_dims = locked_dims or {}

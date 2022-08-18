@@ -92,8 +92,8 @@ def _process_bounds(lb, ub, dim):
 
     for i, (l, u) in enumerate(zip(lb, ub)):
         assert (
-            l < u
-        ), f"Lower bound {l} is not less than upper bound {u} on dimension {i}!"
+            l <= u
+        ), f"Lower bound {l} is not less than or equal to upper bound {u} on dimension {i}!"
 
     return lb, ub, dim
 

@@ -532,7 +532,7 @@ class AEPsychServer(object):
             if x is None:  # TODO: ensure if x is between lb and ub
                 raise RuntimeError("Cannot query model at location = None!")
             mean, var = self.strat.predict(
-                torch.Tensor([self._config_to_tensor(x).flatten()]),
+                self._config_to_tensor(x).unsqueeze(axis=0),
                 probability_space=probability_space,
             )
             response["x"] = x
