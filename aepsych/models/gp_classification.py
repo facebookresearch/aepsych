@@ -42,6 +42,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
     _batch_size = 1
     _num_outputs = 1
     stimuli_per_trial = 1
+    outcome_type = "binary"
 
     def __init__(
         self,

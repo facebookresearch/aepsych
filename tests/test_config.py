@@ -629,6 +629,66 @@ class ConfigTestCase(unittest.TestCase):
         with self.assertRaises(AssertionError):
             SequentialStrategy.from_config(config3)
 
+    def test_outcome_compatibility(self):
+        config_str1 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPClassificationModel
+            """
+        config1 = Config()
+        config1.update(config_str=config_str1)
+
+        config_str2 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [continuous]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPClassificationModel
+            """
+        config2 = Config()
+        config2.update(config_str=config_str2)
+
+        config_str3 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPRegressionModel
+            """
+        config3 = Config()
+        config3.update(config_str=config_str3)
+
+        # this should work
+        SequentialStrategy.from_config(config1)
+
+        # this should fail
+        with self.assertRaises(AssertionError):
+            SequentialStrategy.from_config(config3)
+
+        # this should fail too
+        with self.assertRaises(AssertionError):
+            SequentialStrategy.from_config(config3)
+
 
 if __name__ == "__main__":
     unittest.main()

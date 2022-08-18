@@ -46,6 +46,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
     _num_outputs = 1
     stimuli_per_trial = 1
+    outcome_type = "binary"
 
     def __init__(
         self,
