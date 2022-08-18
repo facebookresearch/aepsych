@@ -94,7 +94,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
                 min_asks=n_init,
-                stimuli_per_trial=1,
+                stimuli_per_trial=2,
                 outcome_types=["binary"],
             ),
             Strategy(
