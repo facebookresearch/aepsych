@@ -64,6 +64,11 @@ namespace AEPsych
         [HideInInspector] public bool isPaused = false;
         [HideInInspector] public DefaultUI defaultUI;
         [HideInInspector] public QueryModel queryModel;
+
+        //TODO: Hide in inspector, read from server setup response
+        [HideInInspector] public ResponseType responseType;
+        [HideInInspector] public StimulusType stimulusType;
+
         string configPath;
         string prevExpText;
         bool readyToQuery = false;
@@ -278,7 +283,7 @@ namespace AEPsych
         /// <summary>
         /// Called when user makes a judgement and selects a response. Updates the AEPsych model with a new data point.
         /// </summary>
-        public void ReportResultToServer(int outcome, TrialMetadata metadata = null)
+        public void ReportResultToServer(float outcome, TrialMetadata metadata = null)
         {
             if (asyncAsk && _experimentState == ExperimentState.WaitingForAsyncAsk)
             {
@@ -309,7 +314,7 @@ namespace AEPsych
             }
         }
 
-        IEnumerator TellWhenAskReceived(int outcome, TrialMetadata metadata = null)
+        IEnumerator TellWhenAskReceived(float outcome, TrialMetadata metadata = null)
         {
             yield return new WaitUntil(() => nextConfigReady);
             ReportResultToServer(outcome, metadata);
@@ -828,7 +833,7 @@ namespace AEPsych
         {
             if (_experimentState == ExperimentState.Exploring)
             {
-                if (queryModel != null)
+                if (queryModel != null && useModelExploration)
                 {
                     queryModel.ShowSliders();
                     queryModel.QueryEnabled(true);
@@ -844,7 +849,12 @@ namespace AEPsych
                         queryModel.QueryEnabled(true);
                     }
                 }
-                trialResponseListener = StartCoroutine(WaitForResponse());
+                if (responseType == ResponseType.Binary)
+                    trialResponseListener = StartCoroutine(WaitForResponse());
+                else if (responseType == ResponseType.Continuous && useDefaultUI)
+                {
+                    defaultUI.ShowResponseSlider();
+                }
             }
         }
 
