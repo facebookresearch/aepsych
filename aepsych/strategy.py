@@ -156,7 +156,7 @@ class Strategy(object):
             n (int): number of observations
         """
         assert (
-            x.shape[-self.stimuli_per_trial :] == self.event_shape
+            x.shape == self.event_shape or x.shape[1:] == self.event_shape
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
         if x.shape == self.event_shape:
@@ -312,6 +312,10 @@ class Strategy(object):
             assert (
                 stimuli_per_trial == generator.stimuli_per_trial
             ), f"stimuli_per_trial, {stimuli_per_trial}, does not match model {generator}, which takes {generator.stimuli_per_trial} stimuli!"
+
+            assert (
+                model.outcome_type in outcome_types
+            ), f"model outcome type, {model.outcome_type}, not found in outcome_types, {outcome_types}!"
 
         else:
             model = None

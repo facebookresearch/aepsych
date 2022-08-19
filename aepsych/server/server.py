@@ -22,6 +22,7 @@ import torch
 from aepsych.config import Config
 from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
 from aepsych.strategy import SequentialStrategy
+from aepsych.version import __version__
 
 logger = utils_logging.getLogger(logging.INFO)
 
@@ -547,7 +548,7 @@ class AEPsychServer(object):
             if x is None:  # TODO: ensure if x is between lb and ub
                 raise RuntimeError("Cannot query model at location = None!")
             mean, var = self.strat.predict(
-                torch.Tensor([self._config_to_tensor(x).flatten()]),
+                self._config_to_tensor(x).unsqueeze(axis=0),
                 probability_space=probability_space,
             )
             response["x"] = x
@@ -631,9 +632,9 @@ class AEPsychServer(object):
 
         # handle config elements being either scalars or length-1 lists
         if isinstance(unpacked[0], list):
-            x = np.stack(unpacked, axis=1)
+            x = torch.tensor(np.stack(unpacked, axis=0)).squeeze(-1)
         else:
-            x = np.stack(unpacked)
+            x = torch.tensor(np.stack(unpacked))
         return x
 
     def tell(self, outcome, config):
@@ -667,6 +668,20 @@ class AEPsychServer(object):
             for i in config["experiment"]:
                 config["common"][i] = config["experiment"][i]
             del config["experiment"]
+
+        version = config.version
+        if version < __version__:
+            try:
+                config.convert_to_latest()
+                self.db.perform_updates()
+                logger.warning(
+                    f"Config version {version} is less than AEPsych version {__version__}. The config was automatically modified to be compatible. Check the config table in the db to see the changes."
+                )
+            except RuntimeError:
+                logger.warning(
+                    f"Config version {version} is less than AEPsych version {__version__}, but couldn't automatically update the config! Trying to configure the server anyway..."
+                )
+
         self.db.record_config(master_table=self._db_master_record, config=config)
         return self._configure(config)
 
@@ -695,8 +710,8 @@ class AEPsychServer(object):
 def startServerAndRun(
     server_class, socket=None, database_path=None, config_path=None, uuid_of_replay=None
 ):
+    server = server_class(socket=socket, database_path=database_path)
     try:
-        server = server_class(socket=socket, database_path=database_path)
         if config_path is not None:
             with open(config_path) as f:
                 config_str = f.read()

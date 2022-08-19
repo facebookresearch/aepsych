@@ -75,9 +75,9 @@ namespace AEPsych
     public class TrialWithOutcome
     {
         public TrialConfig config;
-        public int outcome;
+        public float outcome;
 
-        public TrialWithOutcome(TrialConfig config, int outcome)
+        public TrialWithOutcome(TrialConfig config, float outcome)
         {
             this.config = config;
             this.outcome = outcome;
@@ -138,9 +138,9 @@ namespace AEPsych
         public string timeStamp;
         public TrialConfig config;
         public TrialMetadata extra_info;
-        public int outcome;
+        public float outcome;
 
-        public TrialData(string timeStamp, TrialConfig config, int outcome, TrialMetadata extra_info = null)
+        public TrialData(string timeStamp, TrialConfig config, float outcome, TrialMetadata extra_info = null)
         {
             this.timeStamp = timeStamp;
             this.config = config;
@@ -358,7 +358,7 @@ namespace AEPsych
             return currentStrat;
         }
 
-        public IEnumerator Tell(TrialConfig trialConfig, int outcome, TrialMetadata metadata = null)
+        public IEnumerator Tell(TrialConfig trialConfig, float outcome, TrialMetadata metadata = null)
         {
             TrialWithOutcome message = new TrialWithOutcome(trialConfig, outcome);
 

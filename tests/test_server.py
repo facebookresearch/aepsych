@@ -7,14 +7,13 @@
 
 import json
 import logging
-import select
 import unittest
 import uuid
-from unittest.mock import call, MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, call, patch
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
-from aepsych.server.sockets import BAD_REQUEST
+import torch
 
 dummy_config = """
 [common]
@@ -606,6 +605,28 @@ class ServerTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.s.serve()
         assert len(self.s.queue) == 0
+
+    def test_config_to_tensor(self):
+        with patch(
+            "aepsych.server.AEPsychServer.parnames", new_callable=PropertyMock
+        ) as mock_parnames:
+            mock_parnames.return_value = ["par1", "par2", "par3"]
+
+            # test single
+            config = {"par1": 0.0, "par2": 1.0, "par3": 2.0}
+            tensor = self.s._config_to_tensor(config)
+            self.assertTrue(torch.equal(tensor, torch.tensor([0.0, 1.0, 2.0])))
+
+            config = {"par1": [0.0], "par2": [1.0], "par3": [2.0]}
+            tensor = self.s._config_to_tensor(config)
+            self.assertTrue(torch.equal(tensor, torch.tensor([0.0, 1.0, 2.0])))
+
+            # test pairwise
+            config = {"par1": [0.0, 2.0], "par2": [1.0, 1.0], "par3": [2.0, 0.0]}
+            tensor = self.s._config_to_tensor(config)
+            self.assertTrue(
+                torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
+            )
 
 
 if __name__ == "__main__":

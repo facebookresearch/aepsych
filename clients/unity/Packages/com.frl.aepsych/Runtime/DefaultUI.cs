@@ -22,6 +22,7 @@ public class DefaultUI : MonoBehaviour
     public TextMeshProUGUI experimentText;
     public GameObject foldoutMenu;
     public GameObject foldoutMenuIcon;
+    public GameObject responseSlider;
     Experiment experiment;
     Button[] menuButtons;
 
@@ -53,6 +54,23 @@ public class DefaultUI : MonoBehaviour
     public void SetTextActive(bool active)
     {
         experimentText.enabled = active;
+    }
+
+    public void ShowResponseSlider()
+    {
+        responseSlider.SetActive(true);
+        responseSlider.GetComponent<Slider>().value = 0.5f;
+    }
+
+    public void HideResponseSlider()
+    {
+        responseSlider.SetActive(false);
+    }
+
+    public void SumbitSliderResponse()
+    {
+        experiment.ReportResultToServer(responseSlider.GetComponent<Slider>().value);
+        HideResponseSlider();
     }
 
     public void AssignActiveExperiment(Experiment exp)

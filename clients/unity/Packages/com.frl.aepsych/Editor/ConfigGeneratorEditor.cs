@@ -13,11 +13,16 @@ using UnityEditor;
 using UnityEngine.SceneManagement;
 using UnityEditor.SceneManagement;
 using AEPsych;
+using System;
 
 [System.Serializable]
 [CustomEditor(typeof(ConfigGenerator)), CanEditMultipleObjects]
 public class ConfigGeneratorEditor : Editor
 {
+    int selected_stimulus;
+    int selected_response;
+    int selected_method;
+
     public override void OnInspectorGUI()
     {
         ConfigGenerator configGenerator = (ConfigGenerator)serializedObject.targetObject;
@@ -60,14 +65,73 @@ public class ConfigGeneratorEditor : Editor
         configGenerator.initialization_trials = EditorGUILayout.IntField("Number of initialization trials", configGenerator.initialization_trials);
         configGenerator.optimization_trials = EditorGUILayout.IntField("Number of optimization trials", configGenerator.optimization_trials);
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Experiment Type:");
-        configGenerator.experiment_idx = EditorGUILayout.Popup(configGenerator.experiment_idx, configGenerator.GetExperimentTypes());
-        if (configGenerator.GetExperimentTypes()[configGenerator.experiment_idx].Contains("Threshold"))
+
+        selected_stimulus = configGenerator.stimulus_presentation;
+        selected_response = configGenerator.response_type;
+        selected_method = configGenerator.experiment_method;
+
+        string currConfig = "";
+        currConfig += (StimulusType)selected_stimulus + " Stimulus ";
+        currConfig += (ResponseType)selected_response + " Input ";
+        currConfig += (ExperimentType)selected_method;
+        GUILayout.Label(new GUIContent("Current Configuration", "Not all experiment option combinations " +
+            "are possible. This Config Generator will only allow you to select combinations for which a " +
+            "valid acqisition function & model exist. For more customization, use a manual config file."));
+        EditorGUILayout.LabelField(currConfig, new GUIStyle()
+        {
+            fontSize = 14,
+            richText = true,
+            wordWrap = true,
+            normal = new GUIStyleState() { textColor = Color.yellow }
+        });
+        EditorGUILayout.Space();
+
+        int temp_select;
+        int[] currCombo = new int[] { selected_stimulus, selected_response, selected_method };
+        
+        GUILayout.Label("Stimulus Type", EditorStyles.boldLabel);
+        temp_select = EditorGUILayout.Popup(selected_stimulus, Enum.GetNames(typeof(StimulusType)));
+        if (temp_select != selected_stimulus)
+        {
+            // This value changed this frame
+            currCombo = configGenerator.ValidateCombination(temp_select, selected_response, selected_method, 0);
+        }
+        selected_stimulus = temp_select;
+        GUILayout.Space(10f);
+
+        GUILayout.Label("Response Type", EditorStyles.boldLabel);
+        temp_select = EditorGUILayout.Popup(selected_response, Enum.GetNames(typeof(ResponseType)));
+        if (temp_select != selected_response)
+        {
+            // This value changed this frame
+            currCombo = configGenerator.ValidateCombination(selected_stimulus, temp_select, selected_method, 1);
+        }
+        selected_response = temp_select;
+        GUILayout.Space(10f); //2
+
+        GUILayout.Label("Experiment Type", EditorStyles.boldLabel);
+        temp_select = EditorGUILayout.Popup(selected_method, Enum.GetNames(typeof(ExperimentType)));
+        if (temp_select != selected_method)
+        {
+            // This value changed this frame
+            currCombo = configGenerator.ValidateCombination(selected_stimulus, selected_response, temp_select, 2);
+        }
+        selected_method = temp_select;
+
+        configGenerator.stimulus_presentation = currCombo[0];
+        configGenerator.response_type = currCombo[1];
+        configGenerator.experiment_method = currCombo[2];
+
+        if ((ExperimentType)configGenerator.experiment_method == ExperimentType.Threshold)
         {
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Target Threshold:");
             configGenerator.target = EditorGUILayout.FloatField(Mathf.Clamp(configGenerator.target, 0f, 1f));
         }
+
+        configGenerator.GetComponent<Experiment>().stimulusType = (StimulusType) configGenerator.stimulus_presentation;
+        configGenerator.GetComponent<Experiment>().responseType = (ResponseType) configGenerator.response_type;
+
         EditorGUILayout.Space();
         configGenerator.startWithModel = EditorGUILayout.ToggleLeft("Initialize Model on Start", configGenerator.startWithModel);
         EditorGUILayout.Space();

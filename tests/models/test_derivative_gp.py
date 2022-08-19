@@ -6,17 +6,11 @@
 # LICENSE file in the root directory of this source tree.
 
 import torch
+from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
+from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
+from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
 from botorch.fit import fit_gpytorch_model
 from botorch.utils.testing import BotorchTestCase
-from aepsych.kernels.rbf_partial_grad import (
-    RBFKernelPartialObsGrad,
-)
-from aepsych.means.constant_partial_grad import (
-    ConstantMeanPartialObsGrad,
-)
-from aepsych.models.derivative_gp import (
-    MixedDerivativeVariationalGP,
-)
 from gpytorch.likelihoods import BernoulliLikelihood
 from gpytorch.mlls.variational_elbo import VariationalELBO
 
@@ -31,7 +25,7 @@ class TestDerivativeGP(BotorchTestCase):
     def testMean(self):
         mu = ConstantMeanPartialObsGrad()
         mu.constant.requires_grad_(False)
-        mu.constant.copy_(torch.tensor([5.0]))
+        mu.constant.copy_(torch.tensor(5.0))
         mu.constant.requires_grad_(True)
 
         x1 = torch.cat((torch.rand(5, 2), torch.zeros(5, 1)), dim=1)

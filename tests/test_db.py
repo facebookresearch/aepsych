@@ -5,13 +5,14 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import unittest
-import uuid
-import aepsych.database.db as db
-import aepsych.database.tables as tables
-from pathlib import Path
 import os
 import shutil
+import unittest
+import uuid
+from pathlib import Path
+
+import aepsych.database.db as db
+import aepsych.database.tables as tables
 import sqlalchemy
 
 
@@ -238,3 +239,7 @@ class DBTestCase(unittest.TestCase):
         config = self._database.get_config_for(experiment_id)
 
         self.assertEqual(test_config, config)
+
+
+if __name__ == "__main__":
+    unittest.main()

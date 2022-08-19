@@ -28,6 +28,7 @@ from aepsych.models import (
 )
 from aepsych.server import AEPsychServer
 from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.version import __version__
 from botorch.acquisition import qNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 
@@ -300,8 +301,7 @@ class ConfigTestCase(unittest.TestCase):
         parnames = [par1, par2]
         lb = [0, 0]
         ub = [1, 1]
-        stimuli_per_trial = 1
-        outcome_types = [binary]
+        outcome_type = single_probit
         target = 0.75
 
         [SobolStrategy]
@@ -332,8 +332,8 @@ class ConfigTestCase(unittest.TestCase):
 
         config = Config(config_str=config_str)
         self.assertEqual(config.version, "0.0")
-        config.convert("0.0", "0.1")
-        self.assertEqual(config.version, "0.1")
+        config.convert_to_latest()
+        self.assertEqual(config.version, __version__)
 
         self.assertEqual(config["common"]["strategy_names"], "[init_strat, opt_strat]")
         self.assertEqual(config["common"]["acqf"], "MonotonicMCLSE")
@@ -350,6 +350,9 @@ class ConfigTestCase(unittest.TestCase):
 
         self.assertEqual(config["MonotonicRejectionGenerator"]["restarts"], "10")
         self.assertEqual(config["MonotonicRejectionGenerator"]["samps"], "1000")
+
+        self.assertEqual(config["common"]["stimuli_per_trial"], "1")
+        self.assertEqual(config["common"]["outcome_types"], "[binary]")
 
     def test_warn_about_refit(self):
         config_str = """
@@ -611,6 +614,66 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = PairwiseProbitModel
+            """
+        config3 = Config()
+        config3.update(config_str=config_str3)
+
+        # this should work
+        SequentialStrategy.from_config(config1)
+
+        # this should fail
+        with self.assertRaises(AssertionError):
+            SequentialStrategy.from_config(config3)
+
+        # this should fail too
+        with self.assertRaises(AssertionError):
+            SequentialStrategy.from_config(config3)
+
+    def test_outcome_compatibility(self):
+        config_str1 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPClassificationModel
+            """
+        config1 = Config()
+        config1.update(config_str=config_str1)
+
+        config_str2 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [continuous]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPClassificationModel
+            """
+        config2 = Config()
+        config2.update(config_str=config_str2)
+
+        config_str3 = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPRegressionModel
             """
         config3 = Config()
         config3.update(config_str=config_str3)
