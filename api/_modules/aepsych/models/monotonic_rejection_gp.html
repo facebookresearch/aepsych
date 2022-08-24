@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/image_fail_to_load.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -63,7 +63,8 @@
 <span class="sd">    """</span>
 
     <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"single_probit"</span>
+    <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"binary"</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -123,7 +124,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">likelihood</span><span class="p">,</span> <span class="n">BernoulliLikelihood</span><span class="p">):</span>
                 <span class="n">fixed_prior_mean</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">fixed_prior_mean</span><span class="p">)</span>
             <span class="n">mean_module</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">mean_module</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">fixed_prior_mean</span><span class="p">]))</span>
+            <span class="n">mean_module</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">fixed_prior_mean</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -217,14 +218,14 @@
 
 <div class="viewcode-block" id="MonotonicRejectionGP.sample"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_rejection_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="sd">"""Sample from monotonic GP</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            X (Tensor): tensor of n points at which to sample</span>
+<span class="sd">            x (Tensor): tensor of n points at which to sample</span>
 <span class="sd">            num_samples (int, optional): how many points to sample (default: self.num_samples)</span>
 
 <span class="sd">        Returns: a Tensor of shape [n_samp, n]</span>
@@ -240,13 +241,13 @@
                 <span class="sa">f</span><span class="s2">"num_rejection_samples should be at least </span><span class="si">{</span><span class="n">rejection_ratio</span><span class="si">}</span><span class="s2"> times greater than num_samples."</span>
             <span class="p">)</span>
 
-        <span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># Augment with derivative index</span>
-        <span class="n">x_aug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_with_deriv_index</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">x_aug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_with_deriv_index</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="c1"># Add in monotonicity constraint points</span>
         <span class="n">deriv_cp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_deriv_constraint_points</span><span class="p">()</span>
         <span class="n">x_aug</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">x_aug</span><span class="p">,</span> <span class="n">deriv_cp</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">x_aug</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span>
+        <span class="k">assert</span> <span class="n">x_aug</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">monotonic_idxs</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="n">constrained_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">x_aug</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -263,16 +264,16 @@
         <span class="k">return</span> <span class="n">samples_f</span></div>
 
 <div class="viewcode-block" id="MonotonicRejectionGP.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
         <span class="sd">"""Predict</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            X: tensor of n points at which to predict.</span>
+<span class="sd">            x: tensor of n points at which to predict.</span>
 
 <span class="sd">        Returns: tuple (f, var) where f is (n,) and var is (n,)</span>
 <span class="sd">        """</span>
-        <span class="n">samples_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">samples_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples_f</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
         <span class="n">variance</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">samples_f</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">clamp_min</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 
@@ -284,9 +285,9 @@
 
         <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">variance</span></div>
 
-    <span class="k">def</span> <span class="nf">_augment_with_deriv_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">indx</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_augment_with_deriv_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">indx</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">indx</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">indx</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)),</span>
             <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
 

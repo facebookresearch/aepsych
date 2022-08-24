@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/image_fail_to_load.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -24,6 +24,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -52,36 +53,36 @@
     <span class="n">upper</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">slice_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 
     <span class="sd">"""Create a grid</span>
-<span class="sd">    Create a grid based on either model dimensions, or pass in lower, upper, and dim separately.</span>
+<span class="sd">    Create a grid based on lower, upper, and dim.</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    model : Model</span>
-<span class="sd">        Input Model object that defines:</span>
-<span class="sd">        - lower ('int') - lower bound</span>
-<span class="sd">        - upper ('int') - upper bound</span>
-<span class="sd">        - dim ('int) - dimension</span>
 <span class="sd">    - lower ('int') - lower bound</span>
 <span class="sd">    - upper ('int') - upper bound</span>
 <span class="sd">    - dim ('int) - dimension</span>
 <span class="sd">    - gridsize ('int') - size for grid</span>
+<span class="sd">    - slice_dims (Optional, dict) - values to use for slicing axes, as an {index:value} dict</span>
 <span class="sd">    Returns</span>
 <span class="sd">    ----------</span>
 <span class="sd">    grid : torch.FloatTensor</span>
 <span class="sd">        Tensor</span>
 <span class="sd">    """</span>
+    <span class="n">slice_dims</span> <span class="o">=</span> <span class="n">slice_dims</span> <span class="ow">or</span> <span class="p">{}</span>
 
     <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
-            <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">gridsize</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">)]</span>
-        <span class="p">]</span>
-        <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">T</span>
-    <span class="p">)</span></div>
+    <span class="n">mesh_vals</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">slice_dims</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">mesh_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">slice_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="n">slice_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mesh_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">gridsize</span> <span class="o">*</span> <span class="mi">1</span><span class="n">j</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">mesh_vals</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
@@ -106,6 +107,11 @@
             <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">dim</span><span class="p">,</span> <span class="s2">"dim does not match shape of bounds!"</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)):</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">l</span> <span class="o">&lt;=</span> <span class="n">u</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Lower bound </span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2"> is not less than or equal to upper bound </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2"> on dimension </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">!"</span>
 
     <span class="k">return</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span>
 

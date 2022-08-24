@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/image_fail_to_load.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -24,13 +24,14 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">Strategy</span>
-<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">get_lse_contour</span><span class="p">,</span> <span class="n">get_lse_interval</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+<span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">Strategy</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">get_lse_contour</span><span class="p">,</span> <span class="n">get_lse_interval</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
 
 
 <div class="viewcode-block" id="plot_strat"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_strat">[docs]</a><span class="k">def</span> <span class="nf">plot_strat</span><span class="p">(</span>
@@ -81,8 +82,8 @@
 <span class="sd">    """</span>
 
     <span class="k">assert</span> <span class="p">(</span>
-        <span class="n">strat</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"single_probit"</span>
-    <span class="p">),</span> <span class="sa">f</span><span class="s2">"Plotting not supported for outcome_type </span><span class="si">{</span><span class="n">strat</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">"</span>
+        <span class="s2">"binary"</span> <span class="ow">in</span> <span class="n">strat</span><span class="o">.</span><span class="n">outcome_types</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">"Plotting not supported for outcome_type </span><span class="si">{</span><span class="n">strat</span><span class="o">.</span><span class="n">outcome_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">if</span> <span class="n">target_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">"monotonic_idxs"</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
@@ -131,9 +132,11 @@
             <span class="n">include_colorbar</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="c1"># TODO implement 3d plots</span>
+    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Use plot_strat_3d for 3d plots!"</span><span class="p">)</span>
+
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"No plots for &gt;2d"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"No plots for &gt;3d!"</span><span class="p">)</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
 
@@ -334,6 +337,160 @@
     <span class="k">if</span> <span class="n">include_colorbar</span><span class="p">:</span>
         <span class="n">colorbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">colormap</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
         <span class="n">colorbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Probability of </span><span class="si">{</span><span class="n">yes_label</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="plot_strat_3d"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_strat_3d">[docs]</a><span class="k">def</span> <span class="nf">plot_strat_3d</span><span class="p">(</span>
+    <span class="n">strat</span><span class="p">:</span> <span class="n">Strategy</span><span class="p">,</span>
+    <span class="n">parnames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">outcome_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Yes Trial"</span><span class="p">,</span>
+    <span class="n">slice_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">slice_vals</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">contour_levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">extent_multiplier</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">"""Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours</span>
+<span class="sd">    Args:</span>
+<span class="sd">        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.</span>
+<span class="sd">        parnames (str list): list of the parameter names</span>
+<span class="sd">        outcome_label (str): The label of the outcome variable</span>
+<span class="sd">        slice_dim (int): dimension to slice on</span>
+<span class="sd">        dim_vals (list of floats or int): values to take slices; OR number of values to take even slices from</span>
+<span class="sd">        contour_levels (iterable of floats or bool, optional): List contour values to plot. Default: None. If true, all integer levels.</span>
+<span class="sd">        probability_space (bool): Whether to plot probability. Default: False</span>
+<span class="sd">        gridsize (int): The number of points to sample each dimension at. Default: 30.</span>
+<span class="sd">        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None</span>
+<span class="sd">        save_path (str, optional): File name to save the plot to. Default: None.</span>
+<span class="sd">        show (bool): Whether the plot should be shown in an interactive window. Default: True.</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Cannot plot without a model!"</span>
+
+    <span class="n">contour_levels_list</span> <span class="o">=</span> <span class="n">contour_levels</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">parnames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parnames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"x1"</span><span class="p">,</span> <span class="s2">"x2"</span><span class="p">,</span> <span class="s2">"x3"</span><span class="p">]</span>
+    <span class="c1"># Get global min/max for all slices</span>
+    <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">contour_levels</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">contour_levels_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">fmean</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">fmean</span><span class="p">)</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fmean</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">contour_levels</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">contour_levels_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="n">vmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># slice_vals is either a list of values or an integer number of values to slice on</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="n">slice_dim</span><span class="p">],</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">[</span><span class="n">slice_dim</span><span class="p">],</span> <span class="n">slice_vals</span><span class="p">)</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">slices</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"slice_vals must be either an integer or a list of values"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">slices</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">dim_val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slices</span><span class="p">):</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">plot_slice</span><span class="p">(</span>
+            <span class="n">axs</span><span class="p">[</span><span class="n">_i</span><span class="p">],</span>
+            <span class="n">strat</span><span class="p">,</span>
+            <span class="n">parnames</span><span class="p">,</span>
+            <span class="n">slice_dim</span><span class="p">,</span>
+            <span class="n">dim_val</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="p">,</span>
+            <span class="n">gridsize</span><span class="p">,</span>
+            <span class="n">contour_levels_list</span><span class="p">,</span>
+            <span class="n">probability_space</span><span class="p">,</span>
+            <span class="n">extent_multiplier</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">plt_parnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">parnames</span><span class="p">,</span> <span class="n">slice_dim</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">plt_parnames</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Probability of </span><span class="si">{</span><span class="n">outcome_label</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">outcome_label</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">clevel</span> <span class="ow">in</span> <span class="n">contour_levels_list</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">clevel</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"w"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_slice"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_slice">[docs]</a><span class="k">def</span> <span class="nf">plot_slice</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">,</span>
+    <span class="n">strat</span><span class="p">,</span>
+    <span class="n">parnames</span><span class="p">,</span>
+    <span class="n">slice_dim</span><span class="p">,</span>
+    <span class="n">slice_val</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">,</span>
+    <span class="n">gridsize</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">contour_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">lse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">extent_multiplier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">"""Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours</span>
+<span class="sd">    Args:</span>
+<span class="sd">        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.</span>
+<span class="sd">        ax (plt.Axes): Matplotlib axis to plot on</span>
+<span class="sd">        parnames (str list): list of the parameter names</span>
+<span class="sd">        slice_dim (int): dimension to slice on</span>
+<span class="sd">        slice_vals (float): value to take the slice along that dimension</span>
+<span class="sd">        vmin (float): global model minimum to use for plotting</span>
+<span class="sd">        vmax (float): global model maximum to use for plotting</span>
+<span class="sd">        gridsize (int): The number of points to sample each dimension at. Default: 30.</span>
+<span class="sd">        contour_levels (int list): Contours to plot. Default: None</span>
+<span class="sd">        lse (bool): Whether to plot probability. Default: False</span>
+<span class="sd">        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None</span>
+<span class="sd">    """</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dim_grid</span><span class="p">(</span><span class="n">gridsize</span><span class="o">=</span><span class="n">gridsize</span><span class="p">,</span> <span class="n">slice_dims</span><span class="o">=</span><span class="p">{</span><span class="n">slice_dim</span><span class="p">:</span> <span class="n">slice_val</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">lse</span><span class="p">:</span>
+        <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">fmean</span> <span class="o">=</span> <span class="n">fmean</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">gridsize</span><span class="p">,</span> <span class="n">gridsize</span><span class="p">)</span>
+        <span class="n">fmean</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fmean</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">fmean</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">gridsize</span><span class="p">,</span> <span class="n">gridsize</span><span class="p">)</span>
+
+    <span class="c1"># optionally rescale extents to correct values</span>
+    <span class="k">if</span> <span class="n">extent_multiplier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">extent_scaled</span> <span class="o">=</span> <span class="n">extent</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">extent_multiplier</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">dim_val_scaled</span> <span class="o">=</span> <span class="n">slice_val</span> <span class="o">*</span> <span class="n">extent_multiplier</span><span class="p">[</span><span class="n">slice_dim</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extent_scaled</span> <span class="o">=</span> <span class="n">extent</span>
+        <span class="n">dim_val_scaled</span> <span class="o">=</span> <span class="n">slice_val</span>
+
+    <span class="n">plt_extents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">extent_scaled</span><span class="p">,</span> <span class="p">[</span><span class="n">slice_dim</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">slice_dim</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">plt_parnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">parnames</span><span class="p">,</span> <span class="n">slice_dim</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+        <span class="n">fmean</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">plt_extents</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">parnames</span><span class="p">[</span><span class="n">slice_dim</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dim_val_scaled</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">plt_parnames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contour_levels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+            <span class="n">fmean</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">contour_levels</span><span class="p">,</span>
+            <span class="n">colors</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="n">plt_extents</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span>
+            <span class="n">aspect</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">img</span></div>
 </pre></div>
 </div>
 </div>

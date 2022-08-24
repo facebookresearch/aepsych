@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/image_fail_to_load.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -139,213 +139,9 @@ averaged over Xq.</p>
 <p>Returns: (b) tensor of EAVC values.</p>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LookaheadAcquisitionFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">LookaheadAcquisitionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#LookaheadAcquisitionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.LookaheadAcquisitionFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AcquisitionFunction</span></code></p>
-<p>A localized look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LookaheadAcquisitionFunction.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.LookaheadAcquisitionFunction.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">GlobalLookaheadAcquisitionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#GlobalLookaheadAcquisitionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.LookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.LookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">LookaheadAcquisitionFunction</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#GlobalLookaheadAcquisitionFunction.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate acquisition function at X.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>Tensor</em>) – (b x 1 x d) point at which to evalaute acquisition function.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><em>Tensor</em></p>
-</dd>
-</dl>
-<p>Returns: (b) tensor of acquisition values.</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.GlobalMI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">GlobalMI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#GlobalMI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.GlobalMI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.GlobalMI.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.GlobalMI.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.GlobalSUR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">GlobalSUR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#GlobalSUR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.GlobalSUR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.GlobalSUR.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.GlobalSUR.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.ApproxGlobalSUR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">ApproxGlobalSUR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#ApproxGlobalSUR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.ApproxGlobalSUR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalSUR" title="aepsych.acquisition.lookahead.GlobalSUR"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalSUR</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.ApproxGlobalSUR.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.ApproxGlobalSUR.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.EAVC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">EAVC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#EAVC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.EAVC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.EAVC.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.EAVC.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">LocalLookaheadAcquisitionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#LocalLookaheadAcquisitionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.LookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.LookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">LookaheadAcquisitionFunction</span></code></a></p>
-<p>A localized look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#LocalLookaheadAcquisitionFunction.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate acquisition function at X.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>Tensor</em>) – (b x 1 x d) point at which to evalaute acquisition function.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><em>Tensor</em></p>
-</dd>
-</dl>
-<p>Returns: (b) tensor of acquisition values.</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LocalMI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">LocalMI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#LocalMI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.LocalMI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A localized look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LocalMI.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.LocalMI.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LocalSUR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">LocalSUR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#LocalSUR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.LocalSUR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A localized look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lookahead.LocalSUR.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lookahead.LocalSUR.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead.MOCU">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">MOCU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#MOCU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.MOCU" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></p>
 <p>MOCU acquisition function given in expr. 4 of:</p>
 <blockquote>
 <div><p>Zhao, Guang, et al. “Uncertainty-aware active learning for optimal Bayesian classifier.”
@@ -370,7 +166,7 @@ International Conference on Learning Representations (ICLR) 2021.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead.SMOCU">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">SMOCU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#SMOCU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.SMOCU" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></p>
 <p>SMOCU acquisition function given in expr. 11 of:</p>
 <blockquote>
 <div><p>Zhao, Guang, et al. “Bayesian active learning by soft mean objective cost of uncertainty.”
@@ -394,7 +190,7 @@ International Conference on Artificial Intelligence and Statistics (AISTATS) 202
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead.BEMPS">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">BEMPS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scorefun</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#BEMPS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.BEMPS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></p>
 <p>BEMPS acquisition function given in:</p>
 <blockquote>
 <div><p>Tan, Wei, et al. “Diversity Enhanced Active Learning with Strictly Proper Scoring Rules.”
@@ -521,65 +317,6 @@ py1: (b x 1) Probability of observing 1 at xstar.</p>
 </section>
 <section id="module-aepsych.acquisition.lse">
 <span id="aepsych-acquisition-lse-module"></span><h2>aepsych.acquisition.lse module<a class="headerlink" href="#module-aepsych.acquisition.lse" title="Permalink to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.lse.MCLevelSetEstimation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lse.</span></span><span class="sig-name descname"><span class="pre">MCLevelSetEstimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lse.html#MCLevelSetEstimation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lse.MCLevelSetEstimation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MCAcquisitionFunction</span></code></p>
-<p>Monte-carlo level set estimation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>Model</em>) – A fitted model.</p></li>
-<li><p><strong>target</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – the level set (after objective transform) to be estimated</p></li>
-<li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – a parameter that governs explore-exploit tradeoff</p></li>
-<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em>) – An MCAcquisitionObjective representing the link function
-(e.g., logistic or probit.) applied on the samples.
-Can be implemented via GenericMCObjective.</p></li>
-<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>MCSampler</em><em>]</em>) – The sampler used for drawing MC samples.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.lse.MCLevelSetEstimation.acquisition">
-<span class="sig-name descname"><span class="pre">acquisition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lse.html#MCLevelSetEstimation.acquisition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lse.MCLevelSetEstimation.acquisition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the acquisition based on objective samples.</p>
-<p>Usually you should not call this directly unless you are
-subclassing this class and modifying how objective samples
-are generated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>obj_samples</strong> (<em>torch.Tensor</em>) – Samples from the model, transformed
-by the objective. Should be samples x batch_shape.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Acquisition function at the sampled values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.lse.MCLevelSetEstimation.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lse.html#MCLevelSetEstimation.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lse.MCLevelSetEstimation.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the acquisition function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>torch.Tensor</em>) – Points at which to evaluate.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Value of the acquisition functiona at these points.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.lse.MCLevelSetEstimation.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.lse.MCLevelSetEstimation.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
 </section>
 <section id="module-aepsych.acquisition.mc_posterior_variance">
 <span id="aepsych-acquisition-mc-posterior-variance-module"></span><h2>aepsych.acquisition.mc_posterior_variance module<a class="headerlink" href="#module-aepsych.acquisition.mc_posterior_variance" title="Permalink to this heading">¶</a></h2>
@@ -1340,65 +1077,6 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.MCLevelSetEstimation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">MCLevelSetEstimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lse.html#MCLevelSetEstimation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.MCLevelSetEstimation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MCAcquisitionFunction</span></code></p>
-<p>Monte-carlo level set estimation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>Model</em>) – A fitted model.</p></li>
-<li><p><strong>target</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – the level set (after objective transform) to be estimated</p></li>
-<li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – a parameter that governs explore-exploit tradeoff</p></li>
-<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em>) – An MCAcquisitionObjective representing the link function
-(e.g., logistic or probit.) applied on the samples.
-Can be implemented via GenericMCObjective.</p></li>
-<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>MCSampler</em><em>]</em>) – The sampler used for drawing MC samples.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.MCLevelSetEstimation.acquisition">
-<span class="sig-name descname"><span class="pre">acquisition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lse.html#MCLevelSetEstimation.acquisition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.MCLevelSetEstimation.acquisition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the acquisition based on objective samples.</p>
-<p>Usually you should not call this directly unless you are
-subclassing this class and modifying how objective samples
-are generated.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>obj_samples</strong> (<em>torch.Tensor</em>) – Samples from the model, transformed
-by the objective. Should be samples x batch_shape.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Acquisition function at the sampled values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.MCLevelSetEstimation.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lse.html#MCLevelSetEstimation.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.MCLevelSetEstimation.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the acquisition function</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>X</strong> (<em>torch.Tensor</em>) – Points at which to evaluate.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Value of the acquisition functiona at these points.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.MCLevelSetEstimation.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.MCLevelSetEstimation.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.ProbitObjective">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">ProbitObjective</span></span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#ProbitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.ProbitObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MCAcquisitionObjective</span></code></p>
@@ -1498,124 +1176,6 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorGumbelObjective.inverse_link">
 <span class="sig-name descname"><span class="pre">inverse_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorGumbelObjective.inverse_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorGumbelObjective.inverse_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.GlobalMI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">GlobalMI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#GlobalMI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.GlobalMI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.GlobalMI.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.GlobalMI.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.GlobalSUR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">GlobalSUR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#GlobalSUR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.GlobalSUR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.GlobalSUR.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.GlobalSUR.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.ApproxGlobalSUR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">ApproxGlobalSUR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#ApproxGlobalSUR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.ApproxGlobalSUR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalSUR" title="aepsych.acquisition.lookahead.GlobalSUR"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalSUR</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.ApproxGlobalSUR.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.ApproxGlobalSUR.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.EAVC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">EAVC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#EAVC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.EAVC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A global look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.EAVC.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.EAVC.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.LocalMI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">LocalMI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#LocalMI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.LocalMI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A localized look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.LocalMI.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.LocalMI.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.LocalSUR">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">LocalSUR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#LocalSUR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.LocalSUR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction" title="aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalLookaheadAcquisitionFunction</span></code></a></p>
-<p>A localized look-ahead acquisition function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.acquisition.LocalSUR.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.acquisition.LocalSUR.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 </section>

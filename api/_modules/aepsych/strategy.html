@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/image_fail_to_load.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -25,10 +25,11 @@
 
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
+
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span> <span class="nn">aepsych.generators.sobol_generator</span> <span class="kn">import</span> <span class="n">SobolGenerator</span>
@@ -68,12 +69,13 @@
         <span class="n">generator</span><span class="p">:</span> <span class="n">AEPsychGenerator</span><span class="p">,</span>
         <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
         <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">stimuli_per_trial</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">outcome_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
         <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_total_tells</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">min_asks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelProtocol</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">refit_every</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">outcome_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"single_probit"</span><span class="p">,</span>
         <span class="n">min_total_outcome_occurrences</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">max_asks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">keep_most_recent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -91,7 +93,6 @@
 <span class="sd">            min_asks (int): The minimum number of points that should be generated from this strategy.</span>
 <span class="sd">            model (ModelProtocol, optional): The AEPsych model of the data.</span>
 <span class="sd">            refit_every (int): How often to refit the model from scratch.</span>
-<span class="sd">            outcome_type (str): The type of observations that will be recorded. For now, the only option is "single_probit".</span>
 <span class="sd">            min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.</span>
 <span class="sd">                Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).</span>
 <span class="sd">            max_asks (int, optional): The maximum number of trials to generate using this strategy.</span>
@@ -107,6 +108,17 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">"Specifying both min_total_tells and min_asks &gt; 0 may lead to unintended behavior."</span>
             <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Multiple outcome types are not yet supported!"</span>
+        <span class="k">assert</span> <span class="n">stimuli_per_trial</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">,</span>
+        <span class="p">],</span> <span class="s2">"Number of stimuli per trial must be 1 or 2!"</span>
+
+        <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">outcome_types</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">"continuous"</span><span class="p">,</span>
+                <span class="s2">"binary"</span><span class="p">,</span>
+            <span class="p">],</span> <span class="sa">f</span><span class="s2">"Unknown outcome_type '</span><span class="si">{</span><span class="n">outcome</span><span class="si">}</span><span class="s2">'!"</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_total_outcome_occurrences</span> <span class="o">=</span> <span class="n">min_total_outcome_occurrences</span>
@@ -126,19 +138,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">min_asks</span> <span class="o">=</span> <span class="n">min_asks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_total_tells</span> <span class="o">=</span> <span class="n">min_total_tells</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">stimuli_per_trial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outcome_types</span> <span class="o">=</span> <span class="n">outcome_types</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">=</span> <span class="n">outcome_type</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,)</span>
 
-        <span class="c1"># I think this is a correct usage of event_shape</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span>
-
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"pairwise_probit"</span>
-        <span class="p">):</span>  <span class="c1"># temporary hack until models are refactored</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">refit_every</span> <span class="o">=</span> <span class="n">refit_every</span>
@@ -166,15 +173,9 @@
 <span class="sd">            y (np.ndarray): training outputs, normalized</span>
 <span class="sd">            n (int): number of observations</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"single_probit"</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">"x shape should be </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2"> or batch x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2">, instead got </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"pairwise_probit"</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">"x shape should be </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2"> or batch x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2">, instead got </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"x shape should be </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2"> or batch x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2">, instead got </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
 
         <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
@@ -225,7 +226,7 @@
 
 <div class="viewcode-block" id="Strategy.predict"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.predict">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.get_jnd"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_jnd">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
     <span class="k">def</span> <span class="nf">get_jnd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -246,7 +247,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"single_probit"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"binary"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_types</span><span class="p">:</span>
             <span class="n">n_yes_trials</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="n">n_no_trials</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="n">sufficient_outcomes</span> <span class="o">=</span> <span class="p">(</span>
@@ -309,12 +310,31 @@
 
 <div class="viewcode-block" id="Strategy.from_config"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"stimuli_per_trial"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">outcome_types</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"outcome_types"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+
         <span class="n">gen_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"generator"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">SobolGenerator</span><span class="p">)</span>
         <span class="n">generator</span> <span class="o">=</span> <span class="n">gen_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">model_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">model_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"stimuli_per_trial, </span><span class="si">{</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2">, does not match model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">, which takes </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2"> stimuli!"</span>
+
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="n">generator</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"stimuli_per_trial, </span><span class="si">{</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2">, does not match model </span><span class="si">{</span><span class="n">generator</span><span class="si">}</span><span class="s2">, which takes </span><span class="si">{</span><span class="n">generator</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2"> stimuli!"</span>
+
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span> <span class="ow">in</span> <span class="n">outcome_types</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"model outcome type, </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">, not found in outcome_types, </span><span class="si">{</span><span class="n">outcome_types</span><span class="si">}</span><span class="s2">!"</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -329,21 +349,18 @@
 
         <span class="n">refit_every</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"refit_every"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="n">outcome_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"outcome_type"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"single_probit"</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">generator</span><span class="o">.</span><span class="n">_requires_model</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">refit_every</span> <span class="o">&lt;</span> <span class="n">min_asks</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"Strategy '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">' has refit_every &lt; min_asks even though its generator does not require a model. Consider making refit_every = min_asks to speed up point generation."</span><span class="p">,</span>
                     <span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="p">)</span>
+        <span class="n">keep_most_recent</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"keep_most_recent"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="n">min_total_outcome_occurrences</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="s2">"min_total_outcome_occurrences"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="s2">"min_total_outcome_occurrences"</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span> <span class="k">if</span> <span class="s2">"binary"</span> <span class="ow">in</span> <span class="n">outcome_types</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">min_post_range</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"min_post_range"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">keep_most_recent</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"keep_most_recent"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -359,12 +376,13 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
             <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
+            <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="n">stimuli_per_trial</span><span class="p">,</span>
+            <span class="n">outcome_types</span><span class="o">=</span><span class="n">outcome_types</span><span class="p">,</span>
             <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
             <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
             <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span>
             <span class="n">min_asks</span><span class="o">=</span><span class="n">min_asks</span><span class="p">,</span>
             <span class="n">refit_every</span><span class="o">=</span><span class="n">refit_every</span><span class="p">,</span>
-            <span class="n">outcome_type</span><span class="o">=</span><span class="n">outcome_type</span><span class="p">,</span>
             <span class="n">min_total_outcome_occurrences</span><span class="o">=</span><span class="n">min_total_outcome_occurrences</span><span class="p">,</span>
             <span class="n">min_post_range</span><span class="o">=</span><span class="n">min_post_range</span><span class="p">,</span>
             <span class="n">keep_most_recent</span><span class="o">=</span><span class="n">keep_most_recent</span><span class="p">,</span>

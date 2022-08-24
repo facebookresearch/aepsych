@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/image_fail_to_load.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -53,20 +53,19 @@ if it is of df/dxi.</p>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the covariance between x1 and x2.
 This method should be imlemented by all Kernel subclasses.</p>
-<p>:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">x1</span></code>: First set of data
-:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">x1</span></code>: Tensor <cite>n x d</cite> or <cite>b x n x d</cite>
-:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">x2</span></code>: Second set of data
-:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">x2</span></code>: Tensor <cite>m x d</cite> or <cite>b x m x d</cite>
-:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">diag</span></code>: Should the Kernel compute the whole kernel, or just the diag?
-:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">diag</span></code>: bool
-:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">last_dim_is_batch</span></code>: If this is true, it treats the last dimension of the data as another batch dimension.</p>
-<blockquote>
-<div><p>(Useful for additive structure over the dimensions). Default: False</p>
-</div></blockquote>
-<p>:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">last_dim_is_batch</span></code>: tuple, optional</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (Tensor <cite>n x d</cite> or <cite>b x n x d</cite>) – First set of data</p></li>
+<li><p><strong>x2</strong> (Tensor <cite>m x d</cite> or <cite>b x m x d</cite>) – Second set of data</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?</p></li>
+<li><p><strong>last_dim_is_batch</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If this is true, it treats the last dimension of the data as another batch dimension.
+(Useful for additive structure over the dimensions). Default: False</p></li>
+<li><p><strong>params</strong> (<em>Any</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
 <dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
 <ul class="simple">
 <li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
@@ -77,14 +76,6 @@ This method should be imlemented by all Kernel subclasses.</p>
 </dd>
 </dl>
 </p>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>x1</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>x2</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>diag</strong> (<em>bool</em>) – </p></li>
-<li><p><strong>params</strong> (<em>Any</em>) – </p></li>
-</ul>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><em>Tensor</em></p>
