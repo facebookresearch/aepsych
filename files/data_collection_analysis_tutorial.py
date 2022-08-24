@@ -14,7 +14,7 @@
 
 
 import math
-
+from IPython import get_ipython
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
