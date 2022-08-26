@@ -1,0 +1,122 @@
+
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for aepsych.generators.pairwise_sobol_generator</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span>
+<span class="kn">from</span> <span class="nn">torch.quasirandom</span> <span class="kn">import</span> <span class="n">SobolEngine</span>
+
+<span class="kn">from</span> <span class="nn">.sobol_generator</span> <span class="kn">import</span> <span class="n">SobolGenerator</span>
+
+
+<div class="viewcode-block" id="PairwiseSobolGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.PairwiseSobolGenerator">[docs]</a><span class="k">class</span> <span class="nc">PairwiseSobolGenerator</span><span class="p">(</span><span class="n">SobolGenerator</span><span class="p">):</span>
+    <span class="sd">"""Generator that generates pairs of points from the Sobol Sequence."""</span>
+
+    <span class="n">_requires_model</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">"""Iniatialize SobolGenerator.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.</span>
+<span class="sd">            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.</span>
+<span class="sd">            dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.</span>
+<span class="sd">            seed (int, optional): Random seed.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pair_lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pair_ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">SobolEngine</span><span class="p">(</span><span class="n">dimension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">scramble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PairwiseSobolGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.PairwiseSobolGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">AEPsychMixin</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># included for API compatibility</span>
+    <span class="p">):</span>
+        <span class="sd">"""Query next point(s) to run by quasi-randomly sampling the parameter space.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            num_points (int, optional): Number of points to query.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].</span>
+<span class="sd">        """</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">num_points</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pair_lb</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pair_ub</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pair_lb</span><span class="p">)</span> <span class="o">*</span> <span class="n">grid</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div>

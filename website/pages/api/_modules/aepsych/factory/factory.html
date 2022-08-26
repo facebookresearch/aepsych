@@ -46,7 +46,7 @@
 <span class="n">__default_invgamma_rate</span> <span class="o">=</span> <span class="mf">1.0</span>
 
 
-<div class="viewcode-block" id="default_mean_covar_factory"><a class="viewcode-back" href="../../../aepsych.factory.html#aepsych.factory.factory.default_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">default_mean_covar_factory</span><span class="p">(</span>
+<div class="viewcode-block" id="default_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.default_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">default_mean_covar_factory</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
     <span class="sd">"""Default factory for generic GP models</span>
@@ -83,7 +83,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"target"</span><span class="p">)</span>
             <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)]))</span>
+            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
         <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Config got fixed_mean=True but no target included!"</span><span class="p">)</span>
 
@@ -129,7 +129,7 @@
     <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span></div>
 
 
-<div class="viewcode-block" id="monotonic_mean_covar_factory"><a class="viewcode-back" href="../../../aepsych.factory.html#aepsych.factory.factory.monotonic_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">monotonic_mean_covar_factory</span><span class="p">(</span>
+<div class="viewcode-block" id="monotonic_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.monotonic_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">monotonic_mean_covar_factory</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ConstantMeanPartialObsGrad</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
     <span class="sd">"""Default factory for monotonic GP models based on derivative observations.</span>
@@ -155,7 +155,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">"monotonic_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"target"</span><span class="p">)</span>
             <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)]))</span>
+            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
         <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Config got fixed_mean=True but no target included!"</span><span class="p">)</span>
 
@@ -181,7 +181,7 @@
     <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span></div>
 
 
-<div class="viewcode-block" id="song_mean_covar_factory"><a class="viewcode-back" href="../../../aepsych.factory.html#aepsych.factory.factory.song_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">song_mean_covar_factory</span><span class="p">(</span>
+<div class="viewcode-block" id="song_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.song_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">song_mean_covar_factory</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">AdditiveKernel</span><span class="p">]:</span>
     <span class="sd">"""</span>
@@ -209,7 +209,7 @@
     <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
         <span class="n">target</span> <span class="o">=</span> <span class="mf">0.75</span>
     <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)]))</span>
+    <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
 
     <span class="n">ls_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span>
         <span class="n">concentration</span><span class="o">=</span><span class="n">__default_invgamma_concentration</span><span class="p">,</span>
@@ -224,36 +224,51 @@
 
     <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">"song_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">context_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
-    <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">context_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stim_dim</span><span class="p">)</span>  <span class="c1"># support relative stim dims</span>
+    <span class="c1"># if intensity RBF is true, the intensity dimension</span>
+    <span class="c1"># will have both the RBF and linear kernels</span>
+    <span class="n">intensity_RBF</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+        <span class="s2">"song_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"intensity_RBF"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">intensity_RBF</span><span class="p">:</span>
+        <span class="n">intensity_dim</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">context_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stim_dim</span><span class="p">)</span>  <span class="c1"># support relative stim dims</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">intensity_dim</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">context_dims</span><span class="p">[</span><span class="n">stim_dim</span><span class="p">]</span>
+
+    <span class="c1"># create the LinearKernel</span>
+    <span class="n">intensity_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
+        <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">LinearKernel</span><span class="p">(</span><span class="n">active_dims</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span> <span class="n">ard_num_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+    <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># this can just be LinearKernel but for consistency of interface</span>
         <span class="c1"># we make it additive with one module</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="n">mean</span><span class="p">,</span>
-            <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">AdditiveKernel</span><span class="p">(</span>
-                <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
-                    <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">LinearKernel</span><span class="p">(</span><span class="n">ard_num_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                    <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
-                <span class="p">)</span>
-            <span class="p">),</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">intensity_RBF</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="n">mean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">AdditiveKernel</span><span class="p">(</span><span class="n">intensity_covar</span><span class="p">),</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
+                <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span><span class="p">(</span>
+                    <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
+                    <span class="n">lengthscale_constraint</span><span class="o">=</span><span class="n">ls_constraint</span><span class="p">,</span>
+                    <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+                    <span class="n">active_dims</span><span class="o">=</span><span class="n">context_dims</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">context_covar</span> <span class="o">+</span> <span class="n">intensity_covar</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">context_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
             <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span><span class="p">(</span>
                 <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
                 <span class="n">lengthscale_constraint</span><span class="o">=</span><span class="n">ls_constraint</span><span class="p">,</span>
-                <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span> <span class="o">-</span> <span class="n">intensity_dim</span><span class="p">,</span>
                 <span class="n">active_dims</span><span class="o">=</span><span class="n">context_dims</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">intensity_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
-            <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">LinearKernel</span><span class="p">(</span><span class="n">active_dims</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span> <span class="n">ard_num_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">context_covar</span> <span class="o">+</span> <span class="n">intensity_covar</span></div>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">context_covar</span> <span class="o">+</span> <span class="n">intensity_covar</span></div>
 </pre></div>
 </div>
 </div>
@@ -264,15 +279,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -292,7 +313,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>
