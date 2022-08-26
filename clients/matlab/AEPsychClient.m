@@ -1,4 +1,4 @@
-% Copyright (c) Facebook, Inc. and its affiliates.
+% Copyright (c) Meta Platforms. and its affiliates.
 % All rights reserved.
 
 % This source code is licensed under the license found in the
@@ -19,6 +19,7 @@ classdef AEPsychClient < handle
         timeout;  % timeout, how long to wait before bailing on connection/response
         connection;  % tcp connection object
         strat_indices = [];  % indices of strats we created
+        is_finished = false;
 
     end
     methods
@@ -45,15 +46,16 @@ classdef AEPsychClient < handle
         end
         % public API
         function configure(self, config)
-            % Send the server a configuration string detailing the
-            % experiment to be run
+            %Send a config to set up the server
             config_long_string = sprintf('%s', config{:});
-            config_msg = sprintf('{"type":"setup","version":"0.01","message":{"config_str":"%s"}}', config_long_string);
-            response = self.send_recv(config_msg);
-            self.strat_indices(end+1) = str2num(response);
+            self.setup(config_long_string);
         end
         
-        function configure_by_file(self, filename)
+        function configure_by_file(self, filename, metadata_dict)
+            % Read a file into a string to send to the server
+            if nargin < 3
+                metadata_dict='{}';
+            end
             fid=fopen(filename);
             config_string='';
             tline = fgetl(fid);
@@ -63,23 +65,72 @@ classdef AEPsychClient < handle
             end
             fclose(fid);
             config_string = strrep(config_string, '"', '\"');
-            config_msg = sprintf('{"type":"setup","version":"0.01","message":{"config_str":"%s"}}', config_string);
+            self.setup(config_string, metadata_dict);
+        end
+        
+        function setup(self, config_string, metadata_dict)
+            % Send the server a configuration string detailing the
+            % experiment to be run
+            if nargin < 3
+                metadata_dict='{}';
+            end
+            config_msg = sprintf('{"type":"setup","version":"0.01","metadata":%s,"message":{"config_str":"%s"}}', metadata_dict, config_string);
             response = self.send_recv(config_msg);
             self.strat_indices(end+1) = str2num(response);
         end
         
-        function response=ask(self)
+        function [fmax,loc] = get_max(self)
+            % Get the model maximum point and its location 
+            msg = sprintf('{"type":"query", "message":{"query_type":"max"}}');
+            response = jsondecode(self.send_recv(msg));
+            loc = response.x;
+            fmax = response.y;    
+        end
+            
+        
+       function [prob,loc] = find_val(self, val, prob_space)
+           % Find a point in the model closest to the given val val.
+           % If prob_space is true, input a probability and this function
+           % will find a point in the model with that probability.
+           msg = struct("type","query", "message", struct("query_type","inverse", "probability_space", prob_space, "y",val));
+           response = self.send_recv(jsonencode(msg));
+           response = jsondecode(response)
+           loc = response.x;
+           prob = response.y;    
+       end
+       
+       
+       function [fval, loc] = predict(self, config, prob_space)
+           % Model predict at the location given in the {param : value} dict
+           % defined in the in config
+           msg = struct("type", "query", "message", struct("x",config, "query_type","prediction", "probability_space", prob_space));
+           response = self.send_recv(jsonencode(msg));
+           response = jsondecode(response);
+           loc = response.x;
+           fval = response.y;
+       end
+       
+       function can_model = get_can_model(self)
+            msg = '{"type":"can_model","message":""}'; 
+            full_response = jsondecode(self.send_recv(msg));
+            can_model = full_response.can_model;
+       end
+        
+       function response=ask(self)
             % Request from the server the next trial configuration to be
             % run
-            ask_msg = '{"type":"ask","message":""}';
-            response = jsondecode(self.send_recv(ask_msg));
+            ask_msg = '{"type":"ask","message":"", "version":"0.01"}';
+            full_response = jsondecode(self.send_recv(ask_msg));
             % jsondecode destroys singleton arrays which we don't like, so
             % we convert them to cell arrays which retains
-            fn = fieldnames(response);
+            self.is_finished = full_response.is_finished;
+            fn = fieldnames(full_response.config);
+            response = struct();
             for k = 1:numel(fn)
-                response.(fn{k}) = num2cell(response.(fn{k}));
+                response.(fn{k}) = num2cell(full_response.config.(fn{k}));
             end
         end
+        
         function tell(self, config, outcome)
             % Report back to the server a trial configuration that was run
             % and an outcome (0 or 1). Note that this need not be the same
@@ -87,6 +138,7 @@ classdef AEPsychClient < handle
             tell_msg = struct("type", "tell", "message", struct("config",config, "outcome", outcome));
             self.send_recv(jsonencode(tell_msg));
         end
+        
         function resume(self, strat_id)
             % Resume a past strategy used in the current session,
             % corresponding to a different model and data. Each strategy is
@@ -98,6 +150,7 @@ classdef AEPsychClient < handle
             fprintf("Requested strat %d, got strat %d\n", strat_id, response);
         end
     end
+    
     % private methods
     methods (Access='private')
         function response=send_recv(self, msg)
