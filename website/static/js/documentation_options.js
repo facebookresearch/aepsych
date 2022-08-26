@@ -1,8 +1,3 @@
-// # Copyright (c) Meta Platforms, Inc. and affiliates.
-// #
-// # This source code is licensed under the MIT license found in the
-// # LICENSE file in the root directory of this source tree.
-
 var DOCUMENTATION_OPTIONS = {
     URL_ROOT: document.getElementById("documentation_options").getAttribute('data-url_root'),
     VERSION: '',
@@ -15,5 +10,5 @@ var DOCUMENTATION_OPTIONS = {
     SOURCELINK_SUFFIX: '.txt',
     NAVIGATION_WITH_KEYS: false,
     SHOW_SEARCH_SUMMARY: true,
-    ENABLE_SEARCH_SHORTCUTS: true,
+    ENABLE_SEARCH_SHORTCUTS: false,
 };

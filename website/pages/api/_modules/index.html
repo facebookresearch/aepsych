@@ -13,7 +13,6 @@
 <ul><li><a href="aepsych/acquisition/bvn.html">aepsych.acquisition.bvn</a></li>
 <li><a href="aepsych/acquisition/lookahead.html">aepsych.acquisition.lookahead</a></li>
 <li><a href="aepsych/acquisition/lookahead_utils.html">aepsych.acquisition.lookahead_utils</a></li>
-<li><a href="aepsych/acquisition/lse.html">aepsych.acquisition.lse</a></li>
 <li><a href="aepsych/acquisition/mc_posterior_variance.html">aepsych.acquisition.mc_posterior_variance</a></li>
 <li><a href="aepsych/acquisition/monotonic_rejection.html">aepsych.acquisition.monotonic_rejection</a></li>
 <li><a href="aepsych/acquisition/mutual_information.html">aepsych.acquisition.mutual_information</a></li>
@@ -33,6 +32,8 @@
 <li><a href="aepsych/generators/monotonic_rejection_generator.html">aepsych.generators.monotonic_rejection_generator</a></li>
 <li><a href="aepsych/generators/monotonic_thompson_sampler_generator.html">aepsych.generators.monotonic_thompson_sampler_generator</a></li>
 <li><a href="aepsych/generators/optimize_acqf_generator.html">aepsych.generators.optimize_acqf_generator</a></li>
+<li><a href="aepsych/generators/pairwise_optimize_acqf_generator.html">aepsych.generators.pairwise_optimize_acqf_generator</a></li>
+<li><a href="aepsych/generators/pairwise_sobol_generator.html">aepsych.generators.pairwise_sobol_generator</a></li>
 <li><a href="aepsych/generators/random_generator.html">aepsych.generators.random_generator</a></li>
 <li><a href="aepsych/generators/sobol_generator.html">aepsych.generators.sobol_generator</a></li>
 <li><a href="aepsych/kernels/rbf_partial_grad.html">aepsych.kernels.rbf_partial_grad</a></li>
@@ -41,13 +42,17 @@
 <li><a href="aepsych/models/base.html">aepsych.models.base</a></li>
 <li><a href="aepsych/models/derivative_gp.html">aepsych.models.derivative_gp</a></li>
 <li><a href="aepsych/models/gp_classification.html">aepsych.models.gp_classification</a></li>
+<li><a href="aepsych/models/gp_regression.html">aepsych.models.gp_regression</a></li>
 <li><a href="aepsych/models/monotonic_rejection_gp.html">aepsych.models.monotonic_rejection_gp</a></li>
+<li><a href="aepsych/models/pairwise_probit.html">aepsych.models.pairwise_probit</a></li>
 <li><a href="aepsych/plotting.html">aepsych.plotting</a></li>
 <li><a href="aepsych/server/server.html">aepsych.server.server</a></li>
 <li><a href="aepsych/server/sockets.html">aepsych.server.sockets</a></li>
 <li><a href="aepsych/strategy.html">aepsych.strategy</a></li>
 <li><a href="aepsych/utils.html">aepsych.utils</a></li>
 <li><a href="aepsych/utils_logging.html">aepsych.utils_logging</a></li>
+<li><a href="gpytorch/likelihoods/bernoulli_likelihood.html">gpytorch.likelihoods.bernoulli_likelihood</a></li>
+<li><a href="gpytorch/likelihoods/gaussian_likelihood.html">gpytorch.likelihoods.gaussian_likelihood</a></li>
 </ul>
 </div>
 </div>
@@ -58,15 +63,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -84,7 +95,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>
