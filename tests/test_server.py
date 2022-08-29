@@ -14,6 +14,7 @@ from unittest.mock import MagicMock, PropertyMock, call, patch
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 import torch
+from aepsych.config import Config
 
 dummy_config = """
 [common]
@@ -591,6 +592,38 @@ class ServerTestCase(unittest.TestCase):
             self.assertTrue(
                 torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
             )
+
+    def test_get_config(self):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        get_config_request = {"type": "get_config", "message": {}}
+
+        self.s.versioned_handler(setup_request)
+        config_dict = self.s.versioned_handler(get_config_request)
+        true_config_dict = Config(config_str=dummy_config).to_dict(deduplicate=False)
+        self.assertEqual(config_dict, true_config_dict)
+
+        get_config_request["message"] = {
+            "section": "init_strat",
+            "property": "min_asks",
+        }
+        response = self.s.versioned_handler(get_config_request)
+        self.assertEqual(response, true_config_dict["init_strat"]["min_asks"])
+
+        get_config_request["message"] = {"section": "init_strat", "property": "lb"}
+        response = self.s.versioned_handler(get_config_request)
+        self.assertEqual(response, true_config_dict["init_strat"]["lb"])
+
+        get_config_request["message"] = {"property": "min_asks"}
+        with self.assertRaises(RuntimeError):
+            response = self.s.versioned_handler(get_config_request)
+
+        get_config_request["message"] = {"section": "init_strat"}
+        with self.assertRaises(RuntimeError):
+            response = self.s.versioned_handler(get_config_request)
 
 
 if __name__ == "__main__":
