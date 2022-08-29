@@ -7,6 +7,7 @@
 
 import ast
 import configparser
+import json
 import warnings
 from types import ModuleType
 from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeVar
@@ -105,6 +106,27 @@ class Config(configparser.ConfigParser):
                 ),
                 **kwargs,
             )
+
+    # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
+    def to_dict(self):
+        _dict = {}
+        for section in self:
+            _dict[section] = {}
+            for setting in self[section]:
+                if section != "common" and setting in self["common"]:
+                    continue
+                _dict[section][setting] = self[section][setting]
+        return _dict
+
+    # Turn the metadata section into JSON.
+    def jsonifyMetadata(self):
+        configdict = self.to_dict()
+        return json.dumps(configdict["metadata"])
+
+    # Turn the entire config into JSON format.
+    def jsonifyAll(self):
+        configdict = self.to_dict()
+        return json.dumps(configdict)
 
     def update(
         self,

@@ -5,6 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import json
 import os
 import unittest
 import uuid
@@ -568,6 +569,84 @@ class ConfigTestCase(unittest.TestCase):
         # cleanup the db
         if server.db is not None:
             server.db.delete_db()
+
+    def test_jsonify(self):
+        sample_configstr = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            outcome_type = pairwise_probit
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            acqf = PairwiseMCPosteriorVariance
+            model = PairwiseProbitModel
+
+            [init_strat]
+            min_asks = 10
+            generator = PairwiseSobolGenerator
+
+            [opt_strat]
+            min_asks = 20
+            generator = PairwiseOptimizeAcqfGenerator
+
+            [PairwiseProbitModel]
+            mean_covar_factory = default_mean_covar_factory
+
+            [PairwiseMCPosteriorVariance]
+            objective = ProbitObjective
+
+            [PairwiseOptimizeAcqfGenerator]
+            restarts = 10
+            samps = 1000
+
+            [PairwiseSobolGenerator]
+            n_points = 20
+            """
+        request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": sample_configstr},
+        }
+        # Generate a configuration object.
+        temporaryconfig = Config(**request["message"])
+        configedjson = temporaryconfig.jsonifyAll()
+        referencejsonstr = """{
+            "common": {
+                "lb": "[0, 0]",
+                "ub": "[1, 1]",
+                "outcome_type": "pairwise_probit",
+                "parnames": "[par1, par2]",
+                "strategy_names": "[init_strat, opt_strat]",
+                "acqf": "PairwiseMCPosteriorVariance",
+                "model": "PairwiseProbitModel"
+            },
+            "init_strat": {
+                "min_asks": "10",
+                "generator": "PairwiseSobolGenerator"
+            },
+            "opt_strat": {
+                "min_asks": "20",
+                "generator": "PairwiseOptimizeAcqfGenerator"
+            },
+            "PairwiseProbitModel": {
+                "mean_covar_factory": "default_mean_covar_factory"
+            },
+            "PairwiseMCPosteriorVariance": {
+                "objective": "ProbitObjective"
+            },
+            "PairwiseOptimizeAcqfGenerator": {
+                "restarts": "10",
+                "samps": "1000"
+            },
+            "PairwiseSobolGenerator": {
+                "n_points": "20"
+            }
+        } """
+        # Rather than comparing strings, we should convert to json and then convert back to test equal dicts
+        testconfig = json.loads(configedjson)
+        testsample = json.loads(referencejsonstr)
+        # most depth is option within section
+        self.assertEqual(testconfig, testsample)
 
     def test_stimuli_compatibility(self):
         config_str1 = """
