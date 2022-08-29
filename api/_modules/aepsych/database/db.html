@@ -167,7 +167,15 @@
             <span class="k">return</span> <span class="n">master_record</span><span class="o">.</span><span class="n">children_config</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">config</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.record_setup"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_setup">[docs]</a>    <span class="k">def</span> <span class="nf">record_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="Database.record_setup"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_setup">[docs]</a>    <span class="k">def</span> <span class="nf">record_setup</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">extra_metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">request</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">participant_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_engine</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -175,6 +183,14 @@
             <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_description</span> <span class="o">=</span> <span class="n">description</span>
             <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">=</span> <span class="n">name</span>
             <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">participant_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">master_table</span><span class="o">.</span><span class="n">participant_id</span> <span class="o">=</span> <span class="n">participant_id</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">master_table</span><span class="o">.</span><span class="n">participant_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+                <span class="p">)</span>  <span class="c1"># no p_id specified will result in a generated UUID</span>
+
+            <span class="n">master_table</span><span class="o">.</span><span class="n">extra_metadata</span> <span class="o">=</span> <span class="n">extra_metadata</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">master_table</span><span class="p">)</span>
 

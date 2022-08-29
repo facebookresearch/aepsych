@@ -42,6 +42,8 @@
 <span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">DEFAULT_DESC</span> <span class="o">=</span> <span class="s2">"default description"</span>
+<span class="n">DEFAULT_NAME</span> <span class="o">=</span> <span class="s2">"default name"</span>
 
 
 <div class="viewcode-block" id="get_next_filename"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.get_next_filename">[docs]</a><span class="k">def</span> <span class="nf">get_next_filename</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
@@ -347,24 +349,49 @@
 
 <div class="viewcode-block" id="AEPsychServer.handle_setup_v01"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_setup_v01">[docs]</a>    <span class="k">def</span> <span class="nf">handle_setup_v01</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got setup message!"</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span><span class="p">:</span>
-            <span class="n">experiment_id</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">experiment_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span><span class="o">.</span><span class="n">experiment_id</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
-                <span class="n">description</span><span class="o">=</span><span class="s2">"default description"</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">"default name"</span><span class="p">,</span>
-                <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
-                <span class="nb">id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
-            <span class="p">)</span>
-
+        <span class="c1">### make a temporary config object to derive parameters because server handles config after table</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="s2">"config_str"</span> <span class="ow">in</span> <span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="ow">or</span> <span class="s2">"config_dict"</span> <span class="ow">in</span> <span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">):</span>
-            <span class="n">strat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">])</span>
+            <span class="n">tempconfig</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="o">**</span><span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span><span class="p">:</span>
+                <span class="n">experiment_id</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">experiment_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span><span class="o">.</span><span class="n">experiment_id</span>
+                <span class="k">if</span> <span class="s2">"metadata"</span> <span class="ow">in</span> <span class="n">tempconfig</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">cdesc</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">tempconfig</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"experiment_description"</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="s2">"experiment_description"</span> <span class="ow">in</span> <span class="n">tempconfig</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                        <span class="k">else</span> <span class="n">DEFAULT_DESC</span>
+                    <span class="p">)</span>
+                    <span class="n">cname</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">tempconfig</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"experiment_name"</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="s2">"experiment_name"</span> <span class="ow">in</span> <span class="n">tempconfig</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                        <span class="k">else</span> <span class="n">DEFAULT_NAME</span>
+                    <span class="p">)</span>
+                    <span class="n">cid</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">tempconfig</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">][</span><span class="s2">"experiment_id"</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="s2">"experiment_id"</span> <span class="ow">in</span> <span class="n">tempconfig</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+                        <span class="n">description</span><span class="o">=</span><span class="n">cdesc</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">cname</span><span class="p">,</span>
+                        <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">cid</span><span class="p">,</span>
+                        <span class="n">extra_metadata</span><span class="o">=</span><span class="n">tempconfig</span><span class="o">.</span><span class="n">jsonifyMetadata</span><span class="p">(),</span>
+                    <span class="p">)</span>
+                <span class="c1">### if the metadata does not exist, we are going to log nothing</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
+                        <span class="n">description</span><span class="o">=</span><span class="n">DEFAULT_DESC</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">DEFAULT_NAME</span><span class="p">,</span>
+                        <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="n">strat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">tempconfig</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Missing a configure message!"</span><span class="p">)</span>
 
@@ -429,8 +456,8 @@
                 <span class="n">experiment_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span><span class="o">.</span><span class="n">experiment_id</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_setup</span><span class="p">(</span>
-                <span class="n">description</span><span class="o">=</span><span class="s2">"default description"</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">"default name"</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">DEFAULT_DESC</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">DEFAULT_NAME</span><span class="p">,</span>
                 <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">,</span>
                 <span class="nb">id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
             <span class="p">)</span>
@@ -439,6 +466,7 @@
             <span class="s2">"config_str"</span> <span class="ow">in</span> <span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="ow">or</span> <span class="s2">"config_dict"</span> <span class="ow">in</span> <span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">):</span>
+
             <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="o">**</span><span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Missing a configure message!"</span><span class="p">)</span>
@@ -663,20 +691,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_strats</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 0-index strats</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span>
 
-<div class="viewcode-block" id="AEPsychServer.configure"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">config_args</span><span class="p">):</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="o">**</span><span class="n">config_args</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+<div class="viewcode-block" id="AEPsychServer.configure"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">config_args</span><span class="p">):</span>
+        <span class="c1"># To preserve backwards compatibility, config_args is still usable for unittests and old functions.</span>
+        <span class="c1"># But if config is specified, the server will use that rather than create a new config object.</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">usedconfig</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="o">**</span><span class="n">config_args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">usedconfig</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="n">usedconfig</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s1">'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]:</span>
-                <span class="n">config</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">del</span> <span class="n">config</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]</span>
 
-        <span class="n">version</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">version</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">usedconfig</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]:</span>
+                <span class="n">usedconfig</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">usedconfig</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">usedconfig</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]</span>
+
+        <span class="n">version</span> <span class="o">=</span> <span class="n">usedconfig</span><span class="o">.</span><span class="n">version</span>
         <span class="k">if</span> <span class="n">version</span> <span class="o">&lt;</span> <span class="n">__version__</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">config</span><span class="o">.</span><span class="n">convert_to_latest</span><span class="p">()</span>
+                <span class="n">usedconfig</span><span class="o">.</span><span class="n">convert_to_latest</span><span class="p">()</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">perform_updates</span><span class="p">()</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"Config version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> is less than AEPsych version </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">. The config was automatically modified to be compatible. Check the config table in the db to see the changes."</span>
@@ -686,8 +721,8 @@
                     <span class="sa">f</span><span class="s2">"Config version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> is less than AEPsych version </span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s2">, but couldn't automatically update the config! Trying to configure the server anyway..."</span>
                 <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_config</span><span class="p">(</span><span class="n">master_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configure</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_config</span><span class="p">(</span><span class="n">master_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">usedconfig</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configure</span><span class="p">(</span><span class="n">usedconfig</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1">### nuke the socket since it's not pickleble</span>
