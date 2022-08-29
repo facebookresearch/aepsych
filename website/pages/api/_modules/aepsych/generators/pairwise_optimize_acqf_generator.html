@@ -17,30 +17,24 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.generators</span> <span class="kn">import</span> <span class="n">OptimizeAcqfGenerator</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
-<span class="kn">from</span> <span class="nn">botorch.acquisition.preference</span> <span class="kn">import</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span>
 
 
 <div class="viewcode-block" id="PairwiseOptimizeAcqfGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.PairwiseOptimizeAcqfGenerator">[docs]</a><span class="k">class</span> <span class="nc">PairwiseOptimizeAcqfGenerator</span><span class="p">(</span><span class="n">OptimizeAcqfGenerator</span><span class="p">):</span>
+    <span class="sd">"""Deprecated. Use OptimizeAcqfGenerator instead."""</span>
+
     <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">2</span>
 
-    <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">train_x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="o">==</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">pref_model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_instantiate_acquisition_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_x</span><span class="p">)</span>
-
-<div class="viewcode-block" id="PairwiseOptimizeAcqfGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.PairwiseOptimizeAcqfGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-
-        <span class="n">qbatch_points</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span>
-            <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span>
+<div class="viewcode-block" id="PairwiseOptimizeAcqfGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.PairwiseOptimizeAcqfGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"PairwiseOptimizeAcqfGenerator is deprecated. Use OptimizeAcqfGenerator instead."</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
         <span class="p">)</span>
-
-        <span class="c1"># output of super() is (q, dim) but the contract is (num_points, dim, 2)</span>
-        <span class="c1"># so we need to split q into q and pairs and then move the pair dim to the end</span>
-        <span class="k">return</span> <span class="n">qbatch_points</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>

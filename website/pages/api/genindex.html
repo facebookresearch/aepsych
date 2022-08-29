@@ -20,6 +20,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -609,6 +610,8 @@
 </li>
 <li><a href="database.html#aepsych.database.tables.DbReplayTable.extra_info">extra_info (aepsych.database.tables.DbReplayTable attribute)</a>
 </li>
+<li><a href="database.html#aepsych.database.tables.DBMasterTable.extra_metadata">extra_metadata (aepsych.database.tables.DBMasterTable attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.extremum_solver">extremum_solver (aepsych.models.base.AEPsychMixin attribute)</a>
 <ul>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.extremum_solver">(aepsych.models.base.ModelProtocol property)</a>
@@ -756,6 +759,10 @@
 </li>
 <li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.from_config">(aepsych.generators.OptimizeAcqfGenerator class method)</a>
 </li>
+<li><a href="generators.html#aepsych.generators.PairwiseOptimizeAcqfGenerator.from_config">(aepsych.generators.PairwiseOptimizeAcqfGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.PairwiseSobolGenerator.from_config">(aepsych.generators.PairwiseSobolGenerator class method)</a>
+</li>
 <li><a href="generators.html#aepsych.generators.random_generator.RandomGenerator.from_config">(aepsych.generators.random_generator.RandomGenerator class method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.RandomGenerator.from_config">(aepsych.generators.RandomGenerator class method)</a>
@@ -791,6 +798,8 @@
 </ul></li>
 <li><a href="database.html#aepsych.database.tables.DbConfigTable.from_sqlite">from_sqlite() (aepsych.database.tables.DbConfigTable class method)</a>
 <ul>
+<li><a href="database.html#aepsych.database.tables.DBMasterTable.from_sqlite">(aepsych.database.tables.DBMasterTable class method)</a>
+</li>
 <li><a href="database.html#aepsych.database.tables.DbReplayTable.from_sqlite">(aepsych.database.tables.DbReplayTable class method)</a>
 </li>
 <li><a href="database.html#aepsych.database.tables.DbStratTable.from_sqlite">(aepsych.database.tables.DbStratTable class method)</a>
@@ -825,10 +834,6 @@
 </li>
 <li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.gen">(aepsych.generators.OptimizeAcqfGenerator method)</a>
 </li>
-<li><a href="generators.html#aepsych.generators.PairwiseOptimizeAcqfGenerator.gen">(aepsych.generators.PairwiseOptimizeAcqfGenerator method)</a>
-</li>
-<li><a href="generators.html#aepsych.generators.PairwiseSobolGenerator.gen">(aepsych.generators.PairwiseSobolGenerator method)</a>
-</li>
 <li><a href="generators.html#aepsych.generators.random_generator.RandomGenerator.gen">(aepsych.generators.random_generator.RandomGenerator method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.RandomGenerator.gen">(aepsych.generators.RandomGenerator method)</a>
@@ -860,8 +865,6 @@
 </ul></li>
 <li><a href="database.html#aepsych.database.db.Database.get_engine">get_engine() (aepsych.database.db.Database method)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.get_jnd">get_jnd() (aepsych.models.base.AEPsychMixin method)</a>
 <ul>
 <li><a href="aepsych.html#aepsych.Strategy.get_jnd">(aepsych.Strategy method)</a>
@@ -869,6 +872,8 @@
 <li><a href="aepsych.html#aepsych.strategy.Strategy.get_jnd">(aepsych.strategy.Strategy method)</a>, <a href="strategy.html#aepsych.strategy.Strategy.get_jnd">[1]</a>
 </li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="aepsych.html#aepsych.utils.get_jnd_1d">get_jnd_1d() (in module aepsych.utils)</a>, <a href="utils.html#aepsych.utils.get_jnd_1d">[1]</a>
 </li>
 <li><a href="aepsych.html#aepsych.utils.get_jnd_multid">get_jnd_multid() (in module aepsych.utils)</a>, <a href="utils.html#aepsych.utils.get_jnd_multid">[1]</a>
@@ -1032,6 +1037,17 @@
 </li>
 </ul></li>
 <li><a href="database.html#aepsych.database.db.Database.is_update_required">is_update_required() (aepsych.database.db.Database method)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="J">J</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="aepsych.html#aepsych.config.Config.jsonifyAll">jsonifyAll() (aepsych.config.Config method)</a>, <a href="config.html#aepsych.config.Config.jsonifyAll">[1]</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="aepsych.html#aepsych.config.Config.jsonifyMetadata">jsonifyMetadata() (aepsych.config.Config method)</a>, <a href="config.html#aepsych.config.Config.jsonifyMetadata">[1]</a>
 </li>
 </ul></td>
 </tr></table>
@@ -1429,6 +1445,8 @@
 </ul></li>
 <li><a href="server.html#aepsych.server.server.parse_argument">parse_argument() (in module aepsych.server.server)</a>
 </li>
+<li><a href="database.html#aepsych.database.tables.DBMasterTable.participant_id">participant_id (aepsych.database.tables.DBMasterTable attribute)</a>
+</li>
 <li><a href="benchmark.html#aepsych.benchmark.PathosBenchmark">PathosBenchmark (class in aepsych.benchmark)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">(class in aepsych.benchmark.pathos_benchmark)</a>
@@ -1709,6 +1727,8 @@
 <li><a href="database.html#aepsych.database.tables.DbStratTable.timestamp">(aepsych.database.tables.DbStratTable attribute)</a>
 </li>
 </ul></li>
+<li><a href="aepsych.html#aepsych.config.Config.to_dict">to_dict() (aepsych.config.Config method)</a>, <a href="config.html#aepsych.config.Config.to_dict">[1]</a>
+</li>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.train_inputs">train_inputs (aepsych.models.base.ModelProtocol property)</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.BernoulliMCMutualInformation.training">training (aepsych.acquisition.BernoulliMCMutualInformation attribute)</a>

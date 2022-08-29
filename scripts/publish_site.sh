@@ -34,11 +34,10 @@ echo "=========================================="
 echo "======== Cleanup for github ==============="
   cd .. || exit
   find . -type d -name __pycache__ -exec rm -r {} \+
-  pwd
   cd website/ || exit
   rm -rf node_modules/
   rm -rf yarn.lock
   cd ../
   cd sphinx/ || exit
   rm -rf build/ || exit
-echo "=========================================="
+echo "================Completed======================"
