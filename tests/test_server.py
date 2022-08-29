@@ -9,7 +9,9 @@ import json
 import logging
 import unittest
 import uuid
-from unittest.mock import call, MagicMock, patch
+import select
+from unittest.mock import MagicMock, PropertyMock, call, patch
+
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
@@ -136,6 +138,7 @@ class ServerTestCase(unittest.TestCase):
         self.dummy_create_setup(self.s)
 
         result = self.s.handle_ask(request)
+        print(result)
         self.assertEqual("ask success", result)
 
     def test_handle_tell(self):
@@ -552,7 +555,7 @@ class ServerTestCase(unittest.TestCase):
             select.select = MagicMock(return_value=[[self.s.socket.conn], [], []])
             self.s.socket.conn.recv = MagicMock(return_value=message)
             if i != 2:
-                self.assertEqual(self.s.socket.receive(False), "bad request")
+                self.assertEqual(self.s.socket.receive(False), BAD_REQUEST)
             else:
                 self.assertEqual(self.s.socket.receive(False), message3)
 
@@ -582,7 +585,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_error_handling(self):
 
-        request = {"bad request"}
+        request = {BAD_REQUEST}
 
         self.s.socket.accept_client = MagicMock()
 
@@ -591,7 +594,43 @@ class ServerTestCase(unittest.TestCase):
         self.s.exit_server_loop = True
         with self.assertRaises(SystemExit):
             self.s.serve()
-        self.s.socket.send.assert_called_once_with("bad request")
+        self.s.socket.send.assert_called_once_with(BAD_REQUEST)
+
+<<<<<<<<< Temporary merge branch 1
+    def test_queue(self):
+        """Test to see that the queue is being handled correctly"""
+
+        self.s.socket.accept_client = MagicMock()
+        ask_request = {"type": "ask", "message": ""}
+        self.s.socket.receive = MagicMock(return_value=ask_request)
+        self.s.socket.send = MagicMock()
+        self.s.exit_server_loop = True
+        with self.assertRaises(SystemExit):
+            self.s.serve()
+        assert len(self.s.queue) == 0
+=========
+    def test_config_to_tensor(self):
+        with patch(
+            "aepsych.server.AEPsychServer.parnames", new_callable=PropertyMock
+        ) as mock_parnames:
+            mock_parnames.return_value = ["par1", "par2", "par3"]
+
+            # test single
+            config = {"par1": 0.0, "par2": 1.0, "par3": 2.0}
+            tensor = self.s._config_to_tensor(config)
+            self.assertTrue(torch.equal(tensor, torch.tensor([0.0, 1.0, 2.0])))
+
+            config = {"par1": [0.0], "par2": [1.0], "par3": [2.0]}
+            tensor = self.s._config_to_tensor(config)
+            self.assertTrue(torch.equal(tensor, torch.tensor([0.0, 1.0, 2.0])))
+
+            # test pairwise
+            config = {"par1": [0.0, 2.0], "par2": [1.0, 1.0], "par3": [2.0, 0.0]}
+            tensor = self.s._config_to_tensor(config)
+            self.assertTrue(
+                torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
+            )
+>>>>>>>>> Temporary merge branch 2
 
 
 if __name__ == "__main__":
