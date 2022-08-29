@@ -11,11 +11,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.generators import (
-    MonotonicRejectionGenerator,
-    PairwiseSobolGenerator,
-    SobolGenerator,
-)
+from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -196,7 +192,7 @@ class TestSequenceGenerators(unittest.TestCase):
         mod = Strategy(
             lb=lb,
             ub=ub,
-            generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=12345),
+            generator=SobolGenerator(lb=lb, ub=ub, seed=12345, stimuli_per_trial=2),
             min_asks=min_asks,
             stimuli_per_trial=2,
             outcome_types=["binary"],
@@ -214,7 +210,7 @@ class TestSequenceGenerators(unittest.TestCase):
                 lb=[-1],
                 ub=[1],
                 min_asks=3,
-                generator=PairwiseSobolGenerator(lb=[-1], ub=[1]),
+                generator=SobolGenerator(lb=[-1], ub=[1], stimuli_per_trial=2),
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
                 min_total_outcome_occurrences=0,
@@ -223,7 +219,7 @@ class TestSequenceGenerators(unittest.TestCase):
                 lb=[-10],
                 ub=[-8],
                 min_asks=5,
-                generator=PairwiseSobolGenerator(lb=[-10], ub=[-8]),
+                generator=SobolGenerator(lb=[-10], ub=[-8], stimuli_per_trial=2),
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
                 min_total_outcome_occurrences=0,
