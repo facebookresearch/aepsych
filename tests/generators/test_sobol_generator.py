@@ -52,6 +52,7 @@ class TestSobolGenerator(unittest.TestCase):
                 lb = [0]
                 ub = [1]
                 parnames = [par1]
+                stimuli_per_trial = 1
 
                 [SobolGenerator]
                 seed=12345
@@ -62,3 +63,15 @@ class TestSobolGenerator(unittest.TestCase):
         npt.assert_equal(gen.lb.numpy(), np.array([0]))
         npt.assert_equal(gen.ub.numpy(), np.array([1]))
         self.assertEqual(gen.seed, 12345)
+        self.assertEqual(gen.stimuli_per_trial, 1)
+
+    def test_pairwise_sobol_sizes(self):
+        for dim in np.arange(1, 4):
+            for nsamp in (3, 5, 7):
+                generator = SobolGenerator(
+                    lb=np.arange(dim).tolist(),
+                    ub=(1 + np.arange(dim)).tolist(),
+                    stimuli_per_trial=2,
+                )
+                shape_out = (nsamp, dim, 2)
+                self.assertEqual(generator.gen(nsamp).shape, shape_out)

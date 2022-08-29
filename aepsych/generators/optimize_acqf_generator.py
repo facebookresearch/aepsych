@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
-
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import time
@@ -14,9 +13,9 @@ from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import AcquisitionFunction
+from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from botorch.optim import optimize_acqf
 from botorch.utils import draw_sobol_samples
-
 
 logger = getLogger()
 
@@ -31,6 +30,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         restarts: int = 10,
         samps: int = 1000,
         max_gen_time: Optional[float] = None,
+        stimuli_per_trial: int = 1,
     ) -> None:
         """Initialize OptimizeAcqfGenerator.
         Args:
@@ -51,8 +51,12 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.restarts = restarts
         self.samps = samps
         self.max_gen_time = max_gen_time
+        self.stimuli_per_trial = stimuli_per_trial
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol, train_x):
+        if self.acqf == AnalyticExpectedUtilityOfBestOption:
+            return self.acqf(pref_model=model)
+
         if self.acqf in self.baseline_requiring_acqfs:
             return self.acqf(model=model, X_baseline=train_x, **self.acqf_kwargs)
         else:
@@ -67,6 +71,19 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
 
+        if self.stimuli_per_trial == 2:
+            qbatch_points = self._gen(
+                num_points=num_points * 2, model=model, **gen_options
+            )
+
+            # output of super() is (q, dim) but the contract is (num_points, dim, 2)
+            # so we need to split q into q and pairs and then move the pair dim to the end
+            return qbatch_points.reshape(num_points, 2, -1).swapaxes(-1, -2)
+
+        else:
+            return self._gen(num_points=num_points, model=model, **gen_options)
+
+    def _gen(self, num_points: int, model: ModelProtocol, **gen_options) -> np.ndarray:
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         train_x = model.train_inputs[0]
@@ -134,10 +151,9 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         classname = cls.__name__
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
-
+        stimuli_per_trial = config.getint(classname, "stimuli_per_trial")
         restarts = config.getint(classname, "restarts", fallback=10)
         samps = config.getint(classname, "samps", fallback=1000)
-
         max_gen_time = config.getfloat(classname, "max_gen_time", fallback=None)
 
         return cls(
@@ -146,4 +162,5 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             restarts=restarts,
             samps=samps,
             max_gen_time=max_gen_time,
+            stimuli_per_trial=stimuli_per_trial,
         )

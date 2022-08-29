@@ -17,8 +17,6 @@ from aepsych.config import Config
 from aepsych.generators import (
     MonotonicRejectionGenerator,
     OptimizeAcqfGenerator,
-    PairwiseOptimizeAcqfGenerator,
-    PairwiseSobolGenerator,
     SobolGenerator,
 )
 from aepsych.models import (
@@ -389,11 +387,11 @@ class ConfigTestCase(unittest.TestCase):
 
             [init_strat]
             min_asks = 10
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             min_asks = 20
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -401,11 +399,11 @@ class ConfigTestCase(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
 
-            [PairwiseSobolGenerator]
+            [SobolGenerator]
             n_points = 20
             """
         config = Config()
@@ -413,9 +411,7 @@ class ConfigTestCase(unittest.TestCase):
 
         strat = SequentialStrategy.from_config(config)
 
-        self.assertTrue(
-            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
-        )
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
         self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
         self.assertTrue(
             strat.strat_list[1].generator.acqf is PairwiseMCPosteriorVariance
@@ -450,9 +446,7 @@ class ConfigTestCase(unittest.TestCase):
         config.update(config_fnames=[config_file])
         strat = SequentialStrategy.from_config(config)
 
-        self.assertTrue(
-            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
-        )
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
         self.assertTrue(strat.strat_list[0].model is None)
 
         self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
@@ -492,13 +486,11 @@ class ConfigTestCase(unittest.TestCase):
         server.configure(config_fnames=[config_file])
         strat = server.strat
 
-        self.assertTrue(
-            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
-        )
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
         self.assertTrue(strat.strat_list[0].model is None)
 
         self.assertTrue(
-            isinstance(strat.strat_list[1].generator, PairwiseOptimizeAcqfGenerator)
+            isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
         self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
         self.assertTrue(
@@ -538,9 +530,7 @@ class ConfigTestCase(unittest.TestCase):
         server.configure(config_fnames=[config_file])
         strat = server.strat
 
-        self.assertTrue(
-            isinstance(strat.strat_list[0].generator, PairwiseSobolGenerator)
-        )
+        self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
         self.assertTrue(strat.strat_list[0].model is None)
 
         self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
@@ -596,7 +586,7 @@ class ConfigTestCase(unittest.TestCase):
             strategy_names = [init_strat]
 
             [init_strat]
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
             model = GPClassificationModel
             """
         config2 = Config()
