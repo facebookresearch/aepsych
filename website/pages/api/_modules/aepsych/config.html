@@ -28,10 +28,12 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 
+<span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
+
 <span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_T"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../aepsych.html#aepsych.config.Config">[docs]</a><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">):</span>
+<div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../config.html#aepsych.config.Config">[docs]</a><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">):</span>
 
     <span class="c1"># names in these packages can be referred to by string name</span>
     <span class="n">registered_names</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -116,7 +118,7 @@
                 <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="Config.update"><a class="viewcode-back" href="../../aepsych.html#aepsych.config.Config.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+<div class="viewcode-block" id="Config.update"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">config_dict</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config_fnames</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -178,7 +180,7 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"Config at </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 
-<div class="viewcode-block" id="Config.register_module"><a class="viewcode-back" href="../../aepsych.html#aepsych.config.Config.register_module">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Config.register_module"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.register_module">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">register_module</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">ModuleType</span><span class="p">):</span>
         <span class="sd">"""Register a module with Config so that objects in it can</span>
 <span class="sd">           be referred to by their string name in config files.</span>
@@ -194,7 +196,7 @@
             <span class="p">}</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Config.register_object"><a class="viewcode-back" href="../../aepsych.html#aepsych.config.Config.register_object">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Config.register_object"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.register_object">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">register_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">):</span>
         <span class="sd">"""Register an object with Config so that it can be</span>
 <span class="sd">            referred to by its string name in config files.</span>
@@ -220,7 +222,10 @@
                 <span class="n">_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">setting</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
         <span class="k">return</span> <span class="n">_str</span>
 
-<div class="viewcode-block" id="Config.convert"><a class="viewcode-back" href="../../aepsych.html#aepsych.config.Config.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Config.convert_to_latest"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.convert_to_latest">[docs]</a>    <span class="k">def</span> <span class="nf">convert_to_latest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Config.convert"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Converts a config from an older version to a newer version.</span>
 
 <span class="sd">        Args:</span>
@@ -228,78 +233,89 @@
 <span class="sd">            to_version (str): The version the config should be converted to.</span>
 <span class="sd">        """</span>
 
-        <span class="c1"># For now, we can only convert modelbridge era configs (version 0.0) to the latest version (0.1)</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="n">from_version</span> <span class="o">==</span> <span class="s2">"0.0"</span> <span class="ow">and</span> <span class="n">to_version</span> <span class="o">==</span> <span class="s2">"0.1"</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Received from_version '</span><span class="si">{</span><span class="n">from_version</span><span class="si">}</span><span class="s2">' and to_version '</span><span class="si">{</span><span class="n">to_version</span><span class="si">}</span><span class="s2">', but only converting '0.0' to '0.1' is supported!"</span>
+        <span class="k">if</span> <span class="n">from_version</span> <span class="o">==</span> <span class="s2">"0.0"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"strategy_names"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[init_strat, opt_strat]"</span>
 
-        <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"strategy_names"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[init_strat, opt_strat]"</span>
+            <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">bridge</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"modelbridge_cls"</span><span class="p">]</span>
+            <span class="n">n_sobol</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"SobolStrategy"</span><span class="p">][</span><span class="s2">"n_trials"</span><span class="p">]</span>
+            <span class="n">n_opt</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">][</span><span class="s2">"n_trials"</span><span class="p">]</span>
 
-        <span class="n">bridge</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"modelbridge_cls"</span><span class="p">]</span>
-        <span class="n">n_sobol</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"SobolStrategy"</span><span class="p">][</span><span class="s2">"n_trials"</span><span class="p">]</span>
-        <span class="n">n_opt</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">][</span><span class="s2">"n_trials"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"PairwiseProbitModelbridge"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"PairwiseSobolGenerator"</span><span class="p">,</span>
+                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"PairwiseOptimizeAcqfGenerator"</span><span class="p">,</span>
+                    <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"PairwiseProbitModel"</span><span class="p">,</span>
+                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="s2">"PairwiseProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseOptimizeAcqfGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span>
+                        <span class="s2">"PairwiseProbitModelbridge"</span>
+                    <span class="p">]</span>
+                <span class="k">if</span> <span class="s2">"PairwiseGP"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseProbitModel"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseGP"</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"PairwiseProbitModelbridge"</span><span class="p">:</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"PairwiseSobolGenerator"</span><span class="p">,</span>
-                <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"PairwiseOptimizeAcqfGenerator"</span><span class="p">,</span>
-                <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"PairwiseProbitModel"</span><span class="p">,</span>
-                <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="s2">"PairwiseProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseOptimizeAcqfGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span>
-                    <span class="s2">"PairwiseProbitModelbridge"</span>
-                <span class="p">]</span>
-            <span class="k">if</span> <span class="s2">"PairwiseGP"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseProbitModel"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseGP"</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"MonotonicSingleProbitModelbridge"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"SobolGenerator"</span><span class="p">,</span>
+                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"MonotonicRejectionGenerator"</span><span class="p">,</span>
+                    <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"MonotonicRejectionGP"</span><span class="p">,</span>
+                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="s2">"MonotonicSingleProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="s2">"MonotonicRejectionGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span>
+                        <span class="s2">"MonotonicSingleProbitModelbridge"</span>
+                    <span class="p">]</span>
 
-        <span class="k">elif</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"MonotonicSingleProbitModelbridge"</span><span class="p">:</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"SobolGenerator"</span><span class="p">,</span>
-                <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"MonotonicRejectionGenerator"</span><span class="p">,</span>
-                <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"MonotonicRejectionGP"</span><span class="p">,</span>
-                <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="s2">"MonotonicSingleProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"MonotonicRejectionGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span>
-                    <span class="s2">"MonotonicSingleProbitModelbridge"</span>
-                <span class="p">]</span>
+            <span class="k">elif</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"SingleProbitModelbridge"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"SobolGenerator"</span><span class="p">,</span>
+                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"OptimizeAcqfGenerator"</span><span class="p">,</span>
+                    <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"GPClassificationModel"</span><span class="p">,</span>
+                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="s2">"SingleProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="s2">"OptimizeAcqfGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"SingleProbitModelbridge"</span><span class="p">]</span>
 
-        <span class="k">elif</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"SingleProbitModelbridge"</span><span class="p">:</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"SobolGenerator"</span><span class="p">,</span>
-                <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"OptimizeAcqfGenerator"</span><span class="p">,</span>
-                <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"GPClassificationModel"</span><span class="p">,</span>
-                <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="s2">"SingleProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"OptimizeAcqfGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"SingleProbitModelbridge"</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Refactor for </span><span class="si">{</span><span class="n">bridge</span><span class="si">}</span><span class="s2"> has not been implemented!"</span>
+                <span class="p">)</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"Refactor for </span><span class="si">{</span><span class="n">bridge</span><span class="si">}</span><span class="s2"> has not been implemented!"</span>
-            <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"ModelWrapperStrategy"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">"refit_every"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">][</span><span class="s2">"refit_every"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">][</span>
+                        <span class="s2">"refit_every"</span>
+                    <span class="p">]</span>
 
-        <span class="k">if</span> <span class="s2">"ModelWrapperStrategy"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">"refit_every"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">][</span><span class="s2">"refit_every"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">][</span>
-                    <span class="s2">"refit_every"</span>
-                <span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"model"</span><span class="p">]</span>
 
-        <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"model"</span><span class="p">]</span></div>
+        <span class="k">if</span> <span class="n">to_version</span> <span class="o">==</span> <span class="n">__version__</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"single_probit"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"stimuli_per_trial"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_types"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[binary]"</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"single_continuous"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"stimuli_per_trial"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_types"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[continuous]"</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"pairwise_probit"</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"stimuli_per_trial"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"2"</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_types"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[binary]"</span>
+
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -307,6 +323,9 @@
         <span class="c1"># TODO: implement an explicit versioning system</span>
 
         <span class="c1"># Try to infer the version</span>
+        <span class="k">if</span> <span class="s2">"stimuli_per_trial"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">"outcome_types"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">__version__</span>
+
         <span class="k">if</span> <span class="s2">"common"</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="s2">"strategy_names"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
             <span class="k">return</span> <span class="s2">"0.1"</span>
 
@@ -333,15 +352,21 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../aepsych.server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">aepsych.utils</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -361,7 +386,7 @@
 </form>
 </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 </div>
 </div>
 <div class="clearer"></div>

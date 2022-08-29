@@ -182,6 +182,25 @@ class TestFactories(unittest.TestCase):
             isinstance(covarfun.kernels[0].base_kernel, gpytorch.kernels.LinearKernel)
         )
 
+    def test_song_factory_1d_intensity_RBF(self):
+        conf = {
+            "song_mean_covar_factory": {"lb": [0], "ub": [1], "intensity_RBF": True}
+        }
+        config = Config(config_dict=conf)
+        meanfun, covarfun = song_mean_covar_factory(config)
+        self.assertTrue(covarfun.kernels[0].base_kernel.ard_num_dims == 1)
+        self.assertTrue(covarfun.kernels[1].base_kernel.ard_num_dims == 1)
+        self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
+        self.assertTrue(isinstance(covarfun, gpytorch.kernels.AdditiveKernel))
+        self.assertTrue(isinstance(covarfun.kernels[0], gpytorch.kernels.ScaleKernel))
+        self.assertTrue(isinstance(covarfun.kernels[1], gpytorch.kernels.ScaleKernel))
+        self.assertTrue(
+            isinstance(covarfun.kernels[0].base_kernel, gpytorch.kernels.RBFKernel)
+        )
+        self.assertTrue(
+            isinstance(covarfun.kernels[1].base_kernel, gpytorch.kernels.LinearKernel)
+        )
+
     def test_song_factory_2d(self):
         conf = {
             "song_mean_covar_factory": {"lb": [0, 1], "ub": [1, 70], "target": 0.75}
@@ -216,3 +235,39 @@ class TestFactories(unittest.TestCase):
         meanfun, covarfun = song_mean_covar_factory(config)
         self.assertTrue(covarfun.kernels[1].base_kernel.active_dims == 0)
         self.assertTrue(covarfun.kernels[0].base_kernel.active_dims == 1)
+
+    def test_song_factory_2d_intensity_RBF(self):
+        conf = {
+            "song_mean_covar_factory": {"lb": [0, 1], "ub": [1, 70], "target": 0.75, "intensity_RBF": True}
+        }
+        config = Config(config_dict=conf)
+        meanfun, covarfun = song_mean_covar_factory(config)
+        self.assertTrue(covarfun.kernels[0].base_kernel.ard_num_dims == 2)
+        self.assertTrue(covarfun.kernels[1].base_kernel.ard_num_dims == 1)
+        self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
+        self.assertTrue(isinstance(covarfun, gpytorch.kernels.AdditiveKernel))
+        self.assertTrue(isinstance(covarfun.kernels[0], gpytorch.kernels.ScaleKernel))
+        self.assertTrue(isinstance(covarfun.kernels[1], gpytorch.kernels.ScaleKernel))
+        self.assertTrue(
+            isinstance(covarfun.kernels[0].base_kernel, gpytorch.kernels.RBFKernel)
+        )
+        self.assertTrue(np.allclose(covarfun.kernels[0].base_kernel.active_dims, [0,1]))
+        self.assertTrue(
+            isinstance(covarfun.kernels[1].base_kernel, gpytorch.kernels.LinearKernel)
+        )
+        self.assertTrue(covarfun.kernels[1].base_kernel.active_dims == 1)
+
+        # flip the stim dim
+        conf = {
+            "song_mean_covar_factory": {
+                "lb": [0, 1],
+                "ub": [1, 70],
+                "target": 0.75,
+                "stim_dim": 0,
+                "intensity_RBF": True,
+            }
+        }
+        config = Config(config_dict=conf)
+        meanfun, covarfun = song_mean_covar_factory(config)
+        self.assertTrue(covarfun.kernels[1].base_kernel.active_dims == 0)
+        self.assertTrue(np.allclose(covarfun.kernels[0].base_kernel.active_dims, [0,1]))

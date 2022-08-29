@@ -1,4 +1,3 @@
-
 :github_url: https://github.com/facebookresearch/aepsych
 
 AEPsych API Reference

@@ -11,14 +11,8 @@ import logging
 import pickle
 
 from aepsych.config import Config
-from sqlalchemy import (
-    Column,
-    ForeignKey,
-    String,
-    Integer,
-    DateTime,
-    PickleType,
-)
+from aepsych.version import __version__
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -59,11 +53,14 @@ class DBMasterTable(Base):
     experiment_name = Column(String(256))
     experiment_description = Column(String(2048))
     experiment_id = Column(String(10), unique=True)
+    participant_id = Column(String(50), unique=True)
+
+    extra_metadata = Column(String(4096))  # JSON-formatted metadata
 
     children_replay = relationship("DbReplayTable", back_populates="parent")
     children_strat = relationship("DbStratTable", back_populates="parent")
     children_config = relationship("DbConfigTable", back_populates="parent")
-    """
+
     @classmethod
     def from_sqlite(cls, row):
         this = DBMasterTable()
@@ -72,7 +69,6 @@ class DBMasterTable(Base):
         this.experiment_description = row["experiment_description"]
         this.experiment_id = row["experiment_id"]
         return this
-    """
 
     def __repr__(self):
         return (
@@ -85,14 +81,51 @@ class DBMasterTable(Base):
     @staticmethod
     def update(engine):
         logger.info("DBMasterTable : update called")
+        if not DBMasterTable._has_column(engine, "extra_metadata"):
+            DBMasterTable._add_column(engine, "extra_metadata")
+        if not DBMasterTable._has_column(engine, "participant_id"):
+            DBMasterTable._add_column(engine, "participant_id")
 
     @staticmethod
     def requires_update(engine):
-        return False
+        return not DBMasterTable._has_column(
+            engine, "extra_metadata"
+        ) or not DBMasterTable._has_column(engine, "participant_id")
+
+    @staticmethod
+    def _has_column(engine, column: str):
+        result = engine.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
+                column
+            )
+        )
+        rows = result.fetchall()
+        count = rows[0][0]
+        return count != 0
+
+    @staticmethod
+    def _add_column(engine, column: str):
+        try:
+            result = engine.execute(
+                "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
+                    column
+                )
+            )
+            rows = result.fetchall()
+            count = rows[0][0]
+
+            if 0 == count:
+                logger.debug(
+                    "Altering the master table to add the {0} column".format(column)
+                )
+                engine.execute(
+                    "ALTER TABLE master ADD COLUMN {0} VARCHAR".format(column)
+                )
+                engine.commit()
+        except Exception as e:
+            logger.debug(f"Column already exists, no need to alter. [{e}]")
 
 
-# link back to the master table entry
-#
 class DbReplayTable(Base):
     __tablename__ = "replay_data"
 
@@ -157,7 +190,7 @@ class DbReplayTable(Base):
             if result.message_contents["type"] == "setup":
                 config_str = result.message_contents["message"]["config_str"]
                 config = Config(config_str=config_str)
-                if config.version == "0.0":
+                if config.version < __version__:
                     return True  # assume that if any config needs to be refactored, all of them do
 
         return False
@@ -206,8 +239,8 @@ class DbReplayTable(Base):
             if result.message_contents["type"] == "setup":
                 config_str = result.message_contents["message"]["config_str"]
                 config = Config(config_str=config_str)
-                if config.version == "0.0":
-                    config.convert("0.0", "0.1")
+                if config.version < __version__:
+                    config.convert_to_latest()
                 new_str = str(config)
 
                 new_message = {"type": "setup", "message": {"config_str": new_str}}

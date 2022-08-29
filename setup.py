@@ -17,8 +17,8 @@ REQUIRES = [
     "pyzmq==19.0.2",
     "scipy",
     "sklearn",
-    "gpytorch>=1.4",
-    "botorch>=0.6.1",
+    "gpytorch>=1.8.1",
+    "botorch>=0.6.6",
     "SQLAlchemy",
     "dill",
     "pandas",
@@ -39,9 +39,15 @@ DEV_REQUIRES = [
 with open(os.path.join(root_dir, "README.md"), "r") as fh:
     long_description = fh.read()
 
+with open(os.path.join(root_dir, "aepsych", "version.py"), "r") as fh:
+    for line in fh.readlines():
+        if line.startswith("__version__"):
+            version = line.split('"')[1]
+
+
 setup(
     name="aepsych",
-    version="0.1.0",
+    version=version,
     python_requires=">=3.8",
     packages=find_packages(),
     description="Adaptive experimetation for psychophysics",

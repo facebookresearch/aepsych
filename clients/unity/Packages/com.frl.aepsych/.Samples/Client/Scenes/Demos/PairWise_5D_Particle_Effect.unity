@@ -241,6 +241,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stimulus_presentation: 1
+  response_type: 0
+  experiment_method: 1
   experimentParams:
   - lowerBound: 0.045
     upperBound: 0.58
@@ -258,7 +261,7 @@ MonoBehaviour:
     upperBound: 1
     name: light
   manualConfig: {fileID: 102900000, guid: 78436ca13f56bab4eb1db170a4ce45db, type: 3}
-  relativeFilePath: particleV2.ini
+  relativeFilePath: configs/particleV2_manualConfig.ini
   experiment_idx: 3
   target: -1
   initialization_trials: 15
@@ -274,42 +277,44 @@ MonoBehaviour:
 
     ub = [0.58, 2, 4, 2, 1]
 
-    outcome_type = pairwise_probit
+    stimuli_per_trial =
+    2
+
+    outcome_types = [binary]
 
 
-    strategy_names
-    = [init_strat, opt_strat]
+    strategy_names = [init_strat, opt_strat]
 
 
     [init_strat]
 
-    n_trials = 15
+    min_asks
+    = 15
 
-    generator
-    = PairwiseSobolGenerator
+    generator = PairwiseSobolGenerator
 
 
     [opt_strat]
 
-    n_trials = 20
+    min_asks
+    = 20
 
-    refit_every
-    = 5
+    refit_every = 5
 
     generator = PairwiseOptimizeAcqfGenerator
 
-    acqf = qNoisyExpectedImprovement
+    acqf
+    = qNoisyExpectedImprovement
 
-    model
-    = PairwiseProbitModel
+    model = PairwiseProbitModel
 
 
     [PairwiseProbitModel]
 
-    inducing_size = 250
+    inducing_size
+    = 250
 
-    mean_covar_factory
-    = default_mean_covar_factory
+    mean_covar_factory = default_mean_covar_factory
 
 
     [PairwiseOptimizeAcqfGenerator]
@@ -358,6 +363,8 @@ MonoBehaviour:
   isPaused: 0
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
+  responseType: 0
+  stimulusType: 1
   experimentName: ParticleEffectOptimize
   particlePrefab: {fileID: 37459913276121267, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
   isWater: 0

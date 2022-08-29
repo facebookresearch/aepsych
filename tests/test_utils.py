@@ -44,11 +44,11 @@ class UtilsTestCase(unittest.TestCase):
 
         # Wrong dim
         with self.assertRaises(AssertionError):
-            _process_bounds(np.r_[0], np.r_[0], 2)
+            _process_bounds(np.r_[0,0], np.r_[1,1], 3)
 
-        # ub = lb
+        # ub < lb
         with self.assertRaises(AssertionError):
-            _process_bounds(np.r_[0], np.r_[0], None)
+            _process_bounds(np.r_[1], np.r_[0], None)
 
 
 if __name__ == "__main__":

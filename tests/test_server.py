@@ -7,13 +7,13 @@
 
 import json
 import logging
-import select
 import unittest
 import uuid
 from unittest.mock import call, MagicMock, patch
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
+import torch
 
 dummy_config = """
 [common]
@@ -592,18 +592,6 @@ class ServerTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.s.serve()
         self.s.socket.send.assert_called_once_with("bad request")
-
-    def test_queue(self):
-        """Test to see that the queue is being handled correctly"""
-
-        self.s.socket.accept_client = MagicMock()
-        ask_request = {"type": "ask", "message": ""}
-        self.s.socket.receive = MagicMock(return_value=ask_request)
-        self.s.socket.send = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        assert len(self.s.queue) == 0
 
 
 if __name__ == "__main__":

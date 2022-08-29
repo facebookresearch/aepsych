@@ -3,7 +3,7 @@ torch
 pyzmq==19.0.2
 scipy
 sklearn
-gpytorch>=1.4
+gpytorch>=1.8.1
 git+https://github.com/pytorch/botorch@main#egg=botorch
 SQLAlchemy
 dill

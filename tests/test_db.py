@@ -5,13 +5,17 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import unittest
-import uuid
-import aepsych.database.db as db
-import aepsych.database.tables as tables
-from pathlib import Path
+import json
 import os
 import shutil
+import unittest
+import uuid
+from configparser import DuplicateOptionError
+from pathlib import Path
+
+import aepsych.config as configuration
+import aepsych.database.db as db
+import aepsych.database.tables as tables
 import sqlalchemy
 
 
@@ -238,3 +242,217 @@ class DBTestCase(unittest.TestCase):
         config = self._database.get_config_for(experiment_id)
 
         self.assertEqual(test_config, config)
+
+    # Test some metadata flow stuff and see if it is working.
+    def test_metadata(self):
+        # Run tests using the native config_str functionality.
+        config_str = """
+        [common]
+        parnames = [par1, par2]
+        lb = [0, 0]
+        ub = [1, 1]
+        outcome_type = single_probit
+        target = 0.75
+
+        [SobolStrategy]
+        n_trials = 10
+
+        [ModelWrapperStrategy]
+        n_trials = 20
+        refit_every = 5
+
+        [experiment]
+        acqf = MonotonicMCLSE
+        init_strat_cls = SobolStrategy
+        opt_strat_cls = ModelWrapperStrategy
+        modelbridge_cls = MonotonicSingleProbitModelbridge
+        model = MonotonicRejectionGP
+
+        [MonotonicMCLSE]
+        beta = 3.98
+
+        [MonotonicRejectionGP]
+        inducing_size = 100
+        mean_covar_factory = monotonic_mean_covar_factory
+
+        [MonotonicSingleProbitModelbridge]
+        restarts = 10
+        samps = 1000
+
+        [metadata]
+        experiment_name = Lucas
+        experiment_description = Test
+        metadata1 = one
+        metadata2 = two
+
+
+        """
+
+        request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": config_str},
+        }
+        # Generate a config for later to run .jsonifyMetadata() on.
+        generated_config = configuration.Config(**request["message"])
+        master_table = self._database.record_setup(
+            description=generated_config["metadata"]["experiment_description"],
+            name=generated_config["metadata"]["experiment_name"],
+            request=request,
+            extra_metadata=generated_config.jsonifyMetadata(),
+        )
+        self.assertEqual(
+            generated_config.jsonifyMetadata(),
+            master_table.extra_metadata,  # Test in JSON form
+        )
+        # Next I can deserialize into a dictionary and make sure each element is 1-to-1.
+        ## Important thing to note is generated_config will have extra fields because of configparser's.
+        ## Run comparison of json.loads -> generated_config, NOT the other way around.
+
+        deserializedjson = json.loads(
+            master_table.extra_metadata
+        )  # Directly from master table entry.
+
+        ## Going to check each value in the deserialized json from the DB to the expected values along with the config prior to insertion.
+        ## This will check if it retains the individual values.
+        self.assertEqual(deserializedjson["metadata1"], "one")
+        self.assertEqual(deserializedjson["metadata2"], "two")
+        self.assertEqual(deserializedjson["experiment_name"], "Lucas")
+        self.assertEqual(deserializedjson["experiment_description"], "Test")
+        self.assertEqual(
+            deserializedjson["experiment_name"], master_table.experiment_name
+        )
+        self.assertEqual(
+            deserializedjson["experiment_description"],
+            master_table.experiment_description,
+        )
+
+    def test_broken_metadata(self):
+        # We are going to be testing some broken metadata here. We need to make sure it does not misbehave.
+        config_strdupe = """
+        [common]
+        parnames = [par1, par2]
+        lb = [0, 0]
+        ub = [1, 1]
+        outcome_type = single_probit
+        target = 0.75
+
+        [SobolStrategy]
+        n_trials = 10
+
+        [ModelWrapperStrategy]
+        n_trials = 20
+        refit_every = 5
+
+        [experiment]
+        acqf = MonotonicMCLSE
+        init_strat_cls = SobolStrategy
+        opt_strat_cls = ModelWrapperStrategy
+        modelbridge_cls = MonotonicSingleProbitModelbridge
+        model = MonotonicRejectionGP
+
+        [MonotonicMCLSE]
+        beta = 3.98
+
+        [MonotonicRejectionGP]
+        inducing_size = 100
+        mean_covar_factory = monotonic_mean_covar_factory
+
+        [MonotonicSingleProbitModelbridge]
+        restarts = 10
+        samps = 1000
+
+        [metadata]
+        experiment_name = Lucas
+        experiment_description = Test
+        metadata1 =
+        metadata2 = two
+        metadata2 = three
+
+
+        """
+
+        config_str = """
+        [common]
+        parnames = [par1, par2]
+        lb = [0, 0]
+        ub = [1, 1]
+        outcome_type = single_probit
+        target = 0.75
+
+        [SobolStrategy]
+        n_trials = 10
+
+        [ModelWrapperStrategy]
+        n_trials = 20
+        refit_every = 5
+
+        [experiment]
+        acqf = MonotonicMCLSE
+        init_strat_cls = SobolStrategy
+        opt_strat_cls = ModelWrapperStrategy
+        modelbridge_cls = MonotonicSingleProbitModelbridge
+        model = MonotonicRejectionGP
+
+        [MonotonicMCLSE]
+        beta = 3.98
+
+        [MonotonicRejectionGP]
+        inducing_size = 100
+        mean_covar_factory = monotonic_mean_covar_factory
+
+        [MonotonicSingleProbitModelbridge]
+        restarts = 10
+        samps = 1000
+
+        [metadata]
+        metadata1 =
+        metadata2 = three
+
+
+        """
+
+        request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": config_strdupe},
+        }
+        request2 = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": config_str},
+        }
+        # Generate a config for later to run .jsonifyMetadata() on.
+        with self.assertRaises(DuplicateOptionError):
+            configuration.Config(**request["message"])
+        generated_config = configuration.Config(**request2["message"])
+
+        master_table = self._database.record_setup(
+            description=(
+                generated_config["metadata"]["experiment_description"]
+                if ("experiment_description" in generated_config["metadata"].keys())
+                else "default description"
+            ),
+            name=(
+                generated_config["metadata"]["experiment_name"]
+                if ("experiment_name" in generated_config["metadata"].keys())
+                else "default name"
+            ),
+            request=request,
+            extra_metadata=generated_config.jsonifyMetadata(),
+        )
+        deserializedjson = json.loads(
+            master_table.extra_metadata
+        )  # This is initial process is exactly the same but now we switch things up...
+        self.assertEqual(deserializedjson["metadata2"], "three")  # test normal value
+        self.assertEqual(deserializedjson["metadata1"], "")  # test an empty value
+        self.assertEqual(
+            master_table.experiment_name, "default name"
+        )  # test default name value
+        self.assertEqual(
+            master_table.experiment_description, "default description"
+        )  # test default description value
+
+
+if __name__ == "__main__":
+    unittest.main()
