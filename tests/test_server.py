@@ -592,6 +592,29 @@ class ServerTestCase(unittest.TestCase):
                 torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
             )
 
+    def test_tell(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        self.s.db.record_message = MagicMock()
+
+        self.s.unversioned_handler(setup_request)
+        self.s.unversioned_handler(tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 2)
+        self.assertEqual(len(self.s.strat.x), 1)
+
+        tell_request["message"]["model_data"] = False
+        self.s.unversioned_handler(tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 3)
+        self.assertEqual(len(self.s.strat.x), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
