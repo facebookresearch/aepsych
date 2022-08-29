@@ -14,7 +14,8 @@
       "gp_intro"
     ],
     "For developers": [
-      "api_overview"
+      "api_overview",
+      "db_overview"
     ],
     "Advanced topics": [
       "finish_criteria"
