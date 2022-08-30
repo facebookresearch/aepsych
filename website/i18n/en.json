@@ -14,6 +14,9 @@
       "configs": {
         "title": "Writing Config Files"
       },
+      "db_overview": {
+        "title": "Database Overview"
+      },
       "finish_criteria": {
         "title": "Advanced Strategy Configuration"
       },

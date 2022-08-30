@@ -19,6 +19,7 @@
 
 <span class="kn">import</span> <span class="nn">ast</span>
 <span class="kn">import</span> <span class="nn">configparser</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span>
@@ -117,6 +118,27 @@
                 <span class="p">),</span>
                 <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
+
+    <span class="c1"># Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)</span>
+<div class="viewcode-block" id="Config.to_dict"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">section</span> <span class="o">!=</span> <span class="s2">"common"</span> <span class="ow">and</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
+                    <span class="k">continue</span>
+                <span class="n">_dict</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_dict</span></div>
+
+    <span class="c1"># Turn the metadata section into JSON.</span>
+<div class="viewcode-block" id="Config.jsonifyMetadata"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.jsonifyMetadata">[docs]</a>    <span class="k">def</span> <span class="nf">jsonifyMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">configdict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">configdict</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">])</span></div>
+
+    <span class="c1"># Turn the entire config into JSON format.</span>
+<div class="viewcode-block" id="Config.jsonifyAll"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.jsonifyAll">[docs]</a>    <span class="k">def</span> <span class="nf">jsonifyAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">configdict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">configdict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Config.update"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

@@ -65,20 +65,22 @@
     <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">256</span><span class="p">))</span>
     <span class="n">experiment_description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">2048</span><span class="p">))</span>
     <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">participant_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">extra_metadata</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">4096</span><span class="p">))</span>  <span class="c1"># JSON-formatted metadata</span>
 
     <span class="n">children_replay</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbReplayTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
     <span class="n">children_strat</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbStratTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
     <span class="n">children_config</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbConfigTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
-    <span class="sd">"""</span>
-<span class="sd">    @classmethod</span>
-<span class="sd">    def from_sqlite(cls, row):</span>
-<span class="sd">        this = DBMasterTable()</span>
-<span class="sd">        this.unique_id = row["unique_id"]</span>
-<span class="sd">        this.experiment_name = row["experiment_name"]</span>
-<span class="sd">        this.experiment_description = row["experiment_description"]</span>
-<span class="sd">        this.experiment_id = row["experiment_id"]</span>
-<span class="sd">        return this</span>
-<span class="sd">    """</span>
+
+<div class="viewcode-block" id="DBMasterTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">DBMasterTable</span><span class="p">()</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"unique_id"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"experiment_name"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">experiment_description</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"experiment_description"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">experiment_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"experiment_id"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">this</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -90,15 +92,52 @@
 
 <div class="viewcode-block" id="DBMasterTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DBMasterTable : update called"</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DBMasterTable : update called"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">DBMasterTable</span><span class="o">.</span><span class="n">_has_column</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"extra_metadata"</span><span class="p">):</span>
+            <span class="n">DBMasterTable</span><span class="o">.</span><span class="n">_add_column</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"extra_metadata"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">DBMasterTable</span><span class="o">.</span><span class="n">_has_column</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"participant_id"</span><span class="p">):</span>
+            <span class="n">DBMasterTable</span><span class="o">.</span><span class="n">_add_column</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"participant_id"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DBMasterTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">False</span></div></div>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">DBMasterTable</span><span class="o">.</span><span class="n">_has_column</span><span class="p">(</span>
+            <span class="n">engine</span><span class="p">,</span> <span class="s2">"extra_metadata"</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">DBMasterTable</span><span class="o">.</span><span class="n">_has_column</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"participant_id"</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_has_column</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">"SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='</span><span class="si">{0}</span><span class="s2">'"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">column</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">count</span> <span class="o">!=</span> <span class="mi">0</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_column</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">"SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='</span><span class="si">{0}</span><span class="s2">'"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">column</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">==</span> <span class="n">count</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">"Altering the master table to add the </span><span class="si">{0}</span><span class="s2"> column"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="s2">"ALTER TABLE master ADD COLUMN </span><span class="si">{0}</span><span class="s2"> VARCHAR"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">engine</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Column already exists, no need to alter. [</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span></div>
 
 
-<span class="c1"># link back to the master table entry</span>
-<span class="c1">#</span>
 <div class="viewcode-block" id="DbReplayTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbReplayTable">[docs]</a><span class="k">class</span> <span class="nc">DbReplayTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"replay_data"</span>
 

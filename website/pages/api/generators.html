@@ -299,7 +299,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <span id="aepsych-generators-optimize-acqf-generator-module"></span><h2>aepsych.generators.optimize_acqf_generator module<a class="headerlink" href="#module-aepsych.generators.optimize_acqf_generator" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.optimize_acqf_generator.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.optimize_acqf_generator.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that chooses points by minimizing an acquisition function.</p>
 <p>Initialize OptimizeAcqfGenerator.
@@ -319,6 +319,7 @@ This is only loosely followed by scipy’s optimizer, so consider using a number
 less of what your true upper bound is.</p></li>
 <li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -415,7 +416,7 @@ less of what your true upper bound is.</p></li>
 <span id="aepsych-generators-sobol-generator-module"></span><h2>aepsych.generators.sobol_generator module<a class="headerlink" href="#module-aepsych.generators.sobol_generator" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.sobol_generator.SobolGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.sobol_generator.</span></span><span class="sig-name descname"><span class="pre">SobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.sobol_generator.</span></span><span class="sig-name descname"><span class="pre">SobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from the Sobol Sequence.</p>
 <p>Iniatialize SobolGenerator.
@@ -434,6 +435,7 @@ less of what your true upper bound is.</p></li>
 <li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -473,7 +475,7 @@ less of what your true upper bound is.</p></li>
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.generators" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that chooses points by minimizing an acquisition function.</p>
 <p>Initialize OptimizeAcqfGenerator.
@@ -493,6 +495,7 @@ This is only loosely followed by scipy’s optimizer, so consider using a number
 less of what your true upper bound is.</p></li>
 <li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -696,7 +699,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.SobolGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">SobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">SobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from the Sobol Sequence.</p>
 <p>Iniatialize SobolGenerator.
@@ -715,6 +718,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -843,8 +847,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.PairwiseOptimizeAcqfGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseOptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseOptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizeAcqfGenerator</span></code></a></p>
+<p>Deprecated. Use OptimizeAcqfGenerator instead.</p>
 <p>Initialize OptimizeAcqfGenerator.
 :param acqf: Acquisition function to use.
 :type acqf: AcquisitionFunction
@@ -862,6 +867,7 @@ This is only loosely followed by scipy’s optimizer, so consider using a number
 less of what your true upper bound is.</p></li>
 <li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -870,34 +876,20 @@ less of what your true upper bound is.</p></li>
 <span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.PairwiseOptimizeAcqfGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query next point(s) to run by optimizing the acquisition function.
-:param num_points: Number of points to query.
-:type num_points: int, optional
-:param model: Fitted model of the data.
-:type model: ModelProtocol</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>np.ndarray</p>
-</dd>
+<dt class="sig sig-object py" id="aepsych.generators.PairwiseOptimizeAcqfGenerator.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.PairwiseSobolGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseSobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_sobol_generator.html#PairwiseSobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseSobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_sobol_generator.html#PairwiseSobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SobolGenerator</span></code></a></p>
-<p>Generator that generates pairs of points from the Sobol Sequence.</p>
+<p>Deprecated. Use SobolGenerator instead.</p>
 <p>Iniatialize SobolGenerator.
 :param lb: Lower bounds of each parameter.
 :type lb: Union[np.ndarray, torch.Tensor]
@@ -914,6 +906,7 @@ less of what your true upper bound is.</p></li>
 <li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -922,23 +915,11 @@ less of what your true upper bound is.</p></li>
 <span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.PairwiseSobolGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_sobol_generator.html#PairwiseSobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
-:param num_points: Number of points to query.
-:type num_points: int, optional</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>np.ndarray</p>
-</dd>
+<dt class="sig sig-object py" id="aepsych.generators.PairwiseSobolGenerator.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_sobol_generator.html#PairwiseSobolGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
-<li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
