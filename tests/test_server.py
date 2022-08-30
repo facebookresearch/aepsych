@@ -15,6 +15,7 @@ from unittest.mock import call, MagicMock, patch, PropertyMock
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 import torch
+from aepsych.config import Config
 from aepsych.server.sockets import BAD_REQUEST
 
 dummy_config = """
