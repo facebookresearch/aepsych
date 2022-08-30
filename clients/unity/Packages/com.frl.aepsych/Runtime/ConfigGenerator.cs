@@ -275,8 +275,9 @@ public class ConfigGenerator: MonoBehaviour
                 opt_generator = "OptimizeAcqfGenerator";
                 outcome_type = "continuous";
                 acqf = "MCLevelSetEstimation";
-                model = "GPClassificationModel";
-                specifyAcqf = false;
+                model = "GPRegressionModel";
+                specifyAcqf = true;
+                objective = "IdentityMCObjective";
                 break;
             case "SingleContinuousOptimization":
                 init_generator = "SobolGenerator";

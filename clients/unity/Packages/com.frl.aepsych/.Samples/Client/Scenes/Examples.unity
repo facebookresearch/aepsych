@@ -123,6 +123,108 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &102505542
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 102505545}
+  - component: {fileID: 102505544}
+  - component: {fileID: 102505543}
+  m_Layer: 0
+  m_Name: 1DContinuousOpt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &102505543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102505542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stimulus_presentation: 0
+  response_type: 1
+  experiment_method: 1
+  experimentParams:
+  - lowerBound: 0.068
+    upperBound: 0.85
+    name: hue
+  manualConfig: {fileID: 0}
+  relativeFilePath: 
+  experiment_idx: 0
+  target: 0.5
+  initialization_trials: 5
+  optimization_trials: 5
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex1DContinuousOpt
+  defaultFilePath: configs/default_config.ini
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &102505544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102505542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b75e003b529d3741ac62f93fb677058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 0
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  responseType: 1
+  stimulusType: 0
+  experimentName: Ex1DContinuousOpt
+  particlePrefab: {fileID: 37459913276121267, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+  stimulusDuration: 1
+  fixedAlpha: 0.36
+  fixedLifetime: 0.75
+  fixedSpeed: 0.75
+  fixedGravity: -0.5
+--- !u!4 &102505545
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102505542}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &329997634
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,10 +254,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27468319abc5b9e4fbe24d8840c7b1dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Dim: 0
-  m_Method: 1
-  m_Response: 0
-  selectedScript: 1DSingleDetection
+  m_Dim: 2
+  m_Method: 0
+  m_Response: 1
+  m_Stimulus: 0
+  selectedScript: 3DContinuousOpt
 --- !u!4 &329997636
 Transform:
   m_ObjectHideFlags: 0
@@ -171,14 +274,20 @@ Transform:
   - {fileID: 1171856327}
   - {fileID: 1789285997}
   - {fileID: 634023898}
+  - {fileID: 102505545}
+  - {fileID: 1842648733}
   - {fileID: 824151511}
   - {fileID: 1912671822}
   - {fileID: 576863801}
   - {fileID: 1218501588}
+  - {fileID: 1684046538}
+  - {fileID: 1972400801}
   - {fileID: 922443017}
   - {fileID: 953885843}
   - {fileID: 1636215477}
   - {fileID: 1363892222}
+  - {fileID: 706511090}
+  - {fileID: 648593356}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -212,7 +321,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 6
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &576863802
 MonoBehaviour:
@@ -503,6 +612,273 @@ MonoBehaviour:
   isEditorVersion: 1
   isValid: 1
   startWithModel: 0
+--- !u!1 &648593353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 648593356}
+  - component: {fileID: 648593355}
+  - component: {fileID: 648593354}
+  m_Layer: 0
+  m_Name: 3DContinuousDetection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &648593354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648593353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stimulus_presentation: 0
+  response_type: 1
+  experiment_method: 0
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: hue
+  - lowerBound: 0
+    upperBound: 1
+    name: saturation
+  - lowerBound: 0
+    upperBound: 1
+    name: value
+  manualConfig: {fileID: 102900000, guid: 8d5cfb81af407824c8644369035c5921, type: 3}
+  relativeFilePath: configs/Ex3DContinuousDetection.ini
+  experiment_idx: 0
+  target: 0.5
+  initialization_trials: 10
+  optimization_trials: 15
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: '[common]
+
+    parnames = [hue, saturation, value]
+
+    lb = [0,
+    0, 0]
+
+    ub = [1, 1, 1]
+
+    stimuli_per_trial = 1
+
+    outcome_types = [continuous]
+
+    target
+    = 0.75
+
+
+    strategy_names = [init_strat, opt_strat]
+
+
+    [init_strat]
+
+    min_asks
+    = 10
+
+    generator = SobolGenerator
+
+
+    [opt_strat]
+
+    min_asks = 15
+
+    refit_every
+    = 5
+
+    generator = OptimizeAcqfGenerator
+
+    acqf = MCLevelSetEstimation
+
+    model
+    = GPClassificationModel
+
+
+    [GPClassificationModel]
+
+    inducing_size = 150
+
+
+    [OptimizeAcqfGenerator]
+
+    restarts
+    = 10
+
+    samps = 2000
+
+
+'
+  experimentName: Ex3DContinuousDetection
+  defaultFilePath: configs/default_config.ini
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &648593355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648593353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6396bacacccee4281fcc6a62ddde6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 1
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 0
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  responseType: 1
+  stimulusType: 0
+  experimentName: Ex3DContinuousDetection
+  stimulusDuration: 1
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+--- !u!4 &648593356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648593353}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 17
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &706511087
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 706511090}
+  - component: {fileID: 706511089}
+  - component: {fileID: 706511088}
+  m_Layer: 0
+  m_Name: 3DContinuousOpt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &706511088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706511087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stimulus_presentation: 0
+  response_type: 1
+  experiment_method: 1
+  experimentParams:
+  - lowerBound: 0.068
+    upperBound: 0.85
+    name: hue
+  - lowerBound: -2
+    upperBound: 2
+    name: gravity
+  - lowerBound: 0.1
+    upperBound: 1
+    name: alpha
+  manualConfig: {fileID: 0}
+  relativeFilePath: 
+  experiment_idx: 0
+  target: 0.5
+  initialization_trials: 10
+  optimization_trials: 15
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex3DContinuousOpt
+  defaultFilePath: configs/default_config.ini
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &706511089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706511087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f74c55396e677f4e9c869035bf0aa1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 0
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  responseType: 1
+  stimulusType: 0
+  experimentName: Ex3DContinuousOpt
+  particlePrefab: {fileID: 37459913276121267, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+  stimulusDuration: 1
+  fixedAlpha: 0.36
+  fixedLifetime: 0.75
+  fixedSpeed: 0.75
+--- !u!4 &706511090
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706511087}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 16
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &824151510
 GameObject:
   m_ObjectHideFlags: 0
@@ -533,7 +909,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 4
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &824151512
 MonoBehaviour:
@@ -634,7 +1010,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 8
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &922443018
 MonoBehaviour:
@@ -739,7 +1115,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 9
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &953885844
 MonoBehaviour:
@@ -1046,8 +1422,8 @@ MonoBehaviour:
   relativeFilePath: 
   experiment_idx: 2
   target: 0.5
-  initialization_trials: 10
-  optimization_trials: 20
+  initialization_trials: 6
+  optimization_trials: 10
   isInitialized: 0
   isAutomatic: 1
   fullConfigFile: 
@@ -1086,7 +1462,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 7
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1218501589
 MonoBehaviour:
@@ -1263,7 +1639,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1363892221
 GameObject:
@@ -1295,7 +1671,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 11
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1363892223
 MonoBehaviour:
@@ -1496,7 +1872,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 10
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1636215478
 MonoBehaviour:
@@ -1693,7 +2069,176 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1654660571
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 37459913276121265, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: playOnAwake
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121267, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_Name
+      value: ParticleV2
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121267, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.103973
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.6518643
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.452305
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 37459913276121270, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+--- !u!1 &1684046535
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1684046538}
+  - component: {fileID: 1684046537}
+  - component: {fileID: 1684046536}
+  m_Layer: 0
+  m_Name: 2DContinuousOpt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1684046536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684046535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stimulus_presentation: 0
+  response_type: 1
+  experiment_method: 1
+  experimentParams:
+  - lowerBound: 0.068
+    upperBound: 0.85
+    name: hue
+  - lowerBound: -2
+    upperBound: 2
+    name: gravity
+  manualConfig: {fileID: 0}
+  relativeFilePath: 
+  experiment_idx: 0
+  target: 0.5
+  initialization_trials: 8
+  optimization_trials: 10
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex2DContinuousOpt
+  defaultFilePath: configs/default_config.ini
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &1684046537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684046535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d5405c00e184534a8282f79220dc2a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 0
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 0
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  responseType: 1
+  stimulusType: 0
+  experimentName: Ex2DContinuousOpt
+  particlePrefab: {fileID: 37459913276121267, guid: 61717d1b69a78954186e2ad420fcb80e, type: 3}
+  stimulusDuration: 1
+  fixedAlpha: 0.36
+  fixedLifetime: 0.75
+  fixedSpeed: 0.5
+--- !u!4 &1684046538
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684046535}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1691051070
 PrefabInstance:
@@ -1712,7 +2257,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2416200128082496199, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1798,6 +2343,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Experiment UI
       objectReference: {fileID: 0}
+    - target: {fileID: 2416200128093135657, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
+      propertyPath: m_text
+      value: Start AEPsych server, then enter playmode to begin.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 06c76821ecef4ae45bde3b79486fdb29, type: 3}
 --- !u!1 &1789285996
@@ -1817,7 +2366,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1789285997
 Transform:
   m_ObjectHideFlags: 0
@@ -1964,6 +2513,104 @@ MonoBehaviour:
   isEditorVersion: 1
   isValid: 1
   startWithModel: 0
+--- !u!1 &1842648730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1842648733}
+  - component: {fileID: 1842648732}
+  - component: {fileID: 1842648731}
+  m_Layer: 0
+  m_Name: 1DContinuousDetection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1842648731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842648730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stimulus_presentation: 0
+  response_type: 1
+  experiment_method: 0
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: hue
+  manualConfig: {fileID: 0}
+  relativeFilePath: 
+  experiment_idx: 0
+  target: 0.5
+  initialization_trials: 5
+  optimization_trials: 8
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex1DContinuousDetection
+  defaultFilePath: configs/default_config.ini
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &1842648732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842648730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd03768bf49fbaf4fb62cdfc64813144, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 1
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 0
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  responseType: 1
+  stimulusType: 0
+  experimentName: Ex1DContinuousDetection
+  stimulusDuration: 1
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+--- !u!4 &1842648733
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842648730}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1912671821
 GameObject:
   m_ObjectHideFlags: 0
@@ -1994,7 +2641,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 329997636}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1912671823
 MonoBehaviour:
@@ -2064,3 +2711,104 @@ MonoBehaviour:
   stimulusType: 1
   experimentName: Ex2DPairExplore
   circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+--- !u!1 &1972400798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1972400801}
+  - component: {fileID: 1972400800}
+  - component: {fileID: 1972400799}
+  m_Layer: 0
+  m_Name: 2DContinuousDetection
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1972400799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972400798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e9decfe19fc314da1a282b8cec8838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stimulus_presentation: 0
+  response_type: 1
+  experiment_method: 0
+  experimentParams:
+  - lowerBound: 0
+    upperBound: 1
+    name: saturation
+  - lowerBound: 0
+    upperBound: 1
+    name: value
+  manualConfig: {fileID: 0}
+  relativeFilePath: 
+  experiment_idx: 0
+  target: 0.5
+  initialization_trials: 6
+  optimization_trials: 10
+  isInitialized: 0
+  isAutomatic: 1
+  fullConfigFile: 
+  experimentName: Ex2DContinuousDetection
+  defaultFilePath: configs/default_config.ini
+  isEditorVersion: 1
+  isValid: 1
+  startWithModel: 0
+--- !u!114 &1972400800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972400798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5133cefde799d54ebb96c9b29d6d587, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ResponseKey0: 110
+  ResponseKey1: 121
+  startKey: 32
+  useDefaultUI: 1
+  useModelExploration: 1
+  autoDisableOtherCanvases: 0
+  recordToCSV: 0
+  asyncAsk: 0
+  startMode: 1
+  client: {fileID: 0}
+  strategy: {fileID: 0}
+  configGenerator: {fileID: 0}
+  isDone: 0
+  isPaused: 0
+  defaultUI: {fileID: 0}
+  queryModel: {fileID: 0}
+  responseType: 1
+  stimulusType: 0
+  experimentName: Ex2DContinuousDetection
+  stimulusDuration: 1
+  circlePrefab: {fileID: 5063913981118371212, guid: ea942211c8f880c47afdcdb5f279021a, type: 3}
+--- !u!4 &1972400801
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972400798}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.75, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 329997636}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

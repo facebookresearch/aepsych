@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System;
 
 [System.Serializable]
 // Declare type of Custom Editor
@@ -18,6 +19,7 @@ public class DemoEditor : Editor
 {
     int selected_dim = 0;
     int selected_response = 0;
+    int selected_stimulus = 0;
     int selected_method = 0;
     string selectedScript = "None";
     // OnInspector GUI
@@ -29,6 +31,7 @@ public class DemoEditor : Editor
         }
         selected_dim = serializedObject.FindProperty("m_Dim").intValue;
         selected_response = serializedObject.FindProperty("m_Response").intValue;
+        selected_stimulus = serializedObject.FindProperty("m_Stimulus").intValue;
         selected_method = serializedObject.FindProperty("m_Method").intValue;
         selectedScript = serializedObject.FindProperty("selectedScript").stringValue;
         base.OnInspectorGUI();
@@ -40,29 +43,75 @@ public class DemoEditor : Editor
         options = new string[] { "Optimization", "Threshold", "Exploration" };
         selected_method = GUILayout.SelectionGrid(selected_method, options, 1, EditorStyles.radioButton);
         //threshold is single only
+
         if (selected_method == 1)
         {
-            selected_response = 0;
+            selected_stimulus = 0;
         }
         //exploration is pairwise only
         if (selected_method == 2)
         {
-            selected_response = 1;
+            selected_stimulus = 1;
         }
         GUILayout.Space(10f); //2
         GUILayout.Label("Stimulus presentation", EditorStyles.boldLabel); //3
         options = new string[] { "Single", "Pairwise" };
+        selected_stimulus = GUILayout.SelectionGrid(selected_stimulus, options, 1, EditorStyles.radioButton);
+        if (selected_stimulus == 1) // Pairwise is binary only
+        {
+            selected_response = 0;
+        }
+
+        GUILayout.Space(10f); //2
+        GUILayout.Label("Response Type", EditorStyles.boldLabel); //3
+        options = new string[] { "Binary", "Continuous" };
         selected_response = GUILayout.SelectionGrid(selected_response, options, 1, EditorStyles.radioButton);
         GUILayout.Space(20f);
+
         GUILayout.BeginHorizontal(); //4
         GUILayout.Label("Selected Experiment:", GUILayout.Width(150f)); //5
         selectedScript = GUILayout.TextField(selectedScript); //6
         GUILayout.EndHorizontal(); //7
+
+        selectedScript = "";
+        selectedScript += (selected_dim + 1).ToString() + "D";
+
+        if (selected_stimulus == 0) // Single
+        {
+            if (selected_response == 0) // Binary Response
+            {
+                selectedScript += "Single";
+            }
+            else
+            {
+                selectedScript += "Continuous";
+            }
+        }
+        else
+        {
+            selectedScript += "Pairwise";
+        }
+
+        if (selected_method == 0) //optimization
+        {
+            selectedScript += "Opt";
+        }
+        else if (selected_method == 1) // threshold
+        {
+            selectedScript += "Detection";
+        }
+        else // exploration
+        {
+            selectedScript += "Exploration";
+        }
+
+
+        /*
         if (selected_dim == 0) //1D
         {
             if (selected_method == 0) //optimization
             {
-                if (selected_response == 0) //single
+                if (selected_stimulus == 0) //single
                 {
                     selectedScript = "1DSingleOpt";
                 }
@@ -108,7 +157,7 @@ public class DemoEditor : Editor
         {
             if (selected_method == 0) //optimization
             {
-                if (selected_response == 0) //single
+                if (selected_stimulus == 0) //single
                 {
                     selectedScript = "3DSingleOpt";
                 }
@@ -127,16 +176,29 @@ public class DemoEditor : Editor
                 selectedScript = "3DSingleDetection";
             }
         }
+
+        */
+
+
         Transform parentTransform = Selection.activeGameObject.transform;
         for (int j = 0; j < parentTransform.childCount; j++)
         {
             parentTransform.GetChild(j).gameObject.SetActive(false);
         }
-        parentTransform.Find(selectedScript).gameObject.SetActive(true);
+        try
+        {
+            parentTransform.Find(selectedScript).gameObject.SetActive(true);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("Invalid Combo.");
+        }
+        
 
         serializedObject.FindProperty("m_Dim").intValue = selected_dim;
         serializedObject.FindProperty("m_Response").intValue = selected_response;
         serializedObject.FindProperty("m_Method").intValue = selected_method;
+        serializedObject.FindProperty("m_Stimulus").intValue = selected_stimulus;
         serializedObject.FindProperty("selectedScript").stringValue = selectedScript;
         serializedObject.ApplyModifiedProperties();
     }

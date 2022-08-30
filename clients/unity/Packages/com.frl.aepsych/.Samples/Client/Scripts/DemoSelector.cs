@@ -26,6 +26,10 @@ public class DemoSelector : MonoBehaviour
 
     [SerializeField]
     [HideInInspector]
+    private int m_Stimulus = 0;
+
+    [SerializeField]
+    [HideInInspector]
     private string selectedScript = "None";
 #pragma warning restore CS0414
 }
