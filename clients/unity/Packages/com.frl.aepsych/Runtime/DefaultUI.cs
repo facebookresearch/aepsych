@@ -67,6 +67,22 @@ public class DefaultUI : MonoBehaviour
         responseSlider.SetActive(false);
     }
 
+    public void SetResponseSliderText(string minLabel, string maxLabel)
+    {
+        TextMeshProUGUI[] textComponents = responseSlider.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (TextMeshProUGUI text in textComponents)
+        {
+            if (text.gameObject.name == "maxLabel")
+            {
+                text.text = maxLabel;
+            }
+            else if (text.gameObject.name == "minLabel")
+            {
+                text.text = minLabel;
+            }
+        }
+    }
+
     public void SumbitSliderResponse()
     {
         experiment.ReportResultToServer(responseSlider.GetComponent<Slider>().value);

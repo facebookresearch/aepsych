@@ -354,6 +354,7 @@ namespace AEPsych
                 Debug.Log("Error! Called getConfig() when there is no reply available! Current status is " + status);
             }
             SetStatus(ClientStatus.Ready);
+            Debug.Log(reply);
             currentStrat = JsonConvert.DeserializeObject<int>(reply);
             return currentStrat;
         }
