@@ -613,7 +613,7 @@ class AEPsychServer(object):
 
         # If using thrift, it will add 'Terminate' to the queue and pass it to thrift server level
         return "Terminate"
-        
+
     def handle_get_config(self, request):
         msg = request["message"]
         section = msg.get("section", None)
@@ -631,6 +631,7 @@ class AEPsychServer(object):
 
         # If both section and property are specified, return only the relevant value from the config
         return self.config.to_dict(deduplicate=False)[section][prop]
+
     def handle_finish_strategy(self, request):
         self.strat.finish()
         return f"finished strategy {self.strat.name}"
