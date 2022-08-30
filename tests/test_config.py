@@ -121,7 +121,7 @@ class ConfigTestCase(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             Config(config_fnames=[])
 
-    def test_monotonic_single_probit_config_file(self):
+    def test_single_probit_config_file(self):
         config_file = "../configs/single_lse_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
 
@@ -133,9 +133,9 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].model is None)
 
         self.assertTrue(
-            isinstance(strat.strat_list[1].generator, MonotonicRejectionGenerator)
+            isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
-        self.assertTrue(strat.strat_list[1].generator.acqf is MonotonicMCLSE)
+        self.assertTrue(strat.strat_list[1].generator.acqf is MCLevelSetEstimation)
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys())
             == {"beta", "target", "objective"}
@@ -149,7 +149,7 @@ class ConfigTestCase(unittest.TestCase):
             )
         )
         self.assertTrue(
-            strat.strat_list[1].generator.model_gen_options["raw_samples"] == 1000
+            strat.strat_list[1].generator.samps == 1000
         )
         self.assertTrue(strat.strat_list[0].min_asks == 10)
         self.assertTrue(strat.strat_list[0].stimuli_per_trial == 1)
