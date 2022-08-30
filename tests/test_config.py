@@ -758,6 +758,49 @@ class ConfigTestCase(unittest.TestCase):
         with self.assertRaises(AssertionError):
             SequentialStrategy.from_config(config3)
 
+    def test_strat_names(self):
+        good_str = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPClassificationModel
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            model = GPClassificationModel
+            """
+
+        bad_str = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, init_strat]
+
+            [init_strat]
+            generator = SobolGenerator
+            model = GPClassificationModel
+            """
+
+        good_config = Config(config_str=good_str)
+        bad_config = Config(config_str=bad_str)
+
+        # this should work
+        SequentialStrategy.from_config(good_config)
+
+        # this should fail
+        with self.assertRaises(AssertionError):
+            SequentialStrategy.from_config(bad_config)
+
 
 if __name__ == "__main__":
     unittest.main()
