@@ -255,51 +255,6 @@ class ServerTestCase(unittest.TestCase):
         print(f"replay called with check = {test_calls}")
         self.s.unversioned_handler.assert_has_calls(test_calls, any_order=False)
 
-    def test_replay_server_skip_computations(self):
-        test_calls = []
-        request = {"message": {"target": "setup"}, "type": "setup"}
-        # 1. create setup then send some messages through
-        self.dummy_create_setup(self.s, request)
-        test_calls.append(call(request))
-
-        request = {"message": {"target": "tell"}, "type": "tell"}
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="tell", request=request
-        )
-        test_calls.append(call(request))
-
-        request = {"message": {"target": "ask"}, "type": "ask"}
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="ask", request=request
-        )
-
-        request = {"message": {"target": "update"}, "type": "update"}
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="update", request=request
-        )
-        test_calls.append(call(request))
-
-        request = {"message": {"target": "plot"}, "type": "plot"}
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="plot", request=request
-        )
-        test_calls.append(call(request))
-
-        self.s.unversioned_handler = MagicMock()
-
-        setup_request = {
-            "type": "setup",
-            "version": "0.01",
-            "message": {"config_str": dummy_config},
-        }
-        self.s.versioned_handler(setup_request)
-        self.s.strat.has_model = False
-
-        self.s.replay(self.s._db_master_record.experiment_id, skip_computations=True)
-        print(f"replay called with check = {test_calls}")
-        self.s.unversioned_handler.assert_has_calls(test_calls, any_order=False)
-        self.assertEqual(self.s.unversioned_handler.call_count, len(test_calls))
-
     def test_serve_versioned_handler(self):
         request = {"version": 0}
         self.s.socket.receive = MagicMock(return_value=request)
@@ -679,6 +634,43 @@ class ServerTestCase(unittest.TestCase):
 
         strat_name = self.s.unversioned_handler(strat_name_request)
         self.assertEqual(strat_name, "opt_strat")
+
+    @patch(
+        "aepsych.strategy.SequentialStrategy.gen",
+        side_effect=lambda: torch.tensor([[0.0]]),
+    )
+    @patch(
+        "aepsych.strategy.Strategy.get_max",
+        side_effect=lambda query_type: (torch.tensor([[0.0]]), torch.tensor([[0.0]])),
+    )
+    def test_replay_server_skip_computations(self, mock_gen, mock_query):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        self.s.versioned_handler(setup_request)
+
+        ask_request = {"type": "ask", "message": ""}
+        self.s.unversioned_handler(ask_request)
+
+        query_request = {
+            "type": "query",
+            "message": {
+                "query_type": "max",
+            },
+        }
+        self.s.unversioned_handler(query_request)
+
+        self.s.replay(self.s._db_master_record.experiment_id, skip_computations=True)
+
+        # gen and query are called once each from the messages above
+        self.assertEqual(mock_gen.call_count, 1)
+        self.assertEqual(mock_query.call_count, 1)
+
+        self.s.replay(self.s._db_master_record.experiment_id, skip_computations=False)
+        self.assertEqual(mock_gen.call_count, 2)
+        self.assertEqual(mock_query.call_count, 2)
 
 
 if __name__ == "__main__":
