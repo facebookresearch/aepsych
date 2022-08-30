@@ -112,12 +112,13 @@ class AEPsychServer(object):
         # yeah we're not sanitizing input at all
 
         # Start the method to accept a client connection
-        self.socket.accept_client()
-        self.receive_thread.start()
 
         if self.is_using_thrift is True:
-            self.receive(self.exit_server_loop)
+            self.queue.append(self.socket.receive())
+            self._handle_queue()
         else:
+            self.socket.accept_client()
+            self.receive_thread.start()
             while True:
                 self._handle_queue()
                 if self.exit_server_loop:

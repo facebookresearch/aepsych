@@ -7,15 +7,15 @@
 
 import json
 import logging
+import select
 import unittest
 import uuid
-import select
-from unittest.mock import MagicMock, PropertyMock, call, patch
-
+from unittest.mock import call, MagicMock, patch, PropertyMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 import torch
+from aepsych.server.sockets import BAD_REQUEST
 
 dummy_config = """
 [common]
@@ -596,7 +596,6 @@ class ServerTestCase(unittest.TestCase):
             self.s.serve()
         self.s.socket.send.assert_called_once_with(BAD_REQUEST)
 
-<<<<<<<<< Temporary merge branch 1
     def test_queue(self):
         """Test to see that the queue is being handled correctly"""
 
@@ -608,7 +607,7 @@ class ServerTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.s.serve()
         assert len(self.s.queue) == 0
-=========
+
     def test_config_to_tensor(self):
         with patch(
             "aepsych.server.AEPsychServer.parnames", new_callable=PropertyMock
@@ -630,7 +629,6 @@ class ServerTestCase(unittest.TestCase):
             self.assertTrue(
                 torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
             )
->>>>>>>>> Temporary merge branch 2
 
 
 if __name__ == "__main__":
