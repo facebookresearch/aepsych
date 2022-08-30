@@ -625,6 +625,29 @@ class ServerTestCase(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             response = self.s.versioned_handler(get_config_request)
 
+    def test_tell(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        self.s.db.record_message = MagicMock()
+
+        self.s.unversioned_handler(setup_request)
+        self.s.unversioned_handler(tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 2)
+        self.assertEqual(len(self.s.strat.x), 1)
+
+        tell_request["message"]["model_data"] = False
+        self.s.unversioned_handler(tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 3)
+        self.assertEqual(len(self.s.strat.x), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
