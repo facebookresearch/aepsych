@@ -51,6 +51,7 @@ class AEPsychServer(object):
         self.exit_server_loop = False
         self._db_master_record = None
         self.db = db.Database(database_path)
+        self.skip_computations = False
 
         if self.db.is_update_required():
             raise RuntimeError(
@@ -137,32 +138,18 @@ class AEPsychServer(object):
 
         # this prevents writing back to the DB and creating a circular firing squad
         self.is_performing_replay = True
+        self.skip_computations = skip_computations
 
         for result in master_record.children_replay:
             request = result.message_contents
             logger.debug(f"replay - type = {result.message_type} request = {request}")
-            if (
-                request["type"] == "ask" or request["type"] == "query"
-            ) and skip_computations is True:
-                logger.info(
-                    "Request type is ask or query and skip_computations==True, skipping!"
-                )
-                # HACK increment strat's count and manually move to next strat as needed, since
-                # strats count based on `gen` calls not `add_data calls`.
-                # TODO this should probably be the other way around when we refactor
-                # the whole Modelbridge/Strategy axis.
-                self.strat._strat._count += 1
-                if (
-                    isinstance(self.strat, SequentialStrategy)
-                    and self.strat._count >= self.strat._strat.min_asks
-                ):
-                    self.strat._make_next_strat()
-                continue
             if "version" in request.keys():
                 result = self.versioned_handler(request)
             else:
                 result = self.unversioned_handler(request)
+
         self.is_performing_replay = False
+        self.skip_computations = False
 
     def _unpack_strat_buffer(self, strat_buffer):
         if isinstance(strat_buffer, io.BytesIO):
@@ -545,6 +532,9 @@ class AEPsychServer(object):
         y=None,
         constraints=None,
     ):
+        if self.skip_computations:
+            return None
+
         constraints = constraints or {}
         response = {
             "query_type": query_type,
@@ -665,6 +655,9 @@ class AEPsychServer(object):
         Returns:
             dict -- new config dict (keys are strings, values are floats)
         """
+        if self.skip_computations:
+            return None
+
         # index by [0] is temporary HACK while serverside
         # doesn't handle batched ask
         next_x = self.strat.gen()[0]
