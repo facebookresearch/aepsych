@@ -167,6 +167,29 @@ class TestSequenceGenerators(unittest.TestCase):
                 torch.equal(self.strat.model.train_inputs[0], data[lb : i + 1])
             )
 
+    def test_run_indefinitely(self):
+        lb = [-1, -1]
+        ub = [1, 1]
+
+        with self.assertWarns(UserWarning):
+            self.strat = Strategy(
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                ),
+                generator=SobolGenerator(lb=lb, ub=ub),
+                lb=lb,
+                ub=ub,
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
+                min_asks=1,  # should be ignored
+                run_indefinitely=True,
+            )
+        self.strat.gen()
+        self.assertFalse(self.strat.finished)
+        self.strat.finish()
+        self.assertTrue(self.strat.finished)
+
     def test_n_trials_deprecation(self):
         seed = 1
         torch.manual_seed(seed)

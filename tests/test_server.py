@@ -648,6 +648,38 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(self.s.db.record_message.call_count, 3)
         self.assertEqual(len(self.s.strat.x), 1)
 
+    def test_handle_finish_strategy(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        ask_request = {"type": "ask", "message": ""}
+
+        strat_name_request = {"type": "strategy_name"}
+        finish_strat_request = {"type": "finish_strategy"}
+
+        self.s.unversioned_handler(setup_request)
+        strat_name = self.s.unversioned_handler(strat_name_request)
+        self.assertEqual(strat_name, "init_strat")
+
+        # model-based strategies require data
+        self.s.unversioned_handler(tell_request)
+
+        msg = self.s.unversioned_handler(finish_strat_request)
+        self.assertEqual(msg, "finished strategy init_strat")
+
+        # need to gen another trial to move to next strategy
+        self.s.unversioned_handler(ask_request)
+
+        strat_name = self.s.unversioned_handler(strat_name_request)
+        self.assertEqual(strat_name, "opt_strat")
+
 
 if __name__ == "__main__":
     unittest.main()

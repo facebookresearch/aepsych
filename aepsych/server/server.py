@@ -414,6 +414,8 @@ class AEPsychServer(object):
             "can_model": self.handle_can_model,
             "exit": self.handle_exit,
             "get_config": self.handle_get_config,
+            "finish_strategy": self.handle_finish_strategy,
+            "strategy_name": self.handle_strategy_name,
         }
 
         if "type" not in request.keys():
@@ -612,6 +614,12 @@ class AEPsychServer(object):
 
         # If both section and property are specified, return only the relevant value from the config
         return self.config.to_dict(deduplicate=False)[section][prop]
+    def handle_finish_strategy(self, request):
+        self.strat.finish()
+        return f"finished strategy {self.strat.name}"
+
+    def handle_strategy_name(self, request):
+        return self.strat.name
 
     ### Properties that are set on a per-strat basis
     @property
