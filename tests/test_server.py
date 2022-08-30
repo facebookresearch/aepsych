@@ -630,6 +630,93 @@ class ServerTestCase(unittest.TestCase):
                 torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
             )
 
+    def test_get_config(self):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        get_config_request = {"type": "get_config", "message": {}}
+
+        self.s.versioned_handler(setup_request)
+        config_dict = self.s.versioned_handler(get_config_request)
+        true_config_dict = Config(config_str=dummy_config).to_dict(deduplicate=False)
+        self.assertEqual(config_dict, true_config_dict)
+
+        get_config_request["message"] = {
+            "section": "init_strat",
+            "property": "min_asks",
+        }
+        response = self.s.versioned_handler(get_config_request)
+        self.assertEqual(response, true_config_dict["init_strat"]["min_asks"])
+
+        get_config_request["message"] = {"section": "init_strat", "property": "lb"}
+        response = self.s.versioned_handler(get_config_request)
+        self.assertEqual(response, true_config_dict["init_strat"]["lb"])
+
+        get_config_request["message"] = {"property": "min_asks"}
+        with self.assertRaises(RuntimeError):
+            response = self.s.versioned_handler(get_config_request)
+
+        get_config_request["message"] = {"section": "init_strat"}
+        with self.assertRaises(RuntimeError):
+            response = self.s.versioned_handler(get_config_request)
+
+    def test_tell(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        self.s.db.record_message = MagicMock()
+
+        self.s.unversioned_handler(setup_request)
+        self.s.unversioned_handler(tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 2)
+        self.assertEqual(len(self.s.strat.x), 1)
+
+        tell_request["message"]["model_data"] = False
+        self.s.unversioned_handler(tell_request)
+        self.assertEqual(self.s.db.record_message.call_count, 3)
+        self.assertEqual(len(self.s.strat.x), 1)
+
+    def test_handle_finish_strategy(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        ask_request = {"type": "ask", "message": ""}
+
+        strat_name_request = {"type": "strategy_name"}
+        finish_strat_request = {"type": "finish_strategy"}
+
+        self.s.unversioned_handler(setup_request)
+        strat_name = self.s.unversioned_handler(strat_name_request)
+        self.assertEqual(strat_name, "init_strat")
+
+        # model-based strategies require data
+        self.s.unversioned_handler(tell_request)
+
+        msg = self.s.unversioned_handler(finish_strat_request)
+        self.assertEqual(msg, "finished strategy init_strat")
+
+        # need to gen another trial to move to next strategy
+        self.s.unversioned_handler(ask_request)
+
+        strat_name = self.s.unversioned_handler(strat_name_request)
+        self.assertEqual(strat_name, "opt_strat")
+
 
 if __name__ == "__main__":
     unittest.main()

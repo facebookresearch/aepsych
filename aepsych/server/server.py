@@ -59,6 +59,7 @@ class AEPsychServer(object):
 
         self._strats = []
         self._parnames = []
+        self._configs = []
         self.strat_id = -1
 
         self.debug = False
@@ -428,6 +429,9 @@ class AEPsychServer(object):
             "parameters": self.handle_params,
             "can_model": self.handle_can_model,
             "exit": self.handle_exit,
+            "get_config": self.handle_get_config,
+            "finish_strategy": self.handle_finish_strategy,
+            "strategy_name": self.handle_strategy_name,
         }
 
         if "type" not in request.keys():
@@ -609,8 +613,32 @@ class AEPsychServer(object):
 
         # If using thrift, it will add 'Terminate' to the queue and pass it to thrift server level
         return "Terminate"
+        
+    def handle_get_config(self, request):
+        msg = request["message"]
+        section = msg.get("section", None)
+        prop = msg.get("property", None)
 
-    # Properties that are set on a per-strat basis
+        # If section and property are not specified, return the whole config
+        if section is None and prop is None:
+            return self.config.to_dict(deduplicate=False)
+
+        # If section and property are not both specified, raise an error
+        if section is None and prop is not None:
+            raise RuntimeError("Message contains a property but not a section!")
+        if section is not None and prop is None:
+            raise RuntimeError("Message contains a section but not a property!")
+
+        # If both section and property are specified, return only the relevant value from the config
+        return self.config.to_dict(deduplicate=False)[section][prop]
+    def handle_finish_strategy(self, request):
+        self.strat.finish()
+        return f"finished strategy {self.strat.name}"
+
+    def handle_strategy_name(self, request):
+        return self.strat.name
+
+    ### Properties that are set on a per-strat basis
     @property
     def strat(self):
         if self.strat_id == -1:
@@ -621,6 +649,17 @@ class AEPsychServer(object):
     @strat.setter
     def strat(self, s):
         self._strats.append(s)
+
+    @property
+    def config(self):
+        if self.strat_id == -1:
+            return None
+        else:
+            return self._configs[self.strat_id]
+
+    @config.setter
+    def config(self, s):
+        self._configs.append(s)
 
     @property
     def parnames(self):
@@ -666,7 +705,7 @@ class AEPsychServer(object):
             x = torch.tensor(np.stack(unpacked))
         return x
 
-    def tell(self, outcome, config):
+    def tell(self, outcome, config, model_data=True):
         """tell the model which input was run and what the outcome was
         Arguments:
             inputs {dict} -- dictionary, keys are strings, values are floats or int.
@@ -675,15 +714,16 @@ class AEPsychServer(object):
             TODO better types
         """
 
-        x = self._config_to_tensor(config)
-        y = outcome
-        self.strat.add_data(x, y)
+        if model_data:
+            x = self._config_to_tensor(config)
+            y = outcome
+            self.strat.add_data(x, y)
 
     def _configure(self, config):
         self.parnames = config._str_to_list(
             config.get("common", "parnames"), element_type=str
         )
-
+        self.config = config
         self.strat = SequentialStrategy.from_config(config)
         self.strat_id = self.n_strats - 1  # 0-index strats
         return self.strat_id

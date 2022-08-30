@@ -61,7 +61,11 @@ class AEPsychClient:
         return response
 
     def tell(
-        self, config: Dict[str, List[Any]], outcome: int, **metadata: Dict[str, Any]
+        self,
+        config: Dict[str, List[Any]],
+        outcome: int,
+        model_data: bool = True,
+        **metadata: Dict[str, Any],
     ) -> None:
         """Update the server on a configuration that was executed.
 
@@ -69,6 +73,8 @@ class AEPsychClient:
             config (Dict[str, str]): Config that was evaluated.
             outcome (int): Outcome that was obtained.
             metadata (optional kwargs) is passed to the extra_info field on the server.
+            model_data (bool): If True, the data will be recorded in the db and included in the server's model. If False,
+                the data will be recorded in the db, but will not be used by the model. Defaults to True.
 
         Raises:
             AssertionError if server failed to acknowledge the tell.
@@ -76,7 +82,7 @@ class AEPsychClient:
 
         request = {
             "type": "tell",
-            "message": {"config": config, "outcome": outcome},
+            "message": {"config": config, "outcome": outcome, "model_data": model_data},
             "extra_info": metadata,
         }
         self._send_recv(request)

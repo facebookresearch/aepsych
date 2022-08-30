@@ -78,6 +78,10 @@ class ClientTestCase(unittest.TestCase):
         self.assertEqual(self.s._strats[0].x, tensor([[0.0]]))
         self.assertEqual(self.s._strats[0].y, tensor([[1.0]]))
 
+        self.client.tell(config={"x": [0]}, outcome=1, model_data=False)
+        self.assertEqual(self.s._strats[0].x, tensor([[0.0]]))
+        self.assertEqual(self.s._strats[0].y, tensor([[1.0]]))
+
         response = self.client.ask()
         self.assertTrue(response["is_finished"])
 

@@ -108,12 +108,12 @@ class Config(configparser.ConfigParser):
             )
 
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
-    def to_dict(self):
+    def to_dict(self, deduplicate=True):
         _dict = {}
         for section in self:
             _dict[section] = {}
             for setting in self[section]:
-                if section != "common" and setting in self["common"]:
+                if deduplicate and section != "common" and setting in self["common"]:
                     continue
                 _dict[section][setting] = self[section][setting]
         return _dict

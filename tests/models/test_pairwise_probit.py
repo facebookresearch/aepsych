@@ -15,7 +15,7 @@ import torch
 from aepsych import server, utils_logging
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
-from aepsych.generators import PairwiseOptimizeAcqfGenerator, PairwiseSobolGenerator
+from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import PairwiseProbitModel
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
@@ -92,7 +92,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2),
                 min_asks=n_init,
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
@@ -101,8 +101,10 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
-                generator=PairwiseOptimizeAcqfGenerator(
-                    acqf=qUpperConfidenceBound, acqf_kwargs=extra_acqf_args
+                generator=OptimizeAcqfGenerator(
+                    acqf=qUpperConfidenceBound,
+                    acqf_kwargs=extra_acqf_args,
+                    stimuli_per_trial=2,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -141,7 +143,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         np.random.seed(seed)
         lb = [-1, -1]
         ub = [1, 1]
-        gen = PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed)
+        gen = SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2)
         x = torch.Tensor(gen.gen(num_points=100))
         # "noiseless" new_novel_det (just take the mean instead of sampling)
         y = torch.Tensor(f_pairwise(new_novel_det, x) > 0.5).int()
@@ -163,7 +165,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         np.random.seed(seed)
         lb = [-1000, 0]
         ub = [0, 1e-5]
-        gen = PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed)
+        gen = SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2)
         x = torch.Tensor(gen.gen(num_points=100))
         # "noiseless" new_novel_det (just take the mean instead of sampling)
         xrescaled = x.clone()
@@ -195,7 +197,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2),
                 min_asks=n_init,
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
@@ -204,8 +206,10 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
-                generator=PairwiseOptimizeAcqfGenerator(
-                    acqf=qUpperConfidenceBound, acqf_kwargs=extra_acqf_args
+                generator=OptimizeAcqfGenerator(
+                    acqf=qUpperConfidenceBound,
+                    acqf_kwargs=extra_acqf_args,
+                    stimuli_per_trial=2,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -243,7 +247,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2),
                 min_asks=n_init,
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
@@ -252,8 +256,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
-                generator=PairwiseOptimizeAcqfGenerator(
-                    acqf=acqf, acqf_kwargs=extra_acqf_args
+                generator=OptimizeAcqfGenerator(
+                    acqf=acqf, acqf_kwargs=extra_acqf_args, stimuli_per_trial=2
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -270,7 +274,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 [bernoulli.rvs(f_pairwise(lambda x: x, next_pair, noise_scale=0.1))],
             )
 
-        test_gen = PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed + 1)
+        test_gen = SobolGenerator(lb=lb, ub=ub, seed=seed + 1, stimuli_per_trial=2)
         test_x = torch.Tensor(test_gen.gen(100))
 
         ftrue_test = (test_x[..., 0] - test_x[..., 1]).squeeze()
@@ -306,7 +310,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2),
                 min_asks=n_init,
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
@@ -315,8 +319,10 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
-                generator=PairwiseOptimizeAcqfGenerator(
-                    acqf=qUpperConfidenceBound, acqf_kwargs=extra_acqf_args
+                generator=OptimizeAcqfGenerator(
+                    acqf=qUpperConfidenceBound,
+                    acqf_kwargs=extra_acqf_args,
+                    stimuli_per_trial=2,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -355,7 +361,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                generator=PairwiseSobolGenerator(lb=lb, ub=ub, seed=seed),
+                generator=SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2),
                 min_asks=n_init,
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
@@ -364,8 +370,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
-                generator=PairwiseOptimizeAcqfGenerator(
-                    acqf=acqf, acqf_kwargs=extra_acqf_args
+                generator=OptimizeAcqfGenerator(
+                    acqf=acqf, acqf_kwargs=extra_acqf_args, stimuli_per_trial=2
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -400,10 +406,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             min_asks=10,
             stimuli_per_trial=2,
             outcome_types=["binary"],
-            generator=PairwiseSobolGenerator(
-                lb=[1, 2, 3],
-                ub=[2, 3, 4],
-                seed=12345,
+            generator=SobolGenerator(
+                lb=[1, 2, 3], ub=[2, 3, 4], seed=12345, stimuli_per_trial=2
             ),
         )
 
@@ -481,7 +485,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [opt_strat]
             model = PairwiseProbitModel
             min_asks = {n_opt}
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -489,7 +493,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
             """
@@ -531,7 +535,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [opt_strat]
             min_asks = {n_opt}
             model = PairwiseProbitModel
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -539,7 +543,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
             """
@@ -585,7 +589,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [opt_strat]
             model = PairwiseProbitModel
             min_asks = {n_opt}
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -593,7 +597,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
             """
@@ -698,7 +702,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [opt_strat]
             model = PairwiseProbitModel
             min_asks = 1
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -706,7 +710,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
             """
@@ -735,7 +739,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [opt_strat]
             model = PairwiseProbitModel
             min_asks = 1
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -743,7 +747,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
             """
@@ -771,7 +775,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [opt_strat]
             model = PairwiseProbitModel
             min_asks = 1
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -779,7 +783,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
             """

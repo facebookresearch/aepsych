@@ -62,6 +62,8 @@ class Strategy(object):
         max_asks: Optional[int] = None,
         keep_most_recent: Optional[int] = None,
         min_post_range: Optional[float] = None,
+        name: str = "",
+        run_indefinitely: bool = False,
     ):
         """Initialize the strategy object.
 
@@ -84,12 +86,22 @@ class Strategy(object):
                 as data collected from later trials. When None, the model is fitted on all data.
             min_post_range (float, optional): Experimental. The required difference between the posterior's minimum and maximum value in
                 probablity space before the strategy will finish. Ignored if None (default).
+            name (str): The name of the strategy. Defaults to the empty string.
+            run_indefinitely (bool): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will
+                be ignored. Defaults to False.
         """
+        self.is_finished = False
 
-        if min_total_tells > 0 and min_asks > 0:
+        if run_indefinitely:
+            warnings.warn(
+                f"Strategy {name} will run indefinitely until finish() is explicityly called. Other stopping criteria will be ignored."
+            )
+
+        elif min_total_tells > 0 and min_asks > 0:
             warnings.warn(
                 "Specifying both min_total_tells and min_asks > 0 may lead to unintended behavior."
             )
+
         assert len(outcome_types) == 1, "Multiple outcome types are not yet supported!"
         assert stimuli_per_trial in [
             1,
@@ -102,6 +114,7 @@ class Strategy(object):
                 "binary",
             ], f"Unknown outcome_type '{outcome}'!"
 
+        self.run_indefinitely = run_indefinitely
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.min_total_outcome_occurrences = min_total_outcome_occurrences
         self.max_asks = max_asks
@@ -142,6 +155,8 @@ class Strategy(object):
                 "strategy.min_asks == strategy.min_total_tells == 0. This strategy will not generate any points!",
                 UserWarning,
             )
+
+        self.name = name
 
     def normalize_inputs(self, x, y):
         """converts inputs into normalized format for this strategy
@@ -218,8 +233,17 @@ class Strategy(object):
     def sample(self, x, num_samples=None):
         return self.model.sample(x, num_samples=num_samples)
 
+    def finish(self):
+        self.is_finished = True
+
     @property
     def finished(self):
+        if self.is_finished:
+            return True
+
+        if self.run_indefinitely:
+            return False
+
         if hasattr(self.generator, "finished"):  # defer to generator if possible
             return self.generator.finished
 
@@ -369,6 +393,7 @@ class Strategy(object):
             min_post_range=min_post_range,
             keep_most_recent=keep_most_recent,
             min_total_tells=min_total_tells,
+            name=name,
         )
 
 
@@ -418,6 +443,9 @@ class SequentialStrategy(object):
         self._suggest_count = self._suggest_count + num_points
         return self._strat.gen(num_points=num_points, **kwargs)
 
+    def finish(self):
+        self._strat.finish()
+
     @property
     def finished(self):
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
@@ -428,6 +456,12 @@ class SequentialStrategy(object):
     @classmethod
     def from_config(cls, config: Config):
         strat_names = config.getlist("common", "strategy_names", element_type=str)
+
+        # ensure strat_names are unique
+        assert len(strat_names) == len(
+            set(strat_names)
+        ), f"Strategy names {strat_names} are not all unique!"
+
         strats = []
         for name in strat_names:
             strat = Strategy.from_config(config, str(name))
