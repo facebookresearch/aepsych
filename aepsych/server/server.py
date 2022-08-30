@@ -681,7 +681,7 @@ class AEPsychServer(object):
             x = torch.tensor(np.stack(unpacked))
         return x
 
-    def tell(self, outcome, config):
+    def tell(self, outcome, config, model_data=True):
         """tell the model which input was run and what the outcome was
 
         Arguments:
@@ -691,9 +691,10 @@ class AEPsychServer(object):
             TODO better types
         """
 
-        x = self._config_to_tensor(config)
-        y = outcome
-        self.strat.add_data(x, y)
+        if model_data:
+            x = self._config_to_tensor(config)
+            y = outcome
+            self.strat.add_data(x, y)
 
     def _configure(self, config):
         self.parnames = config._str_to_list(
