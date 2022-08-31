@@ -449,21 +449,20 @@ class ServerTestCase(unittest.TestCase):
             "message": {"config": {"x": [0.5]}, "outcome": 1},
             "extra_info": {},
         }
-        expected_x = [0, 1, 2, 3] * 2
+        expected_x = [0, 1, 2, 3]
         expected_z = list(reversed(expected_x))
         expected_y = [x % 2 for x in expected_x]
-        for _ in range(2):
-            i = 0
-            self.s.versioned_handler(setup_request)
-            while not self.s.strat.finished:
-                self.s.unversioned_handler(ask_request)
-                tell_request["message"]["config"]["x"] = [expected_x[i]]
-                tell_request["message"]["config"]["z"] = [expected_z[i]]
-                tell_request["message"]["outcome"] = expected_y[i]
-                tell_request["extra_info"]["e1"] = 1
-                tell_request["extra_info"]["e2"] = 2
-                i = i + 1
-                self.s.unversioned_handler(tell_request)
+        i = 0
+        self.s.versioned_handler(setup_request)
+        while not self.s.strat.finished:
+            self.s.unversioned_handler(ask_request)
+            tell_request["message"]["config"]["x"] = [expected_x[i]]
+            tell_request["message"]["config"]["z"] = [expected_z[i]]
+            tell_request["message"]["outcome"] = expected_y[i]
+            tell_request["extra_info"]["e1"] = 1
+            tell_request["extra_info"]["e2"] = 2
+            i = i + 1
+            self.s.unversioned_handler(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
         out_df = self.s.get_dataframe_from_replay(exp_id)
@@ -471,8 +470,8 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
         self.assertTrue((out_df.response == expected_y).all())
-        self.assertTrue((out_df.e1 == [1] * 8).all())
-        self.assertTrue((out_df.e2 == [2] * 8).all())
+        self.assertTrue((out_df.e1 == [1] * len(expected_x)).all())
+        self.assertTrue((out_df.e2 == [2] * len(expected_x)).all())
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
 
