@@ -4,6 +4,7 @@ pyzmq==19.0.2
 scipy
 sklearn
 gpytorch>=1.8.1
+statsmodels
 git+https://github.com/pytorch/botorch@main#egg=botorch
 SQLAlchemy
 dill
