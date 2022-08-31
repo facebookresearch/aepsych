@@ -83,7 +83,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 50
+        n_init = 20
         n_opt = 1
         lb = [-4.0, 1e-5]
         ub = [-1e-5, 4.0]
@@ -144,17 +144,17 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         lb = [-1, -1]
         ub = [1, 1]
         gen = SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2)
-        x = torch.Tensor(gen.gen(num_points=100))
+        x = torch.Tensor(gen.gen(num_points=20))
         # "noiseless" new_novel_det (just take the mean instead of sampling)
         y = torch.Tensor(f_pairwise(new_novel_det, x) > 0.5).int()
         model = PairwiseProbitModel(lb=lb, ub=ub)
-        model.fit(x[:90], y[:90])
+        model.fit(x[:18], y[:18])
         with torch.no_grad():
-            f0, _ = model.predict(x[90:, ..., 0])
-            f1, _ = model.predict(x[90:, ..., 1])
+            f0, _ = model.predict(x[18:, ..., 0])
+            f1, _ = model.predict(x[18:, ..., 1])
             pred_diff = norm.cdf(f1 - f0)
         pred = pred_diff > 0.5
-        npt.assert_allclose(pred, y[90:])
+        npt.assert_allclose(pred, y[18:])
 
     def test_pairwise_memorize_rescaled(self):
         """
@@ -166,20 +166,20 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         lb = [-1000, 0]
         ub = [0, 1e-5]
         gen = SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2)
-        x = torch.Tensor(gen.gen(num_points=100))
+        x = torch.Tensor(gen.gen(num_points=20))
         # "noiseless" new_novel_det (just take the mean instead of sampling)
         xrescaled = x.clone()
         xrescaled[:, 0, :] = xrescaled[:, 0, :] / 500 + 1
         xrescaled[:, 1, :] = xrescaled[:, 1, :] / 5e-6 - 1
         y = torch.Tensor(f_pairwise(new_novel_det, xrescaled) > 0.5).int()
         model = PairwiseProbitModel(lb=lb, ub=ub)
-        model.fit(x[:90], y[:90])
+        model.fit(x[:18], y[:18])
         with torch.no_grad():
-            f0, _ = model.predict(x[90:, ..., 0])
-            f1, _ = model.predict(x[90:, ..., 1])
+            f0, _ = model.predict(x[18:, ..., 0])
+            f1, _ = model.predict(x[18:, ..., 1])
             pred_diff = norm.cdf(f1 - f0)
         pred = pred_diff > 0.5
-        npt.assert_allclose(pred, y[90:])
+        npt.assert_allclose(pred, y[18:])
 
     def test_1d_pairwise_probit(self):
         """
@@ -300,7 +300,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 100
+        n_init = 20
         n_opt = 1
         lb = np.r_[-1, -1]
         ub = np.r_[1, 1]
@@ -350,7 +350,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 100
+        n_init = 20
         n_opt = 1
         lb = np.r_[-1, -1]
         ub = np.r_[1, 1]
