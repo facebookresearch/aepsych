@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 from inspect import signature
-from typing import Generic, TypeVar
+from typing import Any, Generic, Protocol, runtime_checkable, TypeVar
 
 import numpy as np
 from aepsych.config import Config
@@ -18,6 +18,13 @@ from botorch.acquisition import (
 )
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
+
+
+@runtime_checkable
+class AcqArgProtocol(Protocol):
+    @classmethod
+    def from_config(cls, config: Config) -> Any:
+        pass
 
 
 class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
@@ -50,6 +57,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                 "target": 0.75,
                 "objective": None,
                 "query_set_size": 512,
+                "posterior_transform": None,
             }
             extra_acqf_args = {
                 k: config.getobj(
@@ -61,11 +69,12 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
             extra_acqf_args = {
                 k: v for k, v in extra_acqf_args.items() if k in acqf_args_expected
             }
-            if (
-                "objective" in extra_acqf_args.keys()
-                and extra_acqf_args["objective"] is not None
-            ):
-                extra_acqf_args["objective"] = extra_acqf_args["objective"]()
+            for k, v in extra_acqf_args.items():
+                if hasattr(v, "from_config"):  # configure if needed
+                    assert isinstance(v, AcqArgProtocol)  # make mypy happy
+                    extra_acqf_args[k] = v.from_config(config)
+                elif isinstance(v, type):  # instaniate a class if needed
+                    extra_acqf_args[k] = v()
         else:
             extra_acqf_args = {}
 
