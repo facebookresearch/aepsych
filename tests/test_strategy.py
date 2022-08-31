@@ -156,11 +156,10 @@ class TestSequenceGenerators(unittest.TestCase):
         )
 
         self.strat.keep_most_recent = 2
-        data = torch.rand(5, 2)
+        data = torch.rand(4, 2)
         for i, d in enumerate(data):
-            self.strat.gen()
             self.strat.add_data(d, [0])
-            self.strat.fit()
+            self.strat.update()
 
             lb = max(0, i - self.strat.keep_most_recent + 1)
             self.assertTrue(
