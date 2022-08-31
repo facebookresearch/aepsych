@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from aepsych.utils import make_scaled_sobol
 from botorch.acquisition import AcquisitionFunction
+from botorch.acquisition.objective import PosteriorTransform
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.utils.transforms import t_batch_mode_transform
 from scipy.stats import norm
@@ -132,6 +133,7 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         model: GPyTorchModel,
         lookahead_type="levelset",
         target: Optional[float] = None,
+        posterior_transform: Optional[PosteriorTransform] = None,
         query_set_size: Optional[int] = None,
         Xq: Optional[Tensor] = None,
     ) -> None:
@@ -144,6 +146,7 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
             Xq: (m x d) global reference set.
         """
         super().__init__(model=model, target=target, lookahead_type=lookahead_type)
+        self.posterior_transform = posterior_transform
         assert (
             Xq is not None or query_set_size is not None
         ), "Must pass either query set size or a query set!"
@@ -177,8 +180,13 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         self, X: Tensor
     ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         Xq_batch = self.Xq.expand(X.shape[0], *self.Xq.shape)
+
         return self.lookahead_fn(
-            model=self.model, Xstar=X, Xq=Xq_batch, gamma=self.gamma
+            model=self.model,
+            Xstar=X,
+            Xq=Xq_batch,
+            gamma=self.gamma,
+            posterior_transform=self.posterior_transform,
         )
 
     def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
@@ -219,8 +227,13 @@ class ApproxGlobalSUR(GlobalSUR):
         self, X: Tensor
     ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
         Xq_batch = self.Xq.expand(X.shape[0], *self.Xq.shape)
+
         return approximate_lookahead_levelset_at_xstar(
-            model=self.model, Xstar=X, Xq=Xq_batch, gamma=self.gamma
+            model=self.model,
+            Xstar=X,
+            Xq=Xq_batch,
+            gamma=self.gamma,
+            posterior_transform=self.posterior_transform,
         )
 
 
@@ -230,14 +243,13 @@ class EAVC(GlobalLookaheadAcquisitionFunction):
 
 
 ## Local look-ahead acquisitions
-
-
 class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
     def __init__(
         self,
         model: GPyTorchModel,
         lookahead_type: str = "levelset",
         target: Optional[float] = None,
+        posterior_transform: Optional[PosteriorTransform] = None,
     ) -> None:
         """
         A localized look-ahead acquisition function.
@@ -246,7 +258,9 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
             model: The gpytorch model.
             target: Threshold value to target in p-space.
         """
+
         super().__init__(model=model, target=target, lookahead_type=lookahead_type)
+        self.posterior_transform = posterior_transform
 
     @t_batch_mode_transform(expected_q=1)
     def forward(self, X: Tensor) -> Tensor:
@@ -258,8 +272,13 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
 
         Returns: (b) tensor of acquisition values.
         """
+
         Px, P1, P0, py1 = self.lookahead_fn(
-            model=self.model, Xstar=X, Xq=X, gamma=self.gamma
+            model=self.model,
+            Xstar=X,
+            Xq=X,
+            gamma=self.gamma,
+            posterior_transform=self.posterior_transform,
         )  # Return shape here has m=1.
         return self._compute_acqf(Px, P1, P0, py1)
 
