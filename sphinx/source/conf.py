@@ -8,6 +8,10 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the scripts directory.
+
+
 
 # -- Path setup --------------------------------------------------------------
 
