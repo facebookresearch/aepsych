@@ -172,6 +172,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         mll = VariationalELBO(
             likelihood=self.likelihood, model=self, num_data=train_y.numel()
         )
+        # TODO: Replace with the following once test failures are understood.
+        # fit_gpytorch_mll(mll)
         mll = fit_gpytorch_model(mll)
 
     def update(self, train_x: Tensor, train_y: Tensor, warmstart: bool = True) -> None:

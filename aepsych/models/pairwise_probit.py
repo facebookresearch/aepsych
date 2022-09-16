@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import time
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import gpytorch
 import numpy as np
@@ -15,7 +15,7 @@ from aepsych.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
-from botorch.fit import fit_gpytorch_model
+from botorch.fit import fit_gpytorch_mll
 from botorch.models import PairwiseGP, PairwiseLaplaceMarginalLogLikelihood
 from botorch.models.transforms.input import Normalize
 from scipy.stats import norm
@@ -90,27 +90,32 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
         self.dim = dim  # The Pairwise constructor sets self.dim = None.
 
-    def fit(self, train_x, train_y, **kwargs):
+    def fit(
+        self,
+        train_x: torch.Tensor,
+        train_y: torch.Tensor,
+        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        **kwargs
+    ):
         self.train()
         mll = PairwiseLaplaceMarginalLogLikelihood(self.likelihood, self)
         datapoints, comparisons = self._pairs_to_comparisons(train_x, train_y)
         self.set_train_data(datapoints, comparisons)
 
+        optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
         max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
         if max_fit_time is not None:
             # figure out how long evaluating a single samp
             starttime = time.time()
             _ = mll(self(datapoints), comparisons)
             single_eval_time = time.time() - starttime
-            n_eval = max_fit_time // single_eval_time
-            options = {"maxfun": n_eval}
+            n_eval = int(max_fit_time / single_eval_time)
+            optimizer_kwargs["maxfun"] = n_eval
             logger.info(f"fit maxfun is {n_eval}")
 
-        else:
-            options = {}
         logger.info("Starting fit...")
         starttime = time.time()
-        fit_gpytorch_model(mll, options=options, **kwargs)
+        fit_gpytorch_mll(mll, optimizer_kwargs=optimizer_kwargs, **kwargs)
         logger.info(f"Fit done, time={time.time()-starttime}")
 
     def update(

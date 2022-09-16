@@ -9,7 +9,7 @@ import torch
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
-from botorch.fit import fit_gpytorch_model
+from botorch.fit import fit_gpytorch_mll
 from botorch.utils.testing import BotorchTestCase
 from gpytorch.likelihoods import BernoulliLikelihood
 from gpytorch.mlls.variational_elbo import VariationalELBO
@@ -55,6 +55,6 @@ class TestDerivativeGP(BotorchTestCase):
         mll = VariationalELBO(
             likelihood=BernoulliLikelihood(), model=m, num_data=train_y.numel()
         )
-        mll = fit_gpytorch_model(mll)
+        mll = fit_gpytorch_mll(mll)
         test_x = torch.tensor([[1.0, 0], [3.0, 1.0]])
         m(test_x)
