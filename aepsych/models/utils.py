@@ -5,10 +5,15 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
+
+from typing import Union
+
 import torch
 
 
-def compute_p_quantile(f_mean: torch.Tensor, f_std: torch.Tensor, alpha: float) -> torch.Tensor:
+def compute_p_quantile(
+    f_mean: torch.Tensor, f_std: torch.Tensor, alpha: Union[torch.Tensor, float]
+) -> torch.Tensor:
     """Compute quantile of p in probit model
 
     For f ~ N(mu_f, sigma_f^2) and p = Phi(f), computes the alpha quantile of p
