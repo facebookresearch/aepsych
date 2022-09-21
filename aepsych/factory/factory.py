@@ -101,8 +101,8 @@ def default_mean_covar_factory(
             f"Outputscale_prior should be gamma or box, got {outputscale_prior}"
         )
 
-    ls_constraint = gpytorch.constraints.Positive(
-        transform=None, initial_value=ls_prior_mode
+    ls_constraint = gpytorch.constraints.GreaterThan(
+        lower_bound=1e-4, transform=None, initial_value=ls_prior_mode
     )
 
     covar = gpytorch.kernels.ScaleKernel(
@@ -153,10 +153,9 @@ def monotonic_mean_covar_factory(
         transform=lambda x: 1 / x,
     )
     ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
-    ls_constraint = gpytorch.constraints.Positive(
-        transform=None, initial_value=ls_prior_mode
+    ls_constraint = gpytorch.constraints.GreaterThan(
+        lower_bound=1e-4, transform=None, initial_value=ls_prior_mode
     )
-
     covar = gpytorch.kernels.ScaleKernel(
         RBFKernelPartialObsGrad(
             lengthscale_prior=ls_prior,
@@ -206,8 +205,8 @@ def song_mean_covar_factory(
     )
     ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
 
-    ls_constraint = gpytorch.constraints.Positive(
-        transform=None, initial_value=ls_prior_mode
+    ls_constraint = gpytorch.constraints.GreaterThan(
+        lower_bound=1e-4, transform=None, initial_value=ls_prior_mode
     )
 
     stim_dim = config.getint("song_mean_covar_factory", "stim_dim", fallback=-1)
@@ -234,7 +233,10 @@ def song_mean_covar_factory(
         # this can just be LinearKernel but for consistency of interface
         # we make it additive with one module
         if not intensity_RBF:
-            return  mean, gpytorch.kernels.AdditiveKernel(intensity_covar),
+            return (
+                mean,
+                gpytorch.kernels.AdditiveKernel(intensity_covar),
+            )
         else:
             context_covar = gpytorch.kernels.ScaleKernel(
                 gpytorch.kernels.RBFKernel(
