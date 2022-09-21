@@ -114,10 +114,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
                 concentration=4.6, rate=1.0, transform=lambda x: 1 / x
             )
             ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
-            ls_constraint = gpytorch.constraints.Positive(
-                transform=None, initial_value=ls_prior_mode
+            ls_constraint = gpytorch.constraints.GreaterThan(
+                lower_bound=1e-4, transform=None, initial_value=ls_prior_mode
             )
-
             covar_module = gpytorch.kernels.ScaleKernel(
                 RBFKernelPartialObsGrad(
                     lengthscale_prior=ls_prior,
