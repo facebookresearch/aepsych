@@ -15,7 +15,7 @@ from aepsych.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
-from botorch.fit import fit_gpytorch_model
+from botorch.fit import fit_gpytorch_mll
 from botorch.models import PairwiseGP, PairwiseLaplaceMarginalLogLikelihood
 from botorch.models.transforms.input import Normalize
 from scipy.stats import norm
@@ -115,7 +115,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
         logger.info("Starting fit...")
         starttime = time.time()
-        fit_gpytorch_model(mll, **kwargs, **optimizer_kwargs)
+        fit_gpytorch_mll(mll, **kwargs, **optimizer_kwargs)
         logger.info(f"Fit done, time={time.time()-starttime}")
 
     def update(

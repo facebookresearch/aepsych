@@ -20,7 +20,7 @@ from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds, promote_0d
-from botorch.fit import fit_gpytorch_model
+from botorch.fit import fit_gpytorch_mll
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -171,9 +171,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         mll = VariationalELBO(
             likelihood=self.likelihood, model=self, num_data=train_y.numel()
         )
-        # TODO: Replace with the following once test failures are understood.
-        # fit_gpytorch_mll(mll)
-        mll = fit_gpytorch_model(mll)
+        mll = fit_gpytorch_mll(mll)
 
     def update(self, train_x: Tensor, train_y: Tensor, warmstart: bool = True) -> None:
         """
