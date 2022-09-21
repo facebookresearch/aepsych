@@ -12,10 +12,10 @@ from typing import Any, List, Optional, Union
 import gpytorch
 import numpy as np
 import torch
+from aepsych.models.gp_classification import GPClassificationModel
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr
-from aepsych.models.gp_classification import GPClassificationModel
 
 
 class MonotonicProjectionGP(GPClassificationModel):
@@ -87,6 +87,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         monotonic_grid_size: The size of the grid, s, in 1. above.
         min_f_val: If provided, maintains this minimum in the projection in 5.
     """
+
     def __init__(
         self,
         lb: Union[np.ndarray, torch.Tensor],
@@ -119,7 +120,10 @@ class MonotonicProjectionGP(GPClassificationModel):
         )
 
     def posterior(
-        self, X: torch.Tensor, observation_noise: Union[bool, torch.Tensor] = False, **kwargs: Any
+        self,
+        X: torch.Tensor,
+        observation_noise: Union[bool, torch.Tensor] = False,
+        **kwargs: Any,
     ) -> GPyTorchPosterior:
         # Augment X with monotonicity grid points, for each monotonic dim
         n, d = X.shape  # Require no batch dimensions
@@ -129,7 +133,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         for i, dim in enumerate(self.monotonic_dims):
             # using numpy because torch doesn't support vectorized linspace,
             # pytorch/issues/61292
-            grid = np.linspace(
+            grid: Union[np.ndarray, torch.Tensor] = np.linspace(
                 self.lb[dim],
                 X[:, dim].numpy(),
                 s + 1,
@@ -167,4 +171,3 @@ class MonotonicProjectionGP(GPClassificationModel):
         if self.min_f_val is not None:
             samps = samps.clamp(min=self.min_f_val)
         return samps
-
