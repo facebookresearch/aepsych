@@ -77,9 +77,6 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         )
         self.assertEqual(acq.target, 1.5)
         self.assertTrue(isinstance(acq.objective, IdentityMCObjective))
-        # Update
-        m.update(train_x=train_x[:2, :2], train_y=train_y[:2, :], warmstart=True)
-        self.assertEqual(m.train_inputs[0].shape, torch.Size([2, 3]))
 
     def testClassification(self):
         # Init

@@ -11,6 +11,7 @@ from typing import List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
+from botorch.exceptions.errors import ModelFittingError
 
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
@@ -295,22 +296,44 @@ class Strategy(object):
     def fit(self):
         if self.can_fit:
             if self.keep_most_recent is not None:
-                self.model.fit(
-                    self.x[-self.keep_most_recent :], self.y[-self.keep_most_recent :]
-                )
+                try:
+                    self.model.fit(
+                        self.x[-self.keep_most_recent :],
+                        self.y[-self.keep_most_recent :],
+                    )
+                except (ModelFittingError):
+                    logger.warning(
+                        "Failed to fit model! Predictions may not be accurate!"
+                    )
             else:
-                self.model.fit(self.x, self.y)
+                try:
+                    self.model.fit(self.x, self.y)
+                except (ModelFittingError):
+                    logger.warning(
+                        "Failed to fit model! Predictions may not be accurate!"
+                    )
         else:
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     def update(self):
         if self.can_fit:
             if self.keep_most_recent is not None:
-                self.model.update(
-                    self.x[-self.keep_most_recent :], self.y[-self.keep_most_recent :]
-                )
+                try:
+                    self.model.update(
+                        self.x[-self.keep_most_recent :],
+                        self.y[-self.keep_most_recent :],
+                    )
+                except (ModelFittingError):
+                    logger.warning(
+                        "Failed to fit model! Predictions may not be accurate!"
+                    )
             else:
-                self.model.update(self.x, self.y)
+                try:
+                    self.model.update(self.x, self.y)
+                except (ModelFittingError):
+                    logger.warning(
+                        "Failed to fit model! Predictions may not be accurate!"
+                    )
         else:
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
