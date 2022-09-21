@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import configparser
-from typing import Any, List, Mapping, Optional, TypeVar, Union
+from typing import Any, ClassVar, Dict, List, Mapping, Optional, TypeVar, Union
 
 import numpy as np
 import torch
@@ -20,6 +20,7 @@ arcane way that ConfigParser handles type conversions.
 """
 
 class Config(configparser.ConfigParser):
+    registered_names: ClassVar[Dict[str, object]]
     def gettensor(
         self,
         section: str,
