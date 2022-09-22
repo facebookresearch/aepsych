@@ -604,6 +604,7 @@ class AEPsychServer(object):
 
         # If both section and property are specified, return only the relevant value from the config
         return self.config.to_dict(deduplicate=False)[section][prop]
+
     def handle_finish_strategy(self, request):
         self.strat.finish()
         return f"finished strategy {self.strat.name}"
@@ -656,6 +657,10 @@ class AEPsychServer(object):
             dict -- new config dict (keys are strings, values are floats)
         """
         if self.skip_computations:
+            # HACK to makke sure strategies finish correctly
+            self.strat._strat._count += 1
+            if self.strat._strat.finished:
+                self.strat._make_next_strat()
             return None
 
         # index by [0] is temporary HACK while serverside

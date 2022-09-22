@@ -635,14 +635,14 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(strat_name, "opt_strat")
 
     @patch(
-        "aepsych.strategy.SequentialStrategy.gen",
-        side_effect=lambda: torch.tensor([[0.0]]),
+        "aepsych.strategy.Strategy.gen",
+        side_effect=lambda num_points: torch.tensor([[0.0]]),
     )
     @patch(
         "aepsych.strategy.Strategy.get_max",
         side_effect=lambda query_type: (torch.tensor([[0.0]]), torch.tensor([[0.0]])),
     )
-    def test_replay_server_skip_computations(self, mock_gen, mock_query):
+    def test_replay_server_skip_computations(self, mock_query, mock_gen):
         setup_request = {
             "type": "setup",
             "version": "0.01",
@@ -651,7 +651,16 @@ class ServerTestCase(unittest.TestCase):
         self.s.versioned_handler(setup_request)
 
         ask_request = {"type": "ask", "message": ""}
-        self.s.unversioned_handler(ask_request)
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+        self.s.unversioned_handler(tell_request)
+
+        n_asks = 3  # number of asks needed to move to opt_strat
+        for _ in range(n_asks):
+            self.s.unversioned_handler(ask_request)
 
         query_request = {
             "type": "query",
@@ -664,11 +673,12 @@ class ServerTestCase(unittest.TestCase):
         self.s.replay(self.s._db_master_record.experiment_id, skip_computations=True)
 
         # gen and query are called once each from the messages above
-        self.assertEqual(mock_gen.call_count, 1)
+        self.assertEqual(mock_gen.call_count, n_asks)
         self.assertEqual(mock_query.call_count, 1)
+        self.assertEqual(self.s.strat._strat_idx, 1)  # make sure init_strat finished
 
         self.s.replay(self.s._db_master_record.experiment_id, skip_computations=False)
-        self.assertEqual(mock_gen.call_count, 2)
+        self.assertEqual(mock_gen.call_count, n_asks * 2)
         self.assertEqual(mock_query.call_count, 2)
 
 
