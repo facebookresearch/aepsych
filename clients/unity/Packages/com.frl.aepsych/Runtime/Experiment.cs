@@ -75,6 +75,7 @@ namespace AEPsych
         bool tellInProcess = false;
         bool hasStarted = false;
         bool nextConfigReady = false;
+        bool askAfterTell = true;
         Coroutine trialResponseListener;
         ExperimentState prevState;
         GameObject ModelExplorerPrefab;
@@ -161,7 +162,7 @@ namespace AEPsych
             AEPsychClient.Log("Starting Experiment: Strategy " + strategy.stratId);
             hasStarted = true;
             if (strategy != null)
-                StartCoroutine(AskForNewConfig(strategy));
+                Ask(strategy);
             else
             {
                 Debug.LogError("Manual config selected, but config file field is empty. " +
@@ -281,9 +282,18 @@ namespace AEPsych
         }
 
         /// <summary>
+        /// Manually sends an ask message to the server. Call this function if you set followTellWithNewAsk equal to
+        /// false in a prior call to ReportResultToServer
+        /// </summary>
+        public void Ask(AEPsychStrategy strat)
+        {
+            StartCoroutine(AskForNewConfig(strat));
+        }
+
+        /// <summary>
         /// Called when user makes a judgement and selects a response. Updates the AEPsych model with a new data point.
         /// </summary>
-        public void ReportResultToServer(float outcome, TrialMetadata metadata = null)
+        public void ReportResultToServer(float outcome, TrialMetadata metadata = null, bool followTellWithNewAsk = true)
         {
             if (asyncAsk && _experimentState == ExperimentState.WaitingForAsyncAsk)
             {
@@ -307,6 +317,8 @@ namespace AEPsych
             {
                 queryModel.QueryEnabled(false);
             }
+
+            askAfterTell = followTellWithNewAsk;
 
             if (asyncAsk)
             {
@@ -391,7 +403,14 @@ namespace AEPsych
             {
                 ShowStimuli(config);
             }
-            StartCoroutine(AskForNewConfig(strategy));
+            if (askAfterTell)
+            {
+                Ask(strategy);
+            }
+            else
+            {
+                SetState(ExperimentState.WaitingForAsk);
+            }
             yield return null;
         }
 
@@ -614,7 +633,7 @@ namespace AEPsych
                         nextConfig = client.GetConfig();
                         initStatus = InitStatus.FirstAskComplete;
                         //SetState(ExperimentState.WaitingForAsyncAsk);
-                        StartCoroutine(AskForNewConfig(strategy));
+                        Ask(strategy);
                         return;
                     }
 
@@ -881,7 +900,7 @@ namespace AEPsych
                 }
                 else
                 {
-                    StartCoroutine(AskForNewConfig(strategy));
+                    Ask(strategy);
                 }
             }
             else
