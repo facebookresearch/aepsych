@@ -172,11 +172,11 @@ class Problem:
 
         ferrs = fsamps - self.f_true[None, :]
         miae_f = np.mean(np.abs(ferrs))
-        mise_f = np.mean(ferrs ** 2)
+        mise_f = np.mean(ferrs**2)
 
         perrs = psamps - self.p_true[None, :]
         miae_p = np.mean(np.abs(perrs))
-        mise_p = np.mean(perrs ** 2)
+        mise_p = np.mean(perrs**2)
 
         expected_brier = (2 * np.square(self.p_true[None, :] - psamps)).mean()
 
@@ -217,9 +217,17 @@ class LSEProblem(Problem):
         md["threshold"] = self.threshold
         return md
 
-    @cached_property
-    def f_threshold(self):
-        return float(norm.ppf(self.threshold))
+    def f_threshold(self, model=None):
+
+        try:
+            inverse_torch = model.likelihood.objective.inverse
+
+            def inverse_link(x):
+                return inverse_torch(torch.tensor(x)).numpy()
+
+        except AttributeError:
+            inverse_link = norm.ppf
+        return float(inverse_link(self.threshold))
 
     @cached_property
     def true_below_threshold(self) -> np.ndarray:
@@ -256,10 +264,7 @@ class LSEProblem(Problem):
         # define what "threshold" means in high-dim.
 
         # Predict p(below threshold) at test points
-        f, var = model.predict(self.eval_grid)
-        p_l = norm.cdf(
-            (self.f_threshold - f.detach().numpy()) / var.sqrt().detach().numpy()
-        )
+        p_l = model.p_below_threshold(self.eval_grid, self.f_threshold(model))
 
         # Brier score on level-set probabilities
         thresh = self.threshold

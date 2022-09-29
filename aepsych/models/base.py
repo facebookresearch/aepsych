@@ -24,6 +24,7 @@ from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
 from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
+from scipy.stats import norm
 
 logger = getLogger()
 
@@ -89,6 +90,9 @@ class ModelProtocol(Protocol):
     def update(
         self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs: Any
     ) -> None:
+        pass
+
+    def p_below_threshold(self, x, f_thresh) -> np.ndarray:
         pass
 
 
@@ -418,3 +422,7 @@ class AEPsychMixin(GPyTorchModel):
         starttime = time.time()
         fit_gpytorch_mll(mll, optimizer_kwargs=optimizer_kwargs, **kwargs)
         logger.info(f"Fit done, time={time.time()-starttime}")
+
+    def p_below_threshold(self, x, f_thresh) -> np.ndarray:
+        f, var = self.predict(x)
+        return norm.cdf((f_thresh - f.detach().numpy()) / var.sqrt().detach().numpy())
