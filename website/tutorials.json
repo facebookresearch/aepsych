@@ -1,8 +1,17 @@
 {
     "Running experiments with AEPsych": [
         {
+            "id": "minimal_python_example",
+            "title": "Minimal Python example"
+        },
+        {
             "id": "data_collection_analysis_tutorial",
-            "title": "Data Collection Analysis Tutorial"
+            "title": "Fully worked visual psychophysics experiment"
+        },
+        {
+            "id": "replay",
+            "title": "Replaying experiments from the AEPsych database"
         }
+
     ]
 }
