@@ -62,6 +62,7 @@ namespace AEPsych
         #region
         [HideInInspector] public bool isDone = false;
         [HideInInspector] public bool isPaused = false;
+        [HideInInspector] public bool autoAsk = true;
         [HideInInspector] public DefaultUI defaultUI;
         [HideInInspector] public QueryModel queryModel;
 
@@ -75,7 +76,6 @@ namespace AEPsych
         bool tellInProcess = false;
         bool hasStarted = false;
         bool nextConfigReady = false;
-        bool askAfterTell = true;
         Coroutine trialResponseListener;
         ExperimentState prevState;
         GameObject ModelExplorerPrefab;
@@ -161,9 +161,9 @@ namespace AEPsych
         {
             AEPsychClient.Log("Starting Experiment: Strategy " + strategy.stratId);
             hasStarted = true;
-            if (strategy != null)
+            if (strategy != null && autoAsk)
                 Ask(strategy);
-            else
+            else if (strategy == null)
             {
                 Debug.LogError("Manual config selected, but config file field is empty. " +
                     "To use manual config files, assign one in the AEPsychClient inspector " +
@@ -318,7 +318,7 @@ namespace AEPsych
                 queryModel.QueryEnabled(false);
             }
 
-            askAfterTell = followTellWithNewAsk;
+            autoAsk = followTellWithNewAsk;
 
             if (asyncAsk)
             {
@@ -357,12 +357,14 @@ namespace AEPsych
             {
                 yield return StartCoroutine(strat.InitStrat(client, configPath: configPath, true));
             }
+            /*
             // Resume this strat if AEPsych Client was previously handling a different one
             if (client.currentStrat != strat.stratId)
             {
                 SetState(ExperimentState.WaitingForResumeResponse);
                 yield return StartCoroutine(client.Resume(strat.stratId));
             }
+            */
             // Don't increment trial for initial double ask
             if (asyncAsk && initStatus <= InitStatus.FirstAskComplete)
             {
@@ -403,7 +405,7 @@ namespace AEPsych
             {
                 ShowStimuli(config);
             }
-            if (askAfterTell)
+            if (autoAsk)
             {
                 Ask(strategy);
             }
@@ -512,7 +514,7 @@ namespace AEPsych
         void Disconnect()
         {
             AEPsychClient.Log("Disconnecting " + GetName());
-            StopAllCoroutines();
+            //StopAllCoroutines();
             if (client)
             {
                 client.onStatusChanged -= OnStatusChanged;
@@ -548,7 +550,7 @@ namespace AEPsych
                 "old client: {1}, new client: {2}", _experimentState, oldStatus, newStatus));
             if (_experimentState == ExperimentState.NotConnected)
             {
-                if (newStatus == AEPsychClient.ClientStatus.GotResponse)
+                if (newStatus == AEPsychClient.ClientStatus.Ready)
                     OnConnectToServer();
                 else if (newStatus == AEPsychClient.ClientStatus.FailedToConnect)
                 {
@@ -594,7 +596,22 @@ namespace AEPsych
             {
                 if (newStatus == AEPsychClient.ClientStatus.GotResponse)
                 {
-                    SetState(ExperimentState.WaitingForAsk);
+                    if (config != null && config.Count() > 0)
+                    {
+                        AEPsychClient.Log("Resuming prior trial: " + config);
+                        SetState(ExperimentState.ConfigReady);
+                        if (!client.finished)
+                        {
+                            ShowStimuli(config);
+                        }
+                    }
+                    else
+                    {
+                        if (autoAsk)
+                            Ask(strategy);
+                        else
+                            SetState(ExperimentState.WaitingForAsk);
+                    }
                 }
             }
             else if (_experimentState == ExperimentState.WaitingForAskResponse)
@@ -745,7 +762,7 @@ namespace AEPsych
         /// pass domain knowledge to the AEPsych model. The manual config must match your
         /// experiment type and dimensions.
         /// </summary>
-        public void ManualTell(TrialConfig manualConfig, int outcome)
+        public void ManualTell(TrialConfig manualConfig, float outcome)
         {
             if (isManualTellInProcess())
             {
@@ -755,7 +772,7 @@ namespace AEPsych
             StartCoroutine(ManualTellServer(manualConfig, outcome));
         }
 
-        IEnumerator ManualTellServer(TrialConfig manualConfig, int outcome)
+        IEnumerator ManualTellServer(TrialConfig manualConfig, float outcome)
         {
             if (trialResponseListener != null)
             {
@@ -786,6 +803,15 @@ namespace AEPsych
         public bool isManualTellInProcess()
         {
             return tellInProcess;
+        }
+
+        public void RemoveConfig()
+        {
+            if (config != null)
+            {
+                config.Clear();
+                config = null;
+            }
         }
 
         public IEnumerator CheckQueryReady()
@@ -889,19 +915,13 @@ namespace AEPsych
             if (hasStarted)
             {
                 client.onStatusChanged += OnStatusChanged;
-                if (config != null)
+                // Resume this strat if AEPsych Client was previously handling a different one
+                if (client.currentStrat != strategy.stratId)
                 {
-                    AEPsychClient.Log("Resuming prior trial: " + config);
-                    SetState(ExperimentState.ConfigReady);
-                    if (!client.finished)
-                    {
-                        ShowStimuli(config);
-                    }
+                    SetState(ExperimentState.WaitingForResumeResponse);
+                    StartCoroutine(client.Resume(strategy.stratId));
                 }
-                else
-                {
-                    Ask(strategy);
-                }
+
             }
             else
                 StartCoroutine(ConnectAndGenerateStrategies());
@@ -987,8 +1007,9 @@ namespace AEPsych
             Experiment[] prevExperiments = FindObjectsOfType<Experiment>();
             foreach (Experiment e in prevExperiments)
             {
-                if (e.GetName() != GetName())
+                if (e.GetName() != GetName() && !e.isPaused)
                 {
+                    AEPsychClient.Log("Pausing experiment " + e.GetName());
                     e.PauseExperiment();
                     StartCoroutine(ResumeWhenPaused(e));
                     waiting = true;
@@ -1007,7 +1028,10 @@ namespace AEPsych
             }
             */
             if (!waiting)
+            {
                 Resume();
+                AEPsychClient.Log("No experiments to pause. Resuming...");
+            }
         }
 
         private void OnDestroy()
