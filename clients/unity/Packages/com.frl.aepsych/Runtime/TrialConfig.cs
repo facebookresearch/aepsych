@@ -102,6 +102,16 @@ namespace AEPsych
             return innerDict.ContainsKey(key);
         }
 
+        public TrialConfig Copy()
+        {
+            TrialConfig t = new TrialConfig();
+            foreach (KeyValuePair<string, List<float>> pair in innerDict)
+            {
+                t.Add(pair.Key, pair.Value);
+            }
+            return t;
+        }
+
         public void CopyTo(KeyValuePair<string, List<float>>[] array, int arrayIndex)
         {
             int idx = arrayIndex;
