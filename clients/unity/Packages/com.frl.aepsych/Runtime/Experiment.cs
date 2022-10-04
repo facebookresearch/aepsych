@@ -202,7 +202,7 @@ namespace AEPsych
 
         }
 
-        public virtual void PauseExperiment()
+    public virtual void PauseExperiment()
         {
             AEPsychClient.Log("Pausing " + name);
 
@@ -332,7 +332,7 @@ namespace AEPsych
             ReportResultToServer(outcome, metadata);
         }
 
-        IEnumerator WaitForResponse()
+        public virtual IEnumerator WaitForResponse()
         {
             yield return new WaitForSeconds(0.1f);
             yield return new WaitUntil(() => Input.GetKeyDown(ResponseKey0) || Input.GetKeyDown(ResponseKey1));
@@ -874,7 +874,7 @@ namespace AEPsych
             Disconnect();
         }
 
-        public void EndShowStimuli()
+        public virtual void EndShowStimuli()
         {
             if (_experimentState == ExperimentState.Exploring)
             {
