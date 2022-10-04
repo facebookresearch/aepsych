@@ -263,6 +263,76 @@ class TestSequenceGenerators(unittest.TestCase):
         self.assertTrue(np.max(gen1) <= 1)
         self.assertTrue(np.max(gen2) <= -8)
 
+    def test_strategy_asserts(self):
+        class MockModel(object):
+            _num_outputs = 1
+            _batch_shape = 2
+            stimuli_per_trial = 1
+            outcome_type = "binary"
+
+        # assert if model and strategy disagree on stimuli_per_trial
+        with self.assertRaises(AssertionError):
+            _ = Strategy(
+                lb=[-1],
+                ub=[1],
+                min_asks=5,
+                stimuli_per_trial=2,
+                model=MockModel(),
+                generator=SobolGenerator(lb=[-1], ub=[1], stimuli_per_trial=2),
+                outcome_types=["binary"],
+            )
+
+        # assert if model and strategy disagree on outcome_type
+        with self.assertRaises(AssertionError):
+            _ = Strategy(
+                lb=[-1],
+                ub=[1],
+                min_asks=5,
+                stimuli_per_trial=1,
+                model=MockModel(),
+                generator=SobolGenerator(lb=[-1], ub=[1], stimuli_per_trial=1),
+                outcome_types=["notbinary"],
+            )
+
+        # assert if model and strategy disagree on num outcomes
+        with self.assertRaises(AssertionError):
+            _ = Strategy(
+                lb=[-1],
+                ub=[1],
+                min_asks=5,
+                stimuli_per_trial=1,
+                model=MockModel(),
+                generator=SobolGenerator(lb=[-1], ub=[1], stimuli_per_trial=1),
+                outcome_types=["binary", "extra"],
+            )
+
+        try:
+            # no assert on 1 stim per trial
+            _ = Strategy(
+                lb=[-1],
+                ub=[1],
+                min_asks=5,
+                stimuli_per_trial=1,
+                model=MockModel(),
+                generator=SobolGenerator(lb=[-1], ub=[1], stimuli_per_trial=1),
+                outcome_types=["binary"],
+            )
+            # no assert on 2 stim per trial
+            model = MockModel()
+            model._num_outputs = 2
+            model.outcome_type = ["binary", "extra"]
+            _ = Strategy(
+                lb=[-1],
+                ub=[1],
+                min_asks=5,
+                stimuli_per_trial=1,
+                model=model,
+                generator=SobolGenerator(lb=[-1], ub=[1], stimuli_per_trial=2),
+                outcome_types=["binary", "extra"],
+            )
+        except AssertionError:
+            self.fail("Strategy raised unexpected AssertionError on __init__!")
+
 
 if __name__ == "__main__":
     unittest.main()

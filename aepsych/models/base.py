@@ -33,6 +33,10 @@ torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type
 
 class ModelProtocol(Protocol):
     @property
+    def _num_outputs(self) -> int:
+        pass
+
+    @property
     def outcome_type(self) -> str:
         pass
 
