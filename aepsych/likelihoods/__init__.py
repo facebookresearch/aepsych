@@ -8,18 +8,12 @@
 import sys
 
 from ..config import Config
-from .factory import (
-    default_mean_covar_factory,
-    ordinal_mean_covar_factory,
-    monotonic_mean_covar_factory,
-    song_mean_covar_factory,
-)
+from .bernoulli import BernoulliObjectiveLikelihood
+from .ordinal import OrdinalLikelihood
 
 __all__ = [
-    "default_mean_covar_factory",
-    "ordinal_mean_covar_factory",
-    "monotonic_mean_covar_factory",
-    "song_mean_covar_factory",
+    "BernoulliObjectiveLikelihood",
+    "OrdinalLikelihood",
 ]
 
 Config.register_module(sys.modules[__name__])
