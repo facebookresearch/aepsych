@@ -33,7 +33,7 @@ def Hb(p: Tensor):
 
     Returns: Binary entropy for each probability.
     """
-    epsilon = np.finfo(float).eps
+    epsilon = torch.tensor(np.finfo(float).eps)
     p = torch.clamp(p, min=epsilon, max=1 - epsilon)
     return -torch.nan_to_num(p * torch.log2(p) + (1 - p) * torch.log2(1 - p))
 

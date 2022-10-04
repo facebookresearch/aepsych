@@ -10,7 +10,7 @@ import configparser
 import json
 import warnings
 from types import ModuleType
-from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeVar
+from typing import Any, ClassVar, Dict, List, Mapping, Optional, Sequence, TypeVar
 
 import botorch
 import gpytorch
@@ -25,7 +25,7 @@ _T = TypeVar("_T")
 class Config(configparser.ConfigParser):
 
     # names in these packages can be referred to by string name
-    registered_names: Dict[str, object] = {}
+    registered_names: ClassVar[Dict[str, object]] = {}
 
     def __init__(
         self,
@@ -222,13 +222,20 @@ class Config(configparser.ConfigParser):
             )
         cls.registered_names.update({obj.__name__: obj})
 
+    def get_section(self, section):
+        sec = {}
+        for setting in self[section]:
+            if section != "common" and setting in self["common"]:
+                continue
+            sec[setting] = self[section][setting]
+        return sec
+
     def __str__(self):
         _str = ""
         for section in self:
+            sec = self.get_section(section)
             _str += f"[{section}]\n"
-            for setting in self[section]:
-                if section != "common" and setting in self["common"]:
-                    continue
+            for setting in sec:
                 _str += f"{setting} = {self[section][setting]}\n"
         return _str
 
@@ -352,3 +359,4 @@ class Config(configparser.ConfigParser):
 
 Config.register_module(gpytorch.kernels)
 Config.register_module(botorch.acquisition)
+Config.registered_names["None"] = None
