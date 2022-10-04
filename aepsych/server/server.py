@@ -10,6 +10,7 @@ import io
 import logging
 import os
 import sys
+import traceback
 import warnings
 
 import aepsych.database.db as db
@@ -19,7 +20,7 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import DummySocket, createSocket
+from aepsych.server.sockets import createSocket, DummySocket
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
@@ -78,7 +79,8 @@ class AEPsychServer(object):
                 result = self.unversioned_handler(request)
         except Exception as e:
             result = "bad request"
-            logger.warning(f"Request '{request}' raised error '{e}'")
+            logger.warning(f"Request '{request}' raised error '{e}'! Full traceback follows:")
+            logger.warning(traceback.format_exc())
 
         self.socket.send(result)
 

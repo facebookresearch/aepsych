@@ -113,6 +113,7 @@ class Strategy(object):
             assert outcome in [
                 "continuous",
                 "binary",
+                "ordinal",
             ], f"Unknown outcome_type '{outcome}'!"
 
         self.run_indefinitely = run_indefinitely
