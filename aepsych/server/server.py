@@ -79,7 +79,9 @@ class AEPsychServer(object):
                 result = self.unversioned_handler(request)
         except Exception as e:
             result = "bad request"
-            logger.warning(f"Request '{request}' raised error '{e}'! Full traceback follows:")
+            logger.warning(
+                f"Request '{request}' raised error '{e}'! Full traceback follows:"
+            )
             logger.warning(traceback.format_exc())
 
         self.socket.send(result)

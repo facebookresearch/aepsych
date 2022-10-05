@@ -11,7 +11,7 @@ import torch
 
 
 inv_2pi = 1 / (2 * _pi)
-_neg_inv_sqrt2 = -1 / (2 ** 0.5)
+_neg_inv_sqrt2 = -1 / (2**0.5)
 
 
 def _gauss_legendre20(dtype):
@@ -75,7 +75,7 @@ def _bvnu(
 
     asr = 0.5 * torch.asin(r)
     sn = torch.sin(asr[..., None] * x)
-    res = (sn * hk[..., None] - 0.5 * (h ** 2 + k ** 2)[..., None]) / (1 - sn ** 2)
+    res = (sn * hk[..., None] - 0.5 * (h**2 + k**2)[..., None]) / (1 - sn**2)
     res = torch.sum(w * torch.exp(res), dim=-1)
     res = res * inv_2pi * asr + _ndtr(-h) * _ndtr(-k)
 

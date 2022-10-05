@@ -20,7 +20,6 @@ from sklearn.datasets import make_classification
 
 
 class MonotonicProjectionGPtest(unittest.TestCase):
-
     def setUp(self):
         np.random.seed(1)
         torch.manual_seed(1)
@@ -72,6 +71,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         # And in samples
         samps = model.sample(Xtest, num_samples=10)
         self.assertTrue(samps.min().item() >= 4.9)
+
 
 if __name__ == "__main__":
     unittest.main()

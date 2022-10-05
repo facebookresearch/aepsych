@@ -11,17 +11,15 @@ from itertools import product
 import numpy as np
 import torch
 from aepsych.acquisition import (
-    GlobalMI,
-    GlobalSUR,
     ApproxGlobalSUR,
     EAVC,
+    GlobalMI,
+    GlobalSUR,
     LocalMI,
     LocalSUR,
 )
 from aepsych.acquisition.bvn import bvn_cdf
-from aepsych.acquisition.lookahead_utils import (
-    posterior_at_xstar_xq,
-)
+from aepsych.acquisition.lookahead_utils import posterior_at_xstar_xq
 from botorch.utils.testing import MockModel, MockPosterior
 from gpytorch.distributions import MultivariateNormal
 from scipy.stats import multivariate_normal

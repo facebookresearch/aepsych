@@ -78,7 +78,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         train_x = torch.Tensor([-0.5, 1, 0.5, -1]).reshape((2, 1, 2))
         train_y = torch.Tensor([0, 1])
         model.fit(train_x, train_y)
-        acqf = generator._instantiate_acquisition_fn(model=model, train_x=train_x)
+        acqf = generator._instantiate_acquisition_fn(model=model)
         self.assertTrue(isinstance(acqf, AnalyticExpectedUtilityOfBestOption))
 
 

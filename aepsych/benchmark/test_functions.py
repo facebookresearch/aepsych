@@ -119,7 +119,7 @@ def make_songetal_testfun(
     def song_testfun(x, cdf=False):
         logfreq = x[..., 0]
         intensity = x[..., 1]
-        thresh = threshfun(2 ** logfreq)
+        thresh = threshfun(2**logfreq)
         return (
             norm.cdf((intensity - thresh) / beta)
             if cdf
@@ -145,7 +145,7 @@ def novel_discrimination_testfun(x: np.ndarray) -> np.ndarray:
     """
     freq = x[..., 0]
     amp = x[..., 1]
-    context = 2 * (0.05 + 0.4 * (-1 + 0.2 * freq) ** 2 * freq ** 2)
+    context = 2 * (0.05 + 0.4 * (-1 + 0.2 * freq) ** 2 * freq**2)
     return 2 * (amp + 1) / context
 
 
@@ -163,7 +163,7 @@ def novel_detection_testfun(x: np.ndarray) -> np.ndarray:
     """
     freq = x[..., 0]
     amp = x[..., 1]
-    context = 2 * (0.05 + 0.4 * (-1 + 0.2 * freq) ** 2 * freq ** 2)
+    context = 2 * (0.05 + 0.4 * (-1 + 0.2 * freq) ** 2 * freq**2)
     return 4 * (amp + 1) / context - 4
 
 

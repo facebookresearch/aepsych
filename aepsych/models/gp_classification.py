@@ -228,7 +228,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         n = train_y.shape[0]
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
 
-        self._fit_mll(train_x, train_y, mll, **kwargs)
+        self._fit_mll(mll, **kwargs)
 
     def sample(
         self, x: Union[torch.Tensor, np.ndarray], num_samples: int

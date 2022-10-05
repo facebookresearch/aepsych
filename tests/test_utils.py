@@ -44,7 +44,7 @@ class UtilsTestCase(unittest.TestCase):
 
         # Wrong dim
         with self.assertRaises(AssertionError):
-            _process_bounds(np.r_[0,0], np.r_[1,1], 3)
+            _process_bounds(np.r_[0, 0], np.r_[1, 1], 3)
 
         # ub < lb
         with self.assertRaises(AssertionError):

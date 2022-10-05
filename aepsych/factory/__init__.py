@@ -10,8 +10,8 @@ import sys
 from ..config import Config
 from .factory import (
     default_mean_covar_factory,
-    ordinal_mean_covar_factory,
     monotonic_mean_covar_factory,
+    ordinal_mean_covar_factory,
     song_mean_covar_factory,
 )
 

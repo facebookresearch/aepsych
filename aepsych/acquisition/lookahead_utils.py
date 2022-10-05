@@ -136,7 +136,7 @@ def lookahead_p_at_xstar(
 
     def lookahead_inner(f_q):
         mu_tilde_star = Mu_s + (f_q - Mu_q) * Sigma_sq / Sigma2_q
-        sigma_tilde_star = Sigma2_s - (Sigma_sq ** 2) / Sigma2_q
+        sigma_tilde_star = Sigma2_s - (Sigma_sq**2) / Sigma2_q
         return probit(mu_tilde_star / torch.sqrt(sigma_tilde_star + 1)) * probit(f_q)
 
     pstar_marginal_1 = probit(Mu_s / torch.sqrt(1 + Sigma2_s))
@@ -185,17 +185,17 @@ def approximate_lookahead_levelset_at_xstar(
     Mu_s_cdf = Norm.cdf(Mu_s)
 
     # Formulae from the supplement of the paper (Result 2)
-    vnp1_p = Mu_s_pdf ** 2 / Mu_s_cdf ** 2 + Mu_s * Mu_s_pdf / Mu_s_cdf  # (C.4)
+    vnp1_p = Mu_s_pdf**2 / Mu_s_cdf**2 + Mu_s * Mu_s_pdf / Mu_s_cdf  # (C.4)
     p_p = Norm.cdf(Mu_s / torch.sqrt(1 + Sigma2_s))  # (C.5)
 
-    vnp1_n = Mu_s_pdf ** 2 / (1 - Mu_s_cdf) ** 2 - Mu_s * Mu_s_pdf / (
+    vnp1_n = Mu_s_pdf**2 / (1 - Mu_s_cdf) ** 2 - Mu_s * Mu_s_pdf / (
         1 - Mu_s_cdf
     )  # (C.6)
     p_n = 1 - p_p  # (C.7)
 
     vtild = vnp1_p * p_p + vnp1_n * p_n
 
-    Sigma2_q_np1 = Sigma2_q - Sigma_sq ** 2 / ((1 / vtild) + Sigma2_s)  # (C.8)
+    Sigma2_q_np1 = Sigma2_q - Sigma_sq**2 / ((1 / vtild) + Sigma2_s)  # (C.8)
 
     Px = Norm.cdf((gamma - Mu_q) / torch.sqrt(Sigma2_q))
     P1 = Norm.cdf((gamma - Mu_q) / torch.sqrt(Sigma2_q_np1))

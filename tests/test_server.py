@@ -9,7 +9,7 @@ import json
 import logging
 import unittest
 import uuid
-from unittest.mock import MagicMock, PropertyMock, call, patch
+from unittest.mock import call, MagicMock, patch, PropertyMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging

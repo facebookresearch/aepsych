@@ -11,12 +11,12 @@ from itertools import product
 import numpy as np
 import torch
 from aepsych.acquisition.objective import (
+    FloorGumbelObjective,
     FloorLogitObjective,
     FloorProbitObjective,
-    FloorGumbelObjective,
 )
 from parameterized import parameterized
-from scipy.stats import logistic, gumbel_l, norm
+from scipy.stats import gumbel_l, logistic, norm
 
 objective_pairs = [
     (FloorLogitObjective, logistic),
