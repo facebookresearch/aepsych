@@ -74,7 +74,7 @@ class ConfigTestCase(unittest.TestCase):
 
         self.assertTrue(
             config.get_section("MCLevelSetEstimation")
-            == {"beta": "3.84", "objective": "ProbitObjective", "target":"0.75"}
+            == {"beta": "3.84", "objective": "ProbitObjective", "target": "0.75"}
         )
         self.assertTrue(
             config.get_section("OptimizeAcqfGenerator")
@@ -158,9 +158,7 @@ class ConfigTestCase(unittest.TestCase):
                 ProbitObjective,
             )
         )
-        self.assertTrue(
-            strat.strat_list[1].generator.samps == 1000
-        )
+        self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].min_asks == 10)
         self.assertTrue(strat.strat_list[0].stimuli_per_trial == 1)
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
@@ -171,7 +169,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
     def test_nonmonotonic_optimization_config_file(self):
-        
+
         config_file = "../configs/nonmonotonic_optimization_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
 
@@ -187,8 +185,7 @@ class ConfigTestCase(unittest.TestCase):
         )
         self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
         self.assertTrue(
-            set(strat.strat_list[1].generator.acqf_kwargs.keys())
-            == {"objective"}
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
         )
         self.assertTrue(
             isinstance(
@@ -550,8 +547,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
         self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
         self.assertTrue(
-            set(strat.strat_list[1].generator.acqf_kwargs.keys())
-            == {"objective"}
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
         )
         self.assertTrue(
             isinstance(

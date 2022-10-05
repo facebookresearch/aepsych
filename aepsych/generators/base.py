@@ -60,7 +60,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
 
             # this is still very ugly
             extra_acqf_args = {}
-            if acqf_name in config: 
+            if acqf_name in config:
                 full_section = config[acqf_name]
                 for k in acqf_args_expected:
                     # if this thing is configured

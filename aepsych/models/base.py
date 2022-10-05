@@ -404,13 +404,12 @@ class AEPsychMixin(GPyTorchModel):
 
     def _fit_mll(
         self,
-        train_x: torch.Tensor,
-        train_y: torch.Tensor,
         mll: MarginalLogLikelihood,
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> None:
         self.train()
+        train_x, train_y = mll.model.train_inputs[0], mll.model.train_targets
         optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
         max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
         if max_fit_time is not None:

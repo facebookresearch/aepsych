@@ -60,7 +60,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         if likelihood is None:
             likelihood = GaussianLikelihood()
 
-        if num_outputs is not None: 
+        if num_outputs is not None:
             self._num_outputs = num_outputs
             self._batch_size = num_outputs
 
@@ -75,7 +75,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
                     "default_mean_covar_factory": {
                         "lb": str(self.lb.tolist()),
                         "ub": str(self.ub.tolist()),
-                        "num_outputs":num_outputs,
+                        "num_outputs": num_outputs,
                     }
                 }
             )  # type: ignore
@@ -144,7 +144,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         """
         self.set_train_data(train_x, train_y)
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
-        self._fit_mll(train_x, train_y, mll, **kwargs)
+        self._fit_mll(mll, **kwargs)
 
     def sample(
         self, x: Union[torch.Tensor, np.ndarray], num_samples: int
