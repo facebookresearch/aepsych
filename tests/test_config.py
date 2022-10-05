@@ -57,6 +57,7 @@ class ConfigTestCase(unittest.TestCase):
         keep_most_recent = 10
 
         [MCLevelSetEstimation]
+        target = 0.75
         beta = 3.84
         objective = ProbitObjective
 
@@ -71,6 +72,14 @@ class ConfigTestCase(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
 
+        self.assertTrue(
+            config.get_section("MCLevelSetEstimation")
+            == {"beta": "3.84", "objective": "ProbitObjective", "target":"0.75"}
+        )
+        self.assertTrue(
+            config.get_section("OptimizeAcqfGenerator")
+            == {"restarts": "10", "samps": "1000"}
+        )
         strat = SequentialStrategy.from_config(config)
 
         self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
@@ -84,6 +93,7 @@ class ConfigTestCase(unittest.TestCase):
             set(strat.strat_list[1].generator.acqf_kwargs.keys())
             == {"beta", "target", "objective"}
         )
+
         self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
         self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.84)
         self.assertTrue(
@@ -161,6 +171,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
     def test_nonmonotonic_optimization_config_file(self):
+        
         config_file = "../configs/nonmonotonic_optimization_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
 
@@ -177,7 +188,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys())
-            == {"objective", "posterior_transform"}
+            == {"objective"}
         )
         self.assertTrue(
             isinstance(
@@ -540,7 +551,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys())
-            == {"objective", "posterior_transform"}
+            == {"objective"}
         )
         self.assertTrue(
             isinstance(

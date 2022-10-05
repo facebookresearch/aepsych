@@ -52,23 +52,31 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     def _get_acqf_options(cls, acqf: AcquisitionFunction, config: Config):
         if acqf is not None:
             acqf_name = acqf.__name__
-            default_extra_acqf_args = {
-                "beta": 3.84,
-                "target": 0.75,
-                "objective": None,
-                "query_set_size": 512,
-                "posterior_transform": None,
-            }
-            extra_acqf_args = {
-                k: config.getobj(
-                    acqf_name, k, fallback_type=float, fallback=v, warn=False
-                )
-                for k, v in default_extra_acqf_args.items()
-            }
-            acqf_args_expected = signature(acqf).parameters.keys()
-            extra_acqf_args = {
-                k: v for k, v in extra_acqf_args.items() if k in acqf_args_expected
-            }
+
+            # model is not an extra arg, it's a default arg
+            acqf_args_expected = [
+                i for i in list(signature(acqf).parameters.keys()) if i != "model"
+            ]
+
+            # this is still very ugly
+            extra_acqf_args = {}
+            if acqf_name in config: 
+                full_section = config[acqf_name]
+                for k in acqf_args_expected:
+                    # if this thing is configured
+                    if k in full_section.keys():
+                        # if it's an object make it an object
+                        if full_section[k] in config.registered_names.keys():
+                            extra_acqf_args[k] = config.getobj(acqf_name, k)
+                        else:
+                            # otherwise try a float
+                            try:
+                                extra_acqf_args[k] = config.getfloat(acqf_name, k)
+                            # finally just return a string
+                            except ValueError:
+                                extra_acqf_args[k] = config.get(acqf_name, k)
+
+            # next, do more processing
             for k, v in extra_acqf_args.items():
                 if hasattr(v, "from_config"):  # configure if needed
                     assert isinstance(v, AcqArgProtocol)  # make mypy happy
