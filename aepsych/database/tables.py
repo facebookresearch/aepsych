@@ -332,7 +332,7 @@ class DbRawTable(Base):
     timestamp = Column(DateTime)
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
-    parent = relationship("DBMasterTable", back_populates="children_config")
+    parent = relationship("DBMasterTable", back_populates="children_raw")
 
     @classmethod
     def from_sqlite(cls, row):
