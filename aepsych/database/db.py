@@ -67,6 +67,7 @@ class Database:
             or tables.DbReplayTable.requires_update(self._engine)
             or tables.DbStratTable.requires_update(self._engine)
             or tables.DbConfigTable.requires_update(self._engine)
+            or tables.DbRawTable.requires_update(self._engine)
         )
 
     def perform_updates(self):
@@ -75,6 +76,7 @@ class Database:
         tables.DbReplayTable.update(self._engine)
         tables.DbStratTable.update(self._engine)
         tables.DbConfigTable.update(self._engine)
+        tables.DbRawTable.update(self._engine)
 
     @contextmanager
     def session_scope(self):
