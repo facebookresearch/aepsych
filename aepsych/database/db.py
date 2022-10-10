@@ -227,6 +227,20 @@ class Database:
         self._session.add(record)
         self._session.commit()
 
+    def record_raw(self, master_table, parameters, outcome, extra_metadata = None) -> None:
+        raw_entry = tables.DbRawTable()
+        raw_entry.parameters = parameters
+        raw_entry.outcome = outcome
+
+        if extra_metadata is not None:
+            raw_entry.extra_metadata = extra_metadata
+
+        raw_entry.timestamp = datetime.datetime.now()
+        raw_entry.parent = master_table
+
+        self._session.add(raw_entry)
+        self._session.commit()
+
     def record_strat(self, master_table, strat):
         strat_entry = tables.DbStratTable()
         strat_entry.strat = strat
