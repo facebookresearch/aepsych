@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import createSocket, DummySocket
+from aepsych.server.sockets import DummySocket, createSocket
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
@@ -73,10 +73,7 @@ class AEPsychServer(object):
     def _receive_send(self):
         request = self.socket.receive()
         try:
-            if "version" in request.keys():
-                result = self.versioned_handler(request)
-            else:
-                result = self.unversioned_handler(request)
+            result = self.handle_request(request)
         except Exception as e:
             result = "bad request"
             logger.warning(
@@ -147,10 +144,7 @@ class AEPsychServer(object):
         for result in master_record.children_replay:
             request = result.message_contents
             logger.debug(f"replay - type = {result.message_type} request = {request}")
-            if "version" in request.keys():
-                result = self.versioned_handler(request)
-            else:
-                result = self.unversioned_handler(request)
+            self.handle_request(request)
 
         self.is_performing_replay = False
         self.skip_computations = False
@@ -768,6 +762,12 @@ class AEPsychServer(object):
         fname = get_next_filename(".", dumptype, "pkl")
         logger.exception(f"Got {exception_type}, exiting! Server dump in {fname}")
         dill.dump(self, open(fname, "wb"))
+
+    def handle_request(self, request):
+        if "version" in request.keys():
+            return self.versioned_handler(request)
+
+        return self.unversioned_handler(request)
 
 
 def startServerAndRun(
