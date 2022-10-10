@@ -7,8 +7,9 @@
 import json
 import unittest
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
+import torch
 from aepsych.acquisition import MCPosteriorVariance
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
@@ -17,13 +18,19 @@ from aepsych_client import AEPsychClient
 from torch import tensor
 
 
-class ClientTestCase(unittest.TestCase):
+class MockStrategy:
+    def gen(self, num_points):
+        self._count = self._count + num_points
+        return torch.tensor([[0.0]])
+
+
+class RemoteServerTestCase(unittest.TestCase):
     def setUp(self):
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         self.s = AEPsychServer(database_path=database_path)
         self.client = AEPsychClient(connect=False)
         self.client._send_recv = MagicMock(
-            wraps=lambda x: json.dumps(self.s.versioned_handler(x))
+            wraps=lambda x: json.dumps(self.s.handle_request(x))
         )
 
     def tearDown(self):
@@ -33,6 +40,10 @@ class ClientTestCase(unittest.TestCase):
         if self.s.db is not None:
             self.s.db.delete_db()
 
+    @patch(
+        "aepsych.strategy.Strategy.gen",
+        new=MockStrategy.gen,
+    )
     def test_client(self):
         config_str = """
         [common]
@@ -70,7 +81,7 @@ class ClientTestCase(unittest.TestCase):
         response = self.client.ask()
         self.assertSetEqual(set(response["config"].keys()), {"x"})
         self.assertEqual(len(response["config"]["x"]), 1)
-        self.assertTrue(0 < response["config"]["x"][0] < 1)
+        self.assertTrue(0 <= response["config"]["x"][0] <= 1)
         self.assertFalse(response["is_finished"])
         self.assertEqual(self.s.strat._count, 1)
 
@@ -96,6 +107,17 @@ class ClientTestCase(unittest.TestCase):
         self.assertEqual(self.s.strat_id, 1)
 
         self.client.finalize()
+
+
+class LocalServerTestCase(RemoteServerTestCase):
+    def setUp(self):
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        self.s = AEPsychServer(database_path=database_path)
+        self.client = AEPsychClient(server=self.s)
+
+    def test_warns_ignored_args(self):
+        with self.assertWarns(UserWarning):
+            AEPsychClient(ip="0.0.0.0", port=5555, server=self.s)
 
 
 if __name__ == "__main__":
