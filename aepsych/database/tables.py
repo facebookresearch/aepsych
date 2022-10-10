@@ -60,6 +60,7 @@ class DBMasterTable(Base):
     children_replay = relationship("DbReplayTable", back_populates="parent")
     children_strat = relationship("DbStratTable", back_populates="parent")
     children_config = relationship("DbConfigTable", back_populates="parent")
+    children_raw = relationship("DbRawTable", back_populates="parent")
 
     @classmethod
     def from_sqlite(cls, row):
@@ -319,6 +320,39 @@ class DbConfigTable(Base):
     @staticmethod
     def update(engine):
         logger.info("DbConfigTable : update called")
+
+    @staticmethod
+    def requires_update(engine):
+        return False
+
+class DbRawTable(Base):
+    __tablename__ = "raw_data"
+
+    unique_id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(DateTime)
+
+    master_table_id = Column(Integer, ForeignKey("master.unique_id"))
+    parent = relationship("DBMasterTable", back_populates="children_config")
+
+    @classmethod
+    def from_sqlite(cls, row):
+        this = DbRawTable()
+        this.unique_id = row["unique_id"]
+        this.timestamp = row["timestamp"]
+        this.master_table_id = row["master_table_id"]
+
+        return this
+
+    def __repr__(self):
+        return (
+            f"<DbRawTable(unique_id={self.unique_id})"
+            f", timestamp={self.timestamp} "
+            f", master_table_id={self.master_table_id})>"
+        )
+
+    @staticmethod
+    def update(engine):
+        logger.info("DbRawTable : update called")
 
     @staticmethod
     def requires_update(engine):
