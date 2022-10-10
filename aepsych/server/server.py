@@ -469,6 +469,11 @@ class AEPsychServer(object):
             self.db.record_message(
                 master_table=self._db_master_record, type="tell", request=request
             )
+            self.db.record_raw(master_table = self._db_master_record,
+                parameters = request["message"]["config"],
+                outcome = request["message"]["outcome"],
+                extra_metadata = request["extra_info"]
+            )
 
         # Batch update mode
         if type(request["message"]) == list:
