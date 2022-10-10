@@ -12,7 +12,7 @@ import pickle
 
 from aepsych.config import Config
 from aepsych.version import __version__
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -330,6 +330,9 @@ class DbRawTable(Base):
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
+    parameters = Column(String(256))
+    outcome = Column(Boolean)
+    extra_metadata = Column(String(256))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
     parent = relationship("DBMasterTable", back_populates="children_raw")
@@ -339,7 +342,14 @@ class DbRawTable(Base):
         this = DbRawTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
+        this.parameters = row["parameters"]
+        this.outcome = row["outcome"]
         this.master_table_id = row["master_table_id"]
+
+        if "extra_metadata" in row:
+            this.extra_metadata = row["extra_metadata"]
+        else:
+            this.extra_metadata = None
 
         return this
 
