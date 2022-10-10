@@ -18,7 +18,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">signature</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">runtime_checkable</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
@@ -30,6 +30,13 @@
 <span class="p">)</span>
 
 <span class="n">AEPsychModelType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"AEPsychModelType"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">AEPsychMixin</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AcqArgProtocol"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AcqArgProtocol">[docs]</a><span class="nd">@runtime_checkable</span>
+<span class="k">class</span> <span class="nc">AcqArgProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<div class="viewcode-block" id="AcqArgProtocol.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AcqArgProtocol.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">pass</span></div></div>
 
 
 <div class="viewcode-block" id="AEPsychGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AEPsychGenerator">[docs]</a><span class="k">class</span> <span class="nc">AEPsychGenerator</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">AEPsychModelType</span><span class="p">]):</span>
@@ -57,27 +64,37 @@
     <span class="k">def</span> <span class="nf">_get_acqf_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">acqf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">acqf_name</span> <span class="o">=</span> <span class="n">acqf</span><span class="o">.</span><span class="vm">__name__</span>
-            <span class="n">default_extra_acqf_args</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"beta"</span><span class="p">:</span> <span class="mf">3.84</span><span class="p">,</span>
-                <span class="s2">"target"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
-                <span class="s2">"objective"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">"query_set_size"</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">k</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-                    <span class="n">acqf_name</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">fallback_type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">v</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default_extra_acqf_args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="p">}</span>
-            <span class="n">acqf_args_expected</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">acqf</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">extra_acqf_args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">acqf_args_expected</span>
-            <span class="p">}</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="s2">"objective"</span> <span class="ow">in</span> <span class="n">extra_acqf_args</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                <span class="ow">and</span> <span class="n">extra_acqf_args</span><span class="p">[</span><span class="s2">"objective"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="n">extra_acqf_args</span><span class="p">[</span><span class="s2">"objective"</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_acqf_args</span><span class="p">[</span><span class="s2">"objective"</span><span class="p">]()</span>
+
+            <span class="c1"># model is not an extra arg, it's a default arg</span>
+            <span class="n">acqf_args_expected</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">signature</span><span class="p">(</span><span class="n">acqf</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">"model"</span>
+            <span class="p">]</span>
+
+            <span class="c1"># this is still very ugly</span>
+            <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">acqf_name</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="n">full_section</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">acqf_name</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">acqf_args_expected</span><span class="p">:</span>
+                    <span class="c1"># if this thing is configured</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">full_section</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="c1"># if it's an object make it an object</span>
+                        <span class="k">if</span> <span class="n">full_section</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">registered_names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="n">extra_acqf_args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">acqf_name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># otherwise try a float</span>
+                            <span class="k">try</span><span class="p">:</span>
+                                <span class="n">extra_acqf_args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">acqf_name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                            <span class="c1"># finally just return a string</span>
+                            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                                <span class="n">extra_acqf_args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">acqf_name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+            <span class="c1"># next, do more processing</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">extra_acqf_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>  <span class="c1"># configure if needed</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">AcqArgProtocol</span><span class="p">)</span>  <span class="c1"># make mypy happy</span>
+                    <span class="n">extra_acqf_args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>  <span class="c1"># instaniate a class if needed</span>
+                    <span class="n">extra_acqf_args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="p">{}</span>
 

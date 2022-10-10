@@ -1,0 +1,91 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<div class="notebook">
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">aepsych.server</span> <span class="kn">import</span> <span class="n">AEPsychServer</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="n">db_name</span> <span class="o">=</span> <span class="s2">"../databases/default.db"</span>
+<span class="n">outputfile</span> <span class="o">=</span> <span class="s1">'../databases/results.csv'</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">DummySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">serv</span> <span class="o">=</span> <span class="n">AEPsychServer</span><span class="p">(</span><span class="n">socket</span><span class="o">=</span><span class="n">DummySocket</span><span class="p">,</span> <span class="n">database_path</span><span class="o">=</span><span class="n">db_name</span><span class="p">)</span>
+
+<span class="n">exp_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">rec</span><span class="o">.</span><span class="n">experiment_id</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">serv</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_master_records</span><span class="p">()]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># this will take all the data a write it to a csv</span>
+<span class="k">def</span> <span class="nf">from_setup</span><span class="p">(</span><span class="n">setup_message</span><span class="p">):</span>
+    <span class="n">confs</span> <span class="o">=</span> <span class="n">setup_message</span><span class="o">.</span><span class="n">message_contents</span><span class="p">[</span><span class="s1">'message'</span><span class="p">][</span><span class="s1">'experiment_config'</span><span class="p">]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">con</span> <span class="ow">in</span> <span class="n">confs</span><span class="p">:</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="s1">'name'</span><span class="p">])</span>
+    <span class="n">outcome_type</span> <span class="o">=</span> <span class="n">setup_message</span><span class="o">.</span><span class="n">message_contents</span><span class="p">[</span><span class="s1">'message'</span><span class="p">][</span><span class="s1">'outcome_type'</span><span class="p">]</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">outcome_type</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">exp_id</span><span class="p">):</span>
+    <span class="n">recs</span> <span class="o">=</span> <span class="n">serv</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_replay_for</span><span class="p">(</span><span class="n">exp_id</span><span class="p">)</span>
+    <span class="n">names</span><span class="p">,</span> <span class="n">outcome_type</span> <span class="o">=</span> <span class="n">from_setup</span><span class="p">(</span><span class="n">recs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">recs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">message_type</span> <span class="o">==</span> <span class="s2">"tell"</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">message_contents</span><span class="p">[</span><span class="s1">'message'</span><span class="p">][</span><span class="s1">'config'</span><span class="p">][</span><span class="n">name</span><span class="p">])</span>
+                <span class="n">results</span><span class="p">[</span><span class="s1">'outcome'</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">message_contents</span><span class="p">[</span><span class="s1">'message'</span><span class="p">][</span><span class="s1">'outcome'</span><span class="p">])</span>
+    <span class="n">datie</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">'squeeze'</span><span class="p">])</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s1">'squeeze_'</span><span class="p">)</span>
+    <span class="n">datie</span><span class="p">[</span><span class="s1">'outcome'</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">'outcome'</span><span class="p">]</span>
+    <span class="n">datie</span><span class="p">[</span><span class="s1">'exp_id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">exp_id</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">datie</span><span class="p">)</span>
+
+<span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">exp_id</span> <span class="ow">in</span> <span class="n">exp_ids</span><span class="p">:</span>
+    <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_data</span><span class="p">(</span><span class="n">serv</span><span class="p">,</span> <span class="n">exp_id</span><span class="p">))</span>
+<span class="n">datie</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
+
+<span class="n">datie</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outputfile</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">aepsych.plotting</span> <span class="kn">import</span> <span class="n">make_debug_plots</span>
+<span class="c1"># do the replays and produce plots</span>
+<span class="k">for</span> <span class="n">exp_id</span> <span class="ow">in</span> <span class="n">exp_ids</span><span class="p">:</span>
+    <span class="n">serv</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">exp_id</span><span class="p">)</span>
+    <span class="n">make_debug_plots</span><span class="p">(</span><span class="n">serv</span><span class="o">.</span><span class="n">strat</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>

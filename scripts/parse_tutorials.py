@@ -63,10 +63,13 @@ def validate_tutorial_links(repo_dir: str) -> None:
         )
 
     if missing_ids:
-        raise RuntimeError(
-            "The following tutorial files are present, but are not linked on the "
-            "website: {}.".format(", ".join([nbid + ".ipynb" for nbid in missing_ids]))
-        )
+        print( '\033[93m' + 'Warning: ' + '\x1b[0m' + "The following tutorial files are present, but are not linked on the "
+            "website: {}.".format(", ".join([nbid + ".ipynb" for nbid in missing_ids])))
+
+        # raise RuntimeError(
+        #     "The following tutorial files are present, but are not linked on the "
+        #     "website: {}.".format(", ".join([nbid + ".ipynb" for nbid in missing_ids]))
+        # )
 
 
 def gen_tutorials(repo_dir: str) -> None:
