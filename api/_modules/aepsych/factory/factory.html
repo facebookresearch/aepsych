@@ -4,7 +4,7 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><h2 class="headerTitle">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
 <script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
 <script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/js/underscore.js"></script>
@@ -119,8 +119,8 @@
             <span class="sa">f</span><span class="s2">"Outputscale_prior should be gamma or box, got </span><span class="si">{</span><span class="n">outputscale_prior</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
-    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">Positive</span><span class="p">(</span>
-        <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
+    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">GreaterThan</span><span class="p">(</span>
+        <span class="n">lower_bound</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
     <span class="p">)</span>
 
     <span class="n">covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
@@ -171,10 +171,9 @@
         <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">x</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span> <span class="o">/</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">Positive</span><span class="p">(</span>
-        <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
+    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">GreaterThan</span><span class="p">(</span>
+        <span class="n">lower_bound</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
     <span class="p">)</span>
-
     <span class="n">covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
         <span class="n">RBFKernelPartialObsGrad</span><span class="p">(</span>
             <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
@@ -224,8 +223,8 @@
     <span class="p">)</span>
     <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span> <span class="o">/</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">Positive</span><span class="p">(</span>
-        <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
+    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">GreaterThan</span><span class="p">(</span>
+        <span class="n">lower_bound</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
     <span class="p">)</span>
 
     <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">"song_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
@@ -252,7 +251,10 @@
         <span class="c1"># this can just be LinearKernel but for consistency of interface</span>
         <span class="c1"># we make it additive with one module</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">intensity_RBF</span><span class="p">:</span>
-            <span class="k">return</span>  <span class="n">mean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">AdditiveKernel</span><span class="p">(</span><span class="n">intensity_covar</span><span class="p">),</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">mean</span><span class="p">,</span>
+                <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">AdditiveKernel</span><span class="p">(</span><span class="n">intensity_covar</span><span class="p">),</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">context_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
                 <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span><span class="p">(</span>
@@ -275,6 +277,27 @@
             <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">context_covar</span> <span class="o">+</span> <span class="n">intensity_covar</span></div>
+
+
+<div class="viewcode-block" id="ordinal_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.ordinal_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">ordinal_mean_covar_factory</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">base_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="s2">"ordinal_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"base_factory"</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+        <span class="n">base_factory</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">base_covar</span> <span class="o">=</span> <span class="n">base_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ZeroMean</span><span class="p">()</span>  <span class="c1"># wlog since ordinal is shift-invariant</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base_covar</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">):</span>
+        <span class="n">covar</span> <span class="o">=</span> <span class="n">base_covar</span><span class="o">.</span><span class="n">base_kernel</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">covar</span> <span class="o">=</span> <span class="n">base_covar</span>
+
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span></div>
 </pre></div>
 </div>
 </div>
