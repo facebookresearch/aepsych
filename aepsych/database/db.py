@@ -152,6 +152,15 @@ class Database:
             return master_record.children_config[0].config
         return None
 
+    def get_raw_for(self, master_id):
+        """Get the raw data for a specific master row."""
+        master_record = self.get_master_record(master_id)
+
+        if master_record is not None:
+            return master_record.children_raw
+
+        return None
+
     def record_setup(
         self,
         description,
