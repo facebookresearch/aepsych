@@ -469,11 +469,6 @@ class AEPsychServer(object):
             self.db.record_message(
                 master_table=self._db_master_record, type="tell", request=request
             )
-            self.db.record_raw(master_table = self._db_master_record,
-                parameters = request["message"]["config"],
-                outcome = request["message"]["outcome"],
-                extra_metadata = request["extra_info"]
-            )
 
         # Batch update mode
         if type(request["message"]) == list:
@@ -705,6 +700,13 @@ class AEPsychServer(object):
             which would be in {0, 1}.
             TODO better types
         """
+        if not self.is_performing_replay:
+            self.db.record_raw(
+                master_table = self._db_master_record,
+                parameters = str(config),
+                outcome = int(outcome),
+                model_data = bool(model_data),
+            )
 
         if model_data:
             x = self._config_to_tensor(config)
