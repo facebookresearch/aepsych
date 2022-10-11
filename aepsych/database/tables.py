@@ -333,7 +333,6 @@ class DbRawTable(Base):
     parameters = Column(String(256))
     outcome = Column(Integer)
     model_data = Column(Boolean)
-    extra_metadata = Column(String(256))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
     parent = relationship("DBMasterTable", back_populates="children_raw")
@@ -347,11 +346,6 @@ class DbRawTable(Base):
         this.outcome = row["outcome"]
         this.model_data = row["model_data"]
         this.master_table_id = row["master_table_id"]
-
-        if "extra_metadata" in row:
-            this.extra_metadata = row["extra_metadata"]
-        else:
-            this.extra_metadata = None
 
         return this
 
