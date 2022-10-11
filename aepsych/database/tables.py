@@ -331,7 +331,8 @@ class DbRawTable(Base):
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
     parameters = Column(String(256))
-    outcome = Column(Boolean)
+    outcome = Column(Integer)
+    model_data = Column(Boolean)
     extra_metadata = Column(String(256))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
@@ -344,6 +345,7 @@ class DbRawTable(Base):
         this.timestamp = row["timestamp"]
         this.parameters = row["parameters"]
         this.outcome = row["outcome"]
+        this.model_data = row["model_data"]
         this.master_table_id = row["master_table_id"]
 
         if "extra_metadata" in row:

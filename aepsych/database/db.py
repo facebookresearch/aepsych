@@ -227,10 +227,11 @@ class Database:
         self._session.add(record)
         self._session.commit()
 
-    def record_raw(self, master_table, parameters, outcome, extra_metadata = None) -> None:
+    def record_raw(self, master_table, parameters, outcome, model_data, extra_metadata = None) -> None:
         raw_entry = tables.DbRawTable()
         raw_entry.parameters = parameters
         raw_entry.outcome = outcome
+        raw_entry.model_data = model_data
 
         if extra_metadata is not None:
             raw_entry.extra_metadata = extra_metadata
