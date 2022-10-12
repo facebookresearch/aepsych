@@ -51,6 +51,7 @@ class AEPsychServer(object):
         self.is_performing_replay = False
         self.exit_server_loop = False
         self._db_master_record = None
+        self._db_raw_record = None
         self.db = db.Database(database_path)
         self.skip_computations = False
 
@@ -701,12 +702,18 @@ class AEPsychServer(object):
             TODO better types
         """
         if not self.is_performing_replay:
-            self.db.record_raw(
+            self._db_raw_record = self.db.record_raw(
                 master_table = self._db_master_record,
-                parameters = str(config),
                 outcome = int(outcome),
                 model_data = bool(model_data),
             )
+
+            for param_name, param_value in config.items():
+                self.db.record_param(
+                    raw_table = self._db_raw_record,
+                    param_name = str(param_name),
+                    param_value = float(param_value[0]),
+                )
 
         if model_data:
             x = self._config_to_tensor(config)
