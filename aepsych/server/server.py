@@ -709,10 +709,12 @@ class AEPsychServer(object):
             )
 
             for param_name, param_value in config.items():
+                if type(param_value) is list:
+                    param_value = param_value[0]
                 self.db.record_param(
                     raw_table = self._db_raw_record,
                     param_name = str(param_name),
-                    param_value = float(param_value[0]),
+                    param_value = float(param_value),
                 )
 
         if model_data:
