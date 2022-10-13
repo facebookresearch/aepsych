@@ -163,6 +163,30 @@ class Database:
 
         return None
 
+    def get_all_params_for(self, master_id):
+        """Get the parameters for all the iterations of a specific experiment."""
+        raw_record = self.get_raw_for(master_id)
+        params = []
+
+        if raw_record is not None:
+            for raw in raw_record:
+                for param in raw.children_param:
+                    params.append(param)
+            return params
+
+        return None
+
+    def get_param_for(self, master_id, iteration_id):
+        """Get the parameters for a specific iteration of a specific experiment."""
+        raw_record = self.get_raw_for(master_id)
+
+        if raw_record is not None:
+            for raw in raw_record:
+                if raw.unique_id == iteration_id:
+                    return raw.children_param
+
+        return None
+
     def record_setup(
         self,
         description,
