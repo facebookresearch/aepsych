@@ -289,6 +289,38 @@ class AEPsychServer(object):
             )
         return out
 
+    def generate_experiment_table(self, experiment_id=None, table_name = 'experiment_table'):
+
+        one_iteration = self.db.get_param_for(experiment_id, 1)
+
+        columns = []
+        columns.append('iteration_id')
+        columns.append('outcome')
+        for param in one_iteration:
+            columns.append(param.param_name)
+
+        columns.append('timestamp')
+
+        # Create dataframe
+        df = pd.DataFrame(columns=columns)
+
+        # Fill dataframe
+        for raw in self.db.get_raw_for(experiment_id):
+            row = {}
+            row['iteration_id'] = raw.unique_id
+            row['outcome'] = raw.outcome
+            for param in raw.children_param:
+                row[param.param_name] = param.param_value
+            row['timestamp'] = raw.timestamp
+            # concat to dataframe
+            df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+
+        # Make iteration_id the index
+        df.set_index('iteration_id', inplace=True)
+
+        # Save to .db file
+        df.to_sql(table_name, self.db.get_engine(), if_exists='replace')
+
     def versioned_handler(self, request):
         handled_types = ["setup", "resume", "ask"]
         if request["type"] == "setup":
