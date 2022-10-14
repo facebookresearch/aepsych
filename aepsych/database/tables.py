@@ -12,7 +12,7 @@ import pickle
 
 from aepsych.config import Config
 from aepsych.version import __version__
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String, Boolean
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String, Boolean, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -330,22 +330,22 @@ class DbRawTable(Base):
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
-    parameters = Column(String(256))
     outcome = Column(Integer)
     model_data = Column(Boolean)
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
     parent = relationship("DBMasterTable", back_populates="children_raw")
+    children_param = relationship("DbParamTable", back_populates="parent")
 
     @classmethod
     def from_sqlite(cls, row):
         this = DbRawTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
-        this.parameters = row["parameters"]
         this.outcome = row["outcome"]
         this.model_data = row["model_data"]
         this.master_table_id = row["master_table_id"]
+        this.iteration_id = row["iteration_id"]
 
         return this
 
@@ -359,6 +359,40 @@ class DbRawTable(Base):
     @staticmethod
     def update(engine):
         logger.info("DbRawTable : update called")
+
+    @staticmethod
+    def requires_update(engine):
+        return False
+
+class DbParamTable(Base):
+    __tablename__ = "param_data"
+
+    unique_id = Column(Integer, primary_key=True, autoincrement=True)
+    param_name = Column(String(50))
+    param_value = Column(Float)
+
+    iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
+    parent = relationship("DbRawTable", back_populates="children_param")
+
+    @classmethod
+    def from_sqlite(cls, row):
+        this = DbParamTable()
+        this.unique_id = row["unique_id"]
+        this.param_name = row["param_name"]
+        this.param_value = row["param_value"]
+        this.iteration_id = row["iteration_id"]
+
+        return this
+
+    def __repr__(self):
+        return (
+            f"<DbParamTable(unique_id={self.unique_id})"
+            f", iteration_id={self.iteration_id}>"
+        )
+
+    @staticmethod
+    def update(engine):
+        logger.info("DbParamTable : update called")
 
     @staticmethod
     def requires_update(engine):

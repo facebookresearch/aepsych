@@ -68,6 +68,7 @@ class Database:
             or tables.DbStratTable.requires_update(self._engine)
             or tables.DbConfigTable.requires_update(self._engine)
             or tables.DbRawTable.requires_update(self._engine)
+            or tables.DbParamTable.requires_update(self._engine)
         )
 
     def perform_updates(self):
@@ -77,6 +78,7 @@ class Database:
         tables.DbStratTable.update(self._engine)
         tables.DbConfigTable.update(self._engine)
         tables.DbRawTable.update(self._engine)
+        tables.DbParamTable.update(self._engine)
 
     @contextmanager
     def session_scope(self):
@@ -161,6 +163,30 @@ class Database:
 
         return None
 
+    def get_all_params_for(self, master_id):
+        """Get the parameters for all the iterations of a specific experiment."""
+        raw_record = self.get_raw_for(master_id)
+        params = []
+
+        if raw_record is not None:
+            for raw in raw_record:
+                for param in raw.children_param:
+                    params.append(param)
+            return params
+
+        return None
+
+    def get_param_for(self, master_id, iteration_id):
+        """Get the parameters for a specific iteration of a specific experiment."""
+        raw_record = self.get_raw_for(master_id)
+
+        if raw_record is not None:
+            for raw in raw_record:
+                if raw.unique_id == iteration_id:
+                    return raw.children_param
+
+        return None
+
     def record_setup(
         self,
         description,
@@ -227,9 +253,8 @@ class Database:
         self._session.add(record)
         self._session.commit()
 
-    def record_raw(self, master_table, parameters, outcome, model_data) -> None:
+    def record_raw(self, master_table, outcome, model_data):
         raw_entry = tables.DbRawTable()
-        raw_entry.parameters = parameters
         raw_entry.outcome = outcome
         raw_entry.model_data = model_data
 
@@ -237,6 +262,18 @@ class Database:
         raw_entry.parent = master_table
 
         self._session.add(raw_entry)
+        self._session.commit()
+
+        return raw_entry
+
+    def record_param(self, raw_table, param_name, param_value) -> None:
+        param_entry = tables.DbParamTable()
+        param_entry.param_name = param_name
+        param_entry.param_value = param_value
+
+        param_entry.parent = raw_table
+
+        self._session.add(param_entry)
         self._session.commit()
 
     def record_strat(self, master_table, strat):
