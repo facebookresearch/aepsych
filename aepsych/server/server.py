@@ -311,7 +311,6 @@ class AEPsychServer(object):
         for raw in self.db.get_raw_for(experiment_id):
             row = {}
             row['iteration_id'] = raw.unique_id
-            row['outcome'] = raw.outcome
             for param in raw.children_param:
                 row[param.param_name] = param.param_value
             for outcome in raw.children_outcome:
