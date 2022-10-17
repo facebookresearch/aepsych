@@ -289,7 +289,8 @@ class AEPsychServer(object):
             )
         return out
 
-    def generate_experiment_table(self, experiment_id=None, table_name = 'experiment_table'):
+    def generate_experiment_table(self, experiment_id=None, table_name = 'experiment_table',
+                                return_df = False):
 
         one_iteration = self.db.get_param_for(experiment_id, 1)
 
@@ -320,6 +321,9 @@ class AEPsychServer(object):
 
         # Save to .db file
         df.to_sql(table_name, self.db.get_engine(), if_exists='replace')
+
+        if return_df:
+            return df
 
     def versioned_handler(self, request):
         handled_types = ["setup", "resume", "ask"]
@@ -736,7 +740,6 @@ class AEPsychServer(object):
         if not self.is_performing_replay:
             self._db_raw_record = self.db.record_raw(
                 master_table = self._db_master_record,
-                outcome = int(outcome),
                 model_data = bool(model_data),
             )
 
@@ -747,6 +750,20 @@ class AEPsychServer(object):
                     raw_table = self._db_raw_record,
                     param_name = str(param_name),
                     param_value = float(param_value),
+                )
+
+            if type(outcome) == list:
+                for i, outcome_value in enumerate(outcome):
+                    self.db.record_outcome(
+                        raw_table = self._db_raw_record,
+                        outcome_name = 'outcome_'+str(i),
+                        outcome_value = float(outcome_value),
+                    )
+            else:
+                self.db.record_outcome(
+                    raw_table = self._db_raw_record,
+                    outcome_name = 'outcome',
+                    outcome_value = float(outcome),
                 )
 
         if model_data:
