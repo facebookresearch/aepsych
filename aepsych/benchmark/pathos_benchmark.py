@@ -77,7 +77,7 @@ class PathosBenchmark(Benchmark):
         config_dict: Dict[str, Any],
         seed: int,
         rep: int,
-    ) -> Tuple[List[Dict[str, Any]], SequentialStrategy]:
+    ) -> Tuple[List[Dict[str, Any]], Union[SequentialStrategy, None]]:
         """Run one simulated experiment.
 
         Args:
@@ -166,6 +166,8 @@ class PathosBenchmark(Benchmark):
             item = self.futures.pop()
             if wait or item.ready():
                 results = item.get()
+                # filter out empty results from invalid configs
+                results = [r for r in results if r != {}]
                 if isinstance(results, list):
                     self._log.extend(results)
             else:
