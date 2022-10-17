@@ -69,6 +69,7 @@ class Database:
             or tables.DbConfigTable.requires_update(self._engine)
             or tables.DbRawTable.requires_update(self._engine)
             or tables.DbParamTable.requires_update(self._engine)
+            or tables.DbOutcomeTable.requires_update(self._engine)
         )
 
     def perform_updates(self):
@@ -79,6 +80,7 @@ class Database:
         tables.DbConfigTable.update(self._engine)
         tables.DbRawTable.update(self._engine)
         tables.DbParamTable.update(self._engine)
+        tables.DbOutcomeTable.update(self._engine)
 
     @contextmanager
     def session_scope(self):
@@ -187,6 +189,30 @@ class Database:
 
         return None
 
+    def get_all_outcomes_for(self, master_id):
+        """Get the outcomes for all the iterations of a specific experiment."""
+        raw_record = self.get_raw_for(master_id)
+        outcomes = []
+
+        if raw_record is not None:
+            for raw in raw_record:
+                for outcome in raw.children_outcome:
+                    outcomes.append(outcome)
+            return outcomes
+
+        return None
+
+    def get_outcome_for(self, master_id, iteration_id):
+        """Get the outcomes for a specific iteration of a specific experiment."""
+        raw_record = self.get_raw_for(master_id)
+
+        if raw_record is not None:
+            for raw in raw_record:
+                if raw.unique_id == iteration_id:
+                    return raw.children_outcome
+
+        return None
+
     def record_setup(
         self,
         description,
@@ -253,9 +279,8 @@ class Database:
         self._session.add(record)
         self._session.commit()
 
-    def record_raw(self, master_table, outcome, model_data):
+    def record_raw(self, master_table, model_data):
         raw_entry = tables.DbRawTable()
-        raw_entry.outcome = outcome
         raw_entry.model_data = model_data
 
         raw_entry.timestamp = datetime.datetime.now()
@@ -274,6 +299,16 @@ class Database:
         param_entry.parent = raw_table
 
         self._session.add(param_entry)
+        self._session.commit()
+
+    def record_outcome(self, raw_table, outcome_name, outcome_value) -> None:
+        outcome_entry = tables.DbOutcomeTable()
+        outcome_entry.outcome_name = outcome_name
+        outcome_entry.outcome_value = outcome_value
+
+        outcome_entry.parent = raw_table
+
+        self._session.add(outcome_entry)
         self._session.commit()
 
     def record_strat(self, master_table, strat):
