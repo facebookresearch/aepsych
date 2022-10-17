@@ -292,13 +292,15 @@ class AEPsychServer(object):
     def generate_experiment_table(self, experiment_id=None, table_name = 'experiment_table',
                                 return_df = False):
 
-        one_iteration = self.db.get_param_for(experiment_id, 1)
+        param_space = self.db.get_param_for(experiment_id, 1)
+        outcome_space = self.db.get_outcome_for(experiment_id, 1)
 
         columns = []
         columns.append('iteration_id')
-        columns.append('outcome')
-        for param in one_iteration:
+        for param in param_space:
             columns.append(param.param_name)
+        for outcome in outcome_space:
+            columns.append(outcome.outcome_name)
 
         columns.append('timestamp')
 
@@ -312,6 +314,8 @@ class AEPsychServer(object):
             row['outcome'] = raw.outcome
             for param in raw.children_param:
                 row[param.param_name] = param.param_value
+            for outcome in raw.children_outcome:
+                row[outcome.outcome_name] = outcome.outcome_value
             row['timestamp'] = raw.timestamp
             # concat to dataframe
             df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
