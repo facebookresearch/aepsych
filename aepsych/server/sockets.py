@@ -125,7 +125,7 @@ class PySocket(object):
 
         while not server_exiting:
             rlist, wlist, xlist = select.select(
-                [self.conn], [], [], timeout=0
+                [self.conn], [], [], 0
             )  # 0 Here is the timeout. It makes the server constantly poll for output. Timeout can be added to save CPU usage.
             # rlist,wlist,xlist represent lists of sockets to check against. Rlist is sockets to read from, wlist is sockets to write to, xlist is sockets to listen to for errors.
             for sock in rlist:
