@@ -133,9 +133,25 @@ if skip_computations is true, skip all the asks and queries, which should make t
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_exit">
 <span class="sig-name descname"><span class="pre">handle_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_exit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_get_config">
+<span class="sig-name descname"><span class="pre">handle_get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_get_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_get_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_finish_strategy">
+<span class="sig-name descname"><span class="pre">handle_finish_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_finish_strategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_finish_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_strategy_name">
+<span class="sig-name descname"><span class="pre">handle_strategy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_strategy_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_strategy_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.strat">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strat</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.parnames">
@@ -157,7 +173,7 @@ if skip_computations is true, skip all the asks and queries, which should make t
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.tell">
-<span class="sig-name descname"><span class="pre">tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.tell" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.tell" title="Permalink to this definition">¶</a></dt>
 <dd><p>tell the model which input was run and what the outcome was</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -396,9 +412,25 @@ if skip_computations is true, skip all the asks and queries, which should make t
 <dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_exit">
 <span class="sig-name descname"><span class="pre">handle_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_exit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_get_config">
+<span class="sig-name descname"><span class="pre">handle_get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_get_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_get_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_finish_strategy">
+<span class="sig-name descname"><span class="pre">handle_finish_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_finish_strategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_finish_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_strategy_name">
+<span class="sig-name descname"><span class="pre">handle_strategy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_strategy_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_strategy_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.server.AEPsychServer.strat">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strat</span></span><a class="headerlink" href="#aepsych.server.AEPsychServer.strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#aepsych.server.AEPsychServer.config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.server.AEPsychServer.parnames">
@@ -420,7 +452,7 @@ if skip_computations is true, skip all the asks and queries, which should make t
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.server.AEPsychServer.tell">
-<span class="sig-name descname"><span class="pre">tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.tell" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.tell" title="Permalink to this definition">¶</a></dt>
 <dd><p>tell the model which input was run and what the outcome was</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

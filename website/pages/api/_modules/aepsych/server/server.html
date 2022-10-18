@@ -22,6 +22,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">aepsych.database.db</span> <span class="k">as</span> <span class="nn">db</span>
@@ -31,7 +32,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">aepsych.server.sockets</span> <span class="kn">import</span> <span class="n">DummySocket</span><span class="p">,</span> <span class="n">createSocket</span>
+<span class="kn">from</span> <span class="nn">aepsych.server.sockets</span> <span class="kn">import</span> <span class="n">createSocket</span><span class="p">,</span> <span class="n">DummySocket</span>
 <span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">SequentialStrategy</span>
 <span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 
@@ -63,6 +64,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">exit_server_loop</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Database</span><span class="p">(</span><span class="n">database_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_computations</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">is_update_required</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -71,6 +73,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_strats</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parnames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
@@ -88,7 +91,10 @@
                 <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="s2">"bad request"</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Request '</span><span class="si">{</span><span class="n">request</span><span class="si">}</span><span class="s2">' raised error '</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Request '</span><span class="si">{</span><span class="n">request</span><span class="si">}</span><span class="s2">' raised error '</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">'! Full traceback follows:"</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
@@ -148,32 +154,18 @@
 
         <span class="c1"># this prevents writing back to the DB and creating a circular firing squad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_computations</span> <span class="o">=</span> <span class="n">skip_computations</span>
 
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">master_record</span><span class="o">.</span><span class="n">children_replay</span><span class="p">:</span>
             <span class="n">request</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">message_contents</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"replay - type = </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">message_type</span><span class="si">}</span><span class="s2"> request = </span><span class="si">{</span><span class="n">request</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">request</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"ask"</span> <span class="ow">or</span> <span class="n">request</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"query"</span>
-            <span class="p">)</span> <span class="ow">and</span> <span class="n">skip_computations</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">"Request type is ask or query and skip_computations==True, skipping!"</span>
-                <span class="p">)</span>
-                <span class="c1"># HACK increment strat's count and manually move to next strat as needed, since</span>
-                <span class="c1"># strats count based on `gen` calls not `add_data calls`.</span>
-                <span class="c1"># TODO this should probably be the other way around when we refactor</span>
-                <span class="c1"># the whole Modelbridge/Strategy axis.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">min_asks</span>
-                <span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_make_next_strat</span><span class="p">()</span>
-                <span class="k">continue</span>
             <span class="k">if</span> <span class="s2">"version"</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_handler</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_computations</span> <span class="o">=</span> <span class="kc">False</span></div>
 
     <span class="k">def</span> <span class="nf">_unpack_strat_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat_buffer</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strat_buffer</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">):</span>
@@ -424,6 +416,9 @@
             <span class="s2">"parameters"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_params</span><span class="p">,</span>
             <span class="s2">"can_model"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_can_model</span><span class="p">,</span>
             <span class="s2">"exit"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_exit</span><span class="p">,</span>
+            <span class="s2">"get_config"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_get_config</span><span class="p">,</span>
+            <span class="s2">"finish_strategy"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_finish_strategy</span><span class="p">,</span>
+            <span class="s2">"strategy_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_strategy_name</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="s2">"type"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -553,6 +548,9 @@
         <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_computations</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
         <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"query_type"</span><span class="p">:</span> <span class="n">query_type</span><span class="p">,</span>
@@ -605,6 +603,31 @@
         <span class="c1"># If using thrift, it will add 'Terminate' to the queue and pass it to thrift server level</span>
         <span class="k">return</span> <span class="s2">"Terminate"</span></div>
 
+<div class="viewcode-block" id="AEPsychServer.handle_get_config"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_get_config">[docs]</a>    <span class="k">def</span> <span class="nf">handle_get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"section"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"property"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># If section and property are not specified, return the whole config</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">deduplicate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># If section and property are not both specified, raise an error</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Message contains a property but not a section!"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Message contains a section but not a property!"</span><span class="p">)</span>
+
+        <span class="c1"># If both section and property are specified, return only the relevant value from the config</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">deduplicate</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="n">section</span><span class="p">][</span><span class="n">prop</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AEPsychServer.handle_finish_strategy"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_finish_strategy">[docs]</a>    <span class="k">def</span> <span class="nf">handle_finish_strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"finished strategy </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span></div>
+
+<div class="viewcode-block" id="AEPsychServer.handle_strategy_name"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_strategy_name">[docs]</a>    <span class="k">def</span> <span class="nf">handle_strategy_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span></div>
+
     <span class="c1">### Properties that are set on a per-strat basis</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -616,6 +639,17 @@
     <span class="nd">@strat</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">strat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_strats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span><span class="p">]</span>
+
+    <span class="nd">@config</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">parnames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -638,6 +672,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict -- new config dict (keys are strings, values are floats)</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_computations</span><span class="p">:</span>
+            <span class="c1"># HACK to makke sure strategies finish correctly</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_make_next_strat</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
         <span class="c1"># index by [0] is temporary HACK while serverside</span>
         <span class="c1"># doesn't handle batched ask</span>
         <span class="n">next_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">gen</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
@@ -662,7 +703,7 @@
             <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">unpacked</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">x</span>
 
-<div class="viewcode-block" id="AEPsychServer.tell"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.tell">[docs]</a>    <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.tell"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.tell">[docs]</a>    <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">model_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">"""tell the model which input was run and what the outcome was</span>
 
 <span class="sd">        Arguments:</span>
@@ -672,15 +713,16 @@
 <span class="sd">            TODO better types</span>
 <span class="sd">        """</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_to_tensor</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">outcome</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">model_data</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_to_tensor</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">outcome</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_str_to_list</span><span class="p">(</span>
             <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">),</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span>
         <span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strat</span> <span class="o">=</span> <span class="n">SequentialStrategy</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_strats</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 0-index strats</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span>

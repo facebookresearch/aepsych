@@ -30,6 +30,7 @@
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span> <span class="nn">botorch.exceptions.errors</span> <span class="kn">import</span> <span class="n">ModelFittingError</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
@@ -74,6 +75,8 @@
         <span class="n">max_asks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">keep_most_recent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_post_range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="n">run_indefinitely</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">"""Initialize the strategy object.</span>
 
@@ -96,24 +99,40 @@
 <span class="sd">                as data collected from later trials. When None, the model is fitted on all data.</span>
 <span class="sd">            min_post_range (float, optional): Experimental. The required difference between the posterior's minimum and maximum value in</span>
 <span class="sd">                probablity space before the strategy will finish. Ignored if None (default).</span>
+<span class="sd">            name (str): The name of the strategy. Defaults to the empty string.</span>
+<span class="sd">            run_indefinitely (bool): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will</span>
+<span class="sd">                be ignored. Defaults to False.</span>
 <span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">if</span> <span class="n">min_total_tells</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">min_asks</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">run_indefinitely</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Strategy </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> will run indefinitely until finish() is explicitly called. Other stopping criteria will be ignored."</span>
+            <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">min_total_tells</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">min_asks</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">"Specifying both min_total_tells and min_asks &gt; 0 may lead to unintended behavior."</span>
             <span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Multiple outcome types are not yet supported!"</span>
-        <span class="k">assert</span> <span class="n">stimuli_per_trial</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="mi">1</span><span class="p">,</span>
-            <span class="mi">2</span><span class="p">,</span>
-        <span class="p">],</span> <span class="s2">"Number of stimuli per trial must be 1 or 2!"</span>
 
-        <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">outcome_types</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="p">[</span>
-                <span class="s2">"continuous"</span><span class="p">,</span>
-                <span class="s2">"binary"</span><span class="p">,</span>
-            <span class="p">],</span> <span class="sa">f</span><span class="s2">"Unknown outcome_type '</span><span class="si">{</span><span class="n">outcome</span><span class="si">}</span><span class="s2">'!"</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">_num_outputs</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Strategy has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span><span class="si">}</span><span class="s2"> outcomes, but model </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> supports </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">_num_outputs</span><span class="si">}</span><span class="s2">!"</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Strategy has </span><span class="si">{</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2"> stimuli_per_trial, but model </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> supports </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2">!"</span>
 
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">outcome_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">"Strategy outcome types is </span><span class="si">{</span><span class="n">outcome_types</span><span class="si">}</span><span class="s2"> but model outcome type is </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">!"</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">"Strategy outcome types is </span><span class="si">{</span><span class="n">outcome_types</span><span class="si">}</span><span class="s2"> but model outcome type is </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">!"</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_indefinitely</span> <span class="o">=</span> <span class="n">run_indefinitely</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_total_outcome_occurrences</span> <span class="o">=</span> <span class="n">min_total_outcome_occurrences</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="o">=</span> <span class="n">max_asks</span>
@@ -154,6 +173,8 @@
                 <span class="s2">"strategy.min_asks == strategy.min_total_tells == 0. This strategy will not generate any points!"</span><span class="p">,</span>
                 <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
 <div class="viewcode-block" id="Strategy.normalize_inputs"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.normalize_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">"""converts inputs into normalized format for this strategy</span>
@@ -230,8 +251,17 @@
     <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Strategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">True</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_indefinitely</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"finished"</span><span class="p">):</span>  <span class="c1"># defer to generator if possible</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">finished</span>
 
@@ -283,22 +313,44 @@
 <div class="viewcode-block" id="Strategy.fit"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_fit</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:]</span>
-                <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
+                    <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
+                    <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Cannot fit: no model has been initialized!"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.update"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_fit</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:]</span>
-                <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
+                    <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
+                    <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Cannot fit: no model has been initialized!"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span></div>
 
@@ -317,18 +369,6 @@
         <span class="n">model_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">model_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">"stimuli_per_trial, </span><span class="si">{</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2">, does not match model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">, which takes </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2"> stimuli!"</span>
-
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="n">generator</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">"stimuli_per_trial, </span><span class="si">{</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2">, does not match model </span><span class="si">{</span><span class="n">generator</span><span class="si">}</span><span class="s2">, which takes </span><span class="si">{</span><span class="n">generator</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2"> stimuli!"</span>
-
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span> <span class="ow">in</span> <span class="n">outcome_types</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">"model outcome type, </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">, not found in outcome_types, </span><span class="si">{</span><span class="n">outcome_types</span><span class="si">}</span><span class="s2">!"</span>
-
         <span class="k">else</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -381,6 +421,7 @@
             <span class="n">min_post_range</span><span class="o">=</span><span class="n">min_post_range</span><span class="p">,</span>
             <span class="n">keep_most_recent</span><span class="o">=</span><span class="n">keep_most_recent</span><span class="p">,</span>
             <span class="n">min_total_tells</span><span class="o">=</span><span class="n">min_total_tells</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 
 
@@ -430,6 +471,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">+</span> <span class="n">num_points</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="SequentialStrategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat_idx</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">finished</span>
@@ -440,6 +484,12 @@
 <div class="viewcode-block" id="SequentialStrategy.from_config"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
         <span class="n">strat_names</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"strategy_names"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="c1"># ensure strat_names are unique</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">strat_names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span><span class="n">strat_names</span><span class="p">)</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"Strategy names </span><span class="si">{</span><span class="n">strat_names</span><span class="si">}</span><span class="s2"> are not all unique!"</span>
+
         <span class="n">strats</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">strat_names</span><span class="p">:</span>
             <span class="n">strat</span> <span class="o">=</span> <span class="n">Strategy</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
