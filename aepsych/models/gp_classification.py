@@ -23,6 +23,8 @@ from gpytorch.variational import CholeskyVariationalDistribution, VariationalStr
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch.distributions import Normal
+from botorch.models.transforms.input import Normalize
+
 
 logger = getLogger()
 
@@ -55,6 +57,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        data_transform=None,
     ):
         """Initialize the GP Classification model
 
@@ -113,9 +116,12 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
         self.likelihood = likelihood
+        self.data_transform = data_transform or Normalize
 
         self._fresh_state_dict = deepcopy(self.state_dict())
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
+
+
 
     @classmethod
     def from_config(cls, config: Config) -> GPClassificationModel:
