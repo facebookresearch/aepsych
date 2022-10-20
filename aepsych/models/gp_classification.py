@@ -116,7 +116,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
         self.likelihood = likelihood
-        self.data_transform = data_transform or Normalize
+        self.data_transform = data_transform or Normalize(d=self.dim)
 
         self._fresh_state_dict = deepcopy(self.state_dict())
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
