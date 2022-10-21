@@ -7,6 +7,7 @@
 
 import json
 import logging
+import select
 import socket
 import sys
 
@@ -15,6 +16,7 @@ import numpy as np
 import zmq
 
 logger = utils_logging.getLogger(logging.INFO)
+BAD_REQUEST = "bad request"
 
 
 def SimplifyArrays(message):
@@ -92,39 +94,58 @@ class PySocket(object):
             )
         else:
             self.socket = socket.create_server(addr)
-        self.conn = None
+
+        self.conn, self.addr = None, None
 
     def close(self):
         self.socket.close()
 
-    def receive(self):
-        # catch the Error and reset the connection
-        while True:
-            try:
-                if self.conn is None:
-                    logger.info("Waiting for connection...")
-                    self.conn, self.addr = self.socket.accept()
-                recv_result = b""
-                while recv_result == b"":
-                    logger.info(f"Connected by {self.addr}, waiting for messages...")
-                    recv_result = self.conn.recv(1024 * 512)  # 512KiB
-                    logger.debug(f"receive : result = {recv_result}")
-                    msg = json.loads(recv_result)
+    def return_socket(self):
+        return self.socket
 
-                logger.info(f"Got: {msg}")
-                break
-            except Exception as e:
-                self.conn.close()
-                self.conn, self.addr = None, None
-                logger.info(
-                    "Exception caught while trying to receive a message from the client. "
-                    f"Ignoring message and trying again. The caught exception was: {e}."
-                )
-        return msg
+    def accept_client(self):
+        client_not_connected = True
+        logger.info("Waiting for connection...")
+
+        while client_not_connected:
+            rlist, wlist, xlist = select.select([self.socket], [], [], 0)
+            if rlist:
+                for sock in rlist:
+                    try:
+                        self.conn, self.addr = sock.accept()
+                        logger.info(
+                            f"Connected by {self.addr}, waiting for messages..."
+                        )
+                        client_not_connected = False
+                    except Exception as e:
+                        logger.info(f"Connection to client failed with error {e}")
+                        raise Exception
+
+    def receive(self, server_exiting):
+
+        while not server_exiting:
+            rlist, wlist, xlist = select.select(
+                [self.conn], [], [], 0
+            )  # 0 Here is the timeout. It makes the server constantly poll for output. Timeout can be added to save CPU usage.
+            # rlist,wlist,xlist represent lists of sockets to check against. Rlist is sockets to read from, wlist is sockets to write to, xlist is sockets to listen to for errors.
+            for sock in rlist:
+                try:
+                    if rlist:
+                        recv_result = sock.recv(
+                            1024 * 512
+                        )  # 1024 * 512 is the max size of the message
+                        msg = json.loads(recv_result)
+                        logger.debug(f"receive : result = {recv_result}")
+                        logger.info(f"Got: {msg}")
+                        return msg
+                except Exception as e:
+                    logger.error(f"Failed with error {e}")
+                    return BAD_REQUEST
 
     def send(self, message):
         if self.conn is None:
             logger.error("No connection to send to!")
+
             return
         if type(message) == str:
             pass  # keep it as-is

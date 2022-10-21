@@ -28,7 +28,7 @@
 <span class="kn">import</span> <span class="nn">aepsych.database.tables</span> <span class="k">as</span> <span class="nn">tables</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
-
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm.session</span> <span class="kn">import</span> <span class="n">close_all_sessions</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
 
@@ -69,7 +69,8 @@
 
 <div class="viewcode-block" id="Database.delete_db"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.delete_db">[docs]</a>    <span class="k">def</span> <span class="nf">delete_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_db_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_full_db_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+            <span class="n">close_all_sessions</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_full_db_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Database.is_update_required"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.is_update_required">[docs]</a>    <span class="k">def</span> <span class="nf">is_update_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

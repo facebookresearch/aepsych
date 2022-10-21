@@ -65,3 +65,7 @@ class ThriftSocketTestCase(unittest.TestCase):
         self.s.socket.send(test_messages)
         server.SimplifyArrays = MagicMock(return_value=test_messages)
         self.assertEqual(self.s.socket.msg_queue.get(), expected_results)
+
+
+if __name__ == "__main__":
+    unittest.main()

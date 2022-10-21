@@ -60,7 +60,7 @@ This method should be imlemented by all Kernel subclasses.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
 <ul class="simple">
 <li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
 <li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n x m</cite> or <cite>b x k x n x m</cite></p></li>

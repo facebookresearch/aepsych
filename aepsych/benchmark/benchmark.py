@@ -137,7 +137,7 @@ class Benchmark:
         config_dict: Dict[str, Any],
         seed: int,
         rep: int,
-    ) -> Tuple[List[Dict[str, Any]], SequentialStrategy]:
+    ) -> Tuple[List[Dict[str, Any]], Union[SequentialStrategy, None]]:
         """Run one simulated experiment.
 
         Args:
@@ -156,6 +156,11 @@ class Benchmark:
         config_dict["common"]["ub"] = str(problem.ub.tolist())
         config_dict["problem"] = problem.metadata
         materialized_config = self.materialize_config(config_dict)
+
+        # no-op config
+        is_invalid = materialized_config["common"].get("invalid_config", False)
+        if is_invalid:
+            return [{}], None
 
         strat, flatconfig = self.make_strat_and_flatconfig(materialized_config)
 
@@ -212,7 +217,8 @@ class Benchmark:
         ):
             local_seed = i + self.seed
             results, _ = self.run_experiment(problem, config, seed=local_seed, rep=rep)
-            self._log.extend(results)
+            if results != [{}]:
+                self._log.extend(results)
 
     def flatten_config(self, config: Config) -> Dict[str, str]:
         """Flatten a config object for logging.

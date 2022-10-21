@@ -167,7 +167,13 @@ namespace AEPsych
 
         ICollection<List<float>> IDictionary<string, List<float>>.Values => throw new NotImplementedException();
 
-        int ICollection<KeyValuePair<string, List<float>>>.Count => throw new NotImplementedException();
+        int ICollection<KeyValuePair<string, List<float>>>.Count
+        {
+            get
+            {
+                return innerDict.Count;
+            }
+        }
 
         bool ICollection<KeyValuePair<string, List<float>>>.IsReadOnly => throw new NotImplementedException();
     }

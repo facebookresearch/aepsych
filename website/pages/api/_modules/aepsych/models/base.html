@@ -19,7 +19,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -27,7 +27,7 @@
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">dim_grid</span><span class="p">,</span> <span class="n">get_jnd_multid</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition</span> <span class="kn">import</span> <span class="n">PosteriorMean</span>
-<span class="kn">from</span> <span class="nn">botorch.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_model</span>
+<span class="kn">from</span> <span class="nn">botorch.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_mll</span>
 <span class="kn">from</span> <span class="nn">botorch.models.approximate_gp</span> <span class="kn">import</span> <span class="n">_select_inducing_points</span>
 <span class="kn">from</span> <span class="nn">botorch.models.gpytorch</span> <span class="kn">import</span> <span class="n">GPyTorchModel</span>
 <span class="kn">from</span> <span class="nn">botorch.optim</span> <span class="kn">import</span> <span class="n">optimize_acqf</span>
@@ -36,6 +36,7 @@
 <span class="kn">from</span> <span class="nn">gpytorch.mlls</span> <span class="kn">import</span> <span class="n">MarginalLogLikelihood</span>
 <span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="kn">import</span> <span class="n">kmeans2</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
@@ -43,6 +44,10 @@
 
 
 <div class="viewcode-block" id="ModelProtocol"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.ModelProtocol">[docs]</a><span class="k">class</span> <span class="nc">ModelProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_num_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">pass</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">outcome_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">pass</span>
@@ -101,6 +106,9 @@
 <div class="viewcode-block" id="ModelProtocol.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.ModelProtocol.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ModelProtocol.p_below_threshold"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.ModelProtocol.p_below_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">p_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f_thresh</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">pass</span></div></div>
 
 
@@ -223,7 +231,7 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
             <span class="k">assert</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s1">'binary'</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"binary"</span>
             <span class="p">),</span> <span class="sa">f</span><span class="s2">"Cannot get probability space for outcome_type '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">'"</span>
 
         <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
@@ -408,30 +416,31 @@
 
     <span class="k">def</span> <span class="nf">_fit_mll</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">mll</span><span class="p">:</span> <span class="n">MarginalLogLikelihood</span><span class="p">,</span>
+        <span class="n">optimizer_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
-
+        <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span> <span class="o">=</span> <span class="n">mll</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mll</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train_targets</span>
+        <span class="n">optimizer_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">optimizer_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">optimizer_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_fit_time</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">max_fit_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># figure out how long evaluating a single samp</span>
             <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">_</span> <span class="o">=</span> <span class="n">mll</span><span class="p">(</span><span class="bp">self</span><span class="p">(</span><span class="n">train_x</span><span class="p">),</span> <span class="n">train_y</span><span class="p">)</span>
             <span class="n">single_eval_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span>
-            <span class="n">n_eval</span> <span class="o">=</span> <span class="n">max_fit_time</span> <span class="o">//</span> <span class="n">single_eval_time</span>
-            <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"maxfun"</span><span class="p">:</span> <span class="n">n_eval</span><span class="p">}</span>
+            <span class="n">n_eval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_fit_time</span> <span class="o">/</span> <span class="n">single_eval_time</span><span class="p">)</span>
+            <span class="n">optimizer_kwargs</span><span class="p">[</span><span class="s2">"options"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"maxfun"</span><span class="p">:</span> <span class="n">n_eval</span><span class="p">}</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fit maxfun is </span><span class="si">{</span><span class="n">n_eval</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting fit..."</span><span class="p">)</span>
         <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">fit_gpytorch_model</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fit done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+        <span class="n">fit_gpytorch_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="n">optimizer_kwargs</span><span class="o">=</span><span class="n">optimizer_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fit done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AEPsychMixin.p_below_threshold"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.p_below_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">p_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f_thresh</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">f_thresh</span> <span class="o">-</span> <span class="n">f</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span> <span class="o">/</span> <span class="n">var</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span></div></div>
 </pre></div>
 </div>
 </div>

@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import traceback
+import threading
 import warnings
 
 import aepsych.database.db as db
@@ -20,7 +21,7 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import createSocket, DummySocket
+from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
@@ -37,7 +38,6 @@ def get_next_filename(folder, fname, ext):
 class AEPsychServer(object):
     def __init__(self, socket=None, database_path=None, thrift=False):
         """Server for doing black box optimization using gaussian processes.
-
         Keyword Arguments:
             socket -- socket object that implements `send` and `receive` for json
             messages (default: ZMQSocket).
@@ -67,25 +67,36 @@ class AEPsychServer(object):
 
         self.debug = False
         self.is_using_thrift = thrift
+        self.receive_thread = threading.Thread(
+            target=self._receive_send, args=(self.exit_server_loop,), daemon=True
+        )
+
+        self.queue = []
 
     def cleanup(self):
         self.socket.close()
 
-    def _receive_send(self):
-        request = self.socket.receive()
-        try:
-            if "version" in request.keys():
-                result = self.versioned_handler(request)
-            else:
-                result = self.unversioned_handler(request)
-        except Exception as e:
-            result = "bad request"
-            logger.warning(
-                f"Request '{request}' raised error '{e}'! Full traceback follows:"
-            )
-            logger.warning(traceback.format_exc())
+    def _receive_send(self, is_exiting):
+        while True:
+            request = self.socket.receive(is_exiting)
+            if request != BAD_REQUEST:
+                self.queue.append(request)
+            if self.exit_server_loop:
+                break
+        logger.info("Terminated input thread")
 
-        self.socket.send(result)
+    def _handle_queue(self):
+        if self.queue:
+            request = self.queue.pop(0)
+            try:
+                result = self.handle_request(request)
+            except Exception as e:
+                result = BAD_REQUEST
+                logger.warning(
+                f"Request '{request}' raised error '{e}'! Full traceback follows:"
+                )
+                logger.warning(traceback.format_exc())
+            self.socket.send(result)
 
     def serve(self):
         """Run the server. Note that all configuration outside of socket type and port
@@ -93,7 +104,6 @@ class AEPsychServer(object):
         the client to its `setup`, `ask` and `tell` methods, and responds with either
         acknowledgment or other response as needed. To understand the server API, see
         the docs on the methods in this class.
-
         Raises:
             RuntimeError: if a request from a client has no request type
             RuntimeError: if a request from a client has no known request type
@@ -104,16 +114,18 @@ class AEPsychServer(object):
         logger.info("Ctrl-C to quit!")
         # yeah we're not sanitizing input at all
 
-        if self.is_using_thrift is True:
-            # no loop if using thrift
-            self._receive_send()
-        else:
-            while True:
-                self._receive_send()
+        # Start the method to accept a client connection
 
+        if self.is_using_thrift is True:
+            self.queue.append(self.socket.receive())
+            self._handle_queue()
+        else:
+            self.socket.accept_client()
+            self.receive_thread.start()
+            while True:
+                self._handle_queue()
                 if self.exit_server_loop:
                     break
-
             # Close the socket and terminate with code 0
             self.cleanup()
             sys.exit(0)
@@ -148,10 +160,7 @@ class AEPsychServer(object):
         for result in master_record.children_replay:
             request = result.message_contents
             logger.debug(f"replay - type = {result.message_type} request = {request}")
-            if "version" in request.keys():
-                result = self.versioned_handler(request)
-            else:
-                result = self.unversioned_handler(request)
+            self.handle_request(request)
 
         self.is_performing_replay = False
         self.skip_computations = False
@@ -462,6 +471,7 @@ class AEPsychServer(object):
                 exception_message = (
                     f"unknown type: {type}. Allowed types [{message_map.keys()}]"
                 )
+
                 raise RuntimeError(exception_message)
 
     def handle_setup(self, request):
@@ -696,7 +706,6 @@ class AEPsychServer(object):
 
     def ask(self):
         """get the next point to query from the model
-
         Returns:
             dict -- new config dict (keys are strings, values are floats)
         """
@@ -733,7 +742,6 @@ class AEPsychServer(object):
 
     def tell(self, outcome, config, model_data=True):
         """tell the model which input was run and what the outcome was
-
         Arguments:
             inputs {dict} -- dictionary, keys are strings, values are floats or int.
             keys should inclde all of the parameters we are tuning over, plus 'outcome'
@@ -830,7 +838,7 @@ class AEPsychServer(object):
         return self._configure(usedconfig)
 
     def __getstate__(self):
-        ### nuke the socket since it's not pickleble
+        # nuke the socket since it's not pickleble
         state = self.__dict__.copy()
         del state["socket"]
         del state["db"]
@@ -849,6 +857,12 @@ class AEPsychServer(object):
         fname = get_next_filename(".", dumptype, "pkl")
         logger.exception(f"Got {exception_type}, exiting! Server dump in {fname}")
         dill.dump(self, open(fname, "wb"))
+
+    def handle_request(self, request):
+        if "version" in request.keys():
+            return self.versioned_handler(request)
+
+        return self.unversioned_handler(request)
 
 
 def startServerAndRun(

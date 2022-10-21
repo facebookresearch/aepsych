@@ -184,11 +184,11 @@
 
         <span class="n">ferrs</span> <span class="o">=</span> <span class="n">fsamps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">miae_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ferrs</span><span class="p">))</span>
-        <span class="n">mise_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ferrs</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">mise_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ferrs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="n">perrs</span> <span class="o">=</span> <span class="n">psamps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
         <span class="n">miae_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">perrs</span><span class="p">))</span>
-        <span class="n">mise_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">perrs</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">mise_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">perrs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="n">expected_brier</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">psamps</span><span class="p">))</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
@@ -229,9 +229,17 @@
         <span class="n">md</span><span class="p">[</span><span class="s2">"threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>
         <span class="k">return</span> <span class="n">md</span>
 
-    <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">f_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">))</span>
+<div class="viewcode-block" id="LSEProblem.f_threshold"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.f_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">f_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">inverse_torch</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">inverse</span>
+
+            <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">inverse_torch</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">inverse_link</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">))</span></div>
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">true_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -268,10 +276,7 @@
         <span class="c1"># define what "threshold" means in high-dim.</span>
 
         <span class="c1"># Predict p(below threshold) at test points</span>
-        <span class="n">f</span><span class="p">,</span> <span class="n">var</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span>
-        <span class="n">p_l</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span>
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_threshold</span> <span class="o">-</span> <span class="n">f</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span> <span class="o">/</span> <span class="n">var</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-        <span class="p">)</span>
+        <span class="n">p_l</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_threshold</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
 
         <span class="c1"># Brier score on level-set probabilities</span>
         <span class="n">thresh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>

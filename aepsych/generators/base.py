@@ -66,7 +66,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                     # if this thing is configured
                     if k in full_section.keys():
                         # if it's an object make it an object
-                        if full_section[k] in config.registered_names.keys():
+                        if full_section[k] in Config.registered_names.keys():
                             extra_acqf_args[k] = config.getobj(acqf_name, k)
                         else:
                             # otherwise try a float

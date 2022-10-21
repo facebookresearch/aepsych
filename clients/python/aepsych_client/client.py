@@ -6,25 +6,48 @@
 
 import json
 import socket
-from typing import Any, Dict, List
+import warnings
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+if TYPE_CHECKING:
+    from aepsych.server import AEPsychServer
 
 
 class AEPsychClient:
-    def __init__(self, ip: str = "0.0.0.0", port: int = 5555, connect=True) -> None:
+    def __init__(
+        self,
+        ip: Optional[str] = None,
+        port: Optional[int] = None,
+        connect: bool = True,
+        server: "AEPsychServer" = None,
+    ) -> None:
         """Python client for AEPsych using built-in python sockets. By default it connects
         to a localhost server matching AEPsych defaults.
 
         Args:
-            ip (str): IP to connect to (default: localhost).
-            port (str): Port to connect on (default: 5555).
-            connect (bool, optional): Connect as part of init? Defaults to True.
+            ip (str, optional): IP to connect to (default: localhost).
+            port (str, optional): Port to connect on (default: 5555).
+            connect (bool): Connect as part of init? Defaults to True.
+            server (AEPsychServer, optional): An in-memory AEPsychServer object to connect to.
+                If this is not None, the other arguments will be ignored.
         """
-
-        self.socket = socket.socket()
         self.configs = []
         self.config_names = {}
-        if connect:
-            self.connect(ip, port)
+        self.server = server
+
+        if server is not None and (ip is not None or port is not None):
+            warnings.warn(
+                "AEPsychClient will ignore ip and port since it was given a server object!",
+                UserWarning,
+            )
+
+        if server is None:
+            ip = ip or "0.0.0.0"
+            port = port or 5555
+
+            self.socket = socket.socket()
+            if connect:
+                self.connect(ip, port)
 
     def connect(self, ip: str, port: int) -> None:
         """Connect to the server.
@@ -42,6 +65,9 @@ class AEPsychClient:
         self._send_recv(request)
 
     def _send_recv(self, message) -> str:
+        if self.server is not None:
+            return self.server.handle_request(message)
+
         message = bytes(json.dumps(message), encoding="utf-8")
         self.socket.send(message)
         response = self.socket.recv(4096).decode("utf-8")
@@ -57,7 +83,9 @@ class AEPsychClient:
             Dict[str, str]: Next configuration to evaluate.
         """
         request = {"message": "", "type": "ask", "version": "0.01"}
-        response = json.loads(self._send_recv(request))
+        response = self._send_recv(request)
+        if isinstance(response, str):
+            response = json.loads(response)
         return response
 
     def tell(
