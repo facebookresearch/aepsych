@@ -40,6 +40,11 @@ class AEPsychClient:
                 "AEPsychClient will ignore ip and port since it was given a server object!",
                 UserWarning,
             )
+            exp_ids = [rec.experiment_id for rec in server.db.get_master_records()]
+            if len(exp_ids):
+                db_config_list = list(server.db.get_config_for(master_id=exp_ids[-1]))
+                for i in range(len(db_config_list)):
+                    self.configs.append(i)
 
         if server is None:
             ip = ip or "0.0.0.0"
