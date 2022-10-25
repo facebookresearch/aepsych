@@ -1,0 +1,9 @@
+aepsych==0.2.0
+aepsych-client==0.1.1
+jupyterlab>=3.1
+bqplot
+ipympl
+ipyvolume
+scipy
+voila
+ipywidgets==7.7.1
