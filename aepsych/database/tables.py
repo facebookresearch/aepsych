@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import pickle
+import dill
 
 from aepsych.config import Config
 from aepsych.version import __version__
@@ -368,11 +369,84 @@ class DbRawTable(Base):
         )
 
     @staticmethod
-    def update(engine):
+    def update(server, engine):
         logger.info("DbRawTable : update called")
+
+        # Get every master table
+        for master_table in server.get_master_records():
+
+            master_id = master_table.unique_id
+
+            tell_messages = server.get_engine().execute(
+                f"SELECT * FROM replay_data \
+                WHERE message_type = 'tell' AND master_table_id = {master_id}").fetchall()
+
+            # Get raw tab
+            for i, example in enumerate(tell_messages):
+                timestamp = example['timestamp']
+                master_table_id = example['master_table_id']
+
+                # Deserialize pickle message
+                message_contents = dill.loads(example['message_contents'])
+
+                # Get outcome
+                outcomes = message_contents['message']['outcome']
+                # Get parameters
+                params = message_contents['message']['config']
+                # Get model_data
+                model_data = message_contents['message'].get('model_data', True)
+
+                db_raw_record = server.record_raw(
+                    master_table = master_table,
+                    model_data = bool(model_data),
+                )
+
+                for param_name, param_value in params.items():
+                    if type(param_value) not in [float, int, bool]:
+                        if len(param_value) == 1:
+                            server.record_param(
+                                raw_table = db_raw_record,
+                                param_name = str(param_name),
+                                param_value = float(param_value[0]),
+                            )
+                        else:
+                            for j, v in enumerate(param_value):
+                                server.record_param(
+                                    raw_table = db_raw_record,
+                                    param_name = str(param_name) + '_stimuli' + str(j),
+                                    param_value = float(v),
+                                )
+                    else:
+                        server.record_param(
+                            raw_table = db_raw_record,
+                            param_name = str(param_name),
+                            param_value = float(param_value),
+                        )
+
+                if type(outcomes) not in [float, int, bool]:
+                    for j, outcome_value in enumerate(outcomes):
+                        server.record_outcome(
+                            raw_table = db_raw_record,
+                            outcome_name = 'outcome_'+str(j),
+                            outcome_value = float(outcome_value),
+                        )
+                else:
+                    server.record_outcome(
+                        raw_table = db_raw_record,
+                        outcome_name = 'outcome',
+                        outcome_value = float(outcomes),
+                    )
 
     @staticmethod
     def requires_update(engine):
+        """Check if the raw table is empty, and data already exists."""
+        n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
+        n_tells = engine.execute("SELECT COUNT (*) FROM replay_data \
+            WHERE message_type = 'tell'").fetchone()[0]
+
+        if n_raws == 0 and n_tells != 0:
+            return True
+
         return False
 
 

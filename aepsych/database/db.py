@@ -78,7 +78,7 @@ class Database:
         tables.DbReplayTable.update(self._engine)
         tables.DbStratTable.update(self._engine)
         tables.DbConfigTable.update(self._engine)
-        tables.DbRawTable.update(self._engine)
+        tables.DbRawTable.update(self, self._engine)
         tables.DbParamTable.update(self._engine)
         tables.DbOutcomeTable.update(self._engine)
 
