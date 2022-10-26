@@ -78,6 +78,7 @@ public class ConfigGenerator: MonoBehaviour
         { new[] { 0, 0, 1 }, "SingleBinaryOptimization" },
         { new[] { 0, 1, 0 }, "SingleContinuousThreshold" },
         { new[] { 0, 1, 1 }, "SingleContinuousOptimization" },
+        { new[] { 0, 1, 2 }, "SingleContinuousExploration" },
         { new[] { 1, 0, 1 }, "PairwiseBinaryOptimization" },
         { new[] { 1, 0, 2 }, "PairwiseBinaryExploration" }
     };
@@ -284,6 +285,15 @@ public class ConfigGenerator: MonoBehaviour
                 opt_generator = "OptimizeAcqfGenerator";
                 outcome_type = "continuous";
                 acqf = "qNoisyExpectedImprovement";
+                model = "GPRegressionModel";
+                target = -1f;
+                specifyAcqf = false;
+                break;
+            case "SingleContinuousExploration":
+                init_generator = "SobolGenerator";
+                opt_generator = "OptimizeAcqfGenerator";
+                outcome_type = "continuous";
+                acqf = "MCPosteriorVariance";
                 model = "GPRegressionModel";
                 target = -1f;
                 specifyAcqf = false;
