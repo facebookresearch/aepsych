@@ -160,6 +160,72 @@ class DBTestCase(unittest.TestCase):
 
         test_database.delete_db()
 
+    def test_update_db_with_raw_data_tables(self):
+        current_path = Path(os.path.abspath(__file__)).parent
+        db_path = current_path
+        db_path = db_path.joinpath("test_databases/multi_stimuli.db")
+
+        # copy the db to a new file
+        dst_db_path = Path(self._dbname)
+        shutil.copy(str(db_path), str(dst_db_path))
+        self.assertTrue(dst_db_path.is_file())
+
+        # open the new db
+        test_database = db.Database(db_path=dst_db_path.as_posix())
+
+        # Make sure that update is required
+        self.assertTrue(test_database.is_update_required())
+
+        # Update the database
+        test_database.perform_updates()
+
+        # Check that the update was successful
+
+        # Known expected data
+        par1 = [[0.1, 0.2], [0.3, 1], [2, 3], [4, 0.1], [0.2, 2], [1, 0.3], [0.3, 0.1]]
+        par2 = [[4, 0.1], [3, 0.2], [2, 1], [0.3, 0.2], [2, 0.3], [1, 0.1], [0.3, 4]]
+        outcomes = [[1, 0], [-1, 0], [0.1, 0], [0, 0], [-0.1, 0], [0, 0], [0, 0]]
+
+        param_dict_expected = {x: {} for x in range(1, 8)}
+        for i in range(1, 8):
+            param_dict_expected[i]["par1_stimuli0"] = par1[i-1][0]
+            param_dict_expected[i]["par1_stimuli1"] = par1[i-1][1]
+            param_dict_expected[i]["par2_stimuli0"] = par2[i-1][0]
+            param_dict_expected[i]["par2_stimuli1"] = par2[i-1][1]
+
+        outcome_dict_expected = {x: {} for x in range(1, 8)}
+        for i in range(1, 8):
+            outcome_dict_expected[i]["outcome_0"] = outcomes[i-1][0]
+            outcome_dict_expected[i]["outcome_1"] = outcomes[i-1][1]
+
+        # Check that the number of entries in each table is correct
+        n_iterations = test_database.get_engine().execute("SELECT COUNT(*) FROM raw_data").fetchone()[0]
+        self.assertEqual(n_iterations, 7)
+        n_params = test_database.get_engine().execute("SELECT COUNT(*) FROM param_data").fetchone()[0]
+        self.assertEqual(n_params, 28)
+        n_outcomes = test_database.get_engine().execute("SELECT COUNT(*) FROM outcome_data").fetchone()[0]
+        self.assertEqual(n_outcomes, 14)
+
+        # Check that the data is correct
+        param_data = test_database.get_engine().execute("SELECT * FROM param_data").fetchall()
+        param_dict = {x: {} for x in range(1, 8)}
+        for param in param_data:
+            param_dict[param.iteration_id][param.param_name] = param.param_value
+
+        self.assertEqual(param_dict, param_dict_expected)
+
+        outcome_data = test_database.get_engine().execute("SELECT * FROM outcome_data").fetchall()
+        outcome_dict = {x: {} for x in range(1, 8)}
+        for outcome in outcome_data:
+            outcome_dict[outcome.iteration_id][outcome.outcome_name] = outcome.outcome_value
+
+        self.assertEqual(outcome_dict, outcome_dict_expected)
+
+        # Make sure that update is no longer required
+        self.assertFalse(test_database.is_update_required())
+
+        test_database.delete_db()
+
     def test_update_configs(self):
         config_str = """
         [common]
