@@ -16,80 +16,6 @@ import aepsych.utils_logging as utils_logging
 import torch
 from aepsych.config import Config
 
-# Configuration for single-stimulus experiment
-dummy_simple_config = """
-[common]
-lb = [0, 0]
-ub = [1, 1]
-parnames = [x1, x2]
-stimuli_per_trial = 1
-outcome_types = [binary]
-strategy_names = [init_strat, opt_strat]
-
-[init_strat]
-min_asks = 3
-generator = SobolGenerator
-min_total_outcome_occurrences = 0
-
-[opt_strat]
-min_asks = 4
-generator = OptimizeAcqfGenerator
-acqf = MCPosteriorVariance
-model = GPClassificationModel
-min_total_outcome_occurrences = 0
-
-[GPClassificationModel]
-inducing_size = 10
-mean_covar_factory = default_mean_covar_factory
-
-[SobolGenerator]
-n_points = 2
-"""
-
-# Configuration for multi-stimulus experiment
-dummy_pairwise_config = """
-[common]
-lb = [0, 0]
-ub = [1, 1]
-parnames = [par1, par2]
-stimuli_per_trial = 2
-outcome_types = [binary]
-strategy_names = [init_strat, opt_strat]
-
-[init_strat]
-min_asks = 3
-generator = SobolGenerator
-min_total_outcome_occurrences = 0
-
-[opt_strat]
-min_asks = 4
-generator = OptimizeAcqfGenerator
-acqf = qNoisyExpectedImprovement
-model = PairwiseProbitModel
-min_total_outcome_occurrences = 0
-
-[GPClassificationModel]
-inducing_size = 10
-mean_covar_factory = default_mean_covar_factory
-
-[SobolGenerator]
-n_points = 2
-
-[PairwiseMCPosteriorVariance]
-objective = ProbitObjective
-
-[PairwiseProbitModel]
-inducing_size = 100
-mean_covar_factory = default_mean_covar_factory
-
-[OptimizeAcqfGenerator]
-restarts = 10
-samps = 1000
-
-[qNoisyExpectedImprovement]
-objective = ProbitObjective
-"""
-
 class IntegrationTestCase(unittest.TestCase):
     def setUp(self):
         # setup logger
@@ -116,6 +42,10 @@ class IntegrationTestCase(unittest.TestCase):
         database tables (raw, param, and outcome). It also checks that the
         experiment table is correctly populated (generate_experiment_table method).
         """
+        # Read config from .ini file
+        with open('tests/configs/singleStimuli_singleOutcome.ini', 'r') as f:
+            dummy_simple_config = f.read()
+
         setup_request = {
             "type": "setup",
             "version": "0.01",
@@ -189,6 +119,10 @@ class IntegrationTestCase(unittest.TestCase):
         database tables (raw, param, and outcome). It also checks that the
         experiment table is correctly populated (generate_experiment_table method).
         """
+        # Read config from .ini file
+        with open('tests/configs/multiStimuli_multiOutcome.ini', 'r') as f:
+            dummy_simple_config = f.read()
+
         setup_request = {
             "type": "setup",
             "version": "0.01",
