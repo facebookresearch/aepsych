@@ -121,7 +121,7 @@ class IntegrationTestCase(unittest.TestCase):
         """
         # Read config from .ini file
         with open('tests/configs/multiStimuli_multiOutcome.ini', 'r') as f:
-            dummy_simple_config = f.read()
+            dummy_pairwise_config = f.read()
 
         setup_request = {
             "type": "setup",
