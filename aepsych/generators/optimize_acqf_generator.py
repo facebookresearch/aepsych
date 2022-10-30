@@ -16,6 +16,7 @@ from botorch.acquisition import AcquisitionFunction
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from botorch.optim import optimize_acqf
 from botorch.utils import draw_sobol_samples
+from aepsych.kernels import PairwiseKernel
 
 logger = getLogger()
 
@@ -73,6 +74,11 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
 
+        # self._gen() returns [1, d*2], this reshapes to [1,d,2]
+        if isinstance(model.covar_module, PairwiseKernel):
+            qbatch_points = self._gen(num_points=num_points, model=model, **gen_options)
+            return qbatch_points.reshape(num_points, 2, -1).swapaxes(-1, -2)
+
         if self.stimuli_per_trial == 2:
             qbatch_points = self._gen(
                 num_points=num_points * 2, model=model, **gen_options
@@ -94,10 +100,14 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         logger.info("Starting gen...")
         starttime = time.time()
 
+        _bounds = torch.tensor(np.c_[model.lb, model.ub]).T
+        if isinstance(model.covar_module, PairwiseKernel):
+            _bounds = _bounds.tile((2,))
+
         if self.max_gen_time is None:
             new_candidate, _ = optimize_acqf(
                 acq_function=acqf,
-                bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
+                bounds=_bounds.to(train_x),
                 q=num_points,
                 num_restarts=self.restarts,
                 raw_samples=self.samps,
@@ -126,7 +136,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
                 new_candidate, _ = optimize_acqf(
                     acq_function=acqf,
-                    bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
+                    bounds=_bounds.to(train_x),
                     q=num_points,
                     num_restarts=self.restarts,
                     raw_samples=self.samps,

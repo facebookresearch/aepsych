@@ -25,6 +25,7 @@ from gpytorch.mlls import MarginalLogLikelihood
 from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
 from scipy.stats import norm
+from aepsych.kernels import PairwiseKernel
 
 logger = getLogger()
 
@@ -97,6 +98,9 @@ class ModelProtocol(Protocol):
         pass
 
     def p_below_threshold(self, x, f_thresh) -> np.ndarray:
+        pass
+
+    def covar_module(self) -> Any:
         pass
 
 
@@ -377,14 +381,27 @@ class AEPsychMixin(GPyTorchModel):
         to not require it.
         """
         if inputs is not None:
-            self.train_inputs = (inputs,)
+            _inputs = inputs
+            if isinstance(self.covar_module, PairwiseKernel):
+                _shape = _inputs.shape
+                _inputs = inputs.transpose(-1,-2).reshape(
+                    _shape[:-2][0],
+                    np.prod(_shape[-2:])
+                )
+            self.train_inputs = (_inputs,)
 
         if targets is not None:
             self.train_targets = targets
 
     def normalize_inputs(self, x):
         scale = self.ub - self.lb
-        return (x - self.lb) / scale
+        lb = self.lb
+        if isinstance(self.covar_module, PairwiseKernel):
+            lb = lb.tile((self.stimuli_per_trial,))
+            scale = scale.tile((self.stimuli_per_trial,))
+
+        scaled_x = (x - lb) / scale
+        return scaled_x
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
         """Evaluate GP

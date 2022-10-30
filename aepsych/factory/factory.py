@@ -14,6 +14,7 @@ from aepsych.config import Config
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from scipy.stats import norm
+from aepsych.kernels.pairwisekernel import PairwiseKernel
 
 """AEPsych factory functions.
 These functions generate a gpytorch Mean and Kernel objects from
@@ -280,3 +281,18 @@ def ordinal_mean_covar_factory(
         covar = base_covar
 
     return mean, covar
+
+
+def pairwise_kernel_factory(config):
+    latent_factory = config.getobj(
+        "pairwise_kernel_factory", "latent_factory", fallback=default_mean_covar_factory
+    )
+    is_partial_obs = (latent_factory == monotonic_mean_covar_factory)
+
+    latent_mean, latent_covar = latent_factory(config)
+    pw_covar = PairwiseKernel(
+        latent_kernel=latent_covar,
+        is_partial_obs=is_partial_obs,
+    )
+
+    return latent_mean, pw_covar
