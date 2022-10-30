@@ -13,6 +13,7 @@ from .factory import (
     monotonic_mean_covar_factory,
     ordinal_mean_covar_factory,
     song_mean_covar_factory,
+    pairwise_kernel_factory,
 )
 
 __all__ = [
@@ -20,6 +21,7 @@ __all__ = [
     "ordinal_mean_covar_factory",
     "monotonic_mean_covar_factory",
     "song_mean_covar_factory",
+    "pairwise_kernel_factory",
 ]
 
 Config.register_module(sys.modules[__name__])

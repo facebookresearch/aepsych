@@ -41,7 +41,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
     _batch_size = 1
     _num_outputs = 1
-    stimuli_per_trial = 1
     outcome_type = "binary"
 
     def __init__(
@@ -55,6 +54,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        stimuli_per_trial: int = 1,
     ):
         """Initialize the GP Classification model
 
@@ -76,10 +76,12 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+            stimuli_per_trial (int): the number of stimuli shown in each trial; 1 for single, or 2 for pairwise experiments
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size
+        self.stimuli_per_trial = stimuli_per_trial
 
         if likelihood is None:
             likelihood = BernoulliLikelihood()
@@ -138,6 +140,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
 
+        stimuli_per_trial = config.getint(classname, "stimuli_per_trial", fallback=1)
+
         mean_covar_factory = config.getobj(
             classname, "mean_covar_factory", fallback=default_mean_covar_factory
         )
@@ -169,6 +173,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
             likelihood=likelihood,
+            stimuli_per_trial=stimuli_per_trial,
         )
 
     def _reset_hyperparameters(self):
