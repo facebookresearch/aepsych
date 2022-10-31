@@ -63,6 +63,53 @@ class IntegrationTestCase(unittest.TestCase):
         self.tell_request["extra_info"]["e1"] = 1
         self.tell_request["extra_info"]["e2"] = 2
 
+    def check_multi_stimuli(self, x1, x2):
+        x1_stimuli0_saved = self.s.db.get_engine().execute("SELECT x1_stimuli0 FROM experiment_table").fetchall()
+        x1_stimuli1_saved = self.s.db.get_engine().execute("SELECT x1_stimuli1 FROM experiment_table").fetchall()
+        x1_stimuli0_saved = [item for sublist in x1_stimuli0_saved for item in sublist]
+        x1_stimuli1_saved = [item for sublist in x1_stimuli1_saved for item in sublist]
+
+        # Reshape
+        x1_saved = []
+        for i in range(len(x1_stimuli0_saved)):
+            x1_saved.append([x1_stimuli0_saved[i], x1_stimuli1_saved[i]])
+        self.assertEqual(x1_saved, x1)
+
+        x2_stimuli0_saved = self.s.db.get_engine().execute("SELECT x2_stimuli0 FROM experiment_table").fetchall()
+        x2_stimuli1_saved = self.s.db.get_engine().execute("SELECT x2_stimuli1 FROM experiment_table").fetchall()
+        x2_stimuli0_saved = [item for sublist in x2_stimuli0_saved for item in sublist]
+        x2_stimuli1_saved = [item for sublist in x2_stimuli1_saved for item in sublist]
+
+        # Reshape
+        x2_saved = []
+        for i in range(len(x2_stimuli0_saved)):
+            x2_saved.append([x2_stimuli0_saved[i], x2_stimuli1_saved[i]])
+        self.assertEqual(x2_saved, x2)
+
+    def check_single_stimuli(self, x1, x2):
+        x1_saved = self.s.db.get_engine().execute("SELECT x1 FROM experiment_table").fetchall()
+        x1_saved = [item for sublist in x1_saved for item in sublist]
+        self.assertTrue(x1_saved == x1)
+
+        x2_saved = self.s.db.get_engine().execute("SELECT x2 FROM experiment_table").fetchall()
+        x2_saved = [item for sublist in x2_saved for item in sublist]
+        self.assertTrue(x2_saved == x2)
+
+    def check_multi_outcome(self, outcomes):
+        outcome1_saved = self.s.db.get_engine().execute("SELECT outcome_0 FROM experiment_table").fetchall()
+        outcome2_saved = self.s.db.get_engine().execute("SELECT outcome_1 FROM experiment_table").fetchall()
+        outcome1_saved = [item for sublist in outcome1_saved for item in sublist]
+        outcome2_saved = [item for sublist in outcome2_saved for item in sublist]
+        outcomes_saved = []
+        for i in range(len(outcome1_saved)):
+            outcomes_saved.append([outcome1_saved[i], outcome2_saved[i]])
+        self.assertEqual(outcomes, outcomes_saved)
+
+    def check_single_outcome(self, outcomes):
+        outcomes_saved = self.s.db.get_engine().execute("SELECT outcome FROM experiment_table").fetchall()
+        outcomes_saved = [item for sublist in outcomes_saved for item in sublist]
+        self.assertTrue(outcomes_saved == outcomes)
+
     def test_single_stimuli_single_outcome(self):
         """Test a single-stimulus experiment with a single outcome."""
         # Read config from .ini file
@@ -105,18 +152,9 @@ class IntegrationTestCase(unittest.TestCase):
         # Check that table exists
         self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
 
-        # Check that parameter and outcome values are correct
-        x1_saved = self.s.db.get_engine().execute("SELECT x1 FROM experiment_table").fetchall()
-        x1_saved = [item for sublist in x1_saved for item in sublist]
-        self.assertTrue(x1_saved == x1)
-
-        x2_saved = self.s.db.get_engine().execute("SELECT x2 FROM experiment_table").fetchall()
-        x2_saved = [item for sublist in x2_saved for item in sublist]
-        self.assertTrue(x2_saved == x2)
-
-        outcomes_saved = self.s.db.get_engine().execute("SELECT outcome FROM experiment_table").fetchall()
-        outcomes_saved = [item for sublist in outcomes_saved for item in sublist]
-        self.assertTrue(outcomes_saved == outcomes)
+        # Check that parameter and outcomes values are correct
+        self.check_single_stimuli(x1, x2)
+        self.check_single_outcome(outcomes)
 
 
     def test_multi_stimuli_multi_outcome(self):
@@ -163,37 +201,9 @@ class IntegrationTestCase(unittest.TestCase):
         # Check that table exists
         self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
 
-        # Check that parameter and outcome values are correct
-        x1_stimuli0_saved = self.s.db.get_engine().execute("SELECT x1_stimuli0 FROM experiment_table").fetchall()
-        x1_stimuli1_saved = self.s.db.get_engine().execute("SELECT x1_stimuli1 FROM experiment_table").fetchall()
-        x1_stimuli0_saved = [item for sublist in x1_stimuli0_saved for item in sublist]
-        x1_stimuli1_saved = [item for sublist in x1_stimuli1_saved for item in sublist]
-
-        # Reshape
-        x1_saved = []
-        for i in range(len(x1_stimuli0_saved)):
-            x1_saved.append([x1_stimuli0_saved[i], x1_stimuli1_saved[i]])
-        self.assertEqual(x1_saved, x1)
-
-        x2_stimuli0_saved = self.s.db.get_engine().execute("SELECT x2_stimuli0 FROM experiment_table").fetchall()
-        x2_stimuli1_saved = self.s.db.get_engine().execute("SELECT x2_stimuli1 FROM experiment_table").fetchall()
-        x2_stimuli0_saved = [item for sublist in x2_stimuli0_saved for item in sublist]
-        x2_stimuli1_saved = [item for sublist in x2_stimuli1_saved for item in sublist]
-
-        # Reshape
-        x2_saved = []
-        for i in range(len(x2_stimuli0_saved)):
-            x2_saved.append([x2_stimuli0_saved[i], x2_stimuli1_saved[i]])
-        self.assertEqual(x2_saved, x2)
-
-        outcome1_saved = self.s.db.get_engine().execute("SELECT outcome_0 FROM experiment_table").fetchall()
-        outcome2_saved = self.s.db.get_engine().execute("SELECT outcome_1 FROM experiment_table").fetchall()
-        outcome1_saved = [item for sublist in outcome1_saved for item in sublist]
-        outcome2_saved = [item for sublist in outcome2_saved for item in sublist]
-        outcomes_saved = []
-        for i in range(len(outcome1_saved)):
-            outcomes_saved.append([outcome1_saved[i], outcome2_saved[i]])
-        self.assertEqual(outcomes, outcomes_saved)
+        # Check that parameter and outcomes values are correct
+        self.check_multi_stimuli(x1, x2)
+        self.check_multi_outcome(outcomes)
 
 if __name__ == "__main__":
     unittest.main()
