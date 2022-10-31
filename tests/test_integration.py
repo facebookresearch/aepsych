@@ -130,9 +130,6 @@ class IntegrationTestCase(unittest.TestCase):
             i = i + 1
             self.s.unversioned_handler(self.tell_request)
 
-        n_iterations = 7 # Number of iterations in experiment
-        n_param = 2 # Number of parameters in experiment
-
         # Experiment id
         exp_id = self.s.db.get_master_records()[0].experiment_id
 
@@ -140,11 +137,6 @@ class IntegrationTestCase(unittest.TestCase):
         raw_data = self.s.db.get_raw_for(exp_id)
         param_data = self.s.db.get_all_params_for(master_id=exp_id)
         outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
-
-        # Check that the number of records in the tables is correct
-        self.assertEqual(len(raw_data), n_iterations)
-        self.assertEqual(len(outcome_data), n_iterations)
-        self.assertEqual(len(param_data), n_iterations * n_param)
 
         # Create table with experiment data
         self.s.generate_experiment_table(exp_id, return_df=False)
@@ -177,11 +169,6 @@ class IntegrationTestCase(unittest.TestCase):
             i = i + 1
             self.s.unversioned_handler(self.tell_request)
 
-        n_iterations = 7
-        n_param = 2
-        n_stimuli = 2
-        n_outcomes = 2
-
         # Experiment id
         exp_id = self.s.db.get_master_records()[0].experiment_id
 
@@ -189,11 +176,6 @@ class IntegrationTestCase(unittest.TestCase):
         raw_data = self.s.db.get_raw_for(exp_id)
         param_data = self.s.db.get_all_params_for(master_id=exp_id)
         outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
-
-        # Check that the number of records in the tables is correct
-        self.assertEqual(len(raw_data), n_iterations)
-        self.assertEqual(len(outcome_data), n_iterations * n_outcomes)
-        self.assertEqual(len(param_data), n_iterations * n_param * n_stimuli)
 
         # Create table with experiment data
         self.s.generate_experiment_table(exp_id, return_df=False)
