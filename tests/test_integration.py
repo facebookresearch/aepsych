@@ -113,7 +113,7 @@ class IntegrationTestCase(unittest.TestCase):
     def test_single_stimuli_single_outcome(self):
         """Test a single-stimulus experiment with a single outcome."""
         # Read config from .ini file
-        with open('tests/configs/singleStimuli_singleOutcome.ini', 'r') as f:
+        with open('tests/configs/singleStimuli.ini', 'r') as f:
             dummy_simple_config = f.read()
         self.setup_request["message"]["config_str"] = dummy_simple_config
 
@@ -148,11 +148,87 @@ class IntegrationTestCase(unittest.TestCase):
         self.check_single_stimuli(x1, x2)
         self.check_single_outcome(outcomes)
 
+    def test_single_stimuli_multi_outcome(self):
+        """Test a single-stimulus experiment with a multiple outcomes."""
+        # Read config from .ini file
+        with open('tests/configs/singleStimuli.ini', 'r') as f:
+            dummy_simple_config = f.read()
+        self.setup_request["message"]["config_str"] = dummy_simple_config
 
-    def test_multi_stimuli_multi_outcome(self):
+        self.s.versioned_handler(self.setup_request)
+
+        x1 = [0.1, 0.2, 0.3, 1, 2, 3, 4]
+        x2 = [4, 0.1, 3, 0.2, 2, 1, 0.3]
+        outcomes = [[1, 0], [-1, 0], [0.1, 0], [0, 0], [-0.1, 0], [0, 0], [0, 0]]
+
+        i = 0
+        while not self.s.strat.finished and i<7:
+            #! TODO: Ask request should be supported!
+            # self.s.unversioned_handler(self.ask_request)
+            self.get_tell([x1[i]], [x2[i]], outcomes[i])
+            i = i + 1
+            self.s.unversioned_handler(self.tell_request)
+
+        # Experiment id
+        exp_id = self.s.db.get_master_records()[0].experiment_id
+
+        # Get tables data
+        raw_data = self.s.db.get_raw_for(exp_id)
+        param_data = self.s.db.get_all_params_for(master_id=exp_id)
+        outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
+
+        # Create table with experiment data
+        self.s.generate_experiment_table(exp_id, return_df=False)
+
+        # Check that table exists
+        self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
+
+        # Check that parameter and outcomes values are correct
+        self.check_single_stimuli(x1, x2)
+        self.check_multi_outcome(outcomes)
+
+    def test_multi_stimuli_single_outcome(self):
+        """Test a multi-stimulus experiment with a single outcome."""
+        # Read config from .ini file
+        with open('tests/configs/multiStimuli.ini', 'r') as f:
+            dummy_pairwise_config = f.read()
+
+        self.setup_request["message"]["config_str"] = dummy_pairwise_config
+        self.s.versioned_handler(self.setup_request)
+
+        x1 = [[0.1, 0.2], [0.3, 1], [2, 3], [4, 0.1], [0.2, 2], [1, 0.3], [0.3, 0.1]]
+        x2 = [[4, 0.1], [3, 0.2], [2, 1], [0.3, 0.2], [2, 0.3], [1, 0.1], [0.3, 4]]
+        outcomes = [1, -1, 0.1, 0, -0.1, 0, 0]
+
+        i = 0
+        while not self.s.strat.finished:
+            self.s.unversioned_handler(self.ask_request)
+            self.get_tell(x1[i], x2[i], outcomes[i])
+            i = i + 1
+            self.s.unversioned_handler(self.tell_request)
+
+        # Experiment id
+        exp_id = self.s.db.get_master_records()[0].experiment_id
+
+        # Get tables data
+        raw_data = self.s.db.get_raw_for(exp_id)
+        param_data = self.s.db.get_all_params_for(master_id=exp_id)
+        outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
+
+        # Create table with experiment data
+        self.s.generate_experiment_table(exp_id, return_df=False)
+
+        # Check that table exists
+        self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
+
+        # Check that parameter and outcomes values are correct
+        self.check_multi_stimuli(x1, x2)
+        self.check_single_outcome(outcomes)
+
+    def test_multi_stimuli_multi_outcome(self): 
         """Test a multi-stimulus experiment with a multiple outcomes."""
         # Read config from .ini file
-        with open('tests/configs/multiStimuli_multiOutcome.ini', 'r') as f:
+        with open('tests/configs/multiStimuli.ini', 'r') as f:
             dummy_pairwise_config = f.read()
 
         self.setup_request["message"]["config_str"] = dummy_pairwise_config
