@@ -18,11 +18,29 @@ import logging
 import unittest
 import uuid
 from unittest.mock import call, MagicMock, patch, PropertyMock
+from parameterized import parameterized
+from itertools import product
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 import torch
 from aepsych.config import Config
+
+params = {'singleStimuli':{
+    'x1':[0.1, 0.2, 0.3, 1, 2, 3, 4],
+    'x2':[4, 0.1, 3, 0.2, 2, 1, 0.3]
+}, 'multiStimuli':{
+    'x1': [[0.1, 0.2], [0.3, 1], [2, 3], [4, 0.1], [0.2, 2], [1, 0.3], [0.3, 0.1]],
+    'x2': [[4, 0.1], [3, 0.2], [2, 1], [0.3, 0.2], [2, 0.3], [1, 0.1], [0.3, 4]]
+}}
+
+outcomes = {'singleOutcome':[1, -1, 0.1, 0, -0.1, 0, 0],
+            'multiOutcome':[[1, 0], [-1, 0], [0.1, 0], [0, 0], [-0.1, 0], [0, 0], [0, 0]]}
+
+all_tests = ['singleStimuli_singleOutcome',
+             'multiStimuli_singleOutcome', 'multiStimuli_multiOutcome']
+#! This should be supported! Uncoment when ready
+# all_tests.append('singleStimuli_multiOutcome')
 
 class IntegrationTestCase(unittest.TestCase):
     def setUp(self):
@@ -56,77 +74,78 @@ class IntegrationTestCase(unittest.TestCase):
         if self.s.db is not None:
             self.s.db.delete_db()
 
-    def get_tell(self, x1, x2, outcomes):
+    def get_tell(self, x1, x2, outcome):
         self.tell_request["message"]["config"]["x1"] = x1
         self.tell_request["message"]["config"]["x2"] = x2
-        self.tell_request["message"]["outcome"] = outcomes
+        self.tell_request["message"]["outcome"] = outcome
         self.tell_request["extra_info"]["e1"] = 1
         self.tell_request["extra_info"]["e2"] = 2
 
-    def check_multi_stimuli(self, x1, x2):
-        x1_stimuli0_saved = self.s.db.get_engine().execute("SELECT x1_stimuli0 FROM experiment_table").fetchall()
-        x1_stimuli1_saved = self.s.db.get_engine().execute("SELECT x1_stimuli1 FROM experiment_table").fetchall()
-        x1_stimuli0_saved = [item for sublist in x1_stimuli0_saved for item in sublist]
-        x1_stimuli1_saved = [item for sublist in x1_stimuli1_saved for item in sublist]
+    def check_params(self, param_type, x1, x2):
+        if param_type == "multiStimuli":
+            x1_stimuli0_saved = self.s.db.get_engine().execute("SELECT x1_stimuli0 FROM experiment_table").fetchall()
+            x1_stimuli1_saved = self.s.db.get_engine().execute("SELECT x1_stimuli1 FROM experiment_table").fetchall()
+            x1_stimuli0_saved = [item for sublist in x1_stimuli0_saved for item in sublist]
+            x1_stimuli1_saved = [item for sublist in x1_stimuli1_saved for item in sublist]
 
-        # Reshape
-        x1_saved = []
-        for i in range(len(x1_stimuli0_saved)):
-            x1_saved.append([x1_stimuli0_saved[i], x1_stimuli1_saved[i]])
-        self.assertEqual(x1_saved, x1)
+            # Reshape
+            x1_saved = []
+            for i in range(len(x1_stimuli0_saved)):
+                x1_saved.append([x1_stimuli0_saved[i], x1_stimuli1_saved[i]])
+            self.assertEqual(x1_saved, x1)
 
-        x2_stimuli0_saved = self.s.db.get_engine().execute("SELECT x2_stimuli0 FROM experiment_table").fetchall()
-        x2_stimuli1_saved = self.s.db.get_engine().execute("SELECT x2_stimuli1 FROM experiment_table").fetchall()
-        x2_stimuli0_saved = [item for sublist in x2_stimuli0_saved for item in sublist]
-        x2_stimuli1_saved = [item for sublist in x2_stimuli1_saved for item in sublist]
+            x2_stimuli0_saved = self.s.db.get_engine().execute("SELECT x2_stimuli0 FROM experiment_table").fetchall()
+            x2_stimuli1_saved = self.s.db.get_engine().execute("SELECT x2_stimuli1 FROM experiment_table").fetchall()
+            x2_stimuli0_saved = [item for sublist in x2_stimuli0_saved for item in sublist]
+            x2_stimuli1_saved = [item for sublist in x2_stimuli1_saved for item in sublist]
 
-        # Reshape
-        x2_saved = []
-        for i in range(len(x2_stimuli0_saved)):
-            x2_saved.append([x2_stimuli0_saved[i], x2_stimuli1_saved[i]])
-        self.assertEqual(x2_saved, x2)
+            # Reshape
+            x2_saved = []
+            for i in range(len(x2_stimuli0_saved)):
+                x2_saved.append([x2_stimuli0_saved[i], x2_stimuli1_saved[i]])
+            self.assertEqual(x2_saved, x2)
+        elif param_type == 'singleStimuli':
+            x1_saved = self.s.db.get_engine().execute("SELECT x1 FROM experiment_table").fetchall()
+            x1_saved = [item for sublist in x1_saved for item in sublist]
+            self.assertTrue(x1_saved == x1)
 
-    def check_single_stimuli(self, x1, x2):
-        x1_saved = self.s.db.get_engine().execute("SELECT x1 FROM experiment_table").fetchall()
-        x1_saved = [item for sublist in x1_saved for item in sublist]
-        self.assertTrue(x1_saved == x1)
+            x2_saved = self.s.db.get_engine().execute("SELECT x2 FROM experiment_table").fetchall()
+            x2_saved = [item for sublist in x2_saved for item in sublist]
+            self.assertTrue(x2_saved == x2)
 
-        x2_saved = self.s.db.get_engine().execute("SELECT x2 FROM experiment_table").fetchall()
-        x2_saved = [item for sublist in x2_saved for item in sublist]
-        self.assertTrue(x2_saved == x2)
+    def check_outcome(self, outcome_type, outcome):
+        if outcome_type == 'multiOutcome':
+            outcome0_saved = self.s.db.get_engine().execute("SELECT outcome_0 FROM experiment_table").fetchall()
+            outcome1_saved = self.s.db.get_engine().execute("SELECT outcome_1 FROM experiment_table").fetchall()
+            outcome0_saved = [item for sublist in outcome0_saved for item in sublist]
+            outcome1_saved = [item for sublist in outcome1_saved for item in sublist]
+            outcome_saved = []
+            for i in range(len(outcome0_saved)):
+                outcome_saved.append([outcome0_saved[i], outcome1_saved[i]])
+            self.assertEqual(outcome_saved, outcome)
+        elif outcome_type == 'singleOutcome':
+            outcome_saved = self.s.db.get_engine().execute("SELECT outcome FROM experiment_table").fetchall()
+            outcome_saved = [item for sublist in outcome_saved for item in sublist]
+            self.assertTrue(outcome_saved == outcome)
 
-    def check_multi_outcome(self, outcomes):
-        outcome1_saved = self.s.db.get_engine().execute("SELECT outcome_0 FROM experiment_table").fetchall()
-        outcome2_saved = self.s.db.get_engine().execute("SELECT outcome_1 FROM experiment_table").fetchall()
-        outcome1_saved = [item for sublist in outcome1_saved for item in sublist]
-        outcome2_saved = [item for sublist in outcome2_saved for item in sublist]
-        outcomes_saved = []
-        for i in range(len(outcome1_saved)):
-            outcomes_saved.append([outcome1_saved[i], outcome2_saved[i]])
-        self.assertEqual(outcomes, outcomes_saved)
+    @parameterized.expand(all_tests)
+    def test_experiment(self, experiment_type):
+        param_type, outcome_type = experiment_type.split('_')
+        x1 = params[param_type]['x1']
+        x2 = params[param_type]['x2']
+        outcome = outcomes[outcome_type]
 
-    def check_single_outcome(self, outcomes):
-        outcomes_saved = self.s.db.get_engine().execute("SELECT outcome FROM experiment_table").fetchall()
-        outcomes_saved = [item for sublist in outcomes_saved for item in sublist]
-        self.assertTrue(outcomes_saved == outcomes)
+        with open(f'tests/configs/{param_type}'+'.ini', 'r') as f:
+            dummy_config = f.read()
 
-    def test_single_stimuli_single_outcome(self):
-        """Test a single-stimulus experiment with a single outcome."""
-        # Read config from .ini file
-        with open('tests/configs/singleStimuli.ini', 'r') as f:
-            dummy_simple_config = f.read()
-        self.setup_request["message"]["config_str"] = dummy_simple_config
+        self.setup_request["message"]["config_str"] = dummy_config
 
         self.s.versioned_handler(self.setup_request)
-
-        x1 = [0.1, 0.2, 0.3, 1, 2, 3, 4]
-        x2 = [4, 0.1, 3, 0.2, 2, 1, 0.3]
-        outcomes = [1, -1, 0.1, 0, -0.1, 0, 0]
 
         i = 0
         while not self.s.strat.finished:
             self.s.unversioned_handler(self.ask_request)
-            self.get_tell([x1[i]], [x2[i]], outcomes[i])
+            self.get_tell(x1[i], x2[i], outcome[i])
             i = i + 1
             self.s.unversioned_handler(self.tell_request)
 
@@ -139,129 +158,14 @@ class IntegrationTestCase(unittest.TestCase):
         outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
 
         # Create table with experiment data
-        self.s.generate_experiment_table(exp_id, return_df=False)
+        self.s.generate_experiment_table(exp_id, return_df=True)
 
         # Check that table exists
         self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
 
         # Check that parameter and outcomes values are correct
-        self.check_single_stimuli(x1, x2)
-        self.check_single_outcome(outcomes)
-
-    def test_single_stimuli_multi_outcome(self):
-        """Test a single-stimulus experiment with a multiple outcomes."""
-        # Read config from .ini file
-        with open('tests/configs/singleStimuli.ini', 'r') as f:
-            dummy_simple_config = f.read()
-        self.setup_request["message"]["config_str"] = dummy_simple_config
-
-        self.s.versioned_handler(self.setup_request)
-
-        x1 = [0.1, 0.2, 0.3, 1, 2, 3, 4]
-        x2 = [4, 0.1, 3, 0.2, 2, 1, 0.3]
-        outcomes = [[1, 0], [-1, 0], [0.1, 0], [0, 0], [-0.1, 0], [0, 0], [0, 0]]
-
-        i = 0
-        while not self.s.strat.finished and i<7:
-            #! TODO: Ask request should be supported!
-            # self.s.unversioned_handler(self.ask_request)
-            self.get_tell([x1[i]], [x2[i]], outcomes[i])
-            i = i + 1
-            self.s.unversioned_handler(self.tell_request)
-
-        # Experiment id
-        exp_id = self.s.db.get_master_records()[0].experiment_id
-
-        # Get tables data
-        raw_data = self.s.db.get_raw_for(exp_id)
-        param_data = self.s.db.get_all_params_for(master_id=exp_id)
-        outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
-
-        # Create table with experiment data
-        self.s.generate_experiment_table(exp_id, return_df=False)
-
-        # Check that table exists
-        self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
-
-        # Check that parameter and outcomes values are correct
-        self.check_single_stimuli(x1, x2)
-        self.check_multi_outcome(outcomes)
-
-    def test_multi_stimuli_single_outcome(self):
-        """Test a multi-stimulus experiment with a single outcome."""
-        # Read config from .ini file
-        with open('tests/configs/multiStimuli.ini', 'r') as f:
-            dummy_pairwise_config = f.read()
-
-        self.setup_request["message"]["config_str"] = dummy_pairwise_config
-        self.s.versioned_handler(self.setup_request)
-
-        x1 = [[0.1, 0.2], [0.3, 1], [2, 3], [4, 0.1], [0.2, 2], [1, 0.3], [0.3, 0.1]]
-        x2 = [[4, 0.1], [3, 0.2], [2, 1], [0.3, 0.2], [2, 0.3], [1, 0.1], [0.3, 4]]
-        outcomes = [1, -1, 0.1, 0, -0.1, 0, 0]
-
-        i = 0
-        while not self.s.strat.finished:
-            self.s.unversioned_handler(self.ask_request)
-            self.get_tell(x1[i], x2[i], outcomes[i])
-            i = i + 1
-            self.s.unversioned_handler(self.tell_request)
-
-        # Experiment id
-        exp_id = self.s.db.get_master_records()[0].experiment_id
-
-        # Get tables data
-        raw_data = self.s.db.get_raw_for(exp_id)
-        param_data = self.s.db.get_all_params_for(master_id=exp_id)
-        outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
-
-        # Create table with experiment data
-        self.s.generate_experiment_table(exp_id, return_df=False)
-
-        # Check that table exists
-        self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
-
-        # Check that parameter and outcomes values are correct
-        self.check_multi_stimuli(x1, x2)
-        self.check_single_outcome(outcomes)
-
-    def test_multi_stimuli_multi_outcome(self): 
-        """Test a multi-stimulus experiment with a multiple outcomes."""
-        # Read config from .ini file
-        with open('tests/configs/multiStimuli.ini', 'r') as f:
-            dummy_pairwise_config = f.read()
-
-        self.setup_request["message"]["config_str"] = dummy_pairwise_config
-        self.s.versioned_handler(self.setup_request)
-
-        x1 = [[0.1, 0.2], [0.3, 1], [2, 3], [4, 0.1], [0.2, 2], [1, 0.3], [0.3, 0.1]]
-        x2 = [[4, 0.1], [3, 0.2], [2, 1], [0.3, 0.2], [2, 0.3], [1, 0.1], [0.3, 4]]
-        outcomes = [[1, 0], [-1, 0], [0.1, 0], [0, 0], [-0.1, 0], [0, 0], [0, 0]]
-
-        i = 0
-        while not self.s.strat.finished:
-            self.s.unversioned_handler(self.ask_request)
-            self.get_tell(x1[i], x2[i], outcomes[i])
-            i = i + 1
-            self.s.unversioned_handler(self.tell_request)
-
-        # Experiment id
-        exp_id = self.s.db.get_master_records()[0].experiment_id
-
-        # Get tables data
-        raw_data = self.s.db.get_raw_for(exp_id)
-        param_data = self.s.db.get_all_params_for(master_id=exp_id)
-        outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
-
-        # Create table with experiment data
-        self.s.generate_experiment_table(exp_id, return_df=False)
-
-        # Check that table exists
-        self.assertTrue('experiment_table' in self.s.db.get_engine().table_names())
-
-        # Check that parameter and outcomes values are correct
-        self.check_multi_stimuli(x1, x2)
-        self.check_multi_outcome(outcomes)
+        self.check_outcome(outcome_type, outcome)
+        self.check_params(param_type, x1, x2)
 
 if __name__ == "__main__":
     unittest.main()
