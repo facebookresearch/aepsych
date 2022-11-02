@@ -12,6 +12,8 @@ from typing import Any, List, Optional, Union
 import gpytorch
 import numpy as np
 import torch
+from aepsych.config import Config
+from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
@@ -171,3 +173,68 @@ class MonotonicProjectionGP(GPClassificationModel):
         if self.min_f_val is not None:
             samps = samps.clamp(min=self.min_f_val)
         return samps
+
+    @classmethod
+    def from_config(cls, config: Config) -> MonotonicProjectionGP:
+        """Alternate constructor for MonotonicProjectionGP model.
+
+        This is used when we recursively build a full sampling strategy
+        from a configuration. TODO: document how this works in some tutorial.
+
+        Args:
+            config (Config): A configuration containing keys/values matching this class
+
+        Returns:
+            MonotonicProjectionGP: Configured class instance.
+        """
+
+        classname = cls.__name__
+        inducing_size = config.getint(classname, "inducing_size", fallback=10)
+
+        lb = config.gettensor(classname, "lb")
+        ub = config.gettensor(classname, "ub")
+        dim = config.getint(classname, "dim", fallback=None)
+
+        mean_covar_factory = config.getobj(
+            classname, "mean_covar_factory", fallback=default_mean_covar_factory
+        )
+
+        mean, covar = mean_covar_factory(config)
+        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
+
+        inducing_point_method = config.get(
+            classname, "inducing_point_method", fallback="auto"
+        )
+
+        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
+
+        if likelihood_cls is not None:
+            if hasattr(likelihood_cls, "from_config"):
+                likelihood = likelihood_cls.from_config(config)
+            else:
+                likelihood = likelihood_cls()
+        else:
+            likelihood = None  # fall back to __init__ default
+
+        monotonic_dims: List[int] = config.getlist(
+            classname, "monotonic_dims", fallback=[-1]
+        )
+        monotonic_grid_size = config.getint(
+            classname, "monotonic_grid_size", fallback=20
+        )
+        min_f_val = config.getfloat(classname, "min_f_val", fallback=None)
+
+        return cls(
+            lb=lb,
+            ub=ub,
+            dim=dim,
+            inducing_size=inducing_size,
+            mean_module=mean,
+            covar_module=covar,
+            max_fit_time=max_fit_time,
+            inducing_point_method=inducing_point_method,
+            likelihood=likelihood,
+            monotonic_dims=monotonic_dims,
+            monotonic_grid_size=monotonic_grid_size,
+            min_f_val=min_f_val,
+        )

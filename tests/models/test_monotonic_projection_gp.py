@@ -15,6 +15,7 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
 import numpy as np
+from aepsych.config import Config
 from aepsych.models.monotonic_projection_gp import MonotonicProjectionGP
 from sklearn.datasets import make_classification
 
@@ -71,6 +72,34 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         # And in samples
         samps = model.sample(Xtest, num_samples=10)
         self.assertTrue(samps.min().item() >= 4.9)
+
+    def test_from_config(self):
+        config_str = """
+        [common]
+        parnames = [x, y]
+        lb = [0, 0]
+        ub = [1, 1]
+        stimuli_per_trial = 1
+        outcome_types = [binary]
+
+        strategy_names = [init_strat]
+
+        [init_strat]
+        generator = OptimizeAcqfGenerator
+        model = MonotonicProjectionGP
+
+        [MonotonicProjectionGP]
+        monotonic_dims = [0]
+        monotonic_grid_size = 10
+        min_f_val = 0.1
+        """
+        config = Config(config_str=config_str)
+
+        model = MonotonicProjectionGP.from_config(config)
+
+        self.assertEqual(model.monotonic_dims, [0])
+        self.assertEqual(model.mon_grid_size, 10)
+        self.assertEqual(model.min_f_val, 0.1)
 
 
 if __name__ == "__main__":
