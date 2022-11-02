@@ -35,12 +35,10 @@ params = {'singleStimuli':{
 }}
 
 outcomes = {'singleOutcome':[1, -1, 0.1, 0, -0.1, 0, 0],
-            'multiOutcome':[[1, 0], [-1, 0], [0.1, 0], [0, 0], [-0.1, 0], [0, 0], [0, 0]]}
+            'multiOutcome':[[[1], [0]], [[-1], [0]], [[0.1], [0]], [[0], [0]],
+             [[-0.1], [0]], [[0], [0]], [[0], [0]]]}
 
-all_tests = ['singleStimuli_singleOutcome',
-             'multiStimuli_singleOutcome', 'multiStimuli_multiOutcome']
-#! This should be supported! Uncoment when ready
-# all_tests.append('singleStimuli_multiOutcome')
+all_tests = list(product(params, outcomes))
 
 class IntegrationTestCase(unittest.TestCase):
     def setUp(self):
@@ -121,7 +119,7 @@ class IntegrationTestCase(unittest.TestCase):
             outcome1_saved = [item for sublist in outcome1_saved for item in sublist]
             outcome_saved = []
             for i in range(len(outcome0_saved)):
-                outcome_saved.append([outcome0_saved[i], outcome1_saved[i]])
+                outcome_saved.append([[outcome0_saved[i]], [outcome1_saved[i]]])
             self.assertEqual(outcome_saved, outcome)
         elif outcome_type == 'singleOutcome':
             outcome_saved = self.s.db.get_engine().execute("SELECT outcome FROM experiment_table").fetchall()
@@ -129,8 +127,7 @@ class IntegrationTestCase(unittest.TestCase):
             self.assertTrue(outcome_saved == outcome)
 
     @parameterized.expand(all_tests)
-    def test_experiment(self, experiment_type):
-        param_type, outcome_type = experiment_type.split('_')
+    def test_experiment(self, param_type, outcome_type):
         x1 = params[param_type]['x1']
         x2 = params[param_type]['x2']
         outcome = outcomes[outcome_type]
