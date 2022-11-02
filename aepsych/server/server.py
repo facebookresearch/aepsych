@@ -778,6 +778,11 @@ class AEPsychServer(object):
 
             if type(outcome) not in [float, int, bool]:
                 for i, outcome_value in enumerate(outcome):
+                    if type(outcome_value) not in [float, int, bool]:
+                        if len(outcome_value) == 1:
+                            outcome_value = outcome_value[0]
+                        else:
+                            raise ValueError('Multi-outcome values must be a list of lists of length 1!')
                     self.db.record_outcome(
                         raw_table = self._db_raw_record,
                         outcome_name = 'outcome_'+str(i),
