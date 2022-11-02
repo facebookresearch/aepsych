@@ -11,6 +11,9 @@
       "clients": {
         "title": "AEPsych clients"
       },
+      "config_generator": {
+        "title": "UI Configuration Generator"
+      },
       "configs": {
         "title": "Writing Config Files"
       },
