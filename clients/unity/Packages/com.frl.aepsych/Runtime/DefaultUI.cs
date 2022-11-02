@@ -22,12 +22,17 @@ public class DefaultUI : MonoBehaviour
     public TextMeshProUGUI experimentText;
     public GameObject foldoutMenu;
     public GameObject foldoutMenuIcon;
-    public GameObject responseSlider;
+    public GameObject continuousResponseSlider;
+
     Experiment experiment;
     Button[] menuButtons;
+    TextMeshProUGUI minLabel;
+    TextMeshProUGUI maxLabel;
+
 
     private void Start()
     {
+        // Get Button references
         menuButtons = foldoutMenu.GetComponentsInChildren<Button>();
         foreach (Button b in menuButtons)
         {
@@ -42,7 +47,20 @@ public class DefaultUI : MonoBehaviour
                     b.gameObject.SetActive(false);
             }
         }
-        
+
+        // Get Text label references
+        TextMeshProUGUI[] textComponents = continuousResponseSlider.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (TextMeshProUGUI text in textComponents)
+        {
+            if (text.gameObject.name == "maxLabel")
+            {
+                maxLabel = text;
+            }
+            else if (text.gameObject.name == "minLabel")
+            {
+                minLabel = text;
+            }
+        }
     }
 
     public void SetText(string msg)
@@ -56,37 +74,27 @@ public class DefaultUI : MonoBehaviour
         experimentText.enabled = active;
     }
 
-    public void ShowResponseSlider()
+    public void ShowContinuousResponseSlider()
     {
-        responseSlider.SetActive(true);
-        responseSlider.GetComponent<Slider>().value = 0.5f;
+        continuousResponseSlider.SetActive(true);
+        continuousResponseSlider.GetComponent<Slider>().value = 0.5f;
     }
 
-    public void HideResponseSlider()
+    public void HideResponse()
     {
-        responseSlider.SetActive(false);
+        continuousResponseSlider.SetActive(false);
     }
 
-    public void SetResponseSliderText(string minLabel, string maxLabel)
+    public void SetResponseLabels(string minLabel, string maxLabel)
     {
-        TextMeshProUGUI[] textComponents = responseSlider.GetComponentsInChildren<TextMeshProUGUI>();
-        foreach (TextMeshProUGUI text in textComponents)
-        {
-            if (text.gameObject.name == "maxLabel")
-            {
-                text.text = maxLabel;
-            }
-            else if (text.gameObject.name == "minLabel")
-            {
-                text.text = minLabel;
-            }
-        }
+        this.minLabel.text = minLabel;
+        this.maxLabel.text = maxLabel;
     }
 
     public void SumbitSliderResponse()
     {
-        experiment.ReportResultToServer(responseSlider.GetComponent<Slider>().value);
-        HideResponseSlider();
+        HideResponse();
+        experiment.ReportResultToServer(continuousResponseSlider.GetComponent<Slider>().value);
     }
 
     public void AssignActiveExperiment(Experiment exp)

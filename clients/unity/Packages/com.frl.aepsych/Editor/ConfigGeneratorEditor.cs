@@ -27,10 +27,15 @@ public class ConfigGeneratorEditor : Editor
     {
         ConfigGenerator configGenerator = (ConfigGenerator)serializedObject.targetObject;
 
+        if (configGenerator.experimentOutcomes.Count == 0)
+        {
+            configGenerator.experimentOutcomes.Add(new AEPsychOutcome("outcome", ResponseType.binary));
+        }
         if (configGenerator.experimentParams.Count == 0)
         {
             configGenerator.experimentParams.Add(new Parameter("Dimension 1"));
         }
+
         configGenerator.isAutomatic = EditorGUILayout.ToggleLeft("Use Automatic Config Generation", configGenerator.isAutomatic);
         EditorGUILayout.Space();
         if (!configGenerator.isAutomatic)
@@ -63,17 +68,25 @@ public class ConfigGeneratorEditor : Editor
         }
         EditorGUILayout.Space();
         configGenerator.initialization_trials = EditorGUILayout.IntField("Number of initialization trials", configGenerator.initialization_trials);
-        configGenerator.optimization_trials = EditorGUILayout.IntField("Number of optimization trials", configGenerator.optimization_trials);
+        if (!configGenerator.isMultiOutcome)
+            configGenerator.optimization_trials = EditorGUILayout.IntField("Number of optimization trials", configGenerator.optimization_trials);
         EditorGUILayout.Space();
 
         selected_stimulus = configGenerator.stimulus_presentation;
-        selected_response = configGenerator.response_type;
+        selected_response = (int)configGenerator.experimentOutcomes[0].type;
+        //selected_response = configGenerator.response_type;
         selected_method = configGenerator.experiment_method;
 
         string currConfig = "";
         currConfig += (StimulusType)selected_stimulus + " Stimulus ";
-        currConfig += (ResponseType)selected_response + " Input ";
-        currConfig += (ExperimentType)selected_method;
+        if (!configGenerator.isMultiOutcome)
+        {
+            currConfig += (ResponseType)selected_response + " Outcome ";
+            currConfig += (ExperimentType)selected_method;
+        }
+        else
+            currConfig += " Multi-Outcome ";
+        
         GUILayout.Label(new GUIContent("Current Configuration", "Not all experiment option combinations " +
             "are possible. This Config Generator will only allow you to select combinations for which a " +
             "valid acqisition function & model exist. For more customization, use a manual config file."));
@@ -88,7 +101,8 @@ public class ConfigGeneratorEditor : Editor
 
         int temp_select;
         int[] currCombo = new int[] { selected_stimulus, selected_response, selected_method };
-        
+
+        // Num Stimuli
         GUILayout.Label("Stimulus Type", EditorStyles.boldLabel);
         temp_select = EditorGUILayout.Popup(selected_stimulus, Enum.GetNames(typeof(StimulusType)));
         if (temp_select != selected_stimulus)
@@ -99,30 +113,66 @@ public class ConfigGeneratorEditor : Editor
         selected_stimulus = temp_select;
         GUILayout.Space(10f);
 
-        GUILayout.Label("Response Type", EditorStyles.boldLabel);
-        temp_select = EditorGUILayout.Popup(selected_response, Enum.GetNames(typeof(ResponseType)));
+        // Experiment Outcomes
+        var experimentOutcomes = serializedObject.FindProperty("experimentOutcomes");
+        selected_response = experimentOutcomes.GetArrayElementAtIndex(0).FindPropertyRelative("type").enumValueIndex;
+        EditorGUILayout.PropertyField(experimentOutcomes, new GUIContent("Experiment Outcomes"), true);
+        bool multiOutcome = configGenerator.experimentOutcomes.Count > 1;
+        configGenerator.isMultiOutcome = multiOutcome;
+
+        serializedObject.ApplyModifiedProperties();
+        temp_select = experimentOutcomes.GetArrayElementAtIndex(0).FindPropertyRelative("type").enumValueIndex;
         if (temp_select != selected_response)
         {
             // This value changed this frame
             currCombo = configGenerator.ValidateCombination(selected_stimulus, temp_select, selected_method, 1);
         }
         selected_response = temp_select;
-        GUILayout.Space(10f); //2
 
-        GUILayout.Label("Experiment Type", EditorStyles.boldLabel);
-        temp_select = EditorGUILayout.Popup(selected_method, Enum.GetNames(typeof(ExperimentType)));
-        if (temp_select != selected_method)
+        EditorGUILayout.LabelField("Outcome Text Attributes", new GUIStyle()
         {
-            // This value changed this frame
-            currCombo = configGenerator.ValidateCombination(selected_stimulus, selected_response, temp_select, 2);
-        }
-        selected_method = temp_select;
+            fontSize = 14,
+            richText = true,
+            wordWrap = true,
+            fontStyle = FontStyle.Bold,
+            normal = new GUIStyleState() { textColor = Color.white }
+        });
+        GUILayout.Space(10f);
 
+        for (int i = 0; i < configGenerator.experimentOutcomes.Count; i++){
+            GUILayout.Label(configGenerator.experimentOutcomes[i].name, EditorStyles.boldLabel);
+            configGenerator.experimentOutcomes[i].textPrompt = EditorGUILayout.TextField("Text Prompt", configGenerator.experimentOutcomes[i].textPrompt);
+            if (configGenerator.experimentOutcomes[i].type != ResponseType.binary)
+            {
+                configGenerator.experimentOutcomes[i].minLabel = EditorGUILayout.TextField("Min Label", configGenerator.experimentOutcomes[i].minLabel);
+                configGenerator.experimentOutcomes[i].maxLabel = EditorGUILayout.TextField("Max Label", configGenerator.experimentOutcomes[i].maxLabel);
+            }
+            GUILayout.Space(10f);
+        }
+        
+        // Acquisition Function (Requires an AEPsych model for the current config)
+        if (!multiOutcome)
+        {
+            GUILayout.Label("Experiment Type", EditorStyles.boldLabel);
+            temp_select = EditorGUILayout.Popup(selected_method, Enum.GetNames(typeof(ExperimentType)));
+            if (temp_select != selected_method)
+            {
+                // This value changed this frame
+                currCombo = configGenerator.ValidateCombination(selected_stimulus, selected_response, temp_select, 2);
+            }
+            selected_method = temp_select;
+        }
+        serializedObject.ApplyModifiedProperties();
+
+        //configGenerator.isMultiOutcome = EditorGUILayout.ToggleLeft("Multiple Outcomes", configGenerator.isMultiOutcome);
+        GUILayout.Space(10f); //2
+            
         configGenerator.stimulus_presentation = currCombo[0];
-        configGenerator.response_type = currCombo[1];
+        configGenerator.experimentOutcomes[0].type = (ResponseType)currCombo[1];
+        //configGenerator.response_type = currCombo[1];
         configGenerator.experiment_method = currCombo[2];
 
-        if ((ExperimentType)configGenerator.experiment_method == ExperimentType.Threshold)
+        if ((ExperimentType)configGenerator.experiment_method == ExperimentType.threshold && !configGenerator.isMultiOutcome)
         {
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Target Threshold:");
@@ -130,7 +180,7 @@ public class ConfigGeneratorEditor : Editor
         }
 
         configGenerator.GetComponent<Experiment>().stimulusType = (StimulusType) configGenerator.stimulus_presentation;
-        configGenerator.GetComponent<Experiment>().responseType = (ResponseType) configGenerator.response_type;
+        configGenerator.GetComponent<Experiment>().responseType = configGenerator.experimentOutcomes[0].type;
 
         EditorGUILayout.Space();
         configGenerator.startWithModel = EditorGUILayout.ToggleLeft("Initialize Model on Start", configGenerator.startWithModel);

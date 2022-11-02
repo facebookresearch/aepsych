@@ -21,7 +21,6 @@ using UnityEngine.EventSystems;
 
 namespace AEPsych
 {
-
     public abstract class Experiment : MonoBehaviour
     {
         // Inspector Fields
@@ -68,6 +67,7 @@ namespace AEPsych
         [HideInInspector] public bool autoAsk = true;
         [HideInInspector] public DefaultUI defaultUI;
         [HideInInspector] public QueryModel queryModel;
+        [HideInInspector] public List<AEPsychOutcome> outcomes;
 
         //TODO: Hide in inspector, read from server setup response
         [HideInInspector] public ResponseType responseType;
@@ -80,6 +80,7 @@ namespace AEPsych
         bool hasStarted = false;
         bool nextConfigReady = false;
         float trialStartTime;
+        int outcomeIdx;
         Coroutine trialResponseListener;
         ExperimentState prevState;
         GameObject ModelExplorerPrefab;
@@ -165,6 +166,7 @@ namespace AEPsych
         {
             AEPsychClient.Log("Starting Experiment: Strategy " + strategy.stratId);
             hasStarted = true;
+            outcomeIdx = 0;
             if (strategy != null && autoAsk)
                 Ask(strategy);
             else if (strategy == null)
@@ -233,6 +235,10 @@ namespace AEPsych
             {
                 queryModel.HideSliders();
             }
+            if (useDefaultUI)
+            {
+                defaultUI.HideResponse();
+            }
             Disconnect();
             if (onStateChanged != null)
             {
@@ -295,47 +301,80 @@ namespace AEPsych
         /// </summary>
         public void ReportResultToServer(float outcome, TrialMetadata metadata = null, bool followTellWithNewAsk = true)
         {
-            if (recordResponseTime)
+            outcomes[outcomeIdx].value = outcome;
+
+            // Last outcome received, now send all outcomes to server
+            if (outcomeIdx == outcomes.Count-1)
             {
-                float rt =  Time.time - trialStartTime;
-                if (metadata == null)
+                if (recordResponseTime)
                 {
-                    metadata = new TrialMetadata(rt);
+                    float rt = Time.time - trialStartTime;
+                    if (metadata == null)
+                    {
+                        metadata = new TrialMetadata(rt);
+                    }
+                    else
+                    {
+                        metadata.responseTime = rt;
+                    }
+                    trialStartTime = -1f;
                 }
-                else
+
+                if (asyncAsk && _experimentState == ExperimentState.WaitingForAsyncAsk)
                 {
-                    metadata.responseTime = rt;
+                    AEPsychClient.Log("Received response before async ask has finished. Waiting to tell...");
+                    StartCoroutine(TellWhenAskReceived(outcome, metadata));
+                    return;
                 }
-                trialStartTime = -1f;
-            }
-            
-            if (asyncAsk && _experimentState == ExperimentState.WaitingForAsyncAsk)
-            {
-                AEPsychClient.Log("Received response before async ask has finished. Waiting to tell...");
-                StartCoroutine(TellWhenAskReceived(outcome, metadata));
-                return;
-            }
 
-            if (recordToCSV)
-            {
-                TrialData trial = new TrialData(DateTime.Now.ToString("hh:mm:ss"), config, outcome, metadata);
-                csvFile.WriteTrial(trial);
+                if (recordToCSV)
+                {
+                    TrialData trial = new TrialData(DateTime.Now.ToString("hh:mm:ss"), config, outcome, metadata);
+                    csvFile.WriteTrial(trial);
+                }
+                AEPsychClient.Log(string.Format("ReportResult: {0}", outcome));
+                SetState(ExperimentState.WaitingForTellResponse);
+
+                StartCoroutine(client.Tell(config, outcomes, metadata));
+                //StartCoroutine(client.Tell(config, outcome, metadata));
+
+                if (useModelExploration && queryModel != null)
+                {
+                    queryModel.QueryEnabled(false);
+                }
+
+                autoAsk = followTellWithNewAsk;
+
+                if (asyncAsk)
+                {
+                    config = nextConfig;
+                }
+
+                // Reset outcome index for next trial
+                outcomeIdx = 0;
             }
-            AEPsychClient.Log(string.Format("ReportResult: {0}", outcome));
-            SetState(ExperimentState.WaitingForTellResponse);
-            
-            StartCoroutine(client.Tell(config, outcome, metadata));
-
-            if (useModelExploration && queryModel != null)
+            else
             {
-                queryModel.QueryEnabled(false);
+                // continue to next outcome
+                outcomeIdx++;
+                PromptOutcome();
             }
+        }
 
-            autoAsk = followTellWithNewAsk;
-
-            if (asyncAsk)
+        public virtual void PromptOutcome()
+        {
+            if (useDefaultUI && outcomes[outcomeIdx].textPrompt != "")
             {
-                config = nextConfig;
+                SetText(outcomes[outcomeIdx].textPrompt);
+            }
+            if (outcomes[outcomeIdx].type == ResponseType.binary)
+            {
+                trialResponseListener = StartCoroutine(WaitForResponse());
+            }
+            else if (outcomes[outcomeIdx].type == ResponseType.continuous && useDefaultUI)
+            {
+                defaultUI.ShowContinuousResponseSlider();
+                defaultUI.SetResponseLabels(outcomes[outcomeIdx].minLabel, outcomes[outcomeIdx].maxLabel);
             }
         }
 
@@ -435,14 +474,6 @@ namespace AEPsych
             BeginExperiment();
         }
 
-        /*
-        public IEnumerator WaitForInput()
-        {
-            yield return new WaitUntil(() => Input.GetKeyDown(startKey));
-            BeginExperiment();
-        }
-        */
-
         /// <summary>
         /// Called when this game object becomes active. Generates strategies if they are un-initialized
         /// </summary>
@@ -496,6 +527,8 @@ namespace AEPsych
                 }
             }
 
+            InitializeOutcomes();
+
             // Initialize a CSV Writer for each strategy
             if (recordToCSV)
             {
@@ -517,6 +550,12 @@ namespace AEPsych
             }
 
 
+        }
+
+        // TO-DO: ENABLE SERVER CONFIG READING (in case of manual config)
+        void InitializeOutcomes()
+        {
+            outcomes = configGenerator.experimentOutcomes;
         }
 
         void StopResponseListener()
@@ -794,6 +833,7 @@ namespace AEPsych
             StartCoroutine(ManualTellServer(manualConfig, outcome));
         }
 
+        // NOTE: NOT YET COMPATIBLE WITH MULTI-OUTCOME EXPERIMENTS
         IEnumerator ManualTellServer(TrialConfig manualConfig, float outcome)
         {
             StopResponseListener();
@@ -806,7 +846,10 @@ namespace AEPsych
                 csvFile.WriteTrial(trial);
             }
             SetState(ExperimentState.WaitingForTellResponse);
-            StartCoroutine(client.Tell(manualConfig, outcome));
+            //StartCoroutine(client.Tell(manualConfig, outcome));
+            AEPsychOutcome outcomeList = new AEPsychOutcome("outcome", ResponseType.binary);
+            outcomeList.value = outcome;
+            StartCoroutine(client.Tell(config, new List<AEPsychOutcome>() { outcomeList, outcomeList }));
             if (useModelExploration && queryModel != null)
             {
                 queryModel.QueryEnabled(false);
@@ -916,12 +959,7 @@ namespace AEPsych
                         }
                     }
                 }
-                if (responseType == ResponseType.Binary)
-                    trialResponseListener = StartCoroutine(WaitForResponse());
-                else if (responseType == ResponseType.Continuous && useDefaultUI)
-                {
-                    defaultUI.ShowResponseSlider();
-                }
+                PromptOutcome();
             }
         }
 

@@ -32,22 +32,6 @@ namespace AEPsych
             upperBound = 1;
         }
     }
-    public enum StimulusType
-    {
-        Single,
-        Pairwise
-    }
-    public enum ResponseType
-    {
-        Binary,
-        Continuous
-    }
-    public enum ExperimentType
-    {
-        Threshold,
-        Optimization,
-        Exploration
-    }
 }
 
 [System.Serializable]
@@ -62,8 +46,9 @@ public class ConfigGenerator: MonoBehaviour
     [SerializeField] public ExperimentType experiment_method = ExperimentType.Threshold;
     */
     [SerializeField] public int stimulus_presentation = 0;
-    [SerializeField] public int response_type = 0;
+    //[SerializeField] public int response_type = 0;
     [SerializeField] public int experiment_method = 0;
+    [SerializeField] public List<AEPsychOutcome> experimentOutcomes;
 
     [SerializeField] public List<Parameter> experimentParams;
 
@@ -94,15 +79,24 @@ public class ConfigGenerator: MonoBehaviour
     public bool isEditorVersion = false;
     public bool isValid = true;
     public bool startWithModel;
+    public bool isMultiOutcome = false;
 
     private void OnValidate()
     {
         isEditorVersion = true;
+
+        // Initialize custom data type lists if empty
         if (experimentParams == null)
         {
             experimentParams = new List<Parameter>();
             experimentParams.Add(new Parameter("Dimension 1"));
         }
+        if (experimentOutcomes == null)
+        {
+            experimentOutcomes = new List<AEPsychOutcome>();
+            experimentOutcomes.Add(new AEPsychOutcome("outcome", ResponseType.binary));
+        }
+
 #if UNITY_EDITOR
         if (BuildPipeline.isBuildingPlayer)
             return;
@@ -114,7 +108,6 @@ public class ConfigGenerator: MonoBehaviour
             {
                 // Remove the Assets/StreamingAssets directory from path
                 relativeFilePath = temp.Substring(23);
-                Debug.Log("manual config: " + relativeFilePath);
             }
             else
             {
@@ -233,7 +226,7 @@ public class ConfigGenerator: MonoBehaviour
         string names = "";
         string lbs = "";
         string ubs = "";
-        string outcome_type = "";
+        List<string> outcome_types = new List<string>();
         string acqf = "";
         string objective = "";
         string init_generator = "";
@@ -248,12 +241,12 @@ public class ConfigGenerator: MonoBehaviour
         float beta = 0f;
         bool specifyAcqf = false;
 
-        switch (FindNameFromIndicies(new[] { stimulus_presentation, response_type, experiment_method }))
+        switch (FindNameFromIndicies(new[] { stimulus_presentation, (int)experimentOutcomes[0].type, experiment_method }))
         {
             case "SingleBinaryThreshold":
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
-                outcome_type = "binary";
+                outcome_types.Add("binary");
                 acqf = "GlobalMI";
                 model = "GPClassificationModel";
                 mean_covar_factory = "default_mean_covar_factory";
@@ -263,7 +256,7 @@ public class ConfigGenerator: MonoBehaviour
             case "SingleBinaryOptimization":
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
-                outcome_type = "binary";
+                outcome_types.Add("binary");
                 acqf = "qNoisyExpectedImprovement";
                 model = "GPClassificationModel";
                 mean_covar_factory = "default_mean_covar_factory";
@@ -274,7 +267,7 @@ public class ConfigGenerator: MonoBehaviour
             case "SingleContinuousThreshold":
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
-                outcome_type = "continuous";
+                outcome_types.Add("continuous");
                 acqf = "GlobalMI";
                 model = "GPRegressionModel";
                 specifyAcqf = true;
@@ -283,7 +276,7 @@ public class ConfigGenerator: MonoBehaviour
             case "SingleContinuousOptimization":
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
-                outcome_type = "continuous";
+                outcome_types.Add("continuous");
                 acqf = "qNoisyExpectedImprovement";
                 model = "GPRegressionModel";
                 target = -1f;
@@ -301,7 +294,7 @@ public class ConfigGenerator: MonoBehaviour
             case "PairwiseBinaryOptimization":
                 init_generator = "PairwiseSobolGenerator";
                 opt_generator = "PairwiseOptimizeAcqfGenerator";
-                outcome_type = "binary";
+                outcome_types.Add("binary");
                 acqf = "qNoisyExpectedImprovement";
                 model = "PairwiseProbitModel";
                 mean_covar_factory = "default_mean_covar_factory";
@@ -313,7 +306,7 @@ public class ConfigGenerator: MonoBehaviour
             case "PairwiseBinaryExploration":
                 init_generator = "PairwiseSobolGenerator";
                 opt_generator = "PairwiseOptimizeAcqfGenerator";
-                outcome_type = "binary";
+                outcome_types.Add("binary");
                 acqf = "PairwiseMCPosteriorVariance";
                 model = "PairwiseProbitModel";
                 mean_covar_factory = "default_mean_covar_factory";
@@ -324,6 +317,15 @@ public class ConfigGenerator: MonoBehaviour
                 break;
             default:
                 break;
+        }
+
+        if (isMultiOutcome)
+        {
+            outcome_types.Clear();
+            for (int i = 0; i < experimentOutcomes.Count; i++)
+            {
+                outcome_types.Add(experimentOutcomes[i].type.ToString());
+            }
         }
 
         foreach (Parameter param in experimentParams)
@@ -351,10 +353,16 @@ public class ConfigGenerator: MonoBehaviour
         sb.Append("lb = [" + lbs + "]\n");
         sb.Append("ub = [" + ubs + "]\n");
         sb.Append("stimuli_per_trial = " + num_stimuli + "\n");
-        sb.Append("outcome_types = [" + outcome_type + "]\n");
-        
+        sb.Append("outcome_types = [");
+        foreach (string s in outcome_types) { sb.Append(s + ", "); }
+        sb.Remove(sb.Length - 2, 2);
+        sb.Append("]\n");
         sb.Append("\n");
-        sb.Append("strategy_names = [init_strat, opt_strat]\n");
+        sb.Append("strategy_names = [init_strat");
+        if (!isMultiOutcome)
+            sb.Append(", opt_strat]\n");
+        else
+            sb.Append("]\n");
         sb.Append("\n");
 
         // Initial Strategy
@@ -368,14 +376,17 @@ public class ConfigGenerator: MonoBehaviour
         sb.Append("\n");
 
         // Optimized Strategy
-        sb.Append("[opt_strat]\n");
-        sb.Append("min_asks = " + optimization_trials + "\n");
-        sb.Append("refit_every = 5\n");
-        sb.Append("generator = " + opt_generator + "\n");
-        sb.Append("acqf = " + acqf + "\n");
-        sb.Append("model = " + model + "\n");
-        sb.Append("\n");
-
+        if (!isMultiOutcome)
+        {
+            sb.Append("[opt_strat]\n");
+            sb.Append("min_asks = " + optimization_trials + "\n");
+            sb.Append("refit_every = 5\n");
+            sb.Append("generator = " + opt_generator + "\n");
+            sb.Append("acqf = " + acqf + "\n");
+            sb.Append("model = " + model + "\n");
+            sb.Append("\n");
+        }
+        
         // Model Parameters
         sb.Append("[" + model + "]\n");
         sb.Append("inducing_size = " + inducing_size + "\n");
@@ -384,10 +395,13 @@ public class ConfigGenerator: MonoBehaviour
         sb.Append("\n");
 
         // Optimized Generator Parameters
-        sb.Append("[" + opt_generator + "]\n");
-        sb.Append("restarts = " + restarts + "\n");
-        sb.Append("samps = " + samps + "\n");
-        sb.Append("\n");
+        if (!isMultiOutcome)
+        {
+            sb.Append("[" + opt_generator + "]\n");
+            sb.Append("restarts = " + restarts + "\n");
+            sb.Append("samps = " + samps + "\n");
+            sb.Append("\n");
+        }
 
         if (specifyAcqf)
         {
@@ -425,7 +439,6 @@ public class ConfigGenerator: MonoBehaviour
         {
             Directory.CreateDirectory(Path.GetDirectoryName(finalPath));
         }
-        Debug.Log("final path: " + finalPath);
         StreamWriter writer = new StreamWriter(finalPath, false);
         writer.WriteLine(fullConfigFile);
         writer.Close();
@@ -436,3 +449,5 @@ public class ConfigGenerator: MonoBehaviour
     }
 #endif
 }
+
+

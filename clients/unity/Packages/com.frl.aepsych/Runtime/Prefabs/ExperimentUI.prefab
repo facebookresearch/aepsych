@@ -481,7 +481,7 @@ MonoBehaviour:
   experimentText: {fileID: 2416200128093135657}
   foldoutMenu: {fileID: 2416200129604224055}
   foldoutMenuIcon: {fileID: 2416200129405623081}
-  responseSlider: {fileID: 2261966420373794503}
+  continuousResponseSlider: {fileID: 2261966420373794503}
 --- !u!223 &2416200128082496200
 Canvas:
   m_ObjectHideFlags: 0

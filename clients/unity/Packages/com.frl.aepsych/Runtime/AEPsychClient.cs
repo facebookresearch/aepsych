@@ -19,9 +19,13 @@ using Newtonsoft.Json.Converters;
 
 namespace AEPsych
 {
+    //_______________________________________________________________________
+    // AEPsych enums
     public enum RequestType { setup, ask, tell, resume, query, parameters, can_model, exit };
     public enum QueryType { min, max, prediction, inverse }
-
+    public enum StimulusType { single, pairwise }
+    public enum ResponseType { binary, continuous }
+    public enum ExperimentType { threshold, optimization, exploration }
 
     //_______________________________________________________________________
     // AEPsych custom data types
@@ -75,12 +79,56 @@ namespace AEPsych
     public class TrialWithOutcome
     {
         public TrialConfig config;
-        public float outcome;
+        public List<List<float>> outcome;
 
-        public TrialWithOutcome(TrialConfig config, float outcome, float response_time = -1f)
+        public TrialWithOutcome(TrialConfig config, List<AEPsychOutcome> outcome, float response_time = -1f)
         {
             this.config = config;
-            this.outcome = outcome;
+            this.outcome = new List<List<float>>();
+            foreach (AEPsychOutcome x in outcome)
+            {
+                this.outcome.Add(x.ToFloatList());
+            }
+        }
+    }
+
+    [Serializable]
+    public class AEPsychOutcome
+    {
+        // public
+        public ResponseType type;
+        public string name;
+
+        // private
+        [SerializeField, HideInInspector]
+        public string textPrompt;
+        [SerializeField, HideInInspector]
+        public string minLabel;
+        [SerializeField, HideInInspector]
+        public string maxLabel;
+        [SerializeField, HideInInspector]
+        public float value = -1f;
+
+        public AEPsychOutcome(string name, ResponseType type, string prompt = "")
+        {
+            this.name = name;
+            this.type = type;
+            this.textPrompt = (string.Compare(prompt, "") != 0) ? string.Format("{0}?", name) : prompt;
+        }
+        /*
+        public void SetMaxLabel(string label) { maxLabel = label; }
+        public string GetMaxLabel() { return maxLabel; }
+        public void SetMinLabel(string label) { minLabel = label; }
+        public string GetMinLabel() { return minLabel; }
+        public void SetPrompt(string prompt) { textPrompt = prompt; }
+        public string GetPrompt() { return textPrompt; }
+        
+        public void SetValue(float value) { this.value = value; }
+        public float GetValue() { return value; }
+        */
+        public List<float> ToFloatList()
+        {
+            return new List<float>() { value };
         }
     }
 
@@ -357,7 +405,7 @@ namespace AEPsych
             return currentStrat;
         }
 
-        public IEnumerator Tell(TrialConfig trialConfig, float outcome, TrialMetadata metadata = null, float responseTime = -1f)
+        public IEnumerator Tell(TrialConfig trialConfig, List<AEPsychOutcome> outcome, TrialMetadata metadata = null, float responseTime = -1f)
         {
             TrialWithOutcome message = new TrialWithOutcome(trialConfig, outcome, responseTime);
             Request req;
