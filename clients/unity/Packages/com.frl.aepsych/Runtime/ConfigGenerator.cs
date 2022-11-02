@@ -244,6 +244,7 @@ public class ConfigGenerator: MonoBehaviour
         int inducing_size;
         int restarts;
         int samps;
+        int query_set_size = -1;
         float beta = 0f;
         bool specifyAcqf = false;
 
@@ -253,12 +254,11 @@ public class ConfigGenerator: MonoBehaviour
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
                 outcome_type = "binary";
-                acqf = "MCLevelSetEstimation";
+                acqf = "GlobalMI";
                 model = "GPClassificationModel";
                 mean_covar_factory = "default_mean_covar_factory";
-                objective = "ProbitObjective";
-                beta = 3.98f;
                 specifyAcqf = true;
+                query_set_size = (experimentParams.Count > 2) ? 256 : 128;
                 break;
             case "SingleBinaryOptimization":
                 init_generator = "SobolGenerator";
@@ -275,10 +275,10 @@ public class ConfigGenerator: MonoBehaviour
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
                 outcome_type = "continuous";
-                acqf = "MCLevelSetEstimation";
+                acqf = "GlobalMI";
                 model = "GPRegressionModel";
                 specifyAcqf = true;
-                objective = "IdentityMCObjective";
+                query_set_size = (experimentParams.Count > 2) ? 256 : 128;
                 break;
             case "SingleContinuousOptimization":
                 init_generator = "SobolGenerator";
@@ -352,8 +352,7 @@ public class ConfigGenerator: MonoBehaviour
         sb.Append("ub = [" + ubs + "]\n");
         sb.Append("stimuli_per_trial = " + num_stimuli + "\n");
         sb.Append("outcome_types = [" + outcome_type + "]\n");
-        if (target >= 0)
-            sb.Append("target = " + target + "\n");
+        
         sb.Append("\n");
         sb.Append("strategy_names = [init_strat, opt_strat]\n");
         sb.Append("\n");
@@ -394,9 +393,14 @@ public class ConfigGenerator: MonoBehaviour
         {
             // Acquisition Function Parameters
             sb.Append("[" + acqf + "]\n");
+            if (target >= 0)
+                sb.Append("target = " + target + "\n");
+            if (query_set_size > 0)
+                sb.Append("query_set_size = " + query_set_size + "\n");
             if (beta != 0f)
                 sb.Append("beta = " + beta + "\n");
-            sb.Append("objective = " + objective + "\n");
+            if (objective != "")
+                sb.Append("objective = " + objective + "\n");
         }
         
         return sb.ToString();
