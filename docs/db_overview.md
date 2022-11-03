@@ -53,4 +53,32 @@ The database contains four tables: one primary and three secondary tables. Each 
 |config| An AEPsych Config object, stored as a Python pickle for easy serialization/deserialization.  (This may change in the future as Python pickle objects may not load across versions of Python or AEPsych). |
 |master_table_id| This is a reference key to the original entry in the master table's unique ID.
 
+- **Raw Table**: Fact table to store raw data for each iteration of a given experiment. It has two associated dimension tables, one for the parameters and one for the outcomes. The columns are described as followed:
+
+|Raw Table Column | Purpose |
+|:-: | :- |
+| unique_id | A unique ID generated for each entry in this table. |
+| timestamp | A timestamp indicating when the server received a tell message, and recorded the data of one iteration of a given experiment.|
+| master_table_id | This is a reference key to the original entry in the master table's unique ID. |
+| parameter_id | This is a reference key to the original entry in the parameter table's unique ID. |
+| model_data | Wheter or not the data from that iteration was modeled during the experiment.|
+
+- **Param table**: Dimension table to store the parameters for each iteration of a given experiment. This table stores the parameters names and values. The columns are described as followed:
+
+|Param Table Column | Purpose |
+|:-: | :- |
+| unique_id | A unique ID generated for each entry in this table. |
+| iteration_id | This is a reference key to the original entry in the raw table's unique ID. |
+| parameter_name | The name of the parameter. |
+| parameter_value | The value of the parameter. |
+
+- **Outcome table**: Dimension table to store the outcomes for each iteration of a given experiment. This table only stores the outcome values. The columns are described as followed:
+
+|Outcome Table Column | Purpose |
+|:-: | :- |
+| unique_id | A unique ID generated for each entry in this table. |
+| iteration_id | This is a reference key to the original entry in the raw table's unique ID. |
+| outcome_value | The value of the outcome. |
+| outcome_name | The name of the outcome. The name is generated automatically by AEPsych, it's not given by the user. |
+
 The database schema is constantly evolving, so you may occasionally need to update old databases by running `python3 aepsych/server/server.py database --update --d database_path` from a command line. For more information about loading data and replaying previous experiments, see the [example database and notebook](https://github.com/facebookresearch/aepsych/tree/main/tutorials/example_db).
