@@ -246,6 +246,13 @@ class AEPsychServer(object):
         return out
 
     def get_dataframe_from_replay(self, uuid_of_replay=None, force_replay=False):
+        # DeprecationWarning
+        warnings.warn(
+            "get_dataframe_from_replay is deprecated."
+            + " Use generate_experiment_table with return_df = True instead.",
+            DeprecationWarning, stacklevel=2
+        )
+
         if uuid_of_replay is None:
             records = self.db.get_master_records()
             if len(records) > 0:
