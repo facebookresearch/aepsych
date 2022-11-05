@@ -407,9 +407,12 @@ namespace AEPsych
             //check if strat or experiment is done
             if (client.finished) //check if this was the final ask for this strat
             {
-                isDone = true;
-                strategy.isDone = true;
-                ExperimentComplete();
+                if (!isDone)
+                {
+                    isDone = true;
+                    strategy.isDone = true;
+                    ExperimentComplete();
+                }
                 yield break;
             }
 
@@ -843,7 +846,7 @@ namespace AEPsych
         /// </summary>
         public bool IsBusy()
         {
-            if (_experimentState == ExperimentState.ConfigReady || _experimentState == ExperimentState.WaitingForTell)
+            if (_experimentState == ExperimentState.ConfigReady || _experimentState == ExperimentState.WaitingForTell || _experimentState == ExperimentState.Exploring)
             {
                 if (!client.IsBusy())
                     return false;
