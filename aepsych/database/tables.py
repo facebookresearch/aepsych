@@ -12,7 +12,16 @@ import pickle
 
 from aepsych.config import Config
 from aepsych.version import __version__
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, PickleType, String, Boolean, Float
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    PickleType,
+    String,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -325,6 +334,7 @@ class DbConfigTable(Base):
     def requires_update(engine):
         return False
 
+
 class DbRawTable(Base):
     __tablename__ = "raw_data"
 
@@ -362,6 +372,7 @@ class DbRawTable(Base):
     def requires_update(engine):
         return False
 
+
 class DbParamTable(Base):
     __tablename__ = "param_data"
 
@@ -395,6 +406,7 @@ class DbParamTable(Base):
     @staticmethod
     def requires_update(engine):
         return False
+
 
 class DbOutcomeTable(Base):
     __tablename__ = "outcome_data"

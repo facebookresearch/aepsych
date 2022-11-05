@@ -246,9 +246,10 @@ class DBTestCase(unittest.TestCase):
     def test_raw_table(self):
         model_data = True
         master_table = self._database.record_setup(
-            description = "test raw table",
-            name = "test",
-            request = {"test": "this a test request"})
+            description="test raw table",
+            name="test",
+            request={"test": "this a test request"},
+        )
         # Record a raw data entry
         self._database.record_raw(master_table, model_data=model_data)
         experiment_id = master_table.experiment_id
@@ -260,9 +261,10 @@ class DBTestCase(unittest.TestCase):
         param_name = "test_param"
         param_value = 1.123
         master_table = self._database.record_setup(
-            description = "test param table",
-            name = "test",
-            request = {"test": "this a test request"})
+            description="test param table",
+            name="test",
+            request={"test": "this a test request"},
+        )
         raw_table = self._database.record_raw(master_table, model_data=True)
         # Record a param data entry
         self._database.record_param(raw_table, param_name, param_value)
@@ -277,9 +279,10 @@ class DBTestCase(unittest.TestCase):
         outcome_value = 1.123
         outcome_name = "test_outcome"
         master_table = self._database.record_setup(
-            description = "test outcome table",
-            name = "test",
-            request = {"test": "this a test request"})
+            description="test outcome table",
+            name="test",
+            request={"test": "this a test request"},
+        )
         raw_table = self._database.record_raw(master_table, model_data=True)
         # Record an outcome data entry
         self._database.record_outcome(raw_table, outcome_name, outcome_value)
