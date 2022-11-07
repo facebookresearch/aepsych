@@ -336,6 +336,9 @@ class DbConfigTable(Base):
 
 
 class DbRawTable(Base):
+    """
+    Fact table to store the raw data of each iteration of an experiment.
+    """
     __tablename__ = "raw_data"
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -374,6 +377,10 @@ class DbRawTable(Base):
 
 
 class DbParamTable(Base):
+    """
+    Dimension table to store the parameters of each iteration of an experiment.
+    Supports multiple parameters per iteration, and multiple stimuli per parameter.
+    """
     __tablename__ = "param_data"
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -409,6 +416,10 @@ class DbParamTable(Base):
 
 
 class DbOutcomeTable(Base):
+    """
+    Dimension table to store the outcomes of each iteration of an experiment.
+    Supports multiple outcomes per iteration.
+    """
     __tablename__ = "outcome_data"
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)

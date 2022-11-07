@@ -307,9 +307,23 @@ class AEPsychServer(object):
         return out
 
     def generate_experiment_table(
-        self, experiment_id=None, table_name="experiment_table", return_df=False
+        self, experiment_id, table_name="experiment_table", return_df=False
     ):
+        """Generate a table of a given experiment with all the raw data.
 
+        This table is generated from the database, and is added to the
+        experiment's database.
+
+        Args:
+            experiment_id (str): The experiment ID to generate the table for.
+            table_name (str): The name of the table. Defaults to
+                "experiment_table".
+            return_df (bool): If True, also return the dataframe.
+
+        Returns:
+            pd.DataFrame: The dataframe of the experiment table, if
+                return_df is True.
+        """
         param_space = self.db.get_param_for(experiment_id, 1)
         outcome_space = self.db.get_outcome_for(experiment_id, 1)
 
