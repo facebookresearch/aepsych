@@ -323,7 +323,7 @@ def _plot_strat_2d(
 
 def plot_strat_3d(
     strat: Strategy,
-    parnames: List[str] = None,
+    parnames: Optional[List[str]] = None,
     outcome_label: str = "Yes Trial",
     slice_dim: int = 0,
     slice_vals: Union[List[float], int] = 5,

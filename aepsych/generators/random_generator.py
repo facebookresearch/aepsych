@@ -39,7 +39,7 @@ class RandomGenerator(AEPsychGenerator):
     def gen(
         self,
         num_points: int = 1,
-        model: AEPsychMixin = None,  # included for API compatibility.
+        model: Optional[AEPsychMixin] = None,  # included for API compatibility.
     ) -> np.ndarray:
         """Query next point(s) to run by randomly sampling the parameter space.
         Args:
