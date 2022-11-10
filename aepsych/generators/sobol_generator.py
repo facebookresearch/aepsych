@@ -48,7 +48,7 @@ class SobolGenerator(AEPsychGenerator):
     def gen(
         self,
         num_points: int = 1,
-        model: AEPsychMixin = None,  # included for API compatibility
+        model: Optional[AEPsychMixin] = None,  # included for API compatibility
     ):
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
