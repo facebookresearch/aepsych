@@ -112,6 +112,16 @@ namespace AEPsych
             Exploring,
         };
         ExperimentState _experimentState = ExperimentState.NotConnected;
+
+        List<ExperimentState> busyStates = new List<ExperimentState>
+            {
+                ExperimentState.NotConnected,
+                ExperimentState.WaitingForAskResponse,
+                ExperimentState.WaitingForCanModelResponse,
+                ExperimentState.WaitingForQueryResponse,
+                ExperimentState.WaitingForResumeResponse,
+                ExperimentState.WaitingForTellResponse,
+            };
         #endregion
 
         // Delegate callback for changes to the experiment state machine
@@ -167,7 +177,11 @@ namespace AEPsych
             hasStarted = true;
             if (strategy != null && autoAsk)
                 Ask(strategy);
-            else if (strategy == null)
+            else if (strategy != null)
+            {
+                SetState(ExperimentState.WaitingForAsk);
+            }
+            else
             {
                 Debug.LogError("Manual config selected, but config file field is empty. " +
                     "To use manual config files, assign one in the AEPsychClient inspector " +
@@ -465,6 +479,8 @@ namespace AEPsych
                 Debug.Break();
             }
 
+            //SetState(ExperimentState.WaitingForResumeResponse);
+
             if (configGenerator.isAutomatic) // Initialize the automatically generated strategy
             {
                 if (PlayerPrefs.GetString(configGenerator.experimentName + "config") == "Empty")
@@ -505,8 +521,6 @@ namespace AEPsych
                 if (csvFile == null)
                     csvFile = new CSVWriter(GetName());
             }
-
-            SetState(ExperimentState.WaitingForResumeResponse);
 
             // All strategies created.
 
@@ -575,8 +589,19 @@ namespace AEPsych
                 "old client: {1}, new client: {2}", _experimentState, oldStatus, newStatus));
             if (_experimentState == ExperimentState.NotConnected)
             {
+                if (newStatus == AEPsychClient.ClientStatus.QuerySent)
+                    SetState(ExperimentState.WaitingForResumeResponse);
+                else if (newStatus == AEPsychClient.ClientStatus.FailedToConnect)
+                {
+                    OnFailedToConnect();
+                }
+            }
+            if (_experimentState == ExperimentState.WaitingForResumeResponse)
+            {
                 if (newStatus == AEPsychClient.ClientStatus.Ready)
+                {
                     OnConnectToServer();
+                }
                 else if (newStatus == AEPsychClient.ClientStatus.FailedToConnect)
                 {
                     OnFailedToConnect();
@@ -602,7 +627,7 @@ namespace AEPsych
                 {
                     if (tellInProcess)
                     {
-                        Debug.Log("Manual tell success");
+                        AEPsychClient.Log("Manual tell success");
                         tellInProcess = false;
                     }
 
@@ -646,15 +671,17 @@ namespace AEPsych
                     // We recieved a new config. Store it.
                     config = client.GetConfig();
                     SetState(ExperimentState.ConfigReady);
+                    ShowStimuli(config);
+                    /*
                     if (!client.finished)
                     {
                         ShowStimuli(config);
                     }
                     else
                     {
-                        isDone = true;
                         StartCoroutine(EndTrial());
                     }
+                    */
                 }
             }
 
@@ -818,7 +845,7 @@ namespace AEPsych
             {
                 config = nextConfig;
             }
-            Debug.Log("Manual tell sent: " + manualConfig);
+            AEPsychClient.Log("Manual tell sent: " + manualConfig);
         }
 
         public bool isManualTellInProcess()
@@ -846,12 +873,12 @@ namespace AEPsych
         /// </summary>
         public bool IsBusy()
         {
-            if (_experimentState == ExperimentState.ConfigReady || _experimentState == ExperimentState.WaitingForTell || _experimentState == ExperimentState.Exploring)
+            if (!busyStates.Contains(_experimentState))
             {
                 if (!client.IsBusy())
                     return false;
             }
-            Debug.Log("busy...");
+            AEPsychClient.Log("Client is busy. State: " + GetState());
             return true;
         }
 
