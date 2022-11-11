@@ -13,17 +13,14 @@ It also checks that the experiment table is correctly populated
 (generate_experiment_table method).
 """
 
-import json
 import logging
 import unittest
 import uuid
 from itertools import product
-from unittest.mock import call, MagicMock, patch, PropertyMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 import torch
-from aepsych.config import Config
 from parameterized import parameterized
 
 params = {
