@@ -11,7 +11,6 @@ from typing import List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
-from botorch.exceptions.errors import ModelFittingError
 
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
@@ -19,6 +18,7 @@ from aepsych.generators.sobol_generator import SobolGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils import _process_bounds, make_scaled_sobol
 from aepsych.utils_logging import getLogger
+from botorch.exceptions.errors import ModelFittingError
 
 logger = getLogger()
 
@@ -95,7 +95,7 @@ class Strategy(object):
 
         if run_indefinitely:
             warnings.warn(
-                f"Strategy {name} will run indefinitely until finish() is explicityly called. Other stopping criteria will be ignored."
+                f"Strategy {name} will run indefinitely until finish() is explicitly called. Other stopping criteria will be ignored."
             )
 
         elif min_total_tells > 0 and min_asks > 0:
@@ -103,17 +103,22 @@ class Strategy(object):
                 "Specifying both min_total_tells and min_asks > 0 may lead to unintended behavior."
             )
 
-        assert len(outcome_types) == 1, "Multiple outcome types are not yet supported!"
-        assert stimuli_per_trial in [
-            1,
-            2,
-        ], "Number of stimuli per trial must be 1 or 2!"
+        if model is not None:
+            assert (
+                len(outcome_types) == model._num_outputs
+            ), f"Strategy has {len(outcome_types)} outcomes, but model {type(model).__name__} supports {model._num_outputs}!"
+            assert (
+                stimuli_per_trial == model.stimuli_per_trial
+            ), f"Strategy has {stimuli_per_trial} stimuli_per_trial, but model {type(model).__name__} supports {model.stimuli_per_trial}!"
 
-        for outcome in outcome_types:
-            assert outcome in [
-                "continuous",
-                "binary",
-            ], f"Unknown outcome_type '{outcome}'!"
+            if isinstance(model.outcome_type, str):
+                assert (
+                    len(outcome_types) == 1 and outcome_types[0] == model.outcome_type
+                ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
+            else:
+                assert set(outcome_types) == set(
+                    model.outcome_type
+                ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
 
         self.run_indefinitely = run_indefinitely
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
@@ -352,18 +357,6 @@ class Strategy(object):
         model_cls = config.getobj(name, "model", fallback=None)
         if model_cls is not None:
             model = model_cls.from_config(config)
-            assert (
-                stimuli_per_trial == model.stimuli_per_trial
-            ), f"stimuli_per_trial, {stimuli_per_trial}, does not match model {model}, which takes {model.stimuli_per_trial} stimuli!"
-
-            assert (
-                stimuli_per_trial == generator.stimuli_per_trial
-            ), f"stimuli_per_trial, {stimuli_per_trial}, does not match model {generator}, which takes {generator.stimuli_per_trial} stimuli!"
-
-            assert (
-                model.outcome_type in outcome_types
-            ), f"model outcome type, {model.outcome_type}, not found in outcome_types, {outcome_types}!"
-
         else:
             model = None
 

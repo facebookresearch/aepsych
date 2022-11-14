@@ -10,10 +10,10 @@ from typing import Callable, Iterable, List, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import norm
 
 from aepsych.strategy import Strategy
 from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
+from scipy.stats import norm
 
 
 def plot_strat(
@@ -279,7 +279,7 @@ def _plot_strat_2d(
     if logx:
         locs = np.arange(strat.lb[0], strat.ub[0])
         ax.set_xticks(ticks=locs)
-        ax.set_xticklabels(2.0 ** locs)
+        ax.set_xticklabels(2.0**locs)
 
     ax.plot(x[y == 0, 0], x[y == 0, 1], "ro", alpha=0.7, label=no_label)
     ax.plot(x[y == 1, 0], x[y == 1, 1], "bo", alpha=0.7, label=yes_label)
@@ -323,7 +323,7 @@ def _plot_strat_2d(
 
 def plot_strat_3d(
     strat: Strategy,
-    parnames: List[str] = None,
+    parnames: Optional[List[str]] = None,
     outcome_label: str = "Yes Trial",
     slice_dim: int = 0,
     slice_vals: Union[List[float], int] = 5,

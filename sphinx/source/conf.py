@@ -20,7 +20,10 @@ import sys
 
 # from pkg_resources import get_distribution
 
-sys.path.insert(0, os.path.abspath("../../"))
+# sys.path.insert(0, os.path.abspath("../../"))
+current_dir = os.path.dirname(__file__)
+target_dir = os.path.abspath(os.path.join(current_dir, "../../"))
+sys.path.insert(0, target_dir)
 
 # base_path = os.path.abspath(os.path.join(__file__, "..", "..", "..", "aepsych"))
 # print(sys.path, base_path, "======")

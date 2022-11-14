@@ -13,8 +13,8 @@ from gpytorch.likelihoods import _OneDimensionalLikelihood
 
 class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood):
     """
-    Bernoulli likelihood with a flexible link (objective) defined by a callable (which can be a botorch
-    objective)
+    Bernoulli likelihood with a flexible link (objective) defined
+    by a callable (which can be a botorch objective)
     """
 
     def __init__(self, objective: Callable):

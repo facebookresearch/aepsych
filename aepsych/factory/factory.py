@@ -259,3 +259,24 @@ def song_mean_covar_factory(
             outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
         )
         return mean, context_covar + intensity_covar
+
+
+def ordinal_mean_covar_factory(
+    config: Config,
+) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
+
+    try:
+        base_factory = config.getobj("ordinal_mean_covar_factory", "base_factory")
+    except NoOptionError:
+        base_factory = default_mean_covar_factory
+
+    _, base_covar = base_factory(config)
+
+    mean = gpytorch.means.ZeroMean()  # wlog since ordinal is shift-invariant
+
+    if isinstance(base_covar, gpytorch.kernels.ScaleKernel):
+        covar = base_covar.base_kernel
+    else:
+        covar = base_covar
+
+    return mean, covar

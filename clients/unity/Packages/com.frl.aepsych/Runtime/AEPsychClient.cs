@@ -43,7 +43,7 @@ namespace AEPsych
             this.type = type;
             this.extra_info = null;
         }
-        public Request(object message, RequestType type, TrialMetadata extra_info)
+        public Request(object message, RequestType type, TrialMetadata extra_info = null)
         {
             this.message = message;
             this.type = type;
@@ -77,12 +77,11 @@ namespace AEPsych
         public TrialConfig config;
         public float outcome;
 
-        public TrialWithOutcome(TrialConfig config, float outcome)
+        public TrialWithOutcome(TrialConfig config, float outcome, float response_time = -1f)
         {
             this.config = config;
             this.outcome = outcome;
         }
-
     }
 
     public class QueryMessage
@@ -258,6 +257,7 @@ namespace AEPsych
 #region
         public IEnumerator StartServer(string configPath, string version = "0.01", bool isPath = true)
         {
+            finished = false;
             reply = null;
             if (tcpConnection == null)
             {
@@ -348,7 +348,6 @@ namespace AEPsych
 
         public int GetStrat() //can only call this after setup
         {
-
             if (status != ClientStatus.GotResponse)
             {
                 Debug.Log("Error! Called getConfig() when there is no reply available! Current status is " + status);
@@ -359,19 +358,13 @@ namespace AEPsych
             return currentStrat;
         }
 
-        public IEnumerator Tell(TrialConfig trialConfig, float outcome, TrialMetadata metadata = null)
+        public IEnumerator Tell(TrialConfig trialConfig, float outcome, TrialMetadata metadata = null, float responseTime = -1f)
         {
-            TrialWithOutcome message = new TrialWithOutcome(trialConfig, outcome);
-
+            TrialWithOutcome message = new TrialWithOutcome(trialConfig, outcome, responseTime);
             Request req;
-            if (metadata != null)
-            {
-                req = new Request(message, RequestType.tell, metadata);
-            }
-            else
-            {
-                req = new Request(message, RequestType.tell);
-            }
+            //req = new Request(message, RequestType.tell, metadata, responseTime);
+            req = new Request(message, RequestType.tell, metadata);
+            
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
         }
         public IEnumerator Ask()

@@ -3,7 +3,7 @@
   "displayName": "AEPsych Package",
   "version": "1.3.2",
   "unity": "2020.3",
-  "description": "This package includes the AEPsych Unity client and example experiments. Check aepsych.org for usage and server installation instructions",
+  "description": "This package includes the AEPsych Unity client and example experiments. Compatible with AEPsych server version 0.2.0 and above. Check aepsych.org for usage and server installation instructions",
   "author": {
     "name": "Stryker Buffington",
     "email": "sbuffington@fb.com",

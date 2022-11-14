@@ -22,7 +22,7 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 
 class GPRegressionTest(unittest.TestCase):
     def f(self, x):
-        return x ** 3 - 4 * x ** 2 + np.random.normal() * 0.1
+        return x**3 - 4 * x**2 + np.random.normal() * 0.1
 
     def simulate_response(self, trial_params):
         x = trial_params["par1"][0]

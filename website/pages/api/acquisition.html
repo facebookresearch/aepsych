@@ -134,7 +134,7 @@ averaged over Xq.</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead.MOCU">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">MOCU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#MOCU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.MOCU" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead.</span></span><span class="sig-name descname"><span class="pre">MOCU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookahead_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'levelset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_set_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead.html#MOCU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead.MOCU" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GlobalLookaheadAcquisitionFunction</span></code></p>
 <p>MOCU acquisition function given in expr. 4 of:</p>
 <blockquote>
@@ -148,6 +148,7 @@ International Conference on Learning Representations (ICLR) 2021.</p>
 <li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
 <li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>PosteriorTransform</em><em>]</em>) – </p></li>
 <li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -210,7 +211,7 @@ Advances in Neural Information Processing Systems 34 (2021).</p>
 <span id="aepsych-acquisition-lookahead-utils-module"></span><h2>aepsych.acquisition.lookahead_utils module<a class="headerlink" href="#module-aepsych.acquisition.lookahead_utils" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead_utils.posterior_at_xstar_xq">
-<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">posterior_at_xstar_xq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#posterior_at_xstar_xq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.posterior_at_xstar_xq" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">posterior_at_xstar_xq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#posterior_at_xstar_xq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.posterior_at_xstar_xq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the posteriors of f at single point Xstar and set of points Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -218,6 +219,7 @@ Advances in Neural Information Processing Systems 34 (2021).</p>
 <li><p><strong>model</strong> (<em>GP</em>) – The model to evaluate.</p></li>
 <li><p><strong>Xstar</strong> (<em>Tensor</em>) – (b x 1 x d) tensor.</p></li>
 <li><p><strong>Xq</strong> (<em>Tensor</em>) – (b x m x d) tensor.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>PosteriorTransform</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -234,7 +236,7 @@ Sigma_sq: (b x m) covariance between Xstar and each point in Xq.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead_utils.lookahead_levelset_at_xstar">
-<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">lookahead_levelset_at_xstar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#lookahead_levelset_at_xstar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.lookahead_levelset_at_xstar" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">lookahead_levelset_at_xstar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#lookahead_levelset_at_xstar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.lookahead_levelset_at_xstar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the look-ahead level-set posterior at Xq given observation at xstar.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -243,6 +245,7 @@ Sigma_sq: (b x m) covariance between Xstar and each point in Xq.</p>
 <li><p><strong>Xstar</strong> (<em>Tensor</em>) – (b x 1 x d) observation point.</p></li>
 <li><p><strong>Xq</strong> (<em>Tensor</em>) – (b x m x d) reference points.</p></li>
 <li><p><strong>gamma</strong> – Threshold in f-space.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>PosteriorTransform</em><em>]</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -259,7 +262,7 @@ py1: (b x 1) Probability of observing 1 at xstar.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead_utils.lookahead_p_at_xstar">
-<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">lookahead_p_at_xstar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#lookahead_p_at_xstar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.lookahead_p_at_xstar" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">lookahead_p_at_xstar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#lookahead_p_at_xstar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.lookahead_p_at_xstar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the look-ahead response probability posterior at Xq given observation at xstar.</p>
 <p>Uses the approximation given in expr. 9 in:
 Zhao, Guang, et al. “Efficient active learning for Gaussian process classification by
@@ -271,6 +274,7 @@ error reduction.” Advances in Neural Information Processing Systems 34 (2021):
 <li><p><strong>Xstar</strong> (<em>Tensor</em>) – (b x 1 x d) observation point.</p></li>
 <li><p><strong>Xq</strong> (<em>Tensor</em>) – (b x m x d) reference points.</p></li>
 <li><p><strong>kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – ignored (here for compatibility with other kinds of lookahead)</p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>PosteriorTransform</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -286,7 +290,7 @@ py1: (b x 1) Probability of observing 1 at xstar.</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.acquisition.lookahead_utils.approximate_lookahead_levelset_at_xstar">
-<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">approximate_lookahead_levelset_at_xstar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#approximate_lookahead_levelset_at_xstar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.approximate_lookahead_levelset_at_xstar" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lookahead_utils.</span></span><span class="sig-name descname"><span class="pre">approximate_lookahead_levelset_at_xstar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xstar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/lookahead_utils.html#approximate_lookahead_levelset_at_xstar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.lookahead_utils.approximate_lookahead_levelset_at_xstar" title="Permalink to this definition">¶</a></dt>
 <dd><p>The look-ahead posterior approximation of Lyu et al.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -295,6 +299,7 @@ py1: (b x 1) Probability of observing 1 at xstar.</p>
 <li><p><strong>Xstar</strong> (<em>Tensor</em>) – (b x 1 x d) observation point.</p></li>
 <li><p><strong>Xq</strong> (<em>Tensor</em>) – (b x m x d) reference points.</p></li>
 <li><p><strong>gamma</strong> (<em>float</em>) – Threshold in f-space.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>PosteriorTransform</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

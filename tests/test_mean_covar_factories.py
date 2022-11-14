@@ -15,12 +15,8 @@ from aepsych.factory import (
     monotonic_mean_covar_factory,
     song_mean_covar_factory,
 )
-from aepsych.kernels.rbf_partial_grad import (
-    RBFKernelPartialObsGrad,
-)
-from aepsych.means.constant_partial_grad import (
-    ConstantMeanPartialObsGrad,
-)
+from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
+from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from scipy.stats import norm
 
 
@@ -238,7 +234,12 @@ class TestFactories(unittest.TestCase):
 
     def test_song_factory_2d_intensity_RBF(self):
         conf = {
-            "song_mean_covar_factory": {"lb": [0, 1], "ub": [1, 70], "target": 0.75, "intensity_RBF": True}
+            "song_mean_covar_factory": {
+                "lb": [0, 1],
+                "ub": [1, 70],
+                "target": 0.75,
+                "intensity_RBF": True,
+            }
         }
         config = Config(config_dict=conf)
         meanfun, covarfun = song_mean_covar_factory(config)
@@ -251,7 +252,9 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(
             isinstance(covarfun.kernels[0].base_kernel, gpytorch.kernels.RBFKernel)
         )
-        self.assertTrue(np.allclose(covarfun.kernels[0].base_kernel.active_dims, [0,1]))
+        self.assertTrue(
+            np.allclose(covarfun.kernels[0].base_kernel.active_dims, [0, 1])
+        )
         self.assertTrue(
             isinstance(covarfun.kernels[1].base_kernel, gpytorch.kernels.LinearKernel)
         )
@@ -270,4 +273,6 @@ class TestFactories(unittest.TestCase):
         config = Config(config_dict=conf)
         meanfun, covarfun = song_mean_covar_factory(config)
         self.assertTrue(covarfun.kernels[1].base_kernel.active_dims == 0)
-        self.assertTrue(np.allclose(covarfun.kernels[0].base_kernel.active_dims, [0,1]))
+        self.assertTrue(
+            np.allclose(covarfun.kernels[0].base_kernel.active_dims, [0, 1])
+        )

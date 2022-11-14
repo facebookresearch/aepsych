@@ -33,6 +33,10 @@ torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type
 
 class ModelProtocol(Protocol):
     @property
+    def _num_outputs(self) -> int:
+        pass
+
+    @property
     def outcome_type(self) -> str:
         pass
 
@@ -265,7 +269,7 @@ class AEPsychMixin(GPyTorchModel):
     def get_jnd(
         self: ModelProtocol,
         grid: Optional[Union[np.ndarray, torch.Tensor]] = None,
-        cred_level: float = None,
+        cred_level: Optional[float] = None,
         intensity_dim: int = -1,
         confsamps: int = 500,
         method: str = "step",
@@ -360,7 +364,7 @@ class AEPsychMixin(GPyTorchModel):
     def dim_grid(
         self: ModelProtocol,
         gridsize: int = 30,
-        slice_dims: Mapping[int, float] = None,
+        slice_dims: Optional[Mapping[int, float]] = None,
     ) -> torch.Tensor:
         return dim_grid(self.lb, self.ub, self.dim, gridsize, slice_dims)
 
@@ -400,13 +404,12 @@ class AEPsychMixin(GPyTorchModel):
 
     def _fit_mll(
         self,
-        train_x: torch.Tensor,
-        train_y: torch.Tensor,
         mll: MarginalLogLikelihood,
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> None:
         self.train()
+        train_x, train_y = mll.model.train_inputs[0], mll.model.train_targets
         optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
         max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
         if max_fit_time is not None:

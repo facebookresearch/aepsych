@@ -24,8 +24,8 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
     def __init__(
         self,
         model: Model,
-        target: Union[float, Tensor],
-        beta: Union[float, Tensor],
+        target: Union[float, Tensor] = 0.75,
+        beta: Union[float, Tensor] = 3.84,
         objective: Optional[MCAcquisitionObjective] = None,
         sampler: Optional[MCSampler] = None,
     ) -> None:

@@ -2,8 +2,8 @@
 
 This package enables communication with an AEPsych server, and showcases several examples of using the Unity client to run experiments with the AEPsych server.
 
-CRITICAL: This package will not work without installing and locally running the corresponding AEPsych server. See aepsych.org
-for server installation instructions.
+CRITICAL: This package will not work without installing and locally running the corresponding AEPsych server. Tested with AEPsych version 0.2.0.
+See aepsych.org for server installation instructions.
 
 Examples are accessed by expanding the `Samples` drop-down menu, and selecting Import on `AEPsych Client`. After import, the examples are in the scene `Assets/Samples/AEPsych Package/[version number]/AEPsych Client/Scenes/Examples.unity`. To run a given example, load the scene, select the `AEPsychExperimentSelector` object from the Hierarchy pane (default leftmost). In the Inspector pane (on the right), you
 should see a panel with several sets of radio buttons. Make your selections using those buttons, and then play the scene to run the corresponding demo.

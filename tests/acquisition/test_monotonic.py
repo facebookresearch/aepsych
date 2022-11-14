@@ -6,11 +6,11 @@
 # LICENSE file in the root directory of this source tree.
 
 import torch
-from botorch.acquisition.objective import IdentityMCObjective
-from botorch.utils.testing import BotorchTestCase
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
+from botorch.acquisition.objective import IdentityMCObjective
+from botorch.utils.testing import BotorchTestCase
 
 
 class TestMonotonicAcq(BotorchTestCase):

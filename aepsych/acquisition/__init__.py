@@ -8,26 +8,19 @@
 import sys
 
 from ..config import Config
-from .lookahead import (
-    GlobalMI,
-    GlobalSUR,
-    ApproxGlobalSUR,
-    EAVC,
-    LocalMI,
-    LocalSUR,
-)
+from .lookahead import ApproxGlobalSUR, EAVC, GlobalMI, GlobalSUR, LocalMI, LocalSUR
 from .lse import MCLevelSetEstimation
 from .mc_posterior_variance import MCPosteriorVariance, MonotonicMCPosteriorVariance
 from .monotonic_rejection import MonotonicMCLSE
 from .mutual_information import (
-    MonotonicBernoulliMCMutualInformation,
     BernoulliMCMutualInformation,
+    MonotonicBernoulliMCMutualInformation,
 )
 from .objective import (
-    ProbitObjective,
-    FloorProbitObjective,
-    FloorLogitObjective,
     FloorGumbelObjective,
+    FloorLogitObjective,
+    FloorProbitObjective,
+    ProbitObjective,
 )
 
 

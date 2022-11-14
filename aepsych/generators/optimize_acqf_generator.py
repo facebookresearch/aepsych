@@ -53,12 +53,14 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.max_gen_time = max_gen_time
         self.stimuli_per_trial = stimuli_per_trial
 
-    def _instantiate_acquisition_fn(self, model: ModelProtocol, train_x):
+    def _instantiate_acquisition_fn(self, model: ModelProtocol):
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 
         if self.acqf in self.baseline_requiring_acqfs:
-            return self.acqf(model=model, X_baseline=train_x, **self.acqf_kwargs)
+            return self.acqf(
+                model=model, X_baseline=model.train_inputs[0], **self.acqf_kwargs
+            )
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
@@ -87,7 +89,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         train_x = model.train_inputs[0]
-        acqf = self._instantiate_acquisition_fn(model, train_x)
+        acqf = self._instantiate_acquisition_fn(model)
 
         logger.info("Starting gen...")
         starttime = time.time()

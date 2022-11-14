@@ -6,9 +6,9 @@
 # LICENSE file in the root directory of this source tree.
 
 import torch
-from botorch.utils.testing import BotorchTestCase
-from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
 from aepsych.acquisition.rejection_sampler import RejectionSampler
+from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
+from botorch.utils.testing import BotorchTestCase
 
 
 class TestRejectionSampling(BotorchTestCase):

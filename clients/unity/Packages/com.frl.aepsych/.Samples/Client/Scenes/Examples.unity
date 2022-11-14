@@ -193,6 +193,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
@@ -200,6 +201,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 1
@@ -441,6 +443,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 1
   client: {fileID: 0}
@@ -448,6 +451,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -507,6 +511,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 1
   client: {fileID: 0}
@@ -514,6 +519,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -744,6 +750,7 @@ MonoBehaviour:
   useModelExploration: 1
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
@@ -751,6 +758,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 1
@@ -848,6 +856,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
@@ -855,6 +864,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 1
@@ -966,6 +976,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -973,6 +984,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -1070,6 +1082,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -1077,6 +1090,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -1136,6 +1150,7 @@ MonoBehaviour:
   useModelExploration: 1
   autoDisableOtherCanvases: 1
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -1143,6 +1158,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -1386,6 +1402,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -1393,6 +1410,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -1483,6 +1501,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 1
   client: {fileID: 0}
@@ -1490,6 +1509,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -1731,6 +1751,7 @@ MonoBehaviour:
   useModelExploration: 1
   autoDisableOtherCanvases: 1
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -1738,6 +1759,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -1829,6 +1851,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -1836,6 +1859,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -1893,6 +1917,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 1
   client: {fileID: 0}
@@ -1900,6 +1925,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -2209,6 +2235,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
@@ -2216,6 +2243,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 1
@@ -2400,6 +2428,7 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -2407,6 +2436,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -2583,6 +2613,7 @@ MonoBehaviour:
   useModelExploration: 1
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
@@ -2590,6 +2621,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 1
@@ -2698,6 +2730,7 @@ MonoBehaviour:
   useModelExploration: 1
   autoDisableOtherCanvases: 1
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
@@ -2705,6 +2738,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 0
@@ -2784,6 +2818,7 @@ MonoBehaviour:
   useModelExploration: 1
   autoDisableOtherCanvases: 0
   recordToCSV: 0
+  recordResponseTime: 1
   asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
@@ -2791,6 +2826,7 @@ MonoBehaviour:
   configGenerator: {fileID: 0}
   isDone: 0
   isPaused: 0
+  autoAsk: 1
   defaultUI: {fileID: 0}
   queryModel: {fileID: 0}
   responseType: 1

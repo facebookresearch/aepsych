@@ -75,6 +75,10 @@ class BenchmarkTestCase(unittest.TestCase):
 
         self.bench_config = {
             "common": {
+                "invalid_config": DerivedValue(
+                    [("init_strat", "min_asks")],
+                    lambda min_asks: True if min_asks > 2 else False,
+                ),
                 "stimuli_per_trial": 1,
                 "outcome_types": ["binary"],
                 "strategy_names": "[init_strat, opt_strat]",
@@ -108,10 +112,12 @@ class BenchmarkTestCase(unittest.TestCase):
                 "inducing_size": 10,
                 "mean_covar_factory": "default_mean_covar_factory",
                 "refit_every": 100,
+                "max_fit_time": 0.1,
             },
             "OptimizeAcqfGenerator": {
                 "restarts": 1,
                 "samps": 20,
+                "max_gen_time": 0.1,
             },
         }
 
@@ -165,8 +171,9 @@ class BenchmarkTestCase(unittest.TestCase):
             ["1", "2"],
         )
 
-        # have as many final results as we expect
-        self.assertTrue(len(out[out.final]) == bench.num_benchmarks)
+        # have as many final results as we expect. Because of invalid trials,
+        # only half of benchmarks are valid
+        self.assertTrue(len(out[out.final]) == bench.num_benchmarks // 2)
 
         # have as many repetitions as we expect
         self.assertTrue(len(out.rep.unique()) == bench.n_reps)
@@ -225,8 +232,8 @@ class BenchmarkTestCase(unittest.TestCase):
             ["1", "2"],
         )
 
-        # have as many final results as we expect
-        self.assertTrue(len(out[out.final]) == bench.num_benchmarks)
+        # have as many final results as we expect (half of configs are invalid)
+        self.assertTrue(len(out[out.final]) == bench.num_benchmarks // 2)
 
         # have as many repetitions as we expect
         self.assertTrue(len(out.rep.unique()) == bench.n_reps)
@@ -259,13 +266,15 @@ class BenchmarkTestCase(unittest.TestCase):
             bench.collate_benchmarks(wait=False)
 
         out = bench.pandas()  # this should only be a partial result
-        # have fewer than all the results
-        self.assertTrue(len(out[out.final]) < bench.num_benchmarks)
+        # have fewer than all the results (which is half of all benchmarks
+        # since half are invalid)
+        self.assertTrue(len(out[out.final]) < (bench.num_benchmarks // 2))
 
         bench.collate_benchmarks(wait=True)  # wait for everything to finish
         out = bench.pandas()  # complete results
 
-        self.assertTrue(len(out[out.final]) == bench.num_benchmarks)
+        # now we should have everything (valid = half of all benchmarks)
+        self.assertTrue(len(out[out.final]) == (bench.num_benchmarks // 2))
 
 
 class BenchProblemTestCase(unittest.TestCase):

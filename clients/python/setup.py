@@ -6,7 +6,7 @@
 
 from os import path
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "Readme.md"), encoding="utf-8") as f:
@@ -14,7 +14,7 @@ with open(path.join(this_directory, "Readme.md"), encoding="utf-8") as f:
 
 setup(
     name="aepsych_client",
-    version="0.1",
+    version="0.1.1",
     packages=find_packages(),
     long_description=long_description,
     long_description_content_type="text/markdown",

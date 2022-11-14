@@ -102,6 +102,16 @@ namespace AEPsych
             return innerDict.ContainsKey(key);
         }
 
+        public TrialConfig Copy()
+        {
+            TrialConfig t = new TrialConfig();
+            foreach (KeyValuePair<string, List<float>> pair in innerDict)
+            {
+                t.Add(pair.Key, pair.Value);
+            }
+            return t;
+        }
+
         public void CopyTo(KeyValuePair<string, List<float>>[] array, int arrayIndex)
         {
             int idx = arrayIndex;
@@ -157,7 +167,13 @@ namespace AEPsych
 
         ICollection<List<float>> IDictionary<string, List<float>>.Values => throw new NotImplementedException();
 
-        int ICollection<KeyValuePair<string, List<float>>>.Count => throw new NotImplementedException();
+        int ICollection<KeyValuePair<string, List<float>>>.Count
+        {
+            get
+            {
+                return innerDict.Count;
+            }
+        }
 
         bool ICollection<KeyValuePair<string, List<float>>>.IsReadOnly => throw new NotImplementedException();
     }

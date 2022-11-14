@@ -31,11 +31,13 @@ class HomeSplash extends React.Component {
       </div>
     );
 
+
     const Logo = (props) => (
       // <div className="projectLogo">
-      <img className="splash-logo" src={props.img_src} alt="Project Logo" />
+      <img className="splash-logo" src={props.img_src} alt="Animated Project Logo" />
       // </div>
     );
+
 
     const ProjectTitle = (props) => (
       <h2 className="projectTitle">
@@ -65,9 +67,12 @@ class HomeSplash extends React.Component {
     return (
       <SplashContainer>
         {/* Main logo */}
-        {/* <Logo img_src={`${baseUrl}img/placeholder.png`} /> */}
+        <Logo img_src={`${baseUrl}img/animated-logo.gif`} />
         <div className="inner">
-          <ProjectTitle tagline={siteConfig.tagline} title={siteConfig.title} />
+          <ProjectTitle
+           tagline={siteConfig.tagline}
+          //  title={siteConfig.title}
+           />
           <PromoSection>
             <Button class="splash-btns" href={docUrl("introduction")}>INTRODUCTION</Button>
             <Button class="splash-btns" href={'#quickstart'}>Get Started</Button>
@@ -210,21 +215,21 @@ class Index extends React.Component {
             {
               content:
                 'PyTorch under the hood',
-              image: `${baseUrl}img/puzzle.svg`,
+              image: `${baseUrl}img/icon-1.png`,
               imageAlign: 'top',
               title: 'Built on top of the modern ML ecosystem',
             },
             {
               content:
                 'Write your stimulus presentation code in whatever language you like via client-server architecture (Python, C#/Unity and MATLAB PsychToolbox supported out of the box)',
-              image: `${baseUrl}img/arrow-up-right.svg`,
+              image: `${baseUrl}img/icon-2.png`,
               imageAlign: 'top',
               title: 'Works where you work',
             },
             {
               content:
                 'Full compatibility with GPyTorch / BoTorch: make your new models or acquisition functions available to experimentalists in a few lines of code',
-              image: `${baseUrl}img/blocks.svg`,
+              image: `${baseUrl}img/icon-3.png`,
               imageAlign: 'top',
               title: 'Modular and extensible',
             },
@@ -248,7 +253,7 @@ class Index extends React.Component {
 
 
 
-    // May not need for V1 of site
+
     const Reference = () => (
       <div
         className="productShowcaseSection"
