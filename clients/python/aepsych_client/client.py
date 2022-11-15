@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 if TYPE_CHECKING:
     from aepsych.server import AEPsychServer
 
+class ServerError(RuntimeError):
+    pass
 
 class AEPsychClient:
     def __init__(
@@ -71,8 +73,11 @@ class AEPsychClient:
         message = bytes(json.dumps(message), encoding="utf-8")
         self.socket.send(message)
         response = self.socket.recv(4096).decode("utf-8")
-        if response == "bad request":
-            raise RuntimeError(f"Bad request '{message}'")
+        # TODO this is hacky but we don't consistencly return json
+        # from the server so we can't check for a status
+        if response[:12] == "server_error":
+            error_message = response[13:]
+            raise ServerError(error_message)
 
         return response
 

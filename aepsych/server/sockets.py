@@ -139,7 +139,6 @@ class PySocket(object):
                         logger.info(f"Got: {msg}")
                         return msg
                 except Exception as e:
-                    logger.error(f"Failed with error {e}")
                     return BAD_REQUEST
 
     def send(self, message):

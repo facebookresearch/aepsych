@@ -47,7 +47,6 @@ mean_covar_factory = default_mean_covar_factory
 n_points = 2
 """
 
-
 class ServerTestCase(unittest.TestCase):
     def setUp(self):
         # setup logger
@@ -538,8 +537,10 @@ class ServerTestCase(unittest.TestCase):
             self.s.serve()
 
     def test_error_handling(self):
+        # double brace escapes, single brace to substitute, so we end up with 3 braces
+        request = f"{{{BAD_REQUEST}}}"
 
-        request = {BAD_REQUEST}
+        expected_error = f"server_error, Request '{request}' raised error ''str' object has no attribute 'keys''!"
 
         self.s.socket.accept_client = MagicMock()
 
@@ -548,7 +549,7 @@ class ServerTestCase(unittest.TestCase):
         self.s.exit_server_loop = True
         with self.assertRaises(SystemExit):
             self.s.serve()
-        self.s.socket.send.assert_called_once_with(BAD_REQUEST)
+        self.s.socket.send.assert_called_once_with(expected_error)
 
     def test_queue(self):
         """Test to see that the queue is being handled correctly"""
