@@ -22,6 +22,7 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
+from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.posteriors import GPyTorchPosterior
@@ -757,24 +758,68 @@ class GPClassificationTest(unittest.TestCase):
         )
         model.set_train_data(X[:10, ...], y[:10])
 
-        # (inducing point selection sorts the inputs so we sort X to verify)
         self.assertTrue(
             np.allclose(
-                model._select_inducing_points(method="auto"),
+                select_inducing_points(
+                    inducing_size=model.inducing_size,
+                    model=model,
+                    X=model.train_inputs[0],
+                    bounds=model.bounds,
+                    method="auto",
+                ),
                 X[:10].sort(0).values,
             )
         )
 
         model.set_train_data(X, y)
 
-        self.assertTrue(len(model._select_inducing_points(method="auto")) <= 20)
+        self.assertTrue(
+            len(
+                select_inducing_points(
+                    inducing_size=model.inducing_size,
+                    model=model,
+                    X=X,
+                    bounds=model.bounds,
+                    method="auto",
+                )
+            )
+            <= 20
+        )
 
-        self.assertTrue(len(model._select_inducing_points(method="pivoted_chol")) <= 20)
+        self.assertTrue(
+            len(
+                select_inducing_points(
+                    inducing_size=model.inducing_size,
+                    model=model,
+                    X=X,
+                    bounds=model.bounds,
+                    method="pivoted_chol",
+                )
+            )
+            <= 20
+        )
 
-        self.assertEqual(len(model._select_inducing_points(method="kmeans++")), 20)
+        self.assertEqual(
+            len(
+                select_inducing_points(
+                    inducing_size=model.inducing_size,
+                    model=model,
+                    X=X,
+                    bounds=model.bounds,
+                    method="kmeans++",
+                )
+            ),
+            20,
+        )
 
         with self.assertRaises(AssertionError):
-            model._select_inducing_points(method="12345")
+            select_inducing_points(
+                inducing_size=model.inducing_size,
+                model=model,
+                X=X,
+                bounds=model.bounds,
+                method="12345",
+            )
 
     def test_hyperparam_consistency(self):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams

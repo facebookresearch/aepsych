@@ -17,28 +17,24 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 import numpy as np
 from aepsych.config import Config
 from aepsych.models.monotonic_projection_gp import MonotonicProjectionGP
-from sklearn.datasets import make_classification
+from aepsych.utils import make_scaled_sobol
+from scipy.stats import bernoulli, norm
 
 
 class MonotonicProjectionGPtest(unittest.TestCase):
     def setUp(self):
-        np.random.seed(1)
-        torch.manual_seed(1)
-        X, y = make_classification(
-            n_samples=25,
-            n_features=3,
-            n_redundant=0,
-            n_informative=3,
-            random_state=1,
-            n_clusters_per_class=1,
-        )
+        np.random.seed(10)
+        torch.manual_seed(10)
+        X = make_scaled_sobol(lb=[-1, -1, -1], ub=[1, 1, 1], size=25)
+        f = (5 * X[..., 0] + 1.5 * X[..., 1]) * X[..., 2]
+        y = bernoulli.rvs(norm.cdf(f))
         self.X, self.y = torch.Tensor(X), torch.Tensor(y)
 
     def test_posterior(self):
         X, y = self.X, self.y
         model = MonotonicProjectionGP(
-            lb=torch.Tensor([-4, -4, -4]),
-            ub=torch.Tensor([4, 4, 4]),
+            lb=torch.Tensor([-1, -1, -1]),
+            ub=torch.Tensor([1, 1, 1]),
             inducing_size=10,
             monotonic_dims=[0, 1],
         )
@@ -59,8 +55,8 @@ class MonotonicProjectionGPtest(unittest.TestCase):
 
         # Check that min_f_val is respected
         model = MonotonicProjectionGP(
-            lb=torch.Tensor([-4]),
-            ub=torch.Tensor([4]),
+            lb=torch.Tensor([-1]),
+            ub=torch.Tensor([1]),
             inducing_size=10,
             monotonic_dims=[0],
             min_f_val=5.0,

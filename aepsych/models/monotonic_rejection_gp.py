@@ -19,6 +19,7 @@ from aepsych.factory.factory import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
+from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, promote_0d
 from botorch.fit import fit_gpytorch_mll
 from gpytorch.kernels import Kernel
@@ -61,6 +62,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         num_induc: int = 25,
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
+        inducing_point_method: str = "auto",
     ) -> None:
         """Initialize MonotonicRejectionGP.
 
@@ -86,7 +88,11 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             likelihood = BernoulliLikelihood()
 
         self.inducing_size = num_induc
-        inducing_points = self._select_inducing_points(method="sobol")
+        self.inducing_point_method = inducing_point_method
+
+        inducing_points = select_inducing_points(
+            inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
+        )
 
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
         variational_distribution = CholeskyVariationalDistribution(
@@ -149,7 +155,13 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         """
         self.set_train_data(train_x, train_y)
 
-        self.inducing_points = self._select_inducing_points()
+        self.inducing_points = select_inducing_points(
+            inducing_size=self.inducing_size,
+            model=self,
+            X=self.train_inputs[0],
+            bounds=self.bounds,
+            method=self.inducing_point_method,
+        )
         self._set_model(train_x, train_y)
 
     def _set_model(
