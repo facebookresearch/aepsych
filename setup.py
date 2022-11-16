@@ -25,6 +25,8 @@ REQUIRES = [
     "tqdm",
     "pathos",
     "aepsych_client",
+    "voila==0.3.6",
+    "ipywidgets==7.6.5",
 ]
 
 DEV_REQUIRES = [
