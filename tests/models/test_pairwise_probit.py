@@ -616,9 +616,12 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         try:
             s = dill.dumps(server)
             server2 = dill.loads(s)
-            next_config = server2.ask()
-            next_y = bernoulli.rvs(f_pairwise(f_1d, next_config["x"]))
-            server2.tell(config=next_config, outcome=next_y)
+            self.assertEqual(len(server2._strats), len(server._strats))
+            for strat1, strat2 in zip(server._strats, server2._strats):
+                self.assertEqual(type(strat1), type(strat2))
+                self.assertEqual(type(strat1.model), type(strat2.model))
+                self.assertTrue(torch.equal(strat1.x, strat2.x))
+                self.assertTrue(torch.equal(strat1.y, strat2.y))
 
         except Exception:
             self.fail()
@@ -677,10 +680,12 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         try:
             s = dill.dumps(server)
             server2 = dill.loads(s)
-            next_config = server2.ask()
-            next_pair = np.c_[next_config["x"], next_config["y"]].T
-            next_y = bernoulli.rvs(f_pairwise(f_2d, next_pair))
-            server2.tell(config=next_config, outcome=next_y)
+            self.assertEqual(len(server2._strats), len(server._strats))
+            for strat1, strat2 in zip(server._strats, server2._strats):
+                self.assertEqual(type(strat1), type(strat2))
+                self.assertEqual(type(strat1.model), type(strat2.model))
+                self.assertTrue(torch.equal(strat1.x, strat2.x))
+                self.assertTrue(torch.equal(strat1.y, strat2.y))
         except Exception:
             self.fail()
 

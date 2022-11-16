@@ -243,6 +243,56 @@ class DBTestCase(unittest.TestCase):
 
         self.assertEqual(test_config, config)
 
+    def test_raw_table(self):
+        model_data = True
+        master_table = self._database.record_setup(
+            description="test raw table",
+            name="test",
+            request={"test": "this a test request"},
+        )
+        # Record a raw data entry
+        self._database.record_raw(master_table, model_data=model_data)
+        experiment_id = master_table.experiment_id
+        raw_data = self._database.get_raw_for(experiment_id)
+        self.assertEqual(len(raw_data), 1)
+        self.assertEqual(raw_data[0].model_data, model_data)
+
+    def test_param_table(self):
+        param_name = "test_param"
+        param_value = 1.123
+        master_table = self._database.record_setup(
+            description="test param table",
+            name="test",
+            request={"test": "this a test request"},
+        )
+        raw_table = self._database.record_raw(master_table, model_data=True)
+        # Record a param data entry
+        self._database.record_param(raw_table, param_name, param_value)
+        experiment_id = master_table.experiment_id
+        iteration_id = raw_table.unique_id
+        param_data = self._database.get_param_for(experiment_id, iteration_id)
+        self.assertEqual(len(param_data), 1)
+        self.assertEqual(param_data[0].param_name, param_name)
+        self.assertEqual(param_data[0].param_value, param_value)
+
+    def test_outcome_table(self):
+        outcome_value = 1.123
+        outcome_name = "test_outcome"
+        master_table = self._database.record_setup(
+            description="test outcome table",
+            name="test",
+            request={"test": "this a test request"},
+        )
+        raw_table = self._database.record_raw(master_table, model_data=True)
+        # Record an outcome data entry
+        self._database.record_outcome(raw_table, outcome_name, outcome_value)
+        experiment_id = master_table.experiment_id
+        iteration_id = raw_table.unique_id
+        outcome_data = self._database.get_outcome_for(experiment_id, iteration_id)
+        self.assertEqual(len(outcome_data), 1)
+        self.assertEqual(outcome_data[0].outcome_name, outcome_name)
+        self.assertEqual(outcome_data[0].outcome_value, outcome_value)
+
     # Test some metadata flow stuff and see if it is working.
     def test_metadata(self):
         # Run tests using the native config_str functionality.
