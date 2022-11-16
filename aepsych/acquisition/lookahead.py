@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Tuple
+from typing import cast, Optional, Tuple
 
 import numpy as np
 import torch
@@ -131,10 +131,10 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
     def __init__(
         self,
         model: GPyTorchModel,
-        lookahead_type="levelset",
+        lookahead_type: str = "levelset",
         target: Optional[float] = None,
         posterior_transform: Optional[PosteriorTransform] = None,
-        query_set_size: Optional[int] = None,
+        query_set_size: Optional[int] = 256,
         Xq: Optional[Tensor] = None,
     ) -> None:
         """
@@ -155,12 +155,14 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
                 "If passing both Xq and query_set_size,"
                 + "first dim of Xq should be query_set_size, got {Xq.shape[0]} != {query_set_size}"
             )
-
-        Xq = (
-            Xq
-            if Xq is not None
-            else make_scaled_sobol(model.lb, model.ub, query_set_size)
-        )
+        if Xq is None:
+            # cast to an int in case we got a float from Config, which
+            # would raise on make_scaled_sobol
+            query_set_size = cast(int, query_set_size)  # make mypy happy
+            assert int(query_set_size) == query_set_size  # make sure casting is safe
+            # if the asserts above pass and Xq is None, query_set_size is not None so this is safe
+            query_set_size = int(query_set_size)  # cast
+            Xq = make_scaled_sobol(model.lb, model.ub, query_set_size)
         self.register_buffer("Xq", Xq)
 
     @t_batch_mode_transform(expected_q=1)
@@ -209,7 +211,7 @@ class ApproxGlobalSUR(GlobalSUR):
         model: GPyTorchModel,
         lookahead_type="levelset",
         target: Optional[float] = None,
-        query_set_size: Optional[int] = None,
+        query_set_size: Optional[int] = 256,
         Xq: Optional[Tensor] = None,
     ) -> None:
         assert (

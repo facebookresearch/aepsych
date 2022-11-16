@@ -40,7 +40,7 @@ class AEPsychServer(object):
         """Server for doing black box optimization using gaussian processes.
         Keyword Arguments:
             socket -- socket object that implements `send` and `receive` for json
-            messages (default: ZMQSocket).
+            messages (default: DummySocket()).
             TODO actually make an abstract interface to subclass from here
         """
         if socket is None:
@@ -91,11 +91,10 @@ class AEPsychServer(object):
             try:
                 result = self.handle_request(request)
             except Exception as e:
-                result = BAD_REQUEST
-                logger.warning(
-                    f"Request '{request}' raised error '{e}'! Full traceback follows:"
-                )
-                logger.warning(traceback.format_exc())
+                error_message = f"Request '{request}' raised error '{e}'!"
+                result = f"server_error, {error_message}"
+                logger.error(f"{error_message}! Full traceback follows:")
+                logger.error(traceback.format_exc())
             self.socket.send(result)
 
     def serve(self):
