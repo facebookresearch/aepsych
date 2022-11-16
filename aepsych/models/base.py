@@ -269,7 +269,7 @@ class AEPsychMixin(GPyTorchModel):
     def get_jnd(
         self: ModelProtocol,
         grid: Optional[Union[np.ndarray, torch.Tensor]] = None,
-        cred_level: float = None,
+        cred_level: Optional[float] = None,
         intensity_dim: int = -1,
         confsamps: int = 500,
         method: str = "step",
@@ -364,7 +364,7 @@ class AEPsychMixin(GPyTorchModel):
     def dim_grid(
         self: ModelProtocol,
         gridsize: int = 30,
-        slice_dims: Mapping[int, float] = None,
+        slice_dims: Optional[Mapping[int, float]] = None,
     ) -> torch.Tensor:
         return dim_grid(self.lb, self.ub, self.dim, gridsize, slice_dims)
 
