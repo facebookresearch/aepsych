@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 import gpytorch
 import torch
@@ -15,7 +15,7 @@ class OrdinalLikelihood(Likelihood):
     and :math:`d_k` is a learned cutpoint parameter for each level.
     """
 
-    def __init__(self, n_levels: int, link: Callable = None):
+    def __init__(self, n_levels: int, link: Optional[Callable] = None):
         super().__init__()
         self.n_levels = n_levels
         self.register_parameter(

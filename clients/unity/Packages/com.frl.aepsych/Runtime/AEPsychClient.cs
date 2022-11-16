@@ -257,6 +257,7 @@ namespace AEPsych
 #region
         public IEnumerator StartServer(string configPath, string version = "0.01", bool isPath = true)
         {
+            finished = false;
             reply = null;
             if (tcpConnection == null)
             {
