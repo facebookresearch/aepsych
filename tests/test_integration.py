@@ -20,7 +20,6 @@ from itertools import product
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
-import torch
 from parameterized import parameterized
 
 params = {
@@ -202,11 +201,6 @@ class IntegrationTestCase(unittest.TestCase):
 
         # Experiment id
         exp_id = self.s.db.get_master_records()[0].experiment_id
-
-        # Get tables data
-        raw_data = self.s.db.get_raw_for(exp_id)
-        param_data = self.s.db.get_all_params_for(master_id=exp_id)
-        outcome_data = self.s.db.get_all_outcomes_for(master_id=exp_id)
 
         # Create table with experiment data
         self.s.generate_experiment_table(exp_id, return_df=True)
