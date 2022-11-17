@@ -446,7 +446,7 @@ class DbRawTable(Base):
 
         if n_raws == 0 and n_tells != 0:
             return True
-
+        return False
 
 
 class DbParamTable(Base):
