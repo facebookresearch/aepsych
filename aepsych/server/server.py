@@ -894,7 +894,7 @@ class AEPsychServer(object):
 
         return self.unversioned_handler(request)
 
-
+#! THIS IS WHAT START THE SERVER
 def startServerAndRun(
     server_class, socket=None, database_path=None, config_path=None, uuid_of_replay=None
 ):
@@ -928,8 +928,9 @@ def startServerAndRun(
         server.generate_debug_info(exception_type, dump_type)
         raise RuntimeError(e)
 
-
+#! THIS HANDLES THE ARGUMENTS IN THE
 def parse_argument():
+    #! REMOVE PARAMETERS NOT NECESSARY TO START SERVER
     parser = argparse.ArgumentParser(description="AEPsych Server!")
     parser.add_argument(
         "--port", metavar="N", type=int, default=5555, help="port to serve on"
@@ -997,11 +998,11 @@ def parse_argument():
     args = parser.parse_args()
     return args
 
-
+#! THE SERVER STARTS HERE
 def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
     try:
-        if args.subparser == "database":
+        if args.subparser == "database": #! MOVE THIS SUBPARSER TO NEW COMMAND
             database_path = args.db
             if args.list is True:
                 database = db.Database(database_path)
