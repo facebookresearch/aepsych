@@ -17,7 +17,8 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
-from botorch.sampling.samplers import MCSampler, SobolQMCNormalSampler
+from botorch.sampling.base import MCSampler
+from botorch.sampling.normal import SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
 from torch import Tensor
 from torch.distributions.bernoulli import Bernoulli
