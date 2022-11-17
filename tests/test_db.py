@@ -188,36 +188,54 @@ class DBTestCase(unittest.TestCase):
 
         param_dict_expected = {x: {} for x in range(1, 8)}
         for i in range(1, 8):
-            param_dict_expected[i]["par1_stimuli0"] = par1[i-1][0]
-            param_dict_expected[i]["par1_stimuli1"] = par1[i-1][1]
-            param_dict_expected[i]["par2_stimuli0"] = par2[i-1][0]
-            param_dict_expected[i]["par2_stimuli1"] = par2[i-1][1]
+            param_dict_expected[i]["par1_stimuli0"] = par1[i - 1][0]
+            param_dict_expected[i]["par1_stimuli1"] = par1[i - 1][1]
+            param_dict_expected[i]["par2_stimuli0"] = par2[i - 1][0]
+            param_dict_expected[i]["par2_stimuli1"] = par2[i - 1][1]
 
         outcome_dict_expected = {x: {} for x in range(1, 8)}
         for i in range(1, 8):
-            outcome_dict_expected[i]["outcome_0"] = outcomes[i-1][0]
-            outcome_dict_expected[i]["outcome_1"] = outcomes[i-1][1]
+            outcome_dict_expected[i]["outcome_0"] = outcomes[i - 1][0]
+            outcome_dict_expected[i]["outcome_1"] = outcomes[i - 1][1]
 
         # Check that the number of entries in each table is correct
-        n_iterations = test_database.get_engine().execute("SELECT COUNT(*) FROM raw_data").fetchone()[0]
+        n_iterations = (
+            test_database.get_engine()
+            .execute("SELECT COUNT(*) FROM raw_data")
+            .fetchone()[0]
+        )
         self.assertEqual(n_iterations, 7)
-        n_params = test_database.get_engine().execute("SELECT COUNT(*) FROM param_data").fetchone()[0]
+        n_params = (
+            test_database.get_engine()
+            .execute("SELECT COUNT(*) FROM param_data")
+            .fetchone()[0]
+        )
         self.assertEqual(n_params, 28)
-        n_outcomes = test_database.get_engine().execute("SELECT COUNT(*) FROM outcome_data").fetchone()[0]
+        n_outcomes = (
+            test_database.get_engine()
+            .execute("SELECT COUNT(*) FROM outcome_data")
+            .fetchone()[0]
+        )
         self.assertEqual(n_outcomes, 14)
 
         # Check that the data is correct
-        param_data = test_database.get_engine().execute("SELECT * FROM param_data").fetchall()
+        param_data = (
+            test_database.get_engine().execute("SELECT * FROM param_data").fetchall()
+        )
         param_dict = {x: {} for x in range(1, 8)}
         for param in param_data:
             param_dict[param.iteration_id][param.param_name] = param.param_value
 
         self.assertEqual(param_dict, param_dict_expected)
 
-        outcome_data = test_database.get_engine().execute("SELECT * FROM outcome_data").fetchall()
+        outcome_data = (
+            test_database.get_engine().execute("SELECT * FROM outcome_data").fetchall()
+        )
         outcome_dict = {x: {} for x in range(1, 8)}
         for outcome in outcome_data:
-            outcome_dict[outcome.iteration_id][outcome.outcome_name] = outcome.outcome_value
+            outcome_dict[outcome.iteration_id][
+                outcome.outcome_name
+            ] = outcome.outcome_value
 
         self.assertEqual(outcome_dict, outcome_dict_expected)
 
