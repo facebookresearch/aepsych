@@ -45,7 +45,7 @@ def posterior_at_xstar_xq(
     mu = posterior.mean[..., :, 0]
     Mu_s = mu[..., 0].unsqueeze(-1)
     Mu_q = mu[..., 1:]
-    Cov = posterior.mvn.covariance_matrix
+    Cov = posterior.distribution.covariance_matrix
     Sigma2_s = Cov[..., 0, 0].unsqueeze(-1)
     Sigma2_q = torch.diagonal(Cov[..., 1:, 1:], dim1=-1, dim2=-2)
     Sigma_sq = Cov[..., 0, 1:]

@@ -158,7 +158,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         # Adjust the whole covariance matrix to accomadate the projected marginals
         with torch.no_grad():
             post = super().posterior(X=X)
-            R = cov2corr(post.mvn.covariance_matrix.squeeze().numpy())
+            R = cov2corr(post.distribution.covariance_matrix.squeeze().numpy())
             S_proj = torch.tensor(corr2cov(R, sigma_proj.numpy()), dtype=X.dtype)
         mvn_proj = gpytorch.distributions.MultivariateNormal(
             mu_proj.unsqueeze(0),

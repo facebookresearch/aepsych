@@ -64,7 +64,7 @@ class LookaheadPosteriorTestCase(unittest.TestCase):
         model = MockModel(
             MockPosterior(mean=f[:, None], variance=torch.diag(covar)[None, :, None])
         )
-        model._posterior.mvn = mvn
+        model._posterior.distribution = mvn
         self.model, self.f, self.covar = model, f, covar
 
     def test_posterior_extraction(self):

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import torch
 from botorch.posteriors import Posterior
-from botorch.sampling.samplers import MCSampler
+from botorch.sampling.base import MCSampler
 from torch import Tensor
 
 
@@ -38,14 +38,7 @@ class RejectionSampler(MCSampler):
         self.num_samples = num_samples
         self.num_rejection_samples = num_rejection_samples
         self.constrained_idx = constrained_idx
-        self._sample_shape = torch.Size([num_samples])
-        super().__init__()
-
-    def _get_base_sample_shape(self, posterior: Posterior) -> torch.Size:
-        return torch.Size([])
-
-    def _construct_base_samples(self, posterior: Posterior, shape: torch.Size) -> None:
-        self.base_samples = None
+        super().__init__(sample_shape=torch.Size([num_samples]))
 
     def forward(self, posterior: Posterior) -> Tensor:
         """Run the rejection sampler.
