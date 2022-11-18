@@ -51,6 +51,12 @@ class AEPsychClient:
             if connect:
                 self.connect(ip, port)
 
+    def load_config_index(self) -> None:
+        """Loads the config index when server is not None"""
+        self.configs = []
+        for i in range(self.server.n_strats):
+                    self.configs.append(i)
+
     def connect(self, ip: str, port: int) -> None:
         """Connect to the server.
 
