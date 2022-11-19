@@ -75,7 +75,7 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
             sampler (MCSampler, optional): The sampler used for drawing MC samples.
         """
         if sampler is None:
-            sampler = SobolQMCNormalSampler(num_samples=1024, collapse_batch_dims=True)
+            sampler = SobolQMCNormalSampler(sample_shape=torch.Size([1024]))
         super().__init__(
             model=model, sampler=sampler, objective=objective, X_pending=None
         )
