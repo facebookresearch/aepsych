@@ -98,7 +98,7 @@ from sqlalchemy import create_engine
 
 engine = create_engine(f"sqlite:///{'database.db'}")
 
-outcomes = engine.execute("some query").fetchall()
+engine.execute("some query").fetchall()
 ```
 
 ### Data from a given experiment.
@@ -182,6 +182,83 @@ df = pd.merge(outcomes_df, parameters_df, left_index=True, right_index=True)
 
 Finally, if you are using AEPsych, you can use the built-in method `generate_experiment_table` in the AEPsych server.
 
-### Data from several experiments with the same parameters and outcomes.
+### Data from several experiments with the same set of parameters.
 
-In progress...
+Now, let's think that we want to obtain all the data from experiments with the same set of parameters, for example, `thetaA` and `thetaB`. We can get it with:
+
+```Python
+from sqlalchemy import create_engine
+import pandas as pd
+
+engine = create_engine(f"sqlite:///{'test_query.db'}")
+
+parameters = engine.execute('''
+SELECT iteration_id, param_name, param_value FROM param_data
+WHERE iteration_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+)''').fetchall()
+```
+
+Similarly, we can get the outcomes' information with:
+
+```Python
+outcomes = engine.execute('''
+SELECT iteration_id, outcome_name, outcome_value FROM outcome_data
+WHERE iteration_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+)''').fetchall()
+```
+
+Finally, if we want to get a wide-format table that includes the experiments' IDs and the previous parameters and outcomes information, we can do it with something like:
+
+```Python
+# Get the relation between the iteration_id and the master_table_id
+raws = engine.execute('''
+SELECT unique_id, master_table_id FROM raw_data
+WHERE unique_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+)''').fetchall()
+
+# Get the relation between the master_table_id and the experiment_id
+exp_ids = engine.execute('''
+SELECT unique_id, experiment_id FROM master WHERE unique_id IN (
+SELECT DISTINCT master_table_id FROM raw_data
+WHERE unique_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+    )
+)''').fetchall()
+
+# Create dataframes
+parameters_df = pd.DataFrame(parameters, columns=['iteration_id', 'param_name', 'param_value'])
+outcomes_df = pd.DataFrame(outcomes, columns=['iteration_id', 'outcome_name', 'outcome_value'])
+raws_df = pd.DataFrame(raws, columns=['unique_id', 'master_table_id'])
+raws_df.rename(columns={'unique_id': 'iteration_id'}, inplace=True)
+raws_df.set_index('iteration_id', inplace=True)
+
+# Pivot the parameters and outcomes
+parameters_df = parameters_df.pivot(index='iteration_id', columns='param_name', values='param_value')
+outcomes_df = outcomes_df.pivot(index='iteration_id', columns='outcome_name', values='outcome_value')
+
+# Merge the dataframes
+df = pd.merge(parameters_df, outcomes_df, left_index=True, right_index=True)
+df = pd.merge(df, raws_df, left_index=True, right_index=True)
+
+# Create experiment_id column
+exp_dict = {exp_id: exp for exp_id, exp in exp_ids}
+df['experiment_id'] = df['master_table_id'].map(exp_dict)
+df.drop(columns=['master_table_id'], inplace=True)
+```
+
+We can do something similar to get data from experiments with the same set of outcomes.
