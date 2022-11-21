@@ -406,6 +406,7 @@ class DbRawTable(Base):
                 db_raw_record = server.record_raw(
                     master_table=master_table,
                     model_data=bool(model_data),
+                    timestamp=timestamp,
                 )
 
                 for param_name, param_value in params.items():

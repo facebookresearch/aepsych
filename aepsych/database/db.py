@@ -279,11 +279,14 @@ class Database:
         self._session.add(record)
         self._session.commit()
 
-    def record_raw(self, master_table, model_data):
+    def record_raw(self, master_table, model_data, timestamp = None):
         raw_entry = tables.DbRawTable()
         raw_entry.model_data = model_data
 
-        raw_entry.timestamp = datetime.datetime.now()
+        if timestamp is None:
+            raw_entry.timestamp = datetime.datetime.now()
+        else:
+            raw_entry.timestamp = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f")
         raw_entry.parent = master_table
 
         self._session.add(raw_entry)
