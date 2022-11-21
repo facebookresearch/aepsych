@@ -88,3 +88,100 @@ Each Table is described as follows:
 | outcome_name | The name of the outcome. The name is generated automatically by AEPsych; it's not given by the user. |
 
 The database schema is constantly evolving, so you may occasionally need to update old databases by running `python3 aepsych/server/server.py database --update --d database_path` from a command line. For more information about loading data and replaying previous experiments, see the [example database and notebook](https://github.com/facebookresearch/aepsych/tree/main/tutorials/example_db).
+
+## Getting data out from the database.
+
+With SQL queries, you can access the data in any AEPsych database without needing to use AEPsych. You can execute queries with SQLAlchemy in Python:
+
+```Python
+from sqlalchemy import create_engine
+
+engine = create_engine(f"sqlite:///{'database.db'}")
+
+outcomes = engine.execute("some query").fetchall()
+```
+
+### Data from a given experiment.
+Let's consider that you have the database "example.db", and you want to get all the data from a specific experiment. There is a unique `experiment_id` associated with each experiment stored in the database. You can see the experiments' names and information with the following query:
+
+```SQL
+SELECT * FROM master
+```
+
+If we want to obtain all the parameters' information from an experiment with ID `6dcb1a77-5590-4e30-a740-21fe7bc43357`, we can get it with:
+
+```SQL
+SELECT iteration_id, param_name, param_value FROM param_data
+WHERE iteration_id IN (SELECT unique_id FROM raw_data WHERE master_table_id = (
+    SELECT unique_id FROM master WHERE experiment_id = '6dcb1a77-5590-4e30-a740-21fe7bc43357'
+)) ORDER BY iteration_id
+```
+
+And the outcomes' information with:
+
+```SQL
+SELECT iteration_id, outcome_name, outcome_value FROM outcome_data
+WHERE iteration_id IN
+(SELECT unique_id FROM raw_data WHERE master_table_id =
+    (SELECT unique_id FROM master WHERE experiment_id = '6dcb1a77-5590-4e30-a740-21fe7bc43357')
+) ORDER BY iteration_id
+```
+
+These queries give us long-format tables (several rows per experiment iteration). You must know the parameters and outcomes names to get a wide-format table (a single row per iteration). For example, if you have parameters `theta1`, `theta2` and a single outcome `outcome`, then:
+
+```SQL
+SELECT iteration_id,
+    MAX(CASE WHEN param_name = 'theta1' THEN param_value ELSE NULL END) AS theta1,
+    MAX(CASE WHEN param_name = 'theta2' THEN param_value ELSE NULL END) AS theta2,
+    MAX(CASE WHEN outcome_name = 'outcome' THEN outcome_value ELSE NULL END) AS outcome
+FROM
+(
+    SELECT od.iteration_id AS iteration_id,
+    param_name, param_value, outcome_name, outcome_value
+    FROM param_data AS pd
+    INNER JOIN outcome_data AS od
+    ON pd.iteration_id = od.iteration_id
+    WHERE pd.iteration_id IN
+    (SELECT unique_id FROM raw_data WHERE master_table_id = (
+       SELECT unique_id FROM master
+       WHERE experiment_id = '6dcb1a77-5590-4e30-a740-21fe7bc43357')
+    )
+) GROUP BY iteration_id ORDER BY iteration_id
+```
+
+You can also create a wide-format table for any set of parameters and outcomes (not previously specified) with Pandas:
+
+```Python
+from sqlalchemy import create_engine
+import pandas as pd
+
+engine = create_engine(f"sqlite:///{'example.db'}")
+
+outcomes = engine.execute('''
+    SELECT iteration_id, outcome_name, outcome_value FROM outcome_data
+    WHERE iteration_id IN (SELECT unique_id FROM raw_data WHERE master_table_id = (
+       SELECT unique_id FROM master WHERE experiment_id = '6dcb1a77-5590-4e30-a740-21fe7bc43357'
+    )) ORDER BY iteration_id
+''').fetchall()
+
+parameters = engine.execute('''
+    SELECT iteration_id, param_name, param_value FROM param_data
+    WHERE iteration_id IN (SELECT unique_id FROM raw_data WHERE master_table_id = (
+       SELECT unique_id FROM master WHERE experiment_id = '6dcb1a77-5590-4e30-a740-21fe7bc43357'
+    )) ORDER BY iteration_id
+''').fetchall()
+
+outcomes_df = pd.DataFrame(outcomes, columns=['iteration_id', 'outcome_name', 'outcome_value'])
+parameters_df = pd.DataFrame(parameters, columns=['iteration_id', 'param_name', 'param_value'])
+
+outcomes_df = outcomes_df.pivot(index='iteration_id', columns='outcome_name', values='outcome_value')
+parameters_df = parameters_df.pivot(index='iteration_id', columns='param_name', values='param_value')
+
+df = pd.merge(outcomes_df, parameters_df, left_index=True, right_index=True)
+```
+
+Finally, if you are using AEPsych, you can use the built-in method `generate_experiment_table` in the AEPsych server.
+
+### Data from several experiments with the same parameters and outcomes.
+
+In progress...
