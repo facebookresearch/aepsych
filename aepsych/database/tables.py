@@ -468,7 +468,7 @@ class DbParamTable(Base):
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
     param_name = Column(String(50))
-    param_value = Column(Float)
+    param_value = Column(String(50))
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
     parent = relationship("DbRawTable", back_populates="children_param")

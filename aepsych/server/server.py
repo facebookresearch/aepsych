@@ -778,19 +778,19 @@ class AEPsychServer(object):
             )
 
             for param_name, param_value in config.items():
-                if type(param_value) not in [float, int, bool]:
+                if type(param_value) not in [float, int, bool, str]:
                     if len(param_value) == 1:
                         self.db.record_param(
                             raw_table=self._db_raw_record,
                             param_name=str(param_name),
-                            param_value=float(param_value[0]),
+                            param_value=str(param_value[0]),
                         )
                     else:
                         for i, v in enumerate(param_value):
                             self.db.record_param(
                                 raw_table=self._db_raw_record,
                                 param_name=str(param_name) + "_stimuli" + str(i),
-                                param_value=float(v),
+                                param_value=str(v),
                             )
                 else:
                     self.db.record_param(

@@ -224,7 +224,7 @@ class DBTestCase(unittest.TestCase):
         )
         param_dict = {x: {} for x in range(1, 8)}
         for param in param_data:
-            param_dict[param.iteration_id][param.param_name] = param.param_value
+            param_dict[param.iteration_id][param.param_name] = float(param.param_value)
 
         self.assertEqual(param_dict, param_dict_expected)
 
@@ -357,7 +357,7 @@ class DBTestCase(unittest.TestCase):
         param_data = self._database.get_param_for(experiment_id, iteration_id)
         self.assertEqual(len(param_data), 1)
         self.assertEqual(param_data[0].param_name, param_name)
-        self.assertEqual(param_data[0].param_value, param_value)
+        self.assertEqual(float(param_data[0].param_value), param_value)
 
     def test_outcome_table(self):
         outcome_value = 1.123
