@@ -3,7 +3,7 @@ id: db_overview
 title: Database Overview
 ---
 
-The database is an important component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using [SQL Alchemy](https://www.sqlalchemy.org/). The entire structure of the AEPsych Database implementation can be seen below in the following diagram:
+The database is an essential component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using [SQL Alchemy](https://www.sqlalchemy.org/). The entire structure of the AEPsych Database implementation can be seen below in the following diagram:
 
 ![DB Diagram](assets/db_diagram.png)
 
@@ -11,13 +11,13 @@ In this diagram, the primary Table is in yellow, with all child tables in blue. 
 
 The raw_data Table is a fact table with two dimension child tables (in green). Again, the green-highlighted text represents the unique ID entry for that specific Table. The yellow-highlighted text corresponds to a foreign key in the fact (blue) table.
 
-The database contains seven tables: one primary Table with four secondary child tables. One of those is a fact table, with another two children. The tables relationships can be seen in the following diagram:
+The database contains seven tables: one primary Table with four secondary child tables. One of those is a fact table, with another two children. The tables' relationships can be seen in the following diagram:
 
 ![DB Diagram](assets/db_connections.png)
 
 Each Table is described as follows:
 
-- **master Table**: This table is the primary table of AEPsych. This table stores information about each experiment and is used to link data stored in the other tables. The columns are described as followed:
+- **master Table**: This table is the primary table of AEPsych. This table stores information about each experiment and is used to link data stored in the other tables. The columns are described as follows:
 
 
 |Master Table Column | Purpose|
@@ -25,12 +25,12 @@ Each Table is described as follows:
 |unique_id | A unique ID generated for each entry in this table.|
 |experiment_name | A name given to the experiment through the experiment's configuration file. If not specified, defaults to "default name".|
 |experiment_description | A text description of the experiment. This value is configurable in the experiment's configuration file. If not specified, defaults to "default description".|
-|experiment_id | A unique ID for an experiment. If not specified in the experiment's configuration file, it will be automatically generated through the Python's [Unique Universal Identifier](https://docs.python.org/3/library/uuid.html) module.|
+|experiment_id | A unique ID for an experiment. If not specified in the experiment's configuration file, it will be automatically generated through Python's [Unique Universal Identifier](https://docs.python.org/3/library/uuid.html) module.|
 |participant_id | A unique ID for a specific participant in an experiment. If not specified in the experiment's configuration file, it will be left empty.|
 |extra_metadata | Any special metadata specified in the configuration file under the section "Metadata". This metadata is stored as JSON so that it may be easily serialized/deserialized at a later time period. If no metadata is specified in the configuration file, this field will be empty. |
 
 
-- **replay_data Table**: The replay table contains the messages sent between the client and the server on each trial so that previous experiments can be replayed again. The columns are described as followed:
+- **replay_data Table**: The replay table contains the messages sent between the client and the server on each trial so that previous experiments can be replayed again. The columns are described as follows:
 
 |Replay Data Column | Purpose |
 |:-: | :- |
@@ -41,7 +41,7 @@ Each Table is described as follows:
 |extra_info | Extra information pertaining to the replay data. This is stored as a Python pickle object for serialization/deserialization (This may change in the future as Python pickle objects may not load across versions of Python or AEPsych). |
 |master_table_id | A reference key to the original entry in the master table's unique ID. |
 
-- **strat_data table**: The strat_data table stores the saved AEPsych Strategies, which contain the experiments' data and models. The columns are described as followed:
+- **strat_data table**: The strat_data table stores the saved AEPsych Strategies, which contain the experiments' data and models. The columns are described as follows:
 
 |Strat Table Column | Purpose |
 | :-: | :- |
@@ -50,13 +50,13 @@ Each Table is described as follows:
 |strat| An AEPsych Strategy object, stored as a Python pickle for easy serialization/deserialization (This may change in the future as Python pickle objects may not load across versions of Python or AEPsych).  |
 |master_table_id| A reference key to the original entry in the master table's unique ID.|
 
-- **config Table**: This table stores saved AEPsych Configs, which store configuration data for each experiment, such as the number of trials, the type of data collected, the models used, etc. The columns are described as followed:
+- **config Table**: This table stores saved AEPsych Configs, which store configuration data for each experiment, such as the number of trials, the type of data collected, the models used, etc. The columns are described as follows:
 
 |Config Table Column | Purpose |
 |:-: | :- |
 |unique_id | A unique ID generated for each entry in this table. |
 |timestamp | A timestamp indicating when the server received a setup message and created a Config object. This column can be used to view the Configs chronologically. |
-|config| An AEPsych Config object, stored as a Python pickle for easy serialization/deserialization.  (This may change in the future as Python pickle objects may not load across versions of Python or AEPsych). |
+|config| An AEPsych Config object, stored as a Python pickle for easy serialization/deserialization. (This may change in the future as Python pickle objects may not load across versions of Python or AEPsych). |
 |master_table_id| This is a reference key to the original entry in the master table's unique ID.
 
 - **Raw Table**: Fact table to store raw data for each iteration of a given experiment. It has two associated dimension tables, one for the parameters and one for the outcomes. The columns are described as followed:
@@ -69,7 +69,7 @@ Each Table is described as follows:
 | parameter_id | This is a reference key to the original entry in the parameter table's unique ID. |
 | model_data | Wheter or not the data from that iteration was modeled during the experiment.|
 
-- **Param table**: Dimension table to store the parameters for each iteration of a given experiment. This table stores the parameters names and values. The columns are described as followed:
+- **Param table**: Dimension table to store the parameters for each iteration of a given experiment. This table stores the parameters' names and values. The columns are described as follows:
 
 |Param Table Column | Purpose |
 |:-: | :- |
@@ -78,13 +78,13 @@ Each Table is described as follows:
 | parameter_name | The name of the parameter. |
 | parameter_value | The value of the parameter. |
 
-- **Outcome table**: Dimension table to store the outcomes for each iteration of a given experiment. This table only stores the outcome values. The columns are described as followed:
+- **Outcome table**: Dimension table to store the outcomes for each iteration of a given experiment. This table only stores the outcome values. The columns are described as follows:
 
 |Outcome Table Column | Purpose |
 |:-: | :- |
 | unique_id | A unique ID generated for each entry in this table. |
 | iteration_id | This is a reference key to the original entry in the raw table's unique ID. |
 | outcome_value | The value of the outcome. |
-| outcome_name | The name of the outcome. The name is generated automatically by AEPsych, it's not given by the user. |
+| outcome_name | The name of the outcome. The name is generated automatically by AEPsych; it's not given by the user. |
 
 The database schema is constantly evolving, so you may occasionally need to update old databases by running `python3 aepsych/server/server.py database --update --d database_path` from a command line. For more information about loading data and replaying previous experiments, see the [example database and notebook](https://github.com/facebookresearch/aepsych/tree/main/tutorials/example_db).
