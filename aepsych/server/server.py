@@ -57,7 +57,7 @@ class AEPsychServer(object):
 
         if self.db.is_update_required():
             raise RuntimeError(
-                f'The database needs to be updated. You can perform the update by running "python3 aepsych/server/server.py database --update --d {database_path}"'
+                f'The database needs to be updated. You can perform the update by running "python3 aepsych/server/utils.py database --update --db {database_path}"'
             )
 
         self._strats = []
@@ -928,9 +928,7 @@ def startServerAndRun(
         server.generate_debug_info(exception_type, dump_type)
         raise RuntimeError(e)
 
-#! THIS HANDLES THE ARGUMENTS IN THE
 def parse_argument():
-    #! REMOVE PARAMETERS NOT NECESSARY TO START SERVER
     parser = argparse.ArgumentParser(description="AEPsych Server!")
     parser.add_argument(
         "--port", metavar="N", type=int, default=5555, help="port to serve on"
@@ -968,12 +966,6 @@ def parse_argument():
     database_parser = sub_parsers.add_parser("database")
 
     database_parser.add_argument(
-        "-l",
-        "--list",
-        help="Lists available experiments in the database.",
-        action="store_true",
-    )
-    database_parser.add_argument(
         "-d",
         "--db",
         type=str,
@@ -988,26 +980,15 @@ def parse_argument():
         "-m", "--resume", action="store_true", help="Resume server after replay."
     )
 
-    database_parser.add_argument(
-        "-u",
-        "--update",
-        action="store_true",
-        help="Update the database tables with the most recent columns.",
-    )
-
     args = parser.parse_args()
     return args
 
-#! THE SERVER STARTS HERE
 def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
     try:
-        if args.subparser == "database": #! MOVE THIS SUBPARSER TO NEW COMMAND
+        if args.subparser == "database":
             database_path = args.db
-            if args.list is True:
-                database = db.Database(database_path)
-                database.list_master_records()
-            elif "replay" in args and args.replay is not None:
+            if "replay" in args and args.replay is not None:
                 logger.info(f"Attempting to replay {args.replay}")
                 if args.resume is True:
                     sock = createSocket(socket_type=args.socket_type, port=args.port)
@@ -1021,14 +1002,6 @@ def start_server(server_class, args):
                     uuid_of_replay=args.replay,
                     config_path=args.stratconfig,
                 )
-            elif "update" in args and args.update:
-                logger.info(f"Updating the database {database_path}")
-                database = db.Database(database_path)
-                if database.is_update_required():
-                    database.perform_updates()
-                    logger.info(f"- updated database {database_path}")
-                else:
-                    logger.info(f"- update not needed for database {database_path}")
             else:
                 logger.info(f"Setting the database path {database_path}")
                 sock = createSocket(socket_type=args.socket_type, port=args.port)

@@ -6,40 +6,74 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import logging
 
-class AEPsychUtils(object):
-    pass
+import aepsych.utils_logging as utils_logging
+import aepsych.database.db as db
+
+logger = utils_logging.getLogger(logging.INFO)
+
+def get_next_filename(folder, fname, ext):
+    n = sum(1 for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)))
+    return f"{folder}/{fname}_{n+1}.{ext}"
 
 def parse_argument():
     parser = argparse.ArgumentParser(description="AEPsych Utils!")
 
-    parser.add_argument(
+    sub_parsers = parser.add_subparsers(dest="subparser")
+
+    database_parser = sub_parsers.add_parser("database")
+
+    database_parser.add_argument(
         "-l",
         "--list",
         help="Lists available experiments in the database.",
         action="store_true",
     )
-    parser.add_argument(
+    database_parser.add_argument(
         "-d",
         "--db",
         type=str,
         help="The database to use if not the default (./databases/default.db).",
         default=None,
     )
-    parser.add_argument(
-        "-r", "--replay", type=str, help="UUID of the experiment to replay."
-    )
 
-    parser.add_argument(
-        "-m", "--resume", action="store_true", help="Resume server after replay."
-    )
-
-    parser.add_argument(
+    database_parser.add_argument(
         "-u",
         "--update",
         action="store_true",
-        help="Update the database tables with the most recent columns.",
+        help="Update the database tables with the most recent columns and tables.",
     )
 
+    args = parser.parse_args()
+    return args
+
+def run_utils(args):
+    logger.info("Starting AEPscyh Utils!")
+    try:
+        if args.subparser == "database":
+            database_path = args.db
+            database = db.Database(database_path)
+            if args.list is True:
+                database.list_master_records()
+            elif "update" in args and args.update:
+                logger.info(f"Updating the database {database_path}")
+                if database.is_update_required():
+                    database.perform_updates()
+                    logger.info(f"- updated database {database_path}")
+                else:
+                    logger.info(f"- update not needed for database {database_path}")
+
+    except (KeyboardInterrupt, SystemExit):
+        logger.exception("Got Ctrl+C, exiting!")
+        sys.exit()
+    except RuntimeError as e:
+        logger.exception(f"CRASHING!! dump in {fname}")
+        raise RuntimeError(e)
+
+def main():
+    args = parse_argument()
+    run_utils(args)
+
 if __name__ == "__main__":
-    print('Hi!')
+    main()
