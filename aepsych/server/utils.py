@@ -7,6 +7,8 @@
 
 import argparse
 import logging
+import os
+import sys
 
 import aepsych.utils_logging as utils_logging
 import aepsych.database.db as db
@@ -68,6 +70,7 @@ def run_utils(args):
         logger.exception("Got Ctrl+C, exiting!")
         sys.exit()
     except RuntimeError as e:
+        fname = get_next_filename(".", "dump", "pkl")
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
 
