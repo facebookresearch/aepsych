@@ -68,7 +68,6 @@ class AEPsychServer(object):
         self.has_named_outcomes = False
         self.outcome_names = []
         
-
         self.debug = False
         self.is_using_thrift = thrift
         self.receive_thread = threading.Thread(
@@ -840,7 +839,7 @@ class AEPsychServer(object):
         self.parnames = config._str_to_list(
             config.get("common", "parnames"), element_type=str
         )
-        
+
 
         if 'outcome_names' in config.items("common"):
             self.has_named_outcomes = True
