@@ -15,7 +15,7 @@ from botorch.acquisition.monte_carlo import (
     MCSampler,
 )
 from botorch.models.model import Model
-from botorch.sampling.normal import SobolQMCNormalSampler
+from botorch.sampling import SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
 from torch import Tensor
 

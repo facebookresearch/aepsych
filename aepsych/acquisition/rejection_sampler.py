@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import torch
 from botorch.posteriors import Posterior
-from botorch.sampling.base import MCSampler
+from botorch.sampling import MCSampler
 from torch import Tensor
 
 

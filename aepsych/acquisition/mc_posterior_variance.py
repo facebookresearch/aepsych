@@ -13,8 +13,8 @@ from aepsych.acquisition.objective import ProbitObjective
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
-from botorch.sampling.base import MCSampler
-from botorch.sampling.normal import SobolQMCNormalSampler
+from botorch.sampling import MCSampler
+from botorch.sampling import SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
 from torch import Tensor
 
