@@ -15,7 +15,7 @@ The database contains seven tables: one primary table with four secondary child 
 
 ![DB Diagram](assets/db_connections.png)
 
-Each Table is described as follows:
+Each table is described as follows:
 
 - **master Table**: This table is the primary table of AEPsych. This table stores information about each experiment and is used to link data stored in the other tables. The columns are described as follows:
 
