@@ -65,6 +65,10 @@ class AEPsychServer(object):
         self._configs = []
         self.strat_id = -1
 
+        self.has_named_outcomes = False
+        self.outcome_names = []
+        
+
         self.debug = False
         self.is_using_thrift = thrift
         self.receive_thread = threading.Thread(
@@ -822,13 +826,30 @@ class AEPsychServer(object):
 
         if model_data:
             x = self._config_to_tensor(config)
-            y = outcome
+            if self.has_named_outcomes:
+                y = {}
+                for out_name in self.outcome_names:
+                    ## According the above format, the outcomes are named as 'outcome_'+index
+                    index = int(out_name[-1])
+                    y[out_name] = outcome[index]
+            else:
+                y = outcome
             self.strat.add_data(x, y)
 
     def _configure(self, config):
         self.parnames = config._str_to_list(
             config.get("common", "parnames"), element_type=str
         )
+        
+
+        if 'outcome_names' in config.items("common"):
+            self.has_named_outcomes = True
+            self.outcome_names = config._str_to_list(
+            config.get("common", "outcome_names"), element_type=str
+            
+        )
+        else:
+            self.has_named_outcomes = False
         self.config = config
         self.strat = SequentialStrategy.from_config(config)
         self.strat_id = self.n_strats - 1  # 0-index strats
