@@ -379,7 +379,7 @@ class DbRawTable(Base):
 
             # Get raw tab
             for message in master_table.children_replay:
-                if message.message_type != 'tell':
+                if message.message_type != "tell":
                     continue
 
                 timestamp = message.timestamp

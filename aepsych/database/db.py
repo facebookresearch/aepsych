@@ -279,7 +279,7 @@ class Database:
         self._session.add(record)
         self._session.commit()
 
-    def record_raw(self, master_table, model_data, timestamp = None):
+    def record_raw(self, master_table, model_data, timestamp=None):
         raw_entry = tables.DbRawTable()
         raw_entry.model_data = model_data
 
