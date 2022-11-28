@@ -371,30 +371,22 @@ class DbRawTable(Base):
         )
 
     @staticmethod
-    def update(server, engine):
+    def update(db, engine):
         logger.info("DbRawTable : update called")
 
         # Get every master table
-        for master_table in server.get_master_records():
-
-            master_id = master_table.unique_id
-
-            tell_messages = (
-                server.get_engine()
-                .execute(
-                    f"SELECT * FROM replay_data \
-                WHERE message_type = 'tell' AND master_table_id = {master_id}"
-                )
-                .fetchall()
-            )
+        for master_table in db.get_master_records():
 
             # Get raw tab
-            for i, example in enumerate(tell_messages):
-                timestamp = example["timestamp"]
-                master_table_id = example["master_table_id"]
+            for message in master_table.children_replay:
+                if message.message_type != 'tell':
+                    continue
+
+                timestamp = message.timestamp
+                master_table_id = message.master_table_id
 
                 # Deserialize pickle message
-                message_contents = dill.loads(example["message_contents"])
+                message_contents = message.message_contents
 
                 # Get outcome
                 outcomes = message_contents["message"]["outcome"]
@@ -403,7 +395,7 @@ class DbRawTable(Base):
                 # Get model_data
                 model_data = message_contents["message"].get("model_data", True)
 
-                db_raw_record = server.record_raw(
+                db_raw_record = db.record_raw(
                     master_table=master_table,
                     model_data=bool(model_data),
                     timestamp=timestamp,
@@ -412,20 +404,20 @@ class DbRawTable(Base):
                 for param_name, param_value in params.items():
                     if type(param_value) not in [float, int, bool]:
                         if len(param_value) == 1:
-                            server.record_param(
+                            db.record_param(
                                 raw_table=db_raw_record,
                                 param_name=str(param_name),
                                 param_value=float(param_value[0]),
                             )
                         else:
                             for j, v in enumerate(param_value):
-                                server.record_param(
+                                db.record_param(
                                     raw_table=db_raw_record,
                                     param_name=str(param_name) + "_stimuli" + str(j),
                                     param_value=float(v),
                                 )
                     else:
-                        server.record_param(
+                        db.record_param(
                             raw_table=db_raw_record,
                             param_name=str(param_name),
                             param_value=float(param_value),
@@ -433,13 +425,13 @@ class DbRawTable(Base):
 
                 if type(outcomes) not in [float, int, bool]:
                     for j, outcome_value in enumerate(outcomes):
-                        server.record_outcome(
+                        db.record_outcome(
                             raw_table=db_raw_record,
                             outcome_name="outcome_" + str(j),
                             outcome_value=float(outcome_value),
                         )
                 else:
-                    server.record_outcome(
+                    db.record_outcome(
                         raw_table=db_raw_record,
                         outcome_name="outcome",
                         outcome_value=float(outcomes),
