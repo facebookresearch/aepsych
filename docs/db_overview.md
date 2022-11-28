@@ -7,7 +7,7 @@ The database is an essential component in an AEPsych project. It stores experime
 
 ![DB Diagram](assets/db_diagram.png)
 
-In this diagram, the primary Table is in yellow, with all child tables in blue. The green-highlighted text represents the unique ID entry for that specific Table. The yellow-highlighted text corresponds to a foreign key in the primary (yellow) table.
+In this diagram, the primary table is in yellow, with all child tables in blue. The green-highlighted text represents the unique ID entry for that specific table. The yellow-highlighted text corresponds to a foreign key in the primary (yellow) table.
 
 The raw_data Table is a fact table with two dimension child tables (in green). Again, the green-highlighted text represents the unique ID entry for that specific Table. The yellow-highlighted text corresponds to a foreign key in the fact (blue) table.
 
