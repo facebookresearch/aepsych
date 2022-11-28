@@ -7,15 +7,15 @@ The database is an essential component in an AEPsych project. It stores experime
 
 ![DB Diagram](assets/db_diagram.png)
 
-In this diagram, the primary Table is in yellow, with all child tables in blue. The green-highlighted text represents the unique ID entry for that specific Table. The yellow-highlighted text corresponds to a foreign key in the primary (yellow) table.
+In this diagram, the primary table is in yellow, with all child tables in blue. The green-highlighted text represents the unique ID entry for that specific table. The yellow-highlighted text corresponds to a foreign key in the primary (yellow) table.
 
 The raw_data Table is a fact table with two dimension child tables (in green). Again, the green-highlighted text represents the unique ID entry for that specific Table. The yellow-highlighted text corresponds to a foreign key in the fact (blue) table.
 
-The database contains seven tables: one primary Table with four secondary child tables. One of those is a fact table, with another two children. The tables' relationships can be seen in the following diagram:
+The database contains seven tables: one primary table with four secondary child tables. One of those is a fact table, with another two children. The tables' relationships can be seen in the following diagram:
 
 ![DB Diagram](assets/db_connections.png)
 
-Each Table is described as follows:
+Each table is described as follows:
 
 - **master Table**: This table is the primary table of AEPsych. This table stores information about each experiment and is used to link data stored in the other tables. The columns are described as follows:
 
