@@ -286,7 +286,7 @@ class Database:
         if timestamp is None:
             raw_entry.timestamp = datetime.datetime.now()
         else:
-            raw_entry.timestamp = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f")
+            raw_entry.timestamp = timestamp
         raw_entry.parent = master_table
 
         self._session.add(raw_entry)
