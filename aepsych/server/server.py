@@ -961,22 +961,18 @@ def parse_argument():
         default="logs",
     )
 
-    sub_parsers = parser.add_subparsers(dest="subparser")
-
-    database_parser = sub_parsers.add_parser("database")
-
-    database_parser.add_argument(
+    parser.add_argument(
         "-d",
         "--db",
         type=str,
         help="The database to use if not the default (./databases/default.db).",
         default=None,
     )
-    database_parser.add_argument(
+    parser.add_argument(
         "-r", "--replay", type=str, help="UUID of the experiment to replay."
     )
 
-    database_parser.add_argument(
+    parser.add_argument(
         "-m", "--resume", action="store_true", help="Resume server after replay."
     )
 
@@ -986,7 +982,7 @@ def parse_argument():
 def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
     try:
-        if args.subparser == "database":
+        if "db" in args and args.db is not None:
             database_path = args.db
             if "replay" in args and args.replay is not None:
                 logger.info(f"Attempting to replay {args.replay}")
