@@ -11,7 +11,7 @@ In this diagram, the primary table is in yellow, with all child tables in blue. 
 
 The raw_data Table is a fact table with two dimension child tables (in green). Again, the green-highlighted text represents the unique ID entry for that specific Table. The yellow-highlighted text corresponds to a foreign key in the fact (blue) table.
 
-The database contains seven tables: one primary Table with four secondary child tables. One of those is a fact table, with another two children. The tables' relationships can be seen in the following diagram:
+The database contains seven tables: one primary table with four secondary child tables. One of those is a fact table, with another two children. The tables' relationships can be seen in the following diagram:
 
 ![DB Diagram](assets/db_connections.png)
 
