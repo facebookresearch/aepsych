@@ -32,7 +32,7 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Server for doing black box optimization using gaussian processes.
 :keyword socket – socket object that implements <cite>send</cite> and <cite>receive</cite> for json:
-:keyword messages (default: ZMQSocket).
+:keyword messages (default: DummySocket()).
 :keyword TODO actually make an abstract interface to subclass from here:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.cleanup">
@@ -68,6 +68,33 @@ if skip_computations is true, skip all the asks and queries, which should make t
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.get_dataframe_from_replay">
 <span class="sig-name descname"><span class="pre">get_dataframe_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_dataframe_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.get_dataframe_from_replay" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.generate_experiment_table">
+<span class="sig-name descname"><span class="pre">generate_experiment_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment_table'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_experiment_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.generate_experiment_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a table of a given experiment with all the raw data.</p>
+<p>This table is generated from the database, and is added to the
+experiment’s database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_id</strong> (<em>str</em>) – The experiment ID to generate the table for.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table. Defaults to
+“experiment_table”.</p></li>
+<li><p><strong>return_df</strong> (<em>bool</em>) – If True, also return the dataframe.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The dataframe of the experiment table, if</dt><dd><p>return_df is True.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.versioned_handler">
 <span class="sig-name descname"><span class="pre">versioned_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.versioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.versioned_handler" title="Permalink to this definition">¶</a></dt>
@@ -301,7 +328,7 @@ if skip_computations is true, skip all the asks and queries, which should make t
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Server for doing black box optimization using gaussian processes.
 :keyword socket – socket object that implements <cite>send</cite> and <cite>receive</cite> for json:
-:keyword messages (default: ZMQSocket).
+:keyword messages (default: DummySocket()).
 :keyword TODO actually make an abstract interface to subclass from here:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.server.AEPsychServer.cleanup">
@@ -337,6 +364,33 @@ if skip_computations is true, skip all the asks and queries, which should make t
 <dt class="sig sig-object py" id="aepsych.server.AEPsychServer.get_dataframe_from_replay">
 <span class="sig-name descname"><span class="pre">get_dataframe_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_dataframe_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.get_dataframe_from_replay" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.generate_experiment_table">
+<span class="sig-name descname"><span class="pre">generate_experiment_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment_table'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_experiment_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.generate_experiment_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a table of a given experiment with all the raw data.</p>
+<p>This table is generated from the database, and is added to the
+experiment’s database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_id</strong> (<em>str</em>) – The experiment ID to generate the table for.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table. Defaults to
+“experiment_table”.</p></li>
+<li><p><strong>return_df</strong> (<em>bool</em>) – If True, also return the dataframe.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The dataframe of the experiment table, if</dt><dd><p>return_df is True.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.server.AEPsychServer.versioned_handler">
 <span class="sig-name descname"><span class="pre">versioned_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.versioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.versioned_handler" title="Permalink to this definition">¶</a></dt>
