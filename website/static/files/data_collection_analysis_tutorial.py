@@ -134,7 +134,7 @@ run_trial(5, 0)
 # In[5]:
 
 
-get_ipython().run_cell_magic('bash', '--bg', '\naepsych_server --ip 0.0.0.0 --port 5555 database --db data_collection_analysis_tutorial.db')
+get_ipython().run_cell_magic('bash', '--bg', '\naepsych_server --ip 0.0.0.0 --port 5555 database --db data_collection_analysis_tutorial.db\n')
 
 
 # In[6]:

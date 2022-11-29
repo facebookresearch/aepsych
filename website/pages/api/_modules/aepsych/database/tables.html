@@ -24,7 +24,16 @@
 
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">PickleType</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Boolean</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">,</span>
+    <span class="n">DateTime</span><span class="p">,</span>
+    <span class="n">Float</span><span class="p">,</span>
+    <span class="n">ForeignKey</span><span class="p">,</span>
+    <span class="n">Integer</span><span class="p">,</span>
+    <span class="n">PickleType</span><span class="p">,</span>
+    <span class="n">String</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
 <span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">relationship</span><span class="p">,</span> <span class="n">sessionmaker</span>
 
@@ -72,6 +81,7 @@
     <span class="n">children_replay</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbReplayTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
     <span class="n">children_strat</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbStratTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
     <span class="n">children_config</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbConfigTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
+    <span class="n">children_raw</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbRawTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DBMasterTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
@@ -333,6 +343,125 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbConfigTable : update called"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DbConfigTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbConfigTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="DbRawTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbRawTable">[docs]</a><span class="k">class</span> <span class="nc">DbRawTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Fact table to store the raw data of each iteration of an experiment.</span>
+<span class="sd">    """</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"raw_data"</span>
+
+    <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">DateTime</span><span class="p">)</span>
+    <span class="n">model_data</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Boolean</span><span class="p">)</span>
+
+    <span class="n">master_table_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"master.unique_id"</span><span class="p">))</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DBMasterTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"children_raw"</span><span class="p">)</span>
+    <span class="n">children_param</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbParamTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
+    <span class="n">children_outcome</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbOutcomeTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"parent"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DbRawTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbRawTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">DbRawTable</span><span class="p">()</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"unique_id"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">model_data</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"model_data"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">master_table_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"master_table_id"</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">this</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"&lt;DbRawTable(unique_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unique_id</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="sa">f</span><span class="s2">", timestamp=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">", master_table_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_table_id</span><span class="si">}</span><span class="s2">)&gt;"</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DbRawTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbRawTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbRawTable : update called"</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DbRawTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbRawTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="DbParamTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbParamTable">[docs]</a><span class="k">class</span> <span class="nc">DbParamTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Dimension table to store the parameters of each iteration of an experiment.</span>
+<span class="sd">    Supports multiple parameters per iteration, and multiple stimuli per parameter.</span>
+<span class="sd">    """</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"param_data"</span>
+
+    <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">param_name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
+    <span class="n">param_value</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+
+    <span class="n">iteration_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"raw_data.unique_id"</span><span class="p">))</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbRawTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"children_param"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DbParamTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbParamTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">DbParamTable</span><span class="p">()</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"unique_id"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">param_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"param_name"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">param_value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"param_value"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">iteration_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"iteration_id"</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">this</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"&lt;DbParamTable(unique_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unique_id</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="sa">f</span><span class="s2">", iteration_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iteration_id</span><span class="si">}</span><span class="s2">&gt;"</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DbParamTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbParamTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbParamTable : update called"</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DbParamTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbParamTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="DbOutcomeTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbOutcomeTable">[docs]</a><span class="k">class</span> <span class="nc">DbOutcomeTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Dimension table to store the outcomes of each iteration of an experiment.</span>
+<span class="sd">    Supports multiple outcomes per iteration.</span>
+<span class="sd">    """</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"outcome_data"</span>
+
+    <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">outcome_name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
+    <span class="n">outcome_value</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+
+    <span class="n">iteration_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"raw_data.unique_id"</span><span class="p">))</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbRawTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"children_outcome"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DbOutcomeTable.from_sqlite"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbOutcomeTable.from_sqlite">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sqlite</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="n">DbOutcomeTable</span><span class="p">()</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"unique_id"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">outcome_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"outcome_name"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">outcome_value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"outcome_value"</span><span class="p">]</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">iteration_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"iteration_id"</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">this</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"&lt;DbOutcomeTable(unique_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unique_id</span><span class="si">}</span><span class="s2">)"</span>
+            <span class="sa">f</span><span class="s2">", iteration_id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iteration_id</span><span class="si">}</span><span class="s2">&gt;"</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DbOutcomeTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbOutcomeTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbOutcomeTable : update called"</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DbOutcomeTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbOutcomeTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span></div></div>
 </pre></div>
