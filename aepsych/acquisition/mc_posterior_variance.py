@@ -13,7 +13,8 @@ from aepsych.acquisition.objective import ProbitObjective
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
-from botorch.sampling.samplers import MCSampler, SobolQMCNormalSampler
+from botorch.sampling.base import MCSampler
+from botorch.sampling.normal import SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
 from torch import Tensor
 
@@ -54,7 +55,7 @@ class MCPosteriorVariance(MCAcquisitionFunction):
             sampler: The sampler used for drawing MC samples.
         """
         if sampler is None:
-            sampler = SobolQMCNormalSampler(num_samples=512, collapse_batch_dims=True)
+            sampler = SobolQMCNormalSampler(sample_shape=torch.Size([512]))
         if objective is None:
             objective = ProbitObjective()
         super().__init__(model=model, sampler=sampler, objective=None, X_pending=None)
