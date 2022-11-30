@@ -797,7 +797,7 @@ class AEPsychServer(object):
                     self.db.record_param(
                         raw_table=self._db_raw_record,
                         param_name=str(param_name),
-                        param_value=float(param_value),
+                        param_value=str(param_value),
                     )
 
             if isinstance(outcome, Iterable) and type(outcome) != str:
