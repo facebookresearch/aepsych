@@ -13,6 +13,7 @@ import sys
 import threading
 import traceback
 import warnings
+from collections.abc import Iterable
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -778,7 +779,7 @@ class AEPsychServer(object):
             )
 
             for param_name, param_value in config.items():
-                if type(param_value) not in [float, int, bool, str]:
+                if isinstance(param_value, Iterable) and type(param_value) != str:
                     if len(param_value) == 1:
                         self.db.record_param(
                             raw_table=self._db_raw_record,
@@ -799,9 +800,9 @@ class AEPsychServer(object):
                         param_value=float(param_value),
                     )
 
-            if type(outcome) not in [float, int, bool]:
+            if isinstance(outcome, Iterable) and type(outcome) != str:
                 for i, outcome_value in enumerate(outcome):
-                    if type(outcome_value) not in [float, int, bool]:
+                    if isinstance(outcome_value, Iterable) and type(outcome_value) != str:
                         if len(outcome_value) == 1:
                             outcome_value = outcome_value[0]
                         else:

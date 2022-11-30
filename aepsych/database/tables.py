@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import pickle
-
+from collections.abc import Iterable
 import dill
 
 from aepsych.config import Config
@@ -402,7 +402,7 @@ class DbRawTable(Base):
                 )
 
                 for param_name, param_value in params.items():
-                    if type(param_value) not in [float, int, bool]:
+                    if isinstance(param_value, Iterable) and type(param_value) != str:
                         if len(param_value) == 1:
                             db.record_param(
                                 raw_table=db_raw_record,
@@ -423,8 +423,15 @@ class DbRawTable(Base):
                             param_value=float(param_value),
                         )
 
-                if type(outcomes) not in [float, int, bool]:
+                if isinstance(outcomes, Iterable) and type(outcomes) != str:
                     for j, outcome_value in enumerate(outcomes):
+                        if isinstance(outcome_value, Iterable) and type(outcome_value) != str:
+                            if len(outcome_value) == 1:
+                                outcome_value = outcome_value[0]
+                            else:
+                                raise ValueError(
+                                    "Multi-outcome values must be a list of lists of length 1!"
+                                )
                         db.record_outcome(
                             raw_table=db_raw_record,
                             outcome_name="outcome_" + str(j),
