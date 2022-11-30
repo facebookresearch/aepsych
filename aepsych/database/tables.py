@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import pickle
 from collections.abc import Iterable
-import dill
 
 from aepsych.config import Config
 from aepsych.version import __version__
@@ -383,7 +382,6 @@ class DbRawTable(Base):
                     continue
 
                 timestamp = message.timestamp
-                master_table_id = message.master_table_id
 
                 # Deserialize pickle message
                 message_contents = message.message_contents
