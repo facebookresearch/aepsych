@@ -19,6 +19,7 @@
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">select</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
@@ -27,6 +28,7 @@
 <span class="kn">import</span> <span class="nn">zmq</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">BAD_REQUEST</span> <span class="o">=</span> <span class="s2">"bad request"</span>
 
 
 <div class="viewcode-block" id="SimplifyArrays"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.SimplifyArrays">[docs]</a><span class="k">def</span> <span class="nf">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
@@ -104,39 +106,57 @@
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="PySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PySocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># catch the Error and reset the connection</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Waiting for connection..."</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-                <span class="n">recv_result</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">""</span>
-                <span class="k">while</span> <span class="n">recv_result</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">""</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connected by </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">addr</span><span class="si">}</span><span class="s2">, waiting for messages..."</span><span class="p">)</span>
-                    <span class="n">recv_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">512</span><span class="p">)</span>  <span class="c1"># 512KiB</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"receive : result = </span><span class="si">{</span><span class="n">recv_result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">recv_result</span><span class="p">)</span>
+<div class="viewcode-block" id="PySocket.return_socket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.return_socket">[docs]</a>    <span class="k">def</span> <span class="nf">return_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span></div>
 
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Got: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-                <span class="k">break</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">"Exception caught while trying to receive a message from the client. "</span>
-                    <span class="sa">f</span><span class="s2">"Ignoring message and trying again. The caught exception was: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">."</span>
-                <span class="p">)</span>
-        <span class="k">return</span> <span class="n">msg</span></div>
+<div class="viewcode-block" id="PySocket.accept_client"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.accept_client">[docs]</a>    <span class="k">def</span> <span class="nf">accept_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">client_not_connected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Waiting for connection..."</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="n">client_not_connected</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="p">,</span> <span class="n">wlist</span><span class="p">,</span> <span class="n">xlist</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rlist</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">sock</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"Connected by </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">addr</span><span class="si">}</span><span class="s2">, waiting for messages..."</span>
+                        <span class="p">)</span>
+                        <span class="n">client_not_connected</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connection to client failed with error </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span></div>
+
+<div class="viewcode-block" id="PySocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_exiting</span><span class="p">):</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">server_exiting</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="p">,</span> <span class="n">wlist</span><span class="p">,</span> <span class="n">xlist</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span>
+            <span class="p">)</span>  <span class="c1"># 0 Here is the timeout. It makes the server constantly poll for output. Timeout can be added to save CPU usage.</span>
+            <span class="c1"># rlist,wlist,xlist represent lists of sockets to check against. Rlist is sockets to read from, wlist is sockets to write to, xlist is sockets to listen to for errors.</span>
+            <span class="k">for</span> <span class="n">sock</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">rlist</span><span class="p">:</span>
+                        <span class="n">recv_result</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span>
+                            <span class="mi">1024</span> <span class="o">*</span> <span class="mi">512</span>
+                        <span class="p">)</span>  <span class="c1"># 1024 * 512 is the max size of the message</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">recv_result</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"receive : result = </span><span class="si">{</span><span class="n">recv_result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Got: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">msg</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">BAD_REQUEST</span></div>
 
 <div class="viewcode-block" id="PySocket.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No connection to send to!"</span><span class="p">)</span>
+
             <span class="k">return</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
             <span class="k">pass</span>  <span class="c1"># keep it as-is</span>

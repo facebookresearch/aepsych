@@ -79,6 +79,9 @@
             <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
             <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbStratTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
             <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbConfigTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbParamTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbOutcomeTable</span><span class="o">.</span><span class="n">requires_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Database.perform_updates"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.perform_updates">[docs]</a>    <span class="k">def</span> <span class="nf">perform_updates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -86,7 +89,10 @@
         <span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         <span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
         <span class="n">tables</span><span class="o">.</span><span class="n">DbStratTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
-        <span class="n">tables</span><span class="o">.</span><span class="n">DbConfigTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span></div>
+        <span class="n">tables</span><span class="o">.</span><span class="n">DbConfigTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+        <span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+        <span class="n">tables</span><span class="o">.</span><span class="n">DbParamTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span>
+        <span class="n">tables</span><span class="o">.</span><span class="n">DbOutcomeTable</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Database.session_scope"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.session_scope">[docs]</a>    <span class="nd">@contextmanager</span>
     <span class="k">def</span> <span class="nf">session_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -162,6 +168,63 @@
             <span class="k">return</span> <span class="n">master_record</span><span class="o">.</span><span class="n">children_config</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">config</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
+<div class="viewcode-block" id="Database.get_raw_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_raw_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_raw_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">):</span>
+        <span class="sd">"""Get the raw data for a specific master row."""</span>
+        <span class="n">master_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">master_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">master_record</span><span class="o">.</span><span class="n">children_raw</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Database.get_all_params_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_all_params_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_params_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">):</span>
+        <span class="sd">"""Get the parameters for all the iterations of a specific experiment."""</span>
+        <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">raw_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">raw_record</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_param</span><span class="p">:</span>
+                    <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">params</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Database.get_param_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_param_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">,</span> <span class="n">iteration_id</span><span class="p">):</span>
+        <span class="sd">"""Get the parameters for a specific iteration of a specific experiment."""</span>
+        <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">raw_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">raw_record</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">iteration_id</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_param</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Database.get_all_outcomes_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_all_outcomes_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_outcomes_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">):</span>
+        <span class="sd">"""Get the outcomes for all the iterations of a specific experiment."""</span>
+        <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
+        <span class="n">outcomes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">raw_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">raw_record</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_outcome</span><span class="p">:</span>
+                    <span class="n">outcomes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">outcomes</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Database.get_outcome_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_outcome_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_outcome_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">,</span> <span class="n">iteration_id</span><span class="p">):</span>
+        <span class="sd">"""Get the outcomes for a specific iteration of a specific experiment."""</span>
+        <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">raw_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">raw_record</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">iteration_id</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_outcome</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div>
+
 <div class="viewcode-block" id="Database.record_setup"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_setup">[docs]</a>    <span class="k">def</span> <span class="nf">record_setup</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">description</span><span class="p">,</span>
@@ -226,6 +289,38 @@
         <span class="n">record</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">master_table</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Database.record_raw"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_raw">[docs]</a>    <span class="k">def</span> <span class="nf">record_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="n">model_data</span><span class="p">):</span>
+        <span class="n">raw_entry</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">()</span>
+        <span class="n">raw_entry</span><span class="o">.</span><span class="n">model_data</span> <span class="o">=</span> <span class="n">model_data</span>
+
+        <span class="n">raw_entry</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">raw_entry</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">master_table</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">raw_entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">raw_entry</span></div>
+
+<div class="viewcode-block" id="Database.record_param"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_param">[docs]</a>    <span class="k">def</span> <span class="nf">record_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_table</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">param_entry</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbParamTable</span><span class="p">()</span>
+        <span class="n">param_entry</span><span class="o">.</span><span class="n">param_name</span> <span class="o">=</span> <span class="n">param_name</span>
+        <span class="n">param_entry</span><span class="o">.</span><span class="n">param_value</span> <span class="o">=</span> <span class="n">param_value</span>
+
+        <span class="n">param_entry</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">raw_table</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param_entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Database.record_outcome"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_outcome">[docs]</a>    <span class="k">def</span> <span class="nf">record_outcome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_table</span><span class="p">,</span> <span class="n">outcome_name</span><span class="p">,</span> <span class="n">outcome_value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">outcome_entry</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbOutcomeTable</span><span class="p">()</span>
+        <span class="n">outcome_entry</span><span class="o">.</span><span class="n">outcome_name</span> <span class="o">=</span> <span class="n">outcome_name</span>
+        <span class="n">outcome_entry</span><span class="o">.</span><span class="n">outcome_value</span> <span class="o">=</span> <span class="n">outcome_value</span>
+
+        <span class="n">outcome_entry</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">raw_table</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outcome_entry</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Database.record_strat"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_strat">[docs]</a>    <span class="k">def</span> <span class="nf">record_strat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_table</span><span class="p">,</span> <span class="n">strat</span><span class="p">):</span>
