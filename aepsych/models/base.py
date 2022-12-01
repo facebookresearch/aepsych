@@ -15,7 +15,7 @@ import torch
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import PosteriorMean
-from botorch.fit import fit_gpytorch_mll
+from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
@@ -379,6 +379,7 @@ class AEPsychMixin(GPyTorchModel):
         self,
         mll: MarginalLogLikelihood,
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        optimizer=fit_gpytorch_mll_scipy,
         **kwargs,
     ) -> None:
         self.train()
@@ -396,8 +397,11 @@ class AEPsychMixin(GPyTorchModel):
 
         logger.info("Starting fit...")
         starttime = time.time()
-        fit_gpytorch_mll(mll, optimizer_kwargs=optimizer_kwargs, **kwargs)
+        res = fit_gpytorch_mll(
+            mll, optimizer=optimizer, optimizer_kwargs=optimizer_kwargs, **kwargs
+        )
         logger.info(f"Fit done, time={time.time()-starttime}")
+        return res
 
     def p_below_threshold(self, x, f_thresh) -> np.ndarray:
         f, var = self.predict(x)

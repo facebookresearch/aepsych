@@ -24,11 +24,15 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
+from botorch.optim.fit import fit_gpytorch_mll_torch
+from botorch.optim.stopping import ExpMAStoppingCriterion
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.distributions import MultivariateNormal
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
+from functools import partial
+from torch.optim import Adam
 
 from ..common import cdf_new_novel_det, f_1d, f_2d
 
@@ -75,6 +79,50 @@ class GPClassificationSmoketest(unittest.TestCase):
 
         # smoke test update
         model.update(X, y)
+
+        # pspace
+        pm, _ = model.predict(X, probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y)
+
+        # fspace
+        pm, _ = model.predict(X, probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y)
+
+    def test_1d_classification_pytorchopt(self):
+        """
+        Just see if we memorize the training set
+        """
+        X, y = self.X, self.y
+        model = GPClassificationModel(
+            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10
+        )
+
+        model.fit(
+            X[:50],
+            y[:50],
+            optimizer=fit_gpytorch_mll_torch,
+            optimizer_kwargs={"stopping_criterion":ExpMAStoppingCriterion(maxiter=30),'optimizer':partial(Adam, lr=0.05)}
+        )
+
+        # pspace
+        pm, _ = model.predict(X[:50], probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # fspace
+        pm, _ = model.predict(X[:50], probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # smoke test update
+        model.update(
+            X,
+            y,
+            optimizer=fit_gpytorch_mll_torch,
+            optimizer_kwargs={"stopping_criterion":ExpMAStoppingCriterion(maxiter=30)}
+        )
 
         # pspace
         pm, _ = model.predict(X, probability_space=True)

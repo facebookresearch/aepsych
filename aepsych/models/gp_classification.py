@@ -293,6 +293,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             return promote_0d(fmean), promote_0d(fvar)
 
-    def update(self, train_x: torch.Tensor, train_y: torch.Tensor):
+    def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit."""
-        self.fit(train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True)
+        return self.fit(
+            train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True, **kwargs
+        )
