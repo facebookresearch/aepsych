@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Sequence
+from typing import List, Optional, Type
 
 import numpy as np
 import torch
@@ -30,7 +30,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         num_ts_points: int,
         target_value: float,
         objective: MCAcquisitionObjective,
-        explore_features: Optional[Sequence[int]] = None,
+        explore_features: Optional[List[Type[int]]] = None,
     ) -> None:
         """Initialize MonotonicMCAcquisition
 
@@ -98,7 +98,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         num_ts_points = config.getint(classname, "num_ts_points", fallback=1000)
         target = config.getfloat(classname, "target", fallback=0.75)
         objective = config.getobj(classname, "objective", fallback=ProbitObjective)
-        explore_features = config.getlist(classname, "explore_idxs", fallback=None)  # type: ignore
+        explore_features = config.getlist(classname, "explore_idxs", element_type=int, fallback=None)  # type: ignore
 
         return cls(
             n_samples=n_samples,
@@ -106,5 +106,5 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             num_ts_points=num_ts_points,
             target_value=target,
             objective=objective,
-            explore_features=explore_features,
+            explore_features=explore_features, # type: ignore
         )
