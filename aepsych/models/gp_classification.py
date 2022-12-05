@@ -15,6 +15,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
+from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
@@ -85,8 +86,11 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             likelihood = BernoulliLikelihood()
 
         self.inducing_point_method = inducing_point_method
+
         # initialize to sobol before we have data
-        inducing_points = self._select_inducing_points(method="sobol")
+        inducing_points = select_inducing_points(
+            inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
+        )
 
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -183,9 +187,12 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self.likelihood.load_state_dict(self._fresh_likelihood_dict)
 
     def _reset_variational_strategy(self):
-
-        inducing_points = self._select_inducing_points(
-            method=self.inducing_point_method
+        inducing_points = select_inducing_points(
+            inducing_size=self.inducing_size,
+            model=self,
+            X=self.train_inputs[0],
+            bounds=self.bounds,
+            method=self.inducing_point_method,
         )
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -286,6 +293,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             return promote_0d(fmean), promote_0d(fvar)
 
-    def update(self, train_x: torch.Tensor, train_y: torch.Tensor):
+    def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit."""
-        self.fit(train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True)
+        return self.fit(
+            train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True, **kwargs
+        )

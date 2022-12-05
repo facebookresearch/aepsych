@@ -144,7 +144,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         """
         self.set_train_data(train_x, train_y)
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
-        self._fit_mll(mll, **kwargs)
+        return self._fit_mll(mll, **kwargs)
 
     def sample(
         self, x: Union[torch.Tensor, np.ndarray], num_samples: int
@@ -161,9 +161,9 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         """
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
-    def update(self, train_x: torch.Tensor, train_y: torch.Tensor):
+    def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit."""
-        self.fit(train_x, train_y)
+        return self.fit(train_x, train_y, **kwargs)
 
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], **kwargs

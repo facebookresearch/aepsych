@@ -78,7 +78,7 @@
                     <span class="c1"># if this thing is configured</span>
                     <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">full_section</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="c1"># if it's an object make it an object</span>
-                        <span class="k">if</span> <span class="n">full_section</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">registered_names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">full_section</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">in</span> <span class="n">Config</span><span class="o">.</span><span class="n">registered_names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                             <span class="n">extra_acqf_args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">acqf_name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="c1"># otherwise try a float</span>

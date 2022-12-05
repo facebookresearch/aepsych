@@ -78,7 +78,7 @@ class Database:
         tables.DbReplayTable.update(self._engine)
         tables.DbStratTable.update(self._engine)
         tables.DbConfigTable.update(self._engine)
-        tables.DbRawTable.update(self._engine)
+        tables.DbRawTable.update(self, self._engine)
         tables.DbParamTable.update(self._engine)
         tables.DbOutcomeTable.update(self._engine)
 
@@ -279,11 +279,14 @@ class Database:
         self._session.add(record)
         self._session.commit()
 
-    def record_raw(self, master_table, model_data):
+    def record_raw(self, master_table, model_data, timestamp=None):
         raw_entry = tables.DbRawTable()
         raw_entry.model_data = model_data
 
-        raw_entry.timestamp = datetime.datetime.now()
+        if timestamp is None:
+            raw_entry.timestamp = datetime.datetime.now()
+        else:
+            raw_entry.timestamp = timestamp
         raw_entry.parent = master_table
 
         self._session.add(raw_entry)

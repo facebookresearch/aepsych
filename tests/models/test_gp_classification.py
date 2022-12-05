@@ -24,11 +24,15 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
+from botorch.optim.fit import fit_gpytorch_mll_torch
+from botorch.optim.stopping import ExpMAStoppingCriterion
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.distributions import MultivariateNormal
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
+from functools import partial
+from torch.optim import Adam
 
 from ..common import cdf_new_novel_det, f_1d, f_2d
 
@@ -75,6 +79,50 @@ class GPClassificationSmoketest(unittest.TestCase):
 
         # smoke test update
         model.update(X, y)
+
+        # pspace
+        pm, _ = model.predict(X, probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y)
+
+        # fspace
+        pm, _ = model.predict(X, probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y)
+
+    def test_1d_classification_pytorchopt(self):
+        """
+        Just see if we memorize the training set
+        """
+        X, y = self.X, self.y
+        model = GPClassificationModel(
+            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10
+        )
+
+        model.fit(
+            X[:50],
+            y[:50],
+            optimizer=fit_gpytorch_mll_torch,
+            optimizer_kwargs={"stopping_criterion":ExpMAStoppingCriterion(maxiter=30),'optimizer':partial(Adam, lr=0.05)}
+        )
+
+        # pspace
+        pm, _ = model.predict(X[:50], probability_space=True)
+        pred = (pm > 0.5).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # fspace
+        pm, _ = model.predict(X[:50], probability_space=False)
+        pred = (pm > 0).numpy()
+        npt.assert_allclose(pred, y[:50])
+
+        # smoke test update
+        model.update(
+            X,
+            y,
+            optimizer=fit_gpytorch_mll_torch,
+            optimizer_kwargs={"stopping_criterion":ExpMAStoppingCriterion(maxiter=30)}
+        )
 
         # pspace
         pm, _ = model.predict(X, probability_space=True)
@@ -738,43 +786,6 @@ class GPClassificationTest(unittest.TestCase):
         val, loc = strat.inv_query(0.85, constraints={})
         self.assertTrue(np.allclose(val, 0.85))
         self.assertTrue(np.allclose(loc.item(), 2.7, atol=1e-2))
-
-    def test_select_inducing_points(self):
-        """Verify that when we have n_induc > data size, we use data as inducing,
-        and otherwise we correctly select inducing points."""
-        X, y = make_classification(
-            n_samples=100,
-            n_features=1,
-            n_redundant=0,
-            n_informative=1,
-            random_state=1,
-            n_clusters_per_class=1,
-        )
-        X, y = torch.Tensor(X), torch.Tensor(y)
-
-        model = GPClassificationModel(
-            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=20
-        )
-        model.set_train_data(X[:10, ...], y[:10])
-
-        # (inducing point selection sorts the inputs so we sort X to verify)
-        self.assertTrue(
-            np.allclose(
-                model._select_inducing_points(method="auto"),
-                X[:10].sort(0).values,
-            )
-        )
-
-        model.set_train_data(X, y)
-
-        self.assertTrue(len(model._select_inducing_points(method="auto")) <= 20)
-
-        self.assertTrue(len(model._select_inducing_points(method="pivoted_chol")) <= 20)
-
-        self.assertEqual(len(model._select_inducing_points(method="kmeans++")), 20)
-
-        with self.assertRaises(AssertionError):
-            model._select_inducing_points(method="12345")
 
     def test_hyperparam_consistency(self):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams

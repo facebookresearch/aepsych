@@ -15,14 +15,12 @@ import torch
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import PosteriorMean
-from botorch.fit import fit_gpytorch_mll
-from botorch.models.approximate_gp import _select_inducing_points
+from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
-from scipy.cluster.vq import kmeans2
 from scipy.optimize import minimize
 from scipy.stats import norm
 
@@ -54,6 +52,10 @@ class ModelProtocol(Protocol):
 
     @property
     def ub(self) -> torch.Tensor:
+        pass
+
+    @property
+    def bounds(self) -> torch.Tensor:
         pass
 
     @property
@@ -106,38 +108,9 @@ class AEPsychMixin(GPyTorchModel):
     extremum_solver = "Nelder-Mead"
     outcome_types: List[str] = []
 
-    def _select_inducing_points(self, method="auto"):
-        with torch.no_grad():
-            assert method in (
-                "pivoted_chol",
-                "kmeans++",
-                "auto",
-                "sobol",
-            ), f"Inducing point method should be one of pivoted_chol, kmeans++, sobol, or auto; got {method}"
-
-            if method == "sobol":
-                return make_scaled_sobol(self.lb, self.ub, self.inducing_size)
-            train_X = torch.unique(self.train_inputs[0], dim=0)
-            if method == "auto":
-                if train_X.shape[0] <= self.inducing_size:
-                    return train_X
-                else:
-                    method = "kmeans++"
-
-            if method == "pivoted_chol":
-                inducing_points = _select_inducing_points(
-                    inputs=train_X,
-                    covar_module=self.covar_module,
-                    num_inducing=self.inducing_size,
-                    input_batch_shape=torch.Size([]),
-                )
-            elif method == "kmeans++":
-                # initialize using kmeans
-                inducing_points = torch.tensor(
-                    kmeans2(train_X.numpy(), self.inducing_size, minit="++")[0],
-                    dtype=train_X.dtype,
-                )
-            return inducing_points
+    @property
+    def bounds(self):
+        return torch.stack((self.lb, self.ub))
 
     def _get_extremum(
         self: ModelProtocol,
@@ -406,6 +379,7 @@ class AEPsychMixin(GPyTorchModel):
         self,
         mll: MarginalLogLikelihood,
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        optimizer=fit_gpytorch_mll_scipy,
         **kwargs,
     ) -> None:
         self.train()
@@ -423,8 +397,11 @@ class AEPsychMixin(GPyTorchModel):
 
         logger.info("Starting fit...")
         starttime = time.time()
-        fit_gpytorch_mll(mll, optimizer_kwargs=optimizer_kwargs, **kwargs)
+        res = fit_gpytorch_mll(
+            mll, optimizer=optimizer, optimizer_kwargs=optimizer_kwargs, **kwargs
+        )
         logger.info(f"Fit done, time={time.time()-starttime}")
+        return res
 
     def p_below_threshold(self, x, f_thresh) -> np.ndarray:
         f, var = self.predict(x)

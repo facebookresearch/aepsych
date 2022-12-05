@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 import pickle
+from collections.abc import Iterable
 
 from aepsych.config import Config
 from aepsych.version import __version__
@@ -339,6 +340,7 @@ class DbRawTable(Base):
     """
     Fact table to store the raw data of each iteration of an experiment.
     """
+
     __tablename__ = "raw_data"
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -368,11 +370,92 @@ class DbRawTable(Base):
         )
 
     @staticmethod
-    def update(engine):
+    def update(db, engine):
         logger.info("DbRawTable : update called")
+
+        # Get every master table
+        for master_table in db.get_master_records():
+
+            # Get raw tab
+            for message in master_table.children_replay:
+                if message.message_type != "tell":
+                    continue
+
+                timestamp = message.timestamp
+
+                # Deserialize pickle message
+                message_contents = message.message_contents
+
+                # Get outcome
+                outcomes = message_contents["message"]["outcome"]
+                # Get parameters
+                params = message_contents["message"]["config"]
+                # Get model_data
+                model_data = message_contents["message"].get("model_data", True)
+
+                db_raw_record = db.record_raw(
+                    master_table=master_table,
+                    model_data=bool(model_data),
+                    timestamp=timestamp,
+                )
+
+                for param_name, param_value in params.items():
+                    if isinstance(param_value, Iterable) and type(param_value) != str:
+                        if len(param_value) == 1:
+                            db.record_param(
+                                raw_table=db_raw_record,
+                                param_name=str(param_name),
+                                param_value=float(param_value[0]),
+                            )
+                        else:
+                            for j, v in enumerate(param_value):
+                                db.record_param(
+                                    raw_table=db_raw_record,
+                                    param_name=str(param_name) + "_stimuli" + str(j),
+                                    param_value=float(v),
+                                )
+                    else:
+                        db.record_param(
+                            raw_table=db_raw_record,
+                            param_name=str(param_name),
+                            param_value=float(param_value),
+                        )
+
+                if isinstance(outcomes, Iterable) and type(outcomes) != str:
+                    for j, outcome_value in enumerate(outcomes):
+                        if (
+                            isinstance(outcome_value, Iterable)
+                            and type(outcome_value) != str
+                        ):
+                            if len(outcome_value) == 1:
+                                outcome_value = outcome_value[0]
+                            else:
+                                raise ValueError(
+                                    "Multi-outcome values must be a list of lists of length 1!"
+                                )
+                        db.record_outcome(
+                            raw_table=db_raw_record,
+                            outcome_name="outcome_" + str(j),
+                            outcome_value=float(outcome_value),
+                        )
+                else:
+                    db.record_outcome(
+                        raw_table=db_raw_record,
+                        outcome_name="outcome",
+                        outcome_value=float(outcomes),
+                    )
 
     @staticmethod
     def requires_update(engine):
+        """Check if the raw table is empty, and data already exists."""
+        n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
+        n_tells = engine.execute(
+            "SELECT COUNT (*) FROM replay_data \
+            WHERE message_type = 'tell'"
+        ).fetchone()[0]
+
+        if n_raws == 0 and n_tells != 0:
+            return True
         return False
 
 
@@ -381,11 +464,12 @@ class DbParamTable(Base):
     Dimension table to store the parameters of each iteration of an experiment.
     Supports multiple parameters per iteration, and multiple stimuli per parameter.
     """
+
     __tablename__ = "param_data"
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
     param_name = Column(String(50))
-    param_value = Column(Float)
+    param_value = Column(String(50))
 
     iteration_id = Column(Integer, ForeignKey("raw_data.unique_id"))
     parent = relationship("DbRawTable", back_populates="children_param")
@@ -420,6 +504,7 @@ class DbOutcomeTable(Base):
     Dimension table to store the outcomes of each iteration of an experiment.
     Supports multiple outcomes per iteration.
     """
+
     __tablename__ = "outcome_data"
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
