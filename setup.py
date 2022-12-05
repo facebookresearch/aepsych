@@ -57,7 +57,7 @@ setup(
     entry_points={
         "console_scripts": [
             "aepsych_server = aepsych.server.server:main",
-            "aepsych_utils = aepsych.server.utils:main",
+            "aepsych_database = aepsych.server.utils:main",
         ],
     },
 )

@@ -58,7 +58,7 @@ class AEPsychServer(object):
 
         if self.db.is_update_required():
             raise RuntimeError(
-                f'The database needs to be updated. You can perform the update by running "python3 aepsych/server/utils.py database --update --db {database_path}"'
+                f'The database needs to be updated. You can perform the update by running "aepsych_database --update --db {database_path}"'
             )
 
         self._strats = []

@@ -20,19 +20,15 @@ def get_next_filename(folder, fname, ext):
     return f"{folder}/{fname}_{n+1}.{ext}"
 
 def parse_argument():
-    parser = argparse.ArgumentParser(description="AEPsych Utils!")
+    parser = argparse.ArgumentParser(description="AEPsych Database!")
 
-    sub_parsers = parser.add_subparsers(dest="subparser")
-
-    database_parser = sub_parsers.add_parser("database")
-
-    database_parser.add_argument(
+    parser.add_argument(
         "-l",
         "--list",
         help="Lists available experiments in the database.",
         action="store_true",
     )
-    database_parser.add_argument(
+    parser.add_argument(
         "-d",
         "--db",
         type=str,
@@ -40,7 +36,7 @@ def parse_argument():
         default=None,
     )
 
-    database_parser.add_argument(
+    parser.add_argument(
         "-u",
         "--update",
         action="store_true",
@@ -50,21 +46,20 @@ def parse_argument():
     args = parser.parse_args()
     return args
 
-def run_utils(args):
+def run_database(args):
     logger.info("Starting AEPscyh Utils!")
     try:
-        if args.subparser == "database":
-            database_path = args.db
-            database = db.Database(database_path)
-            if args.list is True:
-                database.list_master_records()
-            elif "update" in args and args.update:
-                logger.info(f"Updating the database {database_path}")
-                if database.is_update_required():
-                    database.perform_updates()
-                    logger.info(f"- updated database {database_path}")
-                else:
-                    logger.info(f"- update not needed for database {database_path}")
+        database_path = args.db
+        database = db.Database(database_path)
+        if args.list is True:
+            database.list_master_records()
+        elif "update" in args and args.update:
+            logger.info(f"Updating the database {database_path}")
+            if database.is_update_required():
+                database.perform_updates()
+                logger.info(f"- updated database {database_path}")
+            else:
+                logger.info(f"- update not needed for database {database_path}")
 
     except (KeyboardInterrupt, SystemExit):
         logger.exception("Got Ctrl+C, exiting!")
@@ -76,7 +71,7 @@ def run_utils(args):
 
 def main():
     args = parse_argument()
-    run_utils(args)
+    run_database(args)
 
 if __name__ == "__main__":
     main()
