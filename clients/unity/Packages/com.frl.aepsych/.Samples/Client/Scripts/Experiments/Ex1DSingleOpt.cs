@@ -62,6 +62,7 @@ public class Ex1DSingleOpt : Experiment
         base.ExperimentComplete();
     }
 
+    /*
     public override void CheckUserResponse()
     {
         if (startTime == -1f)
@@ -83,7 +84,7 @@ public class Ex1DSingleOpt : Experiment
         }
         startTime = -1f;
     }
-
+    */
 
     IEnumerator EndShowStimuliAfterSeconds(float seconds)
     {
