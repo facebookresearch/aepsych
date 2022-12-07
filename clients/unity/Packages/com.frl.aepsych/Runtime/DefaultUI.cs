@@ -54,6 +54,10 @@ public class DefaultUI : MonoBehaviour
     public void SetTextActive(bool active)
     {
         experimentText.enabled = active;
+        if (!active && responseSlider)
+        {
+            HideResponseSlider();
+        }
     }
 
     public void ShowResponseSlider()

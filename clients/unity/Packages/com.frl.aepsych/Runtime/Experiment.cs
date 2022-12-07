@@ -38,6 +38,8 @@ namespace AEPsych
         [Tooltip("Setting this to true will automatically record response time and send it to the server with each tell message. Timer starts on " +
             "EndShowStimuli, and continues counting through any number of trial replays.")]
         [SerializeField] bool recordResponseTime = true;
+
+        // TO-DO: DEPRICIATE ASYNC FUNCTIONALITY
         [Tooltip("Setting Async Ask to true will query the server for the next trial while the current trial is underway, speeding up the experiment.")]
         public bool asyncAsk;
 
@@ -69,7 +71,7 @@ namespace AEPsych
         [HideInInspector] public DefaultUI defaultUI;
         [HideInInspector] public QueryModel queryModel;
 
-        //TODO: Hide in inspector, read from server setup response
+        //TO-DO: Hide in inspector, read from server setup response
         [HideInInspector] public ResponseType responseType;
         [HideInInspector] public StimulusType stimulusType;
 
@@ -237,7 +239,7 @@ namespace AEPsych
                 return;
             }
             StopResponseListener();
-
+            
             ShowStimuli(config);
         }
 
@@ -255,8 +257,6 @@ namespace AEPsych
                     onStateChanged -= (StateChangeCallback)d;
                 }
             }
-            //client.onStatusChanged -= OnStatusChanged;
-            //SetState(ExperimentState.NotConnected);
             Destroy(strategy);
             strategy = null;
             isDone = false;
@@ -316,13 +316,13 @@ namespace AEPsych
                 {
                     metadata = new TrialMetadata(rt);
                 }
-                else
+                else if (metadata.responseTime <= 0)
                 {
                     metadata.responseTime = rt;
                 }
                 trialStartTime = -1f;
             }
-            
+
             if (asyncAsk && _experimentState == ExperimentState.WaitingForAsyncAsk)
             {
                 AEPsychClient.Log("Received response before async ask has finished. Waiting to tell...");
@@ -384,14 +384,7 @@ namespace AEPsych
             {
                 yield return StartCoroutine(strat.InitStrat(client, configPath: configPath, true));
             }
-            /*
-            // Resume this strat if AEPsych Client was previously handling a different one
-            if (client.currentStrat != strat.stratId)
-            {
-                SetState(ExperimentState.WaitingForResumeResponse);
-                yield return StartCoroutine(client.Resume(strat.stratId));
-            }
-            */
+
             // Don't increment trial for initial double ask
             if (asyncAsk && initStatus <= InitStatus.FirstAskComplete)
             {
@@ -452,14 +445,6 @@ namespace AEPsych
             BeginExperiment();
         }
 
-        /*
-        public IEnumerator WaitForInput()
-        {
-            yield return new WaitUntil(() => Input.GetKeyDown(startKey));
-            BeginExperiment();
-        }
-        */
-
         /// <summary>
         /// Called when this game object becomes active. Generates strategies if they are un-initialized
         /// </summary>
@@ -479,8 +464,6 @@ namespace AEPsych
                 Debug.Break();
             }
 
-            //SetState(ExperimentState.WaitingForResumeResponse);
-
             if (configGenerator.isAutomatic) // Initialize the automatically generated strategy
             {
                 if (PlayerPrefs.GetString(configGenerator.experimentName + "config") == "Empty")
@@ -493,7 +476,6 @@ namespace AEPsych
                 {
                     strategy = gameObject.AddComponent<AEPsychStrategy>();
                     configPath = configGenerator.GetConfigText();
-                    //configPath = PlayerPrefs.GetString(configGenerator.experimentName + "config");
                     yield return StartCoroutine(strategy.InitStrat(client, configPath: configPath, false));
                 }
             }
@@ -542,6 +524,9 @@ namespace AEPsych
             {
                 StopCoroutine(trialResponseListener);
                 trialResponseListener = null;
+            }
+            if (responseType == ResponseType.Continuous) {
+                defaultUI.HideResponseSlider();
             }
         }
 
@@ -672,19 +657,8 @@ namespace AEPsych
                     config = client.GetConfig();
                     SetState(ExperimentState.ConfigReady);
                     ShowStimuli(config);
-                    /*
-                    if (!client.finished)
-                    {
-                        ShowStimuli(config);
-                    }
-                    else
-                    {
-                        StartCoroutine(EndTrial());
-                    }
-                    */
                 }
             }
-
             else if (_experimentState == ExperimentState.ConfigReady)
             {
                 if (newStatus == AEPsychClient.ClientStatus.Ready)
@@ -767,8 +741,6 @@ namespace AEPsych
             {
                 if (newStatus == AEPsychClient.ClientStatus.GotResponse)
                 {
-                    //QueryMessage m = client.GetQueryResponse();
-                    //ReceiveExplorationQuery(m.x);
                     SetState(ExperimentState.Exploring);
                 }
             }
@@ -910,7 +882,8 @@ namespace AEPsych
             {
                 SetText(prevExpText);
             }
-            Replay();
+            if (!isDone)
+                Replay();
         }
 
         public void TerminateExperiment()
@@ -938,14 +911,17 @@ namespace AEPsych
                     {
                         queryModel.QueryEnabled(true);
                     }
-                    if (recordResponseTime)
+                }
+
+                // Response time starts recording when EndShowStimuli is called
+                if (recordResponseTime)
+                {
+                    if (trialStartTime == -1f)
                     {
-                        if (trialStartTime == -1f)
-                        {
-                            trialStartTime = Time.time;
-                        }
+                        trialStartTime = Time.time;
                     }
                 }
+
                 if (responseType == ResponseType.Binary)
                     trialResponseListener = StartCoroutine(WaitForResponse());
                 else if (responseType == ResponseType.Continuous && useDefaultUI)
@@ -1021,7 +997,6 @@ namespace AEPsych
             }
             if (configGenerator.isAutomatic)
             {
-                //AEPsychClient.Log("Automatic Config Generated:\n" + PlayerPrefs.GetString(configGenerator.experimentName + "config"));
                 AEPsychClient.Log("Automatic Config Generated:\n" + configGenerator.GetConfigText());
             }
             if (useDefaultUI)
@@ -1040,17 +1015,6 @@ namespace AEPsych
                 }
             }
         }
-
-        /*
-        private void Update()
-        {
-
-            if (_experimentState == ExperimentState.WaitingForTell || _experimentState == ExperimentState.WaitingForAsyncAsk)
-                CheckUserResponse();    // implementation of CheckUserResponse() needs to call
-                                        // ReportResultToServer() when response is collected
-
-        }
-        */
 
         private void OnEnable()
         {
@@ -1073,12 +1037,6 @@ namespace AEPsych
             {
                 queryModel = FindObjectOfType<QueryModel>(true);
             }
-            /*
-            if (queryModel != null)
-            {
-                queryModel.gameObject.SetActive(useModelExploration);
-            }
-            */
             if (!waiting)
             {
                 Resume();
