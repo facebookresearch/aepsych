@@ -1,0 +1,14 @@
+name: aepsych_visualizer
+channels:
+  - conda-forge
+dependencies:
+  - python==3.9.4
+  - pip==22.1.1
+  - jupyterlab==3.4.4
+  - pip:
+    # - aepsych==0.2.0
+    - git+https://github.com/facebookresearch/aepsych.git@92834afa0bcb8201797d48e99c3ce3b9ce67af64#egg=aepsych
+    - aepsych-client==0.1.1
+    - voila==0.3.6
+    - ipywidgets==7.6.5
+    - statsmodels==0.13.5
