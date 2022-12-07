@@ -800,10 +800,21 @@ class AEPsychServer(object):
                         param_value=str(param_value),
                     )
 
+            # Check if we get single or multiple outcomes
+            # Multiple outcomes come in the form of iterables that aren't strings or single-element tensors
             if isinstance(outcome, Iterable) and type(outcome) != str:
                 for i, outcome_value in enumerate(outcome):
-                    if isinstance(outcome_value, Iterable) and type(outcome_value) != str:
-                        if len(outcome_value) == 1:
+                    if (
+                        isinstance(outcome_value, Iterable)
+                        and type(outcome_value) != str
+                    ):
+                        if (
+                            isinstance(outcome_value, torch.Tensor)
+                            and outcome_value.dim() < 2
+                        ):
+                            outcome_value = outcome_value.item()
+
+                        elif len(outcome_value) == 1:
                             outcome_value = outcome_value[0]
                         else:
                             raise ValueError(
