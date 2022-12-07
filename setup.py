@@ -18,7 +18,7 @@ REQUIRES = [
     "scipy",
     "sklearn",
     "gpytorch>=1.9.0",
-    "botorch>=0.7.2",
+    "botorch>=0.8.0",
     "SQLAlchemy",
     "dill",
     "pandas",
@@ -27,6 +27,7 @@ REQUIRES = [
     "aepsych_client",
     "voila==0.3.6",
     "ipywidgets==7.6.5",
+    "statsmodels",
 ]
 
 DEV_REQUIRES = [
