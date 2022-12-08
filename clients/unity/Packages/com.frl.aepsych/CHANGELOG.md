@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2022-11-10
+### Added
+- Manual server tells now supported
+- Response time automatically collected and sent as metadata
+### Changed
+- Config Generator refactor for improved experiment customization
+- Various bug fixes and quality of life improvements
+
+## [1.3.3] - 2022-08-31
+### Changed
+- Manual config file is now a drag and drop inspector field
+## Added
+- Pairwise and Continuous Experiment types
+
 ## [1.3.1] - 2022-05-18
 ### Changed
 - Unity Version is now 2020.3.27f1

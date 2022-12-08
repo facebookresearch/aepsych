@@ -13,6 +13,7 @@ import sys
 import threading
 import traceback
 import warnings
+from collections.abc import Iterable
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -21,7 +22,7 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
+from aepsych.server.sockets import BAD_REQUEST, DummySocket, createSocket
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
@@ -781,31 +782,42 @@ class AEPsychServer(object):
             )
 
             for param_name, param_value in config.items():
-                if type(param_value) not in [float, int, bool]:
+                if isinstance(param_value, Iterable) and type(param_value) != str:
                     if len(param_value) == 1:
                         self.db.record_param(
                             raw_table=self._db_raw_record,
                             param_name=str(param_name),
-                            param_value=float(param_value[0]),
+                            param_value=str(param_value[0]),
                         )
                     else:
                         for i, v in enumerate(param_value):
                             self.db.record_param(
                                 raw_table=self._db_raw_record,
                                 param_name=str(param_name) + "_stimuli" + str(i),
-                                param_value=float(v),
+                                param_value=str(v),
                             )
                 else:
                     self.db.record_param(
                         raw_table=self._db_raw_record,
                         param_name=str(param_name),
-                        param_value=float(param_value),
+                        param_value=str(param_value),
                     )
 
-            if type(outcome) not in [float, int, bool]:
+            # Check if we get single or multiple outcomes
+            # Multiple outcomes come in the form of iterables that aren't strings or single-element tensors
+            if isinstance(outcome, Iterable) and type(outcome) != str:
                 for i, outcome_value in enumerate(outcome):
-                    if type(outcome_value) not in [float, int, bool]:
-                        if len(outcome_value) == 1:
+                    if (
+                        isinstance(outcome_value, Iterable)
+                        and type(outcome_value) != str
+                    ):
+                        if (
+                            isinstance(outcome_value, torch.Tensor)
+                            and outcome_value.dim() < 2
+                        ):
+                            outcome_value = outcome_value.item()
+
+                        elif len(outcome_value) == 1:
                             outcome_value = outcome_value[0]
                         else:
                             raise ValueError(

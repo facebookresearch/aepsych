@@ -194,7 +194,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -256,11 +255,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27468319abc5b9e4fbe24d8840c7b1dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Dim: 2
+  m_Dim: 0
   m_Method: 0
-  m_Response: 1
+  m_Response: 0
   m_Stimulus: 0
-  selectedScript: 3DContinuousOpt
+  selectedScript: 1DSingleOpt
 --- !u!4 &329997636
 Transform:
   m_ObjectHideFlags: 0
@@ -444,7 +443,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -477,7 +475,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &634023898
 Transform:
   m_ObjectHideFlags: 0
@@ -511,9 +509,8 @@ MonoBehaviour:
   useModelExploration: 0
   autoDisableOtherCanvases: 0
   recordToCSV: 0
-  recordResponseTime: 1
-  asyncAsk: 1
-  startMode: 1
+  recordResponseTime: 0
+  startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
   configGenerator: {fileID: 0}
@@ -751,7 +748,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -797,7 +793,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &706511088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -857,7 +853,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -977,7 +972,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1083,7 +1077,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1151,7 +1144,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 1
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1403,7 +1395,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1502,7 +1493,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1646,7 +1636,7 @@ MonoBehaviour:
   server_address: localhost
   server_port: 5555
   finished: 0
-  debugEnabled: 0
+  debugEnabled: 1
 --- !u!4 &1345180134
 Transform:
   m_ObjectHideFlags: 0
@@ -1752,7 +1742,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 1
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1852,7 +1841,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -1918,7 +1906,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -2236,7 +2223,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -2429,7 +2415,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -2614,7 +2599,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -2731,7 +2715,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 1
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 1
   startMode: 2
   client: {fileID: 0}
   strategy: {fileID: 0}
@@ -2819,7 +2802,6 @@ MonoBehaviour:
   autoDisableOtherCanvases: 0
   recordToCSV: 0
   recordResponseTime: 1
-  asyncAsk: 0
   startMode: 1
   client: {fileID: 0}
   strategy: {fileID: 0}

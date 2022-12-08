@@ -42,7 +42,7 @@
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator.baseline_requiring_acqfs">
-<span class="sig-name descname"><span class="pre">baseline_requiring_acqfs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'botorch.acquisition.monte_carlo.qNoisyExpectedImprovement'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'botorch.acquisition.analytic.NoisyExpectedImprovement'&gt;]</span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.baseline_requiring_acqfs" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">baseline_requiring_acqfs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[botorch.acquisition.qNoisyExpectedImprovement,</span> <span class="pre">botorch.acquisition.NoisyExpectedImprovement]</span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.baseline_requiring_acqfs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator.stimuli_per_trial">
@@ -334,7 +334,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
 This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
 less of what your true upper bound is.</p></li>
-<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
@@ -510,7 +510,7 @@ less of what your true upper bound is.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
 This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
 less of what your true upper bound is.</p></li>
-<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
@@ -882,7 +882,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
 This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
 less of what your true upper bound is.</p></li>
-<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>

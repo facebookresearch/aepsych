@@ -101,10 +101,10 @@ class IntegrationTestCase(unittest.TestCase):
                 .fetchall()
             )
             x1_stimuli0_saved = [
-                item for sublist in x1_stimuli0_saved for item in sublist
+                float(item) for sublist in x1_stimuli0_saved for item in sublist
             ]
             x1_stimuli1_saved = [
-                item for sublist in x1_stimuli1_saved for item in sublist
+                float(item) for sublist in x1_stimuli1_saved for item in sublist
             ]
 
             # Reshape
@@ -124,10 +124,10 @@ class IntegrationTestCase(unittest.TestCase):
                 .fetchall()
             )
             x2_stimuli0_saved = [
-                item for sublist in x2_stimuli0_saved for item in sublist
+                float(item) for sublist in x2_stimuli0_saved for item in sublist
             ]
             x2_stimuli1_saved = [
-                item for sublist in x2_stimuli1_saved for item in sublist
+                float(item) for sublist in x2_stimuli1_saved for item in sublist
             ]
 
             # Reshape
@@ -141,7 +141,7 @@ class IntegrationTestCase(unittest.TestCase):
                 .execute("SELECT x1 FROM experiment_table")
                 .fetchall()
             )
-            x1_saved = [item for sublist in x1_saved for item in sublist]
+            x1_saved = [float(item) for sublist in x1_saved for item in sublist]
             self.assertTrue(x1_saved == x1)
 
             x2_saved = (
@@ -149,7 +149,7 @@ class IntegrationTestCase(unittest.TestCase):
                 .execute("SELECT x2 FROM experiment_table")
                 .fetchall()
             )
-            x2_saved = [item for sublist in x2_saved for item in sublist]
+            x2_saved = [float(item) for sublist in x2_saved for item in sublist]
             self.assertTrue(x2_saved == x2)
 
     def check_outcome(self, outcome_type, outcome):
