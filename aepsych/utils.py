@@ -6,7 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 
 from collections.abc import Iterable
-from typing import Mapping, Optional
+from configparser import NoOptionError
+from typing import Dict, List, Mapping, Optional
 
 import numpy as np
 import torch
@@ -189,3 +190,90 @@ def get_jnd_multid(post_mean, mono_grid, df=1, mono_dim=-1, lb=-np.inf, ub=np.in
         mono_dim,
         post_mean,
     )
+
+
+def _get_ax_parameters(config):
+    range_parnames = config.getlist("common", "parnames", element_type=str, fallback=[])
+    lb = config.getlist("common", "lb", element_type=float, fallback=[])
+    ub = config.getlist("common", "ub", element_type=float, fallback=[])
+
+    assert (
+        len(range_parnames) == len(lb) == len(ub)
+    ), f"Length of parnames ({range_parnames}), lb ({lb}), and ub ({ub}) don't match!"
+
+    range_params = [
+        {
+            "name": parname,
+            "type": "range",
+            "value_type": config.get(parname, "value_type", fallback="float"),
+            "log_scale": config.getboolean(parname, "log_scale", fallback=False),
+            "bounds": [l, u],
+        }
+        for parname, l, u in zip(range_parnames, lb, ub)
+    ]
+
+    choice_parnames = config.getlist(
+        "common", "choice_parnames", element_type=str, fallback=[]
+    )
+    choices = [
+        config.getlist(parname, "choices", element_type=str, fallback=["True", "False"])
+        for parname in choice_parnames
+    ]
+    choice_params = [
+        {
+            "name": parname,
+            "type": "choice",
+            "value_type": config.get(parname, "value_type", fallback="str"),
+            "is_ordered": config.getboolean(parname, "is_ordered", fallback=False),
+            "values": choice,
+        }
+        for parname, choice in zip(choice_parnames, choices)
+    ]
+
+    fixed_parnames = config.getlist(
+        "common", "fixed_parnames", element_type=str, fallback=[]
+    )
+    values = []
+    for parname in fixed_parnames:
+        try:
+            try:
+                value = config.getfloat(parname, "value")
+            except ValueError:
+                value = config.get(parname, "value")
+            values.append(value)
+        except NoOptionError:
+            raise RuntimeError(f"Missing value for fixed parameter {parname}!")
+    fixed_params = [
+        {
+            "name": parname,
+            "type": "fixed",
+            "value": value,
+        }
+        for parname, value in zip(fixed_parnames, values)
+    ]
+
+    return range_params, choice_params, fixed_params
+
+
+def get_parameters(config) -> List[Dict]:
+    range_params, choice_params, fixed_params = _get_ax_parameters(config)
+    return range_params + choice_params + fixed_params
+
+
+def get_dim(config) -> int:
+    range_params, choice_params, _ = _get_ax_parameters(config)
+    # Need to sum dimensions added by both range and choice parameters
+    dim = len(range_params)  # 1 dim per range parameter
+    for par in choice_params:
+        if par["is_ordered"]:
+            dim += 1  # Ordered choice params are encoded like continuous parameters
+        elif len(par["values"]) > 2:
+            dim += len(
+                par["values"]
+            )  # Choice parameter is one-hot encoded such that they add 1 dim for every choice
+        else:
+            dim += (
+                len(par["values"]) - 1
+            )  # Choice parameters with n_choices < 3 add n_choices - 1 dims
+
+    return dim

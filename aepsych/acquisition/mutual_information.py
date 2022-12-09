@@ -14,6 +14,7 @@ from typing import Optional
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
+from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
@@ -110,6 +111,21 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
         if len(obj_samples.shape) == 2:
             obj_samples = obj_samples[..., None]
         return bald_acq(obj_samples)
+
+
+@acqf_input_constructor(BernoulliMCMutualInformation)
+def construct_inputs_mi(
+    model,
+    training_data,
+    objective=None,
+    sampler=None,
+    **kwargs,
+):
+    return {
+        "model": model,
+        "objective": objective,
+        "sampler": sampler,
+    }
 
 
 class MonotonicBernoulliMCMutualInformation(MonotonicMCAcquisition):

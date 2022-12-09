@@ -5,12 +5,13 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import cast, Optional, Tuple
+from typing import Optional, Tuple, cast
 
 import numpy as np
 import torch
 from aepsych.utils import make_scaled_sobol
 from botorch.acquisition import AcquisitionFunction
+from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.objective import PosteriorTransform
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.utils.transforms import t_batch_mode_transform
@@ -124,6 +125,77 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
             self.gamma = None
         else:
             raise RuntimeError(f"Got unknown lookahead type {lookahead_type}!")
+
+
+## Local look-ahead acquisitions
+class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
+    def __init__(
+        self,
+        model: GPyTorchModel,
+        lookahead_type: str = "levelset",
+        target: Optional[float] = None,
+        posterior_transform: Optional[PosteriorTransform] = None,
+    ) -> None:
+        """
+        A localized look-ahead acquisition function.
+
+        Args:
+            model: The gpytorch model.
+            target: Threshold value to target in p-space.
+        """
+
+        super().__init__(model=model, target=target, lookahead_type=lookahead_type)
+        self.posterior_transform = posterior_transform
+
+    @t_batch_mode_transform(expected_q=1)
+    def forward(self, X: Tensor) -> Tensor:
+        """
+        Evaluate acquisition function at X.
+
+        Args:
+            X: (b x 1 x d) point at which to evalaute acquisition function.
+
+        Returns: (b) tensor of acquisition values.
+        """
+
+        Px, P1, P0, py1 = self.lookahead_fn(
+            model=self.model,
+            Xstar=X,
+            Xq=X,
+            gamma=self.gamma,
+            posterior_transform=self.posterior_transform,
+        )  # Return shape here has m=1.
+        return self._compute_acqf(Px, P1, P0, py1)
+
+    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        raise NotImplementedError
+
+
+class LocalMI(LocalLookaheadAcquisitionFunction):
+    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        return MI_fn(Px, P1, P0, py1)
+
+
+class LocalSUR(LocalLookaheadAcquisitionFunction):
+    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        return SUR_fn(Px, P1, P0, py1)
+
+
+@acqf_input_constructor(LocalMI, LocalSUR)
+def construct_inputs_local_lookahead(
+    model: GPyTorchModel,
+    training_data,
+    lookahead_type="levelset",
+    target: Optional[float] = None,
+    posterior_transform: Optional[PosteriorTransform] = None,
+    **kwargs,
+):
+    return {
+        "model": model,
+        "lookahead_type": lookahead_type,
+        "target": target,
+        "posterior_transform": posterior_transform,
+    }
 
 
 ## Global look-ahead acquisitions
@@ -244,60 +316,6 @@ class EAVC(GlobalLookaheadAcquisitionFunction):
         return EAVC_fn(Px, P1, P0, py1)
 
 
-## Local look-ahead acquisitions
-class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
-    def __init__(
-        self,
-        model: GPyTorchModel,
-        lookahead_type: str = "levelset",
-        target: Optional[float] = None,
-        posterior_transform: Optional[PosteriorTransform] = None,
-    ) -> None:
-        """
-        A localized look-ahead acquisition function.
-
-        Args:
-            model: The gpytorch model.
-            target: Threshold value to target in p-space.
-        """
-
-        super().__init__(model=model, target=target, lookahead_type=lookahead_type)
-        self.posterior_transform = posterior_transform
-
-    @t_batch_mode_transform(expected_q=1)
-    def forward(self, X: Tensor) -> Tensor:
-        """
-        Evaluate acquisition function at X.
-
-        Args:
-            X: (b x 1 x d) point at which to evalaute acquisition function.
-
-        Returns: (b) tensor of acquisition values.
-        """
-
-        Px, P1, P0, py1 = self.lookahead_fn(
-            model=self.model,
-            Xstar=X,
-            Xq=X,
-            gamma=self.gamma,
-            posterior_transform=self.posterior_transform,
-        )  # Return shape here has m=1.
-        return self._compute_acqf(Px, P1, P0, py1)
-
-    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
-        raise NotImplementedError
-
-
-class LocalMI(LocalLookaheadAcquisitionFunction):
-    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
-        return MI_fn(Px, P1, P0, py1)
-
-
-class LocalSUR(LocalLookaheadAcquisitionFunction):
-    def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
-        return SUR_fn(Px, P1, P0, py1)
-
-
 class MOCU(GlobalLookaheadAcquisitionFunction):
     """
     MOCU acquisition function given in expr. 4 of:
@@ -357,3 +375,28 @@ class BEMPS(GlobalLookaheadAcquisitionFunction):
             1 - py1
         )
         return (lookahead_expected_score - current_score).mean(-1)
+
+
+@acqf_input_constructor(GlobalMI, GlobalSUR, ApproxGlobalSUR, EAVC, MOCU, SMOCU, BEMPS)
+def construct_inputs_global_lookahead(
+    model: GPyTorchModel,
+    training_data,
+    lookahead_type="levelset",
+    target: Optional[float] = None,
+    posterior_transform: Optional[PosteriorTransform] = None,
+    query_set_size: Optional[int] = 256,
+    Xq: Optional[Tensor] = None,
+    **kwargs,
+):
+    lb = [bounds[0] for bounds in kwargs["bounds"]]
+    ub = [bounds[1] for bounds in kwargs["bounds"]]
+    Xq = Xq if Xq is not None else make_scaled_sobol(lb, ub, query_set_size)
+
+    return {
+        "model": model,
+        "lookahead_type": lookahead_type,
+        "target": target,
+        "posterior_transform": posterior_transform,
+        "query_set_size": query_set_size,
+        "Xq": Xq,
+    }

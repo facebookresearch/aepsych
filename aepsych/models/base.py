@@ -7,11 +7,14 @@
 from __future__ import annotations
 
 import time
+from abc import ABC
 from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 
 import gpytorch
 import numpy as np
 import torch
+from aepsych.config import Config, ConfigurableMixin
+from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import PosteriorMean
@@ -406,3 +409,54 @@ class AEPsychMixin(GPyTorchModel):
     def p_below_threshold(self, x, f_thresh) -> np.ndarray:
         f, var = self.predict(x)
         return norm.cdf((f_thresh - f.detach().numpy()) / var.sqrt().detach().numpy())
+
+
+class AEPsychModel(ConfigurableMixin, ABC):
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
+        if name is None:
+            name = cls.__name__
+
+        mean_covar_factory = config.getobj(
+            name, "mean_covar_factory", fallback=default_mean_covar_factory
+        )
+        mean, covar = mean_covar_factory(config)
+
+        likelihood_cls = config.getobj(name, "likelihood", fallback=None)
+        if likelihood_cls is not None:
+            if hasattr(likelihood_cls, "from_config"):
+                likelihood = likelihood_cls.from_config(config)
+            else:
+                likelihood = likelihood_cls()
+        else:
+            likelihood = None  # fall back to __init__ default
+
+        max_fit_time = config.getfloat(name, "max_fit_time", fallback=None)
+
+        options = {
+            "likelihood": likelihood,
+            "covar_module": covar,
+            "mean_module": mean,
+            "max_fit_time": max_fit_time,
+        }
+
+        return options
+
+    @classmethod
+    def construct_inputs(cls, training_data, **kwargs):
+        train_X = training_data.X()
+        train_Y = training_data.Y()
+
+        likelihood = kwargs.get("likelihood")
+        covar_module = kwargs.get("covar_module")
+        mean_module = kwargs.get("mean_module")
+
+        inputs = {
+            "train_X": train_X,
+            "train_Y": train_Y,
+            "likelihood": likelihood,
+            "covar_module": covar_module,
+            "mean_module": mean_module,
+        }
+
+        return inputs

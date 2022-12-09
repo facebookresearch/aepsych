@@ -4,7 +4,7 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-
+import abc
 import ast
 import configparser
 import json
@@ -355,6 +355,18 @@ class Config(configparser.ConfigParser):
 
         else:
             raise RuntimeError("Unrecognized config format!")
+
+
+class ConfigurableMixin(abc.ABC):
+    @abc.abstractclassmethod
+    def get_config_options(cls, config: Config, name: str) -> Dict[str, Any]:  # noqa
+        raise NotImplementedError(
+            f"get_config_options hasn't been defined for {cls.__name__}!"
+        )
+
+    @classmethod
+    def from_config(cls, config: Config, name: Optional[str] = None):
+        return cls(**cls.get_config_options(config, name))
 
 
 Config.register_module(gpytorch.kernels)

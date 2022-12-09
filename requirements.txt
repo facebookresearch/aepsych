@@ -3,9 +3,7 @@ torch
 pyzmq==19.0.2
 scipy
 sklearn
-gpytorch>=1.8.1
 statsmodels
-botorch>=0.8.0
 SQLAlchemy
 dill
 pandas
@@ -14,3 +12,4 @@ pathos
 aepsych_client>=0.2.0
 voila==0.3.6
 ipywidgets==7.6.5
+ax-platform
