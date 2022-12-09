@@ -23,7 +23,7 @@ import pandas as pd
 import torch
 from aepsych.config import Config
 from aepsych.server.sockets import BAD_REQUEST, DummySocket, createSocket
-from aepsych.strategy import SequentialStrategy
+from aepsych.strategy import AEPsychStrategy, SequentialStrategy
 from aepsych.version import __version__
 
 logger = utils_logging.getLogger(logging.INFO)
@@ -740,10 +740,14 @@ class AEPsychServer(object):
                 self.strat._make_next_strat()
             return None
 
-        # index by [0] is temporary HACK while serverside
-        # doesn't handle batched ask
-        next_x = self.strat.gen()[0]
-        return self._tensor_to_config(next_x)
+        if not self.use_ax:
+            # index by [0] is temporary HACK while serverside
+            # doesn't handle batched ask
+            next_x = self.strat.gen()[0]
+            return self._tensor_to_config(next_x)
+
+        next_x = self.strat.gen()
+        return next_x
 
     def _tensor_to_config(self, next_x):
         config = {}
@@ -833,17 +837,28 @@ class AEPsychServer(object):
                 )
 
         if model_data:
-            x = self._config_to_tensor(config)
-            y = outcome
-            self.strat.add_data(x, y)
+            if not self.use_ax:
+                x = self._config_to_tensor(config)
+            else:
+                x = config
+            self.strat.add_data(x, outcome)
 
     def _configure(self, config):
-        self.parnames = config._str_to_list(
+        parnames = config._str_to_list(
             config.get("common", "parnames"), element_type=str
         )
+        self.parnames = parnames
         self.config = config
-        self.strat = SequentialStrategy.from_config(config)
-        self.strat_id = self.n_strats - 1  # 0-index strats
+        self.use_ax = config.getboolean("common", "use_ax", fallback=False)
+        if self.use_ax:
+            self.trial_index = -1
+            self.strat = AEPsychStrategy.from_config(config)
+            self.strat_id = self.n_strats - 1
+
+        else:
+            self.strat = SequentialStrategy.from_config(config)
+            self.strat_id = self.n_strats - 1  # 0-index strats
+
         return self.strat_id
 
     def configure(self, config=None, **config_args):

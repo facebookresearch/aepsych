@@ -10,10 +10,14 @@ from typing import Optional, Union
 
 import numpy as np
 import torch
-from aepsych.models.base import ModelProtocol
 from botorch.models.approximate_gp import _select_inducing_points
 from botorch.utils.sampling import draw_sobol_samples
+from gpytorch.kernels import Kernel
+from gpytorch.likelihoods import BernoulliLikelihood
 from scipy.cluster.vq import kmeans2
+from scipy.special import owens_t
+from scipy.stats import norm
+from torch.distributions import Normal
 
 
 def compute_p_quantile(
@@ -39,7 +43,7 @@ def compute_p_quantile(
 
 def select_inducing_points(
     inducing_size: int,
-    model: Optional[ModelProtocol] = None,
+    covar_module: Kernel = None,
     X: Optional[torch.Tensor] = None,
     bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
     method: str = "auto",
@@ -72,12 +76,9 @@ def select_inducing_points(
                 method = "kmeans++"
 
         if method == "pivoted_chol":
-            assert model is not None and hasattr(
-                model, "covar_module"
-            ), "Must pass model with a covar_module for pivoted_chol inducing point selection!"
             inducing_points = _select_inducing_points(
-                inputs=unique_X,
-                covar_module=model.covar_module,
+                inputs=X,
+                covar_module=covar_module,
                 num_inducing=inducing_size,
                 input_batch_shape=torch.Size([]),
             )
@@ -88,3 +89,27 @@ def select_inducing_points(
                 dtype=X.dtype,
             )
         return inducing_points
+
+
+def get_probability_space(likelihood, posterior):
+    fmean = posterior.mean.squeeze()
+    fvar = posterior.variance.squeeze()
+    if isinstance(likelihood, BernoulliLikelihood):
+        # Probability-space mean and variance for Bernoulli-probit models is
+        # available in closed form, Proposition 1 in Letham et al. 2022 (AISTATS).
+        a_star = fmean / torch.sqrt(1 + fvar)
+        pmean = Normal(0, 1).cdf(a_star)
+        t_term = torch.tensor(
+            owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
+            dtype=a_star.dtype,
+        )
+        pvar = pmean - 2 * t_term - pmean.square()
+    else:
+        fsamps = posterior.sample(torch.Size([10000]))
+        if hasattr(likelihood, "objective"):
+            psamps = likelihood.objective(fsamps)
+        else:
+            psamps = norm.cdf(fsamps)
+        pmean, pvar = psamps.mean(0), psamps.var(0)
+
+    return pmean, pvar

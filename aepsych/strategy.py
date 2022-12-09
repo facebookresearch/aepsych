@@ -5,20 +5,24 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+from __future__ import annotations
+
 import time
 import warnings
-from typing import List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
-
-from aepsych.config import Config
-from aepsych.generators.base import AEPsychGenerator
-from aepsych.generators.sobol_generator import SobolGenerator
-from aepsych.models.base import ModelProtocol
-from aepsych.utils import _process_bounds, make_scaled_sobol
-from aepsych.utils_logging import getLogger
+from ax.modelbridge.generation_strategy import GenerationStrategy
+from ax.service.ax_client import AxClient
 from botorch.exceptions.errors import ModelFittingError
+
+from aepsych.config import Config, ConfigurableMixin
+from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
+from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
+from aepsych.models.base import ModelProtocol
+from aepsych.utils import _process_bounds, get_parameters, make_scaled_sobol
+from aepsych.utils_logging import getLogger
 
 logger = getLogger()
 
@@ -300,6 +304,8 @@ class Strategy(object):
 
     def fit(self):
         if self.can_fit:
+            logger.info("Starting fit...")
+            starttime = time.time()
             if self.keep_most_recent is not None:
                 try:
                     self.model.fit(
@@ -317,6 +323,7 @@ class Strategy(object):
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
+            logger.info(f"Fit done, time={time.time()-starttime}")
         else:
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
@@ -484,3 +491,71 @@ class SequentialStrategy(object):
             strats.append(strat)
 
         return cls(strat_list=strats)
+
+
+class AEPsychStrategy(ConfigurableMixin):
+    is_finished = False
+
+    def __init__(self, strategy: GenerationStrategy, ax_client: AxClient):
+        self.strat = strategy
+        self.ax_client = ax_client
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
+        # TODO: Fix the mypy errors
+        strat_names: List[str] = config.getlist("common", "strategy_names", element_type=str)  # type: ignore
+        steps = []
+        for name in strat_names:
+            generator = config.getobj(name, "generator", fallback=AxSobolGenerator)  # type: ignore
+            opts = generator.get_config_options(config, name)
+            step = AEPsychGenerationStep(**opts)
+            steps.append(step)
+
+        parameters = get_parameters(config)
+
+        parameter_constraints = config.getlist(
+            "common", "par_constraints", element_type=str, fallback=None
+        )
+
+        strat = GenerationStrategy(steps=steps)
+        ax_client = AxClient(strat)
+        ax_client.create_experiment(
+            name="experiment",
+            parameters=parameters,
+            parameter_constraints=parameter_constraints,
+        )
+
+        return {"strategy": strat, "ax_client": ax_client}
+
+    @property
+    def finished(self) -> bool:
+        if self.is_finished:
+            return True
+
+        steps_left = len(self.strat._steps) - (self.strat.current_step.index + 1)
+        return (
+            self.strat.current_step.finished(self.strat.experiment) and steps_left == 0
+        )
+
+    def finish(self):
+        self.is_finished = True
+
+    def gen(self, num_points: int = 1):
+        x, _ = self.ax_client.get_next_trials(max_trials=num_points)
+        next_x: Dict[str, Any] = {}
+        for par in self.strat.experiment.parameters:
+            next_x[par] = []
+            for i in x:
+                next_x[par].append(x[i][par])
+        return next_x
+
+    def add_data(self, x, y):
+        n = len(x[list(x.keys())[0]])
+        for i in range(n):
+            params = {par: x[par][i] for par in x}
+            _, trial_index = self.ax_client.attach_trial(params)
+            self.ax_client.complete_trial(trial_index=trial_index, raw_data=y)
+
+    @property
+    def experiment(self):
+        return self.strat.experiment

@@ -9,6 +9,7 @@ from typing import Optional, Union
 
 import torch
 from aepsych.acquisition.objective import ProbitObjective
+from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import (
     MCAcquisitionFunction,
     MCAcquisitionObjective,
@@ -84,3 +85,23 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
         post = self.model.posterior(X)
         samples = self.sampler(post)  # num_samples x batch_shape x q x d_out
         return self.acquisition(self.objective(samples, X)).squeeze(-1)
+
+
+@acqf_input_constructor(MCLevelSetEstimation)
+def construct_inputs_lse(
+    model,
+    training_data,
+    objective=None,
+    target=0.75,
+    beta=3.84,
+    sampler=None,
+    **kwargs,
+):
+
+    return {
+        "model": model,
+        "objective": objective,
+        "target": target,
+        "beta": beta,
+        "sampler": sampler,
+    }

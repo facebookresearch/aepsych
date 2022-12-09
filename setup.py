@@ -17,8 +17,6 @@ REQUIRES = [
     "pyzmq==19.0.2",
     "scipy",
     "sklearn",
-    "gpytorch>=1.9.0",
-    "botorch>=0.8.0",
     "SQLAlchemy",
     "dill",
     "pandas",
@@ -28,6 +26,7 @@ REQUIRES = [
     "voila==0.3.6",
     "ipywidgets==7.6.5",
     "statsmodels",
+    "ax-platform"
 ]
 
 DEV_REQUIRES = [

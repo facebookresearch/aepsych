@@ -3,15 +3,22 @@
 # All rights reserved.
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+from __future__ import annotations
+
 import time
-from typing import Any, Dict, Optional
+from inspect import signature
+from typing import Any, Dict, Optional, cast
 
 import numpy as np
 import torch
-from aepsych.config import Config
-from aepsych.generators.base import AEPsychGenerator
+from aepsych.acquisition.acquisition import AEPsychAcquisition
+from aepsych.config import Config, ConfigurableMixin
+from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
 from aepsych.models.base import ModelProtocol
+from aepsych.models.surrogate import AEPsychSurrogate
 from aepsych.utils_logging import getLogger
+from ax.modelbridge import Models
+from ax.modelbridge.registry import Cont_X_trans
 from botorch.acquisition import AcquisitionFunction
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from botorch.optim import optimize_acqf
@@ -166,3 +173,89 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             max_gen_time=max_gen_time,
             stimuli_per_trial=stimuli_per_trial,
         )
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: str):
+        return AxOptimizeAcqfGenerator.get_config_options(config, name)
+
+
+class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
+    @classmethod
+    def get_config_options(cls, config: Config, name: str) -> Dict:
+        classname = "OptimizeAcqfGenerator"
+
+        model_class = config.getobj(name, "model", fallback=None)
+        model_options = model_class.get_config_options(config)
+
+        acqf_cls = config.getobj(name, "acqf", fallback=None)
+        if acqf_cls is None:
+            acqf_cls = config.getobj(classname, "acqf")
+
+        acqf_options = cls._get_acqf_options(acqf_cls, config)
+        gen_options = cls._get_gen_options(config)
+
+        max_fit_time = model_options["max_fit_time"]
+
+        model_kwargs = {
+            "surrogate": AEPsychSurrogate(
+                botorch_model_class=model_class,
+                mll_class=model_class.get_mll_class(),
+                model_options=model_options,
+                max_fit_time=max_fit_time,
+            ),
+            "acquisition_class": AEPsychAcquisition,
+            "botorch_acqf_class": acqf_cls,
+            "acquisition_options": acqf_options,
+            # The Y transforms are removed because they are incompatible with our thresholding-finding acqfs
+            # The target value doesn't get transformed, so it searches for the target in the wrong space.
+            "transforms": Cont_X_trans,  # TODO: Make LSE acqfs compatible with Y transforms
+        }
+
+        opts = {
+            "model": Models.BOTORCH_MODULAR,
+            "model_kwargs": model_kwargs,
+            "model_gen_kwargs": gen_options,
+        }
+
+        opts.update(super().get_config_options(config, name))
+
+        return opts
+
+    @classmethod
+    def _get_acqf_options(cls, acqf: AcquisitionFunction, config: Config):
+        class MissingValue:
+            pass
+
+        if acqf is not None:
+            acqf_name = acqf.__name__
+
+            acqf_args_expected = signature(acqf).parameters.keys()
+            acqf_args = {
+                k: config.getobj(
+                    acqf_name,
+                    k,
+                    fallback_type=float,
+                    fallback=MissingValue(),
+                    warn=False,
+                )
+                for k in acqf_args_expected
+            }
+            acqf_args = {
+                k: v for k, v in acqf_args.items() if not isinstance(v, MissingValue)
+            }
+            for k, v in acqf_args.items():
+                if hasattr(v, "from_config"):  # configure if needed
+                    acqf_args[k] = cast(Any, v).from_config(config)
+                elif isinstance(v, type):  # instaniate a class if needed
+                    acqf_args[k] = v()
+        else:
+            acqf_args = {}
+
+        return acqf_args
+
+    @classmethod
+    def _get_gen_options(cls, config: Config):
+        classname = "OptimizeAcqfGenerator"
+        restarts = config.getint(classname, "restarts", fallback=10)
+        samps = config.getint(classname, "samps", fallback=1000)
+        return {"restarts": restarts, "samps": samps}

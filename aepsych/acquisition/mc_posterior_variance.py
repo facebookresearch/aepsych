@@ -10,6 +10,7 @@ from typing import Optional
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.acquisition.objective import ProbitObjective
+from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.models.model import Model
@@ -84,6 +85,21 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         if len(obj_samples.shape) == 2:
             obj_samples = obj_samples[..., None]
         return balv_acq(obj_samples)
+
+
+@acqf_input_constructor(MCPosteriorVariance)
+def construct_inputs(
+    model,
+    training_data,
+    objective=None,
+    sampler=None,
+    **kwargs,
+):
+    return {
+        "model": model,
+        "objective": objective,
+        "sampler": sampler,
+    }
 
 
 class MonotonicMCPosteriorVariance(MonotonicMCAcquisition):

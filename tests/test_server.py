@@ -17,6 +17,7 @@ import aepsych.utils_logging as utils_logging
 import torch
 from aepsych.config import Config
 from aepsych.server.sockets import BAD_REQUEST
+from aepsych.strategy import AEPsychStrategy
 
 dummy_config = """
 [common]
@@ -718,6 +719,30 @@ class ServerTestCase(unittest.TestCase):
         self.s.replay(self.s._db_master_record.experiment_id, skip_computations=False)
         self.assertEqual(mock_gen.call_count, n_asks * 2)
         self.assertEqual(mock_query.call_count, 2)
+
+    def test_ax_functionality(self):
+        config_str = """
+        [common]
+        use_ax = True
+        lb = [0]
+        ub = [1]
+        parnames = [x]
+        stimuli_per_trial = 1
+        outcome_types = [binary]
+        strategy_names = [init_strat, opt_strat]
+
+        [init_strat]
+        generator = SobolGenerator
+
+        [opt_strat]
+        generator = OptimizeAcqfGenerator
+        model = ContinuousRegressionGP
+        acqf = qNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        self.s.configure(config=config)
+        self.assertTrue(self.s.use_ax)
+        self.assertIsInstance(self.s.strat, AEPsychStrategy)
 
 
 if __name__ == "__main__":

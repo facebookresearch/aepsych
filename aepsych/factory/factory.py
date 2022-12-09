@@ -13,6 +13,7 @@ import torch
 from aepsych.config import Config
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
+from aepsych.utils import get_dim
 from scipy.stats import norm
 
 """AEPsych factory functions.
@@ -48,8 +49,6 @@ def default_mean_covar_factory(
             ConstantMean and ScaleKernel with priors based on bounds.
     """
 
-    lb = config.gettensor("default_mean_covar_factory", "lb")
-    ub = config.gettensor("default_mean_covar_factory", "ub")
     fixed_mean = config.getboolean(
         "default_mean_covar_factory", "fixed_mean", fallback=False
     )
@@ -63,8 +62,17 @@ def default_mean_covar_factory(
         "default_mean_covar_factory", "kernel", fallback=gpytorch.kernels.RBFKernel
     )
 
-    assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
-    dim = lb.shape[0]
+    mean = gpytorch.means.ConstantMean()
+
+    if config.getboolean("common", "use_ax", fallback=False):
+        dim = get_dim(config)
+
+    else:
+        lb = config.gettensor("default_mean_covar_factory", "lb")
+        ub = config.gettensor("default_mean_covar_factory", "ub")
+        assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
+        dim = lb.shape[0]
+
     mean = gpytorch.means.ConstantMean()
 
     if fixed_mean:
@@ -184,10 +192,15 @@ def song_mean_covar_factory(
         Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]: Instantiated
             constant mean object and additive kernel object.
     """
-    lb = config.gettensor("song_mean_covar_factory", "lb")
-    ub = config.gettensor("song_mean_covar_factory", "ub")
-    assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
-    dim = lb.shape[0]
+
+    if config.getboolean("common", "use_ax", fallback=False):
+        dim = get_dim(config)
+
+    else:
+        lb = config.gettensor("song_mean_covar_factory", "lb")
+        ub = config.gettensor("song_mean_covar_factory", "ub")
+        assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
+        dim = lb.shape[0]
 
     mean = gpytorch.means.ConstantMean()
 

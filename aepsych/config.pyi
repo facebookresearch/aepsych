@@ -5,6 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import abc
 import configparser
 from typing import Any, ClassVar, Dict, List, Mapping, Optional, TypeVar, Union
 
@@ -62,3 +63,9 @@ class Config(configparser.ConfigParser):
     ) -> Union[np.ndarray, _T]: ...
     @classmethod
     def register_module(cls: _T, module): ...
+
+class ConfigurableMixin(abc.ABC):
+    @classmethod
+    def get_config_options(cls, config: Config, name: str) -> Dict[str, Any]: ...
+    @classmethod
+    def from_config(cls, config: Config, name: Optional[str] = None): ...

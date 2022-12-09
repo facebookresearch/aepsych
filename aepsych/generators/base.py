@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
-
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import abc
 from inspect import signature
-from typing import Any, Generic, Protocol, runtime_checkable, TypeVar
+from typing import Any, Dict, Generic, Protocol, TypeVar, runtime_checkable
 
 import numpy as np
-from aepsych.config import Config
+from aepsych.config import Config, ConfigurableMixin
 from aepsych.models.base import AEPsychMixin
+from ax.core.experiment import Experiment
+from ax.modelbridge.generation_node import GenerationStep
 from botorch.acquisition import (
     AcquisitionFunction,
     NoisyExpectedImprovement,
     qNoisyExpectedImprovement,
 )
+
+from .completion_criterion import completion_criteria
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
@@ -87,3 +90,25 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
             extra_acqf_args = {}
 
         return extra_acqf_args
+
+
+class AEPsychGenerationStep(GenerationStep, ConfigurableMixin, abc.ABC):
+    def __init__(self, name, **kwargs):
+        super().__init__(num_trials=-1, **kwargs)
+        self.name = name
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: str) -> Dict:
+        criteria = []
+        for crit in completion_criteria:
+            # TODO: Figure out how to convince mypy that CompletionCriterion have `from_config`
+            criterion = crit.from_config(config, name)  # type: ignore
+            criteria.append(criterion)
+        options = {"completion_criteria": criteria, "name": name}
+        return options
+
+    def finished(self, experiment: Experiment):
+        finished = all(
+            [criterion.is_met(experiment) for criterion in self.completion_criteria]
+        )
+        return finished
