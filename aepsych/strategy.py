@@ -14,7 +14,10 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
 import numpy as np
 import torch
 from ax.modelbridge.generation_strategy import GenerationStrategy
+from ax.plot.contour import interact_contour
+from ax.plot.slice import plot_slice
 from ax.service.ax_client import AxClient
+from ax.utils.notebook.plotting import render
 from botorch.exceptions.errors import ModelFittingError
 
 from aepsych.config import Config, ConfigurableMixin
@@ -559,3 +562,67 @@ class AEPsychStrategy(ConfigurableMixin):
     @property
     def experiment(self):
         return self.strat.experiment
+
+    def _warn_on_outcome_mismatch(self):
+        ax_model = self.ax_client.generation_strategy.model
+        aepsych_model = ax_model.model.surrogate.model
+        if (
+            hasattr(aepsych_model, "outcome_type")
+            and aepsych_model.outcome_type != "continuous"
+        ):
+            warnings.warn(
+                "Cannot directly plot non-continuous outcomes. Plotting the latent function instead."
+            )
+
+    def plot_contours(
+        self, density: int = 50, slice_values: Optional[Dict[str, Any]] = None
+    ):
+        """Plot predictions for a 2-d slice of the parameter space.
+
+        Args:
+            density: Number of points along each parameter to evaluate predictions.
+            slice_values: A dictionary {name: val} for the fixed values of the
+                other parameters. If not provided, then the mean of numeric
+                parameters or the mode of choice parameters will be used.
+        """
+        assert (
+            len(self.experiment.parameters) > 1
+        ), "plot_contours requires at least 2 parameters! Use 'plot_slice' instead."
+        ax_model = self.ax_client.generation_strategy.model
+        self._warn_on_outcome_mismatch()
+
+        render(
+            interact_contour(
+                model=ax_model,
+                metric_name="objective",
+                density=density,
+                slice_values=slice_values,
+            )
+        )
+
+    def plot_slice(
+        self,
+        param_name: str,
+        density: int = 50,
+        slice_values: Optional[Dict[str, Any]] = None,
+    ):
+        """Plot predictions for a 1-d slice of the parameter space.
+
+        Args:
+            param_name: Name of parameter that will be sliced
+            density: Number of points along slice to evaluate predictions.
+            slice_values: A dictionary {name: val} for the fixed values of the
+                other parameters. If not provided, then the mean of numeric
+                parameters or the mode of choice parameters will be used.
+        """
+        self._warn_on_outcome_mismatch()
+        ax_model = self.ax_client.generation_strategy.model
+        render(
+            plot_slice(
+                model=ax_model,
+                param_name=param_name,
+                metric_name="objective",
+                density=density,
+                slice_values=slice_values,
+            )
+        )
