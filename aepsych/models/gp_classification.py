@@ -267,8 +267,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         """
         with torch.no_grad():
             post = self.posterior(x)
-        fmean = post.mean.squeeze()
-        fvar = post.variance.squeeze()
+            fmean = post.mean.squeeze()
+            fvar = post.variance.squeeze()
         if probability_space:
             if isinstance(self.likelihood, BernoulliLikelihood):
                 # Probability-space mean and variance for Bernoulli-probit models is
