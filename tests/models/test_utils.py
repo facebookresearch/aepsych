@@ -9,9 +9,10 @@ import unittest
 
 import numpy as np
 import torch
+from sklearn.datasets import make_classification
+
 from aepsych.models import GPClassificationModel
 from aepsych.models.utils import select_inducing_points
-from sklearn.datasets import make_classification
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -39,7 +40,7 @@ class UtilsTestCase(unittest.TestCase):
             np.allclose(
                 select_inducing_points(
                     inducing_size=inducing_size,
-                    model=model,
+                    covar_module=model.covar_module,
                     X=model.train_inputs[0],
                     bounds=model.bounds,
                     method="auto",
@@ -54,7 +55,7 @@ class UtilsTestCase(unittest.TestCase):
             len(
                 select_inducing_points(
                     inducing_size=inducing_size,
-                    model=model,
+                    covar_module=model.covar_module,
                     X=model.train_inputs[0],
                     bounds=model.bounds,
                     method="auto",
@@ -67,7 +68,7 @@ class UtilsTestCase(unittest.TestCase):
             len(
                 select_inducing_points(
                     inducing_size=inducing_size,
-                    model=model,
+                    covar_module=model.covar_module,
                     X=model.train_inputs[0],
                     bounds=model.bounds,
                     method="pivoted_chol",
@@ -80,7 +81,7 @@ class UtilsTestCase(unittest.TestCase):
             len(
                 select_inducing_points(
                     inducing_size=inducing_size,
-                    model=model,
+                    covar_module=model.covar_module,
                     X=model.train_inputs[0],
                     bounds=model.bounds,
                     method="kmeans++",
@@ -92,7 +93,7 @@ class UtilsTestCase(unittest.TestCase):
         with self.assertRaises(AssertionError):
             select_inducing_points(
                 inducing_size=inducing_size,
-                model=model,
+                covar_module=model.covar_module,
                 X=model.train_inputs[0],
                 bounds=model.bounds,
                 method="12345",
