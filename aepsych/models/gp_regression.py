@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -88,19 +88,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
 
     @classmethod
-    def from_config(cls, config: Config) -> GPRegressionModel:
-        """Alternate constructor for GP regression model.
-
-        This is used when we recursively build a full sampling strategy
-        from a configuration. TODO: document how this works in some tutorial.
-
-        Args:
-            config (Config): A configuration containing keys/values matching this class
-
-        Returns:
-            GPRegressionModel: Configured class instance.
-        """
-
+    def construct_inputs(cls, config: Config) -> Dict:
         classname = cls.__name__
 
         lb = config.gettensor(classname, "lb")
@@ -124,16 +112,33 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
             likelihood = None  # fall back to __init__ default
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
+        return {
+            "lb": lb,
+            "ub": ub,
+            "dim": dim,
+            "mean_module": mean,
+            "covar_module": covar,
+            "likelihood": likelihood,
+            "max_fit_time": max_fit_time,
+        }
 
-        return cls(
-            lb=lb,
-            ub=ub,
-            dim=dim,
-            mean_module=mean,
-            covar_module=covar,
-            likelihood=likelihood,
-            max_fit_time=max_fit_time,
-        )
+    @classmethod
+    def from_config(cls, config: Config) -> GPRegressionModel:
+        """Alternate constructor for GP regression model.
+
+        This is used when we recursively build a full sampling strategy
+        from a configuration. TODO: document how this works in some tutorial.
+
+        Args:
+            config (Config): A configuration containing keys/values matching this class
+
+        Returns:
+            GPRegressionModel: Configured class instance.
+        """
+
+        args = cls.construct_inputs(config)
+
+        return cls(**args)
 
     def fit(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs) -> None:
         """Fit underlying model.
