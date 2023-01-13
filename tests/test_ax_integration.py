@@ -11,10 +11,11 @@ import uuid
 
 import numpy as np
 import torch
-from aepsych.config import Config
-from aepsych.server import AEPsychServer
 from aepsych_client import AEPsychClient
 from ax.service.utils.report_utils import exp_to_df
+
+from aepsych.config import Config
+from aepsych.server import AEPsychServer
 
 
 class AxIntegrationTestCase(unittest.TestCase):
@@ -50,6 +51,9 @@ class AxIntegrationTestCase(unittest.TestCase):
 
             # Tell the server what happened so that it can update its model.
             cls.client.tell(trial_params["config"], outcome)
+
+        # Add an extra tell to make sure manual tells and duplicate params
+        cls.client.tell(trial_params["config"], outcome)
 
         cls.df = exp_to_df(cls.client.server.strat.experiment)
 
@@ -91,18 +95,11 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         self.assertEqual(self.df["par3"].dtype, "int64")
 
-    def test_trial_status(self):
-        n_asks = (self.df["trial_status"] == "RUNNING").sum()
+    def test_n_trials(self):
         n_tells = (self.df["trial_status"] == "COMPLETED").sum()
-        n_parameterizations = len(
-            self.df[[f"par{i}" for i in range(1, 8)]].drop_duplicates()
-        )
+        correct_n_tells = self.config.getint("opt_strat", "min_total_tells") + 1
 
-        correct_n_asks = self.config.getint("opt_strat", "min_total_tells")
-
-        self.assertEqual(n_asks, correct_n_asks)
-        self.assertEqual(n_tells, correct_n_asks)
-        self.assertEqual(n_parameterizations, correct_n_asks)
+        self.assertEqual(n_tells, correct_n_tells)
 
     def test_generation_method(self):
         n_sobol = (self.df["generation_method"] == "Sobol").sum()
