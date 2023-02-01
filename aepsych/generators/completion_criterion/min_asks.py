@@ -7,14 +7,21 @@
 
 from typing import Any, Dict
 
+from ax.core.experiment import Experiment
+from ax.modelbridge.completion_criterion import CompletionCriterion
+
 from aepsych.config import Config, ConfigurableMixin
-from ax.core.base_trial import TrialStatus
-from ax.modelbridge.completion_criterion import MinimumTrialsInStatus
 
 
-class MinAsks(MinimumTrialsInStatus, ConfigurableMixin):
+class MinAsks(CompletionCriterion, ConfigurableMixin):
+    def __init__(self, threshold: int) -> None:
+        self.threshold = threshold
+
+    def is_met(self, experiment: Experiment) -> bool:
+        return experiment.num_asks >= self.threshold
+
     @classmethod
     def get_config_options(cls, config: Config, name: str) -> Dict[str, Any]:
         min_asks = config.getint(name, "min_asks", fallback=1)
-        options = {"status": TrialStatus.RUNNING, "threshold": min_asks}
+        options = {"threshold": min_asks}
         return options

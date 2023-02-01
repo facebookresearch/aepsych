@@ -13,13 +13,6 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
-
-from aepsych.config import Config, ConfigurableMixin
-from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
-from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
-from aepsych.models.base import ModelProtocol
-from aepsych.utils import _process_bounds, get_parameters, make_scaled_sobol
-from aepsych.utils_logging import getLogger
 from ax.core.base_trial import TrialStatus
 from ax.modelbridge.generation_strategy import GenerationStrategy
 from ax.plot.contour import interact_contour
@@ -27,6 +20,13 @@ from ax.plot.slice import plot_slice
 from ax.service.ax_client import AxClient
 from ax.utils.notebook.plotting import render
 from botorch.exceptions.errors import ModelFittingError
+
+from aepsych.config import Config, ConfigurableMixin
+from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
+from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
+from aepsych.models.base import ModelProtocol
+from aepsych.utils import _process_bounds, get_parameters, make_scaled_sobol
+from aepsych.utils_logging import getLogger
 
 logger = getLogger()
 
@@ -502,6 +502,7 @@ class AEPsychStrategy(ConfigurableMixin):
 
     def __init__(self, strategy: GenerationStrategy, ax_client: AxClient):
         self.strat = strategy
+        self.strat.experiment.num_asks = 0
         self.ax_client = ax_client
 
     @classmethod
@@ -546,6 +547,7 @@ class AEPsychStrategy(ConfigurableMixin):
 
     def gen(self, num_points: int = 1):
         x, _ = self.ax_client.get_next_trials(max_trials=num_points)
+        self.strat.experiment.num_asks += num_points
         next_x: Dict[str, Any] = {}
         for par in self.strat.experiment.parameters:
             next_x[par] = []
@@ -559,19 +561,18 @@ class AEPsychStrategy(ConfigurableMixin):
         for i in range(n):
             params = {par: x[par][i] for par in x}
 
-            # Not ideal but necessary to deal with botorch's notion of "pending
-            # points". Should pass in Ax trial index instead.
-            trial_index_list = [
-                i
-                for i in range(len(self.ax_client.experiment.trials))
-                if self.ax_client.get_trial(trial_index=i).arm.parameters == params
-            ]
-            if (
-                len(trial_index_list) > 0
-                and self.ax_client.get_trial(trial_index=trial_index_list[0]).status
-                != TrialStatus.COMPLETED
-            ):
-                trial_index = trial_index_list[0]
+            # Check if this set of parameters already has an associated trial index. Usually it is the latest trial, so
+            # we iterate backwards. Ideally we would just pass in a trial index directly, but that would requre changes
+            # to server messages.
+            for i in reversed(range(len(self.ax_client.experiment.trials))):
+                trial = self.ax_client.get_trial(trial_index=i)
+                if (
+                    trial.arm.parameters == params
+                    and trial.status != TrialStatus.COMPLETED
+                ):
+                    trial_index = i
+                    break
+
             else:
                 _, trial_index = self.ax_client.attach_trial(params)
 
