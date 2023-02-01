@@ -17,7 +17,7 @@ REQUIRES = [
     "pyzmq==19.0.2",
     "scipy",
     "sklearn",
-    "SQLAlchemy",
+    "SQLAlchemy==1.4.46",
     "dill",
     "pandas",
     "tqdm",
