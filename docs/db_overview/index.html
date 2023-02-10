@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Database Overview · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="The database is an important component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using [SQL Alchemy](https://www.sqlalchemy.org/). The entire structure of the AEPsych Database implementation can be seen below in the following diagram:"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Database Overview · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="The database is an important component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using [SQL Alchemy](https://www.sqlalchemy.org/). The entire structure of the AEPsych Database implementation can be seen below in the following diagram:"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Database Overview · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="The database is an essential component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using [SQL Alchemy](https://www.sqlalchemy.org/). The entire structure of the AEPsych Database implementation can be seen below in the following diagram:"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Database Overview · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="The database is an essential component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using [SQL Alchemy](https://www.sqlalchemy.org/). The entire structure of the AEPsych Database implementation can be seen below in the following diagram:"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -60,12 +60,15 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/db_overview.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Database Overview</h1></header><article><div><span><p>The database is an important component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using <a href="https://www.sqlalchemy.org/">SQL Alchemy</a>. The entire structure of the AEPsych Database implementation can be seen below in the following diagram:</p>
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/db_overview.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Database Overview</h1></header><article><div><span><p>The database is an essential component in an AEPsych project. It stores experiment metadata and also includes each message passed between the client and server, allowing previous experiments to be replayed trial-by-trial. The database is built using <a href="https://www.sqlalchemy.org/">SQL Alchemy</a>. The entire structure of the AEPsych Database implementation can be seen below in the following diagram:</p>
 <p><img src="/docs/assets/db_diagram.png" alt="DB Diagram"></p>
-<p>In this diagram, the primary table is in yellow with all child tables in blue. The green-highlighted text represents the unique ID entry for that specific table. The yellow-highlighted text corresponds to a foreign key in the primary (yellow) table.</p>
-<p>The database contains four tables: one primary and three secondary tables. Each table is described as follows:</p>
+<p>In this diagram, the primary table is in yellow, with all child tables in blue. The green-highlighted text represents the unique ID entry for that specific table. The yellow-highlighted text corresponds to a foreign key in the primary (yellow) table.</p>
+<p>The raw_data Table is a fact table with two dimension child tables (in green). Again, the green-highlighted text represents the unique ID entry for that specific Table. The yellow-highlighted text corresponds to a foreign key in the fact (blue) table.</p>
+<p>The database contains seven tables: one primary table with four secondary child tables. One of those is a fact table, with another two children. The tables' relationships can be seen in the following diagram:</p>
+<p><img src="/docs/assets/db_connections.png" alt="DB Diagram"></p>
+<p>Each table is described as follows:</p>
 <ul>
-<li><strong>master Table</strong>: This table is the primary table of AEPsych. This table stores information about each experiment and is used to link data stored in the other tables. The columns are described as followed:</li>
+<li><strong>master Table</strong>: This table is the primary table of AEPsych. This table stores information about each experiment and is used to link data stored in the other tables. The columns are described as follows:</li>
 </ul>
 <table>
 <thead>
@@ -75,13 +78,13 @@
 <tr><td style="text-align:center">unique_id</td><td style="text-align:left">A unique ID generated for each entry in this table.</td></tr>
 <tr><td style="text-align:center">experiment_name</td><td style="text-align:left">A name given to the experiment through the experiment's configuration file. If not specified, defaults to &quot;default name&quot;.</td></tr>
 <tr><td style="text-align:center">experiment_description</td><td style="text-align:left">A text description of the experiment. This value is configurable in the experiment's configuration file. If not specified, defaults to &quot;default description&quot;.</td></tr>
-<tr><td style="text-align:center">experiment_id</td><td style="text-align:left">A unique ID for an experiment. If not specified in the experiment's configuration file, it will be automatically generated through the Python's <a href="https://docs.python.org/3/library/uuid.html">Unique Universal Identifier</a> module.</td></tr>
+<tr><td style="text-align:center">experiment_id</td><td style="text-align:left">A unique ID for an experiment. If not specified in the experiment's configuration file, it will be automatically generated through Python's <a href="https://docs.python.org/3/library/uuid.html">Unique Universal Identifier</a> module.</td></tr>
 <tr><td style="text-align:center">participant_id</td><td style="text-align:left">A unique ID for a specific participant in an experiment. If not specified in the experiment's configuration file, it will be left empty.</td></tr>
 <tr><td style="text-align:center">extra_metadata</td><td style="text-align:left">Any special metadata specified in the configuration file under the section &quot;Metadata&quot;. This metadata is stored as JSON so that it may be easily serialized/deserialized at a later time period. If no metadata is specified in the configuration file, this field will be empty.</td></tr>
 </tbody>
 </table>
 <ul>
-<li><strong>replay_data Table</strong>: The replay table contains the messages sent between the client and the server on each trial so that previous experiments can be replayed again. The columns are described as followed:</li>
+<li><strong>replay_data Table</strong>: The replay table contains the messages sent between the client and the server on each trial so that previous experiments can be replayed again. The columns are described as follows:</li>
 </ul>
 <table>
 <thead>
@@ -97,7 +100,7 @@
 </tbody>
 </table>
 <ul>
-<li><strong>strat_data table</strong>: The strat_data table stores the saved AEPsych Strategies, which contain the experiments' data and models. The columns are described as followed:</li>
+<li><strong>strat_data table</strong>: The strat_data table stores the saved AEPsych Strategies, which contain the experiments' data and models. The columns are described as follows:</li>
 </ul>
 <table>
 <thead>
@@ -111,7 +114,7 @@
 </tbody>
 </table>
 <ul>
-<li><strong>config Table</strong>: This table stores saved AEPsych Configs, which store configuration data for each experiment, such as the number of trials, the type of data collected, the models used, etc. The columns are described as followed:</li>
+<li><strong>config Table</strong>: This table stores saved AEPsych Configs, which store configuration data for each experiment, such as the number of trials, the type of data collected, the models used, etc. The columns are described as follows:</li>
 </ul>
 <table>
 <thead>
@@ -120,9 +123,195 @@
 <tbody>
 <tr><td style="text-align:center">unique_id</td><td style="text-align:left">A unique ID generated for each entry in this table.</td></tr>
 <tr><td style="text-align:center">timestamp</td><td style="text-align:left">A timestamp indicating when the server received a setup message and created a Config object. This column can be used to view the Configs chronologically.</td></tr>
-<tr><td style="text-align:center">config</td><td style="text-align:left">An AEPsych Config object, stored as a Python pickle for easy serialization/deserialization.  (This may change in the future as Python pickle objects may not load across versions of Python or AEPsych).</td></tr>
+<tr><td style="text-align:center">config</td><td style="text-align:left">An AEPsych Config object, stored as a Python pickle for easy serialization/deserialization. (This may change in the future as Python pickle objects may not load across versions of Python or AEPsych).</td></tr>
 <tr><td style="text-align:center">master_table_id</td><td style="text-align:left">This is a reference key to the original entry in the master table's unique ID.</td></tr>
 </tbody>
 </table>
+<ul>
+<li><strong>Raw Table</strong>: Fact table to store raw data for each iteration of a given experiment. It has two associated dimension tables, one for the parameters and one for the outcomes. The columns are described as followed:</li>
+</ul>
+<table>
+<thead>
+<tr><th style="text-align:center">Raw Table Column</th><th style="text-align:left">Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align:center">unique_id</td><td style="text-align:left">A unique ID generated for each entry in this table.</td></tr>
+<tr><td style="text-align:center">timestamp</td><td style="text-align:left">A timestamp indicating when the server received a tell message, and recorded the data of one iteration of a given experiment.</td></tr>
+<tr><td style="text-align:center">master_table_id</td><td style="text-align:left">This is a reference key to the original entry in the master table's unique ID.</td></tr>
+<tr><td style="text-align:center">parameter_id</td><td style="text-align:left">This is a reference key to the original entry in the parameter table's unique ID.</td></tr>
+<tr><td style="text-align:center">model_data</td><td style="text-align:left">Wheter or not the data from that iteration was modeled during the experiment.</td></tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Param table</strong>: Dimension table to store the parameters for each iteration of a given experiment. This table stores the parameters' names and values. The columns are described as follows:</li>
+</ul>
+<table>
+<thead>
+<tr><th style="text-align:center">Param Table Column</th><th style="text-align:left">Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align:center">unique_id</td><td style="text-align:left">A unique ID generated for each entry in this table.</td></tr>
+<tr><td style="text-align:center">iteration_id</td><td style="text-align:left">This is a reference key to the original entry in the raw table's unique ID.</td></tr>
+<tr><td style="text-align:center">parameter_name</td><td style="text-align:left">The name of the parameter.</td></tr>
+<tr><td style="text-align:center">parameter_value</td><td style="text-align:left">The value of the parameter.</td></tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Outcome table</strong>: Dimension table to store the outcomes for each iteration of a given experiment. This table only stores the outcome values. The columns are described as follows:</li>
+</ul>
+<table>
+<thead>
+<tr><th style="text-align:center">Outcome Table Column</th><th style="text-align:left">Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align:center">unique_id</td><td style="text-align:left">A unique ID generated for each entry in this table.</td></tr>
+<tr><td style="text-align:center">iteration_id</td><td style="text-align:left">This is a reference key to the original entry in the raw table's unique ID.</td></tr>
+<tr><td style="text-align:center">outcome_value</td><td style="text-align:left">The value of the outcome.</td></tr>
+<tr><td style="text-align:center">outcome_name</td><td style="text-align:left">The name of the outcome. The name is generated automatically by AEPsych; it's not given by the user.</td></tr>
+</tbody>
+</table>
 <p>The database schema is constantly evolving, so you may occasionally need to update old databases by running <code>python3 aepsych/server/server.py database --update --d database_path</code> from a command line. For more information about loading data and replaying previous experiments, see the <a href="https://github.com/facebookresearch/aepsych/tree/main/tutorials/example_db">example database and notebook</a>.</p>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/api_overview"><span class="arrow-prev">← </span><span>API Overview</span></a><a class="docs-next button" href="/docs/ax_backend"><span>The Ax Backend</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
+<h2><a class="anchor" aria-hidden="true" id="getting-data-out-from-the-database"></a><a href="#getting-data-out-from-the-database" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting data out from the database.</h2>
+<p>With SQL queries, you can access the data in any AEPsych database without needing to use AEPsych. You can execute queries with SQLAlchemy in Python:</p>
+<pre><code class="hljs css language-Python"><span class="hljs-keyword">from</span> sqlalchemy <span class="hljs-keyword">import</span> create_engine
+
+engine = create_engine(<span class="hljs-string">f"sqlite:///<span class="hljs-subst">{<span class="hljs-string">'database.db'</span>}</span>"</span>)
+
+engine.execute(<span class="hljs-string">"some query"</span>).fetchall()
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="data-from-a-given-experiment"></a><a href="#data-from-a-given-experiment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data from a given experiment.</h3>
+<p>Let's consider that you have the database &quot;example.db&quot;, and you want to get all the data from a specific experiment. There is a unique <code>experiment_id</code> associated with each experiment stored in the database. You can see the experiments' names and information with the following query:</p>
+<pre><code class="hljs css language-SQL"><span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">master</span>
+</code></pre>
+<p>If we want to obtain all the parameters' information from an experiment with ID <code>6dcb1a77-5590-4e30-a740-21fe7bc43357</code>, we can get it with:</p>
+<pre><code class="hljs css language-SQL"><span class="hljs-keyword">SELECT</span> iteration_id, param_name, param_value <span class="hljs-keyword">FROM</span> param_data
+<span class="hljs-keyword">WHERE</span> iteration_id <span class="hljs-keyword">IN</span> (<span class="hljs-keyword">SELECT</span> unique_id <span class="hljs-keyword">FROM</span> raw_data <span class="hljs-keyword">WHERE</span> master_table_id = (
+    <span class="hljs-keyword">SELECT</span> unique_id <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">master</span> <span class="hljs-keyword">WHERE</span> experiment_id = <span class="hljs-string">'6dcb1a77-5590-4e30-a740-21fe7bc43357'</span>
+)) <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> iteration_id
+</code></pre>
+<p>And the outcomes' information with:</p>
+<pre><code class="hljs css language-SQL"><span class="hljs-keyword">SELECT</span> iteration_id, outcome_name, outcome_value <span class="hljs-keyword">FROM</span> outcome_data
+<span class="hljs-keyword">WHERE</span> iteration_id <span class="hljs-keyword">IN</span>
+(<span class="hljs-keyword">SELECT</span> unique_id <span class="hljs-keyword">FROM</span> raw_data <span class="hljs-keyword">WHERE</span> master_table_id =
+    (<span class="hljs-keyword">SELECT</span> unique_id <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">master</span> <span class="hljs-keyword">WHERE</span> experiment_id = <span class="hljs-string">'6dcb1a77-5590-4e30-a740-21fe7bc43357'</span>)
+) <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> iteration_id
+</code></pre>
+<p>These queries give us long-format tables (several rows per experiment iteration). You must know the parameters and outcomes names to get a wide-format table (a single row per iteration). For example, if you have parameters <code>theta1</code>, <code>theta2</code> and a single outcome <code>outcome</code>, then:</p>
+<pre><code class="hljs css language-SQL"><span class="hljs-keyword">SELECT</span> iteration_id,
+    <span class="hljs-keyword">MAX</span>(<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> param_name = <span class="hljs-string">'theta1'</span> <span class="hljs-keyword">THEN</span> param_value <span class="hljs-keyword">ELSE</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">END</span>) <span class="hljs-keyword">AS</span> theta1,
+    <span class="hljs-keyword">MAX</span>(<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> param_name = <span class="hljs-string">'theta2'</span> <span class="hljs-keyword">THEN</span> param_value <span class="hljs-keyword">ELSE</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">END</span>) <span class="hljs-keyword">AS</span> theta2,
+    <span class="hljs-keyword">MAX</span>(<span class="hljs-keyword">CASE</span> <span class="hljs-keyword">WHEN</span> outcome_name = <span class="hljs-string">'outcome'</span> <span class="hljs-keyword">THEN</span> outcome_value <span class="hljs-keyword">ELSE</span> <span class="hljs-literal">NULL</span> <span class="hljs-keyword">END</span>) <span class="hljs-keyword">AS</span> outcome
+<span class="hljs-keyword">FROM</span>
+(
+    <span class="hljs-keyword">SELECT</span> od.iteration_id <span class="hljs-keyword">AS</span> iteration_id,
+    param_name, param_value, outcome_name, outcome_value
+    <span class="hljs-keyword">FROM</span> param_data <span class="hljs-keyword">AS</span> pd
+    <span class="hljs-keyword">INNER</span> <span class="hljs-keyword">JOIN</span> outcome_data <span class="hljs-keyword">AS</span> od
+    <span class="hljs-keyword">ON</span> pd.iteration_id = od.iteration_id
+    <span class="hljs-keyword">WHERE</span> pd.iteration_id <span class="hljs-keyword">IN</span>
+    (<span class="hljs-keyword">SELECT</span> unique_id <span class="hljs-keyword">FROM</span> raw_data <span class="hljs-keyword">WHERE</span> master_table_id = (
+       <span class="hljs-keyword">SELECT</span> unique_id <span class="hljs-keyword">FROM</span> <span class="hljs-keyword">master</span>
+       <span class="hljs-keyword">WHERE</span> experiment_id = <span class="hljs-string">'6dcb1a77-5590-4e30-a740-21fe7bc43357'</span>)
+    )
+) <span class="hljs-keyword">GROUP</span> <span class="hljs-keyword">BY</span> iteration_id <span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> iteration_id
+</code></pre>
+<p>You can also create a wide-format table for any set of parameters and outcomes (not previously specified) with Pandas:</p>
+<pre><code class="hljs css language-Python"><span class="hljs-keyword">from</span> sqlalchemy <span class="hljs-keyword">import</span> create_engine
+<span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd
+
+engine = create_engine(<span class="hljs-string">f"sqlite:///<span class="hljs-subst">{<span class="hljs-string">'example.db'</span>}</span>"</span>)
+
+outcomes = engine.execute(<span class="hljs-string">'''
+    SELECT iteration_id, outcome_name, outcome_value FROM outcome_data
+    WHERE iteration_id IN (SELECT unique_id FROM raw_data WHERE master_table_id = (
+       SELECT unique_id FROM master WHERE experiment_id = '6dcb1a77-5590-4e30-a740-21fe7bc43357'
+    )) ORDER BY iteration_id
+'''</span>).fetchall()
+
+parameters = engine.execute(<span class="hljs-string">'''
+    SELECT iteration_id, param_name, param_value FROM param_data
+    WHERE iteration_id IN (SELECT unique_id FROM raw_data WHERE master_table_id = (
+       SELECT unique_id FROM master WHERE experiment_id = '6dcb1a77-5590-4e30-a740-21fe7bc43357'
+    )) ORDER BY iteration_id
+'''</span>).fetchall()
+
+outcomes_df = pd.DataFrame(outcomes, columns=[<span class="hljs-string">'iteration_id'</span>, <span class="hljs-string">'outcome_name'</span>, <span class="hljs-string">'outcome_value'</span>])
+parameters_df = pd.DataFrame(parameters, columns=[<span class="hljs-string">'iteration_id'</span>, <span class="hljs-string">'param_name'</span>, <span class="hljs-string">'param_value'</span>])
+
+outcomes_df = outcomes_df.pivot(index=<span class="hljs-string">'iteration_id'</span>, columns=<span class="hljs-string">'outcome_name'</span>, values=<span class="hljs-string">'outcome_value'</span>)
+parameters_df = parameters_df.pivot(index=<span class="hljs-string">'iteration_id'</span>, columns=<span class="hljs-string">'param_name'</span>, values=<span class="hljs-string">'param_value'</span>)
+
+df = pd.merge(outcomes_df, parameters_df, left_index=<span class="hljs-literal">True</span>, right_index=<span class="hljs-literal">True</span>)
+</code></pre>
+<p>Finally, if you are using AEPsych, you can use the built-in method <code>generate_experiment_table</code> in the AEPsych server.</p>
+<h3><a class="anchor" aria-hidden="true" id="data-from-several-experiments-with-the-same-set-of-parameters"></a><a href="#data-from-several-experiments-with-the-same-set-of-parameters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data from several experiments with the same set of parameters.</h3>
+<p>Now, let's think that we want to obtain all the data from experiments with the same set of parameters, for example, <code>thetaA</code> and <code>thetaB</code>. We can get it with:</p>
+<pre><code class="hljs css language-Python"><span class="hljs-keyword">from</span> sqlalchemy <span class="hljs-keyword">import</span> create_engine
+<span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd
+
+engine = create_engine(<span class="hljs-string">f"sqlite:///<span class="hljs-subst">{<span class="hljs-string">'test_query.db'</span>}</span>"</span>)
+
+parameters = engine.execute(<span class="hljs-string">'''
+SELECT iteration_id, param_name, param_value FROM param_data
+WHERE iteration_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+)'''</span>).fetchall()
+</code></pre>
+<p>Similarly, we can get the outcomes' information with:</p>
+<pre><code class="hljs css language-Python">outcomes = engine.execute(<span class="hljs-string">'''
+SELECT iteration_id, outcome_name, outcome_value FROM outcome_data
+WHERE iteration_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+)'''</span>).fetchall()
+</code></pre>
+<p>Finally, if we want to get a wide-format table that includes the experiments' IDs and the previous parameters and outcomes information, we can do it with something like:</p>
+<pre><code class="hljs css language-Python"><span class="hljs-comment"># Get the relation between the iteration_id and the master_table_id</span>
+raws = engine.execute(<span class="hljs-string">'''
+SELECT unique_id, master_table_id FROM raw_data
+WHERE unique_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+)'''</span>).fetchall()
+
+<span class="hljs-comment"># Get the relation between the master_table_id and the experiment_id</span>
+exp_ids = engine.execute(<span class="hljs-string">'''
+SELECT unique_id, experiment_id FROM master WHERE unique_id IN (
+SELECT DISTINCT master_table_id FROM raw_data
+WHERE unique_id IN (
+    SELECT iteration_id FROM param_data WHERE param_name = 'thetaA'
+    AND iteration_id IN (
+        SELECT iteration_id FROM param_data WHERE param_name = 'thetaB'
+        )
+    )
+)'''</span>).fetchall()
+
+<span class="hljs-comment"># Create dataframes</span>
+parameters_df = pd.DataFrame(parameters, columns=[<span class="hljs-string">'iteration_id'</span>, <span class="hljs-string">'param_name'</span>, <span class="hljs-string">'param_value'</span>])
+outcomes_df = pd.DataFrame(outcomes, columns=[<span class="hljs-string">'iteration_id'</span>, <span class="hljs-string">'outcome_name'</span>, <span class="hljs-string">'outcome_value'</span>])
+raws_df = pd.DataFrame(raws, columns=[<span class="hljs-string">'unique_id'</span>, <span class="hljs-string">'master_table_id'</span>])
+raws_df.rename(columns={<span class="hljs-string">'unique_id'</span>: <span class="hljs-string">'iteration_id'</span>}, inplace=<span class="hljs-literal">True</span>)
+raws_df.set_index(<span class="hljs-string">'iteration_id'</span>, inplace=<span class="hljs-literal">True</span>)
+
+<span class="hljs-comment"># Pivot the parameters and outcomes</span>
+parameters_df = parameters_df.pivot(index=<span class="hljs-string">'iteration_id'</span>, columns=<span class="hljs-string">'param_name'</span>, values=<span class="hljs-string">'param_value'</span>)
+outcomes_df = outcomes_df.pivot(index=<span class="hljs-string">'iteration_id'</span>, columns=<span class="hljs-string">'outcome_name'</span>, values=<span class="hljs-string">'outcome_value'</span>)
+
+<span class="hljs-comment"># Merge the dataframes</span>
+df = pd.merge(parameters_df, outcomes_df, left_index=<span class="hljs-literal">True</span>, right_index=<span class="hljs-literal">True</span>)
+df = pd.merge(df, raws_df, left_index=<span class="hljs-literal">True</span>, right_index=<span class="hljs-literal">True</span>)
+
+<span class="hljs-comment"># Create experiment_id column</span>
+exp_dict = {exp_id: exp <span class="hljs-keyword">for</span> exp_id, exp <span class="hljs-keyword">in</span> exp_ids}
+df[<span class="hljs-string">'experiment_id'</span>] = df[<span class="hljs-string">'master_table_id'</span>].map(exp_dict)
+df.drop(columns=[<span class="hljs-string">'master_table_id'</span>], inplace=<span class="hljs-literal">True</span>)
+</code></pre>
+<p>We can do something similar to get data from experiments with the same set of outcomes.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/api_overview"><span class="arrow-prev">← </span><span>API Overview</span></a><a class="docs-next button" href="/docs/ax_backend"><span>The Ax Backend</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#getting-data-out-from-the-database">Getting data out from the database.</a><ul class="toc-headings"><li><a href="#data-from-a-given-experiment">Data from a given experiment.</a></li><li><a href="#data-from-several-experiments-with-the-same-set-of-parameters">Data from several experiments with the same set of parameters.</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
