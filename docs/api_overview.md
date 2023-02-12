@@ -8,14 +8,14 @@ The structure of the AEPsych API can be seen in the following diagram, where eac
 ![AEPsych API](assets/new_api_diagram.png)
 
 
-- **AEPsychStrategy**: Uses the specified Generation Strategy and AxClient configurations to provide easier functionalties to control, and query the entire experiments. It provides helper functions including but not limited to `plot_contours`, where predictions for a 2-d slice of the parameter space are plotted, and `plot_slice` for 1-d slice parameter space plot.
+- **[AEPsychStrategy](../aepsych/strategy.py#L500)**: Uses the specified Generation Strategy and AxClient configurations to provide easier functionalties to control, and query the entire experiments. It provides helper functions including but not limited to `plot_contours`, where predictions for a 2-d slice of the parameter space are plotted, and `plot_slice` for 1-d slice parameter space plot.
 
     - Init Args:
         - `strategy`: The `GenerationStragegy` to use.
         - `ax_client`: the configured `AxClient` to use.
 
 
-- **AxClient**: generates the next suggestion in the experimentation cycle based on the precised generation strategy, or intelligently chooses the generation strategy. Returns the log data from the suggestion's evaluation. Cycle Scheduling is externally handled.
+- **[AxClient](https://github.com/facebook/Ax/blob/main/ax/service/ax_client.py#L108)**: generates the next suggestion in the experimentation cycle based on the precised generation strategy, or intelligently chooses the generation strategy. Returns the log data from the suggestion's evaluation. Cycle Scheduling is externally handled.
 
     - Init Args:
         - `generation_strategy`: Optional generation strategy. If not set, one is intelligently chosen based on properties of search space.
@@ -31,14 +31,14 @@ The structure of the AEPsych API can be seen in the following diagram, where eac
             the experiment. Used in `should_stop_trials_early`.
         - `global_stopping_strategy`: A `BaseGlobalStoppingStrategy` that determines whether the full optimization should be stopped or not.
 
-- **GenerationStrategy**: This describes which model is to be used for generation at a which point in the trials. It takes as inputs a list of GenerationSteps, each step corresponding to a single model used, the number of trials that will be generated with this model and the minimum observations required to proceed to the next model. 
+- **[GenerationStrategy](https://github.com/facebook/Ax/blob/main/ax/modelbridge/generation_strategy.py#L46)**: This describes which model is to be used for generation at a which point in the trials. It takes as inputs a list of GenerationSteps, each step corresponding to a single model used, the number of trials that will be generated with this model and the minimum observations required to proceed to the next model. 
 ``
     - Init Args:
         - `steps`: A list of `GenerationStep` describing steps of this strategy.
         - `name`: An optional name for this generaiton strategy.
 ``
 
-- **Experiment**: An Experiment defines the entire set of parameter objects, and parameter constraints of the parameter space, through the `SearchSpace`. An Expirement defines the optimization configuration, which comprises an objective, outcome constraints and an optional risk measure. It also defines the tracking Metrics.
+- **[Experiment](https://github.com/facebook/Ax/blob/main/ax/core/experiment.py#L59)**: An Experiment defines the entire set of parameter objects, and parameter constraints of the parameter space, through the `SearchSpace`. An Expirement defines the optimization configuration, which comprises an objective, outcome constraints and an optional risk measure. It also defines the tracking Metrics.
 ``
     - Init Args:
         - `search_space`: Search space of the experiment.
@@ -54,11 +54,11 @@ The structure of the AEPsych API can be seen in the following diagram, where eac
         - `default_data_type`: Enum representing the data type this experiment uses.
 ``
 
-- **AxSobolGenerator**: Generator generates quasi-random low discrepancy eperimentation points for the parameter space.
+- **[AxSobolGenerator](../aepsych/generators/sobol_generator.py#L93)**: Generator generates quasi-random low discrepancy eperimentation points for the parameter space.
 
-- **AxOptimizeAcqfGenerator**: This is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the AEPsychAcquisitionFunction. It aims to abstract away the interfaces between AEPsych, Ax and Botorch.
+- **[AxOptimizeAcqfGenerator](../aepsych/generators/optimize_acqf_generator.py#L182)**: This is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the AEPsychAcquisitionFunction. It aims to abstract away the interfaces between AEPsych, Ax and Botorch.
 
-- **AEPsychSurrogate**: This is wrapper arround BoTorch's Model class, it determines what model to use, its options, its max_fit_time, and its model class. It uses the collected data to compute the response probabilities an any point in the parameter space.
+- **[AEPsychSurrogate](../aepsych/models/surrogate.py#L18)**: This is wrapper arround BoTorch's Model class, it determines what model to use, its options, its max_fit_time, and its model class. It uses the collected data to compute the response probabilities an any point in the parameter space.
 ``
     - Init Args:
         - `max_fit_time`: Optional field that sets an estimated maximum amount of time for the evaluation of all samples
@@ -75,6 +75,6 @@ The structure of the AEPsych API can be seen in the following diagram, where eac
         - `likelihood`: `Likelihood` class, not yet used. Will be used to construct custom BoTorch `Model` in the future.
         - `likelihood_options`: Likelihood options, not yet used. Will be used to construct custom BoTorch `Model` in the future.
 ``
-- **AEPsychAcquisition**: Acquisition functions use the strategy's model to determine which points should be sampled next, with some overarching goal in mind. We recommend PairwiseMCPosteriorVariance for global exploration, and qNoisyExpectedImprovement for optimization. For other options, check out the botorch and aepsych docs.
+- **[AEPsychAcquisition](../aepsych/acquisition/acquisition.py#L15)**: Acquisition functions use the strategy's model to determine which points should be sampled next, with some overarching goal in mind. We recommend PairwiseMCPosteriorVariance for global exploration, and qNoisyExpectedImprovement for optimization. For other options, check out the botorch and aepsych docs.
 
 You may implement an AEPsych experiment using these classes directly in Python, but users who are not familiar with Python can also configure an AEPsych server using a config file.
