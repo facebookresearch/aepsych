@@ -13,6 +13,9 @@ from botorch.acquisition.objective import MCAcquisitionObjective, PosteriorTrans
 
 
 class AEPsychAcquisition(Acquisition):
+    """Acquisition functions use the strategy's model to determine which points should be sampled next, with some overarching goal in mind.
+    We recommend PairwiseMCPosteriorVariance for global exploration, and qNoisyExpectedImprovement for optimization. For other options, check out the botorch and aepsych docs."""
+
     def get_botorch_objective_and_transform(
         self, **kwargs
     ) -> Tuple[Optional[MCAcquisitionObjective], Optional[PosteriorTransform]]:

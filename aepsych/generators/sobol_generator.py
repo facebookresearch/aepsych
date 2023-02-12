@@ -91,6 +91,7 @@ class SobolGenerator(AEPsychGenerator):
 
 
 class AxSobolGenerator(AEPsychGenerationStep):
+    """Generator generates quasi-random low discrepancy eperimentation points for the parameter space."""
     @classmethod
     def get_config_options(cls, config: Config, name: str) -> Dict:
         classname = "SobolGenerator"

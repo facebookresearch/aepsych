@@ -180,6 +180,9 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
 
 class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
+    """This is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the AEPsychAcquisitionFunction.
+    It aims to abstract away the interfaces between AEPsych, Ax and Botorch."""
+
     @classmethod
     def get_config_options(cls, config: Config, name: str) -> Dict:
         classname = "OptimizeAcqfGenerator"

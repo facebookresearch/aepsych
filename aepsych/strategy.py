@@ -498,6 +498,15 @@ class SequentialStrategy(object):
 
 
 class AEPsychStrategy(ConfigurableMixin):
+    """
+    Uses the specified Generation Strategy and AxClient configurations to provide easier functionalties to control, and query the entire experiments.
+    It provides helper functions including but not limited to `plot_contours`, where predictions for a 2-d slice of the parameter space are plotted,
+    and `plot_slice` for 1-d slice parameter space plot.
+    
+    Init Args:
+        strategy: The `GenerationStragegy` to use.
+        ax_client: the configured `AxClient` to use.
+    """
     is_finished = False
 
     def __init__(self, strategy: GenerationStrategy, ax_client: AxClient):
