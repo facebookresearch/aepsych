@@ -16,8 +16,10 @@ logger = getLogger()
 
 
 class AEPsychSurrogate(Surrogate):
-    """This is wrapper arround BoTorch's Model class, it determines what model to use, its options, its max_fit_time, and its model class.
-    It uses the collected data to compute the response probabilities an any point in the parameter space."""
+    """It is a machine learning model used to make predictions about outcomes based on input data.
+    It uses the collected data to compute the response probabilities at any point in the parameter space.
+    This is wrapper arround BoTorch's Model class, it determines what model to use, its options, 
+    its max_fit_time, and its model class. """
     def __init__(self, max_fit_time: Optional[float] = None, **kwargs) -> None:
         self.max_fit_time = max_fit_time
         super().__init__(**kwargs)

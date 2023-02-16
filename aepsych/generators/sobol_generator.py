@@ -91,7 +91,9 @@ class SobolGenerator(AEPsychGenerator):
 
 
 class AxSobolGenerator(AEPsychGenerationStep):
-    """Generator generates quasi-random low discrepancy eperimentation points for the parameter space."""
+    """AxSobolGenerator is a generation step class that generates points using SobolGenerator.
+    This Generator generates quasi-random low discrepancy eperimentation points for the parameter space.
+    The get_config_options method returns the options necessary to configure the SobolGenerator."""
     @classmethod
     def get_config_options(cls, config: Config, name: str) -> Dict:
         classname = "SobolGenerator"

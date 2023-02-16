@@ -499,9 +499,13 @@ class SequentialStrategy(object):
 
 class AEPsychStrategy(ConfigurableMixin):
     """
-    Uses the specified Generation Strategy and AxClient configurations to provide easier functionalties to control, and query the entire experiments.
-    It provides helper functions including but not limited to `plot_contours`, where predictions for a 2-d slice of the parameter space are plotted,
-    and `plot_slice` for 1-d slice parameter space plot.
+    The AEPsychStrategy carrys out an experiment with a generation strategy using AxClient object for
+    communicating with the Ax/AEPsych server and a GenerationStrategy object for defining the steps in
+    the experiment. It reads strategies from configuration files and call the AxClient to create experiment.
+    It has methods for defining the experiment, generating new points for evaluation, adding data for
+    completed trials, checking if the experiment is finished, and plotting the results.
+    The class also has a method for handling the scenario where the outcome of the experiment is 
+    not continuous, and the user will be warned that they cannot directly plot the outcome.
     
     Init Args:
         strategy: The `GenerationStragegy` to use.

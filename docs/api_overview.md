@@ -7,7 +7,7 @@ The structure of the AEPsych API can be seen in the following diagram, where eac
 
 ![AEPsych API](assets/new_api_diagram.png)
 
-- **[AEPsychStrategy](../aepsych/strategy.py#L500)**: The AEPsychStrategy carrys out an experiment with a generation strategy using AxClient object for communicating with the Ax/AEPsych server and a GenerationStrategy object for defining the steps in the experiment. It reads strategies from configure files and call the AxClient to create experiment. It has methods for defining the experiment, generating new points for evaluation, adding data for completed trials, checking if the experiment is finished, and plotting the results. The class also has a method for handling the scenario where the outcome of the experiment is not continuous, and the user will be warned that they cannot directly plot the outcome.
+- **[AEPsychStrategy](../aepsych/strategy.py#L500)**: The AEPsychStrategy carrys out an experiment with a generation strategy using AxClient object for communicating with the Ax/AEPsych server and a GenerationStrategy object for defining the steps in the experiment. It reads strategies from configurarion files and call the AxClient to create experiment. It has methods for defining the experiment, generating new points for evaluation, adding data for completed trials, checking if the experiment is finished, and plotting the results. The class also has a method for handling the scenario where the outcome of the experiment is not continuous, and the user will be warned that they cannot directly plot the outcome.
 
     - Init Args:
         - `strategy`: The `GenerationStragegy` to use.
@@ -88,7 +88,7 @@ The structure of the AEPsych API can be seen in the following diagram, where eac
 - **AxOptimizeAcqfGenerator(Wrapper for Ax.Models.BOTORCH_MODULAR**:  It is a subclass of the AEPsychGenerationStep and ConfigurableMixin classes and provides the functionality to generate next samples using the optimization of an acquisition function. The class provides a get_config_options() method for retrieving the configuration options for this class from a Config object, including options for the model, acquisition function, and acquisition function generator.                     
 
 
-- **[AxOptimizeAcqfGenerator](../aepsych/generators/optimize_acqf_generator.py#L182)**:The AxOptimizeAcqfGenerator  generates acquisition functions in the context of model-based optimization. It is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the AEPsychAcquisitionFunction. It aims to abstract away the interfaces between AEPsych, Ax and Botorch. The options for the model include information about the surrogate model to be used, and the specific acquisition function to use. The options for the acquisition function generator include the number of trials and the duration of usage.      
+- **[AxOptimizeAcqfGenerator](../aepsych/generators/optimize_acqf_generator.py#L182)**: The AxOptimizeAcqfGenerator generates acquisition functions in the context of model-based optimization. It is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the AEPsychAcquisitionFunction. It aims to abstract away the interfaces between AEPsych, Ax and Botorch. The options for the model include information about the surrogate model to be used, and the specific acquisition function to use. The options for the acquisition function generator include the number of trials and the duration of usage.      
     - Config File Args:
     ```
             [opt_strat]

@@ -180,8 +180,12 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
 
 class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
-    """This is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the AEPsychAcquisitionFunction.
-    It aims to abstract away the interfaces between AEPsych, Ax and Botorch."""
+    """The AxOptimizeAcqfGenerator generates acquisition functions in the context of model-based optimization.
+    It is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the
+    AEPsychAcquisitionFunction. It aims to abstract away the interfaces between AEPsych, Ax and Botorch. 
+    The options for the model include information about the surrogate model to be used, and the specific
+    acquisition function to use. The options for the acquisition function generator include the number of trials
+    and the duration of usage."""
 
     @classmethod
     def get_config_options(cls, config: Config, name: str) -> Dict:
