@@ -85,8 +85,6 @@ The structure of the AEPsych API can be seen in the following diagram, where eac
             min_total_tells = 5 # next strategy will start after at least 5 responses are recorded
     ```
 
-- **AxOptimizeAcqfGenerator(Wrapper for Ax.Models.BOTORCH_MODULAR**:  It is a subclass of the AEPsychGenerationStep and ConfigurableMixin classes and provides the functionality to generate next samples using the optimization of an acquisition function. The class provides a get_config_options() method for retrieving the configuration options for this class from a Config object, including options for the model, acquisition function, and acquisition function generator.                     
-
 
 - **[AxOptimizeAcqfGenerator](../aepsych/generators/optimize_acqf_generator.py#L182)**: The AxOptimizeAcqfGenerator generates acquisition functions in the context of model-based optimization. It is a wrapper for Ax's BOTORCH_MODULAR, consisting of two main components, the AEPsychSurrogate and the AEPsychAcquisitionFunction. It aims to abstract away the interfaces between AEPsych, Ax and Botorch. The options for the model include information about the surrogate model to be used, and the specific acquisition function to use. The options for the acquisition function generator include the number of trials and the duration of usage.      
     - Config File Args:
