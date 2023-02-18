@@ -6,10 +6,13 @@
 # LICENSE file in the root directory of this source tree.
 
 from typing import Dict, Optional, Tuple, Union
+import gpytorch
 
 import numpy as np
 import torch
 from aepsych.config import Config
+from aepsych.factory.factory import ordinal_mean_covar_factory
+from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import promote_0d
@@ -62,7 +65,7 @@ class VariationalGP(AEPsychModel, SingleTaskVariationalGP):
         inducing_point_method = config.get(
             classname, "inducing_point_method", fallback="auto"
         )
-        inducing_size = config.getint(classname, "inducing_size", fallback=10)
+        inducing_size = config.getint(classname, "inducing_size", fallback=None)
         learn_inducing_points = config.getboolean(
             classname, "learn_inducing_points", fallback=False
         )
@@ -113,4 +116,76 @@ class BinaryClassificationGP(VariationalGP):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
             options["likelihood"] = BernoulliLikelihood()
+        if options["inducing_size"] is None:
+            options["inducing_size"] = 10
+        return options
+    
+    
+class AxOrdinalGPModel(VariationalGP):
+    """
+    Convenience class for using a VariationalGP with an OrdinalLikelihood.
+    """
+
+    outcome_type = "ordinal"
+
+    def predict_probs(self, xgrid):
+        
+        with torch.no_grad():
+            post = self.posterior(xgrid)
+            fmean = promote_0d(post.mean.squeeze())
+            fvar = promote_0d(post.variance.squeeze())
+
+        fsd = torch.sqrt(1 + fvar)
+        probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
+
+        probs[..., 0] = self.likelihood.link(
+            (self.likelihood.cutpoints[0] - fmean) / fsd
+        )
+
+        for i in range(1, self.likelihood.n_levels - 1):
+            probs[..., i] = self.likelihood.link(
+                (self.likelihood.cutpoints[i] - fmean) / fsd
+            ) - self.likelihood.link((self.likelihood.cutpoints[i - 1] - fmean) / fsd)
+        probs[..., -1] = 1 - self.likelihood.link(
+            (self.likelihood.cutpoints[-1] - fmean) / fsd
+        )
+        return probs
+
+        
+
+    @classmethod
+    def get_config_options(cls, config: Config):
+        options = super().get_config_options(config)
+
+        if options["likelihood"] is None:
+            options["likelihood"] = OrdinalLikelihood(n_levels=5)
+
+        if options["mean_covar_factor"] is None:
+            mean, covar = ordinal_mean_covar_factory(config)
+            options["mean_covar_factory"] = (mean, covar)
+            ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)
+            ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
+            ls_constraint = gpytorch.constraints.Positive(
+                transform=None, initial_value=ls_prior_mode
+            )
+
+            # no outputscale due to shift identifiability in d.
+            covar_module = gpytorch.kernels.RBFKernel(
+                lengthscale_prior=ls_prior,
+                lengthscale_constraint=ls_constraint,
+                ard_num_dims=dim,
+            )
+
+            options["covar_module"] = covar_module
+
+        #TODO: confirm if dimensions is a formula derivation of inducing size.
+        #TODO: confirm that dimensions need to be set in the config file unlike the example in ordinal_likert_models.ipynb
+        dim = options["dim"] if options["dim"] else 1
+
+        #TODO: confirm that the inducing size is correctly estimated for any dimension.
+        if options["inducing_size"] is None:
+            options["inducing_size"] = 10 ** dim
+        else:
+            assert options["inducing_size"] >= 1, "Inducing size must be non-zero."
+            
         return options
