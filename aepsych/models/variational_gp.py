@@ -15,7 +15,7 @@ from aepsych.factory.factory import ordinal_mean_covar_factory
 from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
-from aepsych.utils import promote_0d
+from aepsych.utils import get_dim, promote_0d
 from botorch.models import SingleTaskVariationalGP
 from gpytorch.likelihoods import BernoulliLikelihood
 from gpytorch.mlls import VariationalELBO
@@ -128,13 +128,15 @@ class AxOrdinalGPModel(VariationalGP):
 
     outcome_type = "ordinal"
 
-    def predict_probs(self, xgrid):
-        
+    def predict(self, xgrid):
         with torch.no_grad():
             post = self.posterior(xgrid)
             fmean = promote_0d(post.mean.squeeze())
             fvar = promote_0d(post.variance.squeeze())
+        return fmean, fvar
 
+    def predict_probs(self, xgrid):
+        fmean, fvar = self.predict(xgrid)
         fsd = torch.sqrt(1 + fvar)
         probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
 
@@ -159,6 +161,8 @@ class AxOrdinalGPModel(VariationalGP):
 
         if options["likelihood"] is None:
             options["likelihood"] = OrdinalLikelihood(n_levels=5)
+            
+        dim = get_dim(config)
 
         if options["mean_covar_factor"] is None:
             mean, covar = ordinal_mean_covar_factory(config)
@@ -177,10 +181,6 @@ class AxOrdinalGPModel(VariationalGP):
             )
 
             options["covar_module"] = covar_module
-
-        #TODO: confirm if dimensions is a formula derivation of inducing size.
-        #TODO: confirm that dimensions need to be set in the config file unlike the example in ordinal_likert_models.ipynb
-        dim = options["dim"] if options["dim"] else 1
 
         #TODO: confirm that the inducing size is correctly estimated for any dimension.
         if options["inducing_size"] is None:
