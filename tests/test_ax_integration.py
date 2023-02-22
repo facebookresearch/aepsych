@@ -13,6 +13,9 @@ import numpy as np
 import torch
 from aepsych_client import AEPsychClient
 from ax.service.utils.report_utils import exp_to_df
+from scipy.stats import norm
+from aepsych.benchmark.test_functions import novel_detection_testfun
+from torch.distributions import Categorical
 
 from aepsych.config import Config
 from aepsych.server import AEPsychServer
@@ -112,6 +115,62 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         self.assertEqual(n_sobol, correct_n_sobol)
         self.assertEqual(n_opt, correct_n_opt)
+
+    def test_ax_ordinal_gp(self):
+
+        def make_prob_matrix(fgrid, cutpoints, n_levels):
+            """
+            Generates the matrix of response probabilities for each choice given function values, cutpoints, 
+            and number of levels.
+            """
+            probs = np.zeros((*fgrid.shape, n_levels))
+
+            probs[..., 0] = norm.cdf(cutpoints[0] - fgrid)
+
+            for i in range(1, n_levels - 1):
+                probs[..., i] = norm.cdf(cutpoints[i] - fgrid) - norm.cdf(cutpoints[i - 1] - fgrid)
+
+            probs[..., -1] = 1 - norm.cdf(cutpoints[-1] - fgrid)
+            return probs
+
+        # Generate synthetic responses from our model (defined above)
+        def simulate_trial(trial_config):
+            n_levels = 5
+            x = torch.Tensor(np.r_[trial_config['config']['par1'][0], trial_config['config']['par2'][0]])
+            cutpoints = np.quantile(novel_detection_testfun(x), np.linspace(0.05, 0.95, n_levels - 1))
+            p = make_prob_matrix(novel_detection_testfun(x), cutpoints=cutpoints, n_levels=n_levels)
+            return Categorical(probs=torch.Tensor(p)).sample(torch.Size([1])).squeeze().item()
+
+        # Fix random seeds
+        np.random.seed(0)
+        torch.manual_seed(0)
+
+        # Create a server object configured to run a 2d threshold experiment
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        self.client = AEPsychClient(server=AEPsychServer(database_path=database_path))
+        config_file = "../configs/ax_ordinal_exploration_example.ini"
+        config_file = os.path.join(os.path.dirname(__file__), config_file)
+        self.client.configure(config_file)
+        outcomes = []
+
+        # run a full synthetic experiment loop
+        finished = False
+        trial_number = 1
+        while not finished:
+            trial_config = self.client.ask()
+            outcome = simulate_trial(trial_config=trial_config)
+            self.client.tell(config=trial_config['config'], outcome=outcome)
+            finished = trial_config["is_finished"]
+            trial_number += 1
+            outcomes.append(outcome)
+
+        # Add an extra tell to make sure manual tells and duplicate params
+        self.client.tell(trial_config["config"], outcome)
+        self.client.finalize()
+        print(outcomes)
+        self.df = exp_to_df(self.client.server.strat.experiment)
+
+        self.config = Config(config_fnames=[config_file])
 
 
 if __name__ == "__main__":
