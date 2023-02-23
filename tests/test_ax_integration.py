@@ -6,8 +6,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import time
 import unittest
 import uuid
+from ax import Data
 
 import numpy as np
 import torch
@@ -116,7 +118,16 @@ class AxIntegrationTestCase(unittest.TestCase):
         self.assertEqual(n_sobol, correct_n_sobol)
         self.assertEqual(n_opt, correct_n_opt)
 
-    def test_ax_ordinal_gp(self):
+class AxOrdinalGPTestCase(unittest.TestCase):
+    """
+    Tests that the Ax integration works with an ordinal GP model.
+    """
+    @classmethod
+    def setUpClass(cls):
+
+        # Fix random seeds
+        np.random.seed(int(time.time()))
+        torch.manual_seed(int(time.time()))
 
         def make_prob_matrix(fgrid, cutpoints, n_levels):
             """
@@ -136,41 +147,97 @@ class AxIntegrationTestCase(unittest.TestCase):
         # Generate synthetic responses from our model (defined above)
         def simulate_trial(trial_config):
             n_levels = 5
-            x = torch.Tensor(np.r_[trial_config['config']['par1'][0], trial_config['config']['par2'][0]])
+            pars = [
+                trial_config[par][0]
+                for par in trial_config
+                if type(trial_config[par][0]) == float
+            ]
+            response = np.array(pars)
+            x = torch.Tensor(response)
             cutpoints = np.quantile(novel_detection_testfun(x), np.linspace(0.05, 0.95, n_levels - 1))
             p = make_prob_matrix(novel_detection_testfun(x), cutpoints=cutpoints, n_levels=n_levels)
             return Categorical(probs=torch.Tensor(p)).sample(torch.Size([1])).squeeze().item()
 
-        # Fix random seeds
-        np.random.seed(0)
-        torch.manual_seed(0)
-
         # Create a server object configured to run a 2d threshold experiment
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
-        self.client = AEPsychClient(server=AEPsychServer(database_path=database_path))
+        cls.client = AEPsychClient(server=AEPsychServer(database_path=database_path))
         config_file = "../configs/ax_ordinal_exploration_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
-        self.client.configure(config_file)
+        cls.client.configure(config_file)
         outcomes = []
 
         # run a full synthetic experiment loop
-        finished = False
-        trial_number = 1
-        while not finished:
-            trial_config = self.client.ask()
-            outcome = simulate_trial(trial_config=trial_config)
-            self.client.tell(config=trial_config['config'], outcome=outcome)
-            finished = trial_config["is_finished"]
-            trial_number += 1
-            outcomes.append(outcome)
+        while not cls.client.server.strat.finished:
+            try:
+                trial_config = cls.client.ask()
+                # if trial_config['is_finished']:
+                #     print(cls.client.server.strat.strat._maybe_move_to_next_step())
+                #     continue
+                outcome = simulate_trial(trial_config=trial_config['config'])
+                cls.client.tell(config=trial_config['config'], outcome=outcome)
+                outcomes.append(outcome)
+            except Exception as e:
+                print(trial_config)
+                print(outcomes)
+                raise e
+            
 
         # Add an extra tell to make sure manual tells and duplicate params
-        self.client.tell(trial_config["config"], outcome)
-        self.client.finalize()
+        cls.client.tell(trial_config["config"], outcome)
+        cls.client.finalize()
         print(outcomes)
-        self.df = exp_to_df(self.client.server.strat.experiment)
+        cls.df = exp_to_df(cls.client.server.strat.experiment)
 
-        self.config = Config(config_fnames=[config_file])
+        cls.config = Config(config_fnames=[config_file])
+
+    def tearDown(self):
+        if self.client.server.db is not None:
+            self.client.server.db.delete_db()
+    
+    def test_bounds(self):
+        lb = self.config.getlist("common", "lb", element_type=float)
+        ub = self.config.getlist("common", "ub", element_type=float)
+        par4choices = self.config.getlist("par4", "choices", element_type=str)
+        par5value = self.config.getfloat("par5", "value")
+
+        self.assertTrue((self.df["par1"] >= lb[0]).all())
+        self.assertTrue((self.df["par1"] <= ub[0]).all())
+
+        self.assertTrue((self.df["par2"] >= lb[1]).all())
+        self.assertTrue((self.df["par2"] <= ub[1]).all())
+
+        self.assertTrue((self.df["par3"] >= lb[2]).all())
+        self.assertTrue((self.df["par3"] <= ub[2]).all())
+
+        self.assertTrue(self.df["par4"].isin(par4choices).all())
+
+        self.assertTrue((self.df["par5"] == par5value).all())
+
+    def test_constraints(self):
+        constraints = self.config.getlist("common", "par_constraints", element_type=str)
+        for constraint in constraints:
+            self.assertEqual(len(self.df.query(constraint)), len(self.df))
+
+        self.assertEqual(self.df["par3"].dtype, "int64")
+
+    def test_n_trials(self):
+        n_tells = (self.df["trial_status"] == "COMPLETED").sum()
+        correct_n_tells = self.config.getint("opt_strat", "min_total_tells") + 1
+
+        self.assertEqual(n_tells, correct_n_tells)
+
+    def test_generation_method(self):
+        n_sobol = (self.df["generation_method"] == "Sobol").sum()
+        n_opt = (self.df["generation_method"] == "BoTorch").sum()
+
+        correct_n_sobol = self.config.getint("init_strat", "min_total_tells")
+        correct_n_opt = (
+            self.config.getint("opt_strat", "min_total_tells") - correct_n_sobol
+        )
+
+        self.assertEqual(n_sobol, correct_n_sobol)
+        self.assertEqual(n_opt, correct_n_opt)
+
 
 
 if __name__ == "__main__":
