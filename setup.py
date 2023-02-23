@@ -16,7 +16,7 @@ REQUIRES = [
     "torch",
     "pyzmq==19.0.2",
     "scipy",
-    "sklearn",
+    "scikit-learn",
     "SQLAlchemy==1.4.46",
     "dill",
     "pandas",
