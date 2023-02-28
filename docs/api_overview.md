@@ -5,7 +5,7 @@ title: API Overview
 
 The structure of the AEPsych API can be seen in the following diagram, where each component corresponds to a Python class:
 
-![AEPsych API](assets/new_api_diagram.png)
+![AEPsych API](assets/api_diagram.png)
 
 Below is an overview of what each class does. For more details, see the [API Reference](/api).
 
