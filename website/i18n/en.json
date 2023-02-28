@@ -8,6 +8,9 @@
       "api_overview": {
         "title": "API Overview"
       },
+      "ax_backend": {
+        "title": "The Ax Backend"
+      },
       "clients": {
         "title": "AEPsych clients"
       },
