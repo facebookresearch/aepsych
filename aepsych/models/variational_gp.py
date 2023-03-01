@@ -65,7 +65,7 @@ class VariationalGP(AEPsychModel, SingleTaskVariationalGP):
         inducing_point_method = config.get(
             classname, "inducing_point_method", fallback="auto"
         )
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
         learn_inducing_points = config.getboolean(
             classname, "learn_inducing_points", fallback=False
         )
@@ -116,27 +116,27 @@ class BinaryClassificationGP(VariationalGP):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
             options["likelihood"] = BernoulliLikelihood()
-        if options["inducing_size"] is None:
-            options["inducing_size"] = 10
         return options
     
     
-class AxOrdinalGPModel(VariationalGP):
+class OrdinalGP(VariationalGP):
     """
     Convenience class for using a VariationalGP with an OrdinalLikelihood.
     """
 
     outcome_type = "ordinal"
 
-    def predict(self, xgrid):
+    def predict(self, xgrid, probability_space=False):
         with torch.no_grad():
             post = self.posterior(xgrid)
-            fmean = promote_0d(post.mean.squeeze())
-            fvar = promote_0d(post.variance.squeeze())
-        return fmean, fvar
 
-    def predict_probs(self, xgrid):
-        fmean, fvar = self.predict(xgrid)
+        if probability_space:
+            fmean, fvar = get_probability_space(
+                likelihood=self.likelihood, posterior=post
+            )
+        else:
+            fmean = post.mean.squeeze()
+            fvar = post.variance.squeeze()
         fsd = torch.sqrt(1 + fvar)
         probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
 
@@ -182,10 +182,6 @@ class AxOrdinalGPModel(VariationalGP):
 
             options["covar_module"] = covar_module
 
-        #TODO: confirm that the inducing size is correctly estimated for any dimension.
-        if options["inducing_size"] is None:
-            options["inducing_size"] = 10 ** dim
-        else:
-            assert options["inducing_size"] >= 1, "Inducing size must be non-zero."
+        assert options["inducing_size"] >= 1, "Inducing size must be non-zero."
             
         return options

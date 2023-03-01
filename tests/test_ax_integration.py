@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
-import time
 import unittest
 import uuid
 from ax import Data
@@ -126,8 +125,8 @@ class AxOrdinalGPTestCase(unittest.TestCase):
     def setUpClass(cls):
 
         # Fix random seeds
-        np.random.seed(int(time.time()))
-        torch.manual_seed(int(time.time()))
+        np.random.seed(0)
+        torch.manual_seed(0)
 
         def make_prob_matrix(fgrid, cutpoints, n_levels):
             """
@@ -168,24 +167,13 @@ class AxOrdinalGPTestCase(unittest.TestCase):
 
         # run a full synthetic experiment loop
         while not cls.client.server.strat.finished:
-            try:
-                trial_config = cls.client.ask()
-                # if trial_config['is_finished']:
-                #     print(cls.client.server.strat.strat._maybe_move_to_next_step())
-                #     continue
-                outcome = simulate_trial(trial_config=trial_config['config'])
-                cls.client.tell(config=trial_config['config'], outcome=outcome)
-                outcomes.append(outcome)
-            except Exception as e:
-                print(trial_config)
-                print(outcomes)
-                raise e
+            trial_config = cls.client.ask()
+            outcome = simulate_trial(trial_config=trial_config['config'])
+            cls.client.tell(config=trial_config['config'], outcome=outcome)
+            outcomes.append(outcome)
             
-
-        # Add an extra tell to make sure manual tells and duplicate params
         cls.client.tell(trial_config["config"], outcome)
         cls.client.finalize()
-        print(outcomes)
         cls.df = exp_to_df(cls.client.server.strat.experiment)
 
         cls.config = Config(config_fnames=[config_file])
