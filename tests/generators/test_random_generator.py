@@ -10,8 +10,8 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 from aepsych.config import Config
-from aepsych.generators import RandomGenerator
-
+from aepsych.generators import AxRandomGenerator, RandomGenerator
+from ax.modelbridge import Models
 
 class TestRandomGenerator(unittest.TestCase):
     def test_randomgen_single(self):
@@ -59,3 +59,25 @@ class TestRandomGenerator(unittest.TestCase):
         npt.assert_equal(gen.lb.numpy(), np.array(lb))
         npt.assert_equal(gen.ub.numpy(), np.array(ub))
         self.assertEqual(gen.dim, len(lb))
+
+    def test_axrandom_config(self):
+        config_str = """
+                [common]
+                parnames = [par1, par2]
+                lb = [-1, 0]
+                ub = [1, 2]
+                outcome_types = [continuous]
+                strategy_names = [init]
+
+                [init]
+                generator = RandomGenerator
+                """
+        config = Config(config_str=config_str)
+        gen = AxRandomGenerator.from_config(config)
+        self.assertEqual(gen.model, Models.UNIFORM)
+        self.assertEqual(gen.dim, len(gen.lb))
+
+
+if __name__ == "__main__":
+    unittest.main()
+    

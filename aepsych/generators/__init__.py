@@ -15,7 +15,7 @@ from .monotonic_thompson_sampler_generator import MonotonicThompsonSamplerGenera
 from .optimize_acqf_generator import AxOptimizeAcqfGenerator, OptimizeAcqfGenerator
 from .pairwise_optimize_acqf_generator import PairwiseOptimizeAcqfGenerator
 from .pairwise_sobol_generator import PairwiseSobolGenerator
-from .random_generator import RandomGenerator
+from .random_generator import AxRandomGenerator, RandomGenerator
 from .sobol_generator import AxSobolGenerator, SobolGenerator
 
 __all__ = [
