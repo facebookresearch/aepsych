@@ -163,14 +163,12 @@ class AxOrdinalGPTestCase(unittest.TestCase):
         config_file = "../configs/ax_ordinal_exploration_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
         cls.client.configure(config_file)
-        outcomes = []
 
         # run a full synthetic experiment loop
         while not cls.client.server.strat.finished:
             trial_config = cls.client.ask()
             outcome = simulate_trial(trial_config=trial_config['config'])
             cls.client.tell(config=trial_config['config'], outcome=outcome)
-            outcomes.append(outcome)
             
         cls.client.tell(trial_config["config"], outcome)
         cls.client.finalize()
