@@ -10,10 +10,12 @@ import sys
 from ..config import Config
 from .bernoulli import BernoulliObjectiveLikelihood
 from .ordinal import OrdinalLikelihood
+from .semi_p import LinearBernoulliLikelihood
 
 __all__ = [
     "BernoulliObjectiveLikelihood",
     "OrdinalLikelihood",
+    "LinearBernoulliLikelihood",
 ]
 
 Config.register_module(sys.modules[__name__])

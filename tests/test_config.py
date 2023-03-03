@@ -13,15 +13,17 @@ import uuid
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.acquisition.objective import FloorGumbelObjective, ProbitObjective
 from aepsych.config import Config
 from aepsych.generators import (
     MonotonicRejectionGenerator,
     OptimizeAcqfGenerator,
     SobolGenerator,
 )
+from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.models import (
     GPClassificationModel,
+    HadamardSemiPModel,
     MonotonicRejectionGP,
     PairwiseProbitModel,
 )
@@ -810,6 +812,61 @@ class ConfigTestCase(unittest.TestCase):
         # this should fail
         with self.assertRaises(AssertionError):
             SequentialStrategy.from_config(bad_config)
+
+    def test_semip_config(self):
+        config_str = """
+            [common]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            parnames = [par1, par2]
+            strategy_names = [init_strat, opt_strat]
+            acqf = MCLevelSetEstimation
+            model = HadamardSemiPModel
+
+            [init_strat]
+            min_asks = 10
+            generator = SobolGenerator
+            refit_every = 10
+
+            [opt_strat]
+            min_asks = 20
+            generator = OptimizeAcqfGenerator
+
+            [HadamardSemiPModel]
+            stim_dim = 1
+            inducing_size = 10
+            inducing_point_method = sobol
+            likelihood = BernoulliObjectiveLikelihood
+
+            [BernoulliObjectiveLikelihood]
+            objective = FloorGumbelObjective
+
+            [FloorGumbelObjective]
+            floor = 0.123
+
+            [OptimizeAcqfGenerator]
+            restarts = 10
+            samps = 1000
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+        opt_strat = strat.strat_list[1]
+        model = opt_strat.model
+
+        self.assertTrue(isinstance(model, HadamardSemiPModel))
+        self.assertTrue(torch.all(model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(model.dim == 2)
+        self.assertTrue(model.inducing_size == 10)
+        self.assertTrue(model.stim_dim == 1)
+        self.assertTrue(model.inducing_point_method == "sobol")
+        self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
+        self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
 
 
 if __name__ == "__main__":
