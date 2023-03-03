@@ -583,7 +583,7 @@ class AEPsychStrategy(ConfigurableMixin):
         return self.strat.experiment
 
     def _warn_on_outcome_mismatch(self):
-        ax_model = self.ax_client.generation_strategy.model
+        ax_model = self.ax_client.generation_strategy.current_step
         aepsych_model = ax_model.model.surrogate.model
         if (
             hasattr(aepsych_model, "outcome_type")
