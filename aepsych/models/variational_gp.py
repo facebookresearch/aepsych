@@ -10,11 +10,12 @@ from typing import Dict, Optional, Tuple, Union
 import numpy as np
 import torch
 from aepsych.config import Config
+from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import promote_0d
 from botorch.models import SingleTaskVariationalGP
-from gpytorch.likelihoods import BernoulliLikelihood
+from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
 from gpytorch.mlls import VariationalELBO
 
 
@@ -113,4 +114,41 @@ class BinaryClassificationGP(VariationalGP):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
             options["likelihood"] = BernoulliLikelihood()
+        return options
+    
+class BetaRegressionGP(VariationalGP):
+    outcome_type = "percentage"
+
+    def predict(
+        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            probability_space (bool, optional): Return outputs in units of
+                response probability instead of latent function value. Defaults to False.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+        """
+        with torch.no_grad():
+            post = self.posterior(x)
+
+        if probability_space:
+            fmean, fvar = get_probability_space(
+                likelihood=self.likelihood, posterior=post
+            )
+        else:
+            fmean = post.mean.squeeze()
+        fvar = post.variance.squeeze()
+
+        return promote_0d(fmean), promote_0d(fvar)
+    
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None):
+        options = super().get_config_options(config)
+        if options["likelihood"] is None:
+            options["likelihood"] = BetaLikelihood()
+            ordinal_likelihood = OrdinalLikelihood()
         return options
