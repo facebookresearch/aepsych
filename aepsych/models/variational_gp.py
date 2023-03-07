@@ -10,7 +10,7 @@ from typing import Dict, Optional, Tuple, Union
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.likelihoods.ordinal import OrdinalLikelihood
+from aepsych.factory.factory import beata;
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import promote_0d
@@ -150,5 +150,4 @@ class BetaRegressionGP(VariationalGP):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
             options["likelihood"] = BetaLikelihood()
-            ordinal_likelihood = OrdinalLikelihood()
         return options
