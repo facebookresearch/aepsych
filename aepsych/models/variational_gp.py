@@ -10,6 +10,10 @@ import gpytorch
 
 import numpy as np
 import torch
+from botorch.models import SingleTaskVariationalGP
+from gpytorch.likelihoods import BernoulliLikelihood
+from gpytorch.mlls import VariationalELBO
+
 from aepsych.config import Config
 from aepsych.factory.factory import ordinal_mean_covar_factory
 from aepsych.likelihoods.ordinal import OrdinalLikelihood
@@ -19,6 +23,7 @@ from aepsych.utils import get_dim, promote_0d
 from botorch.models import SingleTaskVariationalGP
 from gpytorch.likelihoods import BernoulliLikelihood
 from gpytorch.mlls import VariationalELBO
+from aepsych.utils import promote_0d
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side
@@ -107,7 +112,7 @@ class BinaryClassificationGP(VariationalGP):
             )
         else:
             fmean = post.mean.squeeze()
-        fvar = post.variance.squeeze()
+            fvar = post.variance.squeeze()
 
         return promote_0d(fmean), promote_0d(fvar)
 

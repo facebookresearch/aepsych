@@ -16,7 +16,13 @@ from .monotonic_rejection_gp import MonotonicRejectionGP
 from .multitask_regression import IndependentMultitaskGPRModel, MultitaskGPRModel
 from .ordinal_gp import OrdinalGPModel
 from .pairwise_probit import PairwiseProbitModel
+from .semi_p import (
+    HadamardSemiPModel,
+    semi_p_posterior_transform,
+    SemiParametricGPModel,
+)
 from .variational_gp import BinaryClassificationGP, VariationalGP
+
 
 __all__ = [
     "GPClassificationModel",
@@ -31,6 +37,9 @@ __all__ = [
     "ContinuousRegressionGP",
     "MultitaskGPRModel",
     "IndependentMultitaskGPRModel",
+    "HadamardSemiPModel",
+    "SemiParametricGPModel",
+    "semi_p_posterior_transform",
 ]
 
 Config.register_module(sys.modules[__name__])
