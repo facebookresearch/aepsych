@@ -117,8 +117,8 @@ class BinaryClassificationGP(VariationalGP):
         if options["likelihood"] is None:
             options["likelihood"] = BernoulliLikelihood()
         return options
-    
-    
+
+
 class OrdinalGP(VariationalGP):
     """
     Convenience class for using a VariationalGP with an OrdinalLikelihood.
@@ -129,31 +129,29 @@ class OrdinalGP(VariationalGP):
     def predict(self, xgrid, probability_space=False):
         with torch.no_grad():
             post = self.posterior(xgrid)
+        fmean = post.mean.squeeze()
+        fvar = post.variance.squeeze()
 
         if probability_space:
-            fmean, fvar = get_probability_space(
-                likelihood=self.likelihood, posterior=post
+            fsd = torch.sqrt(1 + fvar)
+            probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
+
+            probs[..., 0] = self.likelihood.link(
+                (self.likelihood.cutpoints[0] - fmean) / fsd
             )
+
+            for i in range(1, self.likelihood.n_levels - 1):
+                probs[..., i] = self.likelihood.link(
+                    (self.likelihood.cutpoints[i] - fmean) / fsd
+                ) - self.likelihood.link(
+                    (self.likelihood.cutpoints[i - 1] - fmean) / fsd
+                )
+            probs[..., -1] = 1 - self.likelihood.link(
+                (self.likelihood.cutpoints[-1] - fmean) / fsd
+            )
+            return probs
         else:
-            fmean = post.mean.squeeze()
-            fvar = post.variance.squeeze()
-        fsd = torch.sqrt(1 + fvar)
-        probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
-
-        probs[..., 0] = self.likelihood.link(
-            (self.likelihood.cutpoints[0] - fmean) / fsd
-        )
-
-        for i in range(1, self.likelihood.n_levels - 1):
-            probs[..., i] = self.likelihood.link(
-                (self.likelihood.cutpoints[i] - fmean) / fsd
-            ) - self.likelihood.link((self.likelihood.cutpoints[i - 1] - fmean) / fsd)
-        probs[..., -1] = 1 - self.likelihood.link(
-            (self.likelihood.cutpoints[-1] - fmean) / fsd
-        )
-        return probs
-
-        
+            return fmean, fvar
 
     @classmethod
     def get_config_options(cls, config: Config):
@@ -161,7 +159,7 @@ class OrdinalGP(VariationalGP):
 
         if options["likelihood"] is None:
             options["likelihood"] = OrdinalLikelihood(n_levels=5)
-            
+
         dim = get_dim(config)
 
         if options["mean_covar_factory"] is None:
@@ -183,5 +181,5 @@ class OrdinalGP(VariationalGP):
             options["covar_module"] = covar_module
 
         assert options["inducing_size"] >= 1, "Inducing size must be non-zero."
-            
+
         return options
