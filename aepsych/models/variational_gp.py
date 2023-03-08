@@ -123,7 +123,7 @@ class BetaRegressionGP(VariationalGP):
     classname = "BetaRegression"
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: Union[torch.Tensor, np.ndarray]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -140,37 +140,12 @@ class BetaRegressionGP(VariationalGP):
         fmean = post.mean.squeeze()
         fvar = post.variance.squeeze()
 
-        if probability_space:
-            return promote_0d(fmean), promote_0d(
-                fvar
-            )  # Need to confirm how to do this.
-        else:
-            return fmean, fvar
+        return fmean, fvar
 
     @classmethod
     def get_config_options(cls, config: Config):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
-            prior = config.get(cls.classname, "prior", fallback="Gamma")
-            if prior == "Gamma":
-                concentration = config.getfloat("Gamma", "concentration", fallback=1.5)
-                rate = config.getfloat("Gamma", "rate", fallback=3)
-                prior = GammaPrior(concentration, rate)
-            elif prior == "Normal":
-                mean = config.getfloat("Normal", "mean", fallback=0)
-                std = config.getfloat("Normal", "std", fallback=1)
-                prior = NormalPrior(mean, std)
-            else:
-                raise ValueError(
-                    "Only Gamma and Normal priors are supported For BetaLikelihood for now!"
-                )
-
-            constraint_lb = config.getfloat(cls.classname, "lb", fallback=0.0)
-            constraint_ub = config.getfloat(cls.classname, "ub", fallback=1.0)
-            constraint = Interval(constraint_lb, constraint_ub)
-
-            options["likelihood"] = BetaLikelihood(
-                scale_prior=prior, scale_constraint=constraint
-            )
+            options["likelihood"] = BetaLikelihood()
 
         return options
