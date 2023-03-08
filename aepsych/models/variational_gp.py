@@ -10,13 +10,15 @@ from typing import Dict, Optional, Tuple, Union
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.factory.factory import beata;
+from aepsych.factory.factory import beata
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import promote_0d
 from botorch.models import SingleTaskVariationalGP
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
 from gpytorch.mlls import VariationalELBO
+from gpytorch.priors import GammaPrior, NormalPrior
+from gpytorch.constraints import Interval
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side
@@ -115,9 +117,11 @@ class BinaryClassificationGP(VariationalGP):
         if options["likelihood"] is None:
             options["likelihood"] = BernoulliLikelihood()
         return options
-    
+
+
 class BetaRegressionGP(VariationalGP):
     outcome_type = "percentage"
+    classname = "BetaRegression"
 
     def predict(
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
@@ -144,10 +148,31 @@ class BetaRegressionGP(VariationalGP):
         fvar = post.variance.squeeze()
 
         return promote_0d(fmean), promote_0d(fvar)
-    
+
     @classmethod
-    def get_config_options(cls, config: Config, name: Optional[str] = None):
+    def get_config_options(cls, config: Config):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
-            options["likelihood"] = BetaLikelihood()
+            prior = config.get(cls.classname, "prior", fallback="Gamma")
+            if prior == "Gamma":
+                concentration = config.getfloat("Gamma", "concentration", fallback=1.5)
+                rate = config.getfloat("Gamma", "rate", fallback=3)
+                prior = GammaPrior(concentration, rate)
+            elif prior == "Normal":
+                mean = config.getfloat("Normal", "mean", fallback=0)
+                std = config.getfloat("Normal", "std", fallback=1)
+                prior = NormalPrior(mean, std)
+            else:
+                raise ValueError(
+                    "Only Gamma and Normal priors are supported For BetaLikelihood for now!"
+                )
+
+            constraint_lb = config.getfloat(cls.classname, "lb", fallback=0.0)
+            constraint_ub = config.getfloat(cls.classname, "ub", fallback=1.0)
+            constraint = Interval(constraint_lb, constraint_ub)
+
+            options["likelihood"] = BetaLikelihood(
+                scale_prior=prior, scale_constraint=constraint
+            )
+
         return options
