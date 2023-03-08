@@ -10,7 +10,6 @@ from typing import Dict, Optional, Tuple, Union
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.factory.factory import beata
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import promote_0d
@@ -138,16 +137,15 @@ class BetaRegressionGP(VariationalGP):
         """
         with torch.no_grad():
             post = self.posterior(x)
-
-        if probability_space:
-            fmean, fvar = get_probability_space(
-                likelihood=self.likelihood, posterior=post
-            )
-        else:
-            fmean = post.mean.squeeze()
+        fmean = post.mean.squeeze()
         fvar = post.variance.squeeze()
 
-        return promote_0d(fmean), promote_0d(fvar)
+        if probability_space:
+            return promote_0d(fmean), promote_0d(
+                fvar
+            )  # Need to confirm how to do this.
+        else:
+            return fmean, fvar
 
     @classmethod
     def get_config_options(cls, config: Config):
