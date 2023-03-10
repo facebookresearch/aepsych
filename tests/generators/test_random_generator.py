@@ -71,11 +71,17 @@ class TestRandomGenerator(unittest.TestCase):
 
                 [init]
                 generator = RandomGenerator
+                [RandomGenerator]
+                seed=231
+                deduplicate=True
                 """
         config = Config(config_str=config_str)
-        gen = AxRandomGenerator.from_config(config)
-        self.assertEqual(gen.model, Models.UNIFORM)
-        self.assertEqual(gen.dim, len(gen.lb))
+        gen = AxRandomGenerator.get_config_options(config)
+
+        self.assertEqual(gen["model"], Models.UNIFORM)
+        self.assertEqual(gen["seed"], 231)
+        self.assert_(gen["deduplicate"])
+
 
 
 if __name__ == "__main__":
