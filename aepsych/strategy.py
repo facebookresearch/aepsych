@@ -498,6 +498,19 @@ class SequentialStrategy(object):
 
 
 class AEPsychStrategy(ConfigurableMixin):
+    """
+    The AEPsychStrategy carrys out an experiment with a generation strategy using AxClient object for
+    communicating with the Ax/AEPsych server and a GenerationStrategy object for defining the steps in
+    the experiment. It reads strategies from configuration files and call the AxClient to create experiment.
+    It has methods for defining the experiment, generating new points for evaluation, adding data for
+    completed trials, checking if the experiment is finished, and plotting the results.
+    The class also has a method for handling the scenario where the outcome of the experiment is 
+    not continuous, and the user will be warned that they cannot directly plot the outcome.
+    
+    Init Args:
+        strategy: The `GenerationStragegy` to use.
+        ax_client: the configured `AxClient` to use.
+    """
     is_finished = False
 
     def __init__(self, strategy: GenerationStrategy, ax_client: AxClient):
