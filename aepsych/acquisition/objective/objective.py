@@ -15,7 +15,12 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 
 
-class ProbitObjective(MCAcquisitionObjective):
+class AEPsychObjective(MCAcquisitionObjective):
+    def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+        raise NotImplementedError
+
+
+class ProbitObjective(AEPsychObjective):
     """Probit objective
 
     Transforms the input through the normal CDF (probit).
@@ -48,7 +53,7 @@ class ProbitObjective(MCAcquisitionObjective):
         return Normal(loc=0, scale=1).icdf(samples.squeeze(-1))
 
 
-class FloorLinkObjective(MCAcquisitionObjective):
+class FloorLinkObjective(AEPsychObjective):
     """
     Wrapper for objectives to add a floor, when
     the probability is known not to go below it.
