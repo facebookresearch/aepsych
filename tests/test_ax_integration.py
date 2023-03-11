@@ -155,77 +155,59 @@ class AxBetaRegressionTest(unittest.TestCase):
 
         cls.config = Config(config_fnames=[config_file])
 
-    # def tearDown(self):
-    #     if self.client.server.db is not None:
-    #         self.client.server.db.delete_db()
+    def tearDown(self):
+        if self.client.server.db is not None:
+            self.client.server.db.delete_db()
 
-    # def test_bounds(self):
-    #     lb = self.config.getlist("common", "lb", element_type=float)
-    #     ub = self.config.getlist("common", "ub", element_type=float)
-    #     par4choices = self.config.getlist("par4", "choices", element_type=str)
-    #     par5choices = self.config.getlist("par5", "choices", element_type=str)
-    #     par6value = self.config.getfloat("par6", "value")
-    #     par7value = self.config.get("par7", "value")
+    def test_bounds(self):
+        lb = self.config.getlist("common", "lb", element_type=float)
+        ub = self.config.getlist("common", "ub", element_type=float)
+        par4choices = self.config.getlist("par4", "choices", element_type=str)
+        par5choices = self.config.getlist("par5", "choices", element_type=str)
+        par6value = self.config.getfloat("par6", "value")
+        par7value = self.config.get("par7", "value")
 
-    #     self.assertTrue((self.df["par1"] >= lb[0]).all())
-    #     self.assertTrue((self.df["par1"] <= ub[0]).all())
+        self.assertTrue((self.df["par1"] >= lb[0]).all())
+        self.assertTrue((self.df["par1"] <= ub[0]).all())
 
-    #     self.assertTrue((self.df["par2"] >= lb[1]).all())
-    #     self.assertTrue((self.df["par2"] <= ub[1]).all())
+        self.assertTrue((self.df["par2"] >= lb[1]).all())
+        self.assertTrue((self.df["par2"] <= ub[1]).all())
 
-    #     self.assertTrue((self.df["par3"] >= lb[2]).all())
-    #     self.assertTrue((self.df["par3"] <= ub[2]).all())
+        self.assertTrue((self.df["par3"] >= lb[2]).all())
+        self.assertTrue((self.df["par3"] <= ub[2]).all())
 
-    #     self.assertTrue(self.df["par4"].isin(par4choices).all())
+        self.assertTrue(self.df["par4"].isin(par4choices).all())
 
-    #     self.assertTrue(self.df["par5"].isin(par5choices).all())
+        self.assertTrue(self.df["par5"].isin(par5choices).all())
 
-    #     self.assertTrue((self.df["par6"] == par6value).all())
+        self.assertTrue((self.df["par6"] == par6value).all())
 
-    #     self.assertTrue((self.df["par7"] == par7value).all())
+        self.assertTrue((self.df["par7"] == par7value).all())
 
-    # def test_constraints(self):
-    #     constraints = self.config.getlist("common", "par_constraints", element_type=str)
-    #     for constraint in constraints:
-    #         self.assertEqual(len(self.df.query(constraint)), len(self.df))
+    def test_constraints(self):
+        constraints = self.config.getlist("common", "par_constraints", element_type=str)
+        for constraint in constraints:
+            self.assertEqual(len(self.df.query(constraint)), len(self.df))
 
-    #     self.assertEqual(self.df["par3"].dtype, "int64")
+        self.assertEqual(self.df["par3"].dtype, "int64")
 
-    # def test_n_trials(self):
-    #     n_tells = (self.df["trial_status"] == "COMPLETED").sum()
-    #     correct_n_tells = self.config.getint("opt_strat", "min_total_tells") + 1
+    def test_n_trials(self):
+        n_tells = (self.df["trial_status"] == "COMPLETED").sum()
+        correct_n_tells = self.config.getint("opt_strat", "min_total_tells") + 1
 
-    #     self.assertEqual(n_tells, correct_n_tells)
+        self.assertEqual(n_tells, correct_n_tells)
 
-    # def test_generation_method(self):
-    #     n_sobol = (self.df["generation_method"] == "Sobol").sum()
-    #     n_opt = (self.df["generation_method"] == "BoTorch").sum()
+    def test_generation_method(self):
+        n_sobol = (self.df["generation_method"] == "Sobol").sum()
+        n_opt = (self.df["generation_method"] == "BoTorch").sum()
 
+        correct_n_sobol = self.config.getint("init_strat", "min_total_tells")
+        correct_n_opt = (
+            self.config.getint("opt_strat", "min_total_tells") - correct_n_sobol
+        )
 
-    #     correct_n_sobol = self.config.getint("init_strat", "min_total_tells")
-    #     correct_n_opt = (
-    #         self.config.getint("opt_strat", "min_total_tells") - correct_n_sobol
-    #     )
-
-    #     self.assertEqual(n_sobol, correct_n_sobol)
-    #     self.assertEqual(n_opt, correct_n_opt)
-
-    def test_strats(self):
-        opt_strat_model = self.config.get('opt_strat', 'model')
-        opt_strat_generator = self.config.get('opt_strat', 'generator')
-        opt_strat_min_total_tells = self.config.getint('opt_strat', 'min_total_tells')
-        opt_strat_acqf = self.config.get('opt_strat', 'acqf')
-
-        init_strat_generator = self.config.get('init_strat', 'generator')
-        init_strat_min_total_tells = self.config.getint('init_strat', 'min_total_tells')
-
-        max_fit_time = self.config.getfloat(opt_strat_model, 'max_fit_time')
-
-        print(self.client.server.strat._steps[0].model_name)
-
-
-
-
+        self.assertEqual(n_sobol, correct_n_sobol)
+        self.assertEqual(n_opt, correct_n_opt)
 
 if __name__ == "__main__":
     unittest.main()
