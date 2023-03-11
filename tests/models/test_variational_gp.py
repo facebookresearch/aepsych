@@ -80,16 +80,12 @@ class AxBetaRegressionGP(unittest.TestCase):
     def test_1d_regression(self):
         X, y = self.X, self.y
         model = BetaRegressionGP(train_X=X, train_Y=y, inducing_points=10)
-
-        prior_pm, prior_pv = model.predict(X)
-        print(prior_pm, y.detach().numpy().reshape(-1))
         mll = VariationalELBO(model.likelihood, model.model, len(y))
         fit_gpytorch_mll(mll)
 
-        # fspace
         pm, pv = model.predict(X)
-        print(pm, y.detach().numpy().reshape(-1))
         npt.assert_allclose(pm.reshape(-1, 1), y, atol=0.1)
+        npt.assert_array_less(pv, 1)
 
 
 if __name__ == "__main__":
