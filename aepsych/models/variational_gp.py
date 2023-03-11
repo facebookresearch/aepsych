@@ -131,8 +131,6 @@ class BetaRegressionGP(VariationalGP):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of
-                response probability instead of latent function value. Defaults to False.
 
         Returns:
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
