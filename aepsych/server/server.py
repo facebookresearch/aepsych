@@ -57,9 +57,7 @@ class AEPsychServer(object):
         self.skip_computations = False
 
         if self.db.is_update_required():
-            raise RuntimeError(
-                f'The database needs to be updated. You can perform the update by running "aepsych_database --update --db {database_path}"'
-            )
+            self.db.perform_updates()
 
         self._strats = []
         self._parnames = []

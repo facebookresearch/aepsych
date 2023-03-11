@@ -8,7 +8,7 @@
 import sys
 
 from ..config import Config
-from .lookahead import EAVC, ApproxGlobalSUR, GlobalMI, GlobalSUR, LocalMI, LocalSUR
+from .lookahead import ApproxGlobalSUR, EAVC, GlobalMI, GlobalSUR, LocalMI, LocalSUR
 from .lse import MCLevelSetEstimation
 from .mc_posterior_variance import MCPosteriorVariance, MonotonicMCPosteriorVariance
 from .monotonic_rejection import MonotonicMCLSE
@@ -21,6 +21,7 @@ from .objective import (
     FloorLogitObjective,
     FloorProbitObjective,
     ProbitObjective,
+    semi_p,
 )
 
 lse_acqfs = [
@@ -50,6 +51,7 @@ __all__ = [
     "EAVC",
     "LocalMI",
     "LocalSUR",
+    "semi_p",
 ]
 
 Config.register_module(sys.modules[__name__])
