@@ -13,9 +13,10 @@ import torch
 from botorch.fit import fit_gpytorch_mll
 from gpytorch.likelihoods import BernoulliLikelihood
 from gpytorch.mlls import VariationalELBO
-from sklearn.datasets import make_classification
+from sklearn.datasets import make_classification, make_regression
 
 from aepsych.models import BinaryClassificationGP
+from aepsych.models.variational_gp import BetaRegressionGP
 
 
 class BinaryClassificationGPTestCase(unittest.TestCase):
@@ -59,6 +60,36 @@ class BinaryClassificationGPTestCase(unittest.TestCase):
         pred = (pm > 0).numpy()
         npt.assert_allclose(pred.reshape(-1, 1), y)
         npt.assert_array_less(1, pv)
+
+
+class AxBetaRegressionGP(unittest.TestCase):
+    @classmethod
+    def setUp(cls):
+        np.random.seed(1)
+        torch.manual_seed(1)
+        X, y = make_regression(
+            n_samples=7,
+            n_features=3,
+            n_informative=1,
+            random_state=1,
+        )
+        # Rescale the target values to the range [0, 1]
+        y = (y - y.min()) / (y.max() - y.min())
+        cls.X, cls.y = torch.Tensor(X), torch.Tensor(y).reshape(-1, 1)
+
+    def test_1d_regression(self):
+        X, y = self.X, self.y
+        model = BetaRegressionGP(train_X=X, train_Y=y, inducing_points=10)
+
+        prior_pm, prior_pv = model.predict(X)
+        print(prior_pm, y.detach().numpy().reshape(-1))
+        mll = VariationalELBO(model.likelihood, model.model, len(y))
+        fit_gpytorch_mll(mll)
+
+        # fspace
+        pm, pv = model.predict(X)
+        print(pm, y.detach().numpy().reshape(-1))
+        npt.assert_allclose(pm.reshape(-1, 1), y, atol=0.1)
 
 
 if __name__ == "__main__":

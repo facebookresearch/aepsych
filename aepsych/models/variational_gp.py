@@ -20,8 +20,6 @@ from aepsych.utils import promote_0d
 from botorch.models import SingleTaskVariationalGP
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
 from gpytorch.mlls import VariationalELBO
-from gpytorch.priors import GammaPrior, NormalPrior
-from gpytorch.constraints import Interval
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side
