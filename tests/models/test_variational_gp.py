@@ -88,24 +88,12 @@ class AxOrdinalGPTestCase(unittest.TestCase):
         )
         probs = model.predict(self.X, probability_space=True)
         pred = np.argmax(probs.detach().numpy(), axis=1).reshape(-1, 1)
-        print(
-            "predicted: ",
-            pred.reshape(-1),
-            "expected: ",
-            self.y.detach().numpy().reshape(-1),
-        )
         mll = VariationalELBO(model.likelihood, model.model, len(self.y))
         fit_gpytorch_mll(mll)
 
         # pspace
         probs = model.predict(self.X, probability_space=True)
         pred = np.argmax(probs.detach().numpy(), axis=1).reshape(-1, 1)
-        print(
-            "predicted: ",
-            pred.reshape(-1),
-            "expected: ",
-            self.y.detach().numpy().reshape(-1),
-        )
         clipped_pred = np.clip(pred, 0, self.n_levels)
         npt.assert_allclose(clipped_pred, pred, atol=1, rtol=1)
         npt.assert_allclose(pred, self.y, atol=1, rtol=1)
@@ -114,13 +102,6 @@ class AxOrdinalGPTestCase(unittest.TestCase):
         pm, pv = model.predict(self.X, probability_space=False)
         pred = np.floor(self.n_levels * pm).reshape(-1, 1)
         pred_var = (self.n_levels * pv).reshape(-1, 1)
-        print(
-            "predicted: ",
-            pred.detach().numpy().reshape(-1),
-            "expected: ",
-            self.y.detach().numpy().reshape(-1),
-            sep=" ",
-        )
         clipped_pred = np.clip(pred, 0, self.n_levels)
         npt.assert_allclose(clipped_pred, pred, atol=3, rtol=self.n_levels)
         npt.assert_allclose(pred, self.y, atol=3, rtol=self.n_levels)
