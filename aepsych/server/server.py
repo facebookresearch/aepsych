@@ -735,6 +735,8 @@ class AEPsychServer(object):
             # HACK to make sure strategies finish correctly
             if self.use_ax:
                 self.strat.strat.experiment.num_asks += 1
+                if len(self.strat.strat._steps) > self.strat.strat._curr.index + 1:
+                    self.strat.strat._maybe_move_to_next_step()
             else:
                 self.strat._strat._count += 1
                 if self.strat._strat.finished:
@@ -922,6 +924,7 @@ class AEPsychServer(object):
 
         return self.unversioned_handler(request)
 
+
 #! THIS IS WHAT START THE SERVER
 def startServerAndRun(
     server_class, socket=None, database_path=None, config_path=None, uuid_of_replay=None
@@ -955,6 +958,7 @@ def startServerAndRun(
         server.write_strats(exception_type)
         server.generate_debug_info(exception_type, dump_type)
         raise RuntimeError(e)
+
 
 def parse_argument():
     parser = argparse.ArgumentParser(description="AEPsych Server!")
@@ -1006,6 +1010,7 @@ def parse_argument():
 
     args = parser.parse_args()
     return args
+
 
 def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
