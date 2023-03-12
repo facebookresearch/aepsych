@@ -10,7 +10,7 @@ from typing import Optional, Union
 
 import numpy as np
 import torch
-from botorch.models.approximate_gp import _select_inducing_points
+from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
 from botorch.utils.sampling import draw_sobol_samples
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood
@@ -76,7 +76,8 @@ def select_inducing_points(
                 method = "kmeans++"
 
         if method == "pivoted_chol":
-            inducing_points = _select_inducing_points(
+            inducing_point_allocator = GreedyVarianceReduction()
+            inducing_points = inducing_point_allocator.allocate_inducing_points(
                 inputs=X,
                 covar_module=covar_module,
                 num_inducing=inducing_size,

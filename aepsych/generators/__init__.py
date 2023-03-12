@@ -17,6 +17,7 @@ from .pairwise_optimize_acqf_generator import PairwiseOptimizeAcqfGenerator
 from .pairwise_sobol_generator import PairwiseSobolGenerator
 from .random_generator import AxRandomGenerator, RandomGenerator
 from .sobol_generator import AxSobolGenerator, SobolGenerator
+from .semi_p import IntensityAwareSemiPGenerator
 
 __all__ = [
     "OptimizeAcqfGenerator",
@@ -30,6 +31,7 @@ __all__ = [
     "PairwiseSobolGenerator",
     "AxOptimizeAcqfGenerator",
     "AxSobolGenerator",
+    "IntensityAwareSemiPGenerator",
 ]
 
 Config.register_module(sys.modules[__name__])

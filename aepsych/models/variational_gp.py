@@ -9,13 +9,14 @@ from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from botorch.models import SingleTaskVariationalGP
+from gpytorch.likelihoods import BernoulliLikelihood
+from gpytorch.mlls import VariationalELBO
+
 from aepsych.config import Config
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import promote_0d
-from botorch.models import SingleTaskVariationalGP
-from gpytorch.likelihoods import BernoulliLikelihood
-from gpytorch.mlls import VariationalELBO
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side
@@ -104,7 +105,7 @@ class BinaryClassificationGP(VariationalGP):
             )
         else:
             fmean = post.mean.squeeze()
-        fvar = post.variance.squeeze()
+            fvar = post.variance.squeeze()
 
         return promote_0d(fmean), promote_0d(fvar)
 
