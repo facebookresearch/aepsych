@@ -7,7 +7,7 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Dict, List, Mapping, Optional
+from typing import Dict, List, Mapping, Optional, Tuple
 
 import numpy as np
 import torch
@@ -68,7 +68,7 @@ def dim_grid(
     return torch.Tensor(np.mgrid[mesh_vals].reshape(dim, -1).T)
 
 
-def _process_bounds(lb, ub, dim):
+def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type."""
     lb = promote_0d(lb)
     ub = promote_0d(ub)
