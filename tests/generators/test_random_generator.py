@@ -76,11 +76,17 @@ class TestRandomGenerator(unittest.TestCase):
                 deduplicate=True
                 """
         config = Config(config_str=config_str)
-        gen = AxRandomGenerator.get_config_options(config)
-
-        self.assertEqual(gen["model"], Models.UNIFORM)
-        self.assertEqual(gen["seed"], 231)
-        self.assert_(gen["deduplicate"])
+        # print(AxRandomGenerator.from_config(config, name="init"))
+        gen = AxRandomGenerator.from_config(config, name="init")
+        print(gen)
+        # self.assertEqual(gen["model"], Models.UNIFORM)
+        # self.assertEqual(gen["model_kwargs"]["seed"], 231)
+        # self.assertTrue(gen["model_kwargs"]["deduplicate"])
+        self.assertEqual(gen.model, Models.UNIFORM)
+        self.assertEqual(gen.model_kwargs["seed"], 231)
+        self.assertTrue(gen.model_kwargs["deduplicate"])
+        self.assertEqual(gen.lb.numpy(), np.array([-1, 0]))
+        self.assertEqual(gen.ub.numpy(), np.array([1, 2]))
 
 
 
