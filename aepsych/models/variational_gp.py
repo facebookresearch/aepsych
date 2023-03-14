@@ -143,7 +143,7 @@ class BetaRegressionGP(VariationalGP):
         return fmean, fvar
 
     @classmethod
-    def get_config_options(cls, config: Config):
+    def get_config_options(cls, config: Config, name: Optional[str] = None):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
             options["likelihood"] = BetaLikelihood()
