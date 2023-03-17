@@ -26,7 +26,7 @@ REQUIRES = [
     "voila==0.3.6",
     "ipywidgets==7.6.5",
     "statsmodels",
-    "ax-platform>=0.3.0",
+    "ax-platform>=0.3.1",
 ]
 
 DEV_REQUIRES = [
