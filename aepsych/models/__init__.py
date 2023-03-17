@@ -21,7 +21,7 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
-from .variational_gp import BinaryClassificationGP, VariationalGP
+from .variational_gp import BinaryClassificationGP, VariationalGP, OrdinalGP
 
 
 __all__ = [
@@ -40,6 +40,7 @@ __all__ = [
     "HadamardSemiPModel",
     "SemiParametricGPModel",
     "semi_p_posterior_transform",
+    "OrdinalGP",
 ]
 
 Config.register_module(sys.modules[__name__])

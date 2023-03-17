@@ -130,6 +130,7 @@ class OrdinalGP(VariationalGP):
     """
 
     outcome_type = "ordinal"
+    classname = "OrdinalGP"
 
     def predict(self, xgrid, probability_space=False):
         with torch.no_grad():
@@ -167,7 +168,7 @@ class OrdinalGP(VariationalGP):
 
         dim = get_dim(config)
 
-        if options["mean_covar_factory"] is None:
+        if config.getobj(name, "mean_covar_factory", fallback=None) is None:
             mean, covar = ordinal_mean_covar_factory(config)
             options["mean_covar_factory"] = (mean, covar)
             ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)
