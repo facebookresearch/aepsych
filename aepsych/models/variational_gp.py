@@ -122,7 +122,6 @@ class BinaryClassificationGP(VariationalGP):
 
 class BetaRegressionGP(VariationalGP):
     outcome_type = "percentage"
-    classname = "BetaRegression"
 
     def predict(
         self, x: Union[torch.Tensor, np.ndarray]
