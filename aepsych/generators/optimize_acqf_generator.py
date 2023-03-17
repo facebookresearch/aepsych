@@ -185,7 +185,6 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
         classname = "OptimizeAcqfGenerator"
 
         model_class = config.getobj(name, "model", fallback=None)
-        print(model_class)
         model_options = model_class.get_config_options(config)
 
         acqf_cls = config.getobj(name, "acqf", fallback=None)
