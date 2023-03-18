@@ -2,6 +2,7 @@ import gpytorch
 import torch
 from aepsych.likelihoods import OrdinalLikelihood
 from aepsych.models import GPClassificationModel
+from aepsych.models.variational_gp import OrdinalGP
 
 
 class OrdinalGPModel(GPClassificationModel):
@@ -61,3 +62,6 @@ class OrdinalGPModel(GPClassificationModel):
             (self.likelihood.cutpoints[-1] - fmean) / fsd
         )
         return probs
+
+    def get_config_options(self, config, name=None):
+        return OrdinalGP.get_config_options(config, name)
