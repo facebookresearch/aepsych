@@ -62,7 +62,7 @@ class BinaryClassificationGPTestCase(unittest.TestCase):
         npt.assert_array_less(1, pv)
 
 
-class AxBetaRegressionGP(unittest.TestCase):
+class AxBetaRegressionGPTextCase(unittest.TestCase):
     @classmethod
     def setUp(cls):
         np.random.seed(1)
