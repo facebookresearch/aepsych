@@ -10,14 +10,16 @@ import logging
 import os
 import sys
 
-import aepsych.utils_logging as utils_logging
 import aepsych.database.db as db
+import aepsych.utils_logging as utils_logging
 
 logger = utils_logging.getLogger(logging.INFO)
+
 
 def get_next_filename(folder, fname, ext):
     n = sum(1 for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)))
     return f"{folder}/{fname}_{n+1}.{ext}"
+
 
 def parse_argument():
     parser = argparse.ArgumentParser(description="AEPsych Database!")
@@ -46,8 +48,9 @@ def parse_argument():
     args = parser.parse_args()
     return args
 
+
 def run_database(args):
-    logger.info("Starting AEPscyh Utils!")
+    logger.info("Starting AEPsych Database!")
     try:
         database_path = args.db
         database = db.Database(database_path)
@@ -69,9 +72,11 @@ def run_database(args):
         logger.exception(f"CRASHING!! dump in {fname}")
         raise RuntimeError(e)
 
+
 def main():
     args = parse_argument()
     run_database(args)
+
 
 if __name__ == "__main__":
     main()
