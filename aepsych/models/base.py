@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 import gpytorch
 import numpy as np
 import torch
+
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
@@ -398,12 +399,10 @@ class AEPsychMixin(GPyTorchModel):
             optimizer_kwargs["options"] = {"maxfun": n_eval}
             logger.info(f"fit maxfun is {n_eval}")
 
-        logger.info("Starting fit...")
         starttime = time.time()
         res = fit_gpytorch_mll(
             mll, optimizer=optimizer, optimizer_kwargs=optimizer_kwargs, **kwargs
         )
-        logger.info(f"Fit done, time={time.time()-starttime}")
         return res
 
     def p_below_threshold(self, x, f_thresh) -> np.ndarray:
