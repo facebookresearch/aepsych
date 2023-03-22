@@ -8,7 +8,6 @@
 import os
 import unittest
 import uuid
-from ax import Data
 
 import numpy as np
 import torch
@@ -141,3 +140,7 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         self.assertEqual(n_sobol, correct_n_sobol)
         self.assertEqual(n_opt, correct_n_opt)
+
+
+if __name__ == "__main__":
+    unittest.main()
