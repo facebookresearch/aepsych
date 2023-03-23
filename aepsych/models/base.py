@@ -16,12 +16,11 @@ import torch
 
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.factory.factory import default_mean_covar_factory
+from aepsych.models.utils import get_extremum
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition import PosteriorMean
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
-from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
@@ -116,62 +115,35 @@ class AEPsychMixin(GPyTorchModel):
     def bounds(self):
         return torch.stack((self.lb, self.ub))
 
-    def _get_extremum(
-        self: ModelProtocol,
-        extremum_type: str,
-        locked_dims: Optional[Mapping[int, List[float]]] = None,
-        n_samples: int = 1000,
-    ) -> Tuple[float, np.ndarray]:
-        """Return the extremum (min or max) of the modeled function
-        Args:
-            extremum_type (str): type of extremum (currently 'min' or 'max'
-            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
-        Returns:
-            Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
-        """
-        locked_dims = locked_dims or {}
-
-        acqf = PosteriorMean(model=self, maximize=(extremum_type == "max"))
-        bounds = torch.stack((self.lb, self.ub))
-        best_point, best_val = optimize_acqf(
-            acq_function=acqf,
-            bounds=bounds,
-            q=1,
-            num_restarts=10,
-            raw_samples=n_samples,
-            fixed_features=locked_dims,
-        )
-
-        # PosteriorMean flips the sign on minimize, we flip it back
-        if extremum_type == "min":
-            best_val = -best_val
-        return best_val, best_point.squeeze(0)
-
     def get_max(
         self: ModelProtocol,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
+        n_samples: int = 1000,
     ) -> Tuple[float, np.ndarray]:
         """Return the maximum of the modeled function, subject to constraints
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
+            n_samples int: number of coarse grid points to sample for optimization estimate.
         """
         locked_dims = locked_dims or {}
-        return self._get_extremum("max", locked_dims)
+        return get_extremum(self, "max", self.bounds, locked_dims, n_samples)
 
     def get_min(
         self: ModelProtocol,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
+        n_samples: int = 1000,
     ) -> Tuple[float, np.ndarray]:
         """Return the minimum of the modeled function, subject to constraints
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
+            n_samples int: number of coarse grid points to sample for optimization estimate.
         """
         locked_dims = locked_dims or {}
-        return self._get_extremum("min", locked_dims)
+        return get_extremum(self, "min", self.bounds, locked_dims, n_samples)
 
     def inv_query(
         self: ModelProtocol,
@@ -459,3 +431,40 @@ class AEPsychModel(ConfigurableMixin, ABC):
         }
 
         return inputs
+
+    def get_max(
+        self: ModelProtocol,
+        bounds: torch.Tensor,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        n_samples: int = 1000,
+    ) -> Tuple[float, np.ndarray]:
+        """Return the maximum of the modeled function, subject to constraints
+        Args:
+            bounds (torch.Tensor): The lower and upper bounds in the parameter space to search for the maximum,
+                formatted as a 2xn tensor, where d is the number of parameters.
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                    inverse is along a slice of the full surface.
+            n_samples int: number of coarse grid points to sample for optimization estimate.
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
+        """
+        locked_dims = locked_dims or {}
+        return get_extremum(self, "max", bounds, locked_dims, n_samples)
+
+    def get_min(
+        self: ModelProtocol,
+        bounds: torch.Tensor,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        n_samples: int = 1000,
+    ) -> Tuple[float, np.ndarray]:
+        """Return the minimum of the modeled function, subject to constraints
+        Args:
+            bounds (torch.Tensor): The lower and upper bounds in the parameter space to search for the minimum,
+                formatted as a 2xn tensor, where d is the number of parameters.
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
+        """
+        locked_dims = locked_dims or {}
+        return get_extremum(self, "min", bounds, locked_dims, n_samples)
