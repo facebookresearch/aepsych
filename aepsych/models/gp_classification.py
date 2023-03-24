@@ -18,7 +18,7 @@ from aepsych.models.base import AEPsychMixin
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
-from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
+from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 from scipy.special import owens_t
@@ -297,4 +297,34 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         """Perform a warm-start update of the model from previous fit."""
         return self.fit(
             train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True, **kwargs
+        )
+
+
+class GPBetaRegressionModel(GPClassificationModel):
+    outcome_type = "percentage"
+
+    def __init__(
+        self,
+        lb: Union[np.ndarray, torch.Tensor],
+        ub: Union[np.ndarray, torch.Tensor],
+        dim: Optional[int] = None,
+        mean_module: Optional[gpytorch.means.Mean] = None,
+        covar_module: Optional[gpytorch.kernels.Kernel] = None,
+        likelihood: Optional[Likelihood] = None,
+        inducing_size: int = 100,
+        max_fit_time: Optional[float] = None,
+        inducing_point_method: str = "auto",
+    ):
+        if likelihood is None:
+            likelihood = BetaLikelihood()
+        super().__init__(
+            lb=lb,
+            ub=ub,
+            dim=dim,
+            mean_module=mean_module,
+            covar_module=covar_module,
+            likelihood=likelihood,
+            inducing_size=inducing_size,
+            max_fit_time=max_fit_time,
+            inducing_point_method=inducing_point_method,
         )
