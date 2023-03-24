@@ -6,11 +6,14 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from botorch.acquisition import PosteriorMean
+from botorch.models.model import Model
 from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
+from botorch.optim import optimize_acqf
 from botorch.utils.sampling import draw_sobol_samples
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood
@@ -114,3 +117,35 @@ def get_probability_space(likelihood, posterior):
         pmean, pvar = psamps.mean(0), psamps.var(0)
 
     return pmean, pvar
+
+
+def get_extremum(
+    model: Model,
+    extremum_type: str,
+    bounds: torch.Tensor,
+    locked_dims: Optional[Mapping[int, List[float]]],
+    n_samples: int,
+) -> Tuple[float, np.ndarray]:
+    """Return the extremum (min or max) of the modeled function
+    Args:
+        extremum_type (str): type of extremum (currently 'min' or 'max'
+        n_samples int: number of coarse grid points to sample for optimization estimate.
+    Returns:
+        Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+    """
+    locked_dims = locked_dims or {}
+
+    acqf = PosteriorMean(model=model, maximize=(extremum_type == "max"))
+    best_point, best_val = optimize_acqf(
+        acq_function=acqf,
+        bounds=bounds,
+        q=1,
+        num_restarts=10,
+        raw_samples=n_samples,
+        fixed_features=locked_dims,
+    )
+
+    # PosteriorMean flips the sign on minimize, we flip it back
+    if extremum_type == "min":
+        best_val = -best_val
+    return best_val, best_point.squeeze(0)
