@@ -20,6 +20,7 @@ The main reference for AEPsych is:
 ## Papers on AEPsych methods
 * [Adaptive Nonparametric Psychophysics](https://arxiv.org/abs/2104.09549). Lucy Owen, Jonathan Browder, Benjamin Letham, Gideon Stocek, Chase Tymms, Michael Shvartsman. arXiv, 2021.
 * [Look-Ahead Acquisition Functions for Bernoulli Level Set Estimation](https://arxiv.org/abs/2203.09751). Benjamin Letham, Phillip Guan, Chase Tymms, Eytan Bakshy, Michael Shvartsman. AISTATS 2022.
+* [A Semi-Parametric Model for Decision Making in High-Dimensional Sensory Discrimination Tasks](https://arxiv.org/abs/2302.01187). Stephen Keeley, Benjamin Letham, Chase Tymms, Craig Sanders, Michael Shvartsman. AAAI 2023. 
 
 ## Papers and abstracts using AEPsych
 To add your paper here, feel free to submit a pull request or get in touch!
