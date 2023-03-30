@@ -22,7 +22,7 @@ from botorch.acquisition import qUpperConfidenceBound
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 from scipy.stats import bernoulli, norm, pearsonr
 
-from ..common import f_1d, f_2d, f_pairwise, new_novel_det
+from tests.common import f_1d, f_2d, f_pairwise, new_novel_det
 
 
 class PairwiseProbitModelStrategyTest(unittest.TestCase):
