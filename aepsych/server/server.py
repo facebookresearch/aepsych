@@ -17,12 +17,13 @@ from collections.abc import Iterable
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
+
 import dill
 import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import BAD_REQUEST, DummySocket, createSocket
+from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
 from aepsych.strategy import AEPsychStrategy, SequentialStrategy
 from aepsych.version import __version__
 
@@ -63,6 +64,8 @@ class AEPsychServer(object):
         self._parnames = []
         self._configs = []
         self.strat_id = -1
+        self._pregen_asks = []
+        self.enable_pregen = False
 
         self.debug = False
         self.is_using_thrift = thrift
@@ -95,6 +98,9 @@ class AEPsychServer(object):
                 logger.error(f"{error_message}! Full traceback follows:")
                 logger.error(traceback.format_exc())
             self.socket.send(result)
+        else:
+            if self.can_pregen_ask and (len(self._pregen_asks) == 0):
+                self._pregen_asks.append(self.ask())
 
     def serve(self):
         """Run the server. Note that all configuration outside of socket type and port
@@ -458,7 +464,12 @@ class AEPsychServer(object):
         "is_finished" -- bool, true if the strat is finished
         """
         logger.debug("got ask message!")
-        new_config = {"config": self.ask(), "is_finished": self.strat.finished}
+        if self._pregen_asks:
+            params = self._pregen_asks.pop()
+        else:
+            params = self.ask()
+
+        new_config = {"config": params, "is_finished": self.strat.finished}
         if not self.is_performing_replay:
             self.db.record_message(
                 master_table=self._db_master_record, type="ask", request=request
@@ -525,6 +536,10 @@ class AEPsychServer(object):
 
     def handle_ask(self, request):
         logger.debug("got ask message!")
+
+        if self._pregen_asks:
+            return self._pregen_asks.pop()
+
         new_config = self.ask()
 
         if not self.is_performing_replay:
@@ -726,6 +741,10 @@ class AEPsychServer(object):
     def n_strats(self):
         return len(self._strats)
 
+    @property
+    def can_pregen_ask(self):
+        return self.strat is not None and self.enable_pregen
+
     def ask(self):
         """get the next point to query from the model
         Returns:
@@ -840,14 +859,21 @@ class AEPsychServer(object):
             else:
                 x = config
             self.strat.add_data(x, outcome)
+            if self.can_pregen_ask:
+                self._pregen_asks.append(self.ask())
 
     def _configure(self, config):
+        self._pregen_asks = (
+            []
+        )  # TODO: Allow each strategy to have its own stack of pre-generated asks
+
         parnames = config._str_to_list(
             config.get("common", "parnames"), element_type=str
         )
         self.parnames = parnames
         self.config = config
         self.use_ax = config.getboolean("common", "use_ax", fallback=False)
+        self.enable_pregen = config.getboolean("common", "pregen_asks", fallback=False)
         if self.use_ax:
             self.trial_index = -1
             self.strat = AEPsychStrategy.from_config(config)
@@ -919,6 +945,7 @@ class AEPsychServer(object):
 
         return self.unversioned_handler(request)
 
+
 #! THIS IS WHAT START THE SERVER
 def startServerAndRun(
     server_class, socket=None, database_path=None, config_path=None, uuid_of_replay=None
@@ -952,6 +979,7 @@ def startServerAndRun(
         server.write_strats(exception_type)
         server.generate_debug_info(exception_type, dump_type)
         raise RuntimeError(e)
+
 
 def parse_argument():
     parser = argparse.ArgumentParser(description="AEPsych Server!")
@@ -1003,6 +1031,7 @@ def parse_argument():
 
     args = parser.parse_args()
     return args
+
 
 def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
