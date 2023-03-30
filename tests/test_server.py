@@ -10,7 +10,7 @@ import logging
 import select
 import unittest
 import uuid
-from unittest.mock import MagicMock, PropertyMock, call, patch
+from unittest.mock import call, MagicMock, patch, PropertyMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
@@ -18,6 +18,7 @@ import torch
 from aepsych.config import Config
 from aepsych.server.sockets import BAD_REQUEST
 from aepsych.strategy import AEPsychStrategy
+from parameterized import parameterized
 
 dummy_config = """
 [common]
@@ -47,6 +48,7 @@ mean_covar_factory = default_mean_covar_factory
 [SobolGenerator]
 n_points = 2
 """
+
 
 class ServerTestCase(unittest.TestCase):
     def setUp(self):
@@ -743,6 +745,32 @@ class ServerTestCase(unittest.TestCase):
         self.s.configure(config=config)
         self.assertTrue(self.s.use_ax)
         self.assertIsInstance(self.s.strat, AEPsychStrategy)
+
+
+    @parameterized.expand([(True,), (False,)])
+    def test_async_asks(self, enable_pregen):
+        self.s.ask = MagicMock()
+        self.s.socket.accept_client = MagicMock()
+        self.s.socket.receive = MagicMock(return_value=BAD_REQUEST)
+        self.s.exit_server_loop = True
+
+        config = Config(config_str=dummy_config)
+        config["common"]["pregen_asks"] = str(enable_pregen)
+        self.s.configure(config=config)
+        self.assertEqual(self.s.can_pregen_ask, enable_pregen)
+
+        # Should automatically queue up an ask if pregen is enabled
+        with self.assertRaises(SystemExit):
+            self.s.serve()
+        self.assertEqual(self.s.ask.call_count, int(enable_pregen))
+
+        # Should queue up an ask after a tell if pregen is enabled
+        self.s.tell(0, {"x": 0})
+        self.assertEqual(self.s.ask.call_count, int(enable_pregen) * 2)
+
+        # Should reset queue
+        self.s.configure(config=config)
+        self.assertEqual(len(self.s._pregen_asks), 0)
 
 
 if __name__ == "__main__":
