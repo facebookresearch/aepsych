@@ -98,15 +98,42 @@ class PairwiseGPModel(AEPsychModel, PairwiseGP):
     def get_mll_class(cls):
         return PairwiseLaplaceMarginalLogLikelihood
 
+    def sample(self, x, num_samples, rereference="x_min"):
+        if len(x.shape) < 2:
+            x = x.reshape(-1, 1)
+        if rereference is None:
+            return self.posterior(x).rsample(torch.Size([num_samples]))
+
+        if rereference == "x_min":
+            x_ref = self.lb
+        elif rereference == "x_max":
+            x_ref = self.ub
+        elif rereference == "f_max":
+            x_ref = torch.Tensor(self.get_max()[1])
+        elif rereference == "f_min":
+            x_ref = torch.Tensor(self.get_min()[1])
+        else:
+            raise RuntimeError(
+                f"Unknown rereference type {rereference}! Options: x_min, x_max, f_min, f_max."
+            )
+
+        x_stack = torch.vstack([x, x_ref])
+        samps = self.posterior(x_stack).rsample(torch.Size([num_samples]))
+        samps, samps_ref = torch.split(samps, [samps.shape[1] - 1, 1], dim=1)
+        if rereference == "x_min" or rereference == "f_min":
+            return samps - samps_ref
+        else:
+            return -samps + samps_ref
+
     def predict(
         self, x, probability_space=False, num_samples=1000, rereference="x_min"
     ):
-        # if rereference is not None:
-        #     samps = self.sample(x, num_samples, rereference)
-        #     fmean, fvar = samps.mean(0).squeeze(), samps.var(0).squeeze()
-        # else:
-        post = self.posterior(x)
-        fmean, fvar = post.mean.squeeze(), post.variance.squeeze()
+        if rereference is not None:
+            samps = self.sample(x, num_samples, rereference)
+            fmean, fvar = samps.mean(0).squeeze(), samps.var(0).squeeze()
+        else:
+            post = self.posterior(x)
+            fmean, fvar = post.mean.squeeze(), post.variance.squeeze()
 
         if probability_space:
             return (
