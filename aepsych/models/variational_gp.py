@@ -17,10 +17,6 @@ from aepsych.config import Config
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import promote_0d
-from botorch.models import SingleTaskVariationalGP
-from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
-from gpytorch.mlls import VariationalELBO
-
 
 # TODO: Find a better way to do this on the Ax/Botorch side
 class MyHackyVariationalELBO(VariationalELBO):
