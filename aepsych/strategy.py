@@ -308,8 +308,6 @@ class Strategy(object):
 
     def fit(self):
         if self.can_fit:
-            logger.info("Starting fit...")
-            starttime = time.time()
             if self.keep_most_recent is not None:
                 try:
                     self.model.fit(
@@ -327,7 +325,6 @@ class Strategy(object):
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
-            logger.info(f"Fit done, time={time.time()-starttime}")
         else:
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
