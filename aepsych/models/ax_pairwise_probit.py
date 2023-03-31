@@ -101,12 +101,12 @@ class PairwiseGPModel(AEPsychModel, PairwiseGP):
     def predict(
         self, x, probability_space=False, num_samples=1000, rereference="x_min"
     ):
-        if rereference is not None:
-            samps = self.sample(x, num_samples, rereference)
-            fmean, fvar = samps.mean(0).squeeze(), samps.var(0).squeeze()
-        else:
-            post = self.posterior(x)
-            fmean, fvar = post.mean.squeeze(), post.variance.squeeze()
+        # if rereference is not None:
+        #     samps = self.sample(x, num_samples, rereference)
+        #     fmean, fvar = samps.mean(0).squeeze(), samps.var(0).squeeze()
+        # else:
+        post = self.posterior(x)
+        fmean, fvar = post.mean.squeeze(), post.variance.squeeze()
 
         if probability_space:
             return (

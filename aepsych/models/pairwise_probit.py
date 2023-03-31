@@ -193,9 +193,5 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         return cls(lb=lb, ub=ub, dim=dim, covar_module=covar, max_fit_time=max_fit_time)
 
     @classmethod
-    def get_config_options(cls, config: Config, name: Optional[str] = None):
-        return AxPairwiseGPModel.get_config_options(config, name)
-
-    @classmethod
     def get_mll_class(cls):
         return PairwiseLaplaceMarginalLogLikelihood
