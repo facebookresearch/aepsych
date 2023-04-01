@@ -207,9 +207,7 @@ class AxPairwiseIntergrationTestCase(unittest.TestCase):
         n_opt = (self.df["generation_method"] == "BoTorch").sum()
 
         correct_n_sobol = self.config.getint("init_strat", "min_asks")
-        correct_n_opt = (
-            self.config.getint("opt_strat", "min_asks") - correct_n_sobol
-        )
+        correct_n_opt = self.config.getint("opt_strat", "min_asks") - correct_n_sobol
 
         self.assertEqual(n_sobol, correct_n_sobol)
         self.assertEqual(n_opt, correct_n_opt)

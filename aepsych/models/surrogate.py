@@ -12,7 +12,7 @@ from ax.models.torch.botorch_modular.surrogate import Surrogate
 from botorch.fit import fit_gpytorch_mll
 from botorch.utils.datasets import SupervisedDataset
 from torch import Tensor
-from botorch.models.likelihoods.pairwise import PairwiseProbitLikelihood
+from aepsych.models import AxPairwiseGPModel
 
 logger = getLogger()
 
@@ -38,7 +38,7 @@ class AEPsychSurrogate(Surrogate):
             metric_names=metric_names,
             **dataclasses.asdict(search_space_digest),
         )
-        if isinstance(self.model_options["likelihood"], PairwiseProbitLikelihood):
+        if isinstance(self.model, AxPairwiseGPModel):
             datapoints, comparisons = self.model._pairs_to_comparisons(
                 datasets[0].X(), datasets[0].Y().squeeze()
             )
@@ -56,9 +56,7 @@ class AEPsychSurrogate(Surrogate):
             if self.max_fit_time is not None:
                 # figure out how long evaluating a single samp
                 starttime = time.time()
-                if isinstance(
-                    self.model_options["likelihood"], PairwiseProbitLikelihood
-                ):
+                if isinstance(self.model, AxPairwiseGPModel):
                     _ = mll(self.model(datapoints), comparisons)
                 else:
                     _ = mll(self.model(datasets[0].X()), datasets[0].Y().squeeze())

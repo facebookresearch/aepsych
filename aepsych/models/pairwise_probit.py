@@ -191,7 +191,3 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         return cls(lb=lb, ub=ub, dim=dim, covar_module=covar, max_fit_time=max_fit_time)
-
-    @classmethod
-    def get_mll_class(cls):
-        return PairwiseLaplaceMarginalLogLikelihood
