@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import time
+import torch
 from typing import Any, Dict, List, Optional
 
 from aepsych.utils_logging import getLogger
@@ -54,7 +55,6 @@ class AEPsychSurrogate(Surrogate):
             )
             if self.max_fit_time is not None:
                 # figure out how long evaluating a single samp
-                print("max_fit_time is not None .............")
                 starttime = time.time()
                 if isinstance(
                     self.model_options["likelihood"], PairwiseProbitLikelihood

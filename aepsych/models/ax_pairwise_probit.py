@@ -37,7 +37,7 @@ logger = getLogger()
 
 
 class PairwiseGPModel(AEPsychModel, PairwiseGP):
-    name = "PairwiseProbitModel"
+    classname = "AxPairwiseGPModel"
     outcome_type = "binary"
     stimuli_per_trial = 1
 
@@ -57,7 +57,6 @@ class PairwiseGPModel(AEPsychModel, PairwiseGP):
         input_transform: Optional[InputTransform] = None,
         inducing_point_allocator: Optional[InducingPointAllocator] = None,
     ) -> None:
-        self.outcome_transform = outcome_transform
         self.input_transform = input_transform
         dim = self.dim
         bounds = torch.stack((self.lb, self.ub))
@@ -168,6 +167,7 @@ class PairwiseGPModel(AEPsychModel, PairwiseGP):
 
     @classmethod
     def get_config_options(cls, config: Config, name: str = None):
+        name = name or cls.classname
         options = super().get_config_options(config, name)
         classname = cls.__class__.__name__
 

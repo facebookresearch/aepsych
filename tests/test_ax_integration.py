@@ -17,6 +17,10 @@ from ax.service.utils.report_utils import exp_to_df
 from aepsych.config import Config
 from aepsych.server import AEPsychServer
 
+from scipy.special import expit, logit
+
+from scipy.stats import bernoulli
+
 
 class AxIntegrationTestCase(unittest.TestCase):
     @classmethod
@@ -108,6 +112,103 @@ class AxIntegrationTestCase(unittest.TestCase):
         correct_n_sobol = self.config.getint("init_strat", "min_total_tells")
         correct_n_opt = (
             self.config.getint("opt_strat", "min_total_tells") - correct_n_sobol
+        )
+
+        self.assertEqual(n_sobol, correct_n_sobol)
+        self.assertEqual(n_opt, correct_n_opt)
+
+
+@unittest.skip("Skipping AxPairwiseIntergrationTestCase because of execution time")
+class AxPairwiseIntergrationTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Simulate participant responses; just returns the sum of the flat parameters
+        def get_response_probability(params):
+
+            m = 10
+
+            b = logit(0.75) - m
+
+            p = expit(m * params.sum(1) + b)
+
+            return p
+
+        # Simulate participant responses; returns 1 if the participant detected the stimulus or 0 if they did not.
+
+        def simulate_response(trial_params):
+
+            params = np.array([[trial_params[par][0] for par in trial_params]])
+
+            p = get_response_probability(params)
+
+            response = bernoulli.rvs(p)
+
+            return response
+
+        # Fix random seeds
+        np.random.seed(0)
+        torch.manual_seed(0)
+
+        # Create a server object configured to run a 2d threshold experiment
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        cls.client = AEPsychClient(server=AEPsychServer(database_path=database_path))
+        config_file = "../configs/ax_pairwise_opt_example.ini"
+        config_file = os.path.join(os.path.dirname(__file__), config_file)
+        cls.client.configure(config_file)
+
+        finished = False
+
+        while not finished:
+
+            # Ask the server what the next parameter values to test should be.
+
+            response = cls.client.ask()
+
+            trial_params = response["config"]
+
+            finished = response["is_finished"]
+
+            # Simulate a participant response.
+
+            outcome = simulate_response(trial_params)
+
+            # Tell the server what happened so that it can update its model.
+
+            cls.client.tell(config=trial_params, outcome=outcome)
+
+        cls.client.tell(trial_params, outcome)
+
+        cls.df = exp_to_df(cls.client.server.strat.experiment)
+
+        cls.config = Config(config_fnames=[config_file])
+
+    def tearDown(self):
+        if self.client.server.db is not None:
+            self.client.server.db.delete_db()
+
+    def test_bounds(self):
+        lb = self.config.getlist("common", "lb", element_type=float)
+        ub = self.config.getlist("common", "ub", element_type=float)
+
+        self.assertTrue((self.df["par1"] >= lb[0]).all())
+        self.assertTrue((self.df["par1"] <= ub[0]).all())
+
+        self.assertTrue((self.df["par2"] >= lb[1]).all())
+        self.assertTrue((self.df["par2"] <= ub[1]).all())
+
+    def test_n_trials(self):
+        n_tells = (self.df["trial_status"] == "COMPLETED").sum()
+        correct_n_tells = self.config.getint("opt_strat", "min_asks") + 1
+
+        self.assertEqual(n_tells, correct_n_tells)
+
+    def test_generation_method(self):
+        n_sobol = (self.df["generation_method"] == "Sobol").sum()
+        n_opt = (self.df["generation_method"] == "BoTorch").sum()
+
+        correct_n_sobol = self.config.getint("init_strat", "min_asks")
+        correct_n_opt = (
+            self.config.getint("opt_strat", "min_asks") - correct_n_sobol
         )
 
         self.assertEqual(n_sobol, correct_n_sobol)
