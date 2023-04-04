@@ -86,7 +86,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         # Find the point closest to target
         dist = torch.abs(self.objective(f_samp) - self.target_value)
         best_indx = torch.argmin(dist, dim=1)
-        return X[best_indx].numpy()
+        return torch.Tensor(X[best_indx])
 
     @classmethod
     def from_config(cls, config: Config):
