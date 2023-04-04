@@ -383,6 +383,8 @@ class AEPsychMixin(GPyTorchModel):
 
 
 class AEPsychModel(ConfigurableMixin, ABC):
+    extremum_solver = "Nelder-Mead"
+
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
         if name is None:
@@ -468,3 +470,74 @@ class AEPsychModel(ConfigurableMixin, ABC):
         """
         locked_dims = locked_dims or {}
         return get_extremum(self, "min", bounds, locked_dims, n_samples)
+
+    def inv_query(
+        self: ModelProtocol,
+        y: float,
+        bounds: torch.Tensor,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        n_samples: int = 1000,
+    ) -> Tuple[float, torch.Tensor]:
+        """Query the model inverse.
+        Return nearest x such that f(x) = queried y, and also return the
+            value of f at that point.
+        Args:
+            y (float): Points at which to find the inverse.
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+            probability_space (bool): Is y (and therefore the
+                returned nearest_y) in probability space instead of latent
+                function space? Defaults to False.
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the value of f
+                nearest to queried y and the x position of this value.
+        """
+        if probability_space:
+            assert (
+                self.outcome_type == "binary" or self.outcome_type is None
+            ), f"Cannot get probability space for outcome_type '{self.outcome_type}'"
+
+        locked_dims = locked_dims or {}
+
+        def model_distance(x, pt, probability_space):
+            return np.abs(
+                self.predict(torch.tensor([x]), probability_space=probability_space)[0]
+                .detach()
+                .numpy()
+                - pt
+            )
+
+        # Look for point with value closest to y, subject the dict of locked dims
+
+        query_lb = bounds[0]
+        query_ub = bounds[-1]
+
+        for locked_dim in locked_dims.keys():
+            dim_values = locked_dims[locked_dim]
+            if len(dim_values) == 1:
+                query_lb[locked_dim] = dim_values[0]
+                query_ub[locked_dim] = dim_values[0]
+            else:
+                query_lb[locked_dim] = dim_values[0]
+                query_ub[locked_dim] = dim_values[1]
+
+        d = make_scaled_sobol(query_lb, query_ub, n_samples, seed=0)
+
+        opt_bounds = zip(query_lb.numpy(), query_ub.numpy())
+
+        fmean, _ = self.predict(d, probability_space=probability_space)
+
+        f = torch.abs(fmean - y)
+        estimate = d[torch.where(f == torch.min(f))[0][0]].numpy()
+        a = minimize(
+            model_distance,
+            estimate,
+            args=(y, probability_space),
+            method=self.extremum_solver,
+            bounds=opt_bounds,
+        )
+        val = self.predict(torch.tensor([a.x]), probability_space=probability_space)[
+            0
+        ].item()
+        return val, torch.Tensor(a.x)
