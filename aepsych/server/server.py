@@ -751,10 +751,15 @@ class AEPsychServer(object):
             dict -- new config dict (keys are strings, values are floats)
         """
         if self.skip_computations:
-            # HACK to makke sure strategies finish correctly
-            self.strat._strat._count += 1
-            if self.strat._strat.finished:
-                self.strat._make_next_strat()
+            # HACK to make sure strategies finish correctly
+            if self.use_ax:
+                self.strat.strat.experiment.num_asks += 1
+                if len(self.strat.strat._steps) > self.strat.strat._curr.index + 1:
+                    self.strat.strat._maybe_move_to_next_step()
+            else:
+                self.strat._strat._count += 1
+                if self.strat._strat.finished:
+                    self.strat._make_next_strat()
             return None
 
         if not self.use_ax:
