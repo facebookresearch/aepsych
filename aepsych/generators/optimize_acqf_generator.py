@@ -185,6 +185,7 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
         classname = "OptimizeAcqfGenerator"
 
         model_class = config.getobj(name, "model", fallback=None)
+        refit_every = config.getint(name, "refit_every", fallback=1)
         model_options = model_class.get_config_options(config)
 
         acqf_cls = config.getobj(name, "acqf", fallback=None)
@@ -206,6 +207,7 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
             "acquisition_class": AEPsychAcquisition,
             "botorch_acqf_class": acqf_cls,
             "acquisition_options": acqf_options,
+            "refit_every": refit_every,
             # The Y transforms are removed because they are incompatible with our thresholding-finding acqfs
             # The target value doesn't get transformed, so it searches for the target in the wrong space.
             "transforms": Cont_X_trans,  # TODO: Make LSE acqfs compatible with Y transforms

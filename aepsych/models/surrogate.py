@@ -18,6 +18,7 @@ logger = getLogger()
 class AEPsychSurrogate(Surrogate):
     def __init__(self, max_fit_time: Optional[float] = None, **kwargs) -> None:
         self.max_fit_time = max_fit_time
+        self.fits = 0
         super().__init__(**kwargs)
 
     def fit(
@@ -30,6 +31,7 @@ class AEPsychSurrogate(Surrogate):
         refit: bool = True,
         **kwargs,
     ) -> None:
+        print("AEPsychSurrogate.fit, refit: ", refit, " state_dict: ", state_dict)
         self.construct(
             datasets=datasets,
             metric_names=metric_names,
@@ -37,6 +39,7 @@ class AEPsychSurrogate(Surrogate):
         )
         self._outcomes = metric_names
         if state_dict:
+            print("Loading state dict")
             self.model.load_state_dict(state_dict)
 
         if state_dict is None or refit:
