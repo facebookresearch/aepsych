@@ -207,13 +207,13 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
             "acquisition_class": AEPsychAcquisition,
             "botorch_acqf_class": acqf_cls,
             "acquisition_options": acqf_options,
-            "refit_every": refit_every,
             # The Y transforms are removed because they are incompatible with our thresholding-finding acqfs
             # The target value doesn't get transformed, so it searches for the target in the wrong space.
             "transforms": Cont_X_trans,  # TODO: Make LSE acqfs compatible with Y transforms
         }
 
         opts = {
+            "refit_every": refit_every,
             "model": Models.BOTORCH_MODULAR,
             "model_kwargs": model_kwargs,
             "model_gen_kwargs": gen_options,

@@ -106,6 +106,9 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
 
 class AEPsychGenerationStep(GenerationStep, ConfigurableMixin, abc.ABC):
     def __init__(self, name, **kwargs):
+        self.refit_every = kwargs.get("refit_every", 1)
+        if "refit_every" in kwargs:
+            del kwargs["refit_every"]
         super().__init__(num_trials=-1, **kwargs)
         self.name = name
 
@@ -150,12 +153,13 @@ class AEPsychGenerationStep(GenerationStep, ConfigurableMixin, abc.ABC):
             ):
                 tmp_kwargs.update(
                     {
-                        "refit": not (num_trials % self.model_kwargs["refit_every"]),
+                        "refit": not (num_trials % self.refit_every),
                         "state_dict": model_spec._fitted_model.model.surrogates[
                             Keys.ONLY_SURROGATE
                         ].model.state_dict(),
                     }
                 )
+
             model_spec.fit(  # Stores the fitted model as `model_spec._fitted_model`
                 experiment=experiment,
                 data=data,

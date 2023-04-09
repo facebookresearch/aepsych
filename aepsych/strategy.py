@@ -317,14 +317,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except ModelFittingError:
+                except (ModelFittingError):
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.fit(self.x, self.y)
-                except ModelFittingError:
+                except (ModelFittingError):
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
@@ -339,14 +339,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except ModelFittingError:
+                except (ModelFittingError):
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.update(self.x, self.y)
-                except ModelFittingError:
+                except (ModelFittingError):
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
