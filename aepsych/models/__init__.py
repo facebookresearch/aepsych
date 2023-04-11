@@ -9,7 +9,7 @@ import sys
 
 from ..config import Config
 from .exact_gp import ContinuousRegressionGP, ExactGP
-from .gp_classification import  GPBetaRegressionModel, GPClassificationModel
+from .gp_classification import GPBetaRegressionModel, GPClassificationModel
 from .gp_regression import GPRegressionModel
 from .monotonic_projection_gp import MonotonicProjectionGP
 from .monotonic_rejection_gp import MonotonicRejectionGP

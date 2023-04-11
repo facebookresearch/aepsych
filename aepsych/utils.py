@@ -13,6 +13,7 @@ import numpy as np
 import torch
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
+import unittest
 
 
 def make_scaled_sobol(lb, ub, size, seed=None):
@@ -38,7 +39,6 @@ def dim_grid(
     gridsize: int = 30,
     slice_dims: Optional[Mapping[int, float]] = None,
 ) -> torch.Tensor:
-
     """Create a grid
     Create a grid based on lower, upper, and dim.
     Parameters
@@ -130,7 +130,6 @@ def get_lse_interval(
     gridsize=30,
     **kwargs,
 ):
-
     xgrid = torch.Tensor(
         np.mgrid[
             [
@@ -154,7 +153,6 @@ def get_lse_interval(
     if cred_level is None:
         return np.mean(contours, 0.5, axis=0)
     else:
-
         alpha = 1 - cred_level
         qlower = alpha / 2
         qupper = 1 - alpha / 2
@@ -277,3 +275,12 @@ def get_dim(config) -> int:
             )  # Choice parameters with n_choices < 3 add n_choices - 1 dims
 
     return dim
+
+
+def ignorable(func):
+    def wrapper(*args, **kwargs):
+        if args[0].should_ignore:
+            return
+        return func(*args, **kwargs)
+
+    return wrapper

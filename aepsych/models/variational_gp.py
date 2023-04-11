@@ -20,10 +20,6 @@ from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import get_dim, promote_0d
-from botorch.models import SingleTaskVariationalGP
-from gpytorch.likelihoods import BernoulliLikelihood
-from gpytorch.mlls import VariationalELBO
-from aepsych.utils import promote_0d
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side

@@ -79,7 +79,6 @@ class AxOrdinalGPTestCase(unittest.TestCase):
         cls.X, cls.y = torch.Tensor(X), torch.Tensor(y).reshape(-1, 1)
 
     def test_ordinal_classification(self):
-
         model = OrdinalGP(
             train_X=self.X,
             train_Y=self.y,

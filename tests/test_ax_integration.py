@@ -13,13 +13,12 @@ import numpy as np
 import torch
 from aepsych_client import AEPsychClient
 from ax.service.utils.report_utils import exp_to_df
-from scipy.stats import norm
-from aepsych.benchmark.test_functions import novel_detection_testfun
-from torch.distributions import Categorical
 
 from aepsych.config import Config
 from aepsych.server import AEPsychServer
 from parameterized import parameterized_class
+from aepsych.utils import ignorable
+import math
 
 
 @parameterized_class(
@@ -31,10 +30,11 @@ from parameterized import parameterized_class
 )
 class AxIntegrationTestCase(unittest.TestCase):
     @classmethod
+    @ignorable
     def setUpClass(cls):
-        # Skip test if it should be ignored
-        if cls.should_ignore:
-            return
+        def sigmoid(x):
+            return 1 / (1 + math.exp(-x / 100))
+
         # Simulate participant responses; just returns the sum of the flat parameters
         def simulate_response(trial_params):
             pars = [
@@ -42,7 +42,7 @@ class AxIntegrationTestCase(unittest.TestCase):
                 for par in trial_params
                 if type(trial_params[par][0]) == float
             ]
-            response = np.array(pars).sum()
+            response = round(sigmoid(np.array(pars).mean()) * 4)
             return response
 
         # Fix random seeds
@@ -72,17 +72,13 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         cls.config = Config(config_fnames=[cls.config_file])
 
+    @ignorable
     def tearDown(self):
-        # Skip test if it should be ignored
-        if self.should_ignore:
-            return
         if self.client.server.db is not None:
             self.client.server.db.delete_db()
 
+    @ignorable
     def test_bounds(self):
-        # Skip test if it should be ignored
-        if self.should_ignore:
-            return
         lb = self.config.getlist("common", "lb", element_type=float)
         ub = self.config.getlist("common", "ub", element_type=float)
         par4choices = self.config.getlist("par4", "choices", element_type=str)
@@ -107,29 +103,23 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         self.assertTrue((self.df["par7"] == par7value).all())
 
+    @ignorable
     def test_constraints(self):
-        # Skip test if it should be ignored
-        if self.should_ignore:
-            return
         constraints = self.config.getlist("common", "par_constraints", element_type=str)
         for constraint in constraints:
             self.assertEqual(len(self.df.query(constraint)), len(self.df))
 
         self.assertEqual(self.df["par3"].dtype, "int64")
 
+    @ignorable
     def test_n_trials(self):
-        # Skip test if it should be ignored
-        if self.should_ignore:
-            return
         n_tells = (self.df["trial_status"] == "COMPLETED").sum()
         correct_n_tells = self.config.getint("opt_strat", "min_total_tells") + 1
 
         self.assertEqual(n_tells, correct_n_tells)
 
+    @ignorable
     def test_generation_method(self):
-        # Skip test if it should be ignored
-        if self.should_ignore:
-            return
         n_sobol = (self.df["generation_method"] == "Sobol").sum()
         n_opt = (self.df["generation_method"] == "BoTorch").sum()
 
