@@ -101,6 +101,11 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         self.assertEqual(n_tells, correct_n_tells)
 
+    def test_refit_every(self):
+        correct_refit_every = self.config.getint("opt_strat", "refit_every")
+        refit_every = self.client.server.strat.strat._curr.refit_every
+        self.assertEqual(refit_every, correct_refit_every)
+
     def test_generation_method(self):
         n_sobol = (self.df["generation_method"] == "Sobol").sum()
         n_opt = (self.df["generation_method"] == "BoTorch").sum()

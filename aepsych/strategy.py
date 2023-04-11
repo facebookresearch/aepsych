@@ -18,13 +18,13 @@ from ax.plot.contour import interact_contour
 from ax.plot.slice import plot_slice
 from ax.service.ax_client import AxClient
 from ax.utils.notebook.plotting import render
+from ax.modelbridge.generation_strategy import GenerationStrategy
 from botorch.exceptions.errors import ModelFittingError
 
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import (
     AEPsychGenerationStep,
     AEPsychGenerator,
-    AEPsychGenerationStrategy,
 )
 from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
 from aepsych.models.base import ModelProtocol
@@ -317,14 +317,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.fit(self.x, self.y)
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
@@ -339,14 +339,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.update(self.x, self.y)
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
@@ -500,7 +500,7 @@ class SequentialStrategy(object):
 class AEPsychStrategy(ConfigurableMixin):
     is_finished = False
 
-    def __init__(self, strategy: AEPsychGenerationStrategy, ax_client: AxClient):
+    def __init__(self, strategy: GenerationStrategy, ax_client: AxClient):
         self.strat = strategy
         self.strat.experiment.num_asks = 0
         self.ax_client = ax_client
@@ -522,7 +522,7 @@ class AEPsychStrategy(ConfigurableMixin):
             "common", "par_constraints", element_type=str, fallback=None
         )
 
-        strat = AEPsychGenerationStrategy(steps=steps)
+        strat = GenerationStrategy(steps=steps)
         ax_client = AxClient(strat)
         ax_client.create_experiment(
             name="experiment",
