@@ -17,17 +17,14 @@ from ax.core.search_space import SearchSpace
 from ax.core.optimization_config import OptimizationConfig
 from ax.core.data import Data
 from ax.utils.common.constants import Keys
-from ax.utils.common.logger import get_logger
 from botorch.acquisition import (
     AcquisitionFunction,
     NoisyExpectedImprovement,
     qNoisyExpectedImprovement,
 )
-from logging import Logger
 
 from .completion_criterion import completion_criteria
 
-logger: Logger = get_logger(__name__)
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
