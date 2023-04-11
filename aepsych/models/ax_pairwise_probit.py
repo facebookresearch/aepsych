@@ -1,36 +1,41 @@
 from __future__ import annotations
-from botorch.models.pairwise_gp import PairwiseGP
+
+from typing import Optional, Union, Type, Tuple, Mapping, List
+
+from torch import Tensor
 import torch
-from aepsych.config import Config
-from botorch.models.likelihoods.pairwise import (
-    PairwiseProbitLikelihood,
-)
-from aepsych.models.base import AEPsychModel
-from aepsych.utils import promote_0d
+
+import numpy as np
+
 from scipy.stats import norm
-from aepsych.models.utils import select_inducing_points
-from typing import Optional, Union, Type, Tuple
-from aepsych.factory import default_mean_covar_factory
-from aepsych.config import Config
-from aepsych.utils_logging import getLogger
-from botorch.models import PairwiseGP, PairwiseLaplaceMarginalLogLikelihood
-from botorch.models.transforms.input import Normalize
-from botorch.models.transforms.input import InputTransform
-from botorch.models.transforms.outcome import OutcomeTransform
+
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods.likelihood import Likelihood
+from gpytorch.means import Mean
 from gpytorch.variational import (
     _VariationalDistribution,
     _VariationalStrategy,
     VariationalStrategy,
 )
+
+from botorch.models.pairwise_gp import PairwiseGP
+from botorch.models.likelihoods.pairwise import (
+    PairwiseProbitLikelihood,
+)
+from botorch.models import PairwiseLaplaceMarginalLogLikelihood
+from botorch.models.transforms.input import Normalize
+from botorch.models.transforms.input import InputTransform
+from botorch.models.transforms.outcome import OutcomeTransform
 from botorch.models.utils.inducing_point_allocators import (
     InducingPointAllocator,
 )
-from gpytorch.means import Mean
-from typing import Optional
+
+from aepsych.models.base import AEPsychModel
+from aepsych.config import Config
+from aepsych.utils import promote_0d
+from aepsych.models.utils import select_inducing_points, get_extremum
 from aepsych.utils_logging import getLogger
-from torch import Tensor
+from aepsych.factory import default_mean_covar_factory
 
 
 logger = getLogger()
@@ -191,3 +196,43 @@ class PairwiseGPModel(AEPsychModel, PairwiseGP):
             }
         )
         return options
+
+    @property
+    def bounds(self):
+        return torch.stack((self.lb, self.ub))
+
+    def get_max(
+        self,
+        bounds: Optional[Tensor] = None,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        n_samples: int = 1000,
+    ) -> Tuple[float, np.ndarray]:
+        """Return the maximum of the modeled function, subject to constraints
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+            n_samples int: number of coarse grid points to sample for optimization estimate.
+        """
+        locked_dims = locked_dims or {}
+        return get_extremum(
+            self, "max", bounds if bounds else self.bounds, locked_dims, n_samples
+        )
+
+    def get_min(
+        self,
+        bounds: Optional[Tensor] = None,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        n_samples: int = 1000,
+    ) -> Tuple[float, np.ndarray]:
+        """Return the minimum of the modeled function, subject to constraints
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+            n_samples int: number of coarse grid points to sample for optimization estimate.
+        """
+        locked_dims = locked_dims or {}
+        return get_extremum(
+            self, "min", bounds if bounds else self.bounds, locked_dims, n_samples
+        )
