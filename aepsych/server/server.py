@@ -821,9 +821,17 @@ class AEPsychServer(object):
                         param_value=str(param_value),
                     )
 
+            if isinstance(outcome, dict):
+                for key in outcome.keys():
+                    self.db.record_outcome(
+                        raw_table=self._db_raw_record,
+                        outcome_name=key,
+                        outcome_value=float(outcome[key]),
+                    )
+
             # Check if we get single or multiple outcomes
             # Multiple outcomes come in the form of iterables that aren't strings or single-element tensors
-            if isinstance(outcome, Iterable) and type(outcome) != str:
+            elif isinstance(outcome, Iterable) and type(outcome) != str:
                 for i, outcome_value in enumerate(outcome):
                     if (
                         isinstance(outcome_value, Iterable)

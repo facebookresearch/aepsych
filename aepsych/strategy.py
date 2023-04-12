@@ -25,7 +25,12 @@ from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
 from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
 from aepsych.models.base import ModelProtocol
-from aepsych.utils import _process_bounds, get_parameters, make_scaled_sobol
+from aepsych.utils import (
+    _process_bounds,
+    get_objectives,
+    get_parameters,
+    make_scaled_sobol,
+)
 from aepsych.utils_logging import getLogger
 
 logger = getLogger()
@@ -519,12 +524,15 @@ class AEPsychStrategy(ConfigurableMixin):
             "common", "par_constraints", element_type=str, fallback=None
         )
 
+        objectives = get_objectives(config)
+
         strat = GenerationStrategy(steps=steps)
         ax_client = AxClient(strat)
         ax_client.create_experiment(
             name="experiment",
             parameters=parameters,
             parameter_constraints=parameter_constraints,
+            objectives=objectives,
         )
 
         return {"strategy": strat, "ax_client": ax_client}
@@ -642,3 +650,6 @@ class AEPsychStrategy(ConfigurableMixin):
                 slice_values=slice_values,
             )
         )
+
+    def get_pareto_optimal_parameters(self):
+        return self.ax_client.get_pareto_optimal_parameters()
