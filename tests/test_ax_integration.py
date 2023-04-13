@@ -17,7 +17,6 @@ from ax.service.utils.report_utils import exp_to_df
 from aepsych.config import Config
 from aepsych.server import AEPsychServer
 from parameterized import parameterized_class
-from aepsych.utils import ignorable
 import math
 
 
@@ -25,13 +24,15 @@ import math
     ("config_file", "should_ignore"),
     [
         ("../configs/ax_example.ini", False),
-        ("../configs/ax_ordinal_exploration_example.ini", True),
+        ("../configs/ax_ordinal_exploration_example.ini", False),
     ],
 )
 class AxIntegrationTestCase(unittest.TestCase):
     @classmethod
-    @ignorable
     def setUpClass(cls):
+        if cls.should_ignore:
+            raise unittest.SkipTest("Skipping because should_ignore is True.")
+
         def sigmoid(x):
             return 1 / (1 + math.exp(-x / 100))
 
@@ -72,12 +73,10 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         cls.config = Config(config_fnames=[cls.config_file])
 
-    @ignorable
     def tearDown(self):
         if self.client.server.db is not None:
             self.client.server.db.delete_db()
 
-    @ignorable
     def test_bounds(self):
         lb = self.config.getlist("common", "lb", element_type=float)
         ub = self.config.getlist("common", "ub", element_type=float)
@@ -103,7 +102,6 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         self.assertTrue((self.df["par7"] == par7value).all())
 
-    @ignorable
     def test_constraints(self):
         constraints = self.config.getlist("common", "par_constraints", element_type=str)
         for constraint in constraints:
@@ -111,14 +109,12 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         self.assertEqual(self.df["par3"].dtype, "int64")
 
-    @ignorable
     def test_n_trials(self):
         n_tells = (self.df["trial_status"] == "COMPLETED").sum()
         correct_n_tells = self.config.getint("opt_strat", "min_total_tells") + 1
 
         self.assertEqual(n_tells, correct_n_tells)
 
-    @ignorable
     def test_generation_method(self):
         n_sobol = (self.df["generation_method"] == "Sobol").sum()
         n_opt = (self.df["generation_method"] == "BoTorch").sum()
