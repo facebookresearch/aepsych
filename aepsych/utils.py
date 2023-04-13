@@ -275,12 +275,3 @@ def get_dim(config) -> int:
             )  # Choice parameters with n_choices < 3 add n_choices - 1 dims
 
     return dim
-
-
-def ignorable(func):
-    def wrapper(*args, **kwargs):
-        if args[0].should_ignore:
-            return
-        return func(*args, **kwargs)
-
-    return wrapper

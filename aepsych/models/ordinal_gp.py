@@ -2,7 +2,6 @@ import gpytorch
 import torch
 from aepsych.likelihoods import OrdinalLikelihood
 from aepsych.models import GPClassificationModel
-from aepsych.models.variational_gp import OrdinalGP
 
 
 class OrdinalGPModel(GPClassificationModel):
@@ -22,7 +21,6 @@ class OrdinalGPModel(GPClassificationModel):
         covar_module = kwargs.pop("covar_module", None)
         dim = kwargs.get("dim")
         if covar_module is None:
-
             ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)
             ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
             ls_constraint = gpytorch.constraints.Positive(
@@ -47,6 +45,9 @@ class OrdinalGPModel(GPClassificationModel):
 
     def predict_probs(self, xgrid):
         fmean, fvar = self.predict(xgrid)
+        return self.calculate_probs(fmean, fvar)
+
+    def calculate_probs(self, fmean, fvar):
         fsd = torch.sqrt(1 + fvar)
         probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
 
@@ -62,6 +63,3 @@ class OrdinalGPModel(GPClassificationModel):
             (self.likelihood.cutpoints[-1] - fmean) / fsd
         )
         return probs
-
-    def get_config_options(self, config, name=None):
-        return OrdinalGP.get_config_options(config, name)

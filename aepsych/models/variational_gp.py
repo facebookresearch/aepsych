@@ -20,6 +20,7 @@ from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import get_dim, promote_0d
+from aepsych.models.ordinal_gp import OrdinalGPModel
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side
@@ -126,7 +127,6 @@ class OrdinalGP(VariationalGP):
     """
 
     outcome_type = "ordinal"
-    classname = "OrdinalGP"
 
     def predict(self, xgrid, probability_space=False):
         with torch.no_grad():
@@ -135,23 +135,7 @@ class OrdinalGP(VariationalGP):
         fvar = post.variance.squeeze()
 
         if probability_space:
-            fsd = torch.sqrt(1 + fvar)
-            probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
-
-            probs[..., 0] = self.likelihood.link(
-                (self.likelihood.cutpoints[0] - fmean) / fsd
-            )
-
-            for i in range(1, self.likelihood.n_levels - 1):
-                probs[..., i] = self.likelihood.link(
-                    (self.likelihood.cutpoints[i] - fmean) / fsd
-                ) - self.likelihood.link(
-                    (self.likelihood.cutpoints[i - 1] - fmean) / fsd
-                )
-            probs[..., -1] = 1 - self.likelihood.link(
-                (self.likelihood.cutpoints[-1] - fmean) / fsd
-            )
-            return probs
+            return OrdinalGPModel.calculate_probs(self, fmean, fvar)
         else:
             return fmean, fvar
 
@@ -164,7 +148,7 @@ class OrdinalGP(VariationalGP):
 
         dim = get_dim(config)
 
-        if config.getobj(cls.classname, "mean_covar_factory", fallback=None) is None:
+        if config.getobj(cls.__name__, "mean_covar_factory", fallback=None) is None:
             mean, covar = ordinal_mean_covar_factory(config)
             options["mean_covar_factory"] = (mean, covar)
             ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)

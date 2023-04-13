@@ -24,7 +24,7 @@ import math
     ("config_file", "should_ignore"),
     [
         ("../configs/ax_example.ini", False),
-        ("../configs/ax_ordinal_exploration_example.ini", False),
+        ("../configs/ax_ordinal_exploration_example.ini", True),
     ],
 )
 class AxIntegrationTestCase(unittest.TestCase):
