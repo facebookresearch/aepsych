@@ -867,8 +867,6 @@ class AEPsychServer(object):
             else:
                 x = config
             self.strat.add_data(x, outcome)
-            if self.can_pregen_ask:
-                self._pregen_asks.append(self.ask())
 
     def _configure(self, config):
         self._pregen_asks = (

@@ -746,7 +746,6 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue(self.s.use_ax)
         self.assertIsInstance(self.s.strat, AEPsychStrategy)
 
-
     @parameterized.expand([(True,), (False,)])
     def test_async_asks(self, enable_pregen):
         self.s.ask = MagicMock()
@@ -763,10 +762,6 @@ class ServerTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.s.serve()
         self.assertEqual(self.s.ask.call_count, int(enable_pregen))
-
-        # Should queue up an ask after a tell if pregen is enabled
-        self.s.tell(0, {"x": 0})
-        self.assertEqual(self.s.ask.call_count, int(enable_pregen) * 2)
 
         # Should reset queue
         self.s.configure(config=config)
