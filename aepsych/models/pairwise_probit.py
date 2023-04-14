@@ -20,6 +20,8 @@ from botorch.models import PairwiseGP, PairwiseLaplaceMarginalLogLikelihood
 from botorch.models.transforms.input import Normalize
 from scipy.stats import norm
 
+from aepsych.models.ax_pairwise_probit import PairwiseGPModel as AxPairwiseGPModel
+
 logger = getLogger()
 
 
@@ -112,7 +114,6 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             n_eval = int(max_fit_time / single_eval_time)
             optimizer_kwargs["maxfun"] = n_eval
             logger.info(f"fit maxfun is {n_eval}")
-
         logger.info("Starting fit...")
         starttime = time.time()
         fit_gpytorch_mll(mll, **kwargs, **optimizer_kwargs)
