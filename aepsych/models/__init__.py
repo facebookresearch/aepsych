@@ -21,7 +21,7 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
-from .variational_gp import BinaryClassificationGP, VariationalGP
+from .variational_gp import BinaryClassificationGP, VariationalGP, BetaRegressionGP
 
 
 __all__ = [
@@ -33,6 +33,7 @@ __all__ = [
     "MonotonicProjectionGP",
     "VariationalGP",
     "BinaryClassificationGP",
+    "BetaRegressionGP",
     "ExactGP",
     "ContinuousRegressionGP",
     "MultitaskGPRModel",
