@@ -40,7 +40,7 @@ class RandomGenerator(AEPsychGenerator):
         self,
         num_points: int = 1,
         model: Optional[AEPsychMixin] = None,  # included for API compatibility.
-    ) -> np.ndarray:
+    ) -> torch.Tensor:
         """Query next point(s) to run by randomly sampling the parameter space.
         Args:
             num_points (int, optional): Number of points to query. Currently, only 1 point can be queried at a time.
@@ -50,7 +50,7 @@ class RandomGenerator(AEPsychGenerator):
         X = self.bounds_[0] + torch.rand((num_points, self.bounds_.shape[1])) * (
             self.bounds_[1] - self.bounds_[0]
         )
-        return X.numpy()
+        return X
 
     @classmethod
     def from_config(cls, config: Config):
