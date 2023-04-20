@@ -15,6 +15,9 @@ import torch
 from aepsych.server import AEPsychServer
 from gpytorch.likelihoods import GaussianLikelihood
 
+from aepsych.server.message_handlers.handle_ask import ask
+from aepsych.server.message_handlers.handle_setup import configure
+
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
@@ -58,10 +61,10 @@ class GPRegressionTest(unittest.TestCase):
             max_fit_time = 1
         """
         self.server = AEPsychServer(database_path=dbname)
-        self.server.configure(config_str=config)
+        configure(self.server, config_str=config)
 
         while not self.server.strat.finished:
-            trial_params = self.server.ask()
+            trial_params = ask(self.server)
             outcome = self.simulate_response(trial_params)
             self.server.tell(outcome, trial_params)
 

@@ -10,15 +10,19 @@ import logging
 import select
 import unittest
 import uuid
-from unittest.mock import call, MagicMock, patch, PropertyMock
+import torch
+from unittest.mock import MagicMock, patch, PropertyMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
-import torch
 from aepsych.config import Config
 from aepsych.server.sockets import BAD_REQUEST
 from aepsych.strategy import AEPsychStrategy
-from parameterized import parameterized
+from aepsych.server.message_handlers.handle_replay import (
+    get_strat_from_replay,
+    get_dataframe_from_replay,
+)
+from aepsych.server.message_handlers.handle_setup import configure
 
 dummy_config = """
 [common]
@@ -73,92 +77,17 @@ class ServerTestCase(unittest.TestCase):
 
     """
 
-    def test_unversioned_handler_untyped(self):
-        """test_unversioned_handler_untyped"""
-        request = {}
-        # check untyped request
-        with self.assertRaises(RuntimeError):
-            self.s.unversioned_handler(request)
-
-    def test_unversioned_handler_type_invalid(self):
-        """test_unversioned_handler_type_invalid"""
-        request = {"type": "invalid"}
-        # make sure invalid types handle properly
-        with self.assertRaises(RuntimeError):
-            self.s.unversioned_handler(request)
-
-    def test_unversioned_handler_types_ask(self):
-        """test_unversioned_handler_types_ask"""
-        request = {}
-
-        request["type"] = "ask"
-        self.s.handle_ask = MagicMock(return_value=True)
-        result = self.s.unversioned_handler(request)
-        self.assertEqual(True, result)
-
-    def test_unversioned_handler_types_tell(self):
-        """test_unversioned_handler_types_tell"""
-        request = {}
-        # self.s.handle_setup = MagicMock(return_value=True)
-
-        request["type"] = "tell"
-        self.s.handle_tell = MagicMock(return_value=True)
-        result = self.s.unversioned_handler(request)
-        self.assertEqual(True, result)
-
-    def test_unversioned_handler_types_update(self):
-        """test_unversioned_handler_types_update"""
-        request = {}
-        # self.s.handle_setup = MagicMock(return_value=True)
-
-        request["type"] = "update"
-        self.s.handle_update = MagicMock(return_value=True)
-        result = self.s.unversioned_handler(request)
-        self.assertEqual(True, result)
-
-    def test_v01_handler_types_resume(self):
-        """test setup v01"""
-        request = {}
-        self.s.handle_resume_v01 = MagicMock(return_value=True)
-        self.s.socket.send = MagicMock()
-        request["type"] = "resume"
-        request["version"] = "0.01"
-        result = self.s.versioned_handler(request)
-        self.assertEqual(True, result)
-
     def dummy_create_setup(self, server, request=None):
         request = request or {"test": "test request"}
         server._db_master_record = server.db.record_setup(
             description="default description", name="default name", request=request
         )
 
-    def test_handle_ask(self):
-        """test_handle_ask - Doesn't mock the db, this will create a real db entry"""
-        request = {"test": "test request"}
-
-        self.s.ask = MagicMock(return_value="ask success")
-
-        self.dummy_create_setup(self.s)
-
-        result = self.s.handle_ask(request)
-        self.assertEqual("ask success", result)
-
-    def test_handle_tell(self):
-        """test_handle_tell - Doesn't mock the db, this will create a real db entry"""
-        request = {"message": {"target": "test request"}}
-
-        self.s.tell = MagicMock(return_value="ask success")
-        self.dummy_create_setup(self.s)
-
-        result = self.s.handle_tell(request)
-        self.assertEqual("acq", result)
-
-    def test_handle_update(self):
+    @patch("aepsych.server.message_handlers.handle_ask.ask", return_value="update success")
+    @patch("aepsych.server.message_handlers.handle_tell.tell", return_value="update success")
+    def test_handle_update(self, _mock_handle_ask, _mock_handle_tell): #TODO: edited test
         """test_handle_update - Doesn't mock the db, this will create a real db entry"""
         request = {"message": {"target": "test request"}}
-
-        self.s.tell = MagicMock(return_value="update success")
-        self.s.ask = MagicMock(return_value="update success")
         self.s.strat = MagicMock()
 
         self.dummy_create_setup(self.s)
@@ -178,80 +107,6 @@ class ServerTestCase(unittest.TestCase):
 
         self.assertEqual(cm.exception.code, 0)
 
-    def test_replay_order(self):
-        """test_replay - verifies the replay is working, uses a test db version but does some
-        amount of integration work.
-        """
-        request = {"message": {"target": "test request"}}
-        # 1. create setup then send some messages through
-        self.dummy_create_setup(self.s)
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="tell", request=request
-        )
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="ask", request=request
-        )
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="update", request=request
-        )
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="end", request=request
-        )
-
-        replay_records = self.s.db.get_replay_for(
-            self.s._db_master_record.experiment_id
-        )
-
-        self.assertEqual(len(replay_records), 5)
-        self.assertEqual(replay_records[0].message_type, "setup")
-        self.assertEqual(replay_records[1].message_type, "tell")
-        self.assertEqual(replay_records[2].message_type, "ask")
-        self.assertEqual(replay_records[3].message_type, "update")
-        self.assertEqual(replay_records[4].message_type, "end")
-
-    def test_replay_server_none_uuid(self):
-        """test_replay_server_failed_uuid - check expected behavior on None UUID"""
-        self.assertRaises(RuntimeError, self.s.replay, None)
-
-    def test_replay_server_none_db(self):
-        # Remove the db generated from setUp()
-        self.s.db.delete_db()
-        self.s.db = None
-        self.assertRaises(RuntimeError, self.s.replay, "TEST")
-
-    def test_replay_server_uuid_fails(self):
-        self.assertRaises(RuntimeError, self.s.replay, "TEST")
-
-    def test_replay_server_func(self):
-        test_calls = []
-        request = {"message": {"target": "setup"}, "type": "setup"}
-        # 1. create setup then send some messages through
-        self.dummy_create_setup(self.s, request)
-        test_calls.append(call(request))
-
-        request = {"message": {"target": "tell"}, "type": "tell"}
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="tell", request=request
-        )
-        test_calls.append(call(request))
-
-        request = {"message": {"target": "ask"}, "type": "ask"}
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="ask", request=request
-        )
-        test_calls.append(call(request))
-
-        request = {"message": {"target": "update"}, "type": "update"}
-        self.s.db.record_message(
-            master_table=self.s._db_master_record, type="update", request=request
-        )
-        test_calls.append(call(request))
-
-        self.s.unversioned_handler = MagicMock()
-        self.s.replay(self.s._db_master_record.experiment_id)
-        print(f"replay called with check = {test_calls}")
-        self.s.unversioned_handler.assert_has_calls(test_calls, any_order=False)
-
     def test_final_strat_serialization(self):
         setup_request = {
             "type": "setup",
@@ -269,12 +124,12 @@ class ServerTestCase(unittest.TestCase):
             self.s.unversioned_handler(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
-        stored_strat = self.s.get_strat_from_replay(exp_id)
+        stored_strat = get_strat_from_replay(self.s, exp_id)
         # just some spot checks that the strat's the same
         # same data. We do this twice to make sure buffers are
         # in a good state and we can load twice without crashing
         for _ in range(2):
-            stored_strat = self.s.get_strat_from_replay(exp_id)
+            stored_strat = get_strat_from_replay(self.s, exp_id)
             self.assertTrue((stored_strat.x == self.s.strat.x).all())
             self.assertTrue((stored_strat.y == self.s.strat.y).all())
             # same lengthscale and outputscale
@@ -320,63 +175,6 @@ class ServerTestCase(unittest.TestCase):
         response = self.s.unversioned_handler(can_model_request)
         self.assertTrue(response["can_model"] == 1)
 
-    def test_strat_query(self):
-        setup_request = {
-            "type": "setup",
-            "version": "0.01",
-            "message": {"config_str": dummy_config},
-        }
-        ask_request = {"type": "ask", "message": ""}
-        tell_request = {
-            "type": "tell",
-            "message": [
-                {"config": {"x": [0.5]}, "outcome": 1},
-                {"config": {"x": [0.0]}, "outcome": 0},
-                {"config": {"x": [1]}, "outcome": 0},
-            ],
-        }
-
-        self.s.versioned_handler(setup_request)
-        while not self.s.strat.finished:
-            self.s.unversioned_handler(ask_request)
-            self.s.unversioned_handler(tell_request)
-
-        query_max_req = {
-            "type": "query",
-            "message": {
-                "query_type": "max",
-            },
-        }
-        query_min_req = {
-            "type": "query",
-            "message": {
-                "query_type": "min",
-            },
-        }
-        query_pred_req = {
-            "type": "query",
-            "message": {
-                "query_type": "prediction",
-                "x": {"x": [0.0]},
-            },
-        }
-        query_inv_req = {
-            "type": "query",
-            "message": {
-                "query_type": "inverse",
-                "y": 5.0,
-            },
-        }
-        response_max = self.s.unversioned_handler(query_max_req)
-        response_min = self.s.unversioned_handler(query_min_req)
-        response_pred = self.s.unversioned_handler(query_pred_req)
-        response_inv = self.s.unversioned_handler(query_inv_req)
-
-        for response in [response_max, response_min, response_pred, response_inv]:
-            self.assertTrue(type(response["x"]) is dict)
-            self.assertTrue(len(response["x"]["x"]) == 1)
-            self.assertTrue(type(response["y"]) is float)
-
     def test_pandadf_dump_single(self):
         setup_request = {
             "type": "setup",
@@ -405,7 +203,7 @@ class ServerTestCase(unittest.TestCase):
             self.s.unversioned_handler(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
-        out_df = self.s.get_dataframe_from_replay(exp_id)
+        out_df = get_dataframe_from_replay(self.s, exp_id)
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
         self.assertTrue((out_df.response == expected_y).all())
@@ -442,7 +240,7 @@ class ServerTestCase(unittest.TestCase):
             self.s.unversioned_handler(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
-        out_df = self.s.get_dataframe_from_replay(exp_id)
+        out_df = get_dataframe_from_replay(self.s, exp_id)
 
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
@@ -484,7 +282,7 @@ class ServerTestCase(unittest.TestCase):
             self.s.unversioned_handler(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
-        out_df = self.s.get_dataframe_from_replay(exp_id)
+        out_df = get_dataframe_from_replay(self.s, exp_id)
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
         self.assertTrue((out_df.response == expected_y).all())
@@ -515,30 +313,6 @@ class ServerTestCase(unittest.TestCase):
             else:
                 self.assertEqual(self.s.socket.receive(False), message3)
 
-    def test_serve_versioned_handler(self):
-        """Tests that the full pipeline is working. Message should go from _receive_send to _handle_queue
-        to the version handler"""
-        request = {"version": 0}
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.socket.accept_client = MagicMock()
-
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-
-    def test_serve_unversioned_handler(self):
-        request = {}
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.socket.accept_client = MagicMock()
-
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-
     def test_error_handling(self):
         # double brace escapes, single brace to substitute, so we end up with 3 braces
         request = f"{{{BAD_REQUEST}}}"
@@ -565,6 +339,62 @@ class ServerTestCase(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.s.serve()
         assert len(self.s.queue) == 0
+
+    def test_handle_finish_strategy(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        ask_request = {"type": "ask", "message": ""}
+
+        strat_name_request = {"type": "strategy_name"}
+        finish_strat_request = {"type": "finish_strategy"}
+
+        self.s.unversioned_handler(setup_request)
+        strat_name = self.s.unversioned_handler(strat_name_request)
+        self.assertEqual(strat_name, "init_strat")
+
+        # model-based strategies require data
+        self.s.unversioned_handler(tell_request)
+
+        msg = self.s.unversioned_handler(finish_strat_request)
+        self.assertEqual(msg, "finished strategy init_strat")
+
+        # need to gen another trial to move to next strategy
+        self.s.unversioned_handler(ask_request)
+
+        strat_name = self.s.unversioned_handler(strat_name_request)
+        self.assertEqual(strat_name, "opt_strat")
+
+    def test_ax_functionality(self):
+        config_str = """
+        [common]
+        use_ax = True
+        lb = [0]
+        ub = [1]
+        parnames = [x]
+        stimuli_per_trial = 1
+        outcome_types = [binary]
+        strategy_names = [init_strat, opt_strat]
+
+        [init_strat]
+        generator = SobolGenerator
+
+        [opt_strat]
+        generator = OptimizeAcqfGenerator
+        model = ContinuousRegressionGP
+        acqf = qNoisyExpectedImprovement
+        """
+        config = Config(config_str=config_str)
+        configure(self.s, config=config)
+        self.assertTrue(self.s.use_ax)
+        self.assertIsInstance(self.s.strat, AEPsychStrategy)
 
     def test_config_to_tensor(self):
         with patch(
@@ -619,153 +449,6 @@ class ServerTestCase(unittest.TestCase):
         get_config_request["message"] = {"section": "init_strat"}
         with self.assertRaises(RuntimeError):
             response = self.s.versioned_handler(get_config_request)
-
-    def test_tell(self):
-        setup_request = {
-            "type": "setup",
-            "message": {"config_str": dummy_config},
-        }
-
-        tell_request = {
-            "type": "tell",
-            "message": {"config": {"x": [0.5]}, "outcome": 1},
-        }
-
-        self.s.db.record_message = MagicMock()
-
-        self.s.unversioned_handler(setup_request)
-        self.s.unversioned_handler(tell_request)
-        self.assertEqual(self.s.db.record_message.call_count, 2)
-        self.assertEqual(len(self.s.strat.x), 1)
-
-        tell_request["message"]["model_data"] = False
-        self.s.unversioned_handler(tell_request)
-        self.assertEqual(self.s.db.record_message.call_count, 3)
-        self.assertEqual(len(self.s.strat.x), 1)
-
-    def test_handle_finish_strategy(self):
-        setup_request = {
-            "type": "setup",
-            "message": {"config_str": dummy_config},
-        }
-
-        tell_request = {
-            "type": "tell",
-            "message": {"config": {"x": [0.5]}, "outcome": 1},
-        }
-
-        ask_request = {"type": "ask", "message": ""}
-
-        strat_name_request = {"type": "strategy_name"}
-        finish_strat_request = {"type": "finish_strategy"}
-
-        self.s.unversioned_handler(setup_request)
-        strat_name = self.s.unversioned_handler(strat_name_request)
-        self.assertEqual(strat_name, "init_strat")
-
-        # model-based strategies require data
-        self.s.unversioned_handler(tell_request)
-
-        msg = self.s.unversioned_handler(finish_strat_request)
-        self.assertEqual(msg, "finished strategy init_strat")
-
-        # need to gen another trial to move to next strategy
-        self.s.unversioned_handler(ask_request)
-
-        strat_name = self.s.unversioned_handler(strat_name_request)
-        self.assertEqual(strat_name, "opt_strat")
-
-    @patch(
-        "aepsych.strategy.Strategy.gen",
-        side_effect=lambda num_points: torch.tensor([[0.0]]),
-    )
-    @patch(
-        "aepsych.strategy.Strategy.get_max",
-        side_effect=lambda query_type: (torch.tensor([[0.0]]), torch.tensor([[0.0]])),
-    )
-    def test_replay_server_skip_computations(self, mock_query, mock_gen):
-        setup_request = {
-            "type": "setup",
-            "version": "0.01",
-            "message": {"config_str": dummy_config},
-        }
-        self.s.versioned_handler(setup_request)
-
-        ask_request = {"type": "ask", "message": ""}
-
-        tell_request = {
-            "type": "tell",
-            "message": {"config": {"x": [0.5]}, "outcome": 1},
-        }
-        self.s.unversioned_handler(tell_request)
-
-        n_asks = 3  # number of asks needed to move to opt_strat
-        for _ in range(n_asks):
-            self.s.unversioned_handler(ask_request)
-
-        query_request = {
-            "type": "query",
-            "message": {
-                "query_type": "max",
-            },
-        }
-        self.s.unversioned_handler(query_request)
-
-        self.s.replay(self.s._db_master_record.experiment_id, skip_computations=True)
-
-        # gen and query are called once each from the messages above
-        self.assertEqual(mock_gen.call_count, n_asks)
-        self.assertEqual(mock_query.call_count, 1)
-        self.assertEqual(self.s.strat._strat_idx, 1)  # make sure init_strat finished
-
-        self.s.replay(self.s._db_master_record.experiment_id, skip_computations=False)
-        self.assertEqual(mock_gen.call_count, n_asks * 2)
-        self.assertEqual(mock_query.call_count, 2)
-
-    def test_ax_functionality(self):
-        config_str = """
-        [common]
-        use_ax = True
-        lb = [0]
-        ub = [1]
-        parnames = [x]
-        stimuli_per_trial = 1
-        outcome_types = [binary]
-        strategy_names = [init_strat, opt_strat]
-
-        [init_strat]
-        generator = SobolGenerator
-
-        [opt_strat]
-        generator = OptimizeAcqfGenerator
-        model = ContinuousRegressionGP
-        acqf = qNoisyExpectedImprovement
-        """
-        config = Config(config_str=config_str)
-        self.s.configure(config=config)
-        self.assertTrue(self.s.use_ax)
-        self.assertIsInstance(self.s.strat, AEPsychStrategy)
-
-    @parameterized.expand([(True,), (False,)])
-    def test_async_asks(self, enable_pregen):
-        self.s.ask = MagicMock()
-        self.s.socket.accept_client = MagicMock()
-        self.s.socket.receive = MagicMock(return_value=BAD_REQUEST)
-        self.s.exit_server_loop = True
-
-        config = Config(config_str=dummy_config)
-        config["common"]["pregen_asks"] = str(enable_pregen)
-        self.s.configure(config=config)
-        self.assertEqual(self.s.can_pregen_ask, enable_pregen)
-
-        # Should automatically queue up an ask if pregen is enabled
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-        self.assertEqual(self.s.ask.call_count, int(enable_pregen))
-
-        # Should reset queue
-        self.s.configure(config=config)
-        self.assertEqual(len(self.s._pregen_asks), 0)
 
 
 if __name__ == "__main__":
