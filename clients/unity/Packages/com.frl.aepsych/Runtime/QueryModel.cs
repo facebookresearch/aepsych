@@ -85,7 +85,7 @@ public class QueryModel : MonoBehaviour
                 string name = entry.Key;
                 float min = entry.Value[0];
                 float max = entry.Value[1];
-                GameObject sliderObj = Instantiate(sliderPrefab, canvasGroup.transform.position, Quaternion.identity, canvasGroup.transform);
+                GameObject sliderObj = Instantiate(sliderPrefab, canvasGroup.transform.position, canvasGroup.transform.rotation, canvasGroup.transform);
                 sliderObj.transform.parent = xslidergroup.transform;
                 ModelSlider slider = sliderObj.GetComponent<ModelSlider>();
                 slider.InitSlider(min, max, name, false);
@@ -108,7 +108,7 @@ public class QueryModel : MonoBehaviour
         GameObject ySliderObj;
         if (!initialized)
         {
-            ySliderObj = Instantiate(sliderPrefab, canvasGroup.transform.position + new Vector3(-1.0f, 0.5f), Quaternion.identity, canvasGroup.transform);
+            ySliderObj = Instantiate(sliderPrefab, canvasGroup.transform.position, canvasGroup.transform.rotation, canvasGroup.transform);
             RectTransform rt = ySliderObj.GetComponent<RectTransform>();
             rt.localScale *= 1.25f;
             rt.anchorMax = new Vector2(.9f, 0.55f);
@@ -162,6 +162,7 @@ public class QueryModel : MonoBehaviour
         ySlider.SetValue(m.y);
         QueryEnabled(true);
     }
+
     public IEnumerator ComputeInverseFromModel()
     {
         QueryEnabled(false);

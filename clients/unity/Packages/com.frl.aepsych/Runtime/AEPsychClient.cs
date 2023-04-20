@@ -197,12 +197,13 @@ namespace AEPsych
         string reply;
         List<string> serverMessageQueue = new List<string>();
         public TrialConfig baseConfig;
-        public int currentStrat;
+        public int currentStrat = -1;
         int retryConnectCount = 0;
         int maxRetries = 3;
         public string server_address = "localhost";
         public int server_port = 5555;
         [HideInInspector] public bool finished;
+        public bool loadExistingDB;
         public bool debugEnabled;
 
         public delegate void StatusChangeCallback(ClientStatus oldStatus, ClientStatus newStatus);
@@ -222,6 +223,10 @@ namespace AEPsych
         private void Start()
         {
             Application.runInBackground = true;
+
+            // If this value is changed before launch, it will inadvertently affect
+            // strat indices for loading in dbs. Hard-code this to start at -1.
+            currentStrat = -1;
         }
 
         private void Update()
@@ -255,8 +260,12 @@ namespace AEPsych
         //_______________________________________________________________________
         // Public Methods
 #region
-        public IEnumerator StartServer(string configPath, string version = "0.01", bool isPath = true)
+        public IEnumerator StartServer(string configPath = null, string version = "0.01", bool isPath = true)
         {
+            if (configPath == null)
+            {
+                Log("No config passed into StartServer. Connecting without setup message...");
+            }
             finished = false;
             reply = null;
             if (tcpConnection == null)
@@ -264,6 +273,11 @@ namespace AEPsych
                 ConnectServer();
             }
             yield return new WaitUntil(() => tcpConnection != null);
+            if (configPath == null)
+            {
+                Log("TCP Connection established without setup message.");
+                yield break;
+            }
             string configStr;
             if (isPath)
             {
@@ -364,7 +378,7 @@ namespace AEPsych
             Request req;
             //req = new Request(message, RequestType.tell, metadata, responseTime);
             req = new Request(message, RequestType.tell, metadata);
-            
+
             yield return StartCoroutine(this.SendRequest(JsonConvert.SerializeObject(req)));
         }
         public IEnumerator Ask()

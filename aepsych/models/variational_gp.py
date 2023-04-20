@@ -10,7 +10,7 @@ from typing import Dict, Optional, Tuple, Union
 import numpy as np
 import torch
 from botorch.models import SingleTaskVariationalGP
-from gpytorch.likelihoods import BernoulliLikelihood
+from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
 from gpytorch.mlls import VariationalELBO
 
 from aepsych.config import Config
@@ -114,4 +114,34 @@ class BinaryClassificationGP(VariationalGP):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
             options["likelihood"] = BernoulliLikelihood()
+        return options
+
+
+class BetaRegressionGP(VariationalGP):
+    outcome_type = "percentage"
+
+    def predict(
+        self, x: Union[torch.Tensor, np.ndarray]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+        """
+        with torch.no_grad():
+            post = self.posterior(x)
+        fmean = post.mean.squeeze()
+        fvar = post.variance.squeeze()
+
+        return fmean, fvar
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None):
+        options = super().get_config_options(config)
+        if options["likelihood"] is None:
+            options["likelihood"] = BetaLikelihood()
+
         return options
