@@ -8,10 +8,12 @@
 import logging
 import unittest
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
+
+from aepsych.server.message_handlers.handle_tell import handle_tell
 
 
 dummy_config = """
@@ -67,25 +69,34 @@ class MessageHandlerTellTests(unittest.TestCase):
             description="default description", name="default name", request=request
         )
 
-    # def test_unversioned_handler_types_tell(self): #TODO: edited test
-    #     """test_unversioned_handler_types_tell"""
-    #     request = {"message": {"target": "test request"}}
-    #     self.s.handle_setup = MagicMock(return_value=True)
+    @patch(
+        "aepsych.server.server.handle_tell",
+        return_value="handle_tell_called",
+    )
+    def test_unversioned_handler_types_tell(
+        self, _mock_handle_tell
+    ):  # TODO: edited this test
+        """test_unversioned_handler_types_tell"""
+        request = {"message": {"target": "test request"}}
+        self.s.handle_setup = MagicMock(return_value=True)
 
-    #     request["type"] = "tell"
-    #     handle_tell = MagicMock(return_value=True)
-    #     result = self.s.unversioned_handler(request)
-    #     self.assertEqual(True, result)
+        request["type"] = "tell"
+        result = self.s.unversioned_handler(request)
+        self.assertEqual("handle_tell_called", result)
 
-    # def test_handle_tell(self): #TODO: edited test
-    #     """test_handle_tell - Doesn't mock the db, this will create a real db entry"""
-    #     request = {"message": {"target": "test request"}}
+    @patch(
+        "aepsych.server.message_handlers.handle_tell.tell",
+        return_value="tell_called",
+    )
+    def test_handle_tell(self, _mock_tell):  # TODO: edited this test
+        """test_handle_tell - Doesn't mock the db, this will create a real db entry"""
+        request = {"message": {"target": "test request"}}
 
-    #     self.s.tell = MagicMock(return_value="ask success")
-    #     self.dummy_create_setup(self.s)
+        self.s.tell = MagicMock(return_value="ask success")
+        self.dummy_create_setup(self.s)
 
-    #     result = handle_tell(self.s, request)
-    #     self.assertEqual("acq", result)
+        result = handle_tell(self.s, request)
+        self.assertEqual("acq", result)
 
     def test_tell(self):
         setup_request = {
