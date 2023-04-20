@@ -1,9 +1,6 @@
 import logging
 import aepsych.utils_logging as utils_logging
 
-# from aepsych.server.server import AEPsychServer
-
-
 logger = utils_logging.getLogger(logging.INFO)
 
 

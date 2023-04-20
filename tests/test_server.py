@@ -71,12 +71,6 @@ class ServerTestCase(unittest.TestCase):
         if self.s.db is not None:
             self.s.db.delete_db()
 
-    """
-    Unit tests that test the handlers and the server functionality.
-    Ask, Tell, Resume, etc.
-
-    """
-
     def dummy_create_setup(self, server, request=None):
         request = request or {"test": "test request"}
         server._db_master_record = server.db.record_setup(
@@ -297,10 +291,6 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue((out_df.e2 == [2] * 4).all())
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
-
-    """
-    Tests that test the server connections, as well as message routing
-    """
 
     def test_receive(self):
         """test_receive - verifies the receive is working when server receives unexpected messages"""

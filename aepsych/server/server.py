@@ -21,10 +21,7 @@ import torch
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
 
-from aepsych.config import Config
 from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
-from aepsych.strategy import AEPsychStrategy, SequentialStrategy
-from aepsych.version import __version__
 
 from aepsych.server.message_handlers.handle_ask import handle_ask, ask, handle_ask_v01
 from aepsych.server.message_handlers.handle_setup import (
