@@ -75,7 +75,6 @@ class MultiOutcomeTestCase(unittest.TestCase):
             trial_params = self.client.ask()
             outcome = evaluate(trial_params["config"])
             self.client.tell(trial_params["config"], outcome)
-        pass
 
 
 if __name__ == "__main__":

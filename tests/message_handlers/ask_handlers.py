@@ -8,14 +8,11 @@
 import logging
 import unittest
 import uuid
-from unittest.mock import MagicMock
 
 from unittest.mock import patch
 import aepsych.utils_logging as utils_logging
 
-from aepsych.config import Config
 
-from aepsych.server.message_handlers.handle_setup import configure
 
 from aepsych.server.message_handlers.handle_ask import handle_ask
 import aepsych.server as server

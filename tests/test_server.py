@@ -83,9 +83,16 @@ class ServerTestCase(unittest.TestCase):
             description="default description", name="default name", request=request
         )
 
-    @patch("aepsych.server.message_handlers.handle_ask.ask", return_value="update success")
-    @patch("aepsych.server.message_handlers.handle_tell.tell", return_value="update success")
-    def test_handle_update(self, _mock_handle_ask, _mock_handle_tell): #TODO: edited test
+    @patch(
+        "aepsych.server.message_handlers.handle_ask.ask", return_value="update success"
+    )
+    @patch(
+        "aepsych.server.message_handlers.handle_tell.tell",
+        return_value="update success",
+    )
+    def test_handle_update(
+        self, _mock_handle_ask, _mock_handle_tell
+    ):  # TODO: edited test
         """test_handle_update - Doesn't mock the db, this will create a real db entry"""
         request = {"message": {"target": "test request"}}
         self.s.strat = MagicMock()
@@ -449,6 +456,64 @@ class ServerTestCase(unittest.TestCase):
         get_config_request["message"] = {"section": "init_strat"}
         with self.assertRaises(RuntimeError):
             response = self.s.versioned_handler(get_config_request)
+
+    def test_unversioned_handler_untyped(self):
+        """test_unversioned_handler_untyped"""
+        request = {}
+        # check untyped request
+        with self.assertRaises(RuntimeError):
+            self.s.unversioned_handler(request)
+
+    def test_unversioned_handler_type_invalid(self):
+        """test_unversioned_handler_type_invalid"""
+        request = {"type": "invalid"}
+        # make sure invalid types handle properly
+        with self.assertRaises(RuntimeError):
+            self.s.unversioned_handler(request)
+
+    def test_unversioned_handler_types_update(self):
+        """test_unversioned_handler_types_update"""
+        request = {}
+        # self.s.handle_setup = MagicMock(return_value=True)
+
+        request["type"] = "update"
+        self.s.handle_update = MagicMock(return_value=True)
+        result = self.s.unversioned_handler(request)
+        self.assertEqual(True, result)
+
+    def test_v01_handler_types_resume(self):
+        """test setup v01"""
+        request = {}
+        self.s.handle_resume_v01 = MagicMock(return_value=True)
+        self.s.socket.send = MagicMock()
+        request["type"] = "resume"
+        request["version"] = "0.01"
+        result = self.s.versioned_handler(request)
+        self.assertEqual(True, result)
+
+    def test_serve_versioned_handler(self):
+        """Tests that the full pipeline is working. Message should go from _receive_send to _handle_queue
+        to the version handler"""
+        request = {"version": 0}
+        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.socket.accept_client = MagicMock()
+
+        self.s.versioned_handler = MagicMock()
+        self.s.unversioned_handler = MagicMock()
+        self.s.exit_server_loop = True
+        with self.assertRaises(SystemExit):
+            self.s.serve()
+
+    def test_serve_unversioned_handler(self):
+        request = {}
+        self.s.socket.receive = MagicMock(return_value=request)
+        self.s.socket.accept_client = MagicMock()
+
+        self.s.versioned_handler = MagicMock()
+        self.s.unversioned_handler = MagicMock()
+        self.s.exit_server_loop = True
+        with self.assertRaises(SystemExit):
+            self.s.serve()
 
 
 if __name__ == "__main__":

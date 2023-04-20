@@ -13,7 +13,6 @@ from unittest.mock import MagicMock
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 
-from aepsych.server.message_handlers.handle_tell import handle_tell
 
 dummy_config = """
 [common]
