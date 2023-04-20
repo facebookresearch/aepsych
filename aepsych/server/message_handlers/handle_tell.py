@@ -91,9 +91,17 @@ def tell(server, outcome, config, model_data=True):
                     param_value=str(param_value),
                 )
 
+        if isinstance(outcome, dict):
+            for key in outcome.keys():
+                server.db.record_outcome(
+                    raw_table=server._db_raw_record,
+                    outcome_name=key,
+                    outcome_value=float(outcome[key]),
+                )
+
         # Check if we get single or multiple outcomes
         # Multiple outcomes come in the form of iterables that aren't strings or single-element tensors
-        if isinstance(outcome, Iterable) and type(outcome) != str:
+        elif isinstance(outcome, Iterable) and type(outcome) != str:
             for i, outcome_value in enumerate(outcome):
                 if isinstance(outcome_value, Iterable) and type(outcome_value) != str:
                     if (
@@ -108,7 +116,6 @@ def tell(server, outcome, config, model_data=True):
                         raise ValueError(
                             "Multi-outcome values must be a list of lists of length 1!"
                         )
-                print(outcome_value)
                 server.db.record_outcome(
                     raw_table=server._db_raw_record,
                     outcome_name="outcome_" + str(i),
