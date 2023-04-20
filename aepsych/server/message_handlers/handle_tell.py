@@ -108,6 +108,7 @@ def tell(server, outcome, config, model_data=True):
                         raise ValueError(
                             "Multi-outcome values must be a list of lists of length 1!"
                         )
+                print(outcome_value)
                 server.db.record_outcome(
                     raw_table=server._db_raw_record,
                     outcome_name="outcome_" + str(i),

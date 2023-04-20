@@ -61,7 +61,7 @@ class ServerTestCase(unittest.TestCase):
         # random port
         socket = server.sockets.PySocket(port=0)
         # random datebase path name without dashes
-        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        database_path = "./{}_test_server.db".format(str(uuid.uuid4().hex))
         self.s = server.AEPsychServer(socket=socket, database_path=database_path)
 
     def tearDown(self):

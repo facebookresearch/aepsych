@@ -16,6 +16,7 @@ from aepsych.server import AEPsychServer
 from gpytorch.likelihoods import GaussianLikelihood
 
 from aepsych.server.message_handlers.handle_ask import ask
+from aepsych.server.message_handlers.handle_tell import tell
 from aepsych.server.message_handlers.handle_setup import configure
 
 # run on single threads to keep us from deadlocking weirdly in CI
@@ -66,7 +67,7 @@ class GPRegressionTest(unittest.TestCase):
         while not self.server.strat.finished:
             trial_params = ask(self.server)
             outcome = self.simulate_response(trial_params)
-            self.server.tell(outcome, trial_params)
+            tell(self.server, outcome, trial_params)
 
     def tearDown(self):
         self.server.db.delete_db()
