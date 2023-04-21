@@ -10,6 +10,8 @@ import logging
 import select
 import unittest
 import uuid
+import sqlite3
+from sqlite3 import Error
 from unittest.mock import call, MagicMock, patch, PropertyMock
 
 import aepsych.server as server
@@ -59,6 +61,8 @@ class ServerTestCase(unittest.TestCase):
         # random datebase path name without dashes
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         self.s = server.AEPsychServer(socket=socket, database_path=database_path)
+        self.db_name = database_path.split("/")[1]
+        self.db_path = database_path
 
     def tearDown(self):
         self.s.cleanup()
@@ -109,10 +113,18 @@ class ServerTestCase(unittest.TestCase):
     def test_unversioned_handler_types_update(self):
         """test_unversioned_handler_types_update"""
         request = {}
-        # self.s.handle_setup = MagicMock(return_value=True)
 
         request["type"] = "update"
         self.s.handle_update = MagicMock(return_value=True)
+        result = self.s.unversioned_handler(request)
+        self.assertEqual(True, result)
+
+    def test_unversioned_handler_types_info(self):
+        """test_unversioned_handler_types_info"""
+        request = {}
+
+        request["type"] = "info"
+        self.s.handle_info = MagicMock(return_value=True)
         result = self.s.unversioned_handler(request)
         self.assertEqual(True, result)
 
@@ -493,6 +505,20 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
 
+    def test_handle_info(self):
+        """Tests that handle_info calls info and returns the correct result"""
+
+        self.s.info = MagicMock(return_value=True)
+
+        info_request = {
+            "type": "info"
+        }
+
+        result = self.s.handle_info(info_request)
+        self.s.info.assert_called_once()
+        self.assertTrue(result)
+
+
     """
     Tests that test the server connections, as well as message routing
     """
@@ -642,6 +668,70 @@ class ServerTestCase(unittest.TestCase):
         self.s.unversioned_handler(tell_request)
         self.assertEqual(self.s.db.record_message.call_count, 3)
         self.assertEqual(len(self.s.strat.x), 1)
+
+    def test_info(self):
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": dummy_config},
+        }
+
+        ask_request = {"type": "ask", "message": ""}
+
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+
+        info_request = {
+            "type": "info"
+        }
+
+        self.s.db.record_message = MagicMock()
+
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+
+        except Error as e:
+            utils_logging.logger.exception(e)
+
+        self.s.unversioned_handler(setup_request)
+        self.s.unversioned_handler(tell_request)
+        result = self.s.unversioned_handler(info_request)
+        utils_logging.logger.debug(result["exp_id"])
+
+        cursor.execute("SELECT experiment_id FROM master LIMIT 1")
+
+        self.assertTrue("db_name" in result.keys(), msg="Missing db_name key in response")
+        self.assertTrue("exp_id" in result.keys(), msg="Missing exp_id key in response")
+        self.assertTrue("all_strat_names" in result.keys(), msg="Missing all_strat_names key in response")
+        self.assertTrue("current_strat_index" in result.keys(), msg="Missing current_strat_index key in response")
+        self.assertTrue("current_strat_name" in result.keys(), msg="Missing current_strat_name key in response")
+        self.assertTrue("current_strat_data_pts" in result.keys(), msg="Missing current_strat_data_pts key in response")
+        self.assertTrue("current_strat_model" in result.keys(), msg="Missing current_strat_model key in response")
+        self.assertTrue("current_strat_acqf" in result.keys(), msg="Missing current_strat_acqf key in response")
+        self.assertTrue("current_strat_finished" in result.keys(), msg="Missing current_strat_finished key in response")
+
+        self.assertEqual(result["db_name"], self.db_name, msg="Returned a wrong db_name")
+        self.assertEqual(result["exp_id"], cursor.fetchall()[0][0], msg="Returned a wrong exp_id")
+        self.assertEqual(result["all_strat_names"], ["init_strat","opt_strat"], msg="Returned wrong all_strat_names")
+        self.assertEqual(result["current_strat_index"], self.s.strat_id, msg="Returned a wrong current_strat_index")
+        self.assertEqual(result["current_strat_name"], "init_strat", msg="Returned a wrong current_strat_name")
+        self.assertEqual(result["current_strat_data_pts"], 1, msg="Returned a wrong current_strat_data_pts")
+        self.assertEqual(result["current_strat_model"], "model not set", msg="Returned a wrong current_strat_model")
+        self.assertEqual(result["current_strat_acqf"], "acqf not set", msg="Returned a wrong current_strat_acqf")
+        self.assertFalse(result["current_strat_finished"], msg="Return a wrong current_strat_finished")
+
+        # Number of asks needed to move to optimization strategy
+        n_ask = 3
+        _ = [self.s.unversioned_handler(ask_request) for x in range(n_ask)]
+
+        result_2 = self.s.unversioned_handler(info_request)
+
+        self.assertEqual(result_2["current_strat_model"], "GPClassificationModel", msg="Returned a wrong current_strat_model")
+        self.assertEqual(result_2["current_strat_acqf"], "MCPosteriorVariance", msg="Returned a wrong current_strat_model")
+
 
     def test_handle_finish_strategy(self):
         setup_request = {

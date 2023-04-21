@@ -57,6 +57,7 @@ class AEPsychServer(object):
         self._db_raw_record = None
         self.db = db.Database(database_path)
         self.skip_computations = False
+        self.strat_names = None
 
         if self.db.is_update_required():
             self.db.perform_updates()
@@ -696,6 +697,7 @@ class AEPsychServer(object):
             "get_config": self.handle_get_config,
             "finish_strategy": self.handle_finish_strategy,
             "strategy_name": self.handle_strategy_name,
+            "info": self.handle_info,
         }
 
         if "type" not in request.keys():
@@ -993,6 +995,48 @@ class AEPsychServer(object):
     def handle_strategy_name(self, request):
         return self.strat.name
 
+    def handle_info(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """Handles info message from the client.
+
+        Args:
+            request (Dict[str, Any]): The info message from the client
+
+        Returns:
+            Dict[str, Any]: Returns dictionary containing the current state of the experiment
+        """
+        logger.debug("got info message!")
+
+        ret_val = self.info()
+
+        return ret_val
+
+    def info(self) -> Dict[str, Any]:
+        """Returns details about the current state of the server and experiments
+
+        Returns:
+            Dict: Dict containing server and experiment details
+        """
+        current_strat_model = self.config.get(self.strat.name, "model", fallback="model not set") if self.config and ("model" in self.config.get_section(self.strat.name)) else "model not set"
+        current_strat_acqf = self.config.get(self.strat.name, "acqf", fallback="acqf not set") if self.config and ("acqf" in self.config.get_section(self.strat.name)) else "acqf not set"
+
+        response = {
+            "db_name": self.db._db_name,
+            "exp_id": self._db_master_record.experiment_id,
+            "strat_count": self.n_strats,
+            "all_strat_names": self.strat_names,
+            "current_strat_index": self.strat_id,
+            "current_strat_name": self.strat.name,
+            "current_strat_data_pts": self.strat.x.shape[0] if self.strat.x is not None else 0,
+            "current_strat_model": current_strat_model,
+            "current_strat_acqf": current_strat_acqf,
+            "current_strat_finished": self.strat.finished
+        }
+
+        logger.debug(f"Current state of server: {response}")
+        return response
+
+
+
     ### Properties that are set on a per-strat basis
     @property
     def strat(self):
@@ -1166,6 +1210,10 @@ class AEPsychServer(object):
         parnames = config._str_to_list(
             config.get("common", "parnames"), element_type=str
         )
+        strat_names = config._str_to_list(
+            config.get("common", "strategy_names"), element_type=str
+        )
+        self.strat_names = strat_names
         self.parnames = parnames
         self.config = config
         self.use_ax = config.getboolean("common", "use_ax", fallback=False)
