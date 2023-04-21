@@ -5,9 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 from inspect import signature
-from typing import Any, Dict, Generic, Protocol, TypeVar, runtime_checkable
+from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar
 
-import numpy as np
+import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.models.base import AEPsychMixin
 from ax.core.experiment import Experiment
@@ -43,7 +43,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
         pass
 
     @abc.abstractmethod
-    def gen(self, num_points: int, model: AEPsychModelType) -> np.ndarray:
+    def gen(self, num_points: int, model: AEPsychModelType) -> torch.Tensor:
         pass
 
     @classmethod

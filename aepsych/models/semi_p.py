@@ -348,7 +348,8 @@ class SemiParametricGPModel(GPClassificationModel):
         assert samps.shape == (num_samples, 1, x.shape[0])
         return samps.squeeze(1)
 
-    def predict(
+    # TODO don't violate LSP by having a proper base class
+    def predict(  # type: ignore
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
@@ -596,7 +597,8 @@ class HadamardSemiPModel(GPClassificationModel):
             inducing_point_method=inducing_point_method,
         )
 
-    def predict(
+    # TODO don't violate LSP by having a proper base class
+    def predict(  # type: ignore
         self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
