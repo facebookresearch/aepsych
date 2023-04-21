@@ -14,16 +14,16 @@ import threading
 import traceback
 import warnings
 from collections.abc import Iterable
+from typing import Any, List, Dict, NoReturn, IO, Optional, Callable
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
-
 import dill
 import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
+from aepsych.server.sockets import BAD_REQUEST, DummySocket, createSocket
 from aepsych.strategy import AEPsychStrategy, SequentialStrategy
 from aepsych.version import __version__
 
@@ -33,6 +33,7 @@ DEFAULT_NAME = "default name"
 
 
 def get_next_filename(folder, fname, ext):
+    """Generates appropriate filename for logging purposes."""
     n = sum(1 for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)))
     return f"{folder}/{fname}_{n+1}.{ext}"
 
@@ -76,9 +77,22 @@ class AEPsychServer(object):
         self.queue = []
 
     def cleanup(self):
+        """Close the socket and terminate connection to the server.
+
+        Returns:
+            None
+        """
         self.socket.close()
 
-    def _receive_send(self, is_exiting):
+    def _receive_send(self, is_exiting: bool) -> NoReturn:
+        """Receive messages from the client.
+
+        Args:
+            is_exiting (bool): True to terminate reception of new messages from the client, False otherwise.
+
+        Returns:
+            NoReturn
+        """
         while True:
             request = self.socket.receive(is_exiting)
             if request != BAD_REQUEST:
@@ -87,7 +101,12 @@ class AEPsychServer(object):
                 break
         logger.info("Terminated input thread")
 
-    def _handle_queue(self):
+    def _handle_queue(self) -> None:
+        """Handles the queue of messages received by the server.
+
+        Returns:
+            None
+        """
         if self.queue:
             request = self.queue.pop(0)
             try:
@@ -102,17 +121,22 @@ class AEPsychServer(object):
             if self.can_pregen_ask and (len(self._pregen_asks) == 0):
                 self._pregen_asks.append(self.ask())
 
-    def serve(self):
+    def serve(self) -> NoReturn:
         """Run the server. Note that all configuration outside of socket type and port
         happens via messages from the client. The server simply forwards messages from
         the client to its `setup`, `ask` and `tell` methods, and responds with either
         acknowledgment or other response as needed. To understand the server API, see
         the docs on the methods in this class.
+
+        Returns:
+            NoReturn
+
         Raises:
             RuntimeError: if a request from a client has no request type
             RuntimeError: if a request from a client has no known request type
             TODO make things a little more robust to bad messages from client; this
              requires resetting the req/rep queue status.
+
         """
         logger.info("Server up, waiting for connections!")
         logger.info("Ctrl-C to quit!")
@@ -134,10 +158,19 @@ class AEPsychServer(object):
             self.cleanup()
             sys.exit(0)
 
-    def replay(self, uuid_to_replay, skip_computations=False):
-        """
-        Run a replay against the server. The UUID will be looked up in the database.
-        if skip_computations is true, skip all the asks and queries, which should make the replay much faster.
+    def replay(self, uuid_to_replay: str, skip_computations=False) -> NoReturn:
+        """Run a replay against the server. This allows you to recover previous experiment state and re-fit models
+
+        Args:
+            uuid_to_replay (str): The UUID will be looked up in the database.
+            skip_computations (bool): True will skip all the asks and queries, which should make the replay much faster.
+
+        Returns:
+            None
+
+        Raises:
+            RuntimeError: if the UUID is not given or it is not in the database, or if the database is not set.
+
         """
         if uuid_to_replay is None:
             raise RuntimeError("UUID is a required parameter to perform a replay")
@@ -170,7 +203,19 @@ class AEPsychServer(object):
         self.is_performing_replay = False
         self.skip_computations = False
 
-    def _unpack_strat_buffer(self, strat_buffer):
+    def _unpack_strat_buffer(self, strat_buffer: io.BytesIO) -> IO:
+        """Loads a strategy data buffer into an object.
+
+        Args:
+            strat_buffer (io.BytesIO): The strategy data buffer.
+
+        Returns:
+            IO: The strategy object.
+
+        Raises:
+            RuntimeError: If the buffer is in an unknown format.
+        """
+
         if isinstance(strat_buffer, io.BytesIO):
             strat = torch.load(strat_buffer, pickle_module=dill)
             strat_buffer.seek(0)
@@ -185,7 +230,20 @@ class AEPsychServer(object):
             raise RuntimeError("Trying to load strat in unknown format!")
         return strat
 
-    def get_strats_from_replay(self, uuid_of_replay=None, force_replay=False):
+    def get_strats_from_replay(self, uuid_of_replay=None, force_replay=False) -> List:
+        """Returns all the strategies from a replay.
+
+        Args:
+            uuid_of_replay (str, default=None): The UUID of the replay.
+            force_replay (bool, default=False): True will force a replay on the server, False will get the strategies from the database.
+
+        Returns:
+            list: A list of strategies.
+
+        Raises:
+            RuntimeError: If the server has no experiment records.
+
+        """
         if uuid_of_replay is None:
             records = self.db.get_master_records()
             if len(records) > 0:
@@ -208,7 +266,20 @@ class AEPsychServer(object):
             strat_buffers = self.db.get_strats_for(uuid_of_replay)
             return [self._unpack_strat_buffer(sb) for sb in strat_buffers]
 
-    def get_strat_from_replay(self, uuid_of_replay=None, strat_id=-1):
+    def get_strat_from_replay(self, uuid_of_replay=None, strat_id=-1) -> Any:
+        """Returns a strategy from a replay.
+
+        Args:
+            uuid_of_replay (str, default=None): The UUID of the replay.
+            strat_id (int, default=-1): The position of the strategy to return from the replay. Uses zero-based indexing.
+
+        Returns:
+            object (aepsych.strategy): The strategy object.
+
+        Raises:
+            RuntimeError: If the server has no experiment records.
+
+        """
         if uuid_of_replay is None:
             records = self.db.get_master_records()
             if len(records) > 0:
@@ -235,7 +306,15 @@ class AEPsychServer(object):
                 strat.model.fit(strat.x, strat.y)
             return strat
 
-    def _flatten_tell_record(self, rec):
+    def _flatten_tell_record(self, rec: str) -> Dict:
+        """Flattens a tell record into a dictionary.
+
+        Args:
+            rec (str): Nested json for each experiment record
+
+        Returns:
+            Dict
+        """
         out = {}
         out["response"] = int(rec.message_contents["message"]["outcome"])
 
@@ -250,7 +329,19 @@ class AEPsychServer(object):
 
         return out
 
-    def get_dataframe_from_replay(self, uuid_of_replay=None, force_replay=False):
+    def get_dataframe_from_replay(self, uuid_of_replay=None, force_replay=False) -> pd.DataFrame:
+        """Returns a dataframe of all the tell records from a replay.
+
+        Args:
+            uuid_of_replay (str, optional): experiment_id to get tell records from. Defaults to None.
+            force_replay (bool, optional): Force replay of entire experiment. Defaults to False.
+
+        Returns:
+            pd.DataFrame: A dataframe of all the tell records from an experiment.
+
+        Raises:
+            RuntimeError: If the server has no experiment records.
+        """
         # DeprecationWarning
         warnings.warn(
             "get_dataframe_from_replay is deprecated."
@@ -312,8 +403,8 @@ class AEPsychServer(object):
         return out
 
     def generate_experiment_table(
-        self, experiment_id, table_name="experiment_table", return_df=False
-    ):
+        self, experiment_id: str, table_name="experiment_table", return_df=False
+    ) -> Optional[pd.DataFrame]:
         """Generate a table of a given experiment with all the raw data.
 
         This table is generated from the database, and is added to the
@@ -365,7 +456,7 @@ class AEPsychServer(object):
         if return_df:
             return df
 
-    def versioned_handler(self, request):
+    def versioned_handler(self, request: Dict[str, Any]):
         handled_types = ["setup", "resume", "ask"]
         if request["type"] == "setup":
             if request["version"] == "0.01":
@@ -398,7 +489,59 @@ class AEPsychServer(object):
             return self.unversioned_handler(request)
         return ret_val
 
-    def handle_setup_v01(self, request):
+    def handle_setup_v01(self, request: Dict[str, Any]) -> int:
+        """Handle a setup message from the client.  Setup messages provide a config that specifies all of the
+        configuration options for an experiment. This method reads those options, records them in the database,
+        and instantiates the appropriate server objects.
+
+        Args:
+            request (Dict[str, Any]): The setup message from the client.
+
+        Returns:
+            int: The index of the experiment in the database.
+
+        Raises:
+            RuntimeError: If the setup message doesn't contain a configure message key.
+
+        Example:
+            >>> from aepsych.server import AEPsychServer
+            >>> dummy_config = '''
+                                [common]
+                                lb = [0]
+                                ub = [1]
+                                parnames = [x]
+                                stimuli_per_trial = 1
+                                outcome_types = [binary]
+                                strategy_names = [init_strat, opt_strat]
+
+                                [init_strat]
+                                min_asks = 2
+                                generator = SobolGenerator
+                                min_total_outcome_occurrences = 0
+
+                                [opt_strat]
+                                min_asks = 2
+                                generator = OptimizeAcqfGenerator
+                                acqf = MCPosteriorVariance
+                                model = GPClassificationModel
+                                min_total_outcome_occurrences = 0
+
+                                [GPClassificationModel]
+                                inducing_size = 10
+                                mean_covar_factory = default_mean_covar_factory
+
+                                [SobolGenerator]
+                                n_points = 2
+                            '''
+            >>> setup_request = {
+                                    "type": "setup",
+                                    "version": "0.01",
+                                    "message": {"config_str": dummy_config},
+                                }
+            >>> server = AEPsychServer()
+            >>> server.versioned_handler(setup_request)
+
+        """
         logger.debug("got setup message!")
         ### make a temporary config object to derive parameters because server handles config after table
         if (
@@ -448,7 +591,7 @@ class AEPsychServer(object):
 
         return strat_id
 
-    def handle_resume_v01(self, request):
+    def handle_resume_v01(self, request: Dict[str, Any]) -> int:
         logger.debug("got resume message!")
         strat_id = int(request["message"]["strat_id"])
         self.strat_id = strat_id
@@ -458,10 +601,62 @@ class AEPsychServer(object):
             )
         return self.strat_id
 
-    def handle_ask_v01(self, request):
-        """Returns dictionary with two entries:
-        "config" -- dictionary with config (keys are strings, values are floats)
-        "is_finished" -- bool, true if the strat is finished
+    def handle_ask_v01(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """Returns dictionary with a configuration to try on the client.
+
+        Args:
+            request (Dict[str, Any]): The ask message from the client.
+
+        Returns:
+            config (Dict): dictionary with config (keys are strings, values are floats)
+            is_finished (bool): true if the strat is finished
+
+        Example:
+            >>> from aepsych.server import AEPsychServer
+            >>> dummy_config = '''
+                                [common]
+                                lb = [0]
+                                ub = [1]
+                                parnames = [x]
+                                stimuli_per_trial = 1
+                                outcome_types = [binary]
+                                strategy_names = [init_strat, opt_strat]
+
+                                [init_strat]
+                                min_asks = 2
+                                generator = SobolGenerator
+                                min_total_outcome_occurrences = 0
+
+                                [opt_strat]
+                                min_asks = 2
+                                generator = OptimizeAcqfGenerator
+                                acqf = MCPosteriorVariance
+                                model = GPClassificationModel
+                                min_total_outcome_occurrences = 0
+
+                                [GPClassificationModel]
+                                inducing_size = 10
+                                mean_covar_factory = default_mean_covar_factory
+
+                                [SobolGenerator]
+                                n_points = 2
+                            '''
+            >>> setup_request = {
+                                    "type": "setup",
+                                    "version": "0.01",
+                                    "message": {"config_str": dummy_config},
+                                    "extra_info": None,
+                                }
+            >>> ask_request = {
+                                      "type": "ask",
+                                      "version": "0.01",
+                                      "message": "",
+                                      "extra_info": None,
+                              }
+            >>> server = AEPsychServer()
+            >>> server.versioned_handler(setup_request)
+            >>> server.versioned_handler(ask_request)
+            {"config": {"x": [0.5405369997024536]}, "is_finished": false}
         """
         logger.debug("got ask message!")
         if self._pregen_asks:
@@ -476,7 +671,19 @@ class AEPsychServer(object):
             )
         return new_config
 
-    def unversioned_handler(self, request):
+    def unversioned_handler(self, request: Dict[str, Any]) -> Optional[Callable[[Dict[str, Any]], Any]]:
+        """Default message handler for all messages from client. Returns the handler function to be used based on message type received.
+
+        Args:
+            request (Dict[str, Any]): The message from the client.
+
+        Returns:
+            Optional[Callable]: Return the specific handler function to be used based on message type received
+
+        Raises:
+            RuntimeError: If the message type is invalid.
+            RuntimeError: If the message type is not specified.
+        """
         message_map = {
             "setup": self.handle_setup,
             "ask": self.handle_ask,
@@ -507,7 +714,21 @@ class AEPsychServer(object):
 
                 raise RuntimeError(exception_message)
 
-    def handle_setup(self, request):
+    def handle_setup(self, request: Dict[str, Any]) -> Dict[str, float]:
+        """Handle a setup message from the client. Setup messages provide a config that specifies all of the
+        configuration options for an experiment. This method reads those options, records them in the database,
+        and instantiates the appropriate server object
+
+        Args:
+            request (Dict[str, Any]): The setup message from the client.
+
+        Returns:
+            Dict[str, float]: The new configuration to try
+
+        Raises:
+            RuntimeError: If the setup message doesn't contain a configure message key.
+
+        """
         logger.debug("got setup message!")
 
         if not self.is_performing_replay:
@@ -534,7 +755,15 @@ class AEPsychServer(object):
 
         return new_config
 
-    def handle_ask(self, request):
+    def handle_ask(self, request: Dict[str, Any]) -> Dict[str, float]:
+        """Handle an ask message from the client. Ask message provides a configuration to try on the client.
+
+        Args:
+            request (Dict[str, Any]): The ask message from the client.
+
+        Returns:
+            Dict[str, float]: The new configuration to try.
+        """
         logger.debug("got ask message!")
 
         if self._pregen_asks:
@@ -549,7 +778,68 @@ class AEPsychServer(object):
 
         return new_config
 
-    def handle_tell(self, request):
+    def handle_tell(self, request: Dict[str, Any]) -> str:
+        """Handle a tell message from the client. Tell message provides feedback to the server on the outcome of the previous tried ask configuration.
+
+        Args:
+            request (Dict[str, Any]): The tell message from the client.
+
+        Returns:
+            str: Returns "acq".
+
+        Example:
+            >>> from aepsych.server import AEPsychServer
+            >>> dummy_config = '''
+                                [common]
+                                lb = [0]
+                                ub = [1]
+                                parnames = [x]
+                                stimuli_per_trial = 1
+                                outcome_types = [binary]
+                                strategy_names = [init_strat, opt_strat]
+
+                                [init_strat]
+                                min_asks = 2
+                                generator = SobolGenerator
+                                min_total_outcome_occurrences = 0
+
+                                [opt_strat]
+                                min_asks = 2
+                                generator = OptimizeAcqfGenerator
+                                acqf = MCPosteriorVariance
+                                model = GPClassificationModel
+                                min_total_outcome_occurrences = 0
+
+                                [GPClassificationModel]
+                                inducing_size = 10
+                                mean_covar_factory = default_mean_covar_factory
+
+                                [SobolGenerator]
+                                n_points = 2
+                            '''
+            >>> setup_request = {
+                                    "type": "setup",
+                                    "message": {"config_str": dummy_config},
+                                    "extra_info": None,
+                                }
+            >>> ask_request = {
+                                    "type": "ask",
+                                    "message": "",
+                                    "extra_info": None,
+                              }
+            >>> server = AEPsychServer()
+            >>> server.unversioned_handler(setup_request)
+            >>> server.unversioned_handler(ask_request)
+            {"config": {"x": [0.5405369997024536]}, "is_finished": false}
+
+            >>> tell_request = {
+                                    "type": "tell",
+                                    "message": {"config": {"x": [0.5405369997024536]}, "outcome": 1.0}
+                                    "extra_info": {"responsTime": 0.146844864, "participantID: ""},
+                                }
+            >>> server.unversioned_handler(tell_request)
+            "acq"
+        """
         logger.debug("got tell message!")
 
         if not self.is_performing_replay:
