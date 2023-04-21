@@ -5,13 +5,18 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 from inspect import signature
-from typing import Any, Dict, Generic, Protocol, TypeVar, runtime_checkable
+from typing import Any, Dict, Generic, Protocol, TypeVar, runtime_checkable, Optional
+import copy
 
 import numpy as np
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.models.base import AEPsychMixin
 from ax.core.experiment import Experiment
 from ax.modelbridge.generation_node import GenerationStep
+from ax.core.search_space import SearchSpace
+from ax.core.optimization_config import OptimizationConfig
+from ax.core.data import Data
+from ax.utils.common.constants import Keys
 from botorch.acquisition import (
     AcquisitionFunction,
     NoisyExpectedImprovement,
@@ -19,6 +24,7 @@ from botorch.acquisition import (
 )
 
 from .completion_criterion import completion_criteria
+
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
@@ -94,6 +100,9 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
 
 class AEPsychGenerationStep(GenerationStep, ConfigurableMixin, abc.ABC):
     def __init__(self, name, **kwargs):
+        self.refit_every = kwargs.get("refit_every", 1)
+        if "refit_every" in kwargs:
+            del kwargs["refit_every"]
         super().__init__(num_trials=-1, **kwargs)
         self.name = name
 
@@ -112,3 +121,42 @@ class AEPsychGenerationStep(GenerationStep, ConfigurableMixin, abc.ABC):
             [criterion.is_met(experiment) for criterion in self.completion_criteria]
         )
         return finished
+
+    def fit(
+        self,
+        experiment: Experiment,
+        data: Data,
+        search_space: Optional[SearchSpace] = None,
+        optimization_config: Optional[OptimizationConfig] = None,
+        **kwargs: Any,
+    ) -> None:
+        """Fits the specified models to the given experiment + data using
+        the model kwargs set on each corresponding model spec and the kwargs
+        passed to this method.
+
+        NOTE: Local kwargs take precedence over the ones stored in
+        ``ModelSpec.model_kwargs``.
+        """
+        self._model_spec_to_gen_from = None
+        for model_spec in self.model_specs:
+            tmp_kwargs = copy.deepcopy(kwargs)
+            if (
+                model_spec._fitted_model
+                and model_spec.model_enum._name_ == "BOTORCH_MODULAR"
+            ):
+                tmp_kwargs.update(
+                    {
+                        "refit": not (experiment.num_asks % self.refit_every),
+                        "state_dict": model_spec._fitted_model.model.surrogates[
+                            Keys.ONLY_SURROGATE
+                        ].model.state_dict(),
+                    }
+                )
+
+            model_spec.fit(  # Stores the fitted model as `model_spec._fitted_model`
+                experiment=experiment,
+                data=data,
+                search_space=search_space,
+                optimization_config=optimization_config,
+                **tmp_kwargs,
+            )

@@ -38,6 +38,7 @@ class AEPsychSurrogate(Surrogate):
         self._outcomes = metric_names
         if state_dict:
             self.model.load_state_dict(state_dict)
+            logger.info("Loaded state dict")
 
         if state_dict is None or refit:
             mll = self.mll_class(self.model.likelihood, self.model, **self.mll_options)

@@ -185,6 +185,7 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
         classname = "OptimizeAcqfGenerator"
 
         model_class = config.getobj(name, "model", fallback=None)
+        refit_every = config.getint(name, "refit_every", fallback=1)
         model_options = model_class.get_config_options(config)
 
         acqf_cls = config.getobj(name, "acqf", fallback=None)
@@ -212,6 +213,7 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
         }
 
         opts = {
+            "refit_every": refit_every,
             "model": Models.BOTORCH_MODULAR,
             "model_kwargs": model_kwargs,
             "model_gen_kwargs": gen_options,
