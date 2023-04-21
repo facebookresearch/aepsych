@@ -16,11 +16,26 @@ from ax.service.utils.report_utils import exp_to_df
 
 from aepsych.config import Config
 from aepsych.server import AEPsychServer
+from parameterized import parameterized_class
+import math
 
 
+@parameterized_class(
+    ("config_file", "should_ignore"),
+    [
+        ("../configs/ax_example.ini", False),
+        ("../configs/ax_ordinal_exploration_example.ini", True),
+    ],
+)
 class AxIntegrationTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        if cls.should_ignore:
+            raise unittest.SkipTest("Skipping because should_ignore is True.")
+
+        def sigmoid(x):
+            return 1 / (1 + math.exp(-x / 100))
+
         # Simulate participant responses; just returns the sum of the flat parameters
         def simulate_response(trial_params):
             pars = [
@@ -28,7 +43,7 @@ class AxIntegrationTestCase(unittest.TestCase):
                 for par in trial_params
                 if type(trial_params[par][0]) == float
             ]
-            response = np.array(pars).sum()
+            response = round(sigmoid(np.array(pars).mean()) * 4)
             return response
 
         # Fix random seeds
@@ -38,9 +53,8 @@ class AxIntegrationTestCase(unittest.TestCase):
         # Create a server object configured to run a 2d threshold experiment
         database_path = "./{}.db".format(str(uuid.uuid4().hex))
         cls.client = AEPsychClient(server=AEPsychServer(database_path=database_path))
-        config_file = "../configs/ax_example.ini"
-        config_file = os.path.join(os.path.dirname(__file__), config_file)
-        cls.client.configure(config_file)
+        cls.config_file = os.path.join(os.path.dirname(__file__), cls.config_file)
+        cls.client.configure(cls.config_file)
 
         while not cls.client.server.strat.finished:
             # Ask the server what the next parameter values to test should be.
@@ -57,7 +71,7 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         cls.df = exp_to_df(cls.client.server.strat.experiment)
 
-        cls.config = Config(config_fnames=[config_file])
+        cls.config = Config(config_fnames=[cls.config_file])
 
     def tearDown(self):
         if self.client.server.db is not None:

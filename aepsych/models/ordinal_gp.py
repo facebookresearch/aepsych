@@ -21,7 +21,6 @@ class OrdinalGPModel(GPClassificationModel):
         covar_module = kwargs.pop("covar_module", None)
         dim = kwargs.get("dim")
         if covar_module is None:
-
             ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)
             ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
             ls_constraint = gpytorch.constraints.Positive(
@@ -46,6 +45,9 @@ class OrdinalGPModel(GPClassificationModel):
 
     def predict_probs(self, xgrid):
         fmean, fvar = self.predict(xgrid)
+        return self.calculate_probs(fmean, fvar)
+
+    def calculate_probs(self, fmean, fvar):
         fsd = torch.sqrt(1 + fvar)
         probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
 

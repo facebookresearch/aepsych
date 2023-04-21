@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from typing import Dict, Optional, Tuple, Union
+import gpytorch
 
 import numpy as np
 import torch
@@ -14,9 +15,12 @@ from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
 from gpytorch.mlls import VariationalELBO
 
 from aepsych.config import Config
+from aepsych.factory.factory import ordinal_mean_covar_factory
+from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from aepsych.models.base import AEPsychModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
-from aepsych.utils import promote_0d
+from aepsych.utils import get_dim, promote_0d
+from aepsych.models.ordinal_gp import OrdinalGPModel
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side
@@ -63,7 +67,7 @@ class VariationalGP(AEPsychModel, SingleTaskVariationalGP):
         inducing_point_method = config.get(
             classname, "inducing_point_method", fallback="auto"
         )
-        inducing_size = config.getint(classname, "inducing_size", fallback=10)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
         learn_inducing_points = config.getboolean(
             classname, "learn_inducing_points", fallback=False
         )
@@ -143,5 +147,55 @@ class BetaRegressionGP(VariationalGP):
         options = super().get_config_options(config)
         if options["likelihood"] is None:
             options["likelihood"] = BetaLikelihood()
+
+        return options
+
+
+class OrdinalGP(VariationalGP):
+    """
+    Convenience class for using a VariationalGP with an OrdinalLikelihood.
+    """
+
+    outcome_type = "ordinal"
+
+    def predict(self, xgrid, probability_space=False):
+        with torch.no_grad():
+            post = self.posterior(xgrid)
+        fmean = post.mean.squeeze()
+        fvar = post.variance.squeeze()
+
+        if probability_space:
+            return OrdinalGPModel.calculate_probs(self, fmean, fvar)
+        else:
+            return fmean, fvar
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None):
+        options = super().get_config_options(config)
+
+        if options["likelihood"] is None:
+            options["likelihood"] = OrdinalLikelihood(n_levels=5)
+
+        dim = get_dim(config)
+
+        if config.getobj(cls.__name__, "mean_covar_factory", fallback=None) is None:
+            mean, covar = ordinal_mean_covar_factory(config)
+            options["mean_covar_factory"] = (mean, covar)
+            ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)
+            ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
+            ls_constraint = gpytorch.constraints.Positive(
+                transform=None, initial_value=ls_prior_mode
+            )
+
+            # no outputscale due to shift identifiability in d.
+            covar_module = gpytorch.kernels.RBFKernel(
+                lengthscale_prior=ls_prior,
+                lengthscale_constraint=ls_constraint,
+                ard_num_dims=dim,
+            )
+
+            options["covar_module"] = covar_module
+
+        assert options["inducing_size"] >= 1, "Inducing size must be non-zero."
 
         return options

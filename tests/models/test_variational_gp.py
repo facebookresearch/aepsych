@@ -12,11 +12,14 @@ import numpy.testing as npt
 import torch
 from botorch.fit import fit_gpytorch_mll
 from gpytorch.likelihoods import BernoulliLikelihood
+from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from gpytorch.mlls import VariationalELBO
 from sklearn.datasets import make_classification, make_regression
 
 from aepsych.models import BinaryClassificationGP
-from aepsych.models.variational_gp import BetaRegressionGP
+from aepsych.models.variational_gp import BetaRegressionGP, OrdinalGP
+
+
 
 
 class BinaryClassificationGPTestCase(unittest.TestCase):
@@ -86,6 +89,52 @@ class AxBetaRegressionGPTextCase(unittest.TestCase):
         pm, pv = model.predict(X)
         npt.assert_allclose(pm.reshape(-1, 1), y, atol=0.1)
         npt.assert_array_less(pv, 1)
+
+
+class AxOrdinalGPTestCase(unittest.TestCase):
+    @classmethod
+    def setUp(cls):
+        np.random.seed(1)
+        torch.manual_seed(1)
+        cls.n_levels = 5
+        X, y = make_classification(
+            n_samples=20,
+            n_features=5,
+            n_classes=cls.n_levels,
+            n_informative=3,
+            n_clusters_per_class=1,
+        )
+        cls.X, cls.y = torch.Tensor(X), torch.Tensor(y).reshape(-1, 1)
+
+    def test_ordinal_classification(self):
+        model = OrdinalGP(
+            train_X=self.X,
+            train_Y=self.y,
+            likelihood=OrdinalLikelihood(n_levels=self.n_levels),
+            inducing_points=2000,
+        )
+        probs = model.predict(self.X, probability_space=True)
+        pred = np.argmax(probs.detach().numpy(), axis=1).reshape(-1, 1)
+        mll = VariationalELBO(model.likelihood, model.model, len(self.y))
+        fit_gpytorch_mll(mll)
+
+        # pspace
+        probs = model.predict(self.X, probability_space=True)
+        pred = np.argmax(probs.detach().numpy(), axis=1).reshape(-1, 1)
+        clipped_pred = np.clip(pred, 0, self.n_levels)
+        npt.assert_allclose(clipped_pred, pred, atol=1, rtol=1)
+        npt.assert_allclose(pred, self.y, atol=1, rtol=1)
+
+        # fspace
+        pm, pv = model.predict(self.X, probability_space=False)
+        pred = np.floor(self.n_levels * pm).reshape(-1, 1)
+        pred_var = (self.n_levels * pv).reshape(-1, 1)
+        clipped_pred = np.clip(pred, 0, self.n_levels)
+        npt.assert_allclose(clipped_pred, pred, atol=3, rtol=self.n_levels)
+        npt.assert_allclose(pred, self.y, atol=3, rtol=self.n_levels)
+        npt.assert_allclose(
+            pred_var, np.ones_like(pred_var), atol=self.n_levels, rtol=self.n_levels
+        )
 
 
 if __name__ == "__main__":
