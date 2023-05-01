@@ -54,7 +54,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self,
         num_points: int,  # Current implementation only generates 1 point at a time
         model: MonotonicRejectionGP,
-    ) -> np.ndarray:
+    ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int, optional): Number of points to query.
@@ -106,5 +106,5 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             num_ts_points=num_ts_points,
             target_value=target,
             objective=objective,
-            explore_features=explore_features, # type: ignore
+            explore_features=explore_features,  # type: ignore
         )

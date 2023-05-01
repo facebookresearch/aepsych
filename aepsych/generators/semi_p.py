@@ -7,7 +7,6 @@
 
 from typing import Type
 
-import numpy as np
 import torch
 from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.generators import OptimizeAcqfGenerator
@@ -35,7 +34,7 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
         num_points: int,
         model: SemiParametricGPModel,  # type: ignore[override]
         context_objective: Type = SemiPThresholdObjective,
-    ) -> np.ndarray:
+    ) -> torch.Tensor:
 
         fixed_features = {model.stim_dim: 0}
         next_x = super().gen(
@@ -55,5 +54,5 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
             min=model.lb[model.stim_dim],
             max=model.ub[model.stim_dim],
         )
-        next_x[..., model.stim_dim] = thresh_at_best_context.detach().numpy()
+        next_x[..., model.stim_dim] = thresh_at_best_context.detach()
         return next_x
