@@ -13,6 +13,7 @@ from aepsych.config import Config
 from aepsych.generators import AxRandomGenerator, RandomGenerator
 from ax.modelbridge import Models
 
+
 class TestRandomGenerator(unittest.TestCase):
     def test_randomgen_single(self):
         # test that RandomGenerator doesn't mess with shapes
@@ -39,12 +40,12 @@ class TestRandomGenerator(unittest.TestCase):
         rand = mod.gen(n)
 
         # check that bounds are right
-        self.assertTrue(np.all(rand[:, 0] > 1))
-        self.assertTrue(np.all(rand[:, 1] > 2))
-        self.assertTrue(np.all(rand[:, 2] > 3))
-        self.assertTrue(np.all(rand[:, 0] < 2))
-        self.assertTrue(np.all(rand[:, 1] < 3))
-        self.assertTrue(np.all(rand[:, 2] < 4))
+        self.assertTrue((rand[:, 0] > 1).all())
+        self.assertTrue((rand[:, 1] > 2).all())
+        self.assertTrue((rand[:, 2] > 3).all())
+        self.assertTrue((rand[:, 0] < 2).all())
+        self.assertTrue((rand[:, 1] < 3).all())
+        self.assertTrue((rand[:, 2] < 4).all())
 
     def test_randomgen_config(self):
         lb = [-1, 0]
@@ -84,4 +85,3 @@ class TestRandomGenerator(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    

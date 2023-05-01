@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import time
 from inspect import signature
-from typing import Any, Dict, Optional, cast
+from typing import Any, cast, Dict, Optional
 
 import numpy as np
 import torch
@@ -71,7 +71,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
-    def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> np.ndarray:
+    def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int, optional): Number of points to query.
@@ -92,7 +92,9 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         else:
             return self._gen(num_points=num_points, model=model, **gen_options)
 
-    def _gen(self, num_points: int, model: ModelProtocol, **gen_options) -> np.ndarray:
+    def _gen(
+        self, num_points: int, model: ModelProtocol, **gen_options
+    ) -> torch.Tensor:
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         train_x = model.train_inputs[0]

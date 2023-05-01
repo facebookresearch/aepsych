@@ -14,7 +14,7 @@ import threading
 import traceback
 import warnings
 from collections.abc import Iterable
-from typing import Any, List, Dict, NoReturn, IO, Optional, Callable
+from typing import Any, Callable, Dict, IO, List, Optional
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.server.sockets import BAD_REQUEST, DummySocket, createSocket
+from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
 from aepsych.strategy import AEPsychStrategy, SequentialStrategy
 from aepsych.version import __version__
 
@@ -85,14 +85,14 @@ class AEPsychServer(object):
         """
         self.socket.close()
 
-    def _receive_send(self, is_exiting: bool) -> NoReturn:
+    def _receive_send(self, is_exiting: bool) -> None:
         """Receive messages from the client.
 
         Args:
             is_exiting (bool): True to terminate reception of new messages from the client, False otherwise.
 
         Returns:
-            NoReturn
+            None
         """
         while True:
             request = self.socket.receive(is_exiting)
@@ -122,7 +122,7 @@ class AEPsychServer(object):
             if self.can_pregen_ask and (len(self._pregen_asks) == 0):
                 self._pregen_asks.append(self.ask())
 
-    def serve(self) -> NoReturn:
+    def serve(self) -> None:
         """Run the server. Note that all configuration outside of socket type and port
         happens via messages from the client. The server simply forwards messages from
         the client to its `setup`, `ask` and `tell` methods, and responds with either
@@ -130,7 +130,7 @@ class AEPsychServer(object):
         the docs on the methods in this class.
 
         Returns:
-            NoReturn
+            None
 
         Raises:
             RuntimeError: if a request from a client has no request type
@@ -159,7 +159,7 @@ class AEPsychServer(object):
             self.cleanup()
             sys.exit(0)
 
-    def replay(self, uuid_to_replay: str, skip_computations=False) -> NoReturn:
+    def replay(self, uuid_to_replay: str, skip_computations=False) -> None:
         """Run a replay against the server. This allows you to recover previous experiment state and re-fit models
 
         Args:
@@ -307,7 +307,7 @@ class AEPsychServer(object):
                 strat.model.fit(strat.x, strat.y)
             return strat
 
-    def _flatten_tell_record(self, rec: str) -> Dict:
+    def _flatten_tell_record(self, rec) -> Dict:
         """Flattens a tell record into a dictionary.
 
         Args:
@@ -330,7 +330,9 @@ class AEPsychServer(object):
 
         return out
 
-    def get_dataframe_from_replay(self, uuid_of_replay=None, force_replay=False) -> pd.DataFrame:
+    def get_dataframe_from_replay(
+        self, uuid_of_replay=None, force_replay=False
+    ) -> pd.DataFrame:
         """Returns a dataframe of all the tell records from a replay.
 
         Args:
@@ -404,7 +406,10 @@ class AEPsychServer(object):
         return out
 
     def generate_experiment_table(
-        self, experiment_id: str, table_name="experiment_table", return_df=False
+        self,
+        experiment_id: str,
+        table_name: str = "experiment_table",
+        return_df: bool = False,
     ) -> Optional[pd.DataFrame]:
         """Generate a table of a given experiment with all the raw data.
 
@@ -456,9 +461,12 @@ class AEPsychServer(object):
 
         if return_df:
             return df
+        else:
+            return None
 
     def versioned_handler(self, request: Dict[str, Any]):
         handled_types = ["setup", "resume", "ask"]
+        ret_val: Any = None  # to make mypy happy
         if request["type"] == "setup":
             if request["version"] == "0.01":
                 ret_val = self.handle_setup_v01(request)
@@ -672,7 +680,9 @@ class AEPsychServer(object):
             )
         return new_config
 
-    def unversioned_handler(self, request: Dict[str, Any]) -> Optional[Callable[[Dict[str, Any]], Any]]:
+    def unversioned_handler(
+        self, request: Dict[str, Any]
+    ) -> Optional[Callable[[Dict[str, Any]], Any]]:
         """Default message handler for all messages from client. Returns the handler function to be used based on message type received.
 
         Args:
@@ -1016,8 +1026,16 @@ class AEPsychServer(object):
         Returns:
             Dict: Dict containing server and experiment details
         """
-        current_strat_model = self.config.get(self.strat.name, "model", fallback="model not set") if self.config and ("model" in self.config.get_section(self.strat.name)) else "model not set"
-        current_strat_acqf = self.config.get(self.strat.name, "acqf", fallback="acqf not set") if self.config and ("acqf" in self.config.get_section(self.strat.name)) else "acqf not set"
+        current_strat_model = (
+            self.config.get(self.strat.name, "model", fallback="model not set")
+            if self.config and ("model" in self.config.get_section(self.strat.name))
+            else "model not set"
+        )
+        current_strat_acqf = (
+            self.config.get(self.strat.name, "acqf", fallback="acqf not set")
+            if self.config and ("acqf" in self.config.get_section(self.strat.name))
+            else "acqf not set"
+        )
 
         response = {
             "db_name": self.db._db_name,
@@ -1026,16 +1044,16 @@ class AEPsychServer(object):
             "all_strat_names": self.strat_names,
             "current_strat_index": self.strat_id,
             "current_strat_name": self.strat.name,
-            "current_strat_data_pts": self.strat.x.shape[0] if self.strat.x is not None else 0,
+            "current_strat_data_pts": self.strat.x.shape[0]
+            if self.strat.x is not None
+            else 0,
             "current_strat_model": current_strat_model,
             "current_strat_acqf": current_strat_acqf,
-            "current_strat_finished": self.strat.finished
+            "current_strat_finished": self.strat.finished,
         }
 
         logger.debug(f"Current state of server: {response}")
         return response
-
-
 
     ### Properties that are set on a per-strat basis
     @property
