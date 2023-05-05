@@ -219,4 +219,4 @@ def modified_hartmann6(X):
         for j in range(6):
             t += a_t[i, j] * ((X[j] - p_t[i, j]) ** 2)
         y += C_i * np.exp(-t)
-    return -10 * (float(y) - 0.1)
+    return -10 * (y - 0.1)
