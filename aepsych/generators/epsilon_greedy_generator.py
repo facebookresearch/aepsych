@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import numpy as np
+import torch
 from aepsych.config import Config
 
 from ..models.base import ModelProtocol
@@ -32,6 +33,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         if num_points > 1:
             raise NotImplementedError("Epsilon-greedy batched gen is not implemented!")
         if np.random.uniform() < self.epsilon:
-            return np.random.uniform(low=model.lb, high=model.ub)
+            sample = np.random.uniform(low=model.lb, high=model.ub)
+            return torch.tensor(sample).reshape(1, -1)
         else:
             return self.subgenerator.gen(num_points, model)
