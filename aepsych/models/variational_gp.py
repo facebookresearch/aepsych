@@ -6,21 +6,22 @@
 # LICENSE file in the root directory of this source tree.
 
 from typing import Dict, Optional, Tuple, Union
+
 import gpytorch
 
 import numpy as np
 import torch
-from botorch.models import SingleTaskVariationalGP
-from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
-from gpytorch.mlls import VariationalELBO
 
 from aepsych.config import Config
 from aepsych.factory.factory import ordinal_mean_covar_factory
 from aepsych.likelihoods.ordinal import OrdinalLikelihood
 from aepsych.models.base import AEPsychModel
-from aepsych.models.utils import get_probability_space, select_inducing_points
-from aepsych.utils import get_dim, promote_0d
 from aepsych.models.ordinal_gp import OrdinalGPModel
+from aepsych.models.utils import get_probability_space, select_inducing_points
+from aepsych.utils import get_dim
+from botorch.models import SingleTaskVariationalGP
+from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
+from gpytorch.mlls import VariationalELBO
 
 
 # TODO: Find a better way to do this on the Ax/Botorch side
@@ -87,8 +88,8 @@ class BinaryClassificationGP(VariationalGP):
     stimuli_per_trial = 1
     outcome_type = "binary"
 
-    def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+    def predict_probability(
+        self, x: Union[torch.Tensor, np.ndarray]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -103,15 +104,11 @@ class BinaryClassificationGP(VariationalGP):
         with torch.no_grad():
             post = self.posterior(x)
 
-        if probability_space:
             fmean, fvar = get_probability_space(
                 likelihood=self.likelihood, posterior=post
             )
-        else:
-            fmean = post.mean.squeeze()
-            fvar = post.variance.squeeze()
 
-        return promote_0d(fmean), promote_0d(fvar)
+        return fmean, fvar
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None):
@@ -123,24 +120,6 @@ class BinaryClassificationGP(VariationalGP):
 
 class BetaRegressionGP(VariationalGP):
     outcome_type = "percentage"
-
-    def predict(
-        self, x: Union[torch.Tensor, np.ndarray]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Query the model for posterior mean and variance.
-
-        Args:
-            x (torch.Tensor): Points at which to predict from the model.
-
-        Returns:
-            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
-        """
-        with torch.no_grad():
-            post = self.posterior(x)
-        fmean = post.mean.squeeze()
-        fvar = post.variance.squeeze()
-
-        return fmean, fvar
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None):
@@ -158,16 +137,9 @@ class OrdinalGP(VariationalGP):
 
     outcome_type = "ordinal"
 
-    def predict(self, xgrid, probability_space=False):
-        with torch.no_grad():
-            post = self.posterior(xgrid)
-        fmean = post.mean.squeeze()
-        fvar = post.variance.squeeze()
-
-        if probability_space:
-            return OrdinalGPModel.calculate_probs(self, fmean, fvar)
-        else:
-            return fmean, fvar
+    def predict_probability(self, x: Union[torch.Tensor, np.ndarray]):
+        fmean, fvar = super().predict(x)
+        return OrdinalGPModel.calculate_probs(self, fmean, fvar)
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None):
