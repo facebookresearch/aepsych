@@ -188,5 +188,21 @@ class AEPsychClient:
         }
         self._send_recv(request)
 
+
+    def query(
+        self,
+        query_type: str=None,
+        probability_space: bool=None,
+        x: Any=None,
+        y: Any=None,
+        constraints: Dict[float, Any]=None,
+    ) -> None:
+
+        request = {
+            "type": "query",
+            "message": {"query_type": query_type, "probability_space": probability_space, "x": x, "y":y, "constraints":constraints },
+        }
+        self._send_recv(request)
+
     def __del___(self):
         self.finalize()
