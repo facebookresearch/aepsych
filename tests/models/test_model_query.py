@@ -41,6 +41,13 @@ class TestModelQuery(unittest.TestCase):
         self.assertGreater(mymax, 0.9)
         self.assertTrue(0.2 < my_argmax < 0.3)
 
+    def test_inverse_query(self):
+        bounds = torch.tensor([[0.1], [0.9]])
+        val, arg = self.model.inv_query(0.0, bounds)
+        # Don't need to be precise since we're working with small data.
+        self.assertTrue(-0.01 < val < 0.01)
+        self.assertTrue(0.45 < arg < 0.55)
+
 
 if __name__ == "__main__":
     unittest.main()
