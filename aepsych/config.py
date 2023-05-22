@@ -372,4 +372,5 @@ class ConfigurableMixin(abc.ABC):
 Config.register_module(gpytorch.likelihoods)
 Config.register_module(gpytorch.kernels)
 Config.register_module(botorch.acquisition)
+Config.register_module(botorch.models.transforms)
 Config.registered_names["None"] = None

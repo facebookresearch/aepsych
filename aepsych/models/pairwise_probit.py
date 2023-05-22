@@ -62,13 +62,14 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         dim: Optional[int] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         max_fit_time: Optional[float] = None,
+        data_transform=None,
     ):
         self.lb, self.ub, dim = _process_bounds(lb, ub, dim)
 
         self.max_fit_time = max_fit_time
 
         bounds = torch.stack((self.lb, self.ub))
-        input_transform = Normalize(d=dim, bounds=bounds)
+        data_transform = data_transform or Normalize(d=dim, bounds=bounds)
         if covar_module is None:
             config = Config(
                 config_dict={
@@ -85,7 +86,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             comparisons=None,
             covar_module=covar_module,
             jitter=1e-3,
-            input_transform=input_transform,
+            input_transform=data_transform,
         )
 
         self.dim = dim  # The Pairwise constructor sets self.dim = None.

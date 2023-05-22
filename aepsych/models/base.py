@@ -333,8 +333,11 @@ class AEPsychMixin(GPyTorchModel):
             self.train_targets = targets
 
     def normalize_inputs(self, x):
-        scale = self.ub - self.lb
-        return (x - self.lb) / scale
+        if hasattr(self, "data_transform") and self.data_transform is not None: 
+            return self.data_transform(x)
+        else: 
+            scale = self.ub - self.lb
+            return (x - self.lb) / scale
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
         """Evaluate GP
