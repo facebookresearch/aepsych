@@ -13,6 +13,7 @@ import uuid
 import torch
 from unittest.mock import MagicMock, patch, PropertyMock
 
+
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
@@ -63,6 +64,8 @@ class ServerTestCase(unittest.TestCase):
         # random datebase path name without dashes
         database_path = "./{}_test_server.db".format(str(uuid.uuid4().hex))
         self.s = server.AEPsychServer(socket=socket, database_path=database_path)
+        self.db_name = database_path.split("/")[1]
+        self.db_path = database_path
 
     def tearDown(self):
         self.s.cleanup()
@@ -291,6 +294,20 @@ class ServerTestCase(unittest.TestCase):
         self.assertTrue((out_df.e2 == [2] * 4).all())
         self.assertTrue("post_mean" in out_df.columns)
         self.assertTrue("post_var" in out_df.columns)
+
+    def test_handle_info(self):
+        """Tests that handle_info calls info and returns the correct result"""
+
+        self.s.info = MagicMock(return_value=True)
+
+        info_request = {
+            "type": "info"
+        }
+
+        result = self.s.handle_info(info_request)
+        self.s.info.assert_called_once()
+        self.assertTrue(result)
+
 
     def test_receive(self):
         """test_receive - verifies the receive is working when server receives unexpected messages"""

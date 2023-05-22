@@ -11,7 +11,7 @@ import unittest
 import uuid
 
 import torch
-from aepsych.acquisition import MCLevelSetEstimation
+from aepsych.acquisition import EAVC, MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import FloorGumbelObjective, ProbitObjective
 from aepsych.config import Config
@@ -149,19 +149,11 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
-        self.assertTrue(strat.strat_list[1].generator.acqf is MCLevelSetEstimation)
+        self.assertTrue(strat.strat_list[1].generator.acqf is EAVC)
         self.assertTrue(
-            set(strat.strat_list[1].generator.acqf_kwargs.keys())
-            == {"beta", "target", "objective"}
+            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"target"}
         )
         self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
-        self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["beta"] == 3.84)
-        self.assertTrue(
-            isinstance(
-                strat.strat_list[1].generator.acqf_kwargs["objective"],
-                ProbitObjective,
-            )
-        )
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
         self.assertTrue(strat.strat_list[0].min_asks == 10)
         self.assertTrue(strat.strat_list[0].stimuli_per_trial == 1)

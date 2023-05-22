@@ -6,8 +6,9 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
+import abc
+
 import time
-from abc import ABC
 from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 
 import gpytorch
@@ -17,7 +18,7 @@ import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.utils import get_extremum
-from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol
+from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
@@ -382,8 +383,43 @@ class AEPsychMixin(GPyTorchModel):
         return norm.cdf((f_thresh - f.detach().numpy()) / var.sqrt().detach().numpy())
 
 
-class AEPsychModel(ConfigurableMixin, ABC):
+class AEPsychModel(ConfigurableMixin, abc.ABC):
     extremum_solver = "Nelder-Mead"
+    outcome_type: Optional[str] = None
+
+    def predict(
+        self: GPyTorchModel, x: Union[torch.Tensor, np.ndarray]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance.
+
+        Args:
+            x (Union[torch.Tensor, np.ndarray]): Points at which to predict from the model.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queried points.
+        """
+        with torch.no_grad():
+            post = self.posterior(x)
+        fmean = post.mean.squeeze()
+        fvar = post.variance.squeeze()
+        return promote_0d(fmean), promote_0d(fvar)
+
+    def predict_probability(self: GPyTorchModel, x: Union[torch.Tensor, np.ndarray]):
+        raise NotImplementedError
+
+    def sample(
+        self: GPyTorchModel, x: Union[torch.Tensor, np.ndarray], n: int
+    ) -> torch.Tensor:
+        """Sample the model posterior at the given points.
+
+        Args:
+            x (Union[torch.Tensor, np.ndarray]): Points at which to sample from the model.
+            n (int): Number of samples to take at each point.
+
+        Returns:
+            torch.Tensor: Posterior samples at queried points. Shape is n x len(x) x number of outcomes.
+        """
+        return self.posterior(x).sample(torch.Size([n]))
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
@@ -435,7 +471,7 @@ class AEPsychModel(ConfigurableMixin, ABC):
         return inputs
 
     def get_max(
-        self: ModelProtocol,
+        self,
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         n_samples: int = 1000,
@@ -454,7 +490,7 @@ class AEPsychModel(ConfigurableMixin, ABC):
         return get_extremum(self, "max", bounds, locked_dims, n_samples)
 
     def get_min(
-        self: ModelProtocol,
+        self,
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         n_samples: int = 1000,
@@ -472,7 +508,7 @@ class AEPsychModel(ConfigurableMixin, ABC):
         return get_extremum(self, "min", bounds, locked_dims, n_samples)
 
     def inv_query(
-        self: ModelProtocol,
+        self,
         y: float,
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
@@ -497,16 +533,15 @@ class AEPsychModel(ConfigurableMixin, ABC):
             assert (
                 self.outcome_type == "binary" or self.outcome_type is None
             ), f"Cannot get probability space for outcome_type '{self.outcome_type}'"
+            pred_function = self.predict_probability
+
+        else:
+            pred_function = self.predict
 
         locked_dims = locked_dims or {}
 
         def model_distance(x, pt, probability_space):
-            return np.abs(
-                self.predict(torch.tensor([x]), probability_space=probability_space)[0]
-                .detach()
-                .numpy()
-                - pt
-            )
+            return np.abs(pred_function(torch.tensor([x]))[0].detach().numpy() - pt)
 
         # Look for point with value closest to y, subject the dict of locked dims
 
@@ -526,7 +561,7 @@ class AEPsychModel(ConfigurableMixin, ABC):
 
         opt_bounds = zip(query_lb.numpy(), query_ub.numpy())
 
-        fmean, _ = self.predict(d, probability_space=probability_space)
+        fmean, _ = pred_function(d)
 
         f = torch.abs(fmean - y)
         estimate = d[torch.where(f == torch.min(f))[0][0]].numpy()
@@ -537,7 +572,14 @@ class AEPsychModel(ConfigurableMixin, ABC):
             method=self.extremum_solver,
             bounds=opt_bounds,
         )
-        val = self.predict(torch.tensor([a.x]), probability_space=probability_space)[
-            0
-        ].item()
+        val = pred_function(torch.tensor([a.x]))[0].item()
         return val, torch.Tensor(a.x)
+
+    @abc.abstractmethod
+    def get_mll_class(self):
+        raise NotImplementedError
+
+    def fit(self):
+        mll_class = self.get_mll_class()
+        mll = mll_class(self.likelihood, self)
+        fit_gpytorch_mll(mll)

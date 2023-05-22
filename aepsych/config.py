@@ -119,12 +119,12 @@ class Config(configparser.ConfigParser):
         return _dict
 
     # Turn the metadata section into JSON.
-    def jsonifyMetadata(self):
+    def jsonifyMetadata(self) -> str:
         configdict = self.to_dict()
         return json.dumps(configdict["metadata"])
 
     # Turn the entire config into JSON format.
-    def jsonifyAll(self):
+    def jsonifyAll(self) -> str:
         configdict = self.to_dict()
         return json.dumps(configdict)
 

@@ -13,6 +13,7 @@ import sys
 import threading
 import traceback
 import warnings
+
 import dill
 import numpy as np
 import pandas as pd
@@ -39,6 +40,7 @@ DEFAULT_NAME = "default name"
 
 
 def get_next_filename(folder, fname, ext):
+    """Generates appropriate filename for logging purposes."""
     n = sum(1 for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)))
     return f"{folder}/{fname}_{n+1}.{ext}"
 
@@ -62,6 +64,7 @@ class AEPsychServer(object):
         self._db_raw_record = None
         self.db = db.Database(database_path)
         self.skip_computations = False
+        self.strat_names = None
 
         if self.db.is_update_required():
             self.db.perform_updates()
@@ -82,9 +85,22 @@ class AEPsychServer(object):
         self.queue = []
 
     def cleanup(self):
+        """Close the socket and terminate connection to the server.
+
+        Returns:
+            None
+        """
         self.socket.close()
 
-    def _receive_send(self, is_exiting):
+    def _receive_send(self, is_exiting: bool) -> None:
+        """Receive messages from the client.
+
+        Args:
+            is_exiting (bool): True to terminate reception of new messages from the client, False otherwise.
+
+        Returns:
+            None
+        """
         while True:
             request = self.socket.receive(is_exiting)
             if request != BAD_REQUEST:
@@ -93,7 +109,12 @@ class AEPsychServer(object):
                 break
         logger.info("Terminated input thread")
 
-    def _handle_queue(self):
+    def _handle_queue(self) -> None:
+        """Handles the queue of messages received by the server.
+
+        Returns:
+            None
+        """
         if self.queue:
             request = self.queue.pop(0)
             try:
@@ -108,17 +129,22 @@ class AEPsychServer(object):
             if self.can_pregen_ask and (len(self._pregen_asks) == 0):
                 self._pregen_asks.append(ask(self))
 
-    def serve(self):
+    def serve(self) -> None:
         """Run the server. Note that all configuration outside of socket type and port
         happens via messages from the client. The server simply forwards messages from
         the client to its `setup`, `ask` and `tell` methods, and responds with either
         acknowledgment or other response as needed. To understand the server API, see
         the docs on the methods in this class.
+
+        Returns:
+            None
+
         Raises:
             RuntimeError: if a request from a client has no request type
             RuntimeError: if a request from a client has no known request type
             TODO make things a little more robust to bad messages from client; this
              requires resetting the req/rep queue status.
+
         """
         logger.info("Server up, waiting for connections!")
         logger.info("Ctrl-C to quit!")
@@ -156,8 +182,11 @@ class AEPsychServer(object):
         return strat
 
     def generate_experiment_table(
-        self, experiment_id, table_name="experiment_table", return_df=False
-    ):
+        self,
+        experiment_id: str,
+        table_name: str = "experiment_table",
+        return_df: bool = False,
+    ) -> Optional[pd.DataFrame]:
         """Generate a table of a given experiment with all the raw data.
 
         This table is generated from the database, and is added to the
@@ -208,9 +237,12 @@ class AEPsychServer(object):
 
         if return_df:
             return df
+        else:
+            return None
 
-    def versioned_handler(self, request):
+    def versioned_handler(self, request: Dict[str, Any]):
         handled_types = ["setup", "resume", "ask"]
+        ret_val: Any = None  # to make mypy happy
         if request["type"] == "setup":
             if request["version"] == "0.01":
                 ret_val = handle_setup_v01(self, request)
@@ -265,6 +297,7 @@ class AEPsychServer(object):
             "get_config": handle_get_config,
             "finish_strategy": self.handle_finish_strategy,
             "strategy_name": self.handle_strategy_name,
+            "info": self.handle_info,
         }
 
         if "type" not in request.keys():
@@ -287,6 +320,7 @@ class AEPsychServer(object):
 
                 raise RuntimeError(exception_message)
 
+                
     def handle_update(self, request):
         # update is syntactic sugar for tell, then ask
         logger.debug("got update message!")
@@ -336,6 +370,56 @@ class AEPsychServer(object):
 
     def handle_strategy_name(self, request):
         return self.strat.name
+
+    def handle_info(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """Handles info message from the client.
+
+        Args:
+            request (Dict[str, Any]): The info message from the client
+
+        Returns:
+            Dict[str, Any]: Returns dictionary containing the current state of the experiment
+        """
+        logger.debug("got info message!")
+
+        ret_val = self.info()
+
+        return ret_val
+
+    def info(self) -> Dict[str, Any]:
+        """Returns details about the current state of the server and experiments
+
+        Returns:
+            Dict: Dict containing server and experiment details
+        """
+        current_strat_model = (
+            self.config.get(self.strat.name, "model", fallback="model not set")
+            if self.config and ("model" in self.config.get_section(self.strat.name))
+            else "model not set"
+        )
+        current_strat_acqf = (
+            self.config.get(self.strat.name, "acqf", fallback="acqf not set")
+            if self.config and ("acqf" in self.config.get_section(self.strat.name))
+            else "acqf not set"
+        )
+
+        response = {
+            "db_name": self.db._db_name,
+            "exp_id": self._db_master_record.experiment_id,
+            "strat_count": self.n_strats,
+            "all_strat_names": self.strat_names,
+            "current_strat_index": self.strat_id,
+            "current_strat_name": self.strat.name,
+            "current_strat_data_pts": self.strat.x.shape[0]
+            if self.strat.x is not None
+            else 0,
+            "current_strat_model": current_strat_model,
+            "current_strat_acqf": current_strat_acqf,
+            "current_strat_finished": self.strat.finished,
+        }
+
+        logger.debug(f"Current state of server: {response}")
+        return response
 
     ### Properties that are set on a per-strat basis
     @property

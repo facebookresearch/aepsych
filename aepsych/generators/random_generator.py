@@ -5,14 +5,15 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Union
+from typing import Dict, Optional, Union
 
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds
+from ax.modelbridge import Models
 
 
 class RandomGenerator(AEPsychGenerator):
@@ -40,7 +41,7 @@ class RandomGenerator(AEPsychGenerator):
         self,
         num_points: int = 1,
         model: Optional[AEPsychMixin] = None,  # included for API compatibility.
-    ) -> np.ndarray:
+    ) -> torch.Tensor:
         """Query next point(s) to run by randomly sampling the parameter space.
         Args:
             num_points (int, optional): Number of points to query. Currently, only 1 point can be queried at a time.
@@ -50,7 +51,7 @@ class RandomGenerator(AEPsychGenerator):
         X = self.bounds_[0] + torch.rand((num_points, self.bounds_.shape[1])) * (
             self.bounds_[1] - self.bounds_[0]
         )
-        return X.numpy()
+        return X
 
     @classmethod
     def from_config(cls, config: Config):
@@ -59,3 +60,21 @@ class RandomGenerator(AEPsychGenerator):
         ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
         return cls(lb=lb, ub=ub, dim=dim)
+
+
+class AxRandomGenerator(AEPsychGenerationStep):
+    classname = "RandomGenerator"
+    model = Models.UNIFORM
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: str) -> Dict:
+        seed = config.getint(cls.classname, "seed", fallback=None)
+        deduplicate = config.getboolean(cls.classname, "deduplicate", fallback=True)
+        opts = {
+            "model": cls.model,
+            "model_kwargs": {"seed": seed, "deduplicate": deduplicate},
+        }
+
+        opts.update(super().get_config_options(config, name))
+
+        return opts
