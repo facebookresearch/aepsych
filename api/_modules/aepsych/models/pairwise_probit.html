@@ -47,7 +47,7 @@
     <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"binary"</span>
 
     <span class="k">def</span> <span class="nf">_pairs_to_comparisons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="sd">"""</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Takes x, y structured as pairs and judgments and</span>
 <span class="sd">        returns pairs and comparisons as PairwiseGP requires</span>
 <span class="sd">        """</span>
@@ -139,7 +139,7 @@
 <div class="viewcode-block" id="PairwiseProbitModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">warmstart</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">):</span>
-        <span class="sd">"""Perform a warm-start update of the model from previous fit."""</span>
+<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PairwiseProbitModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>

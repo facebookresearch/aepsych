@@ -47,10 +47,10 @@
 
 
 <div class="viewcode-block" id="PathosBenchmark"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">[docs]</a><span class="k">class</span> <span class="nc">PathosBenchmark</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">):</span>
-    <span class="sd">"""Benchmarking class for parallelized benchmarks using pathos"""</span>
+<span class="w">    </span><span class="sd">"""Benchmarking class for parallelized benchmarks using pathos"""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nproc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">"""Initialize pathos benchmark.</span>
+<span class="w">        </span><span class="sd">"""Initialize pathos benchmark.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            nproc (int, optional): Number of cores to use. Defaults to 1.</span>
@@ -96,7 +96,7 @@
         <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">rep</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">Union</span><span class="p">[</span><span class="n">SequentialStrategy</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-        <span class="sd">"""Run one simulated experiment.</span>
+<span class="w">        </span><span class="sd">"""Run one simulated experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            config_dict (Dict[str, Any]): AEPsych configuration to use.</span>
@@ -131,7 +131,7 @@
         <span class="k">return</span> <span class="n">self_dict</span>
 
 <div class="viewcode-block" id="PathosBenchmark.run_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">run_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""Run all the benchmarks,</span>
+<span class="w">        </span><span class="sd">"""Run all the benchmarks,</span>
 
 <span class="sd">        Note that this blocks while waiting for benchmarks to complete. If you</span>
 <span class="sd">        would like to start benchmarks and periodically collect partial results,</span>
@@ -142,7 +142,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">collate_benchmarks</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PathosBenchmark.start_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">start_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""Start benchmark run.</span>
+<span class="w">        </span><span class="sd">"""Start benchmark run.</span>
 
 <span class="sd">        This does not block: after running it, self.futures holds the</span>
 <span class="sd">        status of benchmarks running in parallel.</span>
@@ -165,7 +165,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">"""Check if the benchmark is done.</span>
+<span class="w">        </span><span class="sd">"""Check if the benchmark is done.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            bool: True if all futures are cleared and benchmark is done.</span>
@@ -173,7 +173,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">futures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="PathosBenchmark.collate_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.collate_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">collate_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Collect benchmark results from completed futures.</span>
+<span class="w">        </span><span class="sd">"""Collect benchmark results from completed futures.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            wait (bool, optional): If true, this method blocks and waits</span>
@@ -207,7 +207,7 @@
     <span class="n">n_proc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">serial_debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">"""Runs a series of benchmarks, saving both final and intermediate results to .csv files. Benchmarks are run in</span>
+<span class="w">    </span><span class="sd">"""Runs a series of benchmarks, saving both final and intermediate results to .csv files. Benchmarks are run in</span>
 <span class="sd">    sequential chunks, each of which runs all combinations of problems/configs/reps in parallel. This function should</span>
 <span class="sd">    always be used using the "if __name__ == '__main__': ..." idiom.</span>
 

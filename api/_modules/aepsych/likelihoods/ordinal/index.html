@@ -16,7 +16,14 @@
 <div class="bodywrapper">
 <div class="body" role="main">
 <h1>Source code for aepsych.likelihoods.ordinal</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -25,7 +32,7 @@
 
 
 <div class="viewcode-block" id="OrdinalLikelihood"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood">[docs]</a><span class="k">class</span> <span class="nc">OrdinalLikelihood</span><span class="p">(</span><span class="n">Likelihood</span><span class="p">):</span>
-    <span class="sd">"""</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Ordinal likelihood, suitable for rating models (e.g. likert scales). Formally,</span>
 <span class="sd">    .. math:: z_k(x\\mid f) := p(d_k &lt; f(x) \\le d_{k+1}) = \\sigma(d_{k+1}-f(x)) - \\sigma(d_{k}-f(x)),</span>
 <span class="sd">    where :math:`\\sigma()` is the link function (equivalent to the perceptual noise</span>

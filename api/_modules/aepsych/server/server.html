@@ -31,6 +31,8 @@
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">IO</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">aepsych.database.db</span> <span class="k">as</span> <span class="nn">db</span>
 <span class="kn">import</span> <span class="nn">aepsych.utils_logging</span> <span class="k">as</span> <span class="nn">utils_logging</span>
@@ -40,7 +42,7 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.server.sockets</span> <span class="kn">import</span> <span class="n">BAD_REQUEST</span><span class="p">,</span> <span class="n">createSocket</span><span class="p">,</span> <span class="n">DummySocket</span>
-<span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">SequentialStrategy</span>
+<span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">AEPsychStrategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span>
 <span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -49,13 +51,14 @@
 
 
 <div class="viewcode-block" id="get_next_filename"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.get_next_filename">[docs]</a><span class="k">def</span> <span class="nf">get_next_filename</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Generates appropriate filename for logging purposes."""</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">f</span><span class="p">)))</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 <div class="viewcode-block" id="AEPsychServer"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer">[docs]</a><span class="k">class</span> <span class="nc">AEPsychServer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thrift</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">"""Server for doing black box optimization using gaussian processes.</span>
+<span class="w">        </span><span class="sd">"""Server for doing black box optimization using gaussian processes.</span>
 <span class="sd">        Keyword Arguments:</span>
 <span class="sd">            socket -- socket object that implements `send` and `receive` for json</span>
 <span class="sd">            messages (default: DummySocket()).</span>
@@ -72,16 +75,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_db_raw_record</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Database</span><span class="p">(</span><span class="n">database_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_computations</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat_names</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">is_update_required</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'The database needs to be updated. You can perform the update by running "python3 aepsych/server/server.py database --update --d </span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s1">"'</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">perform_updates</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_strats</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parnames</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_configs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_pregen</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_using_thrift</span> <span class="o">=</span> <span class="n">thrift</span>
@@ -92,9 +96,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="AEPsychServer.cleanup"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Close the socket and terminate connection to the server.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">_receive_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_exiting</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_receive_send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_exiting</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Receive messages from the client.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            is_exiting (bool): True to terminate reception of new messages from the client, False otherwise.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        """</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">receive</span><span class="p">(</span><span class="n">is_exiting</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">request</span> <span class="o">!=</span> <span class="n">BAD_REQUEST</span><span class="p">:</span>
@@ -103,7 +120,12 @@
                 <span class="k">break</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Terminated input thread"</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_handle_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_handle_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Handles the queue of messages received by the server.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">:</span>
             <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
@@ -114,18 +136,26 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">! Full traceback follows:"</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_pregen_ask</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ask</span><span class="p">())</span>
 
-<div class="viewcode-block" id="AEPsychServer.serve"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.serve">[docs]</a>    <span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""Run the server. Note that all configuration outside of socket type and port</span>
+<div class="viewcode-block" id="AEPsychServer.serve"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.serve">[docs]</a>    <span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Run the server. Note that all configuration outside of socket type and port</span>
 <span class="sd">        happens via messages from the client. The server simply forwards messages from</span>
 <span class="sd">        the client to its `setup`, `ask` and `tell` methods, and responds with either</span>
 <span class="sd">        acknowledgment or other response as needed. To understand the server API, see</span>
 <span class="sd">        the docs on the methods in this class.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: if a request from a client has no request type</span>
 <span class="sd">            RuntimeError: if a request from a client has no known request type</span>
 <span class="sd">            TODO make things a little more robust to bad messages from client; this</span>
 <span class="sd">             requires resetting the req/rep queue status.</span>
+
 <span class="sd">        """</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Server up, waiting for connections!"</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Ctrl-C to quit!"</span><span class="p">)</span>
@@ -147,10 +177,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.replay">[docs]</a>    <span class="k">def</span> <span class="nf">replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid_to_replay</span><span class="p">,</span> <span class="n">skip_computations</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">"""</span>
-<span class="sd">        Run a replay against the server. The UUID will be looked up in the database.</span>
-<span class="sd">        if skip_computations is true, skip all the asks and queries, which should make the replay much faster.</span>
+<div class="viewcode-block" id="AEPsychServer.replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.replay">[docs]</a>    <span class="k">def</span> <span class="nf">replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid_to_replay</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">skip_computations</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Run a replay against the server. This allows you to recover previous experiment state and re-fit models</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            uuid_to_replay (str): The UUID will be looked up in the database.</span>
+<span class="sd">            skip_computations (bool): True will skip all the asks and queries, which should make the replay much faster.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: if the UUID is not given or it is not in the database, or if the database is not set.</span>
+
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">uuid_to_replay</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"UUID is a required parameter to perform a replay"</span><span class="p">)</span>
@@ -183,7 +222,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skip_computations</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span> <span class="nf">_unpack_strat_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat_buffer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_unpack_strat_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat_buffer</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Loads a strategy data buffer into an object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            strat_buffer (io.BytesIO): The strategy data buffer.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            IO: The strategy object.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the buffer is in an unknown format.</span>
+<span class="sd">        """</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strat_buffer</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">):</span>
             <span class="n">strat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">strat_buffer</span><span class="p">,</span> <span class="n">pickle_module</span><span class="o">=</span><span class="n">dill</span><span class="p">)</span>
             <span class="n">strat_buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -198,7 +249,20 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Trying to load strat in unknown format!"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">strat</span>
 
-<div class="viewcode-block" id="AEPsychServer.get_strats_from_replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.get_strats_from_replay">[docs]</a>    <span class="k">def</span> <span class="nf">get_strats_from_replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_replay</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.get_strats_from_replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.get_strats_from_replay">[docs]</a>    <span class="k">def</span> <span class="nf">get_strats_from_replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_replay</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Returns all the strategies from a replay.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            uuid_of_replay (str, default=None): The UUID of the replay.</span>
+<span class="sd">            force_replay (bool, default=False): True will force a replay on the server, False will get the strategies from the database.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: A list of strategies.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the server has no experiment records.</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">uuid_of_replay</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_master_records</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -221,7 +285,20 @@
             <span class="n">strat_buffers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_strats_for</span><span class="p">(</span><span class="n">uuid_of_replay</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unpack_strat_buffer</span><span class="p">(</span><span class="n">sb</span><span class="p">)</span> <span class="k">for</span> <span class="n">sb</span> <span class="ow">in</span> <span class="n">strat_buffers</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.get_strat_from_replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.get_strat_from_replay">[docs]</a>    <span class="k">def</span> <span class="nf">get_strat_from_replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strat_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.get_strat_from_replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.get_strat_from_replay">[docs]</a>    <span class="k">def</span> <span class="nf">get_strat_from_replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strat_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Returns a strategy from a replay.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            uuid_of_replay (str, default=None): The UUID of the replay.</span>
+<span class="sd">            strat_id (int, default=-1): The position of the strategy to return from the replay. Uses zero-based indexing.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            object (aepsych.strategy): The strategy object.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the server has no experiment records.</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">uuid_of_replay</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_master_records</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -248,7 +325,15 @@
                 <span class="n">strat</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">strat</span></div>
 
-    <span class="k">def</span> <span class="nf">_flatten_tell_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_flatten_tell_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Flattens a tell record into a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rec (str): Nested json for each experiment record</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict</span>
+<span class="sd">        """</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">out</span><span class="p">[</span><span class="s2">"response"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">message_contents</span><span class="p">[</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"outcome"</span><span class="p">])</span>
 
@@ -263,7 +348,21 @@
 
         <span class="k">return</span> <span class="n">out</span>
 
-<div class="viewcode-block" id="AEPsychServer.get_dataframe_from_replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.get_dataframe_from_replay">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataframe_from_replay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_replay</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.get_dataframe_from_replay"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.get_dataframe_from_replay">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataframe_from_replay</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_replay</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Returns a dataframe of all the tell records from a replay.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            uuid_of_replay (str, optional): experiment_id to get tell records from. Defaults to None.</span>
+<span class="sd">            force_replay (bool, optional): Force replay of entire experiment. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.DataFrame: A dataframe of all the tell records from an experiment.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the server has no experiment records.</span>
+<span class="sd">        """</span>
         <span class="c1"># DeprecationWarning</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">"get_dataframe_from_replay is deprecated."</span>
@@ -325,9 +424,12 @@
         <span class="k">return</span> <span class="n">out</span></div>
 
 <div class="viewcode-block" id="AEPsychServer.generate_experiment_table"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.generate_experiment_table">[docs]</a>    <span class="k">def</span> <span class="nf">generate_experiment_table</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">"experiment_table"</span><span class="p">,</span> <span class="n">return_df</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">):</span>
-        <span class="sd">"""Generate a table of a given experiment with all the raw data.</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"experiment_table"</span><span class="p">,</span>
+        <span class="n">return_df</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Generate a table of a given experiment with all the raw data.</span>
 
 <span class="sd">        This table is generated from the database, and is added to the</span>
 <span class="sd">        experiment's database.</span>
@@ -376,10 +478,13 @@
         <span class="n">df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_engine</span><span class="p">(),</span> <span class="n">if_exists</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">return_df</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">df</span></div>
+            <span class="k">return</span> <span class="n">df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.versioned_handler"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.versioned_handler">[docs]</a>    <span class="k">def</span> <span class="nf">versioned_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.versioned_handler"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.versioned_handler">[docs]</a>    <span class="k">def</span> <span class="nf">versioned_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="n">handled_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"setup"</span><span class="p">,</span> <span class="s2">"resume"</span><span class="p">,</span> <span class="s2">"ask"</span><span class="p">]</span>
+        <span class="n">ret_val</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># to make mypy happy</span>
         <span class="k">if</span> <span class="n">request</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"setup"</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">request</span><span class="p">[</span><span class="s2">"version"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"0.01"</span><span class="p">:</span>
                 <span class="n">ret_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_setup_v01</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
@@ -411,7 +516,59 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ret_val</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.handle_setup_v01"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_setup_v01">[docs]</a>    <span class="k">def</span> <span class="nf">handle_setup_v01</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.handle_setup_v01"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_setup_v01">[docs]</a>    <span class="k">def</span> <span class="nf">handle_setup_v01</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Handle a setup message from the client.  Setup messages provide a config that specifies all of the</span>
+<span class="sd">        configuration options for an experiment. This method reads those options, records them in the database,</span>
+<span class="sd">        and instantiates the appropriate server objects.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Dict[str, Any]): The setup message from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The index of the experiment in the database.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the setup message doesn't contain a configure message key.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; from aepsych.server import AEPsychServer</span>
+<span class="sd">            &gt;&gt;&gt; dummy_config = '''</span>
+<span class="sd">                                [common]</span>
+<span class="sd">                                lb = [0]</span>
+<span class="sd">                                ub = [1]</span>
+<span class="sd">                                parnames = [x]</span>
+<span class="sd">                                stimuli_per_trial = 1</span>
+<span class="sd">                                outcome_types = [binary]</span>
+<span class="sd">                                strategy_names = [init_strat, opt_strat]</span>
+
+<span class="sd">                                [init_strat]</span>
+<span class="sd">                                min_asks = 2</span>
+<span class="sd">                                generator = SobolGenerator</span>
+<span class="sd">                                min_total_outcome_occurrences = 0</span>
+
+<span class="sd">                                [opt_strat]</span>
+<span class="sd">                                min_asks = 2</span>
+<span class="sd">                                generator = OptimizeAcqfGenerator</span>
+<span class="sd">                                acqf = MCPosteriorVariance</span>
+<span class="sd">                                model = GPClassificationModel</span>
+<span class="sd">                                min_total_outcome_occurrences = 0</span>
+
+<span class="sd">                                [GPClassificationModel]</span>
+<span class="sd">                                inducing_size = 10</span>
+<span class="sd">                                mean_covar_factory = default_mean_covar_factory</span>
+
+<span class="sd">                                [SobolGenerator]</span>
+<span class="sd">                                n_points = 2</span>
+<span class="sd">                            '''</span>
+<span class="sd">            &gt;&gt;&gt; setup_request = {</span>
+<span class="sd">                                    "type": "setup",</span>
+<span class="sd">                                    "version": "0.01",</span>
+<span class="sd">                                    "message": {"config_str": dummy_config},</span>
+<span class="sd">                                }</span>
+<span class="sd">            &gt;&gt;&gt; server = AEPsychServer()</span>
+<span class="sd">            &gt;&gt;&gt; server.versioned_handler(setup_request)</span>
+
+<span class="sd">        """</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got setup message!"</span><span class="p">)</span>
         <span class="c1">### make a temporary config object to derive parameters because server handles config after table</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -461,7 +618,7 @@
 
         <span class="k">return</span> <span class="n">strat_id</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.handle_resume_v01"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_resume_v01">[docs]</a>    <span class="k">def</span> <span class="nf">handle_resume_v01</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.handle_resume_v01"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_resume_v01">[docs]</a>    <span class="k">def</span> <span class="nf">handle_resume_v01</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got resume message!"</span><span class="p">)</span>
         <span class="n">strat_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="p">[</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"strat_id"</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="n">strat_id</span>
@@ -471,20 +628,91 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.handle_ask_v01"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_ask_v01">[docs]</a>    <span class="k">def</span> <span class="nf">handle_ask_v01</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-        <span class="sd">"""Returns dictionary with two entries:</span>
-<span class="sd">        "config" -- dictionary with config (keys are strings, values are floats)</span>
-<span class="sd">        "is_finished" -- bool, true if the strat is finished</span>
+<div class="viewcode-block" id="AEPsychServer.handle_ask_v01"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_ask_v01">[docs]</a>    <span class="k">def</span> <span class="nf">handle_ask_v01</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Returns dictionary with a configuration to try on the client.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Dict[str, Any]): The ask message from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            config (Dict): dictionary with config (keys are strings, values are floats)</span>
+<span class="sd">            is_finished (bool): true if the strat is finished</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; from aepsych.server import AEPsychServer</span>
+<span class="sd">            &gt;&gt;&gt; dummy_config = '''</span>
+<span class="sd">                                [common]</span>
+<span class="sd">                                lb = [0]</span>
+<span class="sd">                                ub = [1]</span>
+<span class="sd">                                parnames = [x]</span>
+<span class="sd">                                stimuli_per_trial = 1</span>
+<span class="sd">                                outcome_types = [binary]</span>
+<span class="sd">                                strategy_names = [init_strat, opt_strat]</span>
+
+<span class="sd">                                [init_strat]</span>
+<span class="sd">                                min_asks = 2</span>
+<span class="sd">                                generator = SobolGenerator</span>
+<span class="sd">                                min_total_outcome_occurrences = 0</span>
+
+<span class="sd">                                [opt_strat]</span>
+<span class="sd">                                min_asks = 2</span>
+<span class="sd">                                generator = OptimizeAcqfGenerator</span>
+<span class="sd">                                acqf = MCPosteriorVariance</span>
+<span class="sd">                                model = GPClassificationModel</span>
+<span class="sd">                                min_total_outcome_occurrences = 0</span>
+
+<span class="sd">                                [GPClassificationModel]</span>
+<span class="sd">                                inducing_size = 10</span>
+<span class="sd">                                mean_covar_factory = default_mean_covar_factory</span>
+
+<span class="sd">                                [SobolGenerator]</span>
+<span class="sd">                                n_points = 2</span>
+<span class="sd">                            '''</span>
+<span class="sd">            &gt;&gt;&gt; setup_request = {</span>
+<span class="sd">                                    "type": "setup",</span>
+<span class="sd">                                    "version": "0.01",</span>
+<span class="sd">                                    "message": {"config_str": dummy_config},</span>
+<span class="sd">                                    "extra_info": None,</span>
+<span class="sd">                                }</span>
+<span class="sd">            &gt;&gt;&gt; ask_request = {</span>
+<span class="sd">                                      "type": "ask",</span>
+<span class="sd">                                      "version": "0.01",</span>
+<span class="sd">                                      "message": "",</span>
+<span class="sd">                                      "extra_info": None,</span>
+<span class="sd">                              }</span>
+<span class="sd">            &gt;&gt;&gt; server = AEPsychServer()</span>
+<span class="sd">            &gt;&gt;&gt; server.versioned_handler(setup_request)</span>
+<span class="sd">            &gt;&gt;&gt; server.versioned_handler(ask_request)</span>
+<span class="sd">            {"config": {"x": [0.5405369997024536]}, "is_finished": false}</span>
 <span class="sd">        """</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got ask message!"</span><span class="p">)</span>
-        <span class="n">new_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ask</span><span class="p">(),</span> <span class="s2">"is_finished"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">finished</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ask</span><span class="p">()</span>
+
+        <span class="n">new_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="n">params</span><span class="p">,</span> <span class="s2">"is_finished"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">finished</span><span class="p">}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_message</span><span class="p">(</span>
                 <span class="n">master_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">"ask"</span><span class="p">,</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">new_config</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.unversioned_handler"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.unversioned_handler">[docs]</a>    <span class="k">def</span> <span class="nf">unversioned_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.unversioned_handler"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.unversioned_handler">[docs]</a>    <span class="k">def</span> <span class="nf">unversioned_handler</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Default message handler for all messages from client. Returns the handler function to be used based on message type received.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Dict[str, Any]): The message from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[Callable]: Return the specific handler function to be used based on message type received</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the message type is invalid.</span>
+<span class="sd">            RuntimeError: If the message type is not specified.</span>
+<span class="sd">        """</span>
         <span class="n">message_map</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"setup"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_setup</span><span class="p">,</span>
             <span class="s2">"ask"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_ask</span><span class="p">,</span>
@@ -497,6 +725,7 @@
             <span class="s2">"get_config"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_get_config</span><span class="p">,</span>
             <span class="s2">"finish_strategy"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_finish_strategy</span><span class="p">,</span>
             <span class="s2">"strategy_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_strategy_name</span><span class="p">,</span>
+            <span class="s2">"info"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_info</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="s2">"type"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -515,7 +744,21 @@
 
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">exception_message</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.handle_setup"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_setup">[docs]</a>    <span class="k">def</span> <span class="nf">handle_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.handle_setup"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_setup">[docs]</a>    <span class="k">def</span> <span class="nf">handle_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Handle a setup message from the client. Setup messages provide a config that specifies all of the</span>
+<span class="sd">        configuration options for an experiment. This method reads those options, records them in the database,</span>
+<span class="sd">        and instantiates the appropriate server object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Dict[str, Any]): The setup message from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, float]: The new configuration to try</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the setup message doesn't contain a configure message key.</span>
+
+<span class="sd">        """</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got setup message!"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span><span class="p">:</span>
@@ -542,8 +785,20 @@
 
         <span class="k">return</span> <span class="n">new_config</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.handle_ask"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_ask">[docs]</a>    <span class="k">def</span> <span class="nf">handle_ask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.handle_ask"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_ask">[docs]</a>    <span class="k">def</span> <span class="nf">handle_ask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Handle an ask message from the client. Ask message provides a configuration to try on the client.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Dict[str, Any]): The ask message from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, float]: The new configuration to try.</span>
+<span class="sd">        """</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got ask message!"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
         <span class="n">new_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ask</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span><span class="p">:</span>
@@ -553,7 +808,68 @@
 
         <span class="k">return</span> <span class="n">new_config</span></div>
 
-<div class="viewcode-block" id="AEPsychServer.handle_tell"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_tell">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<div class="viewcode-block" id="AEPsychServer.handle_tell"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_tell">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Handle a tell message from the client. Tell message provides feedback to the server on the outcome of the previous tried ask configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Dict[str, Any]): The tell message from the client.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Returns "acq".</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; from aepsych.server import AEPsychServer</span>
+<span class="sd">            &gt;&gt;&gt; dummy_config = '''</span>
+<span class="sd">                                [common]</span>
+<span class="sd">                                lb = [0]</span>
+<span class="sd">                                ub = [1]</span>
+<span class="sd">                                parnames = [x]</span>
+<span class="sd">                                stimuli_per_trial = 1</span>
+<span class="sd">                                outcome_types = [binary]</span>
+<span class="sd">                                strategy_names = [init_strat, opt_strat]</span>
+
+<span class="sd">                                [init_strat]</span>
+<span class="sd">                                min_asks = 2</span>
+<span class="sd">                                generator = SobolGenerator</span>
+<span class="sd">                                min_total_outcome_occurrences = 0</span>
+
+<span class="sd">                                [opt_strat]</span>
+<span class="sd">                                min_asks = 2</span>
+<span class="sd">                                generator = OptimizeAcqfGenerator</span>
+<span class="sd">                                acqf = MCPosteriorVariance</span>
+<span class="sd">                                model = GPClassificationModel</span>
+<span class="sd">                                min_total_outcome_occurrences = 0</span>
+
+<span class="sd">                                [GPClassificationModel]</span>
+<span class="sd">                                inducing_size = 10</span>
+<span class="sd">                                mean_covar_factory = default_mean_covar_factory</span>
+
+<span class="sd">                                [SobolGenerator]</span>
+<span class="sd">                                n_points = 2</span>
+<span class="sd">                            '''</span>
+<span class="sd">            &gt;&gt;&gt; setup_request = {</span>
+<span class="sd">                                    "type": "setup",</span>
+<span class="sd">                                    "message": {"config_str": dummy_config},</span>
+<span class="sd">                                    "extra_info": None,</span>
+<span class="sd">                                }</span>
+<span class="sd">            &gt;&gt;&gt; ask_request = {</span>
+<span class="sd">                                    "type": "ask",</span>
+<span class="sd">                                    "message": "",</span>
+<span class="sd">                                    "extra_info": None,</span>
+<span class="sd">                              }</span>
+<span class="sd">            &gt;&gt;&gt; server = AEPsychServer()</span>
+<span class="sd">            &gt;&gt;&gt; server.unversioned_handler(setup_request)</span>
+<span class="sd">            &gt;&gt;&gt; server.unversioned_handler(ask_request)</span>
+<span class="sd">            {"config": {"x": [0.5405369997024536]}, "is_finished": false}</span>
+
+<span class="sd">            &gt;&gt;&gt; tell_request = {</span>
+<span class="sd">                                    "type": "tell",</span>
+<span class="sd">                                    "message": {"config": {"x": [0.5405369997024536]}, "outcome": 1.0}</span>
+<span class="sd">                                    "extra_info": {"responsTime": 0.146844864, "participantID: ""},</span>
+<span class="sd">                                }</span>
+<span class="sd">            &gt;&gt;&gt; server.unversioned_handler(tell_request)</span>
+<span class="sd">            "acq"</span>
+<span class="sd">        """</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got tell message!"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_performing_replay</span><span class="p">:</span>
@@ -707,6 +1023,56 @@
 <div class="viewcode-block" id="AEPsychServer.handle_strategy_name"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_strategy_name">[docs]</a>    <span class="k">def</span> <span class="nf">handle_strategy_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span></div>
 
+<div class="viewcode-block" id="AEPsychServer.handle_info"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.handle_info">[docs]</a>    <span class="k">def</span> <span class="nf">handle_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Handles info message from the client.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            request (Dict[str, Any]): The info message from the client</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Returns dictionary containing the current state of the experiment</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"got info message!"</span><span class="p">)</span>
+
+        <span class="n">ret_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">ret_val</span></div>
+
+<div class="viewcode-block" id="AEPsychServer.info"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.info">[docs]</a>    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Returns details about the current state of the server and experiments</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: Dict containing server and experiment details</span>
+<span class="sd">        """</span>
+        <span class="n">current_strat_model</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"model not set"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">"model"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">else</span> <span class="s2">"model not set"</span>
+        <span class="p">)</span>
+        <span class="n">current_strat_acqf</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"acqf not set"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">"acqf"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">else</span> <span class="s2">"acqf not set"</span>
+        <span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"db_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">_db_name</span><span class="p">,</span>
+            <span class="s2">"exp_id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_master_record</span><span class="o">.</span><span class="n">experiment_id</span><span class="p">,</span>
+            <span class="s2">"strat_count"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_strats</span><span class="p">,</span>
+            <span class="s2">"all_strat_names"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_names</span><span class="p">,</span>
+            <span class="s2">"current_strat_index"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span><span class="p">,</span>
+            <span class="s2">"current_strat_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"current_strat_data_pts"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">"current_strat_model"</span><span class="p">:</span> <span class="n">current_strat_model</span><span class="p">,</span>
+            <span class="s2">"current_strat_acqf"</span><span class="p">:</span> <span class="n">current_strat_acqf</span><span class="p">,</span>
+            <span class="s2">"current_strat_finished"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">finished</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Current state of server: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span></div>
+
     <span class="c1">### Properties that are set on a per-strat basis</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -745,8 +1111,12 @@
     <span class="k">def</span> <span class="nf">n_strats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_strats</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">can_pregen_ask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pregen</span>
+
 <div class="viewcode-block" id="AEPsychServer.ask"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.ask">[docs]</a>    <span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""get the next point to query from the model</span>
+<span class="w">        </span><span class="sd">"""get the next point to query from the model</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            dict -- new config dict (keys are strings, values are floats)</span>
 <span class="sd">        """</span>
@@ -757,10 +1127,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_make_next_strat</span><span class="p">()</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="c1"># index by [0] is temporary HACK while serverside</span>
-        <span class="c1"># doesn't handle batched ask</span>
-        <span class="n">next_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">gen</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensor_to_config</span><span class="p">(</span><span class="n">next_x</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ax</span><span class="p">:</span>
+            <span class="c1"># index by [0] is temporary HACK while serverside</span>
+            <span class="c1"># doesn't handle batched ask</span>
+            <span class="n">next_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">gen</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensor_to_config</span><span class="p">(</span><span class="n">next_x</span><span class="p">)</span>
+
+        <span class="n">next_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">gen</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">next_x</span></div>
 
     <span class="k">def</span> <span class="nf">_tensor_to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_x</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
@@ -782,7 +1156,7 @@
         <span class="k">return</span> <span class="n">x</span>
 
 <div class="viewcode-block" id="AEPsychServer.tell"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.tell">[docs]</a>    <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outcome</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">model_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">"""tell the model which input was run and what the outcome was</span>
+<span class="w">        </span><span class="sd">"""tell the model which input was run and what the outcome was</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            inputs {dict} -- dictionary, keys are strings, values are floats or int.</span>
 <span class="sd">            keys should inclde all of the parameters we are tuning over, plus 'outcome'</span>
@@ -796,31 +1170,50 @@
             <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_param</span><span class="p">(</span>
                             <span class="n">raw_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_raw_record</span><span class="p">,</span>
                             <span class="n">param_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_name</span><span class="p">),</span>
-                            <span class="n">param_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">param_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="n">param_value</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
                         <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">param_value</span><span class="p">):</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_param</span><span class="p">(</span>
                                 <span class="n">raw_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_raw_record</span><span class="p">,</span>
                                 <span class="n">param_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"_stimuli"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
-                                <span class="n">param_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+                                <span class="n">param_value</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
                             <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_param</span><span class="p">(</span>
                         <span class="n">raw_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_raw_record</span><span class="p">,</span>
                         <span class="n">param_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_name</span><span class="p">),</span>
-                        <span class="n">param_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">param_value</span><span class="p">),</span>
+                        <span class="n">param_value</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_value</span><span class="p">),</span>
                     <span class="p">)</span>
 
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">outcome</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">record_outcome</span><span class="p">(</span>
+                        <span class="n">raw_table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_db_raw_record</span><span class="p">,</span>
+                        <span class="n">outcome_name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                        <span class="n">outcome_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">outcome</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Check if we get single or multiple outcomes</span>
+            <span class="c1"># Multiple outcomes come in the form of iterables that aren't strings or single-element tensors</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">outcome_value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">outcome</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span>
+                    <span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="nb">isinstance</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="n">outcome_value</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span>
+                        <span class="p">):</span>
+                            <span class="n">outcome_value</span> <span class="o">=</span> <span class="n">outcome_value</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                             <span class="n">outcome_value</span> <span class="o">=</span> <span class="n">outcome_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -839,17 +1232,37 @@
                 <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">model_data</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_to_tensor</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">outcome</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ax</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_to_tensor</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">outcome</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_str_to_list</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pregen_asks</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[]</span>
+        <span class="p">)</span>  <span class="c1"># TODO: Allow each strategy to have its own stack of pre-generated asks</span>
+
+        <span class="n">parnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_str_to_list</span><span class="p">(</span>
             <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">),</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span>
         <span class="p">)</span>
+        <span class="n">strat_names</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_str_to_list</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"strategy_names"</span><span class="p">),</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat_names</span> <span class="o">=</span> <span class="n">strat_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parnames</span> <span class="o">=</span> <span class="n">parnames</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">strat</span> <span class="o">=</span> <span class="n">SequentialStrategy</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_strats</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 0-index strats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_ax</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"use_ax"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_pregen</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"pregen_asks"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ax</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trial_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span> <span class="o">=</span> <span class="n">AEPsychStrategy</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_strats</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span> <span class="o">=</span> <span class="n">SequentialStrategy</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_strats</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 0-index strats</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_id</span>
 
 <div class="viewcode-block" id="AEPsychServer.configure"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">config_args</span><span class="p">):</span>
@@ -913,6 +1326,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></div></div>
 
 
+<span class="c1">#! THIS IS WHAT START THE SERVER</span>
 <div class="viewcode-block" id="startServerAndRun"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.startServerAndRun">[docs]</a><span class="k">def</span> <span class="nf">startServerAndRun</span><span class="p">(</span>
     <span class="n">server_class</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
@@ -980,36 +1394,19 @@
         <span class="n">default</span><span class="o">=</span><span class="s2">"logs"</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">sub_parsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">"subparser"</span><span class="p">)</span>
-
-    <span class="n">database_parser</span> <span class="o">=</span> <span class="n">sub_parsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">"database"</span><span class="p">)</span>
-
-    <span class="n">database_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">"-l"</span><span class="p">,</span>
-        <span class="s2">"--list"</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">"Lists available experiments in the database."</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">database_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">"-d"</span><span class="p">,</span>
         <span class="s2">"--db"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">"The database to use if not the default (./databases/default.db)."</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">database_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"--replay"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"UUID of the experiment to replay."</span>
     <span class="p">)</span>
 
-    <span class="n">database_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"--resume"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Resume server after replay."</span>
-    <span class="p">)</span>
-
-    <span class="n">database_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">"-u"</span><span class="p">,</span>
-        <span class="s2">"--update"</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">"Update the database tables with the most recent columns."</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -1019,12 +1416,9 @@
 <div class="viewcode-block" id="start_server"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.start_server">[docs]</a><span class="k">def</span> <span class="nf">start_server</span><span class="p">(</span><span class="n">server_class</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting the AEPsychServer"</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subparser</span> <span class="o">==</span> <span class="s2">"database"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"db"</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">database_path</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">db</span>
-            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">list</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">database</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Database</span><span class="p">(</span><span class="n">database_path</span><span class="p">)</span>
-                <span class="n">database</span><span class="o">.</span><span class="n">list_master_records</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="s2">"replay"</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">replay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"replay"</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">replay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Attempting to replay </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">replay</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">resume</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="n">sock</span> <span class="o">=</span> <span class="n">createSocket</span><span class="p">(</span><span class="n">socket_type</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">socket_type</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
@@ -1038,14 +1432,6 @@
                     <span class="n">uuid_of_replay</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">replay</span><span class="p">,</span>
                     <span class="n">config_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">stratconfig</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="k">elif</span> <span class="s2">"update"</span> <span class="ow">in</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">update</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Updating the database </span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-                <span class="n">database</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Database</span><span class="p">(</span><span class="n">database_path</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">database</span><span class="o">.</span><span class="n">is_update_required</span><span class="p">():</span>
-                    <span class="n">database</span><span class="o">.</span><span class="n">perform_updates</span><span class="p">()</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- updated database </span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- update not needed for database </span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Setting the database path </span><span class="si">{</span><span class="n">database_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">sock</span> <span class="o">=</span> <span class="n">createSocket</span><span class="p">(</span><span class="n">socket_type</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">socket_type</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>

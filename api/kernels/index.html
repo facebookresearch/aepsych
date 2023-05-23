@@ -24,7 +24,7 @@
 <span id="aepsych-kernels-rbf-partial-grad-module"></span><h2>aepsych.kernels.rbf_partial_grad module<a class="headerlink" href="#module-aepsych.kernels.rbf_partial_grad" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.kernels.rbf_partial_grad.</span></span><span class="sig-name descname"><span class="pre">RBFKernelPartialObsGrad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ard_num_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.Size([])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthscale_prior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthscale_constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.kernels.rbf_partial_grad.</span></span><span class="sig-name descname"><span class="pre">RBFKernelPartialObsGrad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ard_num_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthscale_prior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lengthscale_constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RBFKernelGrad</span></code></p>
 <p>An RBF kernel over observations of f, and partial/non-overlapping
 observations of the gradient of f.</p>
@@ -37,47 +37,46 @@ observed at that point. It should be 0 if this observation is of f, and i
 if it is of df/dxi.</p>
 <p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ard_num_dims</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>batch_shape</strong> (<em>Optional</em><em>[</em><em>Size</em><em>]</em>) – </p></li>
+<li><p><strong>batch_shape</strong> (<em>Optional</em><em>[</em><em>torch.Size</em><em>]</em>) – </p></li>
 <li><p><strong>active_dims</strong> (<em>Optional</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>...</em><em>]</em><em>]</em>) – </p></li>
 <li><p><strong>lengthscale_prior</strong> (<em>Optional</em><em>[</em><em>Prior</em><em>]</em>) – </p></li>
 <li><p><strong>lengthscale_constraint</strong> (<em>Optional</em><em>[</em><em>Interval</em><em>]</em>) – </p></li>
-<li><p><strong>eps</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance between x1 and x2.
+<dd><p>Computes the covariance between <span class="math notranslate nohighlight">\(\mathbf x_1\)</span> and <span class="math notranslate nohighlight">\(\mathbf x_2\)</span>.
 This method should be imlemented by all Kernel subclasses.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x1</strong> (Tensor <cite>n x d</cite> or <cite>b x n x d</cite>) – First set of data</p></li>
-<li><p><strong>x2</strong> (Tensor <cite>m x d</cite> or <cite>b x m x d</cite>) – Second set of data</p></li>
-<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?</p></li>
-<li><p><strong>last_dim_is_batch</strong> (<em>tuple</em><em>, </em><em>optional</em>) – If this is true, it treats the last dimension of the data as another batch dimension.
-(Useful for additive structure over the dimensions). Default: False</p></li>
+<li><p><strong>x1</strong> (<em>Tensor</em>) – First set of data (… x N x D).</p></li>
+<li><p><strong>x2</strong> (<em>Tensor</em>) – Second set of data (… x M x D).</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?
+If True, it must be the case that <cite>x1 == x2</cite>. (Default: False.)</p></li>
+<li><p><strong>last_dim_is_batch</strong> – If True, treat the last dimension
+of <cite>x1</cite> and <cite>x2</cite> as another batch dimension.
+(Useful for additive structure over the dimensions). (Default: False.)</p></li>
 <li><p><strong>params</strong> (<em>Any</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">LinearOperator</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>The kernel matrix or vector. The shape depends on the kernel’s evaluation mode:</p>
 <ul class="simple">
-<li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
-<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n x m</cite> or <cite>b x k x n x m</cite></p></li>
-<li><p><cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p></li>
-<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>k x n</cite> or <cite>b x k x n</cite></p></li>
+<li><p><cite>full_covar</cite>: <cite>… x N x M</cite></p></li>
+<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>… x K x N x M</cite></p></li>
+<li><p><cite>diag</cite>: <cite>… x N</cite></p></li>
+<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>… x K x N</cite></p></li>
 </ul>
-</dd>
-</dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><em>Tensor</em></p>
 </dd>
 </dl>
@@ -85,19 +84,24 @@ This method should be imlemented by all Kernel subclasses.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input">
 <span class="sig-name descname"><span class="pre">num_outputs_per_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad.num_outputs_per_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>How many outputs are produced per input (default 1)
-if x1 is size <cite>n x d</cite> and x2 is size <cite>m x d</cite>, then the size of the kernel
-will be <cite>(n * num_outputs_per_input) x (m * num_outputs_per_input)</cite>
-Default: 1</p>
+<dd><p>For most kernels, <cite>num_outputs_per_input = 1</cite>.</p>
+<p>However, some kernels (e.g. multitask kernels or interdomain kernels) return a
+<cite>num_outputs_per_input x num_outputs_per_input</cite> matrix of covariance values for
+every pair of data points.</p>
+<p>I.e. if <cite>x1</cite> is size <cite>… x N x D</cite> and <cite>x2</cite> is size <cite>… x M x D</cite>, then the size of the kernel
+will be <cite>… x (N * num_outputs_per_input) x (M * num_outputs_per_input)</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>num_outputs_per_input</cite> (usually 1).</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>x1</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>x2</strong> (<em>Tensor</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>int</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>

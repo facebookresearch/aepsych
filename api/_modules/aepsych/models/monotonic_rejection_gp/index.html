@@ -37,6 +37,7 @@
 <span class="kn">from</span> <span class="nn">aepsych.kernels.rbf_partial_grad</span> <span class="kn">import</span> <span class="n">RBFKernelPartialObsGrad</span>
 <span class="kn">from</span> <span class="nn">aepsych.means.constant_partial_grad</span> <span class="kn">import</span> <span class="n">ConstantMeanPartialObsGrad</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.utils</span> <span class="kn">import</span> <span class="n">select_inducing_points</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">promote_0d</span>
 <span class="kn">from</span> <span class="nn">botorch.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_mll</span>
 <span class="kn">from</span> <span class="nn">gpytorch.kernels</span> <span class="kn">import</span> <span class="n">Kernel</span>
@@ -50,7 +51,7 @@
 
 
 <div class="viewcode-block" id="MonotonicRejectionGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP">[docs]</a><span class="k">class</span> <span class="nc">MonotonicRejectionGP</span><span class="p">(</span><span class="n">AEPsychMixin</span><span class="p">,</span> <span class="n">ApproximateGP</span><span class="p">):</span>
-    <span class="sd">"""A monotonic GP using rejection sampling.</span>
+<span class="w">    </span><span class="sd">"""A monotonic GP using rejection sampling.</span>
 
 <span class="sd">    This takes the same insight as in e.g. Riihimäki &amp; Vehtari 2010 (that the derivative of a GP</span>
 <span class="sd">    is likewise a GP) but instead of approximately optimizing the likelihood of the model</span>
@@ -79,8 +80,9 @@
         <span class="n">num_induc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">num_rejection_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Initialize MonotonicRejectionGP.</span>
+<span class="w">        </span><span class="sd">"""Initialize MonotonicRejectionGP.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            likelihood (str): Link function and likelihood. Can be 'probit-bernoulli' or</span>
@@ -104,7 +106,12 @@
             <span class="n">likelihood</span> <span class="o">=</span> <span class="n">BernoulliLikelihood</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span> <span class="o">=</span> <span class="n">num_induc</span>
-        <span class="n">inducing_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_inducing_points</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"sobol"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span>
+        <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">select_inducing_points</span><span class="p">(</span>
+            <span class="n">inducing_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">"sobol"</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">inducing_points_aug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_with_deriv_index</span><span class="p">(</span><span class="n">inducing_points</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">variational_distribution</span> <span class="o">=</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">(</span>
@@ -159,7 +166,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">inducing_points</span> <span class="o">=</span> <span class="n">inducing_points</span>
 
 <div class="viewcode-block" id="MonotonicRejectionGP.fit"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Fit the model</span>
+<span class="w">        </span><span class="sd">"""Fit the model</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            train_x (Tensor): Training x points</span>
@@ -167,7 +174,13 @@
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_train_data</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select_inducing_points</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_points</span> <span class="o">=</span> <span class="n">select_inducing_points</span><span class="p">(</span>
+            <span class="n">inducing_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
+            <span class="n">covar_module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">,</span>
+            <span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_model</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_set_model</span><span class="p">(</span>
@@ -192,7 +205,7 @@
         <span class="n">mll</span> <span class="o">=</span> <span class="n">fit_gpytorch_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MonotonicRejectionGP.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">warmstart</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Update the model with new data.</span>
 
 <span class="sd">        Expects the full set of data, not the incremental new data.</span>
@@ -221,7 +234,7 @@
         <span class="n">num_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_rejection_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Sample from monotonic GP</span>
+<span class="w">        </span><span class="sd">"""Sample from monotonic GP</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (Tensor): tensor of n points at which to sample</span>
@@ -265,7 +278,7 @@
 <div class="viewcode-block" id="MonotonicRejectionGP.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
-        <span class="sd">"""Predict</span>
+<span class="w">        </span><span class="sd">"""Predict</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: tensor of n points at which to predict.</span>
@@ -333,7 +346,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="MonotonicRejectionGP.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultivariateNormal</span><span class="p">:</span>
-        <span class="sd">"""Evaluate GP</span>
+<span class="w">        </span><span class="sd">"""Evaluate GP</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Tensor of points at which GP should be evaluated.</span>
