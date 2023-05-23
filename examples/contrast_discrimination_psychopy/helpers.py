@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 import numpy as np
 import pyglet
 from psychopy import core, event
@@ -20,7 +27,7 @@ def cartesian_to_polar(x, y):
 
 
 class AnimatedGrating:
-    param_transforms = {"contrast": lambda x: 10**x, "pedestal": lambda x: 10**x}
+    param_transforms = {"contrast": lambda x: 10 ** x, "pedestal": lambda x: 10 ** x}
 
     def __init__(
         self,
@@ -177,15 +184,15 @@ class HalfGrating(AnimatedGrating):
         img = img.T  # transpose so our indexing tricks work
         flatimg = img.flatten()
         if noisy_half == "left":
-            noisy = flatimg[: (self.res**2) // 2]
+            noisy = flatimg[: (self.res ** 2) // 2]
             np.random.shuffle(noisy)
-            img = np.r_[noisy, flatimg[(self.res**2) // 2 :]].reshape(
+            img = np.r_[noisy, flatimg[(self.res ** 2) // 2 :]].reshape(
                 self.res, self.res
             )
         else:
-            noisy = flatimg[(self.res**2) // 2 :]
+            noisy = flatimg[(self.res ** 2) // 2 :]
             np.random.shuffle(noisy)
-            img = np.r_[flatimg[: (self.res**2) // 2], noisy].reshape(
+            img = np.r_[flatimg[: (self.res ** 2) // 2], noisy].reshape(
                 self.res, self.res
             )
         return img.T  # untranspose
