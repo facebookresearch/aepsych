@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>aepsych.models.derivative_gp &#8212; AEPsych  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aepsych.models.derivative_gp</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.kernels.rbf_partial_grad</span> <span class="kn">import</span> <span class="n">RBFKernelPartialObsGrad</span>
+<span class="kn">from</span> <span class="nn">aepsych.means.constant_partial_grad</span> <span class="kn">import</span> <span class="n">ConstantMeanPartialObsGrad</span>
+<span class="kn">from</span> <span class="nn">botorch.models.gpytorch</span> <span class="kn">import</span> <span class="n">GPyTorchModel</span>
+<span class="kn">from</span> <span class="nn">gpytorch.distributions</span> <span class="kn">import</span> <span class="n">MultivariateNormal</span>
+<span class="kn">from</span> <span class="nn">gpytorch.kernels</span> <span class="kn">import</span> <span class="n">Kernel</span>
+<span class="kn">from</span> <span class="nn">gpytorch.kernels.scale_kernel</span> <span class="kn">import</span> <span class="n">ScaleKernel</span>
+<span class="kn">from</span> <span class="nn">gpytorch.means</span> <span class="kn">import</span> <span class="n">Mean</span>
+<span class="kn">from</span> <span class="nn">gpytorch.priors.torch_priors</span> <span class="kn">import</span> <span class="n">GammaPrior</span>
+<span class="kn">from</span> <span class="nn">gpytorch.variational</span> <span class="kn">import</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">,</span> <span class="n">VariationalStrategy</span>
+
+
+<div class="viewcode-block" id="MixedDerivativeVariationalGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP">[docs]</a><span class="k">class</span> <span class="nc">MixedDerivativeVariationalGP</span><span class="p">(</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ApproximateGP</span><span class="p">,</span> <span class="n">GPyTorchModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A variational GP with mixed derivative observations.</span>
+
+<span class="sd">    For more on GPs with derivative observations, see e.g. Riihimaki &amp; Vehtari 2010.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        Riihimäki, J., &amp; Vehtari, A. (2010). Gaussian processes with</span>
+<span class="sd">            monotonicity information. Journal of Machine Learning Research, 9, 645–652.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">inducing_points</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">scales</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fixed_prior_mean</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize MixedDerivativeVariationalGP</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_x (torch.Tensor): Training x points. The last column of x is the derivative</span>
+<span class="sd">                indiciator: 0 if it is an observation of f(x), and i if it</span>
+<span class="sd">                is an observation of df/dx_i.</span>
+<span class="sd">            train_y (torch.Tensor): Training y points</span>
+<span class="sd">            inducing_points (torch.Tensor): Inducing points to use</span>
+<span class="sd">            scales (Union[torch.Tensor, float], optional): Typical scale of each dimension</span>
+<span class="sd">                of input space (this is used to set the lengthscale prior).</span>
+<span class="sd">                Defaults to 1.0.</span>
+<span class="sd">            mean_module (Mean, optional): A mean class that supports derivative</span>
+<span class="sd">                indexes as the final dim. Defaults to a constant mean.</span>
+<span class="sd">            covar_module (Kernel, optional): A covariance kernel class that</span>
+<span class="sd">                supports derivative indexes as the final dim. Defaults to RBF kernel.</span>
+<span class="sd">            fixed_prior_mean (float, optional): A prior mean value to use with the</span>
+<span class="sd">                constant mean. Often setting this to the target threshold speeds</span>
+<span class="sd">                up experiments. Defaults to None, in which case the mean will be inferred.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">variational_distribution</span> <span class="o">=</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">(</span>
+            <span class="n">inducing_points</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">variational_distribution</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">train_x</span><span class="p">)</span>
+        <span class="n">variational_strategy</span> <span class="o">=</span> <span class="n">VariationalStrategy</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">inducing_points</span><span class="o">=</span><span class="n">inducing_points</span><span class="p">,</span>
+            <span class="n">variational_distribution</span><span class="o">=</span><span class="n">variational_distribution</span><span class="p">,</span>
+            <span class="n">learn_inducing_locations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MixedDerivativeVariationalGP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">variational_strategy</span><span class="p">)</span>
+
+        <span class="c1"># Set the mean if specified to</span>
+        <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span> <span class="o">=</span> <span class="n">ConstantMeanPartialObsGrad</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span> <span class="o">=</span> <span class="n">mean_module</span>
+
+        <span class="k">if</span> <span class="n">fixed_prior_mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">fixed_prior_mean</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">train_x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_kernel</span> <span class="o">=</span> <span class="n">RBFKernelPartialObsGrad</span><span class="p">(</span>
+                <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">train_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">6.0</span> <span class="o">/</span> <span class="n">scales</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span> <span class="o">=</span> <span class="n">ScaleKernel</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">base_kernel</span><span class="p">,</span> <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span> <span class="o">=</span> <span class="n">covar_module</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span> <span class="o">=</span> <span class="p">(</span><span class="n">train_x</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_targets</span> <span class="o">=</span> <span class="n">train_y</span>
+        <span class="bp">self</span><span class="p">(</span><span class="n">train_x</span><span class="p">)</span>  <span class="c1"># Necessary for CholeskyVariationalDistribution</span>
+
+<div class="viewcode-block" id="MixedDerivativeVariationalGP.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultivariateNormal</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the model</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to evaluate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MultivariateNormal: Object containig mean and covariance</span>
+<span class="sd">                of GP at these points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mean_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">covar_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MultivariateNormal</span><span class="p">(</span><span class="n">mean_x</span><span class="p">,</span> <span class="n">covar_x</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

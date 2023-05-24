@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>aepsych.benchmark.pathos_benchmark &#8212; AEPsych  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aepsych.benchmark.pathos_benchmark</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">aepsych.utils_logging</span> <span class="k">as</span> <span class="nn">utils_logging</span>
+<span class="kn">import</span> <span class="nn">multiprocess.context</span> <span class="k">as</span> <span class="nn">ctx</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pathos</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.benchmark</span> <span class="kn">import</span> <span class="n">Benchmark</span>
+<span class="kn">from</span> <span class="nn">aepsych.benchmark.problem</span> <span class="kn">import</span> <span class="n">Problem</span>
+<span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">SequentialStrategy</span>
+
+<span class="n">ctx</span><span class="o">.</span><span class="n">_force_start_method</span><span class="p">(</span><span class="s2">&quot;spawn&quot;</span><span class="p">)</span>  <span class="c1"># fixes problems with CUDA and fork</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PathosBenchmark"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">[docs]</a><span class="k">class</span> <span class="nc">PathosBenchmark</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Benchmarking class for parallelized benchmarks using pathos&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nproc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize pathos benchmark.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nproc (int, optional): Number of cores to use. Defaults to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># parallelize over jobs, so each job should be 1 thread only</span>
+        <span class="n">num_threads</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">get_num_threads</span><span class="p">()</span>
+        <span class="n">num_interopt_threads</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">get_num_interop_threads</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">num_threads</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">num_interopt_threads</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;PathosBenchmark parallelizes over threads,&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;and as such is incompatible with torch being threaded. &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Please call `torch.set_num_threads(1)` and &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;`torch.set_num_interop_threads(1)` before using PathosBenchmark!&quot;</span>
+            <span class="p">)</span>
+        <span class="n">cores_available</span> <span class="o">=</span> <span class="n">pathos</span><span class="o">.</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">nproc</span> <span class="o">&gt;=</span> <span class="n">cores_available</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Requesting a benchmark with </span><span class="si">{</span><span class="n">nproc</span><span class="si">}</span><span class="s2"> cores but &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;machine has </span><span class="si">{</span><span class="n">cores_available</span><span class="si">}</span><span class="s2"> cores! It is highly &quot;</span>
+                <span class="s2">&quot;recommended to leave at least 1-2 cores open for OS tasks.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">pathos</span><span class="o">.</span><span class="n">pools</span><span class="o">.</span><span class="n">ProcessPool</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nproc</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># destroy the pool (for when we&#39;re testing or running</span>
+        <span class="c1"># multiple benchmarks in one script) but if the GC already</span>
+        <span class="c1"># cleared the underlying multiprocessing object (usually on</span>
+        <span class="c1"># the final call), don&#39;t do anything.</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;pool&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+<div class="viewcode-block" id="PathosBenchmark.run_experiment"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_experiment">[docs]</a>    <span class="k">def</span> <span class="nf">run_experiment</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span>
+        <span class="n">config_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">rep</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">Union</span><span class="p">[</span><span class="n">SequentialStrategy</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run one simulated experiment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config_dict (Dict[str, Any]): AEPsych configuration to use.</span>
+<span class="sd">            seed (int): Random seed for this run.</span>
+<span class="sd">            rep (int): Index of this repetition.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[List[Dict[str, Any]], SequentialStrategy]: A tuple containing a log of the results and the strategy as</span>
+<span class="sd">                of the end of the simulated experiment. This is ignored in large-scale benchmarks but useful for</span>
+<span class="sd">                one-off visualization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># copy things that we mutate</span>
+        <span class="n">local_config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run_experiment</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">local_config</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Error on config </span><span class="si">{</span><span class="n">config_dict</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">!&quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Traceback follows:</span><span class="se">\n</span><span class="si">{</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">[],</span> <span class="n">SequentialStrategy</span><span class="p">([])</span></div>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">self_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;pool&quot;</span> <span class="ow">in</span> <span class="n">self_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">del</span> <span class="n">self_dict</span><span class="p">[</span><span class="s2">&quot;pool&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;futures&quot;</span> <span class="ow">in</span> <span class="n">self_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">del</span> <span class="n">self_dict</span><span class="p">[</span><span class="s2">&quot;futures&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">self_dict</span>
+
+<div class="viewcode-block" id="PathosBenchmark.run_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">run_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run all the benchmarks,</span>
+
+<span class="sd">        Note that this blocks while waiting for benchmarks to complete. If you</span>
+<span class="sd">        would like to start benchmarks and periodically collect partial results,</span>
+<span class="sd">        use start_benchmarks and then call collate_benchmarks(wait=False) on some</span>
+<span class="sd">        interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_benchmarks</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collate_benchmarks</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PathosBenchmark.start_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">start_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start benchmark run.</span>
+
+<span class="sd">        This does not block: after running it, self.futures holds the</span>
+<span class="sd">        status of benchmarks running in parallel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">run_discard_strat</span><span class="p">(</span><span class="o">*</span><span class="n">conf</span><span class="p">):</span>
+            <span class="n">logger</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_experiment</span><span class="p">(</span><span class="o">*</span><span class="n">conf</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">logger</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_sim_configs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">+</span> <span class="n">seed</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">seed</span><span class="p">,</span> <span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problems</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinations</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_reps</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_sim_configs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">apipe</span><span class="p">(</span><span class="n">run_discard_strat</span><span class="p">,</span> <span class="o">*</span><span class="n">conf</span><span class="p">)</span> <span class="k">for</span> <span class="n">conf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_sim_configs</span>
+        <span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the benchmark is done.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if all futures are cleared and benchmark is done.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">futures</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="PathosBenchmark.collate_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.collate_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">collate_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Collect benchmark results from completed futures.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wait (bool, optional): If true, this method blocks and waits</span>
+<span class="sd">            on all futures to complete. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">newfutures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">futures</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">wait</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="c1"># filter out empty results from invalid configs</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span> <span class="o">!=</span> <span class="p">{}]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">newfutures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">futures</span> <span class="o">=</span> <span class="n">newfutures</span></div></div>
+
+
+<div class="viewcode-block" id="run_benchmarks_with_checkpoints"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.run_benchmarks_with_checkpoints">[docs]</a><span class="k">def</span> <span class="nf">run_benchmarks_with_checkpoints</span><span class="p">(</span>
+    <span class="n">out_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">benchmark_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">problems</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Problem</span><span class="p">],</span>
+    <span class="n">configs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]],</span>
+    <span class="n">global_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_reps_per_chunk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">log_every</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">checkpoint_every</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span>
+    <span class="n">n_proc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">serial_debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs a series of benchmarks, saving both final and intermediate results to .csv files. Benchmarks are run in</span>
+<span class="sd">    sequential chunks, each of which runs all combinations of problems/configs/reps in parallel. This function should</span>
+<span class="sd">    always be used using the &quot;if __name__ == &#39;__main__&#39;: ...&quot; idiom.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        out_path (str): The path to save the results to.</span>
+<span class="sd">        benchmark_name (str): A name give to this set of benchmarks. Results will be saved in files named like</span>
+<span class="sd">            &quot;out_path/benchmark_name_chunk{chunk_number}_out.csv&quot;</span>
+<span class="sd">        problems (List[Problem]): Problem objects containing the test function to evaluate.</span>
+<span class="sd">        configs (Mapping[str, Union[str, list]]): Dictionary of configs to run.</span>
+<span class="sd">            Lists at leaves are used to construct a cartesian product of configurations.</span>
+<span class="sd">        global_seed (int, optional): Global seed to use for reproducible benchmarks.</span>
+<span class="sd">            Defaults to randomized seeds.</span>
+<span class="sd">        n_chunks (int): The number of chunks to break the results into. Each chunk will contain at least 1 run of every</span>
+<span class="sd">            combination of problem and config.</span>
+<span class="sd">        n_reps_per_chunk (int, optional): Number of repetitions to run each problem/config in each chunk.</span>
+<span class="sd">        log_every (int, optional): Logging interval during an experiment. Defaults to only logging at the end.</span>
+<span class="sd">        checkpoint_every (int): Save intermediate results every checkpoint_every seconds.</span>
+<span class="sd">        n_proc (int): Number of processors to use.</span>
+<span class="sd">        serial_debug: debug serially?</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span>
+        <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>  <span class="c1"># make an output folder if not exist</span>
+    <span class="k">if</span> <span class="n">serial_debug</span><span class="p">:</span>
+        <span class="n">out_fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2">_out.csv&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting </span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2"> benchmark (serial debug mode)...&quot;</span><span class="p">)</span>
+        <span class="n">bench</span> <span class="o">=</span> <span class="n">Benchmark</span><span class="p">(</span>
+            <span class="n">problems</span><span class="o">=</span><span class="n">problems</span><span class="p">,</span>
+            <span class="n">configs</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">global_seed</span><span class="p">,</span>
+            <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps_per_chunk</span> <span class="o">*</span> <span class="n">n_chunks</span><span class="p">,</span>
+            <span class="n">log_every</span><span class="o">=</span><span class="n">log_every</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">bench</span><span class="o">.</span><span class="n">run_benchmarks</span><span class="p">()</span>
+        <span class="n">final_results</span> <span class="o">=</span> <span class="n">bench</span><span class="o">.</span><span class="n">pandas</span><span class="p">()</span>
+        <span class="n">final_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out_fname</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_chunks</span><span class="p">):</span>
+            <span class="n">out_fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2">_chunk</span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">_out.csv&quot;</span><span class="p">)</span>
+
+            <span class="n">intermediate_fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2">_chunk</span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">_checkpoint.csv&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting </span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2"> benchmark... chunk </span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+
+            <span class="n">bench</span> <span class="o">=</span> <span class="n">PathosBenchmark</span><span class="p">(</span>
+                <span class="n">nproc</span><span class="o">=</span><span class="n">n_proc</span><span class="p">,</span>
+                <span class="n">problems</span><span class="o">=</span><span class="n">problems</span><span class="p">,</span>
+                <span class="n">configs</span><span class="o">=</span><span class="n">configs</span><span class="p">,</span>
+                <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">n_reps</span><span class="o">=</span><span class="n">n_reps_per_chunk</span><span class="p">,</span>
+                <span class="n">log_every</span><span class="o">=</span><span class="n">log_every</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">global_seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">global_seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+            <span class="n">bench</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">global_seed</span> <span class="o">+</span> <span class="n">chunk</span> <span class="o">*</span> <span class="n">bench</span><span class="o">.</span><span class="n">num_benchmarks</span>
+            <span class="p">)</span>  <span class="c1"># HACK. TODO: make num_benchmarks a property of bench configs</span>
+            <span class="n">bench</span><span class="o">.</span><span class="n">start_benchmarks</span><span class="p">()</span>
+
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">bench</span><span class="o">.</span><span class="n">is_done</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">checkpoint_every</span><span class="p">)</span>
+                <span class="n">collate_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Checkpointing </span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2"> chunk </span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">..., </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bench</span><span class="o">.</span><span class="n">futures</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bench</span><span class="o">.</span><span class="n">num_benchmarks</span><span class="si">}</span><span class="s2"> alive&quot;</span>
+                <span class="p">)</span>
+                <span class="n">bench</span><span class="o">.</span><span class="n">collate_benchmarks</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">temp_results</span> <span class="o">=</span> <span class="n">bench</span><span class="o">.</span><span class="n">pandas</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp_results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">temp_results</span><span class="p">[</span><span class="s2">&quot;rep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_results</span><span class="p">[</span><span class="s2">&quot;rep&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">n_reps_per_chunk</span> <span class="o">*</span> <span class="n">chunk</span>
+                    <span class="n">temp_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">intermediate_fname</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Collate done in </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">collate_start</span><span class="si">}</span><span class="s2"> seconds, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bench</span><span class="o">.</span><span class="n">futures</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bench</span><span class="o">.</span><span class="n">num_benchmarks</span><span class="si">}</span><span class="s2"> left&quot;</span>
+                <span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2"> chunk </span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2"> fully done!&quot;</span><span class="p">)</span>
+            <span class="n">final_results</span> <span class="o">=</span> <span class="n">bench</span><span class="o">.</span><span class="n">pandas</span><span class="p">()</span>
+            <span class="n">final_results</span><span class="p">[</span><span class="s2">&quot;rep&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_results</span><span class="p">[</span><span class="s2">&quot;rep&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">n_reps_per_chunk</span> <span class="o">*</span> <span class="n">chunk</span>
+            <span class="n">final_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out_fname</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

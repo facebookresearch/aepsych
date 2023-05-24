@@ -24,7 +24,7 @@
 <p>Object that combines models and generators to generate points to sample.</p>
 <p>Initialize the strategy object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>generator</strong> (<a class="reference internal" href="generators.html#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – The generator object that determines how points are sampled.</p></li>
 <li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
@@ -57,18 +57,18 @@ be ignored. Defaults to False.</p></li>
 <span class="sig-name descname"><span class="pre">normalize_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#Strategy.normalize_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.Strategy.normalize_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>converts inputs into normalized format for this strategy</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<em>np.ndarray</em>) – training inputs</p></li>
 <li><p><strong>y</strong> (<em>np.ndarray</em>) – training outputs</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>training inputs, normalized
 y (np.ndarray): training outputs, normalized
 n (int): number of observations</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>x (np.ndarray)</p>
 </dd>
 </dl>
@@ -133,7 +133,7 @@ n (int): number of observations</p>
 <dt class="sig sig-object py" id="aepsych.strategy.Strategy.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#Strategy.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.Strategy.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
 <li><p><strong>name</strong> (<em>str</em>) – </p></li>
@@ -149,7 +149,7 @@ n (int): number of observations</p>
 <p>Runs a sequence of strategies defined by its config</p>
 <p>All getter methods defer to the current strat</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>strat_list</strong> (<em>list</em><em>[</em><a class="reference internal" href="#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>Strategy</em></a><em>]</em>) – TODO make this nicely typed / doc’d</p>
 </dd>
 </dl>
@@ -157,7 +157,7 @@ n (int): number of observations</p>
 <dt class="sig sig-object py" id="aepsych.strategy.SequentialStrategy.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#SequentialStrategy.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.SequentialStrategy.gen" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>num_points</strong> (<em>int</em>) – </p>
 </dd>
 </dl>
@@ -178,11 +178,103 @@ n (int): number of observations</p>
 <dt class="sig sig-object py" id="aepsych.strategy.SequentialStrategy.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#SequentialStrategy.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.SequentialStrategy.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.strategy.</span></span><span class="sig-name descname"><span class="pre">AEPsychStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strategy</strong> (<em>GenerationStrategy</em>) – </p></li>
+<li><p><strong>ax_client</strong> (<em>AxClient</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.is_finished">
+<span class="sig-name descname"><span class="pre">is_finished</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.is_finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.finished">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">finished</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.finish">
+<span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.finish"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.finish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.gen">
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.gen" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_points</strong> (<em>int</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.add_data">
+<span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.add_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.add_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.experiment">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">experiment</span></span><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.experiment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.plot_contours">
+<span class="sig-name descname"><span class="pre">plot_contours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.plot_contours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.plot_contours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot predictions for a 2-d slice of the parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>density</strong> (<em>int</em>) – Number of points along each parameter to evaluate predictions.</p></li>
+<li><p><strong>slice_values</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – A dictionary {name: val} for the fixed values of the
+other parameters. If not provided, then the mean of numeric
+parameters or the mode of choice parameters will be used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.plot_slice">
+<span class="sig-name descname"><span class="pre">plot_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.plot_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.plot_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot predictions for a 1-d slice of the parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>param_name</strong> (<em>str</em>) – Name of parameter that will be sliced</p></li>
+<li><p><strong>density</strong> (<em>int</em>) – Number of points along slice to evaluate predictions.</p></li>
+<li><p><strong>slice_values</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – A dictionary {name: val} for the fixed values of the
+other parameters. If not provided, then the mean of numeric
+parameters or the mode of choice parameters will be used.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters">
+<span class="sig-name descname"><span class="pre">get_pareto_optimal_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.get_pareto_optimal_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 </dd></dl>
 </section>
 </section>

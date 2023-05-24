@@ -46,6 +46,7 @@ const siteConfig = {
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     { doc: 'introduction', label: 'Docs' },
+    { href: `${baseUrl}demos/`, label: "Demos" },
     { href: `${baseUrl}tutorials/`, label: "Tutorials" },
     { href: `${baseUrl}api/`, label: "API Reference" },
     { href: "https://github.com/facebookresearch/aepsych", label: "GitHub" },

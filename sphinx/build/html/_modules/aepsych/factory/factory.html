@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>aepsych.factory.factory &#8212; AEPsych  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for aepsych.factory.factory</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">NoOptionError</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">aepsych.kernels.rbf_partial_grad</span> <span class="kn">import</span> <span class="n">RBFKernelPartialObsGrad</span>
+<span class="kn">from</span> <span class="nn">aepsych.means.constant_partial_grad</span> <span class="kn">import</span> <span class="n">ConstantMeanPartialObsGrad</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">get_dim</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+<span class="sd">&quot;&quot;&quot;AEPsych factory functions.</span>
+<span class="sd">These functions generate a gpytorch Mean and Kernel objects from</span>
+<span class="sd">aepsych.config.Config configurations, including setting lengthscale</span>
+<span class="sd">priors and so on. They are primarily used for programmatically</span>
+<span class="sd">constructing modular AEPsych models from configs.</span>
+
+<span class="sd">TODO write a modular AEPsych tutorial.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># AEPsych assumes input dimensions are transformed to [0,1] and we want</span>
+<span class="c1"># a lengthscale prior that excludes lengthscales that are larger than the</span>
+<span class="c1"># range of inputs (i.e. &gt;1) or much smaller (i.e. &lt;0.1). This inverse</span>
+<span class="c1"># gamma prior puts about 99% of the prior probability mass on such values,</span>
+<span class="c1"># with a preference for small values to prevent oversmoothing. The idea</span>
+<span class="c1"># is taken from https://betanalpha.github.io/assets/case_studies/gaussian_processes.html#323_Informative_Prior_Model</span>
+<span class="n">__default_invgamma_concentration</span> <span class="o">=</span> <span class="mf">4.6</span>
+<span class="n">__default_invgamma_rate</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+
+<div class="viewcode-block" id="default_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.default_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">default_mean_covar_factory</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default factory for generic GP models</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (Config): Object containing bounds (and potentially other</span>
+<span class="sd">            config details).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated</span>
+<span class="sd">            ConstantMean and ScaleKernel with priors based on bounds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fixed_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+        <span class="s2">&quot;default_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;fixed_mean&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">lengthscale_prior</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;default_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;lengthscale_prior&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span>
+    <span class="p">)</span>
+    <span class="n">outputscale_prior</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;default_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;outputscale_prior&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;box&quot;</span>
+    <span class="p">)</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+        <span class="s2">&quot;default_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;kernel&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span>
+    <span class="p">)</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">&quot;common&quot;</span><span class="p">,</span> <span class="s2">&quot;use_ax&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">&quot;default_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;lb&quot;</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">&quot;default_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;ub&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;bounds shape mismatch!&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fixed_mean</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;default_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Config got fixed_mean=True but no target included!&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lengthscale_prior</span> <span class="o">==</span> <span class="s2">&quot;invgamma&quot;</span><span class="p">:</span>
+
+        <span class="n">ls_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span>
+            <span class="n">concentration</span><span class="o">=</span><span class="n">__default_invgamma_concentration</span><span class="p">,</span>
+            <span class="n">rate</span><span class="o">=</span><span class="n">__default_invgamma_rate</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">x</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span> <span class="o">/</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">lengthscale_prior</span> <span class="o">==</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span>
+        <span class="n">ls_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span><span class="n">concentration</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">6.0</span><span class="p">)</span>
+        <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Lengthscale_prior should be invgamma or gamma, got </span><span class="si">{</span><span class="n">lengthscale_prior</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">outputscale_prior</span> <span class="o">==</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span>
+        <span class="n">os_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span><span class="n">concentration</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">outputscale_prior</span> <span class="o">==</span> <span class="s2">&quot;box&quot;</span><span class="p">:</span>
+        <span class="n">os_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Outputscale_prior should be gamma or box, got </span><span class="si">{</span><span class="n">outputscale_prior</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">GreaterThan</span><span class="p">(</span>
+        <span class="n">lower_bound</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
+    <span class="p">)</span>
+
+    <span class="n">covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
+        <span class="n">kernel</span><span class="p">(</span>
+            <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
+            <span class="n">lengthscale_constraint</span><span class="o">=</span><span class="n">ls_constraint</span><span class="p">,</span>
+            <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">os_prior</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span></div>
+
+
+<div class="viewcode-block" id="monotonic_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.monotonic_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">monotonic_mean_covar_factory</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ConstantMeanPartialObsGrad</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default factory for monotonic GP models based on derivative observations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (Config): Config containing (at least) bounds, and optionally LSE target.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[ConstantMeanPartialObsGrad, gpytorch.kernels.ScaleKernel]: Instantiated mean and</span>
+<span class="sd">            scaled RBF kernels with partial derivative observations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">&quot;monotonic_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;lb&quot;</span><span class="p">)</span>
+    <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">&quot;monotonic_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;ub&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;bounds shape mismatch!&quot;</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">fixed_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+        <span class="s2">&quot;monotonic_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;fixed_mean&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">ConstantMeanPartialObsGrad</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">fixed_mean</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;monotonic_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Config got fixed_mean=True but no target included!&quot;</span><span class="p">)</span>
+
+    <span class="n">ls_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span>
+        <span class="n">concentration</span><span class="o">=</span><span class="n">__default_invgamma_concentration</span><span class="p">,</span>
+        <span class="n">rate</span><span class="o">=</span><span class="n">__default_invgamma_rate</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">x</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span> <span class="o">/</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">GreaterThan</span><span class="p">(</span>
+        <span class="n">lower_bound</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
+    <span class="p">)</span>
+    <span class="n">covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
+        <span class="n">RBFKernelPartialObsGrad</span><span class="p">(</span>
+            <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
+            <span class="n">lengthscale_constraint</span><span class="o">=</span><span class="n">ls_constraint</span><span class="p">,</span>
+            <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span></div>
+
+
+<div class="viewcode-block" id="song_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.song_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">song_mean_covar_factory</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">AdditiveKernel</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory that makes kernels like Song et al. 2018:</span>
+<span class="sd">    Linear in intensity dimension (assumed to be the last</span>
+<span class="sd">    dimension), RBF in context dimensions, summed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (Config): Config object containing (at least) bounds and optionally</span>
+<span class="sd">            LSE target.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.AdditiveKernel]: Instantiated</span>
+<span class="sd">            constant mean object and additive kernel object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">&quot;common&quot;</span><span class="p">,</span> <span class="s2">&quot;use_ax&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">&quot;song_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;lb&quot;</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">&quot;song_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;ub&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;bounds shape mismatch!&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">&quot;song_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="mf">0.75</span>
+    <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
+
+    <span class="n">ls_prior</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">GammaPrior</span><span class="p">(</span>
+        <span class="n">concentration</span><span class="o">=</span><span class="n">__default_invgamma_concentration</span><span class="p">,</span>
+        <span class="n">rate</span><span class="o">=</span><span class="n">__default_invgamma_rate</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">x</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ls_prior_mode</span> <span class="o">=</span> <span class="n">ls_prior</span><span class="o">.</span><span class="n">rate</span> <span class="o">/</span> <span class="p">(</span><span class="n">ls_prior</span><span class="o">.</span><span class="n">concentration</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">ls_constraint</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">GreaterThan</span><span class="p">(</span>
+        <span class="n">lower_bound</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="n">ls_prior_mode</span>
+    <span class="p">)</span>
+
+    <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">&quot;song_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;stim_dim&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">context_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
+    <span class="c1"># if intensity RBF is true, the intensity dimension</span>
+    <span class="c1"># will have both the RBF and linear kernels</span>
+    <span class="n">intensity_RBF</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+        <span class="s2">&quot;song_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_RBF&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">intensity_RBF</span><span class="p">:</span>
+        <span class="n">intensity_dim</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">context_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stim_dim</span><span class="p">)</span>  <span class="c1"># support relative stim dims</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">intensity_dim</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">context_dims</span><span class="p">[</span><span class="n">stim_dim</span><span class="p">]</span>
+
+    <span class="c1"># create the LinearKernel</span>
+    <span class="n">intensity_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
+        <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">LinearKernel</span><span class="p">(</span><span class="n">active_dims</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span> <span class="n">ard_num_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># this can just be LinearKernel but for consistency of interface</span>
+        <span class="c1"># we make it additive with one module</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">intensity_RBF</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">mean</span><span class="p">,</span>
+                <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">AdditiveKernel</span><span class="p">(</span><span class="n">intensity_covar</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
+                <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span><span class="p">(</span>
+                    <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
+                    <span class="n">lengthscale_constraint</span><span class="o">=</span><span class="n">ls_constraint</span><span class="p">,</span>
+                    <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+                    <span class="n">active_dims</span><span class="o">=</span><span class="n">context_dims</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">context_covar</span> <span class="o">+</span> <span class="n">intensity_covar</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">context_covar</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">(</span>
+            <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span><span class="p">(</span>
+                <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">ls_prior</span><span class="p">,</span>
+                <span class="n">lengthscale_constraint</span><span class="o">=</span><span class="n">ls_constraint</span><span class="p">,</span>
+                <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span> <span class="o">-</span> <span class="n">intensity_dim</span><span class="p">,</span>
+                <span class="n">active_dims</span><span class="o">=</span><span class="n">context_dims</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">SmoothedBoxPrior</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">context_covar</span> <span class="o">+</span> <span class="n">intensity_covar</span></div>
+
+
+<div class="viewcode-block" id="ordinal_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.ordinal_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">ordinal_mean_covar_factory</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">base_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="s2">&quot;ordinal_mean_covar_factory&quot;</span><span class="p">,</span> <span class="s2">&quot;base_factory&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+        <span class="n">base_factory</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">base_covar</span> <span class="o">=</span> <span class="n">base_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ZeroMean</span><span class="p">()</span>  <span class="c1"># wlog since ordinal is shift-invariant</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base_covar</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">):</span>
+        <span class="n">covar</span> <span class="o">=</span> <span class="n">base_covar</span><span class="o">.</span><span class="n">base_kernel</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">covar</span> <span class="o">=</span> <span class="n">base_covar</span>
+
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
