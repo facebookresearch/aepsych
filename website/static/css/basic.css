@@ -9,7 +9,7 @@
  *
  */
 
- /* Used to style API Reference page */
+/* Used to style API Reference page */
 
 /* -- main layout ----------------------------------------------------------- */
 
@@ -55,7 +55,7 @@ div.sphinxsidebar {
     margin-left: -100%;
     font-size: 90%;
     word-wrap: break-word;
-    overflow-wrap : break-word;
+    overflow-wrap: break-word;
 }
 
 div.sphinxsidebar ul {
@@ -175,7 +175,7 @@ table.indextable ul {
     list-style-type: none;
 }
 
-table.indextable > tbody > tr > td > ul {
+table.indextable>tbody>tr>td>ul {
     padding-left: 0em;
 }
 
@@ -223,43 +223,43 @@ div.body {
 }
 
 table {
-  overflow: hidden;
+    overflow: hidden;
 }
 
 dl {
-     margin-bottom: 15px;
- }
-
-dl.class > dt  {
-  background-color: #f8f8f8;
-  border-left: 3px solid var(--secondary-color);
-  padding: 2px 0px 2px 5px;
+    margin-bottom: 15px;
 }
 
-dl.class > dt > code  {
-  background: none;
+dl.class>dt {
+    background-color: #f8f8f8;
+    border-left: 3px solid var(--secondary-color);
+    padding: 2px 0px 2px 5px;
 }
 
-dl.class > dt > em.property {
-  color: var(--secondary-color);
-  font-style: normal;
-  font-variant: small-caps;
+dl.class>dt>code {
+    background: none;
+}
+
+dl.class>dt>em.property {
+    color: var(--secondary-color);
+    font-style: normal;
+    font-variant: small-caps;
 }
 
 dl.class em.property {
-  color: var(--secondary-color);
-  font-style: normal;
-  font-variant: small-caps;
+    color: var(--secondary-color);
+    font-style: normal;
+    font-variant: small-caps;
 }
 
-dl.function > dt  {
-  background-color: #f8f8f8;
-  border-left: 3px solid var(--secondary-color);
-  padding: 2px 0px 2px 5px;
+dl.function>dt {
+    background-color: #f8f8f8;
+    border-left: 3px solid var(--secondary-color);
+    padding: 2px 0px 2px 5px;
 }
 
-dl.function > dt > code  {
-  background: none;
+dl.function>dt>code {
+    background: none;
 }
 
 dd {
@@ -267,7 +267,10 @@ dd {
     padding-bottom: 5px;
 }
 
-div.body p, div.body dd, div.body li, div.body blockquote {
+div.body p,
+div.body dd,
+div.body li,
+div.body blockquote {
     -moz-hyphens: auto;
     -ms-hyphens: auto;
     -webkit-hyphens: auto;
@@ -278,16 +281,16 @@ a.headerlink {
     visibility: hidden;
 }
 
-h1:hover > a.headerlink,
-h2:hover > a.headerlink,
-h3:hover > a.headerlink,
-h4:hover > a.headerlink,
-h5:hover > a.headerlink,
-h6:hover > a.headerlink,
-dt:hover > a.headerlink,
-caption:hover > a.headerlink,
-p.caption:hover > a.headerlink,
-div.code-block-caption:hover > a.headerlink {
+h1:hover>a.headerlink,
+h2:hover>a.headerlink,
+h3:hover>a.headerlink,
+h4:hover>a.headerlink,
+h5:hover>a.headerlink,
+h6:hover>a.headerlink,
+dt:hover>a.headerlink,
+caption:hover>a.headerlink,
+p.caption:hover>a.headerlink,
+div.code-block-caption:hover>a.headerlink {
     visibility: visible;
 }
 
@@ -308,22 +311,28 @@ p.rubric {
     font-weight: bold;
 }
 
-img.align-left, .figure.align-left, object.align-left {
+img.align-left,
+.figure.align-left,
+object.align-left {
     clear: left;
     float: left;
     margin-right: 1em;
 }
 
-img.align-right, .figure.align-right, object.align-right {
+img.align-right,
+.figure.align-right,
+object.align-right {
     clear: right;
     float: right;
     margin-left: 1em;
 }
 
-img.align-center, .figure.align-center, object.align-center {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+img.align-center,
+.figure.align-center,
+object.align-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .align-left {
@@ -409,10 +418,10 @@ table caption span.caption-number {
     font-style: italic;
 }
 
-table caption span.caption-text {
-}
+table caption span.caption-text {}
 
-table.docutils td, table.docutils th {
+table.docutils td,
+table.docutils th {
     padding: 1px 8px 1px 5px;
     border-top: 0;
     border-left: 0;
@@ -420,7 +429,8 @@ table.docutils td, table.docutils th {
     border-bottom: 1px solid #aaa;
 }
 
-table.footnote td, table.footnote th {
+table.footnote td,
+table.footnote th {
     border: 0 !important;
 }
 
@@ -453,12 +463,12 @@ div.figure p.caption span.caption-number {
     font-style: italic;
 }
 
-div.figure p.caption span.caption-text {
-}
+div.figure p.caption span.caption-text {}
 
 /* -- field list styles ----------------------------------------------------- */
 
-table.field-list td, table.field-list th {
+table.field-list td,
+table.field-list th {
     border: 0 !important;
 }
 
@@ -515,7 +525,8 @@ dd p {
     margin-top: 0px;
 }
 
-dd ul, dd table {
+dd ul,
+dd table {
     margin-bottom: 10px;
 }
 
@@ -525,7 +536,8 @@ dd {
     margin-left: 30px;
 }
 
-dt:target, span.highlighted {
+dt:target,
+span.highlighted {
     background-color: #fbe54e;
 }
 
@@ -556,7 +568,7 @@ dl.glossary dt {
     border: 3px solid red;
 }
 
-.footnote:target  {
+.footnote:target {
     background-color: #ffa;
 }
 
@@ -572,7 +584,8 @@ dl.glossary dt {
     margin-left: 1.5em;
 }
 
-.guilabel, .menuselection {
+.guilabel,
+.menuselection {
     font-family: sans-serif;
 }
 
@@ -584,7 +597,8 @@ dl.glossary dt {
     font-style: oblique;
 }
 
-abbr, acronym {
+abbr,
+acronym {
     border-bottom: dotted 1px;
     cursor: help;
 }
@@ -593,7 +607,8 @@ abbr, acronym {
 
 pre {
     overflow: auto;
-    overflow-y: hidden;  /* fixes display issues on Chrome browsers */
+    overflow-y: hidden;
+    /* fixes display issues on Chrome browsers */
 }
 
 span.pre {
@@ -627,7 +642,7 @@ div.code-block-caption code {
     background-color: transparent;
 }
 
-div.code-block-caption + div > div.highlight > pre {
+div.code-block-caption+div>div.highlight>pre {
     margin-top: 0;
 }
 
@@ -636,8 +651,7 @@ div.code-block-caption span.caption-number {
     font-style: italic;
 }
 
-div.code-block-caption span.caption-text {
-}
+div.code-block-caption span.caption-text {}
 
 div.literal-block-wrapper {
     padding: 1em 1em 0;
@@ -657,12 +671,18 @@ code.descclassname {
     background-color: transparent;
 }
 
-code.xref, a code {
+code.xref,
+a code {
     background-color: transparent;
     font-weight: bold;
 }
 
-h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code {
     background-color: transparent;
 }
 
@@ -707,21 +727,22 @@ div.math:hover a.headerlink {
 /* -- source ---------------------------------------------------------- */
 
 div.sphinx div.highlight {
-  width: 120%;
+    width: 120%;
 }
 
 div.sphinx div.highlight pre {
-  background-color: #fff;
-  padding: 7px 0 0 0;
+    background-color: #fff;
+    padding: 7px 0 0 0;
 }
 
 div.sphinx div.viewcode-block:target {
-  background: #fff;
+    background: #fff;
 }
 
 /* -- printout stylesheet --------------------------------------------------- */
 
 @media print {
+
     div.document,
     div.documentwrapper,
     div.bodywrapper {
