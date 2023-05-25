@@ -293,12 +293,6 @@ p a:hover {
   color: var(--primary-color);
 }
 
-/* Video */
-/* ----------------------------------------------------------- */
-video {
-  width: -webkit-fill-available;
-}
-
 /* Style Cookie Consent */
 /* ----------------------------------------------------------- */
 .cookie-container {
