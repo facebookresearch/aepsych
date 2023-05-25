@@ -45,7 +45,7 @@ const siteConfig = {
   // This would become <meta name="keywords" content="cooking, blog"> in the generated HTML
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
-  { href: `${baseUrl}demos/`, label: "Demos" },
+  // { href: `${baseUrl}demos/`, label: "Demos" },
   { doc: 'introduction', label: 'Docs' },
   { href: `${baseUrl}tutorials/`, label: "Tutorials" },
   { href: `${baseUrl}api/`, label: "API Reference" },

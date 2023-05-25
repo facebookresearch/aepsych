@@ -18,15 +18,20 @@ const MarkdownBlock = CompLibrary.MarkdownBlock;
 const DemoSidebar = require(`${CWD}/core/DemoSidebar.js`);
 
 const DemoButton = ({ imageUrl, demoUrl, buttonText }) => (
-  <a href={demoUrl} style={{ textDecoration: 'none' }}>
-    <div style={{ display: 'inline-block', width: '40%', margin: "10px 12px", position: "relative" }}>
-      <img src={imageUrl} alt="Demo Image" style={{ width: '100%', height: 'auto', }} />
-      <a className="demo-btns" href={demoUrl} style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translate(-50%, -50%)', color: "white", border: "none", fontWeight: "900", fontSize: "1.5rem" }}>
-        {buttonText}
-      </a>
+  <a href={demoUrl} className="button-link">
+    <div className="demo-btn-div">
+      <div className="image-container">
+        <img src={imageUrl} alt="Demo Image" />
+        <div className="overlay">
+          <a className="demo-btn" href={demoUrl}>
+            {buttonText}
+          </a>
+        </div>
+      </div>
     </div>
   </a>
 );
+
 
 
 class DemoHome extends React.Component {
@@ -44,11 +49,9 @@ class DemoHome extends React.Component {
                 <DemoButton
                   imageUrl={`${this.props.config.baseUrl}img/particle-effect-demo.png`}
                   demoUrl="/demos/ParticleEffectDemo"
-                  buttonText="Particle Demo"
+                  buttonText="Particle Effect Demo"
                 />
-
               </div>
-
             </body>
           </div>
         </Container>
