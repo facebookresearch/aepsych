@@ -8,8 +8,9 @@ from aepsych.server import AEPsychServer
 import matplotlib.pyplot as plt
 import pandas as pd
 from collections import defaultdict
+
 db_name = "../databases/default.db"
-outputfile = '../databases/results.csv'
+outputfile = "../databases/results.csv"
 
 
 # In[ ]:
@@ -17,6 +18,7 @@ outputfile = '../databases/results.csv'
 
 class DummySocket(object):
     pass
+
 
 serv = AEPsychServer(socket=DummySocket, database_path=db_name)
 
@@ -28,12 +30,13 @@ exp_ids = [rec.experiment_id for rec in serv.db.get_master_records()]
 
 # this will take all the data a write it to a csv
 def from_setup(setup_message):
-    confs = setup_message.message_contents['message']['experiment_config']
+    confs = setup_message.message_contents["message"]["experiment_config"]
     names = []
     for con in confs:
-        names.append(con['name'])
-    outcome_type = setup_message.message_contents['message']['outcome_type']
-    return(names, outcome_type)
+        names.append(con["name"])
+    outcome_type = setup_message.message_contents["message"]["outcome_type"]
+    return (names, outcome_type)
+
 
 def get_data(serv, exp_id):
     recs = serv.db.get_replay_for(exp_id)
@@ -42,12 +45,13 @@ def get_data(serv, exp_id):
     for rec in recs:
         if rec.message_type == "tell":
             for name in names:
-                results[name].append(rec.message_contents['message']['config'][name])
-                results['outcome'].append(rec.message_contents['message']['outcome'])
-    datie = pd.DataFrame(results['squeeze']).add_prefix('squeeze_')
-    datie['outcome'] = results['outcome']
-    datie['exp_id'] = exp_id
-    return(datie)
+                results[name].append(rec.message_contents["message"]["config"][name])
+                results["outcome"].append(rec.message_contents["message"]["outcome"])
+    datie = pd.DataFrame(results["squeeze"]).add_prefix("squeeze_")
+    datie["outcome"] = results["outcome"]
+    datie["exp_id"] = exp_id
+    return datie
+
 
 dfs = []
 for exp_id in exp_ids:
@@ -61,8 +65,9 @@ datie.to_csv(outputfile)
 
 
 from aepsych.plotting import make_debug_plots
+from aepsych.server.message_handlers.handle_replay import replay
+
 # do the replays and produce plots
 for exp_id in exp_ids:
-    serv.replay(exp_id)
+    replay(serv, exp_id)
     make_debug_plots(serv.strat)
-

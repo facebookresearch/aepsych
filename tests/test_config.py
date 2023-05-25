@@ -33,6 +33,8 @@ from aepsych.version import __version__
 from botorch.acquisition import qNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 
+from aepsych.server.message_handlers.handle_setup import configure
+
 
 class ConfigTestCase(unittest.TestCase):
     def test_single_probit_config(self):
@@ -163,7 +165,6 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
 
     def test_nonmonotonic_optimization_config_file(self):
-
         config_file = "../configs/nonmonotonic_optimization_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
 
@@ -487,7 +488,7 @@ class ConfigTestCase(unittest.TestCase):
 
         config_file = "../configs/pairwise_al_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
-        server.configure(config_fnames=[config_file])
+        configure(server, config_fnames=[config_file])
         strat = server.strat
 
         self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
@@ -532,7 +533,7 @@ class ConfigTestCase(unittest.TestCase):
         config_file = "../configs/pairwise_opt_example.ini"
         config_file = os.path.join(os.path.dirname(__file__), config_file)
 
-        server.configure(config_fnames=[config_file])
+        configure(server, config_fnames=[config_file])
         strat = server.strat
 
         self.assertTrue(isinstance(strat.strat_list[0].generator, SobolGenerator))
