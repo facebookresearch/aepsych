@@ -48,14 +48,14 @@ class Demo extends React.Component {
         <DemoSidebar currentDemoID={demoID} />
         <Container className="mainContainer">
           <div
-            className="tutorialBody "
+            className="tutorialBody"
             dangerouslySetInnerHTML={{
               __html: fs.readFileSync(normalizedHtmlFile, { encoding: 'utf8' }),
             }}
           />
-          <div className="tutorialButtonWrapper  buttonWrapper">
+          <div className="tutorialButtonWrapper buttonWrapper">
             <a
-              className="tutorialButton  button"
+              className="tutorialButton button"
               download
               href={`${baseUrl}files/demos/${demoID}_Win.zip`}
               target="_blank">

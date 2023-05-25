@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+import zipfile
 
 import nbformat
 from bs4 import BeautifulSoup
@@ -53,7 +55,7 @@ def validate_demo_links(repo_dir: str) -> None:
     # Check if the ID is present in the set and if both "_Mac" and "_Win" endings exist
     for id in demo_ids:
         if f"{id}_Mac" in demo_names and f"{id}_Win" in demo_names:
-            print(f"Both '{id}_Mac' and {id}_Win' demos are present.")
+            print(f"Both '{id}_Mac' and {id}_Win' demos .zip files are present.")
         else:
             print(f"'{id}_Mac' or {id}_Win' .zip demos are not present.")
 
@@ -82,7 +84,7 @@ def gen_demos(repo_dir: str) -> None:
 
         notebook_node = nbformat.v4.new_notebook()
         markdown_cell = nbformat.v4.new_markdown_cell(markdown_content)
-        notebook_node['cells'] = [markdown_cell]
+        notebook_node["cells"] = [markdown_cell]
         exporter = HTMLExporter(template_name="classic")
         html, meta = exporter.from_notebook_node(notebook_node)
 
@@ -103,19 +105,18 @@ def gen_demos(repo_dir: str) -> None:
 
         # generate JS file
         script = TEMPLATE.format(d_id)
-        print(script)
         js_out_path = os.path.join(repo_dir, "website", "pages", "demos", f"{d_id}.js")
         with open(js_out_path, "w") as js_outfile:
             js_outfile.write(script)
 
         # output demo in zip format
-        zip_out_path = os.path.join(files_out_dir, f"{d_id}_Mac.zip")
-        with open(zip_out_path, "w") as zip_outfile:
-            zip_outfile.write(md_in_path)
+        mac_source_path = os.path.join(repo_dir, "demos", f"{d_id}_Mac.zip")
+        mac_zip_out_path = os.path.join(files_out_dir, f"{d_id}_Mac.zip")
+        shutil.copy(mac_source_path, mac_zip_out_path)
 
-        zip_out_path = os.path.join(files_out_dir, f"{d_id}_Win.zip")
-        with open(zip_out_path, "w") as zip_outfile:
-            zip_outfile.write(md_in_path)
+        win_source_path = os.path.join(repo_dir, "demos", f"{d_id}_Win.zip")
+        win_zip_out_path = os.path.join(files_out_dir, f"{d_id}_Win.zip")
+        shutil.copy(win_source_path, win_zip_out_path)
 
 
 if __name__ == "__main__":

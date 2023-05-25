@@ -43,8 +43,8 @@
       }
     },
     "links": {
-      "Docs": "Docs",
       "Demos": "Demos",
+      "Docs": "Docs",
       "Tutorials": "Tutorials",
       "API Reference": "API Reference",
       "GitHub": "GitHub"
