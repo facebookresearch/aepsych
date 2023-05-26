@@ -8,20 +8,19 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
-
+    
 jobs:
-  build-and-deploy:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '16'  # Use Node.js 16
 
       - name: Run publish_site.sh script
         run: |
