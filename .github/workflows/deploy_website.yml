@@ -34,8 +34,8 @@ jobs:
           pip install nbconvert
       - name: Change directory to root 'aepsych'
         run: |
-        cd ..
-        ./scripts/publish_site.sh -d
+          cd ..
+          ./scripts/publish_site.sh -d
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
