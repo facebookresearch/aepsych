@@ -13,7 +13,8 @@ jobs:
 
     steps:
       - name: Print current directory
-        run: echo "Current directory: $PWD"
+        run: echo "Current directory: ${{ github.workspace }}"
+
 
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
