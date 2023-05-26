@@ -14,13 +14,14 @@ jobs:
     runs-on: ubuntu-latest
 
 
-  steps:
-    - name: Print file structure
-      run: |
-        ls -R
-        echo "-----------------------------------"
-        echo "Environment Variables:"
-        printenv
+    steps:
+      - name: Print file structure
+        run: |
+          ls -R
+          echo "-----------------------------------"
+          echo "Environment Variables:"
+          printenv
+          ls
 
       # - uses: actions/checkout@v3
       # - uses: actions/setup-node@v3
