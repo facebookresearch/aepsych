@@ -28,6 +28,7 @@ jobs:
           pip install nbconvert
           pip install Sphinx
           pip install gpytorch
+          pip install ax
       - name: Print current directory
         run: |
           echo "Current directory:"
