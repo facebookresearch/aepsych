@@ -33,7 +33,6 @@ jobs:
           pwd
       - name: Build AEPsych documentation
         run: |
-          cd ..
           pwd
           ls
           cd ./sphinx || exit

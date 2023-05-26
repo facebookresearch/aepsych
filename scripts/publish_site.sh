@@ -22,23 +22,23 @@ echo "============ Building docs ==============="
 ./scripts/build_docs.sh -b
 echo "=========================================="
 
-# echo "===== Publishing website to gh-pages ====="
-#     cd website/ || exit
-#     GIT_USER=facebookresearch \
-#     CURRENT_BRANCH=main \
-#     USE_SSH=true \
-#     yarn run publish-gh-pages
-#     rm -rf build/
-# echo "=========================================="
+echo "===== Publishing website to gh-pages ====="
+    cd website/ || exit
+    GIT_USER=facebookresearch \
+    CURRENT_BRANCH=main \
+    USE_SSH=true \
+    yarn run publish-gh-pages
+    rm -rf build/
+echo "=========================================="
 
 
 echo "======== Cleanup for github ==============="
   cd .. || exit
   find . -type d -name __pycache__ -exec rm -r {} \+
-  # cd website/ || exit
-  # rm -rf node_modules/
-  # rm -rf yarn.lock
-  # cd ../
-  # cd sphinx/ || exit
-  # rm -rf build/ || exit
+  cd website/ || exit
+  rm -rf node_modules/
+  rm -rf yarn.lock
+  cd ../
+  cd sphinx/ || exit
+  rm -rf build/ || exit
 echo "================Completed======================"
