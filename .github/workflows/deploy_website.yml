@@ -45,9 +45,11 @@ jobs:
         run: |
           cd ..
           pwd
-          cd aepsych/sphinx || exit
+          cd ./sphinx || exit
+          ls
           make clean
           make html
+          ..
           cd .. || exit
           cd website || exit
           yarn
