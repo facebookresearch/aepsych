@@ -2,9 +2,11 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -33,9 +35,18 @@ jobs:
           pip install nbformat
           pip install nbconvert
 
+      - name: Change directory to root 'aepsych'
+        run: cd ..
+
+      - name: Install Yarn dependencies
+        run: |
+          cd website
+          yarn install --frozen-lockfile
+          cd ..
+
       - name: Build AEPsych documentation
         run: |
-          cd sphinx || exit
+          cd aepsych/sphinx || exit
           make clean
           make html
           cd .. || exit
@@ -44,9 +55,9 @@ jobs:
           cd ..
           mkdir -p "website/pages/api/"
           cwd=$(pwd)
-          python scripts/parse_sphinx.py -i "${cwd}/sphinx/build/html/" -o "${cwd}/website/pages/api/"
-          SPHINX_JS_DIR='sphinx/build/html/_static/'
-          DOCUSAURUS_JS_DIR='website/static/js/'
+          python scripts/parse_sphinx.py -i "${cwd}/aepsych/sphinx/build/html/" -o "${cwd}/aepsych/website/pages/api/"
+          SPHINX_JS_DIR='aepsych/sphinx/build/html/_static/'
+          DOCUSAURUS_JS_DIR='aepsych/website/static/js/'
           mkdir -p $DOCUSAURUS_JS_DIR
           cp "${SPHINX_JS_DIR}documentation_options.js" "${DOCUSAURUS_JS_DIR}documentation_options.js"
           cp "${SPHINX_JS_DIR}jquery.js" "${DOCUSAURUS_JS_DIR}jquery.js"
@@ -54,10 +65,10 @@ jobs:
           cp "${SPHINX_JS_DIR}doctools.js" "${DOCUSAURUS_JS_DIR}doctools.js"
           cp "${SPHINX_JS_DIR}language_data.js" "${DOCUSAURUS_JS_DIR}language_data.js"
           cp "${SPHINX_JS_DIR}searchtools.js" "${DOCUSAURUS_JS_DIR}searchtools.js"
-          cp "sphinx/build/html/searchindex.js" "${DOCUSAURUS_JS_DIR}searchindex.js"
-          cp -r "sphinx/build/html/_sources/" "website/static/_sphinx-sources/"
-          mkdir -p "website/_tutorials"
-          mkdir -p "website/static/files"
+          cp "aepsych/sphinx/build/html/searchindex.js" "${DOCUSAURUS_JS_DIR}searchindex.js"
+          cp -r "aepsych/sphinx/build/html/_sources/" "aepsych/website/static/_sphinx-sources/"
+          mkdir -p "aepsych/website/_tutorials"
+          mkdir -p "aepsych/website/static/files"
           python scripts/parse_tutorials.py -w "${cwd}"
           cd website || exit
           yarn build
@@ -66,8 +77,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./website/build
-
-      - name: Remove __pycache__ directories
-        run: |
-          find . -type d -name "__pycache__" -exec rm -r {} \+
+          publish_dir: ./aepsych/website/build
