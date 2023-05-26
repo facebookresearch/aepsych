@@ -23,12 +23,6 @@ jobs:
           node-version: 18
           cache: yarn
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Change directory to 'aepsych'
-        run: cd aepsych
-      - name: Build website
-        run: yarn build
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -38,6 +32,10 @@ jobs:
           pip install beautifulsoup4
           pip install nbformat
           pip install nbconvert
+      - name: Change directory to root 'aepsych'
+        run: |
+        cd ..
+        ./scripts/publish_site.sh -d
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
