@@ -36,9 +36,9 @@ jobs:
 
       - name: Publish latest website
         run: |
-          chmod +x ./scripts/publish.sh
+          chmod +x ./scripts/publish_site.sh
           pwd
-          ./scripts/publish.sh -d
+          ./scripts/publish_site.sh -d
 
       - name: Publish to GitHub Pages
         env:
