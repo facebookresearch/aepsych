@@ -22,14 +22,14 @@ echo "============ Building docs ==============="
 ./scripts/build_docs.sh -b
 echo "=========================================="
 
-echo "===== Publishing website to gh-pages ====="
-    cd website/ || exit
-    GIT_USER=facebookresearch \
-    CURRENT_BRANCH=main \
-    USE_SSH=true \
-    yarn run publish-gh-pages
-    rm -rf build/
-echo "=========================================="
+# echo "===== Publishing website to gh-pages ====="
+#     cd website/ || exit
+#     GIT_USER=facebookresearch \
+#     CURRENT_BRANCH=main \
+#     USE_SSH=true \
+#     yarn run publish-gh-pages
+#     rm -rf build/
+# echo "=========================================="
 
 
 echo "======== Cleanup for github ==============="
