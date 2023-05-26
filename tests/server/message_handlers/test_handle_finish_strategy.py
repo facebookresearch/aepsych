@@ -27,24 +27,20 @@ class ResumeTestCase(BaseServerTestCase):
         strat_name_request = {"type": "info"}
         finish_strat_request = {"type": "finish_strategy"}
 
-        self.s.unversioned_handler(setup_request)
-        strat_name = self.s.unversioned_handler(strat_name_request)[
-            "current_strat_name"
-        ]
+        self.s.handle_request(setup_request)
+        strat_name = self.s.handle_request(strat_name_request)["current_strat_name"]
         self.assertEqual(strat_name, "init_strat")
 
         # model-based strategies require data
-        self.s.unversioned_handler(tell_request)
+        self.s.handle_request(tell_request)
 
-        msg = self.s.unversioned_handler(finish_strat_request)
+        msg = self.s.handle_request(finish_strat_request)
         self.assertEqual(msg, "finished strategy init_strat")
 
         # need to gen another trial to move to next strategy
-        self.s.unversioned_handler(ask_request)
+        self.s.handle_request(ask_request)
 
-        strat_name = self.s.unversioned_handler(strat_name_request)[
-            "current_strat_name"
-        ]
+        strat_name = self.s.handle_request(strat_name_request)["current_strat_name"]
         self.assertEqual(strat_name, "opt_strat")
 
 

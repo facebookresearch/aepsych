@@ -14,7 +14,7 @@ import threading
 import traceback
 import warnings
 
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import aepsych.database.db as db
 
@@ -24,23 +24,9 @@ import numpy as np
 import pandas as pd
 import torch
 
-from aepsych.server.message_handlers.handle_ask import ask, handle_ask, handle_ask_v01
-from aepsych.server.message_handlers.handle_can_model import handle_can_model
-from aepsych.server.message_handlers.handle_exit import handle_exit
-from aepsych.server.message_handlers.handle_finish_strategy import (
-    handle_finish_strategy,
-)
-from aepsych.server.message_handlers.handle_get_config import handle_get_config
-from aepsych.server.message_handlers.handle_info import handle_info
-from aepsych.server.message_handlers.handle_params import handle_params
-from aepsych.server.message_handlers.handle_query import handle_query
-from aepsych.server.message_handlers.handle_resume import handle_resume_v01
-from aepsych.server.message_handlers.handle_setup import (
-    configure,
-    handle_setup,
-    handle_setup_v01,
-)
-from aepsych.server.message_handlers.handle_tell import handle_tell
+from aepsych.server.message_handlers import MESSAGE_MAP
+from aepsych.server.message_handlers.handle_ask import ask
+from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.server.replay import (
     get_dataframe_from_replay,
     get_strat_from_replay,
@@ -256,70 +242,6 @@ class AEPsychServer(object):
         else:
             return None
 
-    def versioned_handler(self, request: Dict[str, Any]):
-        handled_types = ["setup", "resume", "ask"]
-        ret_val: Any = None  # to make mypy happy
-        if request["type"] == "setup":
-            if request["version"] == "0.01":
-                ret_val = handle_setup_v01(self, request)
-            else:
-                raise RuntimeError(
-                    f"Unknown message version {request['version']} for message 'setup'!"
-                )
-        elif request["type"] == "resume":
-            if request["version"] == "0.01":
-                ret_val = handle_resume_v01(self, request)
-            else:
-                raise RuntimeError(
-                    f"Unknown message version {request['version']} for message 'resume'!"
-                )
-        elif request["type"] == "ask":
-            if request["version"] == "0.01":
-                ret_val = handle_ask_v01(self, request)
-            else:
-                raise RuntimeError(
-                    f"Unknown message version {request['version']} for message 'ask'!"
-                )
-        if request["type"] in handled_types:
-            logger.info(f"Received msg [{request['type']}]")
-
-        else:
-            warnings.warn(
-                "Got versioned handler but no version, falling back to unversioned!"
-            )
-            return self.unversioned_handler(request)
-        return ret_val
-
-    def unversioned_handler(self, request):
-        message_map = {
-            "setup": handle_setup,
-            "ask": handle_ask,
-            "tell": handle_tell,
-            "query": handle_query,
-            "parameters": handle_params,
-            "can_model": handle_can_model,
-            "exit": handle_exit,
-            "get_config": handle_get_config,
-            "finish_strategy": handle_finish_strategy,
-            "info": handle_info,
-        }
-
-        if "type" not in request.keys():
-            raise RuntimeError(f"Request {request} contains no request type!")
-        else:
-            type = request["type"]
-            if type in message_map.keys():
-                logger.info(f"Received msg [{type}]")
-                ret_val = message_map[type](self, request)
-
-                return ret_val
-            else:
-                exception_message = (
-                    f"unknown type: {type}. Allowed types [{message_map.keys()}]"
-                )
-
-                raise RuntimeError(exception_message)
-
     ### Properties that are set on a per-strat basis
     @property
     def strat(self):
@@ -403,10 +325,21 @@ class AEPsychServer(object):
         dill.dump(self, open(fname, "wb"))
 
     def handle_request(self, request):
-        if "version" in request.keys():
-            return self.versioned_handler(request)
+        if "type" not in request.keys():
+            raise RuntimeError(f"Request {request} contains no request type!")
+        else:
+            type = request["type"]
+            if type in MESSAGE_MAP.keys():
+                logger.info(f"Received msg [{type}]")
+                ret_val = MESSAGE_MAP[type](self, request)
+                return ret_val
 
-        return self.unversioned_handler(request)
+            else:
+                exception_message = (
+                    f"unknown type: {type}. Allowed types [{MESSAGE_MAP.keys()}]"
+                )
+
+                raise RuntimeError(exception_message)
 
     def replay(self, uuid_to_replay, skip_computations=False):
         return replay(self, uuid_to_replay, skip_computations)

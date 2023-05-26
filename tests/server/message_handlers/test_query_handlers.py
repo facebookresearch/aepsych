@@ -27,10 +27,10 @@ class QueryHandlerTestCase(BaseServerTestCase):
             ],
         }
 
-        self.s.versioned_handler(setup_request)
+        self.s.handle_request(setup_request)
         while not self.s.strat.finished:
-            self.s.unversioned_handler(ask_request)
-            self.s.unversioned_handler(tell_request)
+            self.s.handle_request(ask_request)
+            self.s.handle_request(tell_request)
 
         query_max_req = {
             "type": "query",
@@ -58,10 +58,10 @@ class QueryHandlerTestCase(BaseServerTestCase):
                 "y": 5.0,
             },
         }
-        response_max = self.s.unversioned_handler(query_max_req)
-        response_min = self.s.unversioned_handler(query_min_req)
-        response_pred = self.s.unversioned_handler(query_pred_req)
-        response_inv = self.s.unversioned_handler(query_inv_req)
+        response_max = self.s.handle_request(query_max_req)
+        response_min = self.s.handle_request(query_min_req)
+        response_pred = self.s.handle_request(query_pred_req)
+        response_inv = self.s.handle_request(query_inv_req)
 
         for response in [response_max, response_min, response_pred, response_inv]:
             self.assertTrue(type(response["x"]) is dict)

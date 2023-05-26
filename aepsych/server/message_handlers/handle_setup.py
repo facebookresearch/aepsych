@@ -3,7 +3,6 @@ import logging
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
 
-from aepsych.server.message_handlers.handle_ask import handle_ask
 from aepsych.strategy import AEPsychStrategy, SequentialStrategy
 from aepsych.version import __version__
 
@@ -69,33 +68,6 @@ def configure(server, config=None, **config_args):
 
 
 def handle_setup(server, request):
-    logger.debug("got setup message!")
-
-    if not server.is_performing_replay:
-        experiment_id = None
-        if server._db_master_record is not None:
-            experiment_id = server._db_master_record.experiment_id
-
-        server._db_master_record = server.db.record_setup(
-            description=DEFAULT_DESC,
-            name=DEFAULT_NAME,
-            request=request,
-            id=experiment_id,
-        )
-
-    if (
-        "config_str" in request["message"].keys()
-        or "config_dict" in request["message"].keys()
-    ):
-        _ = configure(server, **request["message"])
-    else:
-        raise RuntimeError("Missing a configure message!")
-    new_config = handle_ask(server, request)
-
-    return new_config
-
-
-def handle_setup_v01(server, request):
     logger.debug("got setup message!")
     ### make a temporary config object to derive parameters because server handles config after table
     if (

@@ -46,6 +46,78 @@ outcomes = {
     ],
 }
 
+multistim_config = """
+# Configuration for multi-stimulus experiment integration test
+
+[common]
+lb = [0, 0]
+ub = [1, 1]
+parnames = [x1, x2]
+stimuli_per_trial = 2
+outcome_types = [binary]
+strategy_names = [init_strat, opt_strat]
+
+[init_strat]
+min_asks = 3
+generator = SobolGenerator
+min_total_outcome_occurrences = 0
+
+[opt_strat]
+min_asks = 4
+generator = OptimizeAcqfGenerator
+acqf = qNoisyExpectedImprovement
+model = PairwiseProbitModel
+min_total_outcome_occurrences = 0
+
+[SobolGenerator]
+n_points = 2
+
+[PairwiseMCPosteriorVariance]
+objective = ProbitObjective
+
+[PairwiseProbitModel]
+inducing_size = 100
+mean_covar_factory = default_mean_covar_factory
+
+[OptimizeAcqfGenerator]
+restarts = 10
+samps = 1000
+
+[qNoisyExpectedImprovement]
+objective = ProbitObjective
+"""
+
+singlestim_config = """
+[common]
+lb = [0, 0]
+ub = [1, 1]
+parnames = [x1, x2]
+stimuli_per_trial = 1
+outcome_types = [binary]
+strategy_names = [init_strat, opt_strat]
+
+[init_strat]
+min_asks = 3
+generator = SobolGenerator
+min_total_outcome_occurrences = 0
+
+[opt_strat]
+min_asks = 4
+generator = OptimizeAcqfGenerator
+acqf = MCPosteriorVariance
+model = GPClassificationModel
+min_total_outcome_occurrences = 0
+
+[GPClassificationModel]
+inducing_size = 10
+mean_covar_factory = default_mean_covar_factory
+
+[SobolGenerator]
+n_points = 2
+"""
+
+test_configs = {"singleStimuli": singlestim_config, "multiStimuli": multistim_config}
+
 all_tests = list(product(params, outcomes))
 
 
@@ -185,19 +257,18 @@ class IntegrationTestCase(unittest.TestCase):
         x2 = params[param_type]["x2"]
         outcome = outcomes[outcome_type]
 
-        with open(f"tests/configs/{param_type}" + ".ini", "r") as f:
-            dummy_config = f.read()
+        dummy_config = test_configs[param_type]
 
         self.setup_request["message"]["config_str"] = dummy_config
 
-        self.s.versioned_handler(self.setup_request)
+        self.s.handle_request(self.setup_request)
 
         i = 0
         while not self.s.strat.finished:
-            self.s.unversioned_handler(self.ask_request)
+            self.s.handle_request(self.ask_request)
             self.get_tell(x1[i], x2[i], outcome[i])
             i = i + 1
-            self.s.unversioned_handler(self.tell_request)
+            self.s.handle_request(self.tell_request)
 
         # Experiment id
         exp_id = self.s.db.get_master_records()[0].experiment_id

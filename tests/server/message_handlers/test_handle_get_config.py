@@ -21,8 +21,8 @@ class HandleExitTestCase(BaseServerTestCase):
         }
         get_config_request = {"type": "get_config", "message": {}}
 
-        self.s.versioned_handler(setup_request)
-        config_dict = self.s.versioned_handler(get_config_request)
+        self.s.handle_request(setup_request)
+        config_dict = self.s.handle_request(get_config_request)
         true_config_dict = Config(config_str=dummy_config).to_dict(deduplicate=False)
         self.assertEqual(config_dict, true_config_dict)
 
@@ -30,20 +30,20 @@ class HandleExitTestCase(BaseServerTestCase):
             "section": "init_strat",
             "property": "min_asks",
         }
-        response = self.s.versioned_handler(get_config_request)
+        response = self.s.handle_request(get_config_request)
         self.assertEqual(response, true_config_dict["init_strat"]["min_asks"])
 
         get_config_request["message"] = {"section": "init_strat", "property": "lb"}
-        response = self.s.versioned_handler(get_config_request)
+        response = self.s.handle_request(get_config_request)
         self.assertEqual(response, true_config_dict["init_strat"]["lb"])
 
         get_config_request["message"] = {"property": "min_asks"}
         with self.assertRaises(RuntimeError):
-            response = self.s.versioned_handler(get_config_request)
+            response = self.s.handle_request(get_config_request)
 
         get_config_request["message"] = {"section": "init_strat"}
         with self.assertRaises(RuntimeError):
-            response = self.s.versioned_handler(get_config_request)
+            response = self.s.handle_request(get_config_request)
 
 
 if __name__ == "__main__":

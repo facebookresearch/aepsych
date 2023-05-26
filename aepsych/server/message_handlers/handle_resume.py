@@ -12,7 +12,7 @@ import aepsych.utils_logging as utils_logging
 logger = utils_logging.getLogger(logging.INFO)
 
 
-def handle_resume_v01(server, request):
+def handle_resume(server, request):
     logger.debug("got resume message!")
     strat_id = int(request["message"]["strat_id"])
     server.strat_id = strat_id

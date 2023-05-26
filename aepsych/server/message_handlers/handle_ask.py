@@ -12,7 +12,7 @@ import aepsych.utils_logging as utils_logging
 logger = utils_logging.getLogger(logging.INFO)
 
 
-def handle_ask_v01(server, request):
+def handle_ask(server, request):
     """Returns dictionary with two entries:
     "config" -- dictionary with config (keys are strings, values are floats)
     "is_finished" -- bool, true if the strat is finished
@@ -28,22 +28,6 @@ def handle_ask_v01(server, request):
         server.db.record_message(
             master_table=server._db_master_record, type="ask", request=request
         )
-    return new_config
-
-
-def handle_ask(server, request):
-    logger.debug("got ask message!")
-
-    if server._pregen_asks:
-        return server._pregen_asks.pop()
-
-    new_config = ask(server)
-
-    if not server.is_performing_replay:
-        server.db.record_message(
-            master_table=server._db_master_record, type="ask", request=request
-        )
-
     return new_config
 
 
