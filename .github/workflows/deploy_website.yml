@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Print current directory
+        run: echo "Current directory: $(pwd)"
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
