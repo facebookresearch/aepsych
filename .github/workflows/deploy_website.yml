@@ -32,7 +32,6 @@ jobs:
       - name: Run publish_site.sh script
         run: |
           chmod +x ./scripts/build_docs.sh
-          cd /home/runner/work/aepsych
           pwd
           ./scripts/build_docs.sh -b
 
