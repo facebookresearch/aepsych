@@ -42,7 +42,7 @@ jobs:
           pwd
       - name: Build AEPsych documentation
         run: |
-          ./scripts/build_docs.sh -d
+          ./scripts/build_docs.sh 
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
