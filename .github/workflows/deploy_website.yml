@@ -13,15 +13,13 @@ jobs:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
 
-
     steps:
-      - name: Print file structure
+      - name: Print current directory
         run: |
+          echo "Current directory:"
           ls -R
-          echo "-----------------------------------"
-          echo "Environment Variables:"
-          printenv
-          ls
+          pwd
+
 
       # - uses: actions/checkout@v3
       # - uses: actions/setup-node@v3
