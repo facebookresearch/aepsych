@@ -17,8 +17,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-
-    steps:
       - name: Print current directory
         run: |
           echo "Current directory:"
