@@ -35,24 +35,9 @@ jobs:
           pip install nbconvert
 
       - name: Publish latest website
-        run: |
-          chmod +x ./scripts/publish_site.sh
-          pwd
-          ./scripts/publish_site.sh -d
-
-      - name: Publish to GitHub Pages
         env:
-          GIT_USER: facebookresearch
-          CURRENT_BRANCH: main
-          USE_SSH: true
-        run: yarn run publish-gh-pages
-
+          DOCUSAURUS_PUBLISH_TOKEN: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
+        run: |
+          ./scripts/publish_site.sh -d
       - name: Cleanup
         run: rm -rf build/
-
-
-      # - name: Deploy to GitHub Pages
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
-      #     publish_dir: ./website/build
