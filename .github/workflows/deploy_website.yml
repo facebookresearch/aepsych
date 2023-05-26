@@ -28,7 +28,7 @@ jobs:
           pip install nbconvert
           pip install Sphinx
           pip install gpytorch
-          pip install ax
+          pip install ax-platform
       - name: Print current directory
         run: |
           echo "Current directory:"
@@ -36,13 +36,10 @@ jobs:
           pwd
       - name: Build AEPsych documentation
         run: |
-          pwd
-          ls
           cd sphinx || exit
           make clean
           make html
-          ..
-          cd ..
+          cd .. || exit
           cd website || exit
           yarn
           cd ..
