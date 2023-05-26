@@ -45,8 +45,8 @@ jobs:
         run: |
           cd ..
           pwd
-          cd ./sphinx || exit
           ls
+          cd ./sphinx || exit
           make clean
           make html
           ..
