@@ -43,6 +43,7 @@ jobs:
 
       - name: Build AEPsych documentation
         run: |
+          cd ..
           pwd
           cd aepsych/sphinx || exit
           make clean
