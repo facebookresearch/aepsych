@@ -1,16 +1,10 @@
-# on:
-#   push:
-#     branches:
-#       - main
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
@@ -21,37 +15,27 @@ jobs:
       - name: Print current directory
         run: echo "Current directory: $(pwd)"
 
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 18
+          cache: yarn
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
+      - name: Change directory to 'aepsych'
+        run: cd aepsych
       - name: Build website
         run: yarn build
-
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
-
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           pip install beautifulsoup4
           pip install nbformat
           pip install nbconvert
-
-      - name: Publish latest website
-        env:
-          DOCUSAURUS_PUBLISH_TOKEN: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
-        run: |
-          ./scripts/publish_site.sh -d
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
