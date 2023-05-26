@@ -39,5 +39,8 @@ jobs:
           DOCUSAURUS_PUBLISH_TOKEN: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
         run: |
           ./scripts/publish_site.sh -d
-      - name: Cleanup
-        run: rm -rf build/
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
+          publish_dir: ./website/build
