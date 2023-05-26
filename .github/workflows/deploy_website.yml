@@ -31,9 +31,10 @@ jobs:
 
       - name: Run publish_site.sh script
         run: |
-          chmod +x ./scripts/publish_site.sh
+          chmod +x ./scripts/build_docs.sh
+          cd /home/runner/work/aepsych
           pwd
-          ./scripts/publish_site.sh
+          ./scripts/build_docs.sh -b
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
