@@ -6,40 +6,49 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    - name: Publish latest website
-    env:
-      DOCUSAURUS_PUBLISH_TOKEN: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
-    run: |
-      ./scripts/publish_site.sh -d
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 18
-          cache: yarn
+          node-version: 14
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+
       - name: Build website
         run: yarn build
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - name: Install dependencies
+
+      - name: Install Python dependencies
         run: |
           pip install beautifulsoup4
           pip install nbformat
           pip install nbconvert
+
+      - name: Publish latest website
+        env:
+          DOCUSAURUS_PUBLISH_TOKEN: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
+        run: |
+          ./scripts/publish_site.sh -d
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
