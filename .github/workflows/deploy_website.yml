@@ -32,12 +32,42 @@ jobs:
           pip install beautifulsoup4
           pip install nbformat
           pip install nbconvert
-      - name: Change directory to root 'aepsych'
+
+      - name: Build AEPsych documentation
         run: |
+          cd sphinx || exit
+          make clean
+          make html
+          cd .. || exit
+          cd website || exit
+          yarn
           cd ..
-          ./scripts/publish_site.sh -d
+          mkdir -p "website/pages/api/"
+          cwd=$(pwd)
+          python scripts/parse_sphinx.py -i "${cwd}/sphinx/build/html/" -o "${cwd}/website/pages/api/"
+          SPHINX_JS_DIR='sphinx/build/html/_static/'
+          DOCUSAURUS_JS_DIR='website/static/js/'
+          mkdir -p $DOCUSAURUS_JS_DIR
+          cp "${SPHINX_JS_DIR}documentation_options.js" "${DOCUSAURUS_JS_DIR}documentation_options.js"
+          cp "${SPHINX_JS_DIR}jquery.js" "${DOCUSAURUS_JS_DIR}jquery.js"
+          cp "${SPHINX_JS_DIR}underscore.js" "${DOCUSAURUS_JS_DIR}underscore.js"
+          cp "${SPHINX_JS_DIR}doctools.js" "${DOCUSAURUS_JS_DIR}doctools.js"
+          cp "${SPHINX_JS_DIR}language_data.js" "${DOCUSAURUS_JS_DIR}language_data.js"
+          cp "${SPHINX_JS_DIR}searchtools.js" "${DOCUSAURUS_JS_DIR}searchtools.js"
+          cp "sphinx/build/html/searchindex.js" "${DOCUSAURUS_JS_DIR}searchindex.js"
+          cp -r "sphinx/build/html/_sources/" "website/static/_sphinx-sources/"
+          mkdir -p "website/_tutorials"
+          mkdir -p "website/static/files"
+          python scripts/parse_tutorials.py -w "${cwd}"
+          cd website || exit
+          yarn build
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./website/build
+
+      - name: Remove __pycache__ directories
+        run: |
+          find . -type d -name "__pycache__" -exec rm -r {} \+
