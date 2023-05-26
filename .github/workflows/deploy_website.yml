@@ -8,7 +8,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-    
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -26,14 +26,15 @@ jobs:
         run: |
           chmod +x ./scripts/publish_site.sh
           ./scripts/publish_site.sh
-            # - name: Install Dependencies
-      #   run: npm ci
 
-      # - name: Build Doc Website
-      #   run: npm run build
+      - name: Install Dependencies
+        run: npm ci
 
-      # - name: Deploy to GitHub Pages
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: ./website/build
+      - name: Build Doc Website
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/build
