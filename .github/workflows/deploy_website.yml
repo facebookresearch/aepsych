@@ -27,6 +27,7 @@ jobs:
           pip install nbformat
           pip install nbconvert
           pip install Sphinx
+          pip install gpytorch
       - name: Print current directory
         run: |
           echo "Current directory:"
