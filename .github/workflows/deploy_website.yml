@@ -17,65 +17,66 @@ jobs:
       - name: Print current directory
         run: |
           echo "Current directory:"
-          cd ..
-          pwd
-
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          pip install beautifulsoup4
-          pip install nbformat
-          pip install nbconvert
-
-      - name: Install Yarn dependencies
-        run: |
-          cd website
-          yarn install --frozen-lockfile
-          cd ..
-
-      - name: Build AEPsych documentation
-        run: |
-          cd ..
+          cd aepsych
           pwd
           ls
-          cd ./sphinx || exit
-          make clean
-          make html
-          ..
-          cd .. || exit
-          cd website || exit
-          yarn
-          cd ..
-          mkdir -p "website/pages/api/"
-          cwd=$(pwd)
-          python scripts/parse_sphinx.py -i "${cwd}/aepsych/sphinx/build/html/" -o "${cwd}/aepsych/website/pages/api/"
-          SPHINX_JS_DIR='aepsych/sphinx/build/html/_static/'
-          DOCUSAURUS_JS_DIR='aepsych/website/static/js/'
-          mkdir -p $DOCUSAURUS_JS_DIR
-          cp "${SPHINX_JS_DIR}documentation_options.js" "${DOCUSAURUS_JS_DIR}documentation_options.js"
-          cp "${SPHINX_JS_DIR}jquery.js" "${DOCUSAURUS_JS_DIR}jquery.js"
-          cp "${SPHINX_JS_DIR}underscore.js" "${DOCUSAURUS_JS_DIR}underscore.js"
-          cp "${SPHINX_JS_DIR}doctools.js" "${DOCUSAURUS_JS_DIR}doctools.js"
-          cp "${SPHINX_JS_DIR}language_data.js" "${DOCUSAURUS_JS_DIR}language_data.js"
-          cp "${SPHINX_JS_DIR}searchtools.js" "${DOCUSAURUS_JS_DIR}searchtools.js"
-          cp "aepsych/sphinx/build/html/searchindex.js" "${DOCUSAURUS_JS_DIR}searchindex.js"
-          cp -r "aepsych/sphinx/build/html/_sources/" "aepsych/website/static/_sphinx-sources/"
-          mkdir -p "aepsych/website/_tutorials"
-          mkdir -p "aepsych/website/static/files"
-          python scripts/parse_tutorials.py -w "${cwd}"
-          cd website || exit
-          yarn build
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./aepsych/website/build
+      # - uses: actions/checkout@v3
+      # - uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 18
+
+      # - name: Set up Python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: 3.8
+      # - name: Install dependencies
+      #   run: |
+      #     pip install beautifulsoup4
+      #     pip install nbformat
+      #     pip install nbconvert
+
+      # - name: Install Yarn dependencies
+      #   run: |
+      #     cd website
+      #     yarn install --frozen-lockfile
+      #     cd ..
+
+      # - name: Build AEPsych documentation
+      #   run: |
+      #     cd ..
+      #     pwd
+      #     ls
+      #     cd ./sphinx || exit
+      #     make clean
+      #     make html
+      #     ..
+      #     cd .. || exit
+      #     cd website || exit
+      #     yarn
+      #     cd ..
+      #     mkdir -p "website/pages/api/"
+      #     cwd=$(pwd)
+      #     python scripts/parse_sphinx.py -i "${cwd}/aepsych/sphinx/build/html/" -o "${cwd}/aepsych/website/pages/api/"
+      #     SPHINX_JS_DIR='aepsych/sphinx/build/html/_static/'
+      #     DOCUSAURUS_JS_DIR='aepsych/website/static/js/'
+      #     mkdir -p $DOCUSAURUS_JS_DIR
+      #     cp "${SPHINX_JS_DIR}documentation_options.js" "${DOCUSAURUS_JS_DIR}documentation_options.js"
+      #     cp "${SPHINX_JS_DIR}jquery.js" "${DOCUSAURUS_JS_DIR}jquery.js"
+      #     cp "${SPHINX_JS_DIR}underscore.js" "${DOCUSAURUS_JS_DIR}underscore.js"
+      #     cp "${SPHINX_JS_DIR}doctools.js" "${DOCUSAURUS_JS_DIR}doctools.js"
+      #     cp "${SPHINX_JS_DIR}language_data.js" "${DOCUSAURUS_JS_DIR}language_data.js"
+      #     cp "${SPHINX_JS_DIR}searchtools.js" "${DOCUSAURUS_JS_DIR}searchtools.js"
+      #     cp "aepsych/sphinx/build/html/searchindex.js" "${DOCUSAURUS_JS_DIR}searchindex.js"
+      #     cp -r "aepsych/sphinx/build/html/_sources/" "aepsych/website/static/_sphinx-sources/"
+      #     mkdir -p "aepsych/website/_tutorials"
+      #     mkdir -p "aepsych/website/static/files"
+      #     python scripts/parse_tutorials.py -w "${cwd}"
+      #     cd website || exit
+      #     yarn build
+
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./aepsych/website/build
