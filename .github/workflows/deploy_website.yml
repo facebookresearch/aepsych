@@ -15,9 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v3
+      - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -29,14 +31,14 @@ jobs:
           pip install nbformat
           pip install nbconvert
 
-      - name: Run publish_site.sh script
+      - name: Publish latest website
         run: |
-          chmod +x ./scripts/build_docs.sh
+          chmod +x ./scripts/publish.sh
           pwd
-          ./scripts/build_docs.sh -b
+          ./scripts/publish.sh -d
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
           publish_dir: ./website/build
