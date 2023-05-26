@@ -28,7 +28,13 @@ jobs:
           pip install nbconvert
           pip install Sphinx
           pip install gpytorch
-          pip install ax-platform
+          pip install botorch>=0.1.3
+          pip install jinja2
+          pip install pandas
+          pip install scipy
+          pip install scikit-learn
+          pip install plotly>=2.2.1
+          pip install ax-platform>=0.3.1
       - name: Print current directory
         run: |
           echo "Current directory:"
@@ -36,32 +42,7 @@ jobs:
           pwd
       - name: Build AEPsych documentation
         run: |
-          cd sphinx || exit
-          make clean
-          make html
-          cd .. || exit
-          cd website || exit
-          yarn
-          cd ..
-          mkdir -p "website/pages/api/"
-          cwd=$(pwd)
-          python scripts/parse_sphinx.py -i "${cwd}/sphinx/build/html/" -o "${cwd}/website/pages/api/"
-          SPHINX_JS_DIR='sphinx/build/html/_static/'
-          DOCUSAURUS_JS_DIR='website/static/js/'
-          mkdir -p $DOCUSAUR_JS_DIR
-          cp "${SPHINX_JS_DIR}documentation_options.js" "${DOCUSAUR_JS_DIR}documentation_options.js"
-          cp "${SPHINX_JS_DIR}jquery.js" "${DOCUSAUR_JS_DIR}jquery.js"
-          cp "${SPHINX_JS_DIR}underscore.js" "${DOCUSAUR_JS_DIR}underscore.js"
-          cp "${SPHINX_JS_DIR}doctools.js" "${DOCUSAUR_JS_DIR}doctools.js"
-          cp "${SPHINX_JS_DIR}language_data.js" "${DOCUSAUR_JS_DIR}language_data.js"
-          cp "${SPHINX_JS_DIR}searchtools.js" "${DOCUSAUR_JS_DIR}searchtools.js"
-          cp "sphinx/build/html/searchindex.js" "${DOCUSAUR_JS_DIR}searchindex.js"
-          cp -r "sphinx/build/html/_sources/" "website/static/_sphinx-sources/"
-          mkdir -p "website/_tutorials"
-          mkdir -p "website/static/files"
-          python scripts/parse_tutorials.py -w "${cwd}"
-          cd website || exit
-          yarn build
+          ./scripts/build_docs.sh -d
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
