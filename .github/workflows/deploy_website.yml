@@ -17,7 +17,6 @@ jobs:
       - name: Print current directory
         run: |
           echo "Current directory:"
-          cd aepsych
           pwd
           ls
 
