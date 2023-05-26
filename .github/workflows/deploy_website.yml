@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Print current directory
-        run: echo "Current directory: $(pwd)"
+        run: echo "Current directory: $PWD"
 
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
