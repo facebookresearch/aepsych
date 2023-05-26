@@ -29,19 +29,19 @@ class StratCanModelTestCase(BaseServerTestCase):
             "message": {},
         }
 
-        self.s.versioned_handler(setup_request)
+        self.s.handle_request(setup_request)
         # At the start there is no model, so can_model returns false
-        response = self.s.unversioned_handler(can_model_request)
+        response = self.s.handle_request(can_model_request)
         self.assertTrue(response["can_model"] == 0)
 
-        self.s.unversioned_handler(ask_request)
-        self.s.unversioned_handler(tell_request)
-        self.s.unversioned_handler(ask_request)
-        self.s.unversioned_handler(tell_request)
-        self.s.unversioned_handler(ask_request)
+        self.s.handle_request(ask_request)
+        self.s.handle_request(tell_request)
+        self.s.handle_request(ask_request)
+        self.s.handle_request(tell_request)
+        self.s.handle_request(ask_request)
 
         # Dummy config has 2 init trials; so after third ask, can_model returns true
-        response = self.s.unversioned_handler(can_model_request)
+        response = self.s.handle_request(can_model_request)
         self.assertTrue(response["can_model"] == 1)
 
 

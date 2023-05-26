@@ -89,10 +89,10 @@ class ServerTestCase(BaseServerTestCase):
             "type": "tell",
             "message": {"config": {"x": [0.5]}, "outcome": 1},
         }
-        self.s.versioned_handler(setup_request)
+        self.s.handle_request(setup_request)
         while not self.s.strat.finished:
-            self.s.unversioned_handler(ask_request)
-            self.s.unversioned_handler(tell_request)
+            self.s.handle_request(ask_request)
+            self.s.handle_request(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
         stored_strat = self.s.get_strat_from_replay(exp_id)
@@ -125,20 +125,20 @@ class ServerTestCase(BaseServerTestCase):
             "message": {"config": {"x": [0.5]}, "outcome": 1},
             "extra_info": {},
         }
-        self.s.versioned_handler(setup_request)
+        self.s.handle_request(setup_request)
         expected_x = [0, 1, 2, 3]
         expected_z = list(reversed(expected_x))
         expected_y = [x % 2 for x in expected_x]
         i = 0
         while not self.s.strat.finished:
-            self.s.unversioned_handler(ask_request)
+            self.s.handle_request(ask_request)
             tell_request["message"]["config"]["x"] = [expected_x[i]]
             tell_request["message"]["config"]["z"] = [expected_z[i]]
             tell_request["message"]["outcome"] = expected_y[i]
             tell_request["extra_info"]["e1"] = 1
             tell_request["extra_info"]["e2"] = 2
             i = i + 1
-            self.s.unversioned_handler(tell_request)
+            self.s.handle_request(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
         out_df = self.s.get_dataframe_from_replay(exp_id)
@@ -166,16 +166,16 @@ class ServerTestCase(BaseServerTestCase):
         expected_z = list(reversed(expected_x))
         expected_y = [x % 2 for x in expected_x]
         i = 0
-        self.s.versioned_handler(setup_request)
+        self.s.handle_request(setup_request)
         while not self.s.strat.finished:
-            self.s.unversioned_handler(ask_request)
+            self.s.handle_request(ask_request)
             tell_request["message"]["config"]["x"] = [expected_x[i]]
             tell_request["message"]["config"]["z"] = [expected_z[i]]
             tell_request["message"]["outcome"] = expected_y[i]
             tell_request["extra_info"]["e1"] = 1
             tell_request["extra_info"]["e2"] = 2
             i = i + 1
-            self.s.unversioned_handler(tell_request)
+            self.s.handle_request(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
         out_df = self.s.get_dataframe_from_replay(exp_id)
@@ -204,20 +204,20 @@ class ServerTestCase(BaseServerTestCase):
             "message": {"config": {"x": [0.5]}, "outcome": 1},
             "extra_info": {},
         }
-        self.s.versioned_handler(setup_request)
+        self.s.handle_request(setup_request)
         expected_x = [0, 1, 2, 3]
         expected_z = list(reversed(expected_x))
         expected_y = [x % 2 for x in expected_x]
         i = 0
         while not self.s.strat.finished:
-            self.s.unversioned_handler(ask_request)
+            self.s.handle_request(ask_request)
             tell_request["message"]["config"]["x"] = expected_x[i]
             tell_request["message"]["config"]["z"] = expected_z[i]
             tell_request["message"]["outcome"] = expected_y[i]
             tell_request["extra_info"]["e1"] = 1
             tell_request["extra_info"]["e2"] = 2
             i = i + 1
-            self.s.unversioned_handler(tell_request)
+            self.s.handle_request(tell_request)
 
         exp_id = self.s.db.get_master_records()[-1].experiment_id
         out_df = self.s.get_dataframe_from_replay(exp_id)
@@ -320,40 +320,29 @@ class ServerTestCase(BaseServerTestCase):
                 torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
             )
 
-    def test_unversioned_handler_untyped(self):
-        """test_unversioned_handler_untyped"""
+    def test_handle_request_untyped(self):
+        """test_handle_request_untyped"""
         request = {}
         # check untyped request
         with self.assertRaises(RuntimeError):
-            self.s.unversioned_handler(request)
+            self.s.handle_request(request)
 
-    def test_unversioned_handler_type_invalid(self):
-        """test_unversioned_handler_type_invalid"""
+    def test_handle_request_type_invalid(self):
+        """test_handle_request_type_invalid"""
         request = {"type": "invalid"}
         # make sure invalid types handle properly
         with self.assertRaises(RuntimeError):
-            self.s.unversioned_handler(request)
+            self.s.handle_request(request)
 
-    def test_serve_versioned_handler(self):
+    def test_serve_handle_request(self):
         """Tests that the full pipeline is working. Message should go from _receive_send to _handle_queue
         to the version handler"""
         request = {"version": 0}
         self.s.socket.receive = MagicMock(return_value=request)
         self.s.socket.accept_client = MagicMock()
 
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
-
-    def test_serve_unversioned_handler(self):
-        request = {}
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.socket.accept_client = MagicMock()
-
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
+        self.s.handle_request = MagicMock()
+        self.s.handle_request = MagicMock()
         self.s.exit_server_loop = True
         with self.assertRaises(SystemExit):
             self.s.serve()

@@ -36,17 +36,10 @@ class ThriftSocketTestCase(unittest.TestCase):
     def test_serve(self):
         request = {"version": 0}
         self.s.socket.receive = MagicMock(return_value=request)
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
+        self.s.handle_request = MagicMock()
+        self.s.handle_request = MagicMock()
         self.s.serve()
-        self.s.versioned_handler.assert_called_once_with(request)
-
-        request = {}
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.versioned_handler = MagicMock()
-        self.s.unversioned_handler = MagicMock()
-        self.s.serve()
-        self.s.unversioned_handler.assert_called_once_with(request)
+        self.s.handle_request.assert_called_once_with(request)
 
     def test_receive(self):
         request = {"version": 0}
