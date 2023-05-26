@@ -17,6 +17,7 @@ jobs:
       - name: Print current directory
         run: |
           echo "Current directory:"
+          cd ..
           pwd
 
       - uses: actions/checkout@v3
@@ -34,9 +35,6 @@ jobs:
           pip install nbformat
           pip install nbconvert
 
-      - name: Change directory to root 'aepsych'
-        run: cd ..
-
       - name: Install Yarn dependencies
         run: |
           cd website
@@ -45,6 +43,7 @@ jobs:
 
       - name: Build AEPsych documentation
         run: |
+          pwd
           cd aepsych/sphinx || exit
           make clean
           make html
