@@ -2,7 +2,7 @@
 #   push:
 #     branches:
 #       - main
-name: Deploy DocuStor Website
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -11,35 +11,39 @@ on:
     branches: [main]
 
 jobs:
-  build-and-publish:
+  deploy:
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
 
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build website
+        run: yarn build
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
       - name: Install dependencies
         run: |
           pip install beautifulsoup4
           pip install nbformat
           pip install nbconvert
-
       - name: Publish latest website
         env:
           DOCUSAURUS_PUBLISH_TOKEN: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
         run: |
           ./scripts/publish_site.sh -d
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./website/build
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
