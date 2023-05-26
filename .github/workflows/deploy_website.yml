@@ -15,11 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -37,8 +40,19 @@ jobs:
           pwd
           ./scripts/publish.sh -d
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
-          publish_dir: ./website/build
+      - name: Publish to GitHub Pages
+        env:
+          GIT_USER: facebookresearch
+          CURRENT_BRANCH: main
+          USE_SSH: true
+        run: yarn run publish-gh-pages
+
+      - name: Cleanup
+        run: rm -rf build/
+
+
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.DOCUSAURUS_PUBLISH_TOKEN }}
+      #     publish_dir: ./website/build
