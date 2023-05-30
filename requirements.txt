@@ -4,11 +4,13 @@ pyzmq==19.0.2
 scipy
 scikit-learn
 statsmodels
+sphinx==5.0.2
 SQLAlchemy==1.4.46
 dill
 pandas
 tqdm
 pathos
+plotly>=2.2.1
 aepsych_client>=0.2.0
 voila==0.3.6
 ipywidgets==7.6.5
