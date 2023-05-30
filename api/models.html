@@ -646,7 +646,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -778,7 +783,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -830,11 +840,12 @@ by rejection sampling.</p>
 <li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a><em>, </em><em>optional</em>) – Acquisition function to use for querying points. Defaults to MonotonicMCLSE.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.</p></li>
 <li><p><strong>extra_acqf_args</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional arguments to pass into the acquisition function. Defaults to None.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -986,7 +997,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1130,11 +1146,12 @@ by rejection sampling.</p>
 <li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a><em>, </em><em>optional</em>) – Acquisition function to use for querying points. Defaults to MonotonicMCLSE.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.</p></li>
 <li><p><strong>extra_acqf_args</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional arguments to pass into the acquisition function. Defaults to None.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1275,8 +1292,12 @@ gamma prior.</p></li>
 Gaussian likelihood.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
-<li><p><strong>num_outputs</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1398,12 +1419,12 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>Kernel</em><em>]</em>) – </p></li>
-<li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1489,7 +1510,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1570,20 +1596,16 @@ of:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>monotonic_dims</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – A list of the dimensions on which monotonicity should
+<li><p><strong>monotonic_dims</strong> – A list of the dimensions on which monotonicity should
 be enforced.</p></li>
-<li><p><strong>monotonic_grid_size</strong> (<em>int</em>) – The size of the grid, s, in 1. above.</p></li>
-<li><p><strong>min_f_val</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – If provided, maintains this minimum in the projection in 5.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>mean_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.means.Mean</em><em>]</em>) – </p></li>
-<li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.kernels.Kernel</em><em>]</em>) – </p></li>
-<li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>Likelihood</em><em>]</em>) – </p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – </p></li>
-<li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
+<li><p><strong>monotonic_grid_size</strong> – The size of the grid, s, in 1. above.</p></li>
+<li><p><strong>min_f_val</strong> – If provided, maintains this minimum in the projection in 5.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <p>Initialize the GP Classification model</p>
@@ -1607,10 +1629,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>monotonic_dims</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>monotonic_grid_size</strong> (<em>int</em>) – </p></li>
-<li><p><strong>min_f_val</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1872,7 +1896,12 @@ Should be less than or equal to num_outputs. Defaults to 1.</p></li>
 Defaults to scaled RBF kernel.</p></li>
 <li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>gpytorch.likelihoods.Likelihood</em><em>]</em><em>, </em><em>optional</em>) – Likelihood
 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1934,7 +1963,12 @@ with AEPsych API and convenience fitting / prediction methods.</p>
 Defaults to scaled RBF kernel.</p></li>
 <li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>gpytorch.likelihoods.Likelihood</em><em>]</em><em>, </em><em>optional</em>) – Likelihood
 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -2017,11 +2051,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>slope_mean</strong> (<em>float</em>) – </p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -2138,11 +2173,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>slope_mean</strong> (<em>float</em>) – </p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -2316,7 +2352,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
