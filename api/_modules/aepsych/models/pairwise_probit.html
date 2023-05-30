@@ -1,0 +1,259 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for aepsych.models.pairwise_probit</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">aepsych.factory</span> <span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">promote_0d</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span> <span class="nn">botorch.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_mll</span>
+<span class="kn">from</span> <span class="nn">botorch.models</span> <span class="kn">import</span> <span class="n">PairwiseGP</span><span class="p">,</span> <span class="n">PairwiseLaplaceMarginalLogLikelihood</span>
+<span class="kn">from</span> <span class="nn">botorch.models.transforms.input</span> <span class="kn">import</span> <span class="n">Normalize</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="PairwiseProbitModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel">[docs]</a><span class="k">class</span> <span class="nc">PairwiseProbitModel</span><span class="p">(</span><span class="n">PairwiseGP</span><span class="p">,</span> <span class="n">AEPsychMixin</span><span class="p">):</span>
+    <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"binary"</span>
+
+    <span class="k">def</span> <span class="nf">_pairs_to_comparisons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Takes x, y structured as pairs and judgments and</span>
+<span class="sd">        returns pairs and comparisons as PairwiseGP requires</span>
+<span class="sd">        """</span>
+        <span class="c1"># This needs to take a unique over the feature dim by flattening</span>
+        <span class="c1"># over pairs but not instances/batches. This is actually tensor</span>
+        <span class="c1"># matricization over the feature dimension but awkward in numpy</span>
+        <span class="n">unique_coords</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_get_index_of_equal_row</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">x</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]),</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="n">comparisons</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pair</span><span class="p">,</span> <span class="n">judgement</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+            <span class="n">comparison</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">_get_index_of_equal_row</span><span class="p">(</span><span class="n">unique_coords</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
+                <span class="n">_get_index_of_equal_row</span><span class="p">(</span><span class="n">unique_coords</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">judgement</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">comparisons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comparison</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">comparisons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comparison</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">unique_coords</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">(</span><span class="n">comparisons</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">max_fit_time</span>
+
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">))</span>
+        <span class="n">input_transform</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span>
+                <span class="n">config_dict</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">"default_mean_covar_factory"</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">"lb"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">tolist</span><span class="p">()),</span>
+                        <span class="s2">"ub"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">tolist</span><span class="p">()),</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">covar_module</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">datapoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">comparisons</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+            <span class="n">jitter</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+            <span class="n">input_transform</span><span class="o">=</span><span class="n">input_transform</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span>  <span class="c1"># The Pairwise constructor sets self.dim = None.</span>
+
+<div class="viewcode-block" id="PairwiseProbitModel.fit"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">optimizer_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="n">mll</span> <span class="o">=</span> <span class="n">PairwiseLaplaceMarginalLogLikelihood</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">datapoints</span><span class="p">,</span> <span class="n">comparisons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pairs_to_comparisons</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_train_data</span><span class="p">(</span><span class="n">datapoints</span><span class="p">,</span> <span class="n">comparisons</span><span class="p">)</span>
+
+        <span class="n">optimizer_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">optimizer_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">optimizer_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_fit_time</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_fit_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># figure out how long evaluating a single samp</span>
+            <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">mll</span><span class="p">(</span><span class="bp">self</span><span class="p">(</span><span class="n">datapoints</span><span class="p">),</span> <span class="n">comparisons</span><span class="p">)</span>
+            <span class="n">single_eval_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span>
+            <span class="n">n_eval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_fit_time</span> <span class="o">/</span> <span class="n">single_eval_time</span><span class="p">)</span>
+            <span class="n">optimizer_kwargs</span><span class="p">[</span><span class="s2">"maxfun"</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_eval</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"fit maxfun is </span><span class="si">{</span><span class="n">n_eval</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting fit..."</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">fit_gpytorch_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">optimizer_kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fit done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PairwiseProbitModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">warmstart</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PairwiseProbitModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">rereference</span><span class="o">=</span><span class="s2">"x_min"</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">rereference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">samps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">rereference</span><span class="p">)</span>
+            <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="n">samps</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">samps</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">post</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">promote_0d</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fmean</span><span class="p">)),</span>
+                <span class="n">promote_0d</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fvar</span><span class="p">)),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span></div>
+
+<div class="viewcode-block" id="PairwiseProbitModel.sample"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">rereference</span><span class="o">=</span><span class="s2">"x_min"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rereference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rsample</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">num_samples</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">rereference</span> <span class="o">==</span> <span class="s2">"x_min"</span><span class="p">:</span>
+            <span class="n">x_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span>
+        <span class="k">elif</span> <span class="n">rereference</span> <span class="o">==</span> <span class="s2">"x_max"</span><span class="p">:</span>
+            <span class="n">x_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span>
+        <span class="k">elif</span> <span class="n">rereference</span> <span class="o">==</span> <span class="s2">"f_max"</span><span class="p">:</span>
+            <span class="n">x_ref</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_max</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">rereference</span> <span class="o">==</span> <span class="s2">"f_min"</span><span class="p">:</span>
+            <span class="n">x_ref</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_min</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Unknown rereference type </span><span class="si">{</span><span class="n">rereference</span><span class="si">}</span><span class="s2">! Options: x_min, x_max, f_min, f_max."</span>
+            <span class="p">)</span>
+
+        <span class="n">x_stack</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">x_ref</span><span class="p">])</span>
+        <span class="n">samps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x_stack</span><span class="p">)</span><span class="o">.</span><span class="n">rsample</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">num_samples</span><span class="p">]))</span>
+        <span class="n">samps</span><span class="p">,</span> <span class="n">samps_ref</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">samps</span><span class="p">,</span> <span class="p">[</span><span class="n">samps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rereference</span> <span class="o">==</span> <span class="s2">"x_min"</span> <span class="ow">or</span> <span class="n">rereference</span> <span class="o">==</span> <span class="s2">"f_min"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">samps</span> <span class="o">-</span> <span class="n">samps_ref</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">samps</span> <span class="o">+</span> <span class="n">samps_ref</span></div>
+
+<div class="viewcode-block" id="PairwiseProbitModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="n">mean_covar_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="s2">"PairwiseProbitModel"</span><span class="p">,</span>
+            <span class="s2">"mean_covar_factory"</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="n">default_mean_covar_factory</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># no way of passing mean into PairwiseGP right now</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span> <span class="n">covar_module</span><span class="o">=</span><span class="n">covar</span><span class="p">,</span> <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">)</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

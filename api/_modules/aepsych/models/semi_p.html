@@ -1,0 +1,697 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for aepsych.models.semi_p</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="n">FloorLogitObjective</span>
+
+<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective.semi_p</span> <span class="kn">import</span> <span class="n">SemiPThresholdObjective</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">aepsych.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliObjectiveLikelihood</span><span class="p">,</span> <span class="n">LinearBernoulliLikelihood</span>
+<span class="kn">from</span> <span class="nn">aepsych.models</span> <span class="kn">import</span> <span class="n">GPClassificationModel</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">promote_0d</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span> <span class="nn">botorch.optim.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_mll_scipy</span>
+<span class="kn">from</span> <span class="nn">botorch.posteriors</span> <span class="kn">import</span> <span class="n">GPyTorchPosterior</span>
+<span class="kn">from</span> <span class="nn">gpytorch.distributions</span> <span class="kn">import</span> <span class="n">MultivariateNormal</span>
+<span class="kn">from</span> <span class="nn">gpytorch.kernels</span> <span class="kn">import</span> <span class="n">RBFKernel</span><span class="p">,</span> <span class="n">ScaleKernel</span>
+<span class="kn">from</span> <span class="nn">gpytorch.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliLikelihood</span><span class="p">,</span> <span class="n">Likelihood</span>
+<span class="kn">from</span> <span class="nn">gpytorch.means</span> <span class="kn">import</span> <span class="n">ConstantMean</span><span class="p">,</span> <span class="n">ZeroMean</span>
+<span class="kn">from</span> <span class="nn">gpytorch.priors</span> <span class="kn">import</span> <span class="n">GammaPrior</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Normal</span>
+
+<span class="c1"># TODO: Implement a covar factory and analytic method for getting the lse</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_hadamard_mvn_approx</span><span class="p">(</span><span class="n">x_intensity</span><span class="p">,</span> <span class="n">slope_mean</span><span class="p">,</span> <span class="n">slope_cov</span><span class="p">,</span> <span class="n">offset_mean</span><span class="p">,</span> <span class="n">offset_cov</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+
+<span class="sd">    MVN approximation to the hadamard product of GPs (from the SemiP paper, extending the</span>
+<span class="sd">    zero-mean results in https://mathoverflow.net/questions/293955/normal-approximation-to-the-pointwise-hadamard-schur-product-of-two-multivariat)</span>
+<span class="sd">    """</span>
+    <span class="n">offset_mean</span> <span class="o">=</span> <span class="n">offset_mean</span> <span class="o">+</span> <span class="n">x_intensity</span>
+
+    <span class="n">mean_x</span> <span class="o">=</span> <span class="n">offset_mean</span> <span class="o">*</span> <span class="n">slope_mean</span>
+
+    <span class="c1"># Same as torch.diag_embed(slope_mean) @ offset_cov @ torch.diag_embed(slope_mean), but more efficient</span>
+    <span class="n">term1</span> <span class="o">=</span> <span class="n">slope_mean</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">offset_cov</span> <span class="o">*</span> <span class="n">slope_mean</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Same as torch.diag_embed(offset_mean) @ slope_cov @ torch.diag_embed(offset_mean), but more efficient</span>
+    <span class="n">term2</span> <span class="o">=</span> <span class="n">offset_mean</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">slope_cov</span> <span class="o">*</span> <span class="n">offset_mean</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">term3</span> <span class="o">=</span> <span class="n">slope_cov</span> <span class="o">*</span> <span class="n">offset_cov</span>
+
+    <span class="n">cov_x</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span> <span class="o">+</span> <span class="n">term3</span>
+
+    <span class="k">return</span> <span class="n">mean_x</span><span class="p">,</span> <span class="n">cov_x</span>
+
+
+<div class="viewcode-block" id="semi_p_posterior_transform"><a class="viewcode-back" href="../../../models.html#aepsych.models.semi_p_posterior_transform">[docs]</a><span class="k">def</span> <span class="nf">semi_p_posterior_transform</span><span class="p">(</span><span class="n">posterior</span><span class="p">):</span>
+    <span class="n">batch_mean</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">mvn</span><span class="o">.</span><span class="n">mean</span>
+    <span class="n">batch_cov</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">mvn</span><span class="o">.</span><span class="n">covariance_matrix</span>
+    <span class="n">offset_mean</span> <span class="o">=</span> <span class="n">batch_mean</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">slope_mean</span> <span class="o">=</span> <span class="n">batch_mean</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">offset_cov</span> <span class="o">=</span> <span class="n">batch_cov</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">slope_cov</span> <span class="o">=</span> <span class="n">batch_cov</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">Xi</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">Xi</span>
+    <span class="n">approx_mean</span><span class="p">,</span> <span class="n">approx_cov</span> <span class="o">=</span> <span class="n">_hadamard_mvn_approx</span><span class="p">(</span>
+        <span class="n">x_intensity</span><span class="o">=</span><span class="n">Xi</span><span class="p">,</span>
+        <span class="n">slope_mean</span><span class="o">=</span><span class="n">slope_mean</span><span class="p">,</span>
+        <span class="n">slope_cov</span><span class="o">=</span><span class="n">slope_cov</span><span class="p">,</span>
+        <span class="n">offset_mean</span><span class="o">=</span><span class="n">offset_mean</span><span class="p">,</span>
+        <span class="n">offset_cov</span><span class="o">=</span><span class="n">offset_cov</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">approx_mvn</span> <span class="o">=</span> <span class="n">MultivariateNormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">approx_mean</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="o">=</span><span class="n">approx_cov</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">GPyTorchPosterior</span><span class="p">(</span><span class="n">mvn</span><span class="o">=</span><span class="n">approx_mvn</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">SemiPPosterior</span><span class="p">(</span><span class="n">GPyTorchPosterior</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mvn</span><span class="p">:</span> <span class="n">MultivariateNormal</span><span class="p">,</span>
+        <span class="n">likelihood</span><span class="p">:</span> <span class="n">LinearBernoulliLikelihood</span><span class="p">,</span>
+        <span class="n">Xi</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="n">mvn</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Xi</span> <span class="o">=</span> <span class="n">Xi</span>
+
+    <span class="k">def</span> <span class="nf">rsample_from_base_samples</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">,</span>
+        <span class="n">base_samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Sample from the posterior (with gradients) using base samples.</span>
+
+<span class="sd">        This is intended to be used with a sampler that produces the corresponding base</span>
+<span class="sd">        samples, and enables acquisition optimization via Sample Average Approximation.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">super</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">rsample_from_base_samples</span><span class="p">(</span>
+                <span class="n">sample_shape</span><span class="o">=</span><span class="n">sample_shape</span><span class="p">,</span> <span class="n">base_samples</span><span class="o">=</span><span class="n">base_samples</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">rsample</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">kcsamps</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">super</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">rsample</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">sample_shape</span><span class="p">,</span> <span class="n">base_samples</span><span class="o">=</span><span class="n">base_samples</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># fsamps is of shape nsamp x 2 x n, or nsamp x b x 2 x n</span>
+        <span class="k">return</span> <span class="n">kcsamps</span>
+
+    <span class="k">def</span> <span class="nf">sample_p</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">kcsamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsample</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">sample_shape</span><span class="p">,</span> <span class="n">base_samples</span><span class="o">=</span><span class="n">base_samples</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">function_samples</span><span class="o">=</span><span class="n">kcsamps</span><span class="p">,</span> <span class="n">Xi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Xi</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">sample_f</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">kcsamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsample</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">sample_shape</span><span class="p">,</span> <span class="n">base_samples</span><span class="o">=</span><span class="n">base_samples</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">function_samples</span><span class="o">=</span><span class="n">kcsamps</span><span class="p">,</span> <span class="n">Xi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Xi</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">sample_thresholds</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">threshold_level</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">sample_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="n">fsamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsample</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">sample_shape</span><span class="p">,</span> <span class="n">base_samples</span><span class="o">=</span><span class="n">base_samples</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">SemiPThresholdObjective</span><span class="p">(</span>
+            <span class="n">likelihood</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">threshold_level</span>
+        <span class="p">)(</span><span class="n">samples</span><span class="o">=</span><span class="n">fsamps</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Xi</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SemiParametricGPModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel">[docs]</a><span class="k">class</span> <span class="nc">SemiParametricGPModel</span><span class="p">(</span><span class="n">GPClassificationModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Semiparametric GP model for psychophysics.</span>
+
+<span class="sd">    Implements a semi-parametric model with a functional form like :math:`k(x_c()x_i + c(x_c))`,</span>
+<span class="sd">    for scalar intensity dimension :math:`x_i` and vector-valued context dimensions :math:`x_c`,</span>
+<span class="sd">    with k and c having a GP prior. In contrast to HadamardSemiPModel, this version uses a batched GP</span>
+<span class="sd">    directly, which is about 2-3x slower but does not use the MVN approximation.</span>
+
+<span class="sd">    Intended for use with a BernoulliObjectiveLikelihood with flexible link function such as</span>
+<span class="sd">    Logistic or Gumbel nonlinearity with a floor.</span>
+<span class="sd">    """</span>
+
+    <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">_batch_shape</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"binary"</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stim_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">slope_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">inducing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize SemiParametricGP.</span>
+<span class="sd">        Args:</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.</span>
+<span class="sd">            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.</span>
+<span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
+<span class="sd">                of lb and ub.</span>
+<span class="sd">            stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.</span>
+<span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.</span>
+<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a</span>
+<span class="sd">                gamma prior.</span>
+<span class="sd">            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to</span>
+<span class="sd">                linear-Bernouli likelihood with probit link.</span>
+<span class="sd">            inducing_size (int): Number of inducing points. Defaults to 100.</span>
+<span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
+<span class="sd">                there is no limit to the fitting time.</span>
+<span class="sd">            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".</span>
+<span class="sd">                If "sobol", a number of Sobol points equal to inducing_size will be selected.</span>
+<span class="sd">                If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.</span>
+<span class="sd">                If "kmeans++", selects points by performing kmeans++ clustering on the training data.</span>
+<span class="sd">                If "auto", tries to determine the best method automatically.</span>
+<span class="sd">        """</span>
+
+        <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span> <span class="o">=</span> <span class="n">stim_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stim_dim</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mean_module</span> <span class="o">=</span> <span class="n">ConstantMean</span><span class="p">(</span><span class="n">batch_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">mean_module</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">mean_module</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">slope_mean</span><span class="p">])</span>  <span class="c1"># offset mean is 0, slope mean is 2</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">covar_module</span> <span class="o">=</span> <span class="n">ScaleKernel</span><span class="p">(</span>
+                <span class="n">RBFKernel</span><span class="p">(</span>
+                    <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+                    <span class="n">active_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context_dims</span><span class="p">,</span>  <span class="c1"># Operate only on x_s</span>
+                    <span class="n">batch_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="p">),</span>
+                <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span> <span class="ow">or</span> <span class="n">LinearBernoulliLikelihood</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">likelihood</span><span class="p">,</span> <span class="n">LinearBernoulliLikelihood</span>
+        <span class="p">),</span> <span class="s2">"SemiP model only supports linear Bernoulli likelihoods!"</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
+            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+            <span class="n">mean_module</span><span class="o">=</span><span class="n">mean_module</span><span class="p">,</span>
+            <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+            <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
+            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
+            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
+            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SemiParametricGPModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SemiParametricGPModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Alternate constructor for SemiParametricGPModel model.</span>
+
+<span class="sd">        This is used when we recursively build a full sampling strategy</span>
+<span class="sd">        from a configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SemiParametricGPModel: Configured class instance.</span>
+<span class="sd">        """</span>
+
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"auto"</span>
+        <span class="p">)</span>
+
+        <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
+            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="p">()</span>
+
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">slope_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
+            <span class="n">stim_dim</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span>
+            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+            <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
+            <span class="n">slope_mean</span><span class="o">=</span><span class="n">slope_mean</span><span class="p">,</span>
+            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
+            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
+            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SemiParametricGPModel.fit"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">warmstart_hyperparams</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">warmstart_induc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Fit underlying model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_x (torch.Tensor): Inputs.</span>
+<span class="sd">            train_y (torch.LongTensor): Responses.</span>
+<span class="sd">            warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters (True) or fit from scratch</span>
+<span class="sd">                (False). Defaults to False.</span>
+<span class="sd">            warmstart_induc (bool): Whether to reuse the previous inducing points or fit from scratch (False).</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">            kwargs: Keyword arguments passed to `optimizer=fit_gpytorch_mll_scipy`.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">train_x</span><span class="o">=</span><span class="n">train_x</span><span class="p">,</span>
+            <span class="n">train_y</span><span class="o">=</span><span class="n">train_y</span><span class="p">,</span>
+            <span class="n">optimizer</span><span class="o">=</span><span class="n">fit_gpytorch_mll_scipy</span><span class="p">,</span>
+            <span class="n">warmstart_hyperparams</span><span class="o">=</span><span class="n">warmstart_hyperparams</span><span class="p">,</span>
+            <span class="n">warmstart_induc</span><span class="o">=</span><span class="n">warmstart_induc</span><span class="p">,</span>
+            <span class="n">closure_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"Xi"</span><span class="p">:</span> <span class="n">train_x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span><span class="p">]},</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SemiParametricGPModel.sample"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Sample from underlying model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x ((n x d) torch.Tensor): Points at which to sample.</span>
+<span class="sd">            num_samples (int, optional): Number of samples to return. Defaults to None.</span>
+<span class="sd">            kwargs are ignored</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (num_samples x n) torch.Tensor: Posterior samples</span>
+<span class="sd">        """</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">probability_space</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">samps</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">sample_p</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">num_samples</span><span class="p">]))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">samps</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">sample_f</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">num_samples</span><span class="p">]))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+        <span class="k">assert</span> <span class="n">samps</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">num_samples</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">samps</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SemiParametricGPModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
+<span class="sd">            probability_space (bool, optional): Return outputs in units of</span>
+<span class="sd">                response probability instead of latent function value. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at query points.</span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">samps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span>
+            <span class="p">)</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">samps</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">samps</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SemiParametricGPModel.posterior"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.posterior">[docs]</a>    <span class="k">def</span> <span class="nf">posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">posterior_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Assume x is (b) x n x d</span>
+        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="c1"># Add in the extra 2 batch for the 2 GPs in this model</span>
+        <span class="n">Xnew</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span>
+            <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># (b)</span>
+            <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>  <span class="c1"># For the two GPs</span>
+            <span class="o">+</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>  <span class="c1"># n x d</span>
+        <span class="p">)</span>
+        <span class="c1"># The shape of Xnew is: (b) x 2 x n x d</span>
+        <span class="n">posterior</span> <span class="o">=</span> <span class="n">SemiPPosterior</span><span class="p">(</span>
+            <span class="n">mvn</span><span class="o">=</span><span class="bp">self</span><span class="p">(</span><span class="n">Xnew</span><span class="p">),</span>
+            <span class="n">likelihood</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span>
+            <span class="n">Xi</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">posterior_transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">posterior_transform</span><span class="p">(</span><span class="n">posterior</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">posterior</span></div></div>
+
+
+<div class="viewcode-block" id="HadamardSemiPModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.HadamardSemiPModel">[docs]</a><span class="k">class</span> <span class="nc">HadamardSemiPModel</span><span class="p">(</span><span class="n">GPClassificationModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Semiparametric GP model for psychophysics, with a MVN approximation to the elementwise</span>
+<span class="sd">    product of GPs.</span>
+
+<span class="sd">    Implements a semi-parametric model with a functional form like :math:`k(x_c()x_i + c(x_c))`,</span>
+<span class="sd">    for scalar intensity dimension :math:`x_i` and vector-valued context dimensions :math:`x_c`,</span>
+<span class="sd">    with k and c having a GP prior. In contrast to SemiParametricGPModel, this version approximates</span>
+<span class="sd">    the product as a single multivariate normal, which should be faster (the approximation is exact</span>
+<span class="sd">    if one of the GP's variance goes to zero).</span>
+<span class="sd">    Intended for use with a BernoulliObjectiveLikelihood with flexible link function such as</span>
+<span class="sd">    Logistic or Gumbel nonlinearity with a floor.</span>
+<span class="sd">    """</span>
+
+    <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"binary"</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stim_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">slope_mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">slope_covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">offset_mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">offset_covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">slope_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">inducing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize HadamardSemiPModel.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.</span>
+<span class="sd">            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.</span>
+<span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
+<span class="sd">                of lb and ub.</span>
+<span class="sd">            stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.</span>
+<span class="sd">            slope_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for slope.</span>
+<span class="sd">            slope_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for slope.</span>
+<span class="sd">            offset_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for offset.</span>
+<span class="sd">            offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.</span>
+<span class="sd">            likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5</span>
+<span class="sd">            inducing_size (int): Number of inducing points. Defaults to 100.</span>
+<span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
+<span class="sd">                there is no limit to the fitting time.</span>
+<span class="sd">            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".</span>
+<span class="sd">                If "sobol", a number of Sobol points equal to inducing_size will be selected.</span>
+<span class="sd">                If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.</span>
+<span class="sd">                If "kmeans++", selects points by performing kmeans++ clustering on the training data.</span>
+<span class="sd">                If "auto", tries to determine the best method automatically.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
+            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
+            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
+            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span> <span class="o">=</span> <span class="n">stim_dim</span>
+
+        <span class="k">if</span> <span class="n">slope_mean_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slope_mean_module</span> <span class="o">=</span> <span class="n">ConstantMean</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slope_mean_module</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slope_mean_module</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">slope_mean</span><span class="p">)</span>
+            <span class="p">)</span>  <span class="c1"># magic number to shift the slope prior to be generally positive.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">slope_mean_module</span> <span class="o">=</span> <span class="n">slope_mean_module</span>
+
+        <span class="k">if</span> <span class="n">offset_mean_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset_mean_module</span> <span class="o">=</span> <span class="n">ZeroMean</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset_mean_module</span> <span class="o">=</span> <span class="n">offset_mean_module</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset_mean_module</span> <span class="o">=</span> <span class="n">offset_mean_module</span> <span class="ow">or</span> <span class="n">ZeroMean</span><span class="p">()</span>
+
+        <span class="n">context_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+        <span class="n">context_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stim_dim</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">slope_covar_module</span> <span class="o">=</span> <span class="n">slope_covar_module</span> <span class="ow">or</span> <span class="n">ScaleKernel</span><span class="p">(</span>
+            <span class="n">RBFKernel</span><span class="p">(</span>
+                <span class="n">ard_num_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+                <span class="n">active_dims</span><span class="o">=</span><span class="n">context_dims</span><span class="p">,</span>  <span class="c1"># Operate only on x_s</span>
+            <span class="p">),</span>
+            <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset_covar_module</span> <span class="o">=</span> <span class="n">offset_covar_module</span> <span class="ow">or</span> <span class="n">ScaleKernel</span><span class="p">(</span>
+            <span class="n">RBFKernel</span><span class="p">(</span>
+                <span class="n">ard_num_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+                <span class="n">active_dims</span><span class="o">=</span><span class="n">context_dims</span><span class="p">,</span>  <span class="c1"># Operate only on x_s</span>
+            <span class="p">),</span>
+            <span class="n">outputscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span> <span class="ow">or</span> <span class="n">BernoulliObjectiveLikelihood</span><span class="p">(</span>
+            <span class="n">objective</span><span class="o">=</span><span class="n">FloorLogitObjective</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_likelihood_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
+
+<div class="viewcode-block" id="HadamardSemiPModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.HadamardSemiPModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultivariateNormal</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Forward pass for semip GP.</span>
+
+<span class="sd">        generates a k(c + x[:,stim_dim]) = kc + kx[:,stim_dim] mvn object where k and c are</span>
+<span class="sd">        slope and offset GPs and x[:,stim_dim] are the intensity stimulus (x)</span>
+<span class="sd">        locations and thus acts as a constant offset to the k mvn.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to sample.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MVN object evaluated at samples</span>
+<span class="sd">        """</span>
+        <span class="n">transformed_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_inputs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># TODO: make slope prop to intensity width.</span>
+        <span class="n">slope_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope_mean_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+
+        <span class="c1"># kc mvn</span>
+        <span class="n">offset_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_mean_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+
+        <span class="n">slope_cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope_covar_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+        <span class="n">offset_cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_covar_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+
+        <span class="n">mean_x</span><span class="p">,</span> <span class="n">cov_x</span> <span class="o">=</span> <span class="n">_hadamard_mvn_approx</span><span class="p">(</span>
+            <span class="n">x_intensity</span><span class="o">=</span><span class="n">transformed_x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span><span class="p">],</span>
+            <span class="n">slope_mean</span><span class="o">=</span><span class="n">slope_mean</span><span class="p">,</span>
+            <span class="n">slope_cov</span><span class="o">=</span><span class="n">slope_cov</span><span class="p">,</span>
+            <span class="n">offset_mean</span><span class="o">=</span><span class="n">offset_mean</span><span class="p">,</span>
+            <span class="n">offset_cov</span><span class="o">=</span><span class="n">offset_cov</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">MultivariateNormal</span><span class="p">(</span><span class="n">mean_x</span><span class="p">,</span> <span class="n">cov_x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HadamardSemiPModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.HadamardSemiPModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HadamardSemiPModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Alternate constructor for HadamardSemiPModel model.</span>
+
+<span class="sd">        This is used when we recursively build a full sampling strategy</span>
+<span class="sd">        from a configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HadamardSemiPModel: Configured class instance.</span>
+<span class="sd">        """</span>
+
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">slope_mean_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_mean_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">slope_covar_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_covar_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">offset_mean_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"offset_mean_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">offset_covar_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"offset_covar_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"auto"</span>
+        <span class="p">)</span>
+
+        <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
+            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="p">()</span>
+
+        <span class="n">slope_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
+            <span class="n">stim_dim</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span>
+            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
+            <span class="n">slope_mean_module</span><span class="o">=</span><span class="n">slope_mean_module</span><span class="p">,</span>
+            <span class="n">slope_covar_module</span><span class="o">=</span><span class="n">slope_covar_module</span><span class="p">,</span>
+            <span class="n">offset_mean_module</span><span class="o">=</span><span class="n">offset_mean_module</span><span class="p">,</span>
+            <span class="n">offset_covar_module</span><span class="o">=</span><span class="n">offset_covar_module</span><span class="p">,</span>
+            <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
+            <span class="n">slope_mean</span><span class="o">=</span><span class="n">slope_mean</span><span class="p">,</span>
+            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
+            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
+            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="HadamardSemiPModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.HadamardSemiPModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
+<span class="sd">            probability_space (bool, optional): Return outputs in units of</span>
+<span class="sd">                response probability instead of latent function value. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="s2">"objective"</span><span class="p">):</span>
+                <span class="n">fsamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+                <span class="n">psamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">fsamps</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">psamps</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">psamps</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="n">BernoulliLikelihood</span><span class="p">):</span>  <span class="c1"># default to probit</span>
+                <span class="n">fsamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+                <span class="n">psamps</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fsamps</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">psamps</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">psamps</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"p-space sampling not defined if likelihood (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="si">}</span><span class="s2">) does not have a link!"</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">fmean</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="n">fvar</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

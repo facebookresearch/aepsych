@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-plotting">
+<h1>aepsych.plotting<a class="headerlink" href="#aepsych-plotting" title="Permalink to this heading">¶</a></h1>
+<section id="module-aepsych.plotting">
+<span id="aepsych-plotting-module"></span><h2>aepsych.plotting module<a class="headerlink" href="#module-aepsych.plotting" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_strat">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_strat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_testfun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cred_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yes_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Yes</span> <span class="pre">trial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'No</span> <span class="pre">trial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flipx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_strat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_strat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a plot of a strategy, showing participants responses on each trial, the estimated response function and
+threshold, and optionally a ground truth response threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strat</strong> (<a class="reference internal" href="strategy.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>Strategy</em></a>) – Strategy object to be plotted. Must have a dimensionality of 2 or less.</p></li>
+<li><p><strong>ax</strong> (<em>plt.Axes</em><em>, </em><em>optional</em>) – Matplotlib axis to plot on (if None, creates a new axis). Default: None.</p></li>
+<li><p><strong>true_testfun</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Ground truth response function. Should take a n_samples x n_parameters tensor
+as input and produce the response probability at each sample as output. Default: None.</p></li>
+<li><p><strong>cred_level</strong> (<em>float</em>) – Percentage of posterior mass around the mean to be shaded. Default: 0.95.</p></li>
+<li><p><strong>target_level</strong> (<em>float</em>) – Response probability to estimate the threshold of. Default: 0.75.</p></li>
+<li><p><strong>xlabel</strong> (<em>str</em>) – Label of the x-axis. Default: “Context (abstract)”.</p></li>
+<li><p><strong>ylabel</strong> (<em>str</em>) – Label of the y-axis (if None, defaults to “Response Probability” for 1-d plots or
+“Intensity (Abstract)” for 2-d plots). Default: None.</p></li>
+<li><p><strong>yes_label</strong> (<em>str</em>) – Label of trials with response of 1. Default: “Yes trial”.</p></li>
+<li><p><strong>no_label</strong> (<em>str</em>) – Label of trials with response of 0. Default: “No trial”.</p></li>
+<li><p><strong>flipx</strong> (<em>bool</em>) – <dl class="simple">
+<dt>Whether the values of the x-axis should be flipped such that the min becomes the max and vice</dt><dd><p>versa.</p>
+</dd>
+</dl>
+<p>(Only valid for 2-d plots.) Default: False.</p>
+</p></li>
+<li><p><strong>logx</strong> (<em>bool</em>) – Whether the x-axis should be log-transformed. (Only valid for 2-d plots.) Default: False.</p></li>
+<li><p><strong>gridsize</strong> (<em>int</em>) – The number of points to sample each dimension at. Default: 30.</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of the plot. Default: ‘’.</p></li>
+<li><p><strong>save_path</strong> (<em>str</em><em>, </em><em>optional</em>) – File name to save the plot to. Default: None.</p></li>
+<li><p><strong>show</strong> (<em>bool</em>) – Whether the plot should be shown in an interactive window. Default: True.</p></li>
+<li><p><strong>include_legend</strong> (<em>bool</em>) – Whether to include the legend in the figure. Default: True.</p></li>
+<li><p><strong>include_colorbar</strong> (<em>bool</em>) – Whether to include the colorbar indicating the probability of “Yes” trials.
+Default: True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_strat_3d">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_strat_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Yes</span> <span class="pre">Trial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_strat_3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_strat_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
+:param strat: Strategy object to be plotted. Must have a dimensionality of 3.
+:type strat: Strategy
+:param parnames: list of the parameter names
+:type parnames: str list
+:param outcome_label: The label of the outcome variable
+:type outcome_label: str
+:param slice_dim: dimension to slice on
+:type slice_dim: int
+:param dim_vals: values to take slices; OR number of values to take even slices from
+:type dim_vals: list of floats or int
+:param contour_levels: List contour values to plot. Default: None. If true, all integer levels.
+:type contour_levels: iterable of floats or bool, optional
+:param probability_space: Whether to plot probability. Default: False
+:type probability_space: bool
+:param gridsize: The number of points to sample each dimension at. Default: 30.
+:type gridsize: int
+:param extent_multiplier: multipliers for each of the dimensions when plotting. Default:None
+:type extent_multiplier: list, optional
+:param save_path: File name to save the plot to. Default: None.
+:type save_path: str, optional
+:param show: Whether the plot should be shown in an interactive window. Default: True.
+:type show: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strat</strong> (<a class="reference internal" href="strategy.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>Strategy</em></a>) – </p></li>
+<li><p><strong>parnames</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>outcome_label</strong> (<em>str</em>) – </p></li>
+<li><p><strong>slice_dim</strong> (<em>int</em>) – </p></li>
+<li><p><strong>slice_vals</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>float</em><em>]</em><em>, </em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>contour_levels</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>, </em><em>bool</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>probability_space</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>gridsize</strong> (<em>int</em>) – </p></li>
+<li><p><strong>extent_multiplier</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>save_path</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>show</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_slice">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
+:param strat: Strategy object to be plotted. Must have a dimensionality of 3.
+:type strat: Strategy
+:param ax: Matplotlib axis to plot on
+:type ax: plt.Axes
+:param parnames: list of the parameter names
+:type parnames: str list
+:param slice_dim: dimension to slice on
+:type slice_dim: int
+:param slice_vals: value to take the slice along that dimension
+:type slice_vals: float
+:param vmin: global model minimum to use for plotting
+:type vmin: float
+:param vmax: global model maximum to use for plotting
+:type vmax: float
+:param gridsize: The number of points to sample each dimension at. Default: 30.
+:type gridsize: int
+:param contour_levels: Contours to plot. Default: None
+:type contour_levels: int list
+:param lse: Whether to plot probability. Default: False
+:type lse: bool
+:param extent_multiplier: multipliers for each of the dimensions when plotting. Default:None
+:type extent_multiplier: list, optional</p>
+</dd></dl>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="likelihoods.html" title="previous chapter">aepsych.likelihoods</a></li>
+<li>Next: <a href="strategy.html" title="next chapter">aepsych.strategy</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

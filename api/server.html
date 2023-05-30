@@ -1,0 +1,1303 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-server">
+<h1>aepsych.server<a class="headerlink" href="#aepsych-server" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-aepsych.server.server">
+<span id="aepsych-server-server-module"></span><h2>aepsych.server.server module<a class="headerlink" href="#module-aepsych.server.server" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.server.server.get_next_filename">
+<span class="sig-prename descclassname"><span class="pre">aepsych.server.server.</span></span><span class="sig-name descname"><span class="pre">get_next_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ext</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#get_next_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.get_next_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates appropriate filename for logging purposes.</p>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.server.server.</span></span><span class="sig-name descname"><span class="pre">AEPsychServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">socket</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thrift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Server for doing black box optimization using gaussian processes.
+:keyword socket – socket object that implements <cite>send</cite> and <cite>receive</cite> for json:
+:keyword messages (default: DummySocket()).
+:keyword TODO actually make an abstract interface to subclass from here:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the socket and terminate connection to the server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.serve">
+<span class="sig-name descname"><span class="pre">serve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.serve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the server. Note that all configuration outside of socket type and port
+happens via messages from the client. The server simply forwards messages from
+the client to its <cite>setup</cite>, <cite>ask</cite> and <cite>tell</cite> methods, and responds with either
+acknowledgment or other response as needed. To understand the server API, see
+the docs on the methods in this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – if a request from a client has no request type</p></li>
+<li><p><strong>RuntimeError</strong> – if a request from a client has no known request type</p></li>
+<li><p><strong>TODO make things a little more robust to bad messages from client; this</strong> – requires resetting the req/rep queue status.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.replay">
+<span class="sig-name descname"><span class="pre">replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_to_replay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_computations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a replay against the server. This allows you to recover previous experiment state and re-fit models</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_to_replay</strong> (<em>str</em>) – The UUID will be looked up in the database.</p></li>
+<li><p><strong>skip_computations</strong> (<em>bool</em>) – True will skip all the asks and queries, which should make the replay much faster.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – if the UUID is not given or it is not in the database, or if the database is not set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.get_strats_from_replay">
+<span class="sig-name descname"><span class="pre">get_strats_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_strats_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.get_strats_from_replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the strategies from a replay.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_of_replay</strong> (<em>str</em><em>, </em><em>default=None</em>) – The UUID of the replay.</p></li>
+<li><p><strong>force_replay</strong> (<em>bool</em><em>, </em><em>default=False</em>) – True will force a replay on the server, False will get the strategies from the database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of strategies.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the server has no experiment records.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.get_strat_from_replay">
+<span class="sig-name descname"><span class="pre">get_strat_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strat_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_strat_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.get_strat_from_replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a strategy from a replay.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_of_replay</strong> (<em>str</em><em>, </em><em>default=None</em>) – The UUID of the replay.</p></li>
+<li><p><strong>strat_id</strong> (<em>int</em><em>, </em><em>default=-1</em>) – The position of the strategy to return from the replay. Uses zero-based indexing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The strategy object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object (aepsych.strategy)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the server has no experiment records.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.get_dataframe_from_replay">
+<span class="sig-name descname"><span class="pre">get_dataframe_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_dataframe_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.get_dataframe_from_replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe of all the tell records from a replay.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_of_replay</strong> (<em>str</em><em>, </em><em>optional</em>) – experiment_id to get tell records from. Defaults to None.</p></li>
+<li><p><strong>force_replay</strong> (<em>bool</em><em>, </em><em>optional</em>) – Force replay of entire experiment. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dataframe of all the tell records from an experiment.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the server has no experiment records.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.generate_experiment_table">
+<span class="sig-name descname"><span class="pre">generate_experiment_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment_table'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_experiment_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.generate_experiment_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a table of a given experiment with all the raw data.</p>
+<p>This table is generated from the database, and is added to the
+experiment’s database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_id</strong> (<em>str</em>) – The experiment ID to generate the table for.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table. Defaults to
+“experiment_table”.</p></li>
+<li><p><strong>return_df</strong> (<em>bool</em>) – If True, also return the dataframe.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The dataframe of the experiment table, if</dt><dd><p>return_df is True.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.versioned_handler">
+<span class="sig-name descname"><span class="pre">versioned_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.versioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.versioned_handler" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_setup_v01">
+<span class="sig-name descname"><span class="pre">handle_setup_v01</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_setup_v01"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_setup_v01" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a setup message from the client.  Setup messages provide a config that specifies all of the
+configuration options for an experiment. This method reads those options, records them in the database,
+and instantiates the appropriate server objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The setup message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the experiment in the database.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the setup message doesn’t contain a configure message key.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aepsych.server</span> <span class="kn">import</span> <span class="n">AEPsychServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_config</span> <span class="o">=</span> <span class="s1">'''</span>
+<span class="go">                    [common]</span>
+<span class="go">                    lb = [0]</span>
+<span class="go">                    ub = [1]</span>
+<span class="go">                    parnames = [x]</span>
+<span class="go">                    stimuli_per_trial = 1</span>
+<span class="go">                    outcome_types = [binary]</span>
+<span class="go">                    strategy_names = [init_strat, opt_strat]</span>
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><p>[init_strat]
+min_asks = 2
+generator = SobolGenerator
+min_total_outcome_occurrences = 0</p>
+<p>[opt_strat]
+min_asks = 2
+generator = OptimizeAcqfGenerator
+acqf = MCPosteriorVariance
+model = GPClassificationModel
+min_total_outcome_occurrences = 0</p>
+<p>[GPClassificationModel]
+inducing_size = 10
+mean_covar_factory = default_mean_covar_factory</p>
+<p>[SobolGenerator]
+n_points = 2</p>
+</div></blockquote>
+<p>‘’’</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">setup_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "setup",</span>
+<span class="go">                        "version": "0.01",</span>
+<span class="go">                        "message": {"config_str": dummy_config},</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">AEPsychServer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">versioned_handler</span><span class="p">(</span><span class="n">setup_request</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_resume_v01">
+<span class="sig-name descname"><span class="pre">handle_resume_v01</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_resume_v01"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_resume_v01" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_ask_v01">
+<span class="sig-name descname"><span class="pre">handle_ask_v01</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_ask_v01"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_ask_v01" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dictionary with a configuration to try on the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The ask message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dictionary with config (keys are strings, values are floats)
+is_finished (bool): true if the strat is finished</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>config (Dict)</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aepsych.server</span> <span class="kn">import</span> <span class="n">AEPsychServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_config</span> <span class="o">=</span> <span class="s1">'''</span>
+<span class="go">                    [common]</span>
+<span class="go">                    lb = [0]</span>
+<span class="go">                    ub = [1]</span>
+<span class="go">                    parnames = [x]</span>
+<span class="go">                    stimuli_per_trial = 1</span>
+<span class="go">                    outcome_types = [binary]</span>
+<span class="go">                    strategy_names = [init_strat, opt_strat]</span>
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><p>[init_strat]
+min_asks = 2
+generator = SobolGenerator
+min_total_outcome_occurrences = 0</p>
+<p>[opt_strat]
+min_asks = 2
+generator = OptimizeAcqfGenerator
+acqf = MCPosteriorVariance
+model = GPClassificationModel
+min_total_outcome_occurrences = 0</p>
+<p>[GPClassificationModel]
+inducing_size = 10
+mean_covar_factory = default_mean_covar_factory</p>
+<p>[SobolGenerator]
+n_points = 2</p>
+</div></blockquote>
+<p>‘’’</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">setup_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "setup",</span>
+<span class="go">                        "version": "0.01",</span>
+<span class="go">                        "message": {"config_str": dummy_config},</span>
+<span class="go">                        "extra_info": None,</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ask_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                          "type": "ask",</span>
+<span class="go">                          "version": "0.01",</span>
+<span class="go">                          "message": "",</span>
+<span class="go">                          "extra_info": None,</span>
+<span class="go">                  }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">AEPsychServer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">versioned_handler</span><span class="p">(</span><span class="n">setup_request</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">versioned_handler</span><span class="p">(</span><span class="n">ask_request</span><span class="p">)</span>
+<span class="go">{"config": {"x": [0.5405369997024536]}, "is_finished": false}</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.unversioned_handler">
+<span class="sig-name descname"><span class="pre">unversioned_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.unversioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.unversioned_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default message handler for all messages from client. Returns the handler function to be used based on message type received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Return the specific handler function to be used based on message type received</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Callable]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If the message type is invalid.</p></li>
+<li><p><strong>RuntimeError</strong> – If the message type is not specified.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_setup">
+<span class="sig-name descname"><span class="pre">handle_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a setup message from the client. Setup messages provide a config that specifies all of the
+configuration options for an experiment. This method reads those options, records them in the database,
+and instantiates the appropriate server object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The setup message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new configuration to try</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the setup message doesn’t contain a configure message key.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_ask">
+<span class="sig-name descname"><span class="pre">handle_ask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_ask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_ask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle an ask message from the client. Ask message provides a configuration to try on the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The ask message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new configuration to try.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_tell">
+<span class="sig-name descname"><span class="pre">handle_tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_tell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a tell message from the client. Tell message provides feedback to the server on the outcome of the previous tried ask configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The tell message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns “acq”.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aepsych.server</span> <span class="kn">import</span> <span class="n">AEPsychServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_config</span> <span class="o">=</span> <span class="s1">'''</span>
+<span class="go">                    [common]</span>
+<span class="go">                    lb = [0]</span>
+<span class="go">                    ub = [1]</span>
+<span class="go">                    parnames = [x]</span>
+<span class="go">                    stimuli_per_trial = 1</span>
+<span class="go">                    outcome_types = [binary]</span>
+<span class="go">                    strategy_names = [init_strat, opt_strat]</span>
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><p>[init_strat]
+min_asks = 2
+generator = SobolGenerator
+min_total_outcome_occurrences = 0</p>
+<p>[opt_strat]
+min_asks = 2
+generator = OptimizeAcqfGenerator
+acqf = MCPosteriorVariance
+model = GPClassificationModel
+min_total_outcome_occurrences = 0</p>
+<p>[GPClassificationModel]
+inducing_size = 10
+mean_covar_factory = default_mean_covar_factory</p>
+<p>[SobolGenerator]
+n_points = 2</p>
+</div></blockquote>
+<p>‘’’</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">setup_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "setup",</span>
+<span class="go">                        "message": {"config_str": dummy_config},</span>
+<span class="go">                        "extra_info": None,</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ask_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "ask",</span>
+<span class="go">                        "message": "",</span>
+<span class="go">                        "extra_info": None,</span>
+<span class="go">                  }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">AEPsychServer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">setup_request</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">ask_request</span><span class="p">)</span>
+<span class="go">{"config": {"x": [0.5405369997024536]}, "is_finished": false}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tell_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "tell",</span>
+<span class="go">                        "message": {"config": {"x": [0.5405369997024536]}, "outcome": 1.0}</span>
+<span class="go">                        "extra_info": {"responsTime": 0.146844864, "participantID: ""},</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">tell_request</span><span class="p">)</span>
+<span class="go">"acq"</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_update">
+<span class="sig-name descname"><span class="pre">handle_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_params">
+<span class="sig-name descname"><span class="pre">handle_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_can_model">
+<span class="sig-name descname"><span class="pre">handle_can_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_can_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_can_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_query">
+<span class="sig-name descname"><span class="pre">handle_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_exit">
+<span class="sig-name descname"><span class="pre">handle_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_exit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_get_config">
+<span class="sig-name descname"><span class="pre">handle_get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_get_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_get_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_finish_strategy">
+<span class="sig-name descname"><span class="pre">handle_finish_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_finish_strategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_finish_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_strategy_name">
+<span class="sig-name descname"><span class="pre">handle_strategy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_strategy_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_strategy_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_info">
+<span class="sig-name descname"><span class="pre">handle_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles info message from the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The info message from the client</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns dictionary containing the current state of the experiment</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns details about the current state of the server and experiments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict containing server and experiment details</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.strat">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strat</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.parnames">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parnames</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.parnames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.n_strats">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_strats</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.n_strats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.can_pregen_ask">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_pregen_ask</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.can_pregen_ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.ask">
+<span class="sig-name descname"><span class="pre">ask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.ask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.ask" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the next point to query from the model
+:returns: dict – new config dict (keys are strings, values are floats)</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.tell">
+<span class="sig-name descname"><span class="pre">tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.tell" title="Permalink to this definition">¶</a></dt>
+<dd><p>tell the model which input was run and what the outcome was
+:param inputs {dict} – dictionary:
+:param keys are strings:
+:param values are floats or int.:
+:param keys should inclde all of the parameters we are tuning over:
+:param plus ‘outcome’:
+:param which would be in {0:
+:param 1}.:
+:param TODO better types:</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.configure">
+<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.configure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.write_strats">
+<span class="sig-name descname"><span class="pre">write_strats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">termination_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.write_strats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.write_strats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.generate_debug_info">
+<span class="sig-name descname"><span class="pre">generate_debug_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exception_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dumptype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_debug_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.generate_debug_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.handle_request">
+<span class="sig-name descname"><span class="pre">handle_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.handle_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.server.server.startServerAndRun">
+<span class="sig-prename descclassname"><span class="pre">aepsych.server.server.</span></span><span class="sig-name descname"><span class="pre">startServerAndRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">socket</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#startServerAndRun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.startServerAndRun" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.server.server.parse_argument">
+<span class="sig-prename descclassname"><span class="pre">aepsych.server.server.</span></span><span class="sig-name descname"><span class="pre">parse_argument</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#parse_argument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.parse_argument" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.server.server.start_server">
+<span class="sig-prename descclassname"><span class="pre">aepsych.server.server.</span></span><span class="sig-name descname"><span class="pre">start_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#start_server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.start_server" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.server.server.main">
+<span class="sig-prename descclassname"><span class="pre">aepsych.server.server.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_class=&lt;class</span> <span class="pre">'aepsych.server.server.AEPsychServer'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</section>
+<section id="module-aepsych.server.sockets">
+<span id="aepsych-server-sockets-module"></span><h2>aepsych.server.sockets module<a class="headerlink" href="#module-aepsych.server.sockets" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.server.sockets.SimplifyArrays">
+<span class="sig-prename descclassname"><span class="pre">aepsych.server.sockets.</span></span><span class="sig-name descname"><span class="pre">SimplifyArrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#SimplifyArrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.SimplifyArrays" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.server.sockets.createSocket">
+<span class="sig-prename descclassname"><span class="pre">aepsych.server.sockets.</span></span><span class="sig-name descname"><span class="pre">createSocket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">socket_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pysocket'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5555</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#createSocket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.createSocket" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.server.sockets.DummySocket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.server.sockets.</span></span><span class="sig-name descname"><span class="pre">DummySocket</span></span><a class="reference internal" href="_modules/aepsych/server/sockets.html#DummySocket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.DummySocket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.DummySocket.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#DummySocket.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.DummySocket.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ZMQSocket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.server.sockets.</span></span><span class="sig-name descname"><span class="pre">ZMQSocket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'*'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ZMQSocket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ZMQSocket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>sends/receives json-formated messages over ZMQ</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>over</strong> (<em>port {int} -- port to listen</em>) – </p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ZMQSocket.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ZMQSocket.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ZMQSocket.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ZMQSocket.receive">
+<span class="sig-name descname"><span class="pre">receive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ZMQSocket.receive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ZMQSocket.receive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ZMQSocket.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ZMQSocket.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ZMQSocket.send" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.server.sockets.PySocket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.server.sockets.</span></span><span class="sig-name descname"><span class="pre">PySocket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#PySocket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.PySocket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.PySocket.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#PySocket.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.PySocket.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.PySocket.return_socket">
+<span class="sig-name descname"><span class="pre">return_socket</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#PySocket.return_socket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.PySocket.return_socket" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.PySocket.accept_client">
+<span class="sig-name descname"><span class="pre">accept_client</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#PySocket.accept_client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.PySocket.accept_client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.PySocket.receive">
+<span class="sig-name descname"><span class="pre">receive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_exiting</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#PySocket.receive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.PySocket.receive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.PySocket.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#PySocket.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.PySocket.send" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ThriftSocketWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.server.sockets.</span></span><span class="sig-name descname"><span class="pre">ThriftSocketWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ThriftSocketWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ThriftSocketWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ThriftSocketWrapper.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ThriftSocketWrapper.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ThriftSocketWrapper.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ThriftSocketWrapper.receive">
+<span class="sig-name descname"><span class="pre">receive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ThriftSocketWrapper.receive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ThriftSocketWrapper.receive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.sockets.ThriftSocketWrapper.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/sockets.html#ThriftSocketWrapper.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.sockets.ThriftSocketWrapper.send" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-aepsych.server">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.server" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.server.</span></span><span class="sig-name descname"><span class="pre">AEPsychServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">socket</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thrift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Server for doing black box optimization using gaussian processes.
+:keyword socket – socket object that implements <cite>send</cite> and <cite>receive</cite> for json:
+:keyword messages (default: DummySocket()).
+:keyword TODO actually make an abstract interface to subclass from here:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the socket and terminate connection to the server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.serve">
+<span class="sig-name descname"><span class="pre">serve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.serve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the server. Note that all configuration outside of socket type and port
+happens via messages from the client. The server simply forwards messages from
+the client to its <cite>setup</cite>, <cite>ask</cite> and <cite>tell</cite> methods, and responds with either
+acknowledgment or other response as needed. To understand the server API, see
+the docs on the methods in this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – if a request from a client has no request type</p></li>
+<li><p><strong>RuntimeError</strong> – if a request from a client has no known request type</p></li>
+<li><p><strong>TODO make things a little more robust to bad messages from client; this</strong> – requires resetting the req/rep queue status.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.replay">
+<span class="sig-name descname"><span class="pre">replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_to_replay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_computations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a replay against the server. This allows you to recover previous experiment state and re-fit models</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_to_replay</strong> (<em>str</em>) – The UUID will be looked up in the database.</p></li>
+<li><p><strong>skip_computations</strong> (<em>bool</em>) – True will skip all the asks and queries, which should make the replay much faster.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>RuntimeError</strong> – if the UUID is not given or it is not in the database, or if the database is not set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.get_strats_from_replay">
+<span class="sig-name descname"><span class="pre">get_strats_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_strats_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.get_strats_from_replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the strategies from a replay.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_of_replay</strong> (<em>str</em><em>, </em><em>default=None</em>) – The UUID of the replay.</p></li>
+<li><p><strong>force_replay</strong> (<em>bool</em><em>, </em><em>default=False</em>) – True will force a replay on the server, False will get the strategies from the database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of strategies.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the server has no experiment records.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.get_strat_from_replay">
+<span class="sig-name descname"><span class="pre">get_strat_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strat_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_strat_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.get_strat_from_replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a strategy from a replay.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_of_replay</strong> (<em>str</em><em>, </em><em>default=None</em>) – The UUID of the replay.</p></li>
+<li><p><strong>strat_id</strong> (<em>int</em><em>, </em><em>default=-1</em>) – The position of the strategy to return from the replay. Uses zero-based indexing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The strategy object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object (aepsych.strategy)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the server has no experiment records.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.get_dataframe_from_replay">
+<span class="sig-name descname"><span class="pre">get_dataframe_from_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid_of_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_replay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.get_dataframe_from_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.get_dataframe_from_replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dataframe of all the tell records from a replay.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid_of_replay</strong> (<em>str</em><em>, </em><em>optional</em>) – experiment_id to get tell records from. Defaults to None.</p></li>
+<li><p><strong>force_replay</strong> (<em>bool</em><em>, </em><em>optional</em>) – Force replay of entire experiment. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dataframe of all the tell records from an experiment.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the server has no experiment records.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.generate_experiment_table">
+<span class="sig-name descname"><span class="pre">generate_experiment_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment_table'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_experiment_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.generate_experiment_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a table of a given experiment with all the raw data.</p>
+<p>This table is generated from the database, and is added to the
+experiment’s database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_id</strong> (<em>str</em>) – The experiment ID to generate the table for.</p></li>
+<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table. Defaults to
+“experiment_table”.</p></li>
+<li><p><strong>return_df</strong> (<em>bool</em>) – If True, also return the dataframe.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The dataframe of the experiment table, if</dt><dd><p>return_df is True.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.versioned_handler">
+<span class="sig-name descname"><span class="pre">versioned_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.versioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.versioned_handler" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_setup_v01">
+<span class="sig-name descname"><span class="pre">handle_setup_v01</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_setup_v01"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_setup_v01" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a setup message from the client.  Setup messages provide a config that specifies all of the
+configuration options for an experiment. This method reads those options, records them in the database,
+and instantiates the appropriate server objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The setup message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index of the experiment in the database.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the setup message doesn’t contain a configure message key.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aepsych.server</span> <span class="kn">import</span> <span class="n">AEPsychServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_config</span> <span class="o">=</span> <span class="s1">'''</span>
+<span class="go">                    [common]</span>
+<span class="go">                    lb = [0]</span>
+<span class="go">                    ub = [1]</span>
+<span class="go">                    parnames = [x]</span>
+<span class="go">                    stimuli_per_trial = 1</span>
+<span class="go">                    outcome_types = [binary]</span>
+<span class="go">                    strategy_names = [init_strat, opt_strat]</span>
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><p>[init_strat]
+min_asks = 2
+generator = SobolGenerator
+min_total_outcome_occurrences = 0</p>
+<p>[opt_strat]
+min_asks = 2
+generator = OptimizeAcqfGenerator
+acqf = MCPosteriorVariance
+model = GPClassificationModel
+min_total_outcome_occurrences = 0</p>
+<p>[GPClassificationModel]
+inducing_size = 10
+mean_covar_factory = default_mean_covar_factory</p>
+<p>[SobolGenerator]
+n_points = 2</p>
+</div></blockquote>
+<p>‘’’</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">setup_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "setup",</span>
+<span class="go">                        "version": "0.01",</span>
+<span class="go">                        "message": {"config_str": dummy_config},</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">AEPsychServer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">versioned_handler</span><span class="p">(</span><span class="n">setup_request</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_resume_v01">
+<span class="sig-name descname"><span class="pre">handle_resume_v01</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_resume_v01"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_resume_v01" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_ask_v01">
+<span class="sig-name descname"><span class="pre">handle_ask_v01</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_ask_v01"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_ask_v01" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dictionary with a configuration to try on the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The ask message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dictionary with config (keys are strings, values are floats)
+is_finished (bool): true if the strat is finished</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>config (Dict)</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aepsych.server</span> <span class="kn">import</span> <span class="n">AEPsychServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_config</span> <span class="o">=</span> <span class="s1">'''</span>
+<span class="go">                    [common]</span>
+<span class="go">                    lb = [0]</span>
+<span class="go">                    ub = [1]</span>
+<span class="go">                    parnames = [x]</span>
+<span class="go">                    stimuli_per_trial = 1</span>
+<span class="go">                    outcome_types = [binary]</span>
+<span class="go">                    strategy_names = [init_strat, opt_strat]</span>
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><p>[init_strat]
+min_asks = 2
+generator = SobolGenerator
+min_total_outcome_occurrences = 0</p>
+<p>[opt_strat]
+min_asks = 2
+generator = OptimizeAcqfGenerator
+acqf = MCPosteriorVariance
+model = GPClassificationModel
+min_total_outcome_occurrences = 0</p>
+<p>[GPClassificationModel]
+inducing_size = 10
+mean_covar_factory = default_mean_covar_factory</p>
+<p>[SobolGenerator]
+n_points = 2</p>
+</div></blockquote>
+<p>‘’’</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">setup_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "setup",</span>
+<span class="go">                        "version": "0.01",</span>
+<span class="go">                        "message": {"config_str": dummy_config},</span>
+<span class="go">                        "extra_info": None,</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ask_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                          "type": "ask",</span>
+<span class="go">                          "version": "0.01",</span>
+<span class="go">                          "message": "",</span>
+<span class="go">                          "extra_info": None,</span>
+<span class="go">                  }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">AEPsychServer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">versioned_handler</span><span class="p">(</span><span class="n">setup_request</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">versioned_handler</span><span class="p">(</span><span class="n">ask_request</span><span class="p">)</span>
+<span class="go">{"config": {"x": [0.5405369997024536]}, "is_finished": false}</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.unversioned_handler">
+<span class="sig-name descname"><span class="pre">unversioned_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.unversioned_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.unversioned_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default message handler for all messages from client. Returns the handler function to be used based on message type received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Return the specific handler function to be used based on message type received</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Callable]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If the message type is invalid.</p></li>
+<li><p><strong>RuntimeError</strong> – If the message type is not specified.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_setup">
+<span class="sig-name descname"><span class="pre">handle_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a setup message from the client. Setup messages provide a config that specifies all of the
+configuration options for an experiment. This method reads those options, records them in the database,
+and instantiates the appropriate server object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The setup message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new configuration to try</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the setup message doesn’t contain a configure message key.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_ask">
+<span class="sig-name descname"><span class="pre">handle_ask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_ask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_ask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle an ask message from the client. Ask message provides a configuration to try on the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The ask message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The new configuration to try.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_tell">
+<span class="sig-name descname"><span class="pre">handle_tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_tell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a tell message from the client. Tell message provides feedback to the server on the outcome of the previous tried ask configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The tell message from the client.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns “acq”.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aepsych.server</span> <span class="kn">import</span> <span class="n">AEPsychServer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_config</span> <span class="o">=</span> <span class="s1">'''</span>
+<span class="go">                    [common]</span>
+<span class="go">                    lb = [0]</span>
+<span class="go">                    ub = [1]</span>
+<span class="go">                    parnames = [x]</span>
+<span class="go">                    stimuli_per_trial = 1</span>
+<span class="go">                    outcome_types = [binary]</span>
+<span class="go">                    strategy_names = [init_strat, opt_strat]</span>
+</pre></div>
+</div>
+<blockquote>
+<div><blockquote>
+<div><p>[init_strat]
+min_asks = 2
+generator = SobolGenerator
+min_total_outcome_occurrences = 0</p>
+<p>[opt_strat]
+min_asks = 2
+generator = OptimizeAcqfGenerator
+acqf = MCPosteriorVariance
+model = GPClassificationModel
+min_total_outcome_occurrences = 0</p>
+<p>[GPClassificationModel]
+inducing_size = 10
+mean_covar_factory = default_mean_covar_factory</p>
+<p>[SobolGenerator]
+n_points = 2</p>
+</div></blockquote>
+<p>‘’’</p>
+</div></blockquote>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">setup_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "setup",</span>
+<span class="go">                        "message": {"config_str": dummy_config},</span>
+<span class="go">                        "extra_info": None,</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ask_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "ask",</span>
+<span class="go">                        "message": "",</span>
+<span class="go">                        "extra_info": None,</span>
+<span class="go">                  }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="n">AEPsychServer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">setup_request</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">ask_request</span><span class="p">)</span>
+<span class="go">{"config": {"x": [0.5405369997024536]}, "is_finished": false}</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tell_request</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">                        "type": "tell",</span>
+<span class="go">                        "message": {"config": {"x": [0.5405369997024536]}, "outcome": 1.0}</span>
+<span class="go">                        "extra_info": {"responsTime": 0.146844864, "participantID: ""},</span>
+<span class="go">                    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span><span class="o">.</span><span class="n">unversioned_handler</span><span class="p">(</span><span class="n">tell_request</span><span class="p">)</span>
+<span class="go">"acq"</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_update">
+<span class="sig-name descname"><span class="pre">handle_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_params">
+<span class="sig-name descname"><span class="pre">handle_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_can_model">
+<span class="sig-name descname"><span class="pre">handle_can_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_can_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_can_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_query">
+<span class="sig-name descname"><span class="pre">handle_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_exit">
+<span class="sig-name descname"><span class="pre">handle_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_exit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_get_config">
+<span class="sig-name descname"><span class="pre">handle_get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_get_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_get_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_finish_strategy">
+<span class="sig-name descname"><span class="pre">handle_finish_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_finish_strategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_finish_strategy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_strategy_name">
+<span class="sig-name descname"><span class="pre">handle_strategy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_strategy_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_strategy_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_info">
+<span class="sig-name descname"><span class="pre">handle_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles info message from the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The info message from the client</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns dictionary containing the current state of the experiment</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns details about the current state of the server and experiments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict containing server and experiment details</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.strat">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strat</span></span><a class="headerlink" href="#aepsych.server.AEPsychServer.strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#aepsych.server.AEPsychServer.config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.parnames">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parnames</span></span><a class="headerlink" href="#aepsych.server.AEPsychServer.parnames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.n_strats">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_strats</span></span><a class="headerlink" href="#aepsych.server.AEPsychServer.n_strats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.can_pregen_ask">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_pregen_ask</span></span><a class="headerlink" href="#aepsych.server.AEPsychServer.can_pregen_ask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.ask">
+<span class="sig-name descname"><span class="pre">ask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.ask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.ask" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the next point to query from the model
+:returns: dict – new config dict (keys are strings, values are floats)</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.tell">
+<span class="sig-name descname"><span class="pre">tell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.tell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.tell" title="Permalink to this definition">¶</a></dt>
+<dd><p>tell the model which input was run and what the outcome was
+:param inputs {dict} – dictionary:
+:param keys are strings:
+:param values are floats or int.:
+:param keys should inclde all of the parameters we are tuning over:
+:param plus ‘outcome’:
+:param which would be in {0:
+:param 1}.:
+:param TODO better types:</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.configure">
+<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">config_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.configure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.write_strats">
+<span class="sig-name descname"><span class="pre">write_strats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">termination_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.write_strats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.write_strats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.generate_debug_info">
+<span class="sig-name descname"><span class="pre">generate_debug_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exception_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dumptype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_debug_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.generate_debug_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.handle_request">
+<span class="sig-name descname"><span class="pre">handle_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.handle_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.handle_request" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">aepsych.models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="models.html" title="previous chapter">aepsych.models</a></li>
+<li>Next: <a href="config.html" title="next chapter">aepsych.config</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

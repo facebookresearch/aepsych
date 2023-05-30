@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for aepsych.server.sockets</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">select</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">aepsych.utils_logging</span> <span class="k">as</span> <span class="nn">utils_logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">zmq</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">BAD_REQUEST</span> <span class="o">=</span> <span class="s2">"bad request"</span>
+
+
+<div class="viewcode-block" id="SimplifyArrays"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.SimplifyArrays">[docs]</a><span class="k">def</span> <span class="nf">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="k">else</span> <span class="n">SimplifyArrays</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span>
+        <span class="k">else</span> <span class="n">v</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="createSocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.createSocket">[docs]</a><span class="k">def</span> <span class="nf">createSocket</span><span class="p">(</span><span class="n">socket_type</span><span class="o">=</span><span class="s2">"pysocket"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5555</span><span class="p">,</span> <span class="n">msg_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"socket_type = </span><span class="si">{</span><span class="n">socket_type</span><span class="si">}</span><span class="s2"> port = </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">socket_type</span> <span class="o">==</span> <span class="s2">"pysocket"</span><span class="p">:</span>
+        <span class="n">sock</span> <span class="o">=</span> <span class="n">PySocket</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">socket_type</span> <span class="o">==</span> <span class="s2">"zmq"</span><span class="p">:</span>
+        <span class="n">sock</span> <span class="o">=</span> <span class="n">ZMQSocket</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">socket_type</span> <span class="o">==</span> <span class="s2">"thrift"</span><span class="p">:</span>
+        <span class="n">sock</span> <span class="o">=</span> <span class="n">ThriftSocketWrapper</span><span class="p">(</span><span class="n">msg_queue</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sock</span></div>
+
+
+<div class="viewcode-block" id="DummySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket">[docs]</a><span class="k">class</span> <span class="nc">DummySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DummySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="ZMQSocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket">[docs]</a><span class="k">class</span> <span class="nc">ZMQSocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s2">"*"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""sends/receives json-formated messages over ZMQ</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            port {int} -- port to listen over</span>
+<span class="sd">        """</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">REP</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tcp://</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ZMQSocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ZMQSocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">()</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">"Exception caught while trying to receive a message from the client. "</span>
+                    <span class="sa">f</span><span class="s2">"Ignoring message and trying again. The caught exception was: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">."</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">msg</span></div>
+
+<div class="viewcode-block" id="ZMQSocket.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="PySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket">[docs]</a><span class="k">class</span> <span class="nc">PySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+
+        <span class="n">addr</span> <span class="o">=</span> <span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>  <span class="c1"># all interfaces</span>
+        <span class="k">if</span> <span class="n">socket</span><span class="o">.</span><span class="n">has_dualstack_ipv6</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span>
+                <span class="n">addr</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET6</span><span class="p">,</span> <span class="n">dualstack_ipv6</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="PySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PySocket.return_socket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.return_socket">[docs]</a>    <span class="k">def</span> <span class="nf">return_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span></div>
+
+<div class="viewcode-block" id="PySocket.accept_client"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.accept_client">[docs]</a>    <span class="k">def</span> <span class="nf">accept_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">client_not_connected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Waiting for connection..."</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="n">client_not_connected</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="p">,</span> <span class="n">wlist</span><span class="p">,</span> <span class="n">xlist</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rlist</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">sock</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"Connected by </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">addr</span><span class="si">}</span><span class="s2">, waiting for messages..."</span>
+                        <span class="p">)</span>
+                        <span class="n">client_not_connected</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connection to client failed with error </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span></div>
+
+<div class="viewcode-block" id="PySocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_exiting</span><span class="p">):</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">server_exiting</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="p">,</span> <span class="n">wlist</span><span class="p">,</span> <span class="n">xlist</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span>
+            <span class="p">)</span>  <span class="c1"># 0 Here is the timeout. It makes the server constantly poll for output. Timeout can be added to save CPU usage.</span>
+            <span class="c1"># rlist,wlist,xlist represent lists of sockets to check against. Rlist is sockets to read from, wlist is sockets to write to, xlist is sockets to listen to for errors.</span>
+            <span class="k">for</span> <span class="n">sock</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">rlist</span><span class="p">:</span>
+                        <span class="n">recv_result</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span>
+                            <span class="mi">1024</span> <span class="o">*</span> <span class="mi">512</span>
+                        <span class="p">)</span>  <span class="c1"># 1024 * 512 is the max size of the message</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">recv_result</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"receive : result = </span><span class="si">{</span><span class="n">recv_result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Got: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">msg</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">BAD_REQUEST</span></div>
+
+<div class="viewcode-block" id="PySocket.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No connection to send to!"</span><span class="p">)</span>
+
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># keep it as-is</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sending: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">"utf-8"</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="ThriftSocketWrapper"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper">[docs]</a><span class="k">class</span> <span class="nc">ThriftSocketWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span> <span class="o">=</span> <span class="n">msg_queue</span>
+
+<div class="viewcode-block" id="ThriftSocketWrapper.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># it's not a real socket so no close function need?</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="ThriftSocketWrapper.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Remove and return an item from the queue. If queue is empty, wait until an item is available.</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"thrift socket got msg: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">message</span></div>
+
+<div class="viewcode-block" id="ThriftSocketWrapper.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="c1"># add responds to msg_queue</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"There is no msg_queue!"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"There is no message to send from server!"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># keep it as-is</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sending: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
