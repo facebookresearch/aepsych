@@ -1,0 +1,348 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for aepsych.benchmark.problem</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">aepsych</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">SequentialStrategy</span><span class="p">,</span> <span class="n">Strategy</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">make_scaled_sobol</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">bernoulli</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">pearsonr</span>
+
+
+<div class="viewcode-block" id="Problem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem">[docs]</a><span class="k">class</span> <span class="nc">Problem</span><span class="p">:</span>
+    <span class="sd">"""Wrapper for a problem or test function. Subclass from this</span>
+<span class="sd">    and override f() to define your test function.</span>
+<span class="sd">    """</span>
+
+    <span class="n">n_eval_points</span> <span class="o">=</span> <span class="mi">1000</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">eval_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_eval_points</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="Problem.f"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">lb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">ub</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">"""A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the</span>
+<span class="sd">        Benchmark's output dataframe, with its associated value stored in each row."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+
+<div class="viewcode-block" id="Problem.p"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p">[docs]</a>    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">"""Evaluate response probability from test function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (np.ndarray): Points at which to evaluate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Response probability at queries points.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Problem.sample_y"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.sample_y">[docs]</a>    <span class="k">def</span> <span class="nf">sample_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">"""Sample a response from test function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (np.ndarray): Points at which to sample.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: A single (bernoulli) sample at points.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">bernoulli</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Problem.f_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.f_hat">[docs]</a>    <span class="k">def</span> <span class="nf">f_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (aepsych.models.base.ModelProtocol): Model to evaluate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Posterior mean from underlying model over the evaluation grid.</span>
+<span class="sd">        """</span>
+        <span class="n">f_hat</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f_hat</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">f_true</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">"""Evaluate true test function over evaluation grid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Values of true test function over evaluation grid.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">p_true</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Evaluate true response probability over evaluation grid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Values of true response probability over evaluation grid.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Problem.p_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p_hat">[docs]</a>    <span class="k">def</span> <span class="nf">p_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (aepsych.models.base.ModelProtocol): Model to evaluate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Posterior mean from underlying model over the evaluation grid.</span>
+<span class="sd">        """</span>
+        <span class="n">p_hat</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">p_hat</span></div>
+
+<div class="viewcode-block" id="Problem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">"""Evaluate the strategy with respect to this problem.</span>
+
+<span class="sd">        Extend this in subclasses to add additional metrics.</span>
+<span class="sd">        Metrics include:</span>
+<span class="sd">        - mae (mean absolute error), mae (mean absolute error), max_abs_err (max absolute error),</span>
+<span class="sd">            pearson correlation. All of these are computed over the latent variable f and the</span>
+<span class="sd">            outcome probability p, w.r.t. the posterior mean. Squared and absolute errors (miae, mise) are</span>
+<span class="sd">            also computed in expectation over the posterior, by sampling.</span>
+<span class="sd">        - Brier score, which measures how well-calibrated the outcome probability is, both at the posterior</span>
+<span class="sd">            mean (plain brier) and in expectation over the posterior (expected_brier).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            strat (aepsych.strategy.Strategy): Strategy to evaluate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, float]: A dictionary containing metrics and their values.</span>
+<span class="sd">        """</span>
+        <span class="c1"># we just use model here but eval gets called on strat in case we need it in downstream evals</span>
+        <span class="c1"># for example to separate out sobol vs opt trials</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">assert</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Cannot evaluate strategy without a model!"</span>
+
+        <span class="c1"># always eval f</span>
+        <span class="n">f_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_hat</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">p_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_hat</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">f_hat</span><span class="o">.</span><span class="n">shape</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">"self.f_true.shape==</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> != f_hat.shape==</span><span class="si">{</span><span class="n">f_hat</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+
+        <span class="n">mae_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span> <span class="o">-</span> <span class="n">f_hat</span><span class="p">))</span>
+        <span class="n">mse_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span> <span class="o">-</span> <span class="n">f_hat</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">max_abs_err_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span> <span class="o">-</span> <span class="n">f_hat</span><span class="p">))</span>
+        <span class="n">corr_f</span> <span class="o">=</span> <span class="n">pearsonr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">f_hat</span><span class="o">.</span><span class="n">flatten</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mae_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">))</span>
+        <span class="n">mse_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">max_abs_err_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">))</span>
+        <span class="n">corr_p</span> <span class="o">=</span> <span class="n">pearsonr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">p_hat</span><span class="o">.</span><span class="n">flatten</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">brier</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">))</span>
+
+        <span class="c1"># eval in samp-based expectation over posterior instead of just mean</span>
+        <span class="n">fsamps</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">psamps</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># vanilla models don't have proba_space samps, TODO maybe we should add them</span>
+            <span class="n">psamps</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fsamps</span><span class="p">)</span>
+
+        <span class="n">ferrs</span> <span class="o">=</span> <span class="n">fsamps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">miae_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ferrs</span><span class="p">))</span>
+        <span class="n">mise_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ferrs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">perrs</span> <span class="o">=</span> <span class="n">psamps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">miae_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">perrs</span><span class="p">))</span>
+        <span class="n">mise_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">perrs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">expected_brier</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">psamps</span><span class="p">))</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"mean_abs_err_f"</span><span class="p">:</span> <span class="n">mae_f</span><span class="p">,</span>
+            <span class="s2">"mean_integrated_abs_err_f"</span><span class="p">:</span> <span class="n">miae_f</span><span class="p">,</span>
+            <span class="s2">"mean_square_err_f"</span><span class="p">:</span> <span class="n">mse_f</span><span class="p">,</span>
+            <span class="s2">"mean_integrated_square_err_f"</span><span class="p">:</span> <span class="n">mise_f</span><span class="p">,</span>
+            <span class="s2">"max_abs_err_f"</span><span class="p">:</span> <span class="n">max_abs_err_f</span><span class="p">,</span>
+            <span class="s2">"pearson_corr_f"</span><span class="p">:</span> <span class="n">corr_f</span><span class="p">,</span>
+            <span class="s2">"mean_abs_err_p"</span><span class="p">:</span> <span class="n">mae_p</span><span class="p">,</span>
+            <span class="s2">"mean_integrated_abs_err_p"</span><span class="p">:</span> <span class="n">miae_p</span><span class="p">,</span>
+            <span class="s2">"mean_square_err_p"</span><span class="p">:</span> <span class="n">mse_p</span><span class="p">,</span>
+            <span class="s2">"mean_integrated_square_err_p"</span><span class="p">:</span> <span class="n">mise_p</span><span class="p">,</span>
+            <span class="s2">"max_abs_err_p"</span><span class="p">:</span> <span class="n">max_abs_err_p</span><span class="p">,</span>
+            <span class="s2">"pearson_corr_p"</span><span class="p">:</span> <span class="n">corr_p</span><span class="p">,</span>
+            <span class="s2">"brier"</span><span class="p">:</span> <span class="n">brier</span><span class="p">,</span>
+            <span class="s2">"expected_brier"</span><span class="p">:</span> <span class="n">expected_brier</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">metrics</span></div></div>
+
+
+<div class="viewcode-block" id="LSEProblem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem">[docs]</a><span class="k">class</span> <span class="nc">LSEProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
+    <span class="sd">"""Level set estimation problem.</span>
+
+<span class="sd">    This extends the base problem class to evaluate the LSE/threshold estimate</span>
+<span class="sd">    in addition to the function estimate.</span>
+<span class="sd">    """</span>
+
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.75</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="sd">"""A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the</span>
+<span class="sd">        Benchmark's output dataframe, with its associated value stored in each row."""</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="n">md</span><span class="p">[</span><span class="s2">"threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>
+        <span class="k">return</span> <span class="n">md</span>
+
+<div class="viewcode-block" id="LSEProblem.f_threshold"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.f_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">f_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">inverse_torch</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">inverse</span>
+
+            <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">inverse_torch</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">inverse_link</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">))</span></div>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">true_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">"""</span>
+<span class="sd">        Evaluate whether the true function is below threshold over the eval grid</span>
+<span class="sd">        (used for proper scoring and threshold missclassification metric).</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LSEProblem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">"""Evaluate the model with respect to this problem.</span>
+
+<span class="sd">        For level set estimation, we add metrics w.r.t. the true threshold:</span>
+<span class="sd">        - brier_p_below_{thresh), the brier score w.r.t. p(f(x)&lt;thresh), in contrast to</span>
+<span class="sd">            regular brier, which is the brier score for p(phi(f(x))=1), and the same</span>
+<span class="sd">            for misclassification error.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            strat (aepsych.strategy.Strategy): Strategy to evaluate.</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, float]: A dictionary containing metrics and their values,</span>
+<span class="sd">            including parent class metrics.</span>
+<span class="sd">        """</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
+
+        <span class="c1"># we just use model here but eval gets called on strat in case we need it in downstream evals</span>
+        <span class="c1"># for example to separate out sobol vs opt trials</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">assert</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Cannot make predictions without a model!"</span>
+
+        <span class="c1"># TODO bring back more threshold error metrics when we more clearly</span>
+        <span class="c1"># define what "threshold" means in high-dim.</span>
+
+        <span class="c1"># Predict p(below threshold) at test points</span>
+        <span class="n">p_l</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_threshold</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+
+        <span class="c1"># Brier score on level-set probabilities</span>
+        <span class="n">thresh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>
+        <span class="n">brier_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"brier_p_below_</span><span class="si">{</span><span class="n">thresh</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="n">brier_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">))</span>
+
+        <span class="c1"># Classification error</span>
+        <span class="n">classerr_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"missclass_on_thresh_</span><span class="si">{</span><span class="n">thresh</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="n">classerr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="n">p_l</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span><span class="p">)</span>
+            <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metrics</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

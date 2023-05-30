@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-config">
+<h1>aepsych.config<a class="headerlink" href="#aepsych-config" title="Permalink to this heading">¶</a></h1>
+<section id="module-aepsych.config">
+<span id="aepsych-config-module"></span><h2>aepsych.config module<a class="headerlink" href="#module-aepsych.config" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.config.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_fnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigParser</span></code></p>
+<p>Initialize the AEPsych config object. This can be used to instantiate most
+objects in AEPsych by calling object.from_config(config).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_dict</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Mapping to build configuration from.
+Keys are section names, values are dictionaries with keys and values that
+should be present in the section. Defaults to None.</p></li>
+<li><p><strong>config_fnames</strong> (<em>Sequence</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of INI filenames to load
+configuration from. Defaults to None.</p></li>
+<li><p><strong>config_str</strong> (<em>str</em><em>, </em><em>optional</em>) – String formatted as an INI file to load configuration
+from. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.config.Config.registered_names">
+<span class="sig-name descname"><span class="pre">registered_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'AEPsychObjective':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.objective.objective.AEPsychObjective'&gt;,</span> <span class="pre">'AdditiveKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.kernel.AdditiveKernel'&gt;,</span> <span class="pre">'AdditiveStructureKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.additive_structure_kernel.AdditiveStructureKernel'&gt;,</span> <span class="pre">'ApproxGlobalSUR':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.lookahead.ApproxGlobalSUR'&gt;,</span> <span class="pre">'ArcKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.arc_kernel.ArcKernel'&gt;,</span> <span class="pre">'BernoulliLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.bernoulli_likelihood.BernoulliLikelihood'&gt;,</span> <span class="pre">'BernoulliMCMutualInformation':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.mutual_information.BernoulliMCMutualInformation'&gt;,</span> <span class="pre">'BernoulliObjectiveLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.likelihoods.bernoulli.BernoulliObjectiveLikelihood'&gt;,</span> <span class="pre">'BetaLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.beta_likelihood.BetaLikelihood'&gt;,</span> <span class="pre">'CosineKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.cosine_kernel.CosineKernel'&gt;,</span> <span class="pre">'CylindricalKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.cylindrical_kernel.CylindricalKernel'&gt;,</span> <span class="pre">'DirichletClassificationLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.gaussian_likelihood.DirichletClassificationLikelihood'&gt;,</span> <span class="pre">'DistributionalInputKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.distributional_input_kernel.DistributionalInputKernel'&gt;,</span> <span class="pre">'EAVC':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.lookahead.EAVC'&gt;,</span> <span class="pre">'FixedNoiseGaussianLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.gaussian_likelihood.FixedNoiseGaussianLikelihood'&gt;,</span> <span class="pre">'FloorGumbelObjective':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.objective.objective.FloorGumbelObjective'&gt;,</span> <span class="pre">'FloorLogitObjective':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.objective.objective.FloorLogitObjective'&gt;,</span> <span class="pre">'FloorProbitObjective':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.objective.objective.FloorProbitObjective'&gt;,</span> <span class="pre">'GaussianLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.gaussian_likelihood.GaussianLikelihood'&gt;,</span> <span class="pre">'GaussianLikelihoodWithMissingObs':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.gaussian_likelihood.GaussianLikelihoodWithMissingObs'&gt;,</span> <span class="pre">'GaussianSymmetrizedKLKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.gaussian_symmetrized_kl_kernel.GaussianSymmetrizedKLKernel'&gt;,</span> <span class="pre">'GlobalMI':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.lookahead.GlobalMI'&gt;,</span> <span class="pre">'GlobalSUR':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.lookahead.GlobalSUR'&gt;,</span> <span class="pre">'GridInterpolationKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.grid_interpolation_kernel.GridInterpolationKernel'&gt;,</span> <span class="pre">'GridKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.grid_kernel.GridKernel'&gt;,</span> <span class="pre">'HeteroskedasticNoise':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.noise_models.HeteroskedasticNoise'&gt;,</span> <span class="pre">'IndexKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.index_kernel.IndexKernel'&gt;,</span> <span class="pre">'InducingPointKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.inducing_point_kernel.InducingPointKernel'&gt;,</span> <span class="pre">'Kernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.kernel.Kernel'&gt;,</span> <span class="pre">'LCMKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.lcm_kernel.LCMKernel'&gt;,</span> <span class="pre">'LaplaceLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.laplace_likelihood.LaplaceLikelihood'&gt;,</span> <span class="pre">'Likelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.likelihood.Likelihood'&gt;,</span> <span class="pre">'LikelihoodList':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.likelihood_list.LikelihoodList'&gt;,</span> <span class="pre">'LinearBernoulliLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.likelihoods.semi_p.LinearBernoulliLikelihood'&gt;,</span> <span class="pre">'LinearKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.linear_kernel.LinearKernel'&gt;,</span> <span class="pre">'LocalMI':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.lookahead.LocalMI'&gt;,</span> <span class="pre">'LocalSUR':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.lookahead.LocalSUR'&gt;,</span> <span class="pre">'MCLevelSetEstimation':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.lse.MCLevelSetEstimation'&gt;,</span> <span class="pre">'MCPosteriorVariance':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance'&gt;,</span> <span class="pre">'MaternKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.matern_kernel.MaternKernel'&gt;,</span> <span class="pre">'MinAsks':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.min_asks.MinAsks'&gt;,</span> <span class="pre">'MinTotalOutcomeOccurrences':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.min_total_outcome_occurrences.MinTotalOutcomeOccurrences'&gt;,</span> <span class="pre">'MinTotalTells':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.min_total_tells.MinTotalTells'&gt;,</span> <span class="pre">'MonotonicBernoulliMCMutualInformation':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.mutual_information.MonotonicBernoulliMCMutualInformation'&gt;,</span> <span class="pre">'MonotonicMCLSE':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.monotonic_rejection.MonotonicMCLSE'&gt;,</span> <span class="pre">'MonotonicMCPosteriorVariance':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance'&gt;,</span> <span class="pre">'MultiDeviceKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.multi_device_kernel.MultiDeviceKernel'&gt;,</span> <span class="pre">'MultitaskGaussianLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.multitask_gaussian_likelihood.MultitaskGaussianLikelihood'&gt;,</span> <span class="pre">'MultitaskKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.multitask_kernel.MultitaskKernel'&gt;,</span> <span class="pre">'NewtonGirardAdditiveKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.newton_girard_additive_kernel.NewtonGirardAdditiveKernel'&gt;,</span> <span class="pre">'None':</span> <span class="pre">None,</span> <span class="pre">'OrdinalLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.likelihoods.ordinal.OrdinalLikelihood'&gt;,</span> <span class="pre">'PeriodicKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.periodic_kernel.PeriodicKernel'&gt;,</span> <span class="pre">'PiecewisePolynomialKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.piecewise_polynomial_kernel.PiecewisePolynomialKernel'&gt;,</span> <span class="pre">'PolynomialKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.polynomial_kernel.PolynomialKernel'&gt;,</span> <span class="pre">'PolynomialKernelGrad':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.polynomial_kernel_grad.PolynomialKernelGrad'&gt;,</span> <span class="pre">'ProbitObjective':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.objective.objective.ProbitObjective'&gt;,</span> <span class="pre">'ProductKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.kernel.ProductKernel'&gt;,</span> <span class="pre">'ProductStructureKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.product_structure_kernel.ProductStructureKernel'&gt;,</span> <span class="pre">'RBFKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.rbf_kernel.RBFKernel'&gt;,</span> <span class="pre">'RBFKernelGrad':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.rbf_kernel_grad.RBFKernelGrad'&gt;,</span> <span class="pre">'RFFKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.rff_kernel.RFFKernel'&gt;,</span> <span class="pre">'RQKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.rq_kernel.RQKernel'&gt;,</span> <span class="pre">'RunIndefinitely':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.run_indefinitely.RunIndefinitely'&gt;,</span> <span class="pre">'ScaleKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.scale_kernel.ScaleKernel'&gt;,</span> <span class="pre">'SemiPProbabilityObjective':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.objective.semi_p.SemiPProbabilityObjective'&gt;,</span> <span class="pre">'SemiPThresholdObjective':</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.acquisition.objective.semi_p.SemiPThresholdObjective'&gt;,</span> <span class="pre">'SoftmaxLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.softmax_likelihood.SoftmaxLikelihood'&gt;,</span> <span class="pre">'SpectralDeltaKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.spectral_delta_kernel.SpectralDeltaKernel'&gt;,</span> <span class="pre">'SpectralMixtureKernel':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.kernels.spectral_mixture_kernel.SpectralMixtureKernel'&gt;,</span> <span class="pre">'StudentTLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.student_t_likelihood.StudentTLikelihood'&gt;,</span> <span class="pre">'_GaussianLikelihoodBase':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.gaussian_likelihood._GaussianLikelihoodBase'&gt;,</span> <span class="pre">'_MultitaskGaussianLikelihoodBase':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.multitask_gaussian_likelihood._MultitaskGaussianLikelihoodBase'&gt;,</span> <span class="pre">'_OneDimensionalLikelihood':</span> <span class="pre">&lt;class</span> <span class="pre">'gpytorch.likelihoods.likelihood._OneDimensionalLikelihood'&gt;,</span> <span class="pre">'completion_criteria':</span> <span class="pre">[&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.min_total_tells.MinTotalTells'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.min_asks.MinAsks'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.min_total_outcome_occurrences.MinTotalOutcomeOccurrences'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'aepsych.generators.completion_criterion.run_indefinitely.RunIndefinitely'&gt;],</span> <span class="pre">'default_mean_covar_factory':</span> <span class="pre">&lt;function</span> <span class="pre">default_mean_covar_factory&gt;,</span> <span class="pre">'monotonic_mean_covar_factory':</span> <span class="pre">&lt;function</span> <span class="pre">monotonic_mean_covar_factory&gt;,</span> <span class="pre">'ordinal_mean_covar_factory':</span> <span class="pre">&lt;function</span> <span class="pre">ordinal_mean_covar_factory&gt;,</span> <span class="pre">'song_mean_covar_factory':</span> <span class="pre">&lt;function</span> <span class="pre">song_mean_covar_factory&gt;}</span></em><a class="headerlink" href="#aepsych.config.Config.registered_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deduplicate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.jsonifyMetadata">
+<span class="sig-name descname"><span class="pre">jsonifyMetadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.jsonifyMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.jsonifyMetadata" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.jsonifyAll">
+<span class="sig-name descname"><span class="pre">jsonifyAll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.jsonifyAll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.jsonifyAll" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_fnames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update this object with a new configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_dict</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Mapping to build configuration from.
+Keys are section names, values are dictionaries with keys and values that
+should be present in the section. Defaults to None.</p></li>
+<li><p><strong>config_fnames</strong> (<em>Sequence</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of INI filenames to load
+configuration from. Defaults to None.</p></li>
+<li><p><strong>config_str</strong> (<em>str</em><em>, </em><em>optional</em>) – String formatted as an INI file to load configuration
+from. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.register_module">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.register_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.register_module" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Register a module with Config so that objects in it can</dt><dd><p>be referred to by their string name in config files.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>module</strong> (<em>ModuleType</em>) – Module to register.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.register_object">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.register_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.register_object" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Register an object with Config so that it can be</dt><dd><p>referred to by its string name in config files.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<em>object</em>) – Object to register.</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.get_section">
+<span class="sig-name descname"><span class="pre">get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.get_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.get_section" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.convert_to_latest">
+<span class="sig-name descname"><span class="pre">convert_to_latest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.convert_to_latest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.convert_to_latest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.Config.convert">
+<span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_version</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a config from an older version to a newer version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_version</strong> (<em>str</em>) – The version of the config to be converted.</p></li>
+<li><p><strong>to_version</strong> (<em>str</em>) – The version the config should be converted to.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.config.Config.version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aepsych.config.Config.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the version number of the config.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.config.ConfigurableMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.config.</span></span><span class="sig-name descname"><span class="pre">ConfigurableMixin</span></span><a class="reference internal" href="_modules/aepsych/config.html#ConfigurableMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.ConfigurableMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.ConfigurableMixin.get_config_options">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#ConfigurableMixin.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.ConfigurableMixin.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.config.ConfigurableMixin.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#ConfigurableMixin.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.ConfigurableMixin.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">aepsych.server</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="server.html" title="previous chapter">aepsych.server</a></li>
+<li>Next: <a href="likelihoods.html" title="next chapter">aepsych.likelihoods</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2023 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
