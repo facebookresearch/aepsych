@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from configparser import NoOptionError
-from typing import Tuple
+from typing import Optional, Tuple
 
 import gpytorch
 import torch
@@ -36,52 +36,70 @@ __default_invgamma_rate = 1.0
 
 
 def default_mean_covar_factory(
-    config: Config,
+    config: Optional[Config] = None, dim: Optional[int] = None
 ) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
     """Default factory for generic GP models
 
     Args:
-        config (Config): Object containing bounds (and potentially other
+        config (Config, optional): Object containing bounds (and potentially other
             config details).
+        dim (int, optional): Dimensionality of the parameter space. Must be provided
+            if config is None.
 
     Returns:
         Tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated
             ConstantMean and ScaleKernel with priors based on bounds.
     """
 
-    fixed_mean = config.getboolean(
-        "default_mean_covar_factory", "fixed_mean", fallback=False
-    )
-    lengthscale_prior = config.get(
-        "default_mean_covar_factory", "lengthscale_prior", fallback="gamma"
-    )
-    outputscale_prior = config.get(
-        "default_mean_covar_factory", "outputscale_prior", fallback="box"
-    )
-    kernel = config.getobj(
-        "default_mean_covar_factory", "kernel", fallback=gpytorch.kernels.RBFKernel
-    )
+    assert (config is not None) or (
+        dim is not None
+    ), "Either config or dim must be provided!"
+
+    fixed_mean = False
+    lengthscale_prior = "gamma"
+    outputscale_prior = "box"
+    kernel = gpytorch.kernels.RBFKernel
 
     mean = gpytorch.means.ConstantMean()
 
-    if config.getboolean("common", "use_ax", fallback=False):
-        dim = get_dim(config)
+    if config is not None:
+        fixed_mean = config.getboolean(
+            "default_mean_covar_factory", "fixed_mean", fallback=fixed_mean
+        )
+        lengthscale_prior = config.get(
+            "default_mean_covar_factory",
+            "lengthscale_prior",
+            fallback=lengthscale_prior,
+        )
+        outputscale_prior = config.get(
+            "default_mean_covar_factory",
+            "outputscale_prior",
+            fallback=outputscale_prior,
+        )
+        kernel = config.getobj("default_mean_covar_factory", "kernel", fallback=kernel)
 
-    else:
-        lb = config.gettensor("default_mean_covar_factory", "lb")
-        ub = config.gettensor("default_mean_covar_factory", "ub")
-        assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
-        dim = lb.shape[0]
+        if fixed_mean:
+            try:
+                target = config.getfloat("default_mean_covar_factory", "target")
+                mean.constant.requires_grad_(False)
+                mean.constant.copy_(torch.tensor(norm.ppf(target)))
+            except NoOptionError:
+                raise RuntimeError("Config got fixed_mean=True but no target included!")
 
-    mean = gpytorch.means.ConstantMean()
+        if config.getboolean("common", "use_ax", fallback=False):
+            config_dim = get_dim(config)
 
-    if fixed_mean:
-        try:
-            target = config.getfloat("default_mean_covar_factory", "target")
-            mean.constant.requires_grad_(False)
-            mean.constant.copy_(torch.tensor(norm.ppf(target)))
-        except NoOptionError:
-            raise RuntimeError("Config got fixed_mean=True but no target included!")
+        else:
+            lb = config.gettensor("default_mean_covar_factory", "lb")
+            ub = config.gettensor("default_mean_covar_factory", "ub")
+            assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
+            config_dim = lb.shape[0]
+
+        if dim is not None:
+            assert dim == config_dim, "Provided config does not match provided dim!"
+
+        else:
+            dim = config_dim
 
     if lengthscale_prior == "invgamma":
 
