@@ -24,12 +24,16 @@
 <span id="aepsych-factory-factory-module"></span><h2>aepsych.factory.factory module<a class="headerlink" href="#module-aepsych.factory.factory" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.factory.factory.default_mean_covar_factory">
-<span class="sig-prename descclassname"><span class="pre">aepsych.factory.factory.</span></span><span class="sig-name descname"><span class="pre">default_mean_covar_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/factory/factory.html#default_mean_covar_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.factory.factory.default_mean_covar_factory" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">aepsych.factory.factory.</span></span><span class="sig-name descname"><span class="pre">default_mean_covar_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/factory/factory.html#default_mean_covar_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.factory.factory.default_mean_covar_factory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default factory for generic GP models</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Object containing bounds (and potentially other
-config details).</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a><em>, </em><em>optional</em>) – Object containing bounds (and potentially other
+config details).</p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the parameter space. Must be provided
+if config is None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
@@ -103,12 +107,16 @@ LSE target.</p>
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.factory" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.factory.default_mean_covar_factory">
-<span class="sig-prename descclassname"><span class="pre">aepsych.factory.</span></span><span class="sig-name descname"><span class="pre">default_mean_covar_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/factory/factory.html#default_mean_covar_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.factory.default_mean_covar_factory" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">aepsych.factory.</span></span><span class="sig-name descname"><span class="pre">default_mean_covar_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/factory/factory.html#default_mean_covar_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.factory.default_mean_covar_factory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default factory for generic GP models</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Object containing bounds (and potentially other
-config details).</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a><em>, </em><em>optional</em>) – Object containing bounds (and potentially other
+config details).</p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the parameter space. Must be provided
+if config is None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">

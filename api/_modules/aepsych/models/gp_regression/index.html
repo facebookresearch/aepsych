@@ -58,7 +58,6 @@
         <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">num_outputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Initialize the GP regression model</span>
 
@@ -78,26 +77,13 @@
         <span class="k">if</span> <span class="n">likelihood</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">likelihood</span> <span class="o">=</span> <span class="n">GaussianLikelihood</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">num_outputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_num_outputs</span> <span class="o">=</span> <span class="n">num_outputs</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">num_outputs</span>
-
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">max_fit_time</span>
 
         <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span>
-                <span class="n">config_dict</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">"default_mean_covar_factory"</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="s2">"lb"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">tolist</span><span class="p">()),</span>
-                        <span class="s2">"ub"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">tolist</span><span class="p">()),</span>
-                        <span class="s2">"num_outputs"</span><span class="p">:</span> <span class="n">num_outputs</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span> <span class="o">=</span> <span class="n">mean_module</span> <span class="ow">or</span> <span class="n">default_mean</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span> <span class="o">=</span> <span class="n">covar_module</span> <span class="ow">or</span> <span class="n">default_covar</span>

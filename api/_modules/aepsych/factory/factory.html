@@ -24,7 +24,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">NoOptionError</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -54,52 +54,70 @@
 
 
 <div class="viewcode-block" id="default_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.factory.default_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">default_mean_covar_factory</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Default factory for generic GP models</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        config (Config): Object containing bounds (and potentially other</span>
+<span class="sd">        config (Config, optional): Object containing bounds (and potentially other</span>
 <span class="sd">            config details).</span>
+<span class="sd">        dim (int, optional): Dimensionality of the parameter space. Must be provided</span>
+<span class="sd">            if config is None.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated</span>
 <span class="sd">            ConstantMean and ScaleKernel with priors based on bounds.</span>
 <span class="sd">    """</span>
 
-    <span class="n">fixed_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-        <span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"fixed_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
-    <span class="n">lengthscale_prior</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"lengthscale_prior"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"gamma"</span>
-    <span class="p">)</span>
-    <span class="n">outputscale_prior</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"outputscale_prior"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"box"</span>
-    <span class="p">)</span>
-    <span class="n">kernel</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-        <span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"kernel"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span>
-    <span class="p">)</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="n">dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">),</span> <span class="s2">"Either config or dim must be provided!"</span>
+
+    <span class="n">fixed_mean</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">lengthscale_prior</span> <span class="o">=</span> <span class="s2">"gamma"</span>
+    <span class="n">outputscale_prior</span> <span class="o">=</span> <span class="s2">"box"</span>
+    <span class="n">kernel</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">RBFKernel</span>
 
     <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"use_ax"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fixed_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+            <span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"fixed_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fixed_mean</span>
+        <span class="p">)</span>
+        <span class="n">lengthscale_prior</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"default_mean_covar_factory"</span><span class="p">,</span>
+            <span class="s2">"lengthscale_prior"</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="n">lengthscale_prior</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">outputscale_prior</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"default_mean_covar_factory"</span><span class="p">,</span>
+            <span class="s2">"outputscale_prior"</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="n">outputscale_prior</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"kernel"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">kernel</span><span class="p">)</span>
 
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"bounds shape mismatch!"</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">fixed_mean</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"target"</span><span class="p">)</span>
+                <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
+            <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Config got fixed_mean=True but no target included!"</span><span class="p">)</span>
 
-    <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"use_ax"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">config_dim</span> <span class="o">=</span> <span class="n">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">fixed_mean</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"target"</span><span class="p">)</span>
-            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">mean</span><span class="o">.</span><span class="n">constant</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)))</span>
-        <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Config got fixed_mean=True but no target included!"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+            <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"bounds shape mismatch!"</span>
+            <span class="n">config_dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">dim</span> <span class="o">==</span> <span class="n">config_dim</span><span class="p">,</span> <span class="s2">"Provided config does not match provided dim!"</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">config_dim</span>
 
     <span class="k">if</span> <span class="n">lengthscale_prior</span> <span class="o">==</span> <span class="s2">"invgamma"</span><span class="p">:</span>
 
