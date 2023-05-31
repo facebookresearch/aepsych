@@ -40,7 +40,6 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         max_fit_time: Optional[float] = None,
-        num_outputs: Optional[int] = None,
     ):
         """Initialize the GP regression model
 
@@ -60,26 +59,13 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         if likelihood is None:
             likelihood = GaussianLikelihood()
 
-        if num_outputs is not None:
-            self._num_outputs = num_outputs
-            self._batch_size = num_outputs
-
         super().__init__(None, None, likelihood)
 
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
 
         if mean_module is None or covar_module is None:
-            config = Config(
-                config_dict={
-                    "default_mean_covar_factory": {
-                        "lb": str(self.lb.tolist()),
-                        "ub": str(self.ub.tolist()),
-                        "num_outputs": num_outputs,
-                    }
-                }
-            )  # type: ignore
-            default_mean, default_covar = default_mean_covar_factory(config)
+            default_mean, default_covar = default_mean_covar_factory(dim=self.dim)
 
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
