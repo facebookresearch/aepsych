@@ -14,6 +14,7 @@ import torch
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
+from functools import partial
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -31,7 +32,6 @@ from gpytorch.distributions import MultivariateNormal
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
-from functools import partial
 from torch.optim import Adam
 
 from ..common import cdf_new_novel_det, f_1d, f_2d
@@ -68,7 +68,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         model.fit(X[:50], y[:50])
 
         # pspace
-        pm, _ = model.predict(X[:50], probability_space=True)
+        pm, _ = model.predict_probability(X[:50])
         pred = (pm > 0.5).numpy()
         npt.assert_allclose(pred, y[:50])
 
@@ -81,7 +81,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         model.update(X, y)
 
         # pspace
-        pm, _ = model.predict(X, probability_space=True)
+        pm, _ = model.predict_probability(X)
         pred = (pm > 0.5).numpy()
         npt.assert_allclose(pred, y)
 
@@ -103,11 +103,14 @@ class GPClassificationSmoketest(unittest.TestCase):
             X[:50],
             y[:50],
             optimizer=fit_gpytorch_mll_torch,
-            optimizer_kwargs={"stopping_criterion":ExpMAStoppingCriterion(maxiter=30),'optimizer':partial(Adam, lr=0.05)}
+            optimizer_kwargs={
+                "stopping_criterion": ExpMAStoppingCriterion(maxiter=30),
+                "optimizer": partial(Adam, lr=0.05),
+            },
         )
 
         # pspace
-        pm, _ = model.predict(X[:50], probability_space=True)
+        pm, _ = model.predict_probability(X[:50])
         pred = (pm > 0.5).numpy()
         npt.assert_allclose(pred, y[:50])
 
@@ -121,11 +124,11 @@ class GPClassificationSmoketest(unittest.TestCase):
             X,
             y,
             optimizer=fit_gpytorch_mll_torch,
-            optimizer_kwargs={"stopping_criterion":ExpMAStoppingCriterion(maxiter=30)}
+            optimizer_kwargs={"stopping_criterion": ExpMAStoppingCriterion(maxiter=30)},
         )
 
         # pspace
-        pm, _ = model.predict(X, probability_space=True)
+        pm, _ = model.predict_probability(X)
         pred = (pm > 0.5).numpy()
         npt.assert_allclose(pred, y)
 
@@ -158,7 +161,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         model.fit(X[:50], y[:50])
 
         # pspace
-        pm, _ = model.predict(X[:50], probability_space=True)
+        pm, _ = model.predict_probability(X[:50])
         pred = (pm > 0.5).numpy()
         npt.assert_allclose(pred, y[:50])
 
@@ -171,7 +174,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         model.update(X, y)
 
         # pspace
-        pm, _ = model.predict(X, probability_space=True)
+        pm, _ = model.predict_probability(X)
         pred = (pm > 0.5).numpy()
         npt.assert_allclose(pred, y)
 
@@ -247,7 +250,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         )
         model.fit(X, y)
 
-        pmean_analytic, pvar_analytic = model.predict(X, probability_space=True)
+        pmean_analytic, pvar_analytic = model.predict_probability(X)
 
         fsamps = model.sample(X, 150000)
         psamps = norm.cdf(fsamps)

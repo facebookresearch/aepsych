@@ -293,6 +293,11 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             return promote_0d(fmean), promote_0d(fvar)
 
+    def predict_probability(
+        self, x: Union[torch.Tensor, np.ndarray]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.predict(x, probability_space=True)
+
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit."""
         return self.fit(
