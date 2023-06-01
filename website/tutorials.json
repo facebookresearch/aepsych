@@ -3,6 +3,10 @@
         {
             "id": "data_collection_analysis_tutorial",
             "title": "Fully worked visual psychophysics experiment"
+        },
+        {
+            "id": "Semi_P_tutorial",
+            "title": "Semi-parametric Psychophysical model tutorial"
         }
     ]
 }
