@@ -26,7 +26,8 @@ REQUIRES = [
     "voila==0.3.6",
     "ipywidgets==7.6.5",
     "statsmodels",
-    "ax-platform>=0.3.1",
+    "ax-platform==0.3.1",
+    "botorch==0.8.3",
 ]
 
 DEV_REQUIRES = [
