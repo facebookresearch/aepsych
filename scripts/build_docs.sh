@@ -90,7 +90,15 @@ if [[ $ONLY_DOCUSAURUS == false ]]; then
   mkdir -p "website/static/files"
   python scripts/parse_tutorials.py -w "${cwd}"
 
+  echo "-----------------------------------"
+  echo "Generating demos"
+  echo "-----------------------------------"
+  mkdir -p "website/_demos"
+  mkdir -p "website/static/files/demos"
+  python scripts/parse_demos.py -w "${cwd}"
+
   cd website || exit
+
 fi  # end of not only Docusaurus block
 
 if [[ $BUILD_STATIC == true ]]; then

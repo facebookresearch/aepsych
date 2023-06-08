@@ -21,6 +21,7 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
@@ -64,7 +65,7 @@
 
 
 <div class="viewcode-block" id="DBMasterTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable">[docs]</a><span class="k">class</span> <span class="nc">DBMasterTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
-    <span class="sd">"""</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Master table to keep track of all experiments and unique keys associated with the experiment</span>
 <span class="sd">    """</span>
 
@@ -348,9 +349,10 @@
 
 
 <div class="viewcode-block" id="DbRawTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbRawTable">[docs]</a><span class="k">class</span> <span class="nc">DbRawTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
-    <span class="sd">"""</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fact table to store the raw data of each iteration of an experiment.</span>
 <span class="sd">    """</span>
+
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"raw_data"</span>
 
     <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -380,24 +382,106 @@
         <span class="p">)</span>
 
 <div class="viewcode-block" id="DbRawTable.update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbRawTable.update">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbRawTable : update called"</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"DbRawTable : update called"</span><span class="p">)</span>
+
+        <span class="c1"># Get every master table</span>
+        <span class="k">for</span> <span class="n">master_table</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">get_master_records</span><span class="p">():</span>
+
+            <span class="c1"># Get raw tab</span>
+            <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">master_table</span><span class="o">.</span><span class="n">children_replay</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">message_type</span> <span class="o">!=</span> <span class="s2">"tell"</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">timestamp</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">timestamp</span>
+
+                <span class="c1"># Deserialize pickle message</span>
+                <span class="n">message_contents</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">message_contents</span>
+
+                <span class="c1"># Get outcome</span>
+                <span class="n">outcomes</span> <span class="o">=</span> <span class="n">message_contents</span><span class="p">[</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"outcome"</span><span class="p">]</span>
+                <span class="c1"># Get parameters</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">message_contents</span><span class="p">[</span><span class="s2">"message"</span><span class="p">][</span><span class="s2">"config"</span><span class="p">]</span>
+                <span class="c1"># Get model_data</span>
+                <span class="n">model_data</span> <span class="o">=</span> <span class="n">message_contents</span><span class="p">[</span><span class="s2">"message"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model_data"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">db_raw_record</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">record_raw</span><span class="p">(</span>
+                    <span class="n">master_table</span><span class="o">=</span><span class="n">master_table</span><span class="p">,</span>
+                    <span class="n">model_data</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">model_data</span><span class="p">),</span>
+                    <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">param_value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">db</span><span class="o">.</span><span class="n">record_param</span><span class="p">(</span>
+                                <span class="n">raw_table</span><span class="o">=</span><span class="n">db_raw_record</span><span class="p">,</span>
+                                <span class="n">param_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_name</span><span class="p">),</span>
+                                <span class="n">param_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">param_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">param_value</span><span class="p">):</span>
+                                <span class="n">db</span><span class="o">.</span><span class="n">record_param</span><span class="p">(</span>
+                                    <span class="n">raw_table</span><span class="o">=</span><span class="n">db_raw_record</span><span class="p">,</span>
+                                    <span class="n">param_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"_stimuli"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">),</span>
+                                    <span class="n">param_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+                                <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">db</span><span class="o">.</span><span class="n">record_param</span><span class="p">(</span>
+                            <span class="n">raw_table</span><span class="o">=</span><span class="n">db_raw_record</span><span class="p">,</span>
+                            <span class="n">param_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">param_name</span><span class="p">),</span>
+                            <span class="n">param_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">param_value</span><span class="p">),</span>
+                        <span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outcomes</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">outcomes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">outcome_value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">outcomes</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="nb">isinstance</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span>
+                        <span class="p">):</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">outcome_value</span> <span class="o">=</span> <span class="n">outcome_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                    <span class="s2">"Multi-outcome values must be a list of lists of length 1!"</span>
+                                <span class="p">)</span>
+                        <span class="n">db</span><span class="o">.</span><span class="n">record_outcome</span><span class="p">(</span>
+                            <span class="n">raw_table</span><span class="o">=</span><span class="n">db_raw_record</span><span class="p">,</span>
+                            <span class="n">outcome_name</span><span class="o">=</span><span class="s2">"outcome_"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">),</span>
+                            <span class="n">outcome_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">outcome_value</span><span class="p">),</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">db</span><span class="o">.</span><span class="n">record_outcome</span><span class="p">(</span>
+                        <span class="n">raw_table</span><span class="o">=</span><span class="n">db_raw_record</span><span class="p">,</span>
+                        <span class="n">outcome_name</span><span class="o">=</span><span class="s2">"outcome"</span><span class="p">,</span>
+                        <span class="n">outcome_value</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">outcomes</span><span class="p">),</span>
+                    <span class="p">)</span></div>
 
 <div class="viewcode-block" id="DbRawTable.requires_update"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbRawTable.requires_update">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">requires_update</span><span class="p">(</span><span class="n">engine</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Check if the raw table is empty, and data already exists."""</span>
+        <span class="n">n_raws</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"SELECT COUNT (*) FROM raw_data"</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n_tells</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">"SELECT COUNT (*) FROM replay_data </span><span class="se">\</span>
+<span class="s2">            WHERE message_type = 'tell'"</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">n_raws</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n_tells</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div></div>
 
 
 <div class="viewcode-block" id="DbParamTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbParamTable">[docs]</a><span class="k">class</span> <span class="nc">DbParamTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
-    <span class="sd">"""</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Dimension table to store the parameters of each iteration of an experiment.</span>
 <span class="sd">    Supports multiple parameters per iteration, and multiple stimuli per parameter.</span>
 <span class="sd">    """</span>
+
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"param_data"</span>
 
     <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">param_name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
-    <span class="n">param_value</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+    <span class="n">param_value</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
 
     <span class="n">iteration_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s2">"raw_data.unique_id"</span><span class="p">))</span>
     <span class="n">parent</span> <span class="o">=</span> <span class="n">relationship</span><span class="p">(</span><span class="s2">"DbRawTable"</span><span class="p">,</span> <span class="n">back_populates</span><span class="o">=</span><span class="s2">"children_param"</span><span class="p">)</span>
@@ -428,10 +512,11 @@
 
 
 <div class="viewcode-block" id="DbOutcomeTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbOutcomeTable">[docs]</a><span class="k">class</span> <span class="nc">DbOutcomeTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
-    <span class="sd">"""</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Dimension table to store the outcomes of each iteration of an experiment.</span>
 <span class="sd">    Supports multiple outcomes per iteration.</span>
 <span class="sd">    """</span>
+
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"outcome_data"</span>
 
     <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
