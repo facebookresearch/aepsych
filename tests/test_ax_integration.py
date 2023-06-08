@@ -5,19 +5,19 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+import math
 import os
 import unittest
 import uuid
 
 import numpy as np
 import torch
-from aepsych_client import AEPsychClient
-from ax.service.utils.report_utils import exp_to_df
 
 from aepsych.config import Config
 from aepsych.server import AEPsychServer
+from aepsych_client import AEPsychClient
+from ax.service.utils.report_utils import exp_to_df
 from parameterized import parameterized_class
-import math
 
 
 @parameterized_class(
@@ -66,8 +66,11 @@ class AxIntegrationTestCase(unittest.TestCase):
             # Tell the server what happened so that it can update its model.
             cls.client.tell(trial_params["config"], outcome)
 
-        # Add an extra tell to make sure manual tells and duplicate params
+        # Add an extra tell to make sure manual tells don't duplicate params
         cls.client.tell(trial_params["config"], outcome)
+
+        # Add an extra ask to make sure we can generate trials endlessly
+        trial_params = cls.client.ask()
 
         cls.df = exp_to_df(cls.client.server.strat.experiment)
 
@@ -118,14 +121,18 @@ class AxIntegrationTestCase(unittest.TestCase):
     def test_generation_method(self):
         n_sobol = (self.df["generation_method"] == "Sobol").sum()
         n_opt = (self.df["generation_method"] == "BoTorch").sum()
+        n_manual = (self.df["generation_method"] == "Manual").sum()
 
         correct_n_sobol = self.config.getint("init_strat", "min_total_tells")
         correct_n_opt = (
-            self.config.getint("opt_strat", "min_total_tells") - correct_n_sobol
+            self.config.getint("opt_strat", "min_total_tells")
+            - correct_n_sobol
+            + 1  # Extra ask
         )
 
         self.assertEqual(n_sobol, correct_n_sobol)
         self.assertEqual(n_opt, correct_n_opt)
+        self.assertEqual(n_manual, 1)
 
 
 @unittest.skip("Base integration tests already cover most of these")

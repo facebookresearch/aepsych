@@ -10,12 +10,12 @@ import unittest
 import uuid
 
 import torch
+
+from aepsych.server import AEPsychServer
 from aepsych_client import AEPsychClient
 from ax.core.optimization_config import MultiObjectiveOptimizationConfig
 from ax.modelbridge import Models
 from botorch.test_functions.multi_objective import BraninCurrin
-
-from aepsych.server import AEPsychServer
 
 branin_currin = BraninCurrin(negate=True).to(
     dtype=torch.double,
@@ -45,9 +45,10 @@ class MultiOutcomeTestCase(unittest.TestCase):
         cls.experiment = cls.client.server.strat.ax_client.experiment
 
     def test_generation_strategy(self):
-        self.assertEqual(len(self.gs._steps), 2)
+        self.assertEqual(len(self.gs._steps), 2 + 1)
         self.assertEqual(self.gs._steps[0].model, Models.SOBOL)
         self.assertEqual(self.gs._steps[1].model, Models.MOO)
+        self.assertEqual(self.gs._steps[2].model, Models.MOO)  # Extra final step
 
     def test_experiment(self):
         self.assertEqual(len(self.experiment.metrics), 2)
