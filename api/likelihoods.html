@@ -39,13 +39,16 @@ by a callable (which can be a botorch objective)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>function_samples</strong> – Samples from the function (<span class="math notranslate nohighlight">\(\mathbf f\)</span>)</p></li>
-<li><p><strong>data</strong> – (Pyro integration only.) Additional variables that the likelihood needs to condition
+<li><p><strong>function_samples</strong> (<em>torch.Tensor</em>) – Samples from the function (<span class="math notranslate nohighlight">\(\mathbf f\)</span>)</p></li>
+<li><p><strong>data</strong> (<em>dict {str: torch.Tensor}</em><em>, </em><em>optional - Pyro integration only</em>) – Additional variables that the likelihood needs to condition
 on. The keys of the dictionary will correspond to Pyro sample sites
 in the likelihood’s model/guide.</p></li>
 <li><p><strong>args</strong> – Additional args</p></li>
 <li><p><strong>kwargs</strong> – Additional kwargs</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Distribution</span></code> (with same shape as function_samples )</p>
 </dd>
 </dl>
 </dd></dl>
@@ -58,6 +61,10 @@ in the likelihood’s model/guide.</p></li>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.likelihoods.BernoulliObjectiveLikelihood.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.likelihoods.OrdinalLikelihood">
@@ -89,19 +96,26 @@ and <span class="math notranslate nohighlight">\(d_k\)</span> is a learned cutpo
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>function_samples</strong> – Samples from the function (<span class="math notranslate nohighlight">\(\mathbf f\)</span>)</p></li>
-<li><p><strong>data</strong> – (Pyro integration only.) Additional variables that the likelihood needs to condition
+<li><p><strong>function_samples</strong> (<em>torch.Tensor</em>) – Samples from the function (<span class="math notranslate nohighlight">\(\mathbf f\)</span>)</p></li>
+<li><p><strong>data</strong> (<em>dict {str: torch.Tensor}</em><em>, </em><em>optional - Pyro integration only</em>) – Additional variables that the likelihood needs to condition
 on. The keys of the dictionary will correspond to Pyro sample sites
 in the likelihood’s model/guide.</p></li>
 <li><p><strong>args</strong> – Additional args</p></li>
 <li><p><strong>kwargs</strong> – Additional kwargs</p></li>
 </ul>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Distribution</span></code> (with same shape as function_samples )</p>
+</dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.likelihoods.OrdinalLikelihood.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods/ordinal.html#OrdinalLikelihood.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.OrdinalLikelihood.from_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.likelihoods.OrdinalLikelihood.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.likelihoods.OrdinalLikelihood.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
@@ -189,6 +203,10 @@ aren’t being passed along to self.forward.</p>
 </dd>
 </dl>
 </dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.likelihoods.LinearBernoulliLikelihood.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.likelihoods.LinearBernoulliLikelihood.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 </dd></dl>
 </section>
 </section>
