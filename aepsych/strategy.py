@@ -9,17 +9,12 @@ from __future__ import annotations
 
 import time
 import warnings
+
+from copy import copy
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
-from ax.core.base_trial import TrialStatus
-from ax.modelbridge.generation_strategy import GenerationStrategy
-from ax.plot.contour import interact_contour
-from ax.plot.slice import plot_slice
-from ax.service.ax_client import AxClient
-from ax.utils.notebook.plotting import render
-from botorch.exceptions.errors import ModelFittingError
 
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
@@ -32,6 +27,13 @@ from aepsych.utils import (
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
+from ax.core.base_trial import TrialStatus
+from ax.modelbridge.generation_strategy import GenerationStrategy
+from ax.plot.contour import interact_contour
+from ax.plot.slice import plot_slice
+from ax.service.ax_client import AxClient
+from ax.utils.notebook.plotting import render
+from botorch.exceptions.errors import ModelFittingError
 
 logger = getLogger()
 
@@ -518,6 +520,11 @@ class AEPsychStrategy(ConfigurableMixin):
             step = AEPsychGenerationStep(**opts)
             steps.append(step)
 
+        # Add an extra step at the end that we can `ask` endlessly.
+        final_step = copy(step)
+        final_step.completion_criteria = []
+        steps.append(final_step)
+
         parameters = get_parameters(config)
 
         parameter_constraints = config.getlist(
@@ -542,10 +549,9 @@ class AEPsychStrategy(ConfigurableMixin):
         if self.is_finished:
             return True
 
-        steps_left = len(self.strat._steps) - (self.strat.current_step.index + 1)
-        return (
-            self.strat.current_step.finished(self.strat.experiment) and steps_left == 0
-        )
+        self.strat._maybe_move_to_next_step()
+
+        return len(self.strat._steps) == (self.strat.current_step.index + 1)
 
     def finish(self):
         self.is_finished = True
