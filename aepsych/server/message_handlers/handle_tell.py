@@ -61,7 +61,7 @@ def flatten_tell_record(server, rec):
     return out
 
 
-def tell(server, outcome, config, model_data=True):
+def tell(server, outcome, config=None, model_data=True, trial_index=-1):
     """tell the model which input was run and what the outcome was
     Arguments:
         inputs {dict} -- dictionary, keys are strings, values are floats or int.
@@ -69,6 +69,10 @@ def tell(server, outcome, config, model_data=True):
         which would be in {0, 1}.
         TODO better types
     """
+
+    if config is None:
+        config = {}
+
     if not server.is_performing_replay:
         server._db_raw_record = server.db.record_raw(
             master_table=server._db_master_record,
@@ -137,6 +141,12 @@ def tell(server, outcome, config, model_data=True):
     if model_data:
         if not server.use_ax:
             x = server._config_to_tensor(config)
+            server.strat.add_data(x, outcome)
         else:
-            x = config
-        server.strat.add_data(x, outcome)
+            assert (
+                config or trial_index >= 0
+            ), "Must supply a trial parameterization or a trial index!"
+            if trial_index >= 0:
+                server.strat.complete_existing_trial(trial_index, outcome)
+            else:
+                server.strat.complete_new_trial(config, outcome)

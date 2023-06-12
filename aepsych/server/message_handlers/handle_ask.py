@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+from collections.abc import Mapping
 
 import aepsych.utils_logging as utils_logging
 
@@ -21,7 +22,11 @@ def handle_ask(server, request):
     if server._pregen_asks:
         params = server._pregen_asks.pop()
     else:
-        params = ask(server)
+        msg = request["message"]
+        if isinstance(msg, Mapping):
+            params = ask(server, **msg)
+        else:
+            params = ask(server)
 
     new_config = {"config": params, "is_finished": server.strat.finished}
     if not server.is_performing_replay:
@@ -31,7 +36,7 @@ def handle_ask(server, request):
     return new_config
 
 
-def ask(server):
+def ask(server, num_points=1):
     """get the next point to query from the model
     Returns:
         dict -- new config dict (keys are strings, values are floats)
@@ -49,5 +54,5 @@ def ask(server):
         next_x = server.strat.gen()[0]
         return server._tensor_to_config(next_x)
 
-    next_x = server.strat.gen()
+    next_x = server.strat.gen(num_points)
     return next_x

@@ -25,7 +25,7 @@ branin_currin = BraninCurrin(negate=True).to(
 
 def evaluate(parameters):
     evaluation = branin_currin(
-        torch.tensor([parameters.get("x1")[0], parameters.get("x2")[0]])
+        torch.tensor([parameters.get("x1"), parameters.get("x2")])
     )
     # In our case, standard error is 0, since we are computing a synthetic function.
     # Set standard error to None if the noise level is unknown.
@@ -74,8 +74,9 @@ class MultiOutcomeTestCase(unittest.TestCase):
     def test_ask_tell(self):
         while not self.client.server.strat.finished:
             trial_params = self.client.ask()
-            outcome = evaluate(trial_params["config"])
-            self.client.tell(trial_params["config"], outcome)
+            for trial in trial_params["config"]:
+                outcome = evaluate(trial_params["config"][trial])
+                self.client.tell_trial(trial, outcome)
 
 
 if __name__ == "__main__":
