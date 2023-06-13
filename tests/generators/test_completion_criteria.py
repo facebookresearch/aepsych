@@ -46,10 +46,10 @@ class CompletionCriteriaTestCase(unittest.TestCase):
 
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
-        self.strat.add_data({"x": [0.0]}, 0.0)
+        self.strat.complete_new_trial({"x": 0.0}, 0.0)
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
-        self.strat.add_data({"x": [1.0]}, 0.0)
+        self.strat.complete_new_trial({"x": 1.0}, 0.0)
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
         self.strat.gen()
@@ -75,10 +75,10 @@ class CompletionCriteriaTestCase(unittest.TestCase):
         self.strat.gen()
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
-        self.strat.add_data({"x": [0.0]}, 0.0)
+        self.strat.complete_new_trial({"x": 0.0}, 0.0)
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
-        self.strat.add_data({"x": [1.0]}, 0.0)
+        self.strat.complete_new_trial({"x": 1.0}, 0.0)
         self.assertTrue(criterion.is_met(self.strat.experiment))
 
     def test_min_total_outcome_occurences(self):
@@ -91,16 +91,16 @@ class CompletionCriteriaTestCase(unittest.TestCase):
         criterion = MinTotalOutcomeOccurrences.from_config(config, "test_strat")
         self.assertEqual(criterion.threshold, 2)
 
-        self.strat.add_data({"x": [0.0]}, 0.0)
+        self.strat.complete_new_trial({"x": 0.0}, 0.0)
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
-        self.strat.add_data({"x": [1.0]}, 0.0)
+        self.strat.complete_new_trial({"x": 1.0}, 0.0)
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
-        self.strat.add_data({"x": [0.0]}, 1.0)
+        self.strat.complete_new_trial({"x": 0.0}, 1.0)
         self.assertFalse(criterion.is_met(self.strat.experiment))
 
-        self.strat.add_data({"x": [1.0]}, 1.0)
+        self.strat.complete_new_trial({"x": 1.0}, 1.0)
         self.assertTrue(criterion.is_met(self.strat.experiment))
 
     def run_indefinitely(self):

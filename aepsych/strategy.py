@@ -27,7 +27,6 @@ from aepsych.utils import (
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
-from ax.core.base_trial import TrialStatus
 from ax.modelbridge.generation_strategy import GenerationStrategy
 from ax.plot.contour import interact_contour
 from ax.plot.slice import plot_slice
@@ -504,10 +503,9 @@ class SequentialStrategy(object):
 class AEPsychStrategy(ConfigurableMixin):
     is_finished = False
 
-    def __init__(self, strategy: GenerationStrategy, ax_client: AxClient):
-        self.strat = strategy
-        self.strat.experiment.num_asks = 0
+    def __init__(self, ax_client: AxClient):
         self.ax_client = ax_client
+        self.ax_client.experiment.num_asks = 0
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
@@ -542,7 +540,7 @@ class AEPsychStrategy(ConfigurableMixin):
             objectives=objectives,
         )
 
-        return {"strategy": strat, "ax_client": ax_client}
+        return {"ax_client": ax_client}
 
     @property
     def finished(self) -> bool:
@@ -559,39 +557,23 @@ class AEPsychStrategy(ConfigurableMixin):
     def gen(self, num_points: int = 1):
         x, _ = self.ax_client.get_next_trials(max_trials=num_points)
         self.strat.experiment.num_asks += num_points
-        next_x: Dict[str, Any] = {}
-        for par in self.strat.experiment.parameters:
-            next_x[par] = []
-            for i in x:
-                next_x[par].append(x[i][par])
 
-        return next_x
+        return x
 
-    def add_data(self, x, y):
-        n = len(x[list(x.keys())[0]])
-        for i in range(n):
-            params = {par: x[par][i] for par in x}
+    def complete_new_trial(self, config, outcome):
+        _, trial_index = self.ax_client.attach_trial(config)
+        self.complete_existing_trial(trial_index, outcome)
 
-            # Check if this set of parameters already has an associated trial index. Usually it is the latest trial, so
-            # we iterate backwards. Ideally we would just pass in a trial index directly, but that would requre changes
-            # to server messages.
-            for i in reversed(range(len(self.ax_client.experiment.trials))):
-                trial = self.ax_client.get_trial(trial_index=i)
-                if (
-                    trial.arm.parameters == params
-                    and trial.status != TrialStatus.COMPLETED
-                ):
-                    trial_index = i
-                    break
-
-            else:
-                _, trial_index = self.ax_client.attach_trial(params)
-
-            self.ax_client.complete_trial(trial_index=trial_index, raw_data=y)
+    def complete_existing_trial(self, trial_index, outcome):
+        self.ax_client.complete_trial(trial_index, outcome)
 
     @property
     def experiment(self):
-        return self.strat.experiment
+        return self.ax_client.experiment
+
+    @property
+    def strat(self):
+        return self.ax_client.generation_strategy
 
     def _warn_on_outcome_mismatch(self):
         ax_model = self.ax_client.generation_strategy.model

@@ -28,6 +28,8 @@ from parameterized import parameterized_class
     ],
 )
 class AxIntegrationTestCase(unittest.TestCase):
+    n_extra_asks = 3
+
     @classmethod
     def setUpClass(cls):
         if cls.should_ignore:
@@ -39,9 +41,9 @@ class AxIntegrationTestCase(unittest.TestCase):
         # Simulate participant responses; just returns the sum of the flat parameters
         def simulate_response(trial_params):
             pars = [
-                trial_params[par][0]
+                trial_params[par]
                 for par in trial_params
-                if type(trial_params[par][0]) == float
+                if type(trial_params[par]) == float
             ]
             response = round(sigmoid(np.array(pars).mean()) * 4)
             return response
@@ -61,16 +63,17 @@ class AxIntegrationTestCase(unittest.TestCase):
             trial_params = cls.client.ask()
 
             # Simulate a participant response.
-            outcome = simulate_response(trial_params["config"])
+            for trial in trial_params["config"]:
+                outcome = simulate_response(trial_params["config"][trial])
 
-            # Tell the server what happened so that it can update its model.
-            cls.client.tell(trial_params["config"], outcome)
+                # Tell the server what happened so that it can update its model.
+                cls.client.tell_trial_by_index(trial, outcome)
 
-        # Add an extra tell to make sure manual tells don't duplicate params
-        cls.client.tell(trial_params["config"], outcome)
+        # Make sure we can manually tell without asking first
+        cls.client.tell(trial_params["config"][trial], outcome)
 
         # Add an extra ask to make sure we can generate trials endlessly
-        trial_params = cls.client.ask()
+        trial_params = cls.client.ask(cls.n_extra_asks)
 
         cls.df = exp_to_df(cls.client.server.strat.experiment)
 
@@ -115,8 +118,13 @@ class AxIntegrationTestCase(unittest.TestCase):
     def test_n_trials(self):
         n_tells = (self.df["trial_status"] == "COMPLETED").sum()
         correct_n_tells = self.config.getint("opt_strat", "min_total_tells") + 1
-
         self.assertEqual(n_tells, correct_n_tells)
+
+        n_asks = self.client.server.strat.experiment.num_asks
+        correct_n_asks = (
+            self.config.getint("opt_strat", "min_total_tells") + self.n_extra_asks
+        )
+        self.assertEqual(n_asks, correct_n_asks)
 
     def test_generation_method(self):
         n_sobol = (self.df["generation_method"] == "Sobol").sum()
@@ -127,7 +135,7 @@ class AxIntegrationTestCase(unittest.TestCase):
         correct_n_opt = (
             self.config.getint("opt_strat", "min_total_tells")
             - correct_n_sobol
-            + 1  # Extra ask
+            + self.n_extra_asks
         )
 
         self.assertEqual(n_sobol, correct_n_sobol)

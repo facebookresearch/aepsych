@@ -61,82 +61,99 @@ def flatten_tell_record(server, rec):
     return out
 
 
-def tell(server, outcome, config, model_data=True):
+def tell(server, outcome, config=None, model_data=True, trial_index=-1):
     """tell the model which input was run and what the outcome was
     Arguments:
-        inputs {dict} -- dictionary, keys are strings, values are floats or int.
-        keys should inclde all of the parameters we are tuning over, plus 'outcome'
-        which would be in {0, 1}.
-        TODO better types
+        server: The AEPsych server object.
+        outcome: The outcome of the trial. If using the legacy backend, this must be an int or a float. If using the Ax
+            backend, this may be an int or float if using a single outcome, or if using multiple outcomes, it must be a
+            dictionary mapping outcome names to values.
+        config: A dictionary mapping parameter names to values. This must be provided if using the legacy backend. If
+            using the Ax backend, this should be provided only for trials that do not already have a trial_index.
+        model_data: If True, the data from this trial will be added to the model. If False, the trial will be recorded in
+            the db, but will not be modeled.
+        trial_index: The trial_index for the trial as provided by the ask response when using the Ax backend. Ignored by
+            the legacy backend.
     """
+
+    if config is None:
+        config = {}
+
     if not server.is_performing_replay:
-        server._db_raw_record = server.db.record_raw(
-            master_table=server._db_master_record,
-            model_data=bool(model_data),
-        )
-
-        for param_name, param_value in config.items():
-            if isinstance(param_value, Iterable) and type(param_value) != str:
-                if len(param_value) == 1:
-                    server.db.record_param(
-                        raw_table=server._db_raw_record,
-                        param_name=str(param_name),
-                        param_value=str(param_value[0]),
-                    )
-                else:
-                    for i, v in enumerate(param_value):
-                        server.db.record_param(
-                            raw_table=server._db_raw_record,
-                            param_name=str(param_name) + "_stimuli" + str(i),
-                            param_value=str(v),
-                        )
-            else:
-                server.db.record_param(
-                    raw_table=server._db_raw_record,
-                    param_name=str(param_name),
-                    param_value=str(param_value),
-                )
-
-        if isinstance(outcome, dict):
-            for key in outcome.keys():
-                server.db.record_outcome(
-                    raw_table=server._db_raw_record,
-                    outcome_name=key,
-                    outcome_value=float(outcome[key]),
-                )
-
-        # Check if we get single or multiple outcomes
-        # Multiple outcomes come in the form of iterables that aren't strings or single-element tensors
-        elif isinstance(outcome, Iterable) and type(outcome) != str:
-            for i, outcome_value in enumerate(outcome):
-                if isinstance(outcome_value, Iterable) and type(outcome_value) != str:
-                    if (
-                        isinstance(outcome_value, torch.Tensor)
-                        and outcome_value.dim() < 2
-                    ):
-                        outcome_value = outcome_value.item()
-
-                    elif len(outcome_value) == 1:
-                        outcome_value = outcome_value[0]
-                    else:
-                        raise ValueError(
-                            "Multi-outcome values must be a list of lists of length 1!"
-                        )
-                server.db.record_outcome(
-                    raw_table=server._db_raw_record,
-                    outcome_name="outcome_" + str(i),
-                    outcome_value=float(outcome_value),
-                )
-        else:
-            server.db.record_outcome(
-                raw_table=server._db_raw_record,
-                outcome_name="outcome",
-                outcome_value=float(outcome),
-            )
+        _record_tell(server, outcome, config, model_data)
 
     if model_data:
         if not server.use_ax:
             x = server._config_to_tensor(config)
+            server.strat.add_data(x, outcome)
         else:
-            x = config
-        server.strat.add_data(x, outcome)
+            assert (
+                config or trial_index >= 0
+            ), "Must supply a trial parameterization or a trial index!"
+            if trial_index >= 0:
+                server.strat.complete_existing_trial(trial_index, outcome)
+            else:
+                server.strat.complete_new_trial(config, outcome)
+
+
+def _record_tell(server, outcome, config, model_data):
+    server._db_raw_record = server.db.record_raw(
+        master_table=server._db_master_record,
+        model_data=bool(model_data),
+    )
+
+    for param_name, param_value in config.items():
+        if isinstance(param_value, Iterable) and type(param_value) != str:
+            if len(param_value) == 1:
+                server.db.record_param(
+                    raw_table=server._db_raw_record,
+                    param_name=str(param_name),
+                    param_value=str(param_value[0]),
+                )
+            else:
+                for i, v in enumerate(param_value):
+                    server.db.record_param(
+                        raw_table=server._db_raw_record,
+                        param_name=str(param_name) + "_stimuli" + str(i),
+                        param_value=str(v),
+                    )
+        else:
+            server.db.record_param(
+                raw_table=server._db_raw_record,
+                param_name=str(param_name),
+                param_value=str(param_value),
+            )
+
+    if isinstance(outcome, dict):
+        for key in outcome.keys():
+            server.db.record_outcome(
+                raw_table=server._db_raw_record,
+                outcome_name=key,
+                outcome_value=float(outcome[key]),
+            )
+
+    # Check if we get single or multiple outcomes
+    # Multiple outcomes come in the form of iterables that aren't strings or single-element tensors
+    elif isinstance(outcome, Iterable) and type(outcome) != str:
+        for i, outcome_value in enumerate(outcome):
+            if isinstance(outcome_value, Iterable) and type(outcome_value) != str:
+                if isinstance(outcome_value, torch.Tensor) and outcome_value.dim() < 2:
+                    outcome_value = outcome_value.item()
+
+                elif len(outcome_value) == 1:
+                    outcome_value = outcome_value[0]
+                else:
+                    raise ValueError(
+                        "Multi-outcome values must be a list of lists of length 1!"
+                    )
+            server.db.record_outcome(
+                raw_table=server._db_raw_record,
+                outcome_name="outcome_" + str(i),
+                outcome_value=float(outcome_value),
+            )
+    else:
+        server.db.record_outcome(
+            raw_table=server._db_raw_record,
+            outcome_name="outcome",
+            outcome_value=float(outcome),
+        )
