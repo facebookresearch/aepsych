@@ -11,7 +11,7 @@ pandas
 tqdm
 pathos
 plotly>=2.2.1
-aepsych_client>=0.2.0
+aepsych_client==0.3.0
 voila==0.3.6
 ipywidgets==7.6.5
 ax-platform==0.3.1

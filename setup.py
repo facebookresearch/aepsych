@@ -22,7 +22,7 @@ REQUIRES = [
     "pandas",
     "tqdm",
     "pathos",
-    "aepsych_client>=0.2.0",
+    "aepsych_client==0.3.0",
     "voila==0.3.6",
     "ipywidgets==7.6.5",
     "statsmodels",
