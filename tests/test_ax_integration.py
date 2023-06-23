@@ -58,6 +58,7 @@ class AxIntegrationTestCase(unittest.TestCase):
         cls.config_file = os.path.join(os.path.dirname(__file__), cls.config_file)
         cls.client.configure(cls.config_file)
 
+        cls.can_fit_at_start = cls.client.server.strat.can_fit
         while not cls.client.server.strat.finished:
             # Ask the server what the next parameter values to test should be.
             trial_params = cls.client.ask()
@@ -74,6 +75,8 @@ class AxIntegrationTestCase(unittest.TestCase):
 
         # Add an extra ask to make sure we can generate trials endlessly
         trial_params = cls.client.ask(cls.n_extra_asks)
+
+        cls.can_fit_at_end = cls.client.server.strat.can_fit
 
         cls.df = exp_to_df(cls.client.server.strat.experiment)
 
@@ -141,6 +144,10 @@ class AxIntegrationTestCase(unittest.TestCase):
         self.assertEqual(n_sobol, correct_n_sobol)
         self.assertEqual(n_opt, correct_n_opt)
         self.assertEqual(n_manual, 1)
+
+    def test_can_fit(self):
+        self.assertFalse(self.can_fit_at_start)
+        self.assertTrue(self.can_fit_at_end)
 
 
 @unittest.skip("Base integration tests already cover most of these")
