@@ -27,6 +27,7 @@ from aepsych.utils import (
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
+from ax.core.base_trial import TrialStatus
 from ax.modelbridge.generation_strategy import GenerationStrategy
 from ax.plot.contour import interact_contour
 from ax.plot.slice import plot_slice
@@ -574,6 +575,13 @@ class AEPsychStrategy(ConfigurableMixin):
     @property
     def strat(self):
         return self.ax_client.generation_strategy
+
+    @property
+    def can_fit(self):
+        return (
+            self.strat.model is not None
+            and len(self.experiment.trial_indices_by_status[TrialStatus.COMPLETED]) > 0
+        )
 
     def _warn_on_outcome_mismatch(self):
         ax_model = self.ax_client.generation_strategy.model
