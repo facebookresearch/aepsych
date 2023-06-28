@@ -17,6 +17,18 @@ usage() {
   exit 1
 }
 
+echo "-----------------------------------"
+echo "Check enviorment"
+echo "-----------------------------------"
+echo "OS: $(uname)"
+echo "python version: $(python --version)"
+echo "node version: $(node --version)"
+echo "sphinx version: $(sphinx --version)"
+echo "-----------------------------------"
+echo "Complete"
+echo "-----------------------------------"
+
+
 BUILD_STATIC=false
 ONLY_DOCUSAURUS=false
 
