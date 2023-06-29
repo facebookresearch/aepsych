@@ -18,6 +18,10 @@ usage() {
   exit 1
 }
 
+echo "-----------------------------------"
+echo "check environment"
+echo "-----------------------------------"
+
 os=$(uname -s)
 echo "Operating System: $os"
 
@@ -29,13 +33,11 @@ check_command() {
     fi
 }
 
-# Check for required commands
 check_command python
 check_command node
 check_command yarn
 check_command sphinx
 
-# Check if requirements.txt dependencies are installed
 if ! python -m pip check -r requirements.txt >/dev/null 2>&1; then
     echo "Error: Some dependencies in requirements.txt are not installed."
     exit 1
@@ -43,10 +45,7 @@ fi
 
 echo "All required dependencies are installed."
 
-echo "-----------------------------------"
-echo "Check enviorment"
-echo "-----------------------------------"
-echo "OS: $(uname)"
+
 echo "python version: $(python --version)"
 echo "node version: $(node --version)"
 echo "yarn version: $(yarn --version)"
