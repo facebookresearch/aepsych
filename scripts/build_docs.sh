@@ -6,6 +6,7 @@
 
 # run this script from the project root using `./scripts/build_docs.sh`
 
+
 usage() {
   echo "Usage: $0 [-b] [-o]"
   echo ""
@@ -17,16 +18,40 @@ usage() {
   exit 1
 }
 
+os=$(uname -s)
+echo "Operating System: $os"
+
+check_command() {
+    command=$1
+    if ! command -v $command >/dev/null 2>&1; then
+        echo "Error: $command is not installed."
+        return 1
+    fi
+}
+
+# Check for required commands
+check_command python
+check_command node
+check_command yarn
+check_command sphinx
+
+# Check if requirements.txt dependencies are installed
+if ! python -m pip check -r requirements.txt >/dev/null 2>&1; then
+    echo "Error: Some dependencies in requirements.txt are not installed."
+    exit 1
+fi
+
+echo "All required dependencies are installed."
+
 echo "-----------------------------------"
 echo "Check enviorment"
 echo "-----------------------------------"
 echo "OS: $(uname)"
 echo "python version: $(python --version)"
 echo "node version: $(node --version)"
-echo "sphinx version: $(sphinx --version)"
+echo "yarn version: $(yarn --version)"
 echo "-----------------------------------"
-echo "Complete"
-echo "-----------------------------------"
+
 
 
 BUILD_STATIC=false
@@ -117,10 +142,10 @@ if [[ $BUILD_STATIC == true ]]; then
   echo "-----------------------------------"
   echo "Building static site"
   echo "-----------------------------------"
-  yarn build
+  yarn build || npm run build
 else
   echo "-----------------------------------"
   echo "Starting local server"
   echo "-----------------------------------"
-  yarn start
+  yarn start || npm start
 fi
