@@ -186,14 +186,11 @@ n (int): number of observations</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.strategy.</span></span><span class="sig-name descname"><span class="pre">AEPsychStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax_client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.strategy.</span></span><span class="sig-name descname"><span class="pre">AEPsychStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>strategy</strong> (<em>GenerationStrategy</em>) – </p></li>
-<li><p><strong>ax_client</strong> (<em>AxClient</em>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>ax_client</strong> (<em>AxClient</em>) – </p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -233,12 +230,24 @@ n (int): number of observations</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.add_data">
-<span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.add_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.add_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.complete_new_trial">
+<span class="sig-name descname"><span class="pre">complete_new_trial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.complete_new_trial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.complete_new_trial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.complete_existing_trial">
+<span class="sig-name descname"><span class="pre">complete_existing_trial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trial_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.complete_existing_trial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.complete_existing_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.experiment">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">experiment</span></span><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.experiment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.strat">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strat</span></span><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.strat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.can_fit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_fit</span></span><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.can_fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.plot_contours">
