@@ -87,7 +87,7 @@ Each table is described as follows:
 | outcome_value | The value of the outcome. |
 | outcome_name | The name of the outcome. The name is generated automatically by AEPsych; it's not given by the user. |
 
-The database schema is constantly evolving, so you may occasionally need to update old databases by running `python3 aepsych/server/server.py database --update --d database_path` from a command line. For more information about loading data and replaying previous experiments, see the [example database and notebook](https://github.com/facebookresearch/aepsych/tree/main/tutorials/example_db).
+The database schema is constantly evolving, so you may occasionally need to update old databases by running `python3 aepsych/server/server.py database --update --d database_path` from a command line. For more information about loading data and replaying previous experiments, see the [example database and notebook](https://github.com/facebookresearch/aepsych/tree/main/example_db).
 
 ## Getting data out from the database.
 

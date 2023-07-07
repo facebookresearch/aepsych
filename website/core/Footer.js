@@ -76,6 +76,7 @@ class Footer extends React.Component {
             <h5>Docs</h5>
             <a href={this.docUrl('introduction')}>Introduction</a>
             <a href={this.docUrl('getting_started')}>Getting Started</a>
+            {/* <a href={`${this.props.config.baseUrl}demos/`}>Demos</a> */}
             <a href={`${this.props.config.baseUrl}tutorials/`}>Tutorials</a>
             <a href={`${this.props.config.baseUrl}api/`}>API Reference</a>
           </div>

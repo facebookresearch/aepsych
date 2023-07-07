@@ -29,7 +29,7 @@
 
 
 <div class="viewcode-block" id="Problem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem">[docs]</a><span class="k">class</span> <span class="nc">Problem</span><span class="p">:</span>
-    <span class="sd">"""Wrapper for a problem or test function. Subclass from this</span>
+<span class="w">    </span><span class="sd">"""Wrapper for a problem or test function. Subclass from this</span>
 <span class="sd">    and override f() to define your test function.</span>
 <span class="sd">    """</span>
 
@@ -60,12 +60,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">"""A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the</span>
+<span class="w">        </span><span class="sd">"""A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the</span>
 <span class="sd">        Benchmark's output dataframe, with its associated value stored in each row."""</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
 
 <div class="viewcode-block" id="Problem.p"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p">[docs]</a>    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="sd">"""Evaluate response probability from test function.</span>
+<span class="w">        </span><span class="sd">"""Evaluate response probability from test function.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (np.ndarray): Points at which to evaluate.</span>
@@ -76,7 +76,7 @@
         <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Problem.sample_y"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.sample_y">[docs]</a>    <span class="k">def</span> <span class="nf">sample_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="sd">"""Sample a response from test function.</span>
+<span class="w">        </span><span class="sd">"""Sample a response from test function.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (np.ndarray): Points at which to sample.</span>
@@ -87,7 +87,7 @@
         <span class="k">return</span> <span class="n">bernoulli</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Problem.f_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.f_hat">[docs]</a>    <span class="k">def</span> <span class="nf">f_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
+<span class="w">        </span><span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model (aepsych.models.base.ModelProtocol): Model to evaluate.</span>
@@ -100,7 +100,7 @@
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">f_true</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="sd">"""Evaluate true test function over evaluation grid.</span>
+<span class="w">        </span><span class="sd">"""Evaluate true test function over evaluation grid.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Values of true test function over evaluation grid.</span>
@@ -109,7 +109,7 @@
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">p_true</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Evaluate true response probability over evaluation grid.</span>
+<span class="w">        </span><span class="sd">"""Evaluate true response probability over evaluation grid.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Values of true response probability over evaluation grid.</span>
@@ -117,7 +117,7 @@
         <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Problem.p_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p_hat">[docs]</a>    <span class="k">def</span> <span class="nf">p_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
+<span class="w">        </span><span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model (aepsych.models.base.ModelProtocol): Model to evaluate.</span>
@@ -132,7 +132,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">"""Evaluate the strategy with respect to this problem.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the strategy with respect to this problem.</span>
 
 <span class="sd">        Extend this in subclasses to add additional metrics.</span>
 <span class="sd">        Metrics include:</span>
@@ -213,7 +213,7 @@
 
 
 <div class="viewcode-block" id="LSEProblem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem">[docs]</a><span class="k">class</span> <span class="nc">LSEProblem</span><span class="p">(</span><span class="n">Problem</span><span class="p">):</span>
-    <span class="sd">"""Level set estimation problem.</span>
+<span class="w">    </span><span class="sd">"""Level set estimation problem.</span>
 
 <span class="sd">    This extends the base problem class to evaluate the LSE/threshold estimate</span>
 <span class="sd">    in addition to the function estimate.</span>
@@ -223,7 +223,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">"""A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the</span>
+<span class="w">        </span><span class="sd">"""A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the</span>
 <span class="sd">        Benchmark's output dataframe, with its associated value stored in each row."""</span>
         <span class="n">md</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">metadata</span>
         <span class="n">md</span><span class="p">[</span><span class="s2">"threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>
@@ -243,14 +243,14 @@
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">true_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="sd">"""</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Evaluate whether the true function is below threshold over the eval grid</span>
 <span class="sd">        (used for proper scoring and threshold missclassification metric).</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LSEProblem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">"""Evaluate the model with respect to this problem.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the model with respect to this problem.</span>
 
 <span class="sd">        For level set estimation, we add metrics w.r.t. the true threshold:</span>
 <span class="sd">        - brier_p_below_{thresh), the brier score w.r.t. p(f(x)&lt;thresh), in contrast to</span>
