@@ -1,9 +1,9 @@
 {
   "name": "com.frl.aepsych",
   "displayName": "AEPsych Package",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "unity": "2020.3",
-  "description": "This package includes the AEPsych Unity client and example experiments. Compatible with AEPsych server version 0.2.0 and above. Check aepsych.org for usage and server installation instructions",
+  "description": "This package includes the Ax-compatible AEPsych Unity client and example experiments. This client makes use of Ax features not available in older versions of AEPsych, but not all legacy AEPsych features work yet. This version of the package will be made the default in the future. Compatible with AEPsych server version 0.4.0 and above. Check aepsych.org for usage and server installation instructions",
   "author": {
     "name": "Stryker Buffington",
     "email": "sbuffington@fb.com",
