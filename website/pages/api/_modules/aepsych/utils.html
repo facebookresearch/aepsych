@@ -18,10 +18,12 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">NoOptionError</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">ax.service.utils.instantiation</span> <span class="kn">import</span> <span class="n">ObjectiveProperties</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 <span class="kn">from</span> <span class="nn">torch.quasirandom</span> <span class="kn">import</span> <span class="n">SobolEngine</span>
 
@@ -50,7 +52,7 @@
     <span class="n">slice_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 
-    <span class="sd">"""Create a grid</span>
+<span class="w">    </span><span class="sd">"""Create a grid</span>
 <span class="sd">    Create a grid based on lower, upper, and dim.</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -79,8 +81,8 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">mesh_vals</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
-    <span class="sd">"""Helper function for ensuring bounds are correct shape and type."""</span>
+<span class="k">def</span> <span class="nf">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Helper function for ensuring bounds are correct shape and type."""</span>
     <span class="n">lb</span> <span class="o">=</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span>
     <span class="n">ub</span> <span class="o">=</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span>
 
@@ -201,6 +203,120 @@
         <span class="n">mono_dim</span><span class="p">,</span>
         <span class="n">post_mean</span><span class="p">,</span>
     <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_ax_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">range_parnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
+    <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
+    <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
+
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">range_parnames</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">"Length of parnames (</span><span class="si">{</span><span class="n">range_parnames</span><span class="si">}</span><span class="s2">), lb (</span><span class="si">{</span><span class="n">lb</span><span class="si">}</span><span class="s2">), and ub (</span><span class="si">{</span><span class="n">ub</span><span class="si">}</span><span class="s2">) don't match!"</span>
+
+    <span class="n">range_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="n">parname</span><span class="p">,</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"range"</span><span class="p">,</span>
+            <span class="s2">"value_type"</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="s2">"value_type"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"float"</span><span class="p">),</span>
+            <span class="s2">"log_scale"</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="s2">"log_scale"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s2">"bounds"</span><span class="p">:</span> <span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">u</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">parname</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">range_parnames</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">choice_parnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+        <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"choice_parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[]</span>
+    <span class="p">)</span>
+    <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="s2">"choices"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[</span><span class="s2">"True"</span><span class="p">,</span> <span class="s2">"False"</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="n">choice_parnames</span>
+    <span class="p">]</span>
+    <span class="n">choice_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="n">parname</span><span class="p">,</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"choice"</span><span class="p">,</span>
+            <span class="s2">"value_type"</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="s2">"value_type"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"str"</span><span class="p">),</span>
+            <span class="s2">"is_ordered"</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="s2">"is_ordered"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s2">"values"</span><span class="p">:</span> <span class="n">choice</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">parname</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">choice_parnames</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">fixed_parnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+        <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"fixed_parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[]</span>
+    <span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="n">fixed_parnames</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">parname</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">)</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Missing value for fixed parameter </span><span class="si">{</span><span class="n">parname</span><span class="si">}</span><span class="s2">!"</span><span class="p">)</span>
+    <span class="n">fixed_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="n">parname</span><span class="p">,</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"fixed"</span><span class="p">,</span>
+            <span class="s2">"value"</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">parname</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fixed_parnames</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">range_params</span><span class="p">,</span> <span class="n">choice_params</span><span class="p">,</span> <span class="n">fixed_params</span>
+
+
+<div class="viewcode-block" id="get_parameters"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_parameters">[docs]</a><span class="k">def</span> <span class="nf">get_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+    <span class="n">range_params</span><span class="p">,</span> <span class="n">choice_params</span><span class="p">,</span> <span class="n">fixed_params</span> <span class="o">=</span> <span class="n">_get_ax_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">range_params</span> <span class="o">+</span> <span class="n">choice_params</span> <span class="o">+</span> <span class="n">fixed_params</span></div>
+
+
+<div class="viewcode-block" id="get_dim"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_dim">[docs]</a><span class="k">def</span> <span class="nf">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">range_params</span><span class="p">,</span> <span class="n">choice_params</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_get_ax_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="c1"># Need to sum dimensions added by both range and choice parameters</span>
+    <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">range_params</span><span class="p">)</span>  <span class="c1"># 1 dim per range parameter</span>
+    <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">choice_params</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">par</span><span class="p">[</span><span class="s2">"is_ordered"</span><span class="p">]:</span>
+            <span class="n">dim</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Ordered choice params are encoded like continuous parameters</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">par</span><span class="p">[</span><span class="s2">"values"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="n">par</span><span class="p">[</span><span class="s2">"values"</span><span class="p">]</span>
+            <span class="p">)</span>  <span class="c1"># Choice parameter is one-hot encoded such that they add 1 dim for every choice</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">par</span><span class="p">[</span><span class="s2">"values"</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="p">)</span>  <span class="c1"># Choice parameters with n_choices &lt; 3 add n_choices - 1 dims</span>
+
+    <span class="k">return</span> <span class="n">dim</span></div>
+
+
+<div class="viewcode-block" id="get_objectives"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_objectives">[docs]</a><span class="k">def</span> <span class="nf">get_objectives</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="n">outcome_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+        <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"outcome_types"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">out_type</span> <span class="ow">in</span> <span class="n">outcome_types</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">out_type</span> <span class="o">==</span> <span class="s2">"continuous"</span>
+            <span class="p">),</span> <span class="s2">"Multiple outcomes is only currently supported for continuous outcomes!"</span>
+
+    <span class="n">outcome_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+        <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"outcome_names"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">outcome_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">outcome_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"outcome_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">))]</span>
+
+    <span class="n">objectives</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">out_name</span> <span class="ow">in</span> <span class="n">outcome_names</span><span class="p">:</span>
+        <span class="n">minimize</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s2">"minimize"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s2">"threshold"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">objectives</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ObjectiveProperties</span><span class="p">(</span>
+            <span class="n">minimize</span><span class="o">=</span><span class="n">minimize</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">objectives</span></div>
 </pre></div>
 </div>
 </div>
