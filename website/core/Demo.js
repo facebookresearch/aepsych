@@ -101,7 +101,7 @@ class Demo extends React.Component {
               </a>
             </div>
           ) : null}
-          <Banner />
+          {hasMacDemo === 'False' && hasWinDemo === 'False' ? <Banner /> : null}
         </Container>
       </div>
     );
