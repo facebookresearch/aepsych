@@ -18,3 +18,8 @@ Windows and a local installation of the AEPsych server.
 2.  Right click the .zip archive, and “Extract All” to somewhere on your computer
 3.  Start your local AEPsych server
 4.  Open the extracted archive directory, double click the ‘aepsych_unity.exe’ application
+
+
+**Download**
+
+[YannyLaurelDemo_Win.zip](https://github.com/facebookresearch/aepsych/files/12033979/YannyLaurelDemo_Win.zip)

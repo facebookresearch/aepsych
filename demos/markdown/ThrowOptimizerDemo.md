@@ -26,3 +26,7 @@ Windows OS, Oculus Quest/Quest 2 connected via link cable, and a local AEPsych s
 4.  Launch Quest Link between your Windows machine and your Oculus Quest, and ensure that the headset displays the link home page.
 5.  Open the extracted archive directory, double click the ‘Throw Optimizer.exe’ application
 6.  Don your headset and follow the on-screen instructions
+
+<div className="banner" style="background-color: #f0f0f0; padding: 10px;">
+   <p style="font-weight: bold; text-align: center;">Downloadable demos coming soon</p>
+</div>
