@@ -28,3 +28,7 @@ Download the .zip file that corresponds to your operating system
 Right click the .zip archive, and “Extract All” to somewhere on your computer
 Start your local AEPsych server
 Open the extracted archive directory, double click the ‘aepsych_unity.exe’ application
+
+**Download**
+
+[ParticleEffectDemo_Win.zip](https://github.com/facebookresearch/aepsych/files/12034005/ParticleEffectDemo_Win.zip)

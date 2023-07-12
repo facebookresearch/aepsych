@@ -37,29 +37,6 @@ function renderDownloadIcon() {
   );
 }
 
-const styles = {
-  banner: {
-    backgroundColor: 'rgba(248, 248, 248, 0.8)',
-    padding: '10px',
-    textAlign: 'center',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-  },
-  text: {
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: '#333',
-    margin: 0,
-  },
-};
-
-const Banner = () => {
-  return (
-    <div className="banner" style={styles.banner}>
-      <p style={styles.text}>Downloadable demos coming soon</p>
-    </div>
-  );
-};
-
 class Demo extends React.Component {
   render() {
     const {baseUrl, demoID, hasWinDemo, hasMacDemo} = this.props;
@@ -101,7 +78,6 @@ class Demo extends React.Component {
               </a>
             </div>
           ) : null}
-          <Banner />
         </Container>
       </div>
     );
