@@ -16,8 +16,7 @@ If you're a developer or want to use the latest features, you can install from G
 ```
 git clone https://github.com/facebookresearch/aepsych.git
 cd aepsych
-pip install -r requirements.txt
-pip install -e .
+pip install -e .[dev]
 ```
 
 ## Usage
