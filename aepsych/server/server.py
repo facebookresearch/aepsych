@@ -34,7 +34,7 @@ from aepsych.server.replay import (
     replay,
 )
 
-from aepsych.server.sockets import BAD_REQUEST, createSocket, DummySocket
+from aepsych.server.sockets import BAD_REQUEST, DummySocket, PySocket
 
 logger = utils_logging.getLogger(logging.INFO)
 DEFAULT_DESC = "default description"
@@ -48,7 +48,7 @@ def get_next_filename(folder, fname, ext):
 
 
 class AEPsychServer(object):
-    def __init__(self, socket=None, database_path=None, thrift=False):
+    def __init__(self, socket=None, database_path=None):
         """Server for doing black box optimization using gaussian processes.
         Keyword Arguments:
             socket -- socket object that implements `send` and `receive` for json
@@ -79,7 +79,6 @@ class AEPsychServer(object):
         self.enable_pregen = False
 
         self.debug = False
-        self.is_using_thrift = thrift
         self.receive_thread = threading.Thread(
             target=self._receive_send, args=(self.exit_server_loop,), daemon=True
         )
@@ -153,20 +152,15 @@ class AEPsychServer(object):
         # yeah we're not sanitizing input at all
 
         # Start the method to accept a client connection
-
-        if self.is_using_thrift is True:
-            self.queue.append(self.socket.receive())
+        self.socket.accept_client()
+        self.receive_thread.start()
+        while True:
             self._handle_queue()
-        else:
-            self.socket.accept_client()
-            self.receive_thread.start()
-            while True:
-                self._handle_queue()
-                if self.exit_server_loop:
-                    break
-            # Close the socket and terminate with code 0
-            self.cleanup()
-            sys.exit(0)
+            if self.exit_server_loop:
+                break
+        # Close the socket and terminate with code 0
+        self.cleanup()
+        sys.exit(0)
 
     def _unpack_strat_buffer(self, strat_buffer):
         if isinstance(strat_buffer, io.BytesIO):
@@ -394,12 +388,7 @@ def parse_argument():
     parser.add_argument(
         "--port", metavar="N", type=int, default=5555, help="port to serve on"
     )
-    parser.add_argument(
-        "--socket_type",
-        choices=["zmq", "pysocket"],
-        default="pysocket",
-        help="method to serve over",
-    )
+
     parser.add_argument(
         "--ip",
         metavar="M",
@@ -449,7 +438,7 @@ def start_server(server_class, args):
             if "replay" in args and args.replay is not None:
                 logger.info(f"Attempting to replay {args.replay}")
                 if args.resume is True:
-                    sock = createSocket(socket_type=args.socket_type, port=args.port)
+                    sock = PySocket(socket_type=args.socket_type, port=args.port)
                     logger.info(f"Will resume {args.replay}")
                 else:
                     sock = None
@@ -462,7 +451,7 @@ def start_server(server_class, args):
                 )
             else:
                 logger.info(f"Setting the database path {database_path}")
-                sock = createSocket(socket_type=args.socket_type, port=args.port)
+                sock = PySocket(socket_type=args.socket_type, port=args.port)
                 startServerAndRun(
                     server_class,
                     database_path=database_path,
@@ -470,7 +459,7 @@ def start_server(server_class, args):
                     config_path=args.stratconfig,
                 )
         else:
-            sock = createSocket(socket_type=args.socket_type, port=args.port)
+            sock = PySocket(socket_type=args.socket_type, port=args.port)
             startServerAndRun(server_class, socket=sock, config_path=args.stratconfig)
 
     except (KeyboardInterrupt, SystemExit):
