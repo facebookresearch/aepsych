@@ -1,2 +1,0 @@
-psychopy # for staircase methods and examples
-jupyter # for visualizing stuff
