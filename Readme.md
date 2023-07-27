@@ -28,7 +28,7 @@ The canonical way of using AEPsych is to launch it in server mode (you can run `
 aepsych_server --port 5555 --ip 0.0.0.0 --db mydatabase.db
 ```
 
-The server accepts messages over either a unix socket or [ZMQ](https://zeromq.org/), and
+The server accepts messages over a unix socket, and
 all messages are formatted using [JSON](https://www.json.org/json-en.html). All messages
 have the following format:
 

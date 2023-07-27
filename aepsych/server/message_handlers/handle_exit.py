@@ -17,8 +17,6 @@ def handle_exit(server, request):
     termination_type = "Normal termination"
     logger.info("Got termination message!")
     server.write_strats(termination_type)
-    if not server.is_using_thrift:
-        server.exit_server_loop = True
+    server.exit_server_loop = True
 
-    # If using thrift, it will add 'Terminate' to the queue and pass it to thrift server level
     return "Terminate"

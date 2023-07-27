@@ -12,7 +12,6 @@ from setuptools import find_packages, setup
 REQUIRES = [
     "matplotlib",
     "torch",
-    "pyzmq==19.0.2",
     "scipy",
     "SQLAlchemy==1.4.46",
     "dill",
