@@ -89,11 +89,21 @@ namespace AEPsych
         [JsonConverter(typeof(StringEnumConverter))]
         public QueryType query_type;
         public TrialConfig x; //values where we want to query
-        public float y; //target that we want to inverse querying
+        public List<float> y; //target that we want to inverse querying
         public TrialConfig constraints; //Constraints for inverse querying; if values are 1d then absolute constraint, if 2d then upper/lower bounds
         public bool probability_space;  //whether to use probability space or latent space
 
         public QueryMessage(QueryType queryType, TrialConfig x, float y, TrialConfig constraints, bool probability_space)
+        {
+            this.query_type = queryType;
+            this.x = x;
+            this.y = new List<float>();
+            this.y.Add(y);
+            this.constraints = constraints;
+            this.probability_space = probability_space;
+        }
+
+        public QueryMessage(QueryType queryType, TrialConfig x, List<float> y, TrialConfig constraints, bool probability_space)
         {
             this.query_type = queryType;
             this.x = x;

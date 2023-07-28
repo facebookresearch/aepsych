@@ -11,6 +11,7 @@ from typing import List, Mapping, Optional, Tuple, Union
 import numpy as np
 import torch
 from botorch.acquisition import PosteriorMean
+from botorch.acquisition.objective import ScalarizedPosteriorTransform
 from botorch.models.model import Model
 from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
 from botorch.optim import optimize_acqf
@@ -125,6 +126,7 @@ def get_extremum(
     bounds: torch.Tensor,
     locked_dims: Optional[Mapping[int, List[float]]],
     n_samples: int,
+    weights: Optional[torch.Tensor] = None,
 ) -> Tuple[float, np.ndarray]:
     """Return the extremum (min or max) of the modeled function
     Args:
@@ -135,7 +137,15 @@ def get_extremum(
     """
     locked_dims = locked_dims or {}
 
-    acqf = PosteriorMean(model=model, maximize=(extremum_type == "max"))
+    transform = None
+    if model.num_outputs > 1:
+        if weights is None:
+            weights = torch.Tensor([1] * model.num_outputs)
+        transform = ScalarizedPosteriorTransform(weights=weights)
+
+    acqf = PosteriorMean(
+        model=model, posterior_transform=transform, maximize=(extremum_type == "max")
+    )
     best_point, best_val = optimize_acqf(
         acq_function=acqf,
         bounds=bounds,

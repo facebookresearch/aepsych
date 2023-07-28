@@ -9,8 +9,6 @@ import unittest
 
 import numpy as np
 import torch
-from botorch.fit import fit_gpytorch_mll
-from gpytorch.mlls import ExactMarginalLogLikelihood
 
 from aepsych.models.exact_gp import ExactGP
 
@@ -19,15 +17,14 @@ np.random.seed(0)
 torch.manual_seed(0)
 
 
-class TestModelQuery(unittest.TestCase):
+class SingleOutcomeModelQueryTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.bounds = torch.tensor([[0.0], [1.0]])
         x = torch.linspace(0.0, 1.0, 10).reshape(-1, 1)
         y = torch.sin(6.28 * x).reshape(-1, 1)
         cls.model = ExactGP(x, y)
-        mll = ExactMarginalLogLikelihood(cls.model.likelihood, cls.model)
-        fit_gpytorch_mll(mll)
+        cls.model.fit()
 
     def test_min(self):
         mymin, my_argmin = self.model.get_min(self.bounds)
@@ -43,9 +40,45 @@ class TestModelQuery(unittest.TestCase):
 
     def test_inverse_query(self):
         bounds = torch.tensor([[0.1], [0.9]])
-        val, arg = self.model.inv_query(0.0, bounds)
+        val, arg = self.model.inv_query(bounds, 0.0)
         # Don't need to be precise since we're working with small data.
         self.assertTrue(-0.01 < val < 0.01)
+        self.assertTrue(0.45 < arg < 0.55)
+
+
+class MultiOutcomeModelQueryTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.bounds = torch.tensor([[0.0], [1.0]])
+        x = torch.linspace(0.0, 1.0, 10).reshape(-1, 1)
+        y = torch.cat(
+            (
+                torch.sin(6.28 * x).reshape(-1, 1),
+                torch.cos(6.28 * x).reshape(-1, 1),
+            ),
+            dim=1,
+        )
+        cls.model = ExactGP(x, y)
+        cls.model.fit()
+
+    def test_max(self):
+        mymax, my_argmax = self.model.get_max(self.bounds)
+        # Don't need to be precise since we're working with small data.
+        self.assertAlmostEqual(mymax.item(), np.sqrt(2), places=1)
+        self.assertTrue(0.1 < my_argmax < 0.2)
+
+    def test_min(self):
+        mymax, my_argmax = self.model.get_min(self.bounds)
+        # Don't need to be precise since we're working with small data.
+        self.assertAlmostEqual(mymax.item(), -np.sqrt(2), places=1)
+        self.assertTrue(0.6 < my_argmax < 0.7)
+
+    def test_inverse_query(self):
+        bounds = torch.tensor([[0.1], [0.9]])
+        val, arg = self.model.inv_query(bounds, torch.tensor([0.0, -1]))
+        # Don't need to be precise since we're working with small data.
+        self.assertTrue(-0.01 < val[0] < 0.01)
+        self.assertTrue(-1.01 < val[1] < -0.99)
         self.assertTrue(0.45 < arg < 0.55)
 
 
