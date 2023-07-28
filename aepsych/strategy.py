@@ -29,11 +29,13 @@ from aepsych.utils import (
 from aepsych.utils_logging import getLogger
 from ax.core.base_trial import TrialStatus
 from ax.modelbridge.generation_strategy import GenerationStrategy
+from ax.modelbridge.modelbridge_utils import extract_search_space_digest
 from ax.plot.contour import interact_contour
 from ax.plot.slice import plot_slice
 from ax.service.ax_client import AxClient
 from ax.utils.notebook.plotting import render
 from botorch.exceptions.errors import ModelFittingError
+
 
 logger = getLogger()
 
@@ -508,6 +510,15 @@ class AEPsychStrategy(ConfigurableMixin):
         self.ax_client = ax_client
         self.ax_client.experiment.num_asks = 0
 
+        search_space_digest = extract_search_space_digest(
+            self.ax_client.experiment.search_space,
+            list(self.ax_client.experiment.search_space.parameters.keys()),
+        )
+        bounds = search_space_digest.bounds
+        self._bounds = torch.tensor(
+            [[bound[0] for bound in bounds], [bound[1] for bound in bounds]]
+        )
+
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
         # TODO: Fix the mypy errors
@@ -583,12 +594,16 @@ class AEPsychStrategy(ConfigurableMixin):
             and len(self.experiment.trial_indices_by_status[TrialStatus.COMPLETED]) > 0
         )
 
-    def _warn_on_outcome_mismatch(self):
+    @property
+    def model(self):
         ax_model = self.ax_client.generation_strategy.model
         aepsych_model = ax_model.model.surrogate.model
+        return aepsych_model
+
+    def _warn_on_outcome_mismatch(self):
         if (
-            hasattr(aepsych_model, "outcome_type")
-            and aepsych_model.outcome_type != "continuous"
+            hasattr(self.model, "outcome_type")
+            and self.model.outcome_type != "continuous"
         ):
             warnings.warn(
                 "Cannot directly plot non-continuous outcomes. Plotting the latent function instead."
@@ -649,3 +664,24 @@ class AEPsychStrategy(ConfigurableMixin):
 
     def get_pareto_optimal_parameters(self):
         return self.ax_client.get_pareto_optimal_parameters()
+
+    def predict(self, *args, **kwargs):
+        """Query the model for posterior mean and variance.; see AEPsychModel.predict."""
+        return self.model.predict(self._bounds, *args, **kwargs)
+
+    def predict_probability(self, *args, **kwargs):
+        """Query the model in prodbability space for posterior mean and variance.; see AEPsychModel.predict_probability."""
+        return self.model.predict(self._bounds, *args, **kwargs)
+
+    def get_max(self, *args, **kwargs):
+        """Return the maximum of the modeled function; see AEPsychModel.get_max."""
+        return self.model.get_max(self._bounds, *args, **kwargs)
+
+    def get_min(self, *args, **kwargs):
+        """Return the minimum of the modeled function; see AEPsychModel.get_min."""
+        return self.model.get_min(self._bounds, *args, **kwargs)
+
+    def inv_query(self, *args, **kwargs):
+        """Return nearest x such that f(x) = queried y, and also return the
+        value of f at that point.; see AEPsychModel.inv_query."""
+        return self.model.inv_query(self._bounds, *args, **kwargs)

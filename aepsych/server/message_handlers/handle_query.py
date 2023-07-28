@@ -64,7 +64,7 @@ def query(
         nearest_y, nearest_loc = server.strat.inv_query(
             y, constraints, probability_space=probability_space
         )
-        response["y"] = nearest_y
+        response["y"] = np.array(nearest_y)
         response["x"] = server._tensor_to_config(nearest_loc)
     else:
         raise RuntimeError("unknown query type!")
@@ -73,4 +73,6 @@ def query(
         k: np.array([v]) if np.array(v).ndim == 0 else v
         for k, v in response["x"].items()
     }
+    if server.use_ax:
+        response["x"] = {v: response["x"][v][0] for v in response["x"]}
     return response
