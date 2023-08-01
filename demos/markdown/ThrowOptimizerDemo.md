@@ -27,6 +27,6 @@ Windows OS, Oculus Quest/Quest 2 connected via link cable, and a local AEPsych s
 5.  Open the extracted archive directory, double click the ‘Throw Optimizer.exe’ application
 6.  Don your headset and follow the on-screen instructions
 
-<div className="banner" style="background-color: #f0f0f0; padding: 10px;">
-   <p style="font-weight: bold; text-align: center;">Downloadable demos coming soon</p>
-</div>
+**Download**
+
+[ThrowOptimizerDemo_Win.zip](https://github.com/facebookresearch/aepsych/raw/main/demos/ThrowOptimizerDemo_Win.zip)
