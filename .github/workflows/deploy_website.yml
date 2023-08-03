@@ -1,13 +1,8 @@
 name: Deploy Documentation to GitHub Pages
 
-# on:
-#   push:
-#     branches:
-#       - main
 on:
-  pull_request:
-    branches:
-      - main
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -15,6 +10,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Node
       - uses: actions/setup-node@v3
         with:
           node-version: 18
