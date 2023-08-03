@@ -22,10 +22,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - name: Install dependencies
+      - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
           pip install ".[dev]"
+      - name: Install additional dependencies
+        run: |
           pip install beautifulsoup4
           pip install nbformat
           pip install nbconvert
