@@ -31,7 +31,6 @@
 
 <span class="kn">import</span> <span class="nn">aepsych.utils_logging</span> <span class="k">as</span> <span class="nn">utils_logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">zmq</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="n">BAD_REQUEST</span> <span class="o">=</span> <span class="s2">"bad request"</span>
@@ -48,58 +47,9 @@
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="createSocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.createSocket">[docs]</a><span class="k">def</span> <span class="nf">createSocket</span><span class="p">(</span><span class="n">socket_type</span><span class="o">=</span><span class="s2">"pysocket"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5555</span><span class="p">,</span> <span class="n">msg_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"socket_type = </span><span class="si">{</span><span class="n">socket_type</span><span class="si">}</span><span class="s2"> port = </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">socket_type</span> <span class="o">==</span> <span class="s2">"pysocket"</span><span class="p">:</span>
-        <span class="n">sock</span> <span class="o">=</span> <span class="n">PySocket</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">socket_type</span> <span class="o">==</span> <span class="s2">"zmq"</span><span class="p">:</span>
-        <span class="n">sock</span> <span class="o">=</span> <span class="n">ZMQSocket</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">socket_type</span> <span class="o">==</span> <span class="s2">"thrift"</span><span class="p">:</span>
-        <span class="n">sock</span> <span class="o">=</span> <span class="n">ThriftSocketWrapper</span><span class="p">(</span><span class="n">msg_queue</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">sock</span></div>
-
-
 <div class="viewcode-block" id="DummySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket">[docs]</a><span class="k">class</span> <span class="nc">DummySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <div class="viewcode-block" id="DummySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div></div>
-
-
-<div class="viewcode-block" id="ZMQSocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket">[docs]</a><span class="k">class</span> <span class="nc">ZMQSocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s2">"*"</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""sends/receives json-formated messages over ZMQ</span>
-
-<span class="sd">        Arguments:</span>
-<span class="sd">            port {int} -- port to listen over</span>
-<span class="sd">        """</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">REP</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tcp://</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-<div class="viewcode-block" id="ZMQSocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="ZMQSocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">()</span>
-                <span class="k">break</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">"Exception caught while trying to receive a message from the client. "</span>
-                    <span class="sa">f</span><span class="s2">"Ignoring message and trying again. The caught exception was: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">."</span>
-                <span class="p">)</span>
-        <span class="k">return</span> <span class="n">msg</span></div>
-
-<div class="viewcode-block" id="ZMQSocket.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ZMQSocket.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="PySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket">[docs]</a><span class="k">class</span> <span class="nc">PySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -156,7 +106,7 @@
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"receive : result = </span><span class="si">{</span><span class="n">recv_result</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Got: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                         <span class="k">return</span> <span class="n">msg</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">BAD_REQUEST</span></div>
 
 <div class="viewcode-block" id="PySocket.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
@@ -173,35 +123,6 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sending: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">"utf-8"</span><span class="p">))</span></div></div>
-
-
-<div class="viewcode-block" id="ThriftSocketWrapper"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper">[docs]</a><span class="k">class</span> <span class="nc">ThriftSocketWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_queue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span> <span class="o">=</span> <span class="n">msg_queue</span>
-
-<div class="viewcode-block" id="ThriftSocketWrapper.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># it's not a real socket so no close function need?</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="ThriftSocketWrapper.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Remove and return an item from the queue. If queue is empty, wait until an item is available.</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"thrift socket got msg: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">message</span></div>
-
-<div class="viewcode-block" id="ThriftSocketWrapper.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.ThriftSocketWrapper.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="c1"># add responds to msg_queue</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">"There is no msg_queue!"</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"There is no message to send from server!"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="k">pass</span>  <span class="c1"># keep it as-is</span>
-        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sending: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>

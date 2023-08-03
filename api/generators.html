@@ -44,6 +44,8 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.base.</span></span><span class="sig-name descname"><span class="pre">AEPsychGenerator</span></span><a class="reference internal" href="_modules/aepsych/generators/base.html#AEPsychGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">AEPsychModelType</span></code>]</p>
 <p>Abstract base class for generators, which are responsible for generating new points to sample.</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator.baseline_requiring_acqfs">
 <span class="sig-name descname"><span class="pre">baseline_requiring_acqfs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[botorch.acquisition.qNoisyExpectedImprovement,</span> <span class="pre">botorch.acquisition.NoisyExpectedImprovement]</span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.baseline_requiring_acqfs" title="Permalink to this definition">¶</a></dt>
@@ -105,18 +107,6 @@
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerationStep.model">
-<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelRegistryBase</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ModelBridge</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerationStep.model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerationStep.num_trials">
-<span class="sig-name descname"><span class="pre">num_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerationStep.num_trials" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerationStep.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerationStep.completion_criteria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 </section>
 <section id="module-aepsych.generators.epsilon_greedy_generator">
@@ -125,6 +115,14 @@
 <dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.epsilon_greedy_generator.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config" title="Permalink to this definition">¶</a></dt>
@@ -166,6 +164,17 @@
 :type dim: int, optional
 :param shuffle: Whether or not to shuffle the order of the points. True by default.
 :type shuffle: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.manual_generator.ManualGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
@@ -237,10 +246,12 @@ an acquisition function through stochastic gradient descent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_gen_options</strong> – Dictionary with options for generating candidate, such as
+<li><p><strong>model_gen_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – Dictionary with options for generating candidate, such as
 SGD parameters. See code for all options and their defaults.</p></li>
-<li><p><strong>explore_features</strong> – List of features that will be selected randomly and then
+<li><p><strong>explore_features</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>int</em><em>]</em><em>]</em>) – List of features that will be selected randomly and then
 fixed for acquisition fn optimization.</p></li>
+<li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -298,6 +309,7 @@ of points, and then choose the point that is closest to the target value.</p>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Objective transform of the GP output
 before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>n_rejection_samples</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -357,6 +369,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
 This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
 less of what your true upper bound is.</p></li>
+<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -424,22 +439,6 @@ less of what your true upper bound is.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.model">
-<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelRegistryBase</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ModelBridge</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.num_trials">
-<span class="sig-name descname"><span class="pre">num_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.num_trials" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.model_specs">
-<span class="sig-name descname"><span class="pre">model_specs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelSpec</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.model_specs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 </section>
 <section id="module-aepsych.generators.random_generator">
@@ -456,6 +455,15 @@ less of what your true upper bound is.</p></li>
 :type ub: Union[np.ndarray, torch.Tensor]
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.random_generator.RandomGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.random_generator.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
@@ -514,18 +522,6 @@ less of what your true upper bound is.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.random_generator.AxRandomGenerator.num_trials">
-<span class="sig-name descname"><span class="pre">num_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.random_generator.AxRandomGenerator.num_trials" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.random_generator.AxRandomGenerator.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.random_generator.AxRandomGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.random_generator.AxRandomGenerator.model_specs">
-<span class="sig-name descname"><span class="pre">model_specs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelSpec</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.random_generator.AxRandomGenerator.model_specs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 </section>
 <section id="module-aepsych.generators.sobol_generator">
@@ -544,6 +540,17 @@ less of what your true upper bound is.</p></li>
 :type dim: int, optional
 :param seed: Random seed.
 :type seed: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.sobol_generator.SobolGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
@@ -591,22 +598,6 @@ less of what your true upper bound is.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.sobol_generator.AxSobolGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.sobol_generator.</span></span><span class="sig-name descname"><span class="pre">AxSobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#AxSobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.AxSobolGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerationStep" title="aepsych.generators.base.AEPsychGenerationStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerationStep</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.sobol_generator.AxSobolGenerator.model">
-<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelRegistryBase</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ModelBridge</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.sobol_generator.AxSobolGenerator.model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.sobol_generator.AxSobolGenerator.num_trials">
-<span class="sig-name descname"><span class="pre">num_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.sobol_generator.AxSobolGenerator.num_trials" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.sobol_generator.AxSobolGenerator.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.sobol_generator.AxSobolGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.sobol_generator.AxSobolGenerator.model_specs">
-<span class="sig-name descname"><span class="pre">model_specs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelSpec</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.sobol_generator.AxSobolGenerator.model_specs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.sobol_generator.AxSobolGenerator.get_config_options">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#AxSobolGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.AxSobolGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
@@ -646,6 +637,9 @@ less of what your true upper bound is.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
 This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
 less of what your true upper bound is.</p></li>
+<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -710,10 +704,12 @@ an acquisition function through stochastic gradient descent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_gen_options</strong> – Dictionary with options for generating candidate, such as
+<li><p><strong>model_gen_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – Dictionary with options for generating candidate, such as
 SGD parameters. See code for all options and their defaults.</p></li>
-<li><p><strong>explore_features</strong> – List of features that will be selected randomly and then
+<li><p><strong>explore_features</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>int</em><em>]</em><em>]</em>) – List of features that will be selected randomly and then
 fixed for acquisition fn optimization.</p></li>
+<li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -768,6 +764,7 @@ of points, and then choose the point that is closest to the target value.</p>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Objective transform of the GP output
 before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>n_rejection_samples</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -816,6 +813,15 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 :type ub: Union[np.ndarray, torch.Tensor]
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.RandomGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
@@ -861,6 +867,17 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 :type dim: int, optional
 :param seed: Random seed.
 :type seed: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.SobolGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
@@ -908,6 +925,14 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – </p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator.from_config" title="Permalink to this definition">¶</a></dt>
@@ -946,6 +971,17 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 :type dim: int, optional
 :param shuffle: Whether or not to shuffle the order of the points. True by default.
 :type shuffle: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.ManualGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
@@ -997,6 +1033,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
 This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
 less of what your true upper bound is.</p></li>
+<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1028,6 +1067,17 @@ less of what your true upper bound is.</p></li>
 :type dim: int, optional
 :param seed: Random seed.
 :type seed: int, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.generators.PairwiseSobolGenerator.stimuli_per_trial">
 <span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
@@ -1061,43 +1111,11 @@ less of what your true upper bound is.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxOptimizeAcqfGenerator.model">
-<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelRegistryBase</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ModelBridge</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxOptimizeAcqfGenerator.model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxOptimizeAcqfGenerator.num_trials">
-<span class="sig-name descname"><span class="pre">num_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.AxOptimizeAcqfGenerator.num_trials" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxOptimizeAcqfGenerator.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxOptimizeAcqfGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxOptimizeAcqfGenerator.model_specs">
-<span class="sig-name descname"><span class="pre">model_specs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelSpec</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxOptimizeAcqfGenerator.model_specs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.AxSobolGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">AxSobolGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#AxSobolGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AxSobolGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerationStep" title="aepsych.generators.base.AEPsychGenerationStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerationStep</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxSobolGenerator.model">
-<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelRegistryBase</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ModelBridge</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxSobolGenerator.model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxSobolGenerator.num_trials">
-<span class="sig-name descname"><span class="pre">num_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.AxSobolGenerator.num_trials" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxSobolGenerator.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxSobolGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.AxSobolGenerator.model_specs">
-<span class="sig-name descname"><span class="pre">model_specs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelSpec</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxSobolGenerator.model_specs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.AxSobolGenerator.get_config_options">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#AxSobolGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AxSobolGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
@@ -1152,6 +1170,9 @@ with this generator. It should work with other similar acquisition functions.</p
 <li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.
 This is only loosely followed by scipy’s optimizer, so consider using a number about 1/3 or
 less of what your true upper bound is.</p></li>
+<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1199,22 +1220,6 @@ less of what your true upper bound is.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.MultiOutcomeOptimizationGenerator.model">
-<span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelRegistryBase</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ModelBridge</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.MultiOutcomeOptimizationGenerator.model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.MultiOutcomeOptimizationGenerator.num_trials">
-<span class="sig-name descname"><span class="pre">num_trials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.MultiOutcomeOptimizationGenerator.num_trials" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.MultiOutcomeOptimizationGenerator.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.MultiOutcomeOptimizationGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.generators.MultiOutcomeOptimizationGenerator.model_specs">
-<span class="sig-name descname"><span class="pre">model_specs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ModelSpec</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.MultiOutcomeOptimizationGenerator.model_specs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.AxRandomGenerator">

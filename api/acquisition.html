@@ -146,14 +146,10 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The gpytorch model.</p></li>
-<li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – The gpytorch model.</p></li>
+<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -165,14 +161,11 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The gpytorch model.</p></li>
-<li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – The gpytorch model.</p></li>
+<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.PosteriorTransform</em><em>]</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -249,15 +242,13 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The gpytorch model.</p></li>
-<li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> – (m x d) global reference set.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – The gpytorch model.</p></li>
+<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.PosteriorTransform</em><em>]</em>) – </p></li>
+<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -323,15 +314,11 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The gpytorch model.</p></li>
-<li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> – (m x d) global reference set.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – The gpytorch model.</p></li>
+<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -396,12 +383,7 @@ International Conference on Artificial Intelligence and Statistics (AISTATS) 202
 <li><p><strong>model</strong> – The gpytorch model.</p></li>
 <li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
 <li><p><strong>Xq</strong> – (m x d) global reference set.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -421,12 +403,7 @@ Advances in Neural Information Processing Systems 34 (2021).</p>
 <li><p><strong>model</strong> – The gpytorch model.</p></li>
 <li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
 <li><p><strong>Xq</strong> – (m x d) global reference set.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -563,19 +540,14 @@ py1: (b x 1) Probability of observing 1 at xstar.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – A fitted model.</p></li>
-<li><p><strong>target</strong> – the level set (after objective transform) to be estimated</p></li>
-<li><p><strong>beta</strong> – a parameter that governs explore-exploit tradeoff</p></li>
-<li><p><strong>objective</strong> – An MCAcquisitionObjective representing the link function
+<li><p><strong>model</strong> (<em>botorch.models.model.Model</em>) – A fitted model.</p></li>
+<li><p><strong>target</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – the level set (after objective transform) to be estimated</p></li>
+<li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – a parameter that governs explore-exploit tradeoff</p></li>
+<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.monte_carlo.MCAcquisitionObjective</em><em>]</em>) – An MCAcquisitionObjective representing the link function
 (e.g., logistic or probit.) applied on the samples.
 Can be implemented via GenericMCObjective.</p></li>
-<li><p><strong>sampler</strong> – The sampler used for drawing MC samples.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.monte_carlo.MCSampler</em><em>]</em>) – The sampler used for drawing MC samples.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -648,17 +620,12 @@ Should be samples x batch_shape.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – A fitted model.</p></li>
-<li><p><strong>objective</strong> – An MCAcquisitionObjective representing the link function
+<li><p><strong>model</strong> (<em>botorch.models.model.Model</em>) – A fitted model.</p></li>
+<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.MCAcquisitionObjective</em><em>]</em>) – An MCAcquisitionObjective representing the link function
 (e.g., logistic or probit.) applied on the difference of (usually 1-d)
 two samples. Can be implemented via GenericMCObjective.</p></li>
-<li><p><strong>sampler</strong> – The sampler used for drawing MC samples.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>botorch.sampling.base.MCSampler</em><em>]</em>) – The sampler used for drawing MC samples.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -751,12 +718,8 @@ in subclasses.</p>
 <li><p><strong>num_rejection_samples</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of rejection samples to draw. Defaults to 1024.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Objective transform of the GP output
 before evaluating the acquisition. Defaults to identity transform.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>deriv_constraint_points</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -805,12 +768,8 @@ Should be (b) x q x d, and q should be 1.</p>
 exploitation (similarly to the same parameter in UCB). Defaults to 3.84 (1.96 ** 2), which maps to the straddle
 heuristic of Bryan et al. 2005.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Objective transform. Defaults to identity transform.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>deriv_constraint_points</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -870,12 +829,7 @@ latent function.</p>
 <li><p><strong>objective</strong> (<em>MCAcquisitionObjective</em>) – An MCAcquisitionObjective representing the link function
 (e.g., logistic or probit)</p></li>
 <li><p><strong>sampler</strong> (<em>MCSampler</em><em>, </em><em>optional</em>) – The sampler used for drawing MC samples.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1141,12 +1095,7 @@ that gives outcome probabilities</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>likelihood</strong> (<em>Likelihood</em><em>)</em><em>. Underlying SemiP likelihood</em><em> (</em><em>which we use for its objective/link</em>) – </p></li>
 <li><p><strong>class</strong> (<em>other arguments are passed to the base</em>) – </p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1192,12 +1141,7 @@ that gives the threshold distribution.</p>
 <li><p><strong>target</strong> (<em>float</em>) – the threshold to evaluate.</p></li>
 <li><p><strong>likelihood</strong> (<em>Likelihood</em>) – Underlying SemiP likelihood (which we use for its inverse link)</p></li>
 <li><p><strong>class</strong> (<em>other arguments are passed to the base</em>) – </p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1250,12 +1194,7 @@ samples returned will be the “least violating”, i.e. closest to 0.</p></li>
 <li><p><strong>num_rejection_samples</strong> (<em>int</em>) – Number of samples to draw before rejecting.</p></li>
 <li><p><strong>constrained_idx</strong> (<em>Tensor</em>) – Indices of input dimensions that should be
 constrained positive.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1296,12 +1235,7 @@ latent function.</p>
 <li><p><strong>objective</strong> (<em>MCAcquisitionObjective</em>) – An MCAcquisitionObjective representing the link function
 (e.g., logistic or probit)</p></li>
 <li><p><strong>sampler</strong> (<em>MCSampler</em><em>, </em><em>optional</em>) – The sampler used for drawing MC samples.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1393,12 +1327,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 exploitation (similarly to the same parameter in UCB). Defaults to 3.84 (1.96 ** 2), which maps to the straddle
 heuristic of Bryan et al. 2005.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Objective transform. Defaults to identity transform.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>deriv_constraint_points</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1423,17 +1353,12 @@ heuristic of Bryan et al. 2005.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – A fitted model.</p></li>
-<li><p><strong>objective</strong> – An MCAcquisitionObjective representing the link function
+<li><p><strong>model</strong> (<em>botorch.models.model.Model</em>) – A fitted model.</p></li>
+<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.MCAcquisitionObjective</em><em>]</em>) – An MCAcquisitionObjective representing the link function
 (e.g., logistic or probit.) applied on the difference of (usually 1-d)
 two samples. Can be implemented via GenericMCObjective.</p></li>
-<li><p><strong>sampler</strong> – The sampler used for drawing MC samples.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>botorch.sampling.base.MCSampler</em><em>]</em>) – The sampler used for drawing MC samples.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1508,19 +1433,14 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – A fitted model.</p></li>
-<li><p><strong>target</strong> – the level set (after objective transform) to be estimated</p></li>
-<li><p><strong>beta</strong> – a parameter that governs explore-exploit tradeoff</p></li>
-<li><p><strong>objective</strong> – An MCAcquisitionObjective representing the link function
+<li><p><strong>model</strong> (<em>botorch.models.model.Model</em>) – A fitted model.</p></li>
+<li><p><strong>target</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – the level set (after objective transform) to be estimated</p></li>
+<li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – a parameter that governs explore-exploit tradeoff</p></li>
+<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.monte_carlo.MCAcquisitionObjective</em><em>]</em>) – An MCAcquisitionObjective representing the link function
 (e.g., logistic or probit.) applied on the samples.
 Can be implemented via GenericMCObjective.</p></li>
-<li><p><strong>sampler</strong> – The sampler used for drawing MC samples.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.monte_carlo.MCSampler</em><em>]</em>) – The sampler used for drawing MC samples.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1748,15 +1668,11 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The gpytorch model.</p></li>
-<li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> – (m x d) global reference set.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – The gpytorch model.</p></li>
+<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 </dd></dl>

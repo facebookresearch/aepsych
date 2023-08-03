@@ -586,10 +586,6 @@ up experiments. Defaults to None, in which case the mean will be inferred.</p></
 </ul>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.derivative_gp.MixedDerivativeVariationalGP.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/derivative_gp.html#MixedDerivativeVariationalGP.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward" title="Permalink to this definition">¶</a></dt>
@@ -646,12 +642,7 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -661,10 +652,6 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.outcome_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.likelihood" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.from_config">
@@ -795,25 +782,12 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPBetaRegressionModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'percentage'</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPBetaRegressionModel.outcome_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPBetaRegressionModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPBetaRegressionModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPBetaRegressionModel.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPBetaRegressionModel.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 </section>
@@ -852,12 +826,11 @@ by rejection sampling.</p>
 <li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a><em>, </em><em>optional</em>) – Acquisition function to use for querying points. Defaults to MonotonicMCLSE.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.</p></li>
 <li><p><strong>extra_acqf_args</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional arguments to pass into the acquisition function. Defaults to None.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -867,10 +840,6 @@ by rejection sampling.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.outcome_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.likelihood" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.fit">
@@ -1021,12 +990,7 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1182,12 +1146,11 @@ by rejection sampling.</p>
 <li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a><em>, </em><em>optional</em>) – Acquisition function to use for querying points. Defaults to MonotonicMCLSE.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.</p></li>
 <li><p><strong>extra_acqf_args</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional arguments to pass into the acquisition function. Defaults to None.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1340,12 +1303,7 @@ gamma prior.</p></li>
 Gaussian likelihood.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1455,10 +1413,6 @@ response probability instead of latent function value. Defaults to False.</p></l
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel">
@@ -1467,12 +1421,12 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>Kernel</em><em>]</em>) – </p></li>
+<li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1526,10 +1480,6 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.from_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel">
@@ -1562,12 +1512,7 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1581,14 +1526,6 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.calculate_probs">
 <span class="sig-name descname"><span class="pre">calculate_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fvar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/ordinal_gp.html#OrdinalGPModel.calculate_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.OrdinalGPModel.calculate_probs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.OrdinalGPModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.OrdinalGPModel.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
@@ -1648,16 +1585,20 @@ of:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>monotonic_dims</strong> – A list of the dimensions on which monotonicity should
+<li><p><strong>monotonic_dims</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – A list of the dimensions on which monotonicity should
 be enforced.</p></li>
-<li><p><strong>monotonic_grid_size</strong> – The size of the grid, s, in 1. above.</p></li>
-<li><p><strong>min_f_val</strong> – If provided, maintains this minimum in the projection in 5.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>monotonic_grid_size</strong> (<em>int</em>) – The size of the grid, s, in 1. above.</p></li>
+<li><p><strong>min_f_val</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – If provided, maintains this minimum in the projection in 5.</p></li>
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>mean_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.means.Mean</em><em>]</em>) – </p></li>
+<li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.kernels.Kernel</em><em>]</em>) – </p></li>
+<li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>Likelihood</em><em>]</em>) – </p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em>) – </p></li>
+<li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <p>Initialize the GP Classification model</p>
@@ -1681,12 +1622,10 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>monotonic_dims</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>monotonic_grid_size</strong> (<em>int</em>) – </p></li>
+<li><p><strong>min_f_val</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1743,14 +1682,6 @@ from a configuration. TODO: document how this works in some tutorial.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.MonotonicProjectionGP.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.MonotonicProjectionGP.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.MonotonicProjectionGP.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.MonotonicProjectionGP.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.VariationalGP">
@@ -1948,12 +1879,7 @@ Should be less than or equal to num_outputs. Defaults to 1.</p></li>
 Defaults to scaled RBF kernel.</p></li>
 <li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>gpytorch.likelihoods.Likelihood</em><em>]</em><em>, </em><em>optional</em>) – Likelihood
 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1988,14 +1914,6 @@ Defaults to scaled RBF kernel.</p></li>
 <dt class="sig sig-object py" id="aepsych.models.MultitaskGPRModel.construct_inputs">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">construct_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/multitask_regression.html#MultitaskGPRModel.construct_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MultitaskGPRModel.construct_inputs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.MultitaskGPRModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.MultitaskGPRModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.MultitaskGPRModel.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.MultitaskGPRModel.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.IndependentMultitaskGPRModel">
@@ -2015,12 +1933,7 @@ with AEPsych API and convenience fitting / prediction methods.</p>
 Defaults to scaled RBF kernel.</p></li>
 <li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>gpytorch.likelihoods.Likelihood</em><em>]</em><em>, </em><em>optional</em>) – Likelihood
 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -2030,14 +1943,6 @@ Defaults to scaled RBF kernel.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.IndependentMultitaskGPRModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'continuous'</span></em><a class="headerlink" href="#aepsych.models.IndependentMultitaskGPRModel.outcome_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.IndependentMultitaskGPRModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.IndependentMultitaskGPRModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.IndependentMultitaskGPRModel.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.IndependentMultitaskGPRModel.training" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.IndependentMultitaskGPRModel.forward">
@@ -2103,12 +2008,11 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>slope_mean</strong> (<em>float</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -2118,10 +2022,6 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.outcome_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.likelihood" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.forward">
@@ -2144,10 +2044,6 @@ locations and thus acts as a constant offset to the k mvn.
 </dd>
 </dl>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#HadamardSemiPModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.from_config" title="Permalink to this definition">¶</a></dt>
@@ -2225,12 +2121,11 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>slope_mean</strong> (<em>float</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -2324,14 +2219,6 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.posterior">
 <span class="sig-name descname"><span class="pre">posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#SemiParametricGPModel.posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.posterior" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.likelihood">
-<span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.likelihood" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.training" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.models.semi_p_posterior_transform">
@@ -2404,12 +2291,7 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>args</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Any</em></p>
 </dd>
 </dl>
 <dl class="py attribute">
