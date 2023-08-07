@@ -22,10 +22,7 @@ REQUIRES = [
     "botorch==0.8.3",
 ]
 
-BENCHMARK_REQUIRES = [
-    "tqdm",
-    "pathos",
-]
+BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess"]
 
 DEV_REQUIRES = BENCHMARK_REQUIRES + [
     "coverage",

@@ -438,7 +438,7 @@ def start_server(server_class, args):
             if "replay" in args and args.replay is not None:
                 logger.info(f"Attempting to replay {args.replay}")
                 if args.resume is True:
-                    sock = PySocket(socket_type=args.socket_type, port=args.port)
+                    sock = PySocket(port=args.port)
                     logger.info(f"Will resume {args.replay}")
                 else:
                     sock = None
@@ -451,7 +451,7 @@ def start_server(server_class, args):
                 )
             else:
                 logger.info(f"Setting the database path {database_path}")
-                sock = PySocket(socket_type=args.socket_type, port=args.port)
+                sock = PySocket(port=args.port)
                 startServerAndRun(
                     server_class,
                     database_path=database_path,
@@ -459,7 +459,7 @@ def start_server(server_class, args):
                     config_path=args.stratconfig,
                 )
         else:
-            sock = PySocket(socket_type=args.socket_type, port=args.port)
+            sock = PySocket(port=args.port)
             startServerAndRun(server_class, socket=sock, config_path=args.stratconfig)
 
     except (KeyboardInterrupt, SystemExit):
