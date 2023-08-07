@@ -9,16 +9,7 @@ import sys
 
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 
-from . import (
-    acquisition,
-    benchmark,
-    config,
-    factory,
-    generators,
-    models,
-    strategy,
-    utils,
-)
+from . import acquisition, config, factory, generators, models, strategy, utils
 from .config import Config
 from .likelihoods import BernoulliObjectiveLikelihood
 from .models import GPClassificationModel
@@ -27,7 +18,6 @@ from .strategy import SequentialStrategy, Strategy
 __all__ = [
     # modules
     "acquisition",
-    "benchmark",
     "config",
     "factory",
     "models",
@@ -42,5 +32,12 @@ __all__ = [
     "BernoulliLikelihood",
     "GaussianLikelihood",
 ]
+
+try:
+    from . import benchmark
+
+    __all__ += ["benchmark"]
+except ImportError:
+    pass
 
 Config.register_module(sys.modules[__name__])
