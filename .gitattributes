@@ -2,3 +2,4 @@ demos/ParticleEffectDemo_Mac.zip filter=lfs diff=lfs merge=lfs -text
 demos/ParticleEffectDemo_Win.zip filter=lfs diff=lfs merge=lfs -text
 demos/ThrowOptimizerDemo_Win.zip filter=lfs diff=lfs merge=lfs -text
 demos/YannyLaurelDemo_Win.zip filter=lfs diff=lfs merge=lfs -text
+website/static/files/demos/ThrowOptimizerDemo_Win.zip filter=lfs diff=lfs merge=lfs -text
