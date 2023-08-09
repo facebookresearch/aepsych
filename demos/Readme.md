@@ -2,7 +2,7 @@ This directory contains the source files for AEPsych's Docusaurus website demos.
 
 See the website's [README](../website/README.md) for additional information on how to build and start the website locally.
 
-### Adding New Demos
+# Adding New Demos
 
 To add a new demo to your project, follow these steps:
 
@@ -31,7 +31,9 @@ Replace VIDEO_URL_HERE with the URL of the video asset. You can host the video o
     2) Wait for the video to finish loading.
     3) Once the video is fully loaded, it will provide an asset URL. You don't need to hit the "submit" button.
 
-### Adding .zip file assets
+**Note**: Video must be less than 100MB.
+
+## Adding .zip file assets
 1) Add the necessary zip files for both Mac and Windows versions of the demo. Place the zip files in the `demos/` directory to ensure they are accessible for the demo parsing function. Follow the naming convention `<name>_Win.zip` and `<name>_Mac.zip`.
 
 Your file structure should look like this:
@@ -42,6 +44,56 @@ demos-|
       |- ParticleEffectDemo_Mac.zip
       |- ParticleEffectDemo_Win.zip
 ```
+**Note**: If the size of the demo file is larger than 25MB, it is recommended to push the file to Git Large File Storage (LFS).
+
+By following this structured approach, you create an organized repository that facilitates efficient access to the demo files.
+
+Employing Git LFS to track large files is essential for maintaining a lightweight repository and preventing large binary files from inflating the version control history.
+
+**Docs**: [Git LFS Documentation](https://git-lfs.com/)
+
+### Git LFS Workflow:
+
+To seamlessly integrate the zip files while utilizing Git LFS, adhere to the following workflow:
+
+1. **Open Terminal and Navigate to Repository**:
+Open your terminal and navigate to the root directory of your AEPsych repository.
+
+2. **Initialize Git LFS**:
+Use the following command to initialize Git LFS in your repository:
+```sh
+git lfs install
+```
+### Configure `.gitattributes`:
+
+Add the file name to the `.gitattributes` file located in the root directory. Utilize the following syntax to specify that the file should be tracked using Git LFS:
+
+```sh
+demos/ParticleEffectDemo.md filter=lfs diff=lfs merge=lfs -text
+```
+
+### Check Staging Status:
+View the status of items staged for commit using:
+```sh
+git lfs status
+```
+### Track the File:
+Employ the following command to begin tracking the demo file using Git LFS:
+```sh
+git lfs track demos/ParticleEffectDemo.md
+```
+### List Tracked Files:
+To observe all files being tracked by Git LFS, run:
+```sh
+git lfs ls-files
+```
+### Stage and Commit Changes to git:
+```sh
+git add .
+git commit -m "Add large files using Git LFS"
+```
+## Update the website Navigation
+
 2) Update the `demo.json` file located in `website/demo.json`. This file contains the configuration for all demos in the `demos/` directory. The title here is used to render the title of the demo on the demoSidebar component.
 
 Add a new demo object to represent the newly added demo:
@@ -54,7 +106,8 @@ Add a new demo object to represent the newly added demo:
 
 Ensure that the "id" matches the name of the Markdown file (without the file extension) and corresponds to the names of the zip files.
 
-#### Modifying Demo Text
+
+### Modifying Demo Text
 To add or modify the text associated with a specific demo, follow these steps:
 
 Locate the Markdown file corresponding to the demo you wish to modify, e.g., `demos/markdown/ParticleEffectDemo.md`.

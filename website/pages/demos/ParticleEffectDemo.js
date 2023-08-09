@@ -7,8 +7,8 @@ class DemoPage extends React.Component {
   render() {
       const {config: siteConfig} = this.props;
       const {baseUrl} = siteConfig;
-      return <Demo baseUrl={baseUrl} demoID="ParticleEffectDemo" hasWinDemo="False"
-        hasMacDemo="False"/>;
+      return <Demo baseUrl={baseUrl} demoID="ParticleEffectDemo" hasWinDemo="True"
+        hasMacDemo="True"/>;
   }
 }
 

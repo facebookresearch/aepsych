@@ -1,4 +1,7 @@
 {
+  "name": "aepsych",
+  "version": "1.0.0",
+  "license": "CC BY-NC 4.0",
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "docusaurus-start",

@@ -30,7 +30,3 @@ Start your local AEPsych server
 Open the extracted archive directory, double click the ‘aepsych_unity.exe’ application
 
 **Download**
-
-[ParticleEffectDemo_Win.zip](https://github.com/facebookresearch/aepsych/files/12034005/ParticleEffectDemo_Win.zip)
-
-[ParticleEffectDemo_Mac.zip](https://github.com/facebookresearch/aepsych/blob/main/demos/ParticleEffectDemo_Mac.zip)
