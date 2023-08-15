@@ -21,5 +21,3 @@ Windows and a local installation of the AEPsych server.
 
 
 **Download**
-
-[YannyLaurelDemo_Win.zip](https://github.com/facebookresearch/aepsych/files/12033979/YannyLaurelDemo_Win.zip)
