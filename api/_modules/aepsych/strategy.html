@@ -550,8 +550,10 @@
 
         <span class="n">objectives</span> <span class="o">=</span> <span class="n">get_objectives</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"random_seed"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
         <span class="n">strat</span> <span class="o">=</span> <span class="n">GenerationStrategy</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
-        <span class="n">ax_client</span> <span class="o">=</span> <span class="n">AxClient</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
+        <span class="n">ax_client</span> <span class="o">=</span> <span class="n">AxClient</span><span class="p">(</span><span class="n">strat</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
         <span class="n">ax_client</span><span class="o">.</span><span class="n">create_experiment</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">"experiment"</span><span class="p">,</span>
             <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
