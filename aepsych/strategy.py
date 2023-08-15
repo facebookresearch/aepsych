@@ -532,8 +532,10 @@ class AEPsychStrategy(ConfigurableMixin):
 
         objectives = get_objectives(config)
 
+        seed = config.getint("common", "random_seed", fallback=None)
+
         strat = GenerationStrategy(steps=steps)
-        ax_client = AxClient(strat)
+        ax_client = AxClient(strat, random_seed=seed)
         ax_client.create_experiment(
             name="experiment",
             parameters=parameters,
