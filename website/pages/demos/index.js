@@ -23,7 +23,7 @@ const DemoButton = ({ imageUrl, demoUrl, buttonText }) => (
       <div className="image-container">
         <img src={imageUrl} alt="Demo Image" />
         <div className="overlay">
-          <a className="demo-btn" href={demoUrl}>
+          <a className="demo-btn" src={demoUrl}>
             {buttonText}
           </a>
         </div>
