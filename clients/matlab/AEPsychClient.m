@@ -1,5 +1,4 @@
 % Copyright (c) Meta Platforms. and its affiliates.
-% All rights reserved.
 
 % This source code is licensed under the license found in the
 % LICENSE file in the root directory of this source tree.
@@ -50,7 +49,7 @@ classdef AEPsychClient < handle
             config_long_string = sprintf('%s', config{:});
             self.setup(config_long_string);
         end
-        
+
         function configure_by_file(self, filename, metadata_dict)
             % Read a file into a string to send to the server
             if nargin < 3
@@ -60,14 +59,14 @@ classdef AEPsychClient < handle
             config_string='';
             tline = fgetl(fid);
             while ischar(tline)
-                config_string = strcat(config_string, tline,'\n'); 
+                config_string = strcat(config_string, tline,'\n');
                 tline = fgetl(fid);
             end
             fclose(fid);
             config_string = strrep(config_string, '"', '\"');
             self.setup(config_string, metadata_dict);
         end
-        
+
         function setup(self, config_string, metadata_dict)
             % Send the server a configuration string detailing the
             % experiment to be run
@@ -78,16 +77,16 @@ classdef AEPsychClient < handle
             response = self.send_recv(config_msg);
             self.strat_indices(end+1) = str2num(response);
         end
-        
+
         function [fmax,loc] = get_max(self)
-            % Get the model maximum point and its location 
+            % Get the model maximum point and its location
             msg = sprintf('{"type":"query", "message":{"query_type":"max"}}');
             response = jsondecode(self.send_recv(msg));
             loc = response.x;
-            fmax = response.y;    
+            fmax = response.y;
         end
-            
-        
+
+
        function [prob,loc] = find_val(self, val, prob_space)
            % Find a point in the model closest to the given val val.
            % If prob_space is true, input a probability and this function
@@ -96,10 +95,10 @@ classdef AEPsychClient < handle
            response = self.send_recv(jsonencode(msg));
            response = jsondecode(response)
            loc = response.x;
-           prob = response.y;    
+           prob = response.y;
        end
-       
-       
+
+
        function [fval, loc] = predict(self, config, prob_space)
            % Model predict at the location given in the {param : value} dict
            % defined in the in config
@@ -109,13 +108,13 @@ classdef AEPsychClient < handle
            loc = response.x;
            fval = response.y;
        end
-       
+
        function can_model = get_can_model(self)
-            msg = '{"type":"can_model","message":""}'; 
+            msg = '{"type":"can_model","message":""}';
             full_response = jsondecode(self.send_recv(msg));
             can_model = full_response.can_model;
        end
-        
+
        function response=ask(self)
             % Request from the server the next trial configuration to be
             % run
@@ -130,7 +129,7 @@ classdef AEPsychClient < handle
                 response.(fn{k}) = num2cell(full_response.config.(fn{k}));
             end
         end
-        
+
         function tell(self, config, outcome)
             % Report back to the server a trial configuration that was run
             % and an outcome (0 or 1). Note that this need not be the same
@@ -138,7 +137,7 @@ classdef AEPsychClient < handle
             tell_msg = struct("type", "tell", "message", struct("config",config, "outcome", outcome));
             self.send_recv(jsonencode(tell_msg));
         end
-        
+
         function resume(self, strat_id)
             % Resume a past strategy used in the current session,
             % corresponding to a different model and data. Each strategy is
@@ -150,7 +149,7 @@ classdef AEPsychClient < handle
             fprintf("Requested strat %d, got strat %d\n", strat_id, response);
         end
     end
-    
+
     % private methods
     methods (Access='private')
         function response=send_recv(self, msg)
