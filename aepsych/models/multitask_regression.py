@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# Copyright (c) Facebook, Inc. and its affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
+
 from __future__ import annotations
 
 from typing import Optional
@@ -61,7 +68,7 @@ class MultitaskGPRModel(GPRegressionModel):
             likelihood=likelihood,
             *args,
             **kwargs,
-        ) # type: ignore # mypy issue 4335
+        )  # type: ignore # mypy issue 4335
 
         self.mean_module = gpytorch.means.MultitaskMean(
             self.mean_module, num_tasks=num_outputs
@@ -106,7 +113,7 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
         likelihood: Optional[gpytorch.likelihoods.Likelihood] = None,
         *args,
         **kwargs,
-    ): 
+    ):
         """Initialize independent multitask GPR model.
 
         Args:
@@ -140,7 +147,7 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
             likelihood=likelihood,
             *args,
             **kwargs,
-        ) # type: ignore # mypy issue 4335
+        )  # type: ignore # mypy issue 4335
 
     def forward(self, x):
         base_mvn = super().forward(x)  # do transforms
