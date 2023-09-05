@@ -67,7 +67,7 @@ class HomeSplash extends React.Component {
     return (
       <SplashContainer>
         {/* Main logo */}
-        <Logo img_src={`${baseUrl}img/animated-logo.gif`} />
+        <Logo img_src={`${baseUrl}img/animated-logo.gif`} alt="Animated Project Logo"/>
         <div className="inner">
           <ProjectTitle
            tagline={siteConfig.tagline}

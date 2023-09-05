@@ -30,3 +30,21 @@ Start your local AEPsych server
 Open the extracted archive directory, double click the ‘aepsych_unity.exe’ application
 
 **Download**
+<div className="tutorialButtonWrapper  buttonWrapper">
+  <a
+    className="tutorialButton button"
+    download
+    href="https://github.com/facebookresearch/aepsych/files/12034005/ParticleEffectDemo_Win.zip"
+    target="_blank">
+    Download Win Demo
+  </a>
+</div>
+<div className="tutorialButtonWrapper  buttonWrapper">
+  <a
+    className="tutorialButton button"
+    download
+    href="https://github.com/facebookresearch/aepsych/blob/main/demos/ParticleEffectDemo_Mac.zip"
+    target="_blank">
+    Download Mac Demo
+  </a>
+</div>

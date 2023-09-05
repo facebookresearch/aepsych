@@ -28,3 +28,12 @@ Windows OS, Oculus Quest/Quest 2 connected via link cable, and a local AEPsych s
 6.  Don your headset and follow the on-screen instructions
 
 **Download**
+<div className="tutorialButtonWrapper  buttonWrapper">
+  <a
+    className="tutorialButton button"
+    download
+    href="https://github.com/facebookresearch/aepsych/raw/main/demos/ThrowOptimizerDemo_Win.zip"
+    target="_blank">
+    Download Win Demo
+  </a>
+</div>
