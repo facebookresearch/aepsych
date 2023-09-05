@@ -53,31 +53,6 @@ class Demo extends React.Component {
               __html: fs.readFileSync(normalizedHtmlFile, {encoding: 'utf8'}),
             }}
           />
-          {hasWinDemo === 'True' ? (
-            <div className="tutorialButtonWrapper buttonWrapper">
-              <a
-                className="tutorialButton button"
-                download
-                href={`${baseUrl}files/demos/${demoID}_Win.zip`}
-                target="_blank">
-                {renderDownloadIcon()}
-                {'Download Win Demo'}
-              </a>
-            </div>
-          ) : null}
-
-          {hasMacDemo === 'True' ? (
-            <div className="tutorialButtonWrapper  buttonWrapper">
-              <a
-                className="tutorialButton  button"
-                download
-                href={`${baseUrl}files/demos/${demoID}_Mac.zip`}
-                target="_blank">
-                {renderDownloadIcon()}
-                {'Download Mac Demo'}
-              </a>
-            </div>
-          ) : null}
         </Container>
       </div>
     );

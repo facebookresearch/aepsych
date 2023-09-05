@@ -21,3 +21,12 @@ Windows and a local installation of the AEPsych server.
 
 
 **Download**
+<div className="tutorialButtonWrapper  buttonWrapper">
+  <a
+    className="tutorialButton button"
+    download
+    href="https://github.com/facebookresearch/aepsych/files/12033979/YannyLaurelDemo_Win.zip"
+    target="_blank">
+    Download Win Demo
+  </a>
+</div>
