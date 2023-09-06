@@ -1,7 +1,7 @@
-% Copyright (c) Meta Platforms. and its affiliates.
-
-% This source code is licensed under the license found in the
-% LICENSE file in the root directory of this source tree.
+ %{
+// (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
+// @lint-ignore-every LICENSELINT
+%}
 
 classdef AEPsychClient < handle
 % AEPsychClient  Client to AEPsych
