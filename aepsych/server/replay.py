@@ -48,6 +48,9 @@ def replay(server, uuid_to_replay, skip_computations=False):
         logger.debug(f"replay - type = {result.message_type} request = {request}")
         server.handle_request(request)
 
+    server.is_performing_replay = False
+    server.skip_computations = False
+
 
 def get_strats_from_replay(server, uuid_of_replay=None, force_replay=False):
     if uuid_of_replay is None:
