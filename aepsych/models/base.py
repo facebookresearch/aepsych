@@ -17,16 +17,16 @@ import torch
 
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.factory.factory import default_mean_covar_factory
-from aepsych.models.utils import get_extremum
-from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol, promote_0d
+from aepsych.models.utils import get_extremum, inv_query
+from aepsych.utils import dim_grid, get_jnd_multid, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
-from scipy.optimize import minimize
 from scipy.stats import norm
+
 
 logger = getLogger()
 
@@ -120,6 +120,7 @@ class AEPsychMixin(GPyTorchModel):
         self: ModelProtocol,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         n_samples: int = 1000,
+        max_time: Optional[float] = None,
     ) -> Tuple[float, np.ndarray]:
         """Return the maximum of the modeled function, subject to constraints
         Returns:
@@ -129,12 +130,15 @@ class AEPsychMixin(GPyTorchModel):
             n_samples int: number of coarse grid points to sample for optimization estimate.
         """
         locked_dims = locked_dims or {}
-        return get_extremum(self, "max", self.bounds, locked_dims, n_samples)
+        return get_extremum(
+            self, "max", self.bounds, locked_dims, n_samples, max_time=max_time
+        )
 
     def get_min(
         self: ModelProtocol,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         n_samples: int = 1000,
+        max_time: Optional[float] = None,
     ) -> Tuple[float, np.ndarray]:
         """Return the minimum of the modeled function, subject to constraints
         Returns:
@@ -144,15 +148,18 @@ class AEPsychMixin(GPyTorchModel):
             n_samples int: number of coarse grid points to sample for optimization estimate.
         """
         locked_dims = locked_dims or {}
-        return get_extremum(self, "min", self.bounds, locked_dims, n_samples)
+        return get_extremum(
+            self, "min", self.bounds, locked_dims, n_samples, max_time=max_time
+        )
 
     def inv_query(
-        self: ModelProtocol,
+        self,
         y: float,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
-    ) -> Tuple[float, torch.Tensor]:
+        max_time: Optional[float] = None,
+    ) -> Tuple[float, Union[torch.Tensor, np.ndarray]]:
         """Query the model inverse.
         Return nearest x such that f(x) = queried y, and also return the
             value of f at that point.
@@ -160,61 +167,27 @@ class AEPsychMixin(GPyTorchModel):
             y (float): Points at which to find the inverse.
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool, optional): Is y (and therefore the
+            probability_space (bool): Is y (and therefore the
                 returned nearest_y) in probability space instead of latent
                 function space? Defaults to False.
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
         """
-        if probability_space:
-            assert (
-                self.outcome_type == "binary"
-            ), f"Cannot get probability space for outcome_type '{self.outcome_type}'"
-
-        locked_dims = locked_dims or {}
-
-        def model_distance(x, pt, probability_space):
-            return np.abs(
-                self.predict(torch.tensor([x]), probability_space=probability_space)[0]
-                .detach()
-                .numpy()
-                - pt
-            )
-
-        # Look for point with value closest to y, subject the dict of locked dims
-
-        query_lb = self.lb.clone()
-        query_ub = self.ub.clone()
-
-        for locked_dim in locked_dims.keys():
-            dim_values = locked_dims[locked_dim]
-            if len(dim_values) == 1:
-                query_lb[locked_dim] = dim_values[0]
-                query_ub[locked_dim] = dim_values[0]
-            else:
-                query_lb[locked_dim] = dim_values[0]
-                query_ub[locked_dim] = dim_values[1]
-
-        d = make_scaled_sobol(query_lb, query_ub, n_samples, seed=0)
-
-        bounds = zip(query_lb.numpy(), query_ub.numpy())
-
-        fmean, _ = self.predict(d, probability_space=probability_space)
-
-        f = torch.abs(fmean - y)
-        estimate = d[torch.where(f == torch.min(f))[0][0]].numpy()
-        a = minimize(
-            model_distance,
-            estimate,
-            args=(y, probability_space),
-            method=self.extremum_solver,
-            bounds=bounds,
+        _, arg = inv_query(
+            self,
+            y=y,
+            bounds=self.bounds,
+            locked_dims=locked_dims,
+            probability_space=probability_space,
+            n_samples=n_samples,
+            max_time=max_time,
         )
-        val = self.predict(torch.tensor([a.x]), probability_space=probability_space)[
-            0
-        ].item()
-        return val, torch.Tensor(a.x)
+        if probability_space:
+            val, _ = self.predict_probability(arg.reshape(1, self.dim))
+        else:
+            val, _ = self.predict(arg.reshape(1, self.dim))
+        return float(val.item()), arg
 
     def get_jnd(
         self: ModelProtocol,
@@ -475,6 +448,7 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         n_samples: int = 1000,
+        max_time: Optional[float] = None,
     ) -> Tuple[float, np.ndarray]:
         """Return the maximum of the modeled function, subject to constraints
         Args:
@@ -487,13 +461,16 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
             Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
         """
         locked_dims = locked_dims or {}
-        return get_extremum(self, "max", bounds, locked_dims, n_samples)
+        return get_extremum(
+            self, "max", bounds, locked_dims, n_samples, max_time=max_time
+        )
 
     def get_min(
         self,
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         n_samples: int = 1000,
+        max_time: Optional[float] = None,
     ) -> Tuple[float, np.ndarray]:
         """Return the minimum of the modeled function, subject to constraints
         Args:
@@ -505,7 +482,9 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
             Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
         """
         locked_dims = locked_dims or {}
-        return get_extremum(self, "min", bounds, locked_dims, n_samples)
+        return get_extremum(
+            self, "min", bounds, locked_dims, n_samples, max_time=max_time
+        )
 
     def inv_query(
         self,
@@ -514,7 +493,7 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
-    ) -> Tuple[float, torch.Tensor]:
+    ) -> Tuple[float, Union[torch.Tensor, np.ndarray]]:
         """Query the model inverse.
         Return nearest x such that f(x) = queried y, and also return the
             value of f at that point.
@@ -529,51 +508,12 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
             Tuple[float, np.ndarray]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
         """
+        _, arg = inv_query(self, y, bounds, locked_dims, probability_space, n_samples)
         if probability_space:
-            assert (
-                self.outcome_type == "binary" or self.outcome_type is None
-            ), f"Cannot get probability space for outcome_type '{self.outcome_type}'"
-            pred_function = self.predict_probability
-
+            val, _ = self.predict_probability(arg.reshape(1, -1))
         else:
-            pred_function = self.predict
-
-        locked_dims = locked_dims or {}
-
-        def model_distance(x, pt, probability_space):
-            return np.abs(pred_function(torch.tensor([x]))[0].detach().numpy() - pt)
-
-        # Look for point with value closest to y, subject the dict of locked dims
-
-        query_lb = bounds[0]
-        query_ub = bounds[-1]
-
-        for locked_dim in locked_dims.keys():
-            dim_values = locked_dims[locked_dim]
-            if len(dim_values) == 1:
-                query_lb[locked_dim] = dim_values[0]
-                query_ub[locked_dim] = dim_values[0]
-            else:
-                query_lb[locked_dim] = dim_values[0]
-                query_ub[locked_dim] = dim_values[1]
-
-        d = make_scaled_sobol(query_lb, query_ub, n_samples, seed=0)
-
-        opt_bounds = zip(query_lb.numpy(), query_ub.numpy())
-
-        fmean, _ = pred_function(d)
-
-        f = torch.abs(fmean - y)
-        estimate = d[torch.where(f == torch.min(f))[0][0]].numpy()
-        a = minimize(
-            model_distance,
-            estimate,
-            args=(y, probability_space),
-            method=self.extremum_solver,
-            bounds=opt_bounds,
-        )
-        val = pred_function(torch.tensor([a.x]))[0].item()
-        return val, torch.Tensor(a.x)
+            val, _ = self.predict(arg)
+        return float(val.item()), arg
 
     @abc.abstractmethod
     def get_mll_class(self):

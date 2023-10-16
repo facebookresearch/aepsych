@@ -27,14 +27,71 @@ from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.optim.fit import fit_gpytorch_mll_torch
 from botorch.optim.stopping import ExpMAStoppingCriterion
-from botorch.posteriors import GPyTorchPosterior
-from gpytorch.distributions import MultivariateNormal
+from scipy.special import expit
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
 from torch.optim import Adam
 
-from ..common import cdf_new_novel_det, f_1d, f_2d
+
+def f_1d(x, mu=0):
+    """
+    latent is just a gaussian bump at mu
+    """
+    return np.exp(-((x - mu) ** 2))
+
+
+def f_2d(x):
+    """
+    a gaussian bump at 0 , 0
+    """
+    return np.exp(-np.linalg.norm(x, axis=-1))
+
+
+def new_novel_det_params(freq, scale_factor=1.0):
+    """Get the loc and scale params for 2D synthetic novel_det(frequency) function
+        Keyword arguments:
+    freq -- 1D array of frequencies whose thresholds to return
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+    target -- target threshold
+    """
+    locs = 0.66 * np.power(0.8 * freq * (0.2 * freq - 1), 2) + 0.05
+    scale = 2 * locs / (3 * scale_factor)
+    loc = -1 + 2 * locs
+    return loc, scale
+
+
+def target_new_novel_det(freq, scale_factor=1.0, target=0.75):
+    """Get the target (i.e. threshold) for 2D synthetic novel_det(frequency) function
+        Keyword arguments:
+    freq -- 1D array of frequencies whose thresholds to return
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+    target -- target threshold
+    """
+    locs, scale = new_novel_det_params(freq, scale_factor)
+    return norm.ppf(target, loc=locs, scale=scale)
+
+
+def new_novel_det(x, scale_factor=1.0):
+    """Get the cdf for 2D synthetic novel_det(frequency) function
+        Keyword arguments:
+    x -- array of shape (n,2) of locations to sample;
+         x[...,0] is frequency from -1 to 1; x[...,1] is intensity from -1 to 1
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+    """
+    freq = x[..., 0]
+    locs, scale = new_novel_det_params(freq, scale_factor)
+    return (x[..., 1] - locs) / scale
+
+
+def cdf_new_novel_det(x, scale_factor=1.0):
+    """Get the cdf for 2D synthetic novel_det(frequency) function
+        Keyword arguments:
+    x -- array of shape (n,2) of locations to sample;
+         x[...,0] is frequency from -1 to 1; x[...,1] is intensity from -1 to 1
+    scale factor -- scale for the novel_det function, where higher is steeper/lower SD
+    """
+    return norm.cdf(new_novel_det(x, scale_factor))
 
 
 class GPClassificationSmoketest(unittest.TestCase):
@@ -740,55 +797,6 @@ class GPClassificationTest(unittest.TestCase):
 
         with self.assertWarns(RuntimeWarning):
             strat.gen()
-
-    def test_1d_query(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        lb = -4.0
-        ub = 4.0
-
-        strat = Strategy(
-            lb=lb,
-            ub=ub,
-            min_asks=1,
-            generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
-            model=GPClassificationModel(lb=lb, ub=ub, inducing_size=50),
-            stimuli_per_trial=1,
-            outcome_types=["binary"],
-        )
-
-        # mock the posterior call and remove calls that don't need
-        # to happen
-        def get_fake_posterior(X, posterior_transform=None):
-            fmean = torch.sin(torch.pi * X / 4).squeeze(-1)
-            fcov = torch.eye(fmean.shape[0])
-            fake_posterior = GPyTorchPosterior(
-                mvn=MultivariateNormal(mean=fmean, covariance_matrix=fcov)
-            )
-            return fake_posterior
-
-        strat.model.posterior = get_fake_posterior
-        strat.model.__call__ = MagicMock()
-        strat.model.fit = MagicMock()
-
-        x = strat.gen(1)
-        y = torch.Tensor([1])
-        strat.add_data(x, y)
-        strat.model.set_train_data(x, y)
-        # We expect the global max to be at (2, 1), the min at (-2, -1)
-        fmax, argmax = strat.get_max()
-        self.assertTrue(np.allclose(fmax, 1))
-        self.assertTrue(np.allclose(argmax, 2))
-
-        fmin, argmin = strat.get_min()
-        self.assertTrue(np.allclose(fmin, -1))
-        self.assertTrue(np.allclose(argmin, -2, atol=0.2))
-
-        # Inverse query at val .85 should return (.85,[2.7])
-        val, loc = strat.inv_query(0.85, constraints={})
-        self.assertTrue(np.allclose(val, 0.85))
-        self.assertTrue(np.allclose(loc.item(), 2.7, atol=1e-2))
 
     def test_hyperparam_consistency(self):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams

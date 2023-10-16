@@ -9,10 +9,12 @@ import unittest
 
 import numpy as np
 import torch
-from botorch.fit import fit_gpytorch_mll
-from gpytorch.mlls import ExactMarginalLogLikelihood
 
 from aepsych.models.exact_gp import ExactGP
+from aepsych.models.variational_gp import BinaryClassificationGP
+from scipy.special import expit
+from scipy.stats import bernoulli
+
 
 # Fix random seeds
 np.random.seed(0)
@@ -26,8 +28,11 @@ class TestModelQuery(unittest.TestCase):
         x = torch.linspace(0.0, 1.0, 10).reshape(-1, 1)
         y = torch.sin(6.28 * x).reshape(-1, 1)
         cls.model = ExactGP(x, y)
-        mll = ExactMarginalLogLikelihood(cls.model.likelihood, cls.model)
-        fit_gpytorch_mll(mll)
+        cls.model.fit()
+
+        binary = torch.tensor((-((x - 0.5) ** 2) + 0.05) >= 0, dtype=torch.float64)
+        cls.binary_model = BinaryClassificationGP(x, binary)
+        cls.binary_model.fit()
 
     def test_min(self):
         mymin, my_argmin = self.model.get_min(self.bounds)
@@ -47,6 +52,22 @@ class TestModelQuery(unittest.TestCase):
         # Don't need to be precise since we're working with small data.
         self.assertTrue(-0.01 < val < 0.01)
         self.assertTrue(0.45 < arg < 0.55)
+
+    def test_binary_inverse_query(self):
+        X = torch.linspace(-3.0, 3.0, 100).reshape(-1, 1)
+        probs = expit(X)
+        responses = torch.tensor([float(bernoulli.rvs(p)) for p in probs]).reshape(
+            -1, 1
+        )
+
+        model = BinaryClassificationGP(X, responses)
+        model.fit()
+
+        bounds = torch.tensor([[0.0], [1.0]])
+        val, arg = model.inv_query(0.75, bounds, probability_space=True)
+        # Don't need to be precise since we're working with small data.
+        self.assertTrue(0.7 < val < 0.8)
+        self.assertTrue(0 < arg < 2)
 
 
 if __name__ == "__main__":

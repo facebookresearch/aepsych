@@ -106,9 +106,9 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
 
                 [OptimizeAcqfGenerator]
                 acqf = MCLevelSetEstimation
-                max_gen_time = 1
-                restarts = 1
-                samps = 100
+                max_gen_time = 0.1
+                num_restarts = 1
+                raw_samples = 100
 
                 [MCLevelSetEstimation]
                 beta = 1
@@ -123,8 +123,24 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         self.assertEqual(
             gen.model_kwargs["surrogate"].botorch_model_class, ContinuousRegressionGP
         )
-        self.assertEqual(gen.model_gen_kwargs["restarts"], 1)
-        self.assertEqual(gen.model_gen_kwargs["samps"], 100)
+        self.assertEqual(
+            gen.model_gen_kwargs["model_gen_options"]["optimizer_kwargs"][
+                "num_restarts"
+            ],
+            1,
+        )
+        self.assertEqual(
+            gen.model_gen_kwargs["model_gen_options"]["optimizer_kwargs"][
+                "raw_samples"
+            ],
+            100,
+        )
+        self.assertEqual(
+            gen.model_gen_kwargs["model_gen_options"]["optimizer_kwargs"][
+                "timeout_sec"
+            ],
+            0.1,
+        )
         self.assertEqual(gen.model_kwargs["acquisition_options"]["target"], 0.5)
         self.assertEqual(gen.model_kwargs["acquisition_options"]["beta"], 1.0)
         # TODO: Implement max_gen_time
