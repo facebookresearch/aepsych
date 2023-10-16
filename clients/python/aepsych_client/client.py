@@ -233,5 +233,28 @@ class AEPsychClient:
         }
         self._send_recv(request)
 
+    def query(
+        self,
+        query_type="max",
+        probability_space=False,
+        x=None,
+        y=None,
+        constraints=None,
+        max_time=None,
+    ):
+        request = {
+            "type": "query",
+            "message": {
+                "query_type": query_type,
+                "probability_space": probability_space,
+                "x": x,
+                "y": y,
+                "constraints": constraints,
+                "max_time": max_time,
+            },
+        }
+        resp = self._send_recv(request)
+        return resp["y"], resp["x"]
+
     def __del___(self):
         self.finalize()

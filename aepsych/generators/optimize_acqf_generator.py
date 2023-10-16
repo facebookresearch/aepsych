@@ -22,7 +22,6 @@ from ax.modelbridge.registry import Cont_X_trans
 from botorch.acquisition import AcquisitionFunction
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from botorch.optim import optimize_acqf
-from botorch.utils import draw_sobol_samples
 
 logger = getLogger()
 
@@ -47,8 +46,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             restarts (int): Number of restarts for acquisition function optimization.
             samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer.
             max_gen_time (optional, float): Maximum time (in seconds) to optimize the acquisition function.
-                This is only loosely followed by scipy's optimizer, so consider using a number about 1/3 or
-                less of what your true upper bound is.
         """
 
         if acqf_kwargs is None:
@@ -103,56 +100,15 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         logger.info("Starting gen...")
         starttime = time.time()
 
-        if self.max_gen_time is None:
-            new_candidate, _ = optimize_acqf(
-                acq_function=acqf,
-                bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
-                q=num_points,
-                num_restarts=self.restarts,
-                raw_samples=self.samps,
-                **gen_options,
-            )
-        else:
-            # figure out how long evaluating a single samp
-            starttime = time.time()
-            _ = acqf(train_x[0:num_points, :])
-            single_eval_time = time.time() - starttime
-
-            # only a heuristic for total num evals since everything is stochastic,
-            # but the reasoning is: we initialize with self.samps samps, subsample
-            # self.restarts from them in proportion to the value of the acqf, and
-            # run that many optimization. So:
-            # total_time = single_eval_time * n_eval * restarts + single_eval_time * samps
-            # and we solve for n_eval
-            n_eval = int(
-                (self.max_gen_time - single_eval_time * self.samps)
-                / (single_eval_time * self.restarts)
-            )
-            if n_eval > 10:
-                # heuristic, if we can't afford 10 evals per restart, just use quasi-random search
-                options = {"maxfun": n_eval}
-                logger.info(f"gen maxfun is {n_eval}")
-
-                new_candidate, _ = optimize_acqf(
-                    acq_function=acqf,
-                    bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
-                    q=num_points,
-                    num_restarts=self.restarts,
-                    raw_samples=self.samps,
-                    options=options,
-                )
-            else:
-                logger.info(f"gen maxfun is {n_eval}, falling back to random search...")
-                nsamp = max(int(self.max_gen_time / single_eval_time), 10)
-                # Generate the points at which to sample
-                bounds = torch.stack((model.lb, model.ub))
-
-                X = draw_sobol_samples(bounds=bounds, n=nsamp, q=num_points)
-
-                acqvals = acqf(X)
-
-                best_indx = torch.argmax(acqvals, dim=0)
-                new_candidate = X[best_indx]
+        new_candidate, _ = optimize_acqf(
+            acq_function=acqf,
+            bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
+            q=num_points,
+            num_restarts=self.restarts,
+            raw_samples=self.samps,
+            timeout_sec=self.max_gen_time,
+            **gen_options,
+        )
 
         logger.info(f"Gen done, time={time.time()-starttime}")
         return new_candidate
@@ -258,6 +214,14 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
     @classmethod
     def _get_gen_options(cls, config: Config):
         classname = "OptimizeAcqfGenerator"
-        restarts = config.getint(classname, "restarts", fallback=10)
-        samps = config.getint(classname, "samps", fallback=1000)
-        return {"restarts": restarts, "samps": samps}
+        restarts = config.getint(classname, "num_restarts", fallback=10)
+        samps = config.getint(classname, "raw_samples", fallback=1024)
+        timeout_sec = config.getfloat(classname, "max_gen_time", fallback=None)
+        optimizer_kwargs = {
+            "optimizer_kwargs": {
+                "num_restarts": restarts,
+                "raw_samples": samps,
+                "timeout_sec": timeout_sec,
+            }
+        }
+        return {"model_gen_options": optimizer_kwargs}

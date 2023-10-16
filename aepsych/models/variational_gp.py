@@ -19,7 +19,10 @@ from aepsych.models.base import AEPsychModel
 from aepsych.models.ordinal_gp import OrdinalGPModel
 from aepsych.models.utils import get_probability_space, select_inducing_points
 from aepsych.utils import get_dim
+from botorch.acquisition.objective import PosteriorTransform
 from botorch.models import SingleTaskVariationalGP
+
+from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood
 from gpytorch.mlls import VariationalELBO
 
@@ -82,6 +85,37 @@ class VariationalGP(AEPsychModel, SingleTaskVariationalGP):
         )
 
         return options
+
+    def posterior(
+        self,
+        X,
+        output_indices=None,
+        observation_noise=False,
+        posterior_transform: Optional[PosteriorTransform] = None,
+        *args,
+        **kwargs,
+    ) -> GPyTorchPosterior:
+        self.eval()  # make sure model is in eval mode
+
+        # input transforms are applied at `posterior` in `eval` mode, and at
+        # `model.forward()` at the training time
+        X = self.transform_inputs(X)
+
+        # check for the multi-batch case for multi-outputs b/c this will throw
+        # warnings
+        X_ndim = X.ndim
+        if self.num_outputs > 1 and X_ndim > 2:
+            X = X.unsqueeze(-3).repeat(*[1] * (X_ndim - 2), self.num_outputs, 1, 1)
+        dist = self.model(X)
+        if observation_noise:
+            dist = self.likelihood(dist, *args, **kwargs)
+
+        posterior = GPyTorchPosterior(distribution=dist)
+        if hasattr(self, "outcome_transform"):
+            posterior = self.outcome_transform.untransform_posterior(posterior)
+        if posterior_transform is not None:
+            return posterior_transform(posterior)
+        return posterior
 
 
 class BinaryClassificationGP(VariationalGP):

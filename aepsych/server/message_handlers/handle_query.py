@@ -30,6 +30,7 @@ def query(
     x=None,
     y=None,
     constraints=None,
+    max_time=None,
 ):
     if server.skip_computations:
         return None
@@ -41,11 +42,11 @@ def query(
         "constraints": constraints,
     }
     if query_type == "max":
-        fmax, fmax_loc = server.strat.get_max(constraints)
+        fmax, fmax_loc = server.strat.get_max(constraints, max_time)
         response["y"] = fmax.item()
         response["x"] = server._tensor_to_config(fmax_loc)
     elif query_type == "min":
-        fmin, fmin_loc = server.strat.get_min(constraints)
+        fmin, fmin_loc = server.strat.get_min(constraints, max_time)
         response["y"] = fmin.item()
         response["x"] = server._tensor_to_config(fmin_loc)
     elif query_type == "prediction":
@@ -62,7 +63,7 @@ def query(
         # expect constraints to be a dictionary; values are float arrays size 1 (exact) or 2 (upper/lower bnd)
         constraints = {server.parnames.index(k): v for k, v in constraints.items()}
         nearest_y, nearest_loc = server.strat.inv_query(
-            y, constraints, probability_space=probability_space
+            y, constraints, probability_space=probability_space, max_time=max_time
         )
         response["y"] = nearest_y
         response["x"] = server._tensor_to_config(nearest_loc)
