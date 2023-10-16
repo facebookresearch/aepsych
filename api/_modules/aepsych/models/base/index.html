@@ -35,16 +35,16 @@
 
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
 <span class="kn">from</span> <span class="nn">aepsych.factory.factory</span> <span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.utils</span> <span class="kn">import</span> <span class="n">get_extremum</span>
-<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">dim_grid</span><span class="p">,</span> <span class="n">get_jnd_multid</span><span class="p">,</span> <span class="n">make_scaled_sobol</span><span class="p">,</span> <span class="n">promote_0d</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.utils</span> <span class="kn">import</span> <span class="n">get_extremum</span><span class="p">,</span> <span class="n">inv_query</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">dim_grid</span><span class="p">,</span> <span class="n">get_jnd_multid</span><span class="p">,</span> <span class="n">promote_0d</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">botorch.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_mll</span><span class="p">,</span> <span class="n">fit_gpytorch_mll_scipy</span>
 <span class="kn">from</span> <span class="nn">botorch.models.gpytorch</span> <span class="kn">import</span> <span class="n">GPyTorchModel</span>
 <span class="kn">from</span> <span class="nn">botorch.posteriors</span> <span class="kn">import</span> <span class="n">GPyTorchPosterior</span>
 <span class="kn">from</span> <span class="nn">gpytorch.likelihoods</span> <span class="kn">import</span> <span class="n">Likelihood</span>
 <span class="kn">from</span> <span class="nn">gpytorch.mlls</span> <span class="kn">import</span> <span class="n">MarginalLogLikelihood</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
@@ -138,6 +138,7 @@
         <span class="bp">self</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
         <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return the maximum of the modeled function, subject to constraints</span>
 <span class="sd">        Returns:</span>
@@ -147,12 +148,15 @@
 <span class="sd">            n_samples int: number of coarse grid points to sample for optimization estimate.</span>
 <span class="sd">        """</span>
         <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AEPsychMixin.get_min"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.get_min">[docs]</a>    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
         <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return the minimum of the modeled function, subject to constraints</span>
 <span class="sd">        Returns:</span>
@@ -162,15 +166,18 @@
 <span class="sd">            n_samples int: number of coarse grid points to sample for optimization estimate.</span>
 <span class="sd">        """</span>
         <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AEPsychMixin.inv_query"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.inv_query">[docs]</a>    <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Query the model inverse.</span>
 <span class="sd">        Return nearest x such that f(x) = queried y, and also return the</span>
 <span class="sd">            value of f at that point.</span>
@@ -178,61 +185,27 @@
 <span class="sd">            y (float): Points at which to find the inverse.</span>
 <span class="sd">            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the</span>
 <span class="sd">                inverse is along a slice of the full surface.</span>
-<span class="sd">            probability_space (bool, optional): Is y (and therefore the</span>
+<span class="sd">            probability_space (bool): Is y (and therefore the</span>
 <span class="sd">                returned nearest_y) in probability space instead of latent</span>
 <span class="sd">                function space? Defaults to False.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[float, np.ndarray]: Tuple containing the value of f</span>
 <span class="sd">                nearest to queried y and the x position of this value.</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"binary"</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Cannot get probability space for outcome_type '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">'"</span>
-
-        <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
-
-        <span class="k">def</span> <span class="nf">model_distance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">x</span><span class="p">]),</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="o">.</span><span class="n">detach</span><span class="p">()</span>
-                <span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-                <span class="o">-</span> <span class="n">pt</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Look for point with value closest to y, subject the dict of locked dims</span>
-
-        <span class="n">query_lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
-        <span class="n">query_ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">locked_dim</span> <span class="ow">in</span> <span class="n">locked_dims</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">dim_values</span> <span class="o">=</span> <span class="n">locked_dims</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim_values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">query_lb</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">query_ub</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">query_lb</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">query_ub</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">d</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">query_lb</span><span class="p">,</span> <span class="n">query_ub</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">bounds</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">query_lb</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">query_ub</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
-
-        <span class="n">fmean</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">)</span>
-
-        <span class="n">f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fmean</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
-        <span class="n">estimate</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">f</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">f</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
-            <span class="n">model_distance</span><span class="p">,</span>
-            <span class="n">estimate</span><span class="p">,</span>
-            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">),</span>
-            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extremum_solver</span><span class="p">,</span>
-            <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">inv_query</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">locked_dims</span><span class="o">=</span><span class="n">locked_dims</span><span class="p">,</span>
+            <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">,</span>
+            <span class="n">n_samples</span><span class="o">=</span><span class="n">n_samples</span><span class="p">,</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">]),</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">)[</span>
-            <span class="mi">0</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">val</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
+            <span class="n">val</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_probability</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">item</span><span class="p">()),</span> <span class="n">arg</span></div>
 
 <div class="viewcode-block" id="AEPsychMixin.get_jnd"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.get_jnd">[docs]</a>    <span class="k">def</span> <span class="nf">get_jnd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
@@ -493,6 +466,7 @@
         <span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return the maximum of the modeled function, subject to constraints</span>
 <span class="sd">        Args:</span>
@@ -505,13 +479,16 @@
 <span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).</span>
 <span class="sd">        """</span>
         <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AEPsychModel.get_min"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModel.get_min">[docs]</a>    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return the minimum of the modeled function, subject to constraints</span>
 <span class="sd">        Args:</span>
@@ -523,7 +500,9 @@
 <span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).</span>
 <span class="sd">        """</span>
         <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">get_extremum</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AEPsychModel.inv_query"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModel.inv_query">[docs]</a>    <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -532,7 +511,7 @@
         <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Query the model inverse.</span>
 <span class="sd">        Return nearest x such that f(x) = queried y, and also return the</span>
 <span class="sd">            value of f at that point.</span>
@@ -547,51 +526,12 @@
 <span class="sd">            Tuple[float, np.ndarray]: Tuple containing the value of f</span>
 <span class="sd">                nearest to queried y and the x position of this value.</span>
 <span class="sd">        """</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">inv_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">locked_dims</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">==</span> <span class="s2">"binary"</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">"Cannot get probability space for outcome_type '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">'"</span>
-            <span class="n">pred_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_probability</span>
-
+            <span class="n">val</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_probability</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">pred_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span>
-
-        <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
-
-        <span class="k">def</span> <span class="nf">model_distance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pred_function</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">x</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="o">-</span> <span class="n">pt</span><span class="p">)</span>
-
-        <span class="c1"># Look for point with value closest to y, subject the dict of locked dims</span>
-
-        <span class="n">query_lb</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">query_ub</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="k">for</span> <span class="n">locked_dim</span> <span class="ow">in</span> <span class="n">locked_dims</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">dim_values</span> <span class="o">=</span> <span class="n">locked_dims</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim_values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">query_lb</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">query_ub</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">query_lb</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">query_ub</span><span class="p">[</span><span class="n">locked_dim</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">d</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">query_lb</span><span class="p">,</span> <span class="n">query_ub</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">opt_bounds</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">query_lb</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">query_ub</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
-
-        <span class="n">fmean</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pred_function</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-
-        <span class="n">f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fmean</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
-        <span class="n">estimate</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">f</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">f</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
-            <span class="n">model_distance</span><span class="p">,</span>
-            <span class="n">estimate</span><span class="p">,</span>
-            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">),</span>
-            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extremum_solver</span><span class="p">,</span>
-            <span class="n">bounds</span><span class="o">=</span><span class="n">opt_bounds</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">val</span> <span class="o">=</span> <span class="n">pred_function</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">val</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div>
+            <span class="n">val</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">item</span><span class="p">()),</span> <span class="n">arg</span></div>
 
 <div class="viewcode-block" id="AEPsychModel.get_mll_class"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModel.get_mll_class">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_mll_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
