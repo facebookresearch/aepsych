@@ -23,8 +23,15 @@ def _configure(server, config):
         []
     )  # TODO: Allow each strategy to have its own stack of pre-generated asks
 
-    parnames = config._str_to_list(config.get("common", "parnames"), element_type=str)
+    parnames = config.getlist("common", "parnames", element_type=str)
     server.parnames = parnames
+    outcome_types = config.getlist("common", "outcome_types", element_type=str)
+    outcome_names = config.getlist(
+        "common", "outcome_names", element_type=str, fallback=None
+    )
+    if outcome_names is None:
+        outcome_names = [f"outcome_{i+1}" for i in range(len(outcome_types))]
+    server.outcome_names = outcome_names
     server.config = config
     server.use_ax = config.getboolean("common", "use_ax", fallback=False)
     server.enable_pregen = config.getboolean("common", "pregen_asks", fallback=False)

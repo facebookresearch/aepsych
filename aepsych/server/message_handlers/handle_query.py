@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
+import torch
 
 import aepsych.utils_logging as utils_logging
 import numpy as np
@@ -30,7 +31,7 @@ def query(
     x=None,
     y=None,
     constraints=None,
-    max_time=None,
+    **kwargs,
 ):
     if server.skip_computations:
         return None
@@ -42,30 +43,35 @@ def query(
         "constraints": constraints,
     }
     if query_type == "max":
-        fmax, fmax_loc = server.strat.get_max(constraints, max_time)
-        response["y"] = fmax.item()
+        fmax, fmax_loc = server.strat.get_max(constraints, probability_space, **kwargs)
+        response["y"] = fmax
         response["x"] = server._tensor_to_config(fmax_loc)
     elif query_type == "min":
-        fmin, fmin_loc = server.strat.get_min(constraints, max_time)
-        response["y"] = fmin.item()
+        fmin, fmin_loc = server.strat.get_min(constraints, probability_space, **kwargs)
+        response["y"] = fmin
         response["x"] = server._tensor_to_config(fmin_loc)
     elif query_type == "prediction":
         # returns the model value at x
         if x is None:  # TODO: ensure if x is between lb and ub
             raise RuntimeError("Cannot query model at location = None!")
-        mean, _var = server.strat.predict(
-            server._config_to_tensor(x).unsqueeze(axis=0),
-            probability_space=probability_space,
-        )
+        if probability_space:
+            mean, _var = server.strat.predict_probability(
+                server._config_to_tensor(x).unsqueeze(axis=0),
+            )
+        else:
+            mean, _var = server.strat.predict(
+                server._config_to_tensor(x).unsqueeze(axis=0)
+            )
         response["x"] = x
-        response["y"] = mean.item()
+        response["y"] = np.array(mean)  # mean.item()
+
     elif query_type == "inverse":
         # expect constraints to be a dictionary; values are float arrays size 1 (exact) or 2 (upper/lower bnd)
         constraints = {server.parnames.index(k): v for k, v in constraints.items()}
         nearest_y, nearest_loc = server.strat.inv_query(
-            y, constraints, probability_space=probability_space, max_time=max_time
+            y, constraints, probability_space=probability_space, **kwargs
         )
-        response["y"] = nearest_y
+        response["y"] = np.array(nearest_y)
         response["x"] = server._tensor_to_config(nearest_loc)
     else:
         raise RuntimeError("unknown query type!")
@@ -74,4 +80,6 @@ def query(
         k: np.array([v]) if np.array(v).ndim == 0 else v
         for k, v in response["x"].items()
     }
+    if server.use_ax:
+        response["x"] = {v: response["x"][v][0] for v in response["x"]}
     return response

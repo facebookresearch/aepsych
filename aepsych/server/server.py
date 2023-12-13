@@ -77,6 +77,7 @@ class AEPsychServer(object):
         self.strat_id = -1
         self._pregen_asks = []
         self.enable_pregen = False
+        self.outcome_names = []
 
         self.debug = False
         self.receive_thread = threading.Thread(

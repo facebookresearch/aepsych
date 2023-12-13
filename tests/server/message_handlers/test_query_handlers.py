@@ -10,6 +10,8 @@ import unittest
 from ..test_server import BaseServerTestCase, dummy_config
 
 
+# Smoke test to make sure nothing breaks. This should really be combined with
+# the individual query tests
 class QueryHandlerTestCase(BaseServerTestCase):
     def test_strat_query(self):
         setup_request = {
@@ -58,15 +60,10 @@ class QueryHandlerTestCase(BaseServerTestCase):
                 "y": 5.0,
             },
         }
-        response_max = self.s.handle_request(query_max_req)
-        response_min = self.s.handle_request(query_min_req)
-        response_pred = self.s.handle_request(query_pred_req)
-        response_inv = self.s.handle_request(query_inv_req)
-
-        for response in [response_max, response_min, response_pred, response_inv]:
-            self.assertTrue(type(response["x"]) is dict)
-            self.assertTrue(len(response["x"]["x"]) == 1)
-            self.assertTrue(type(response["y"]) is float)
+        self.s.handle_request(query_min_req)
+        self.s.handle_request(query_pred_req)
+        self.s.handle_request(query_max_req)
+        self.s.handle_request(query_inv_req)
 
 
 if __name__ == "__main__":

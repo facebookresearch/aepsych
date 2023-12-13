@@ -101,9 +101,6 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
                 generator = OptimizeAcqfGenerator
                 model = ContinuousRegressionGP
 
-                [ContinuousRegressionGP]
-                max_fit_time = 1
-
                 [OptimizeAcqfGenerator]
                 acqf = MCLevelSetEstimation
                 max_gen_time = 0.1

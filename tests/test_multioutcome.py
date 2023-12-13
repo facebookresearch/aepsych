@@ -47,8 +47,7 @@ class MultiOutcomeTestCase(unittest.TestCase):
     def test_generation_strategy(self):
         self.assertEqual(len(self.gs._steps), 2 + 1)
         self.assertEqual(self.gs._steps[0].model, Models.SOBOL)
-        self.assertEqual(self.gs._steps[1].model, Models.MOO)
-        self.assertEqual(self.gs._steps[2].model, Models.MOO)  # Extra final step
+        self.assertEqual(self.gs._steps[1].model, Models.BOTORCH_MODULAR)
 
     def test_experiment(self):
         self.assertEqual(len(self.experiment.metrics), 2)

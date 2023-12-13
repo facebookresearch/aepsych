@@ -15,7 +15,7 @@ from aepsych.acquisition.acquisition import AEPsychAcquisition
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
 from aepsych.models.base import ModelProtocol
-from aepsych.models.surrogate import AEPsychSurrogate
+from ax.models.torch.botorch_modular.surrogate import Surrogate
 from aepsych.utils_logging import getLogger
 from ax.modelbridge import Models
 from ax.modelbridge.registry import Cont_X_trans
@@ -152,14 +152,11 @@ class AxOptimizeAcqfGenerator(AEPsychGenerationStep, ConfigurableMixin):
         acqf_options = cls._get_acqf_options(acqf_cls, config)
         gen_options = cls._get_gen_options(config)
 
-        max_fit_time = model_options["max_fit_time"]
-
         model_kwargs = {
-            "surrogate": AEPsychSurrogate(
+            "surrogate": Surrogate(
                 botorch_model_class=model_class,
                 mll_class=model_class.get_mll_class(),
                 model_options=model_options,
-                max_fit_time=max_fit_time,
             ),
             "acquisition_class": AEPsychAcquisition,
             "botorch_acqf_class": acqf_cls,

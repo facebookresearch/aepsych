@@ -14,6 +14,7 @@ import numpy as np
 import torch
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import PosteriorTransform
+from botorch.acquisition.objective import ScalarizedPosteriorTransform
 from botorch.models.model import Model
 from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
 from botorch.optim import optimize_acqf
@@ -135,7 +136,8 @@ def get_extremum(
     n_samples: int,
     posterior_transform: Optional[PosteriorTransform] = None,
     max_time: Optional[float] = None,
-) -> Tuple[float, np.ndarray]:
+    weights: Optional[torch.Tensor] = None,
+) -> Tuple[float, torch.Tensor]:
     """Return the extremum (min or max) of the modeled function
     Args:
         extremum_type (str): Type of extremum (currently 'min' or 'max'.
@@ -149,10 +151,15 @@ def get_extremum(
     """
     locked_dims = locked_dims or {}
 
+    if model.num_outputs > 1 and posterior_transform is None:
+        if weights is None:
+            weights = torch.Tensor([1] * model.num_outputs)
+        posterior_transform = ScalarizedPosteriorTransform(weights=weights)
+
     acqf = PosteriorMean(
         model=model,
-        maximize=(extremum_type == "max"),
         posterior_transform=posterior_transform,
+        maximize=(extremum_type == "max"),
     )
     best_point, best_val = optimize_acqf(
         acq_function=acqf,
@@ -172,13 +179,14 @@ def get_extremum(
 
 def inv_query(
     model: Model,
-    y: float,
+    y: Union[float, torch.Tensor],
     bounds: torch.Tensor,
     locked_dims: Optional[Mapping[int, List[float]]] = None,
     probability_space: bool = False,
     n_samples: int = 1000,
     max_time: Optional[float] = None,
-) -> Tuple[float, Union[torch.Tensor, np.ndarray]]:
+    weights: Optional[torch.Tensor] = None,
+) -> Tuple[float, torch.Tensor]:
     """Query the model inverse.
     Return nearest x such that f(x) = queried y, and also return the
         value of f at that point.
@@ -197,32 +205,51 @@ def inv_query(
             nearest to queried y and the x position of this value.
     """
     locked_dims = locked_dims or {}
+    if model.num_outputs > 1:
+        if weights is None:
+            weights = torch.Tensor([1] * model.num_outputs)
     if probability_space:
         warnings.warn(
             "Inverse querying with probability_space=True assumes that the model uses Probit-Bernoulli likelihood!"
         )
-        posterior_transform = TargetProbabilityDistancePosteriorTransform(y)
+        posterior_transform = TargetProbabilityDistancePosteriorTransform(y, weights)
     else:
-        posterior_transform = TargetDistancePosteriorTransform(y)
+        posterior_transform = TargetDistancePosteriorTransform(y, weights)
     val, arg = get_extremum(
-        model, "min", bounds, locked_dims, n_samples, posterior_transform, max_time
+        model,
+        "min",
+        bounds,
+        locked_dims,
+        n_samples,
+        posterior_transform,
+        max_time,
+        weights,
     )
     return val, arg
 
 
 class TargetDistancePosteriorTransform(PosteriorTransform):
-    def __init__(self, target_value: float):
+    def __init__(
+        self, target_value: Union[float, Tensor], weights: Optional[Tensor] = None
+    ):
         super().__init__()
         self.target_value = target_value
+        self.weights = weights
 
     def evaluate(self, Y: Tensor) -> Tensor:
         return (Y - self.target_value) ** 2
 
     def _forward(self, mean, var):
-        q = mean.shape[-2]
+        q, _ = mean.shape[-2:]
         batch_shape = mean.shape[:-2]
 
-        new_mean = ((mean - self.target_value) ** 2).view(*batch_shape, q)
+        new_mean = (mean - self.target_value) ** 2
+
+        if self.weights is not None:
+            new_mean = new_mean @ self.weights
+            var = (var @ (self.weights**2))[:, None]
+
+        new_mean = new_mean.view(*batch_shape, q)
         mvn = MultivariateNormal(new_mean, var)
         return GPyTorchPosterior(mvn)
 

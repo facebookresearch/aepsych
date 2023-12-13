@@ -24,6 +24,7 @@ from aepsych.utils import (
     _process_bounds,
     get_objectives,
     get_parameters,
+    get_bounds,
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
@@ -228,14 +229,18 @@ class Strategy(object):
         return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
-    def get_max(self, constraints=None, max_time=None):
+    def get_max(self, constraints=None, probability_space=False, max_time=None):
         constraints = constraints or {}
-        return self.model.get_max(constraints, max_time=max_time)
+        return self.model.get_max(
+            constraints, probability_space=probability_space, max_time=max_time
+        )
 
     @ensure_model_is_fresh
-    def get_min(self, constraints=None, max_time=None):
+    def get_min(self, constraints=None, probability_space=False, max_time=None):
         constraints = constraints or {}
-        return self.model.get_min(constraints, max_time=max_time)
+        return self.model.get_min(
+            constraints, probability_space=probability_space, max_time=max_time
+        )
 
     @ensure_model_is_fresh
     def inv_query(self, y, constraints=None, probability_space=False, max_time=None):
@@ -323,14 +328,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.fit(self.x, self.y)
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
@@ -345,14 +350,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.update(self.x, self.y)
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
@@ -506,9 +511,10 @@ class SequentialStrategy(object):
 class AEPsychStrategy(ConfigurableMixin):
     is_finished = False
 
-    def __init__(self, ax_client: AxClient):
+    def __init__(self, ax_client: AxClient, bounds: torch.Tensor):
         self.ax_client = ax_client
         self.ax_client.experiment.num_asks = 0
+        self.bounds = bounds
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
@@ -527,6 +533,7 @@ class AEPsychStrategy(ConfigurableMixin):
         steps.append(final_step)
 
         parameters = get_parameters(config)
+        bounds = get_bounds(config)
 
         parameter_constraints = config.getlist(
             "common", "par_constraints", element_type=str, fallback=None
@@ -545,7 +552,7 @@ class AEPsychStrategy(ConfigurableMixin):
             objectives=objectives,
         )
 
-        return {"ax_client": ax_client}
+        return {"ax_client": ax_client, "bounds": bounds}
 
     @property
     def finished(self) -> bool:
@@ -587,12 +594,18 @@ class AEPsychStrategy(ConfigurableMixin):
             and len(self.experiment.trial_indices_by_status[TrialStatus.COMPLETED]) > 0
         )
 
-    def _warn_on_outcome_mismatch(self):
+    @property
+    def model(self):
         ax_model = self.ax_client.generation_strategy.model
+        if not hasattr(ax_model, "surrogate"):
+            return None
         aepsych_model = ax_model.model.surrogate.model
+        return aepsych_model
+
+    def _warn_on_outcome_mismatch(self):
         if (
-            hasattr(aepsych_model, "outcome_type")
-            and aepsych_model.outcome_type != "continuous"
+            hasattr(self.model, "outcome_type")
+            and self.model.outcome_type != "continuous"
         ):
             warnings.warn(
                 "Cannot directly plot non-continuous outcomes. Plotting the latent function instead."
@@ -653,3 +666,24 @@ class AEPsychStrategy(ConfigurableMixin):
 
     def get_pareto_optimal_parameters(self):
         return self.ax_client.get_pareto_optimal_parameters()
+
+    def predict(self, *args, **kwargs):
+        """Query the model for posterior mean and variance.; see AEPsychModel.predict."""
+        return self.model.predict(self._bounds, *args, **kwargs)
+
+    def predict_probability(self, *args, **kwargs):
+        """Query the model in prodbability space for posterior mean and variance.; see AEPsychModel.predict_probability."""
+        return self.model.predict(self._bounds, *args, **kwargs)
+
+    def get_max(self, *args, **kwargs):
+        """Return the maximum of the modeled function; see AEPsychModel.get_max."""
+        return self.model.get_max(self._bounds, *args, **kwargs)
+
+    def get_min(self, *args, **kwargs):
+        """Return the minimum of the modeled function; see AEPsychModel.get_min."""
+        return self.model.get_min(self._bounds, *args, **kwargs)
+
+    def inv_query(self, *args, **kwargs):
+        """Return nearest x such that f(x) = queried y, and also return the
+        value of f at that point.; see AEPsychModel.inv_query."""
+        return self.model.inv_query(self._bounds, *args, **kwargs)

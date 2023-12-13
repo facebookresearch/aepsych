@@ -9,6 +9,7 @@ from __future__ import annotations
 import abc
 
 import time
+from collections.abc import Iterable
 from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 
 import gpytorch
@@ -16,9 +17,8 @@ import numpy as np
 import torch
 
 from aepsych.config import Config, ConfigurableMixin
-from aepsych.factory.factory import default_mean_covar_factory
 from aepsych.models.utils import get_extremum, inv_query
-from aepsych.utils import dim_grid, get_jnd_multid, promote_0d
+from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
@@ -72,6 +72,9 @@ class ModelProtocol(Protocol):
     def predict(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
         pass
 
+    def predict_probability(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
+        pass
+
     @property
     def stimuli_per_trial(self) -> int:
         pass
@@ -119,38 +122,58 @@ class AEPsychMixin(GPyTorchModel):
     def get_max(
         self: ModelProtocol,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, np.ndarray]:
+    ) -> Tuple[float, torch.Tensor]:
         """Return the maximum of the modeled function, subject to constraints
-        Returns:
-            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
+        Args:
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
+                probability space instead of latent function space? Defaults to False.
             n_samples int: number of coarse grid points to sample for optimization estimate.
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
         """
         locked_dims = locked_dims or {}
-        return get_extremum(
+        _, _arg = get_extremum(
             self, "max", self.bounds, locked_dims, n_samples, max_time=max_time
         )
+        arg = torch.tensor(_arg.reshape(1, self.dim))
+        if probability_space:
+            val, _ = self.predict_probability(arg)
+        else:
+            val, _ = self.predict(arg)
+        return float(val.item()), arg
 
     def get_min(
         self: ModelProtocol,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, np.ndarray]:
+    ) -> Tuple[float, torch.Tensor]:
         """Return the minimum of the modeled function, subject to constraints
-        Returns:
-            Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+        Args:
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
+                probability space instead of latent function space? Defaults to False.
             n_samples int: number of coarse grid points to sample for optimization estimate.
+        Returns:
+            Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
         """
         locked_dims = locked_dims or {}
-        return get_extremum(
+        _, _arg = get_extremum(
             self, "min", self.bounds, locked_dims, n_samples, max_time=max_time
         )
+        arg = torch.tensor(_arg.reshape(1, self.dim))
+        if probability_space:
+            val, _ = self.predict_probability(arg)
+        else:
+            val, _ = self.predict(arg)
+        return float(val.item()), arg
 
     def inv_query(
         self,
@@ -159,7 +182,8 @@ class AEPsychMixin(GPyTorchModel):
         probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, Union[torch.Tensor, np.ndarray]]:
+        weights: Optional[torch.Tensor] = None,
+    ) -> Tuple[float, torch.Tensor]:
         """Query the model inverse.
         Return nearest x such that f(x) = queried y, and also return the
             value of f at that point.
@@ -167,14 +191,13 @@ class AEPsychMixin(GPyTorchModel):
             y (float): Points at which to find the inverse.
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the
-                returned nearest_y) in probability space instead of latent
-                function space? Defaults to False.
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
+                probability space instead of latent function space? Defaults to False.
         Returns:
-            Tuple[float, np.ndarray]: Tuple containing the value of f
+            Tuple[float, torch.Tensor]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
         """
-        _, arg = inv_query(
+        _, _arg = inv_query(
             self,
             y=y,
             bounds=self.bounds,
@@ -182,7 +205,9 @@ class AEPsychMixin(GPyTorchModel):
             probability_space=probability_space,
             n_samples=n_samples,
             max_time=max_time,
+            weights=weights,
         )
+        arg = torch.tensor(_arg.reshape(1, self.dim))
         if probability_space:
             val, _ = self.predict_probability(arg.reshape(1, self.dim))
         else:
@@ -289,7 +314,7 @@ class AEPsychMixin(GPyTorchModel):
         gridsize: int = 30,
         slice_dims: Optional[Mapping[int, float]] = None,
     ) -> torch.Tensor:
-        return dim_grid(self.lb, self.ub, self.dim, gridsize, slice_dims)
+        return dim_grid(self.lb, self.ub, gridsize, slice_dims)
 
     def set_train_data(self, inputs=None, targets=None, strict=False):
         """
@@ -359,6 +384,9 @@ class AEPsychMixin(GPyTorchModel):
 class AEPsychModel(ConfigurableMixin, abc.ABC):
     extremum_solver = "Nelder-Mead"
     outcome_type: Optional[str] = None
+    default_likelihood: Optional[
+        Likelihood
+    ] = None  # will use default Gaussian likelihood from botorch
 
     def predict(
         self: GPyTorchModel, x: Union[torch.Tensor, np.ndarray]
@@ -371,13 +399,17 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queried points.
         """
+        if isinstance(x, np.ndarray):
+            x = torch.tensor(x)
         with torch.no_grad():
             post = self.posterior(x)
         fmean = post.mean.squeeze()
         fvar = post.variance.squeeze()
         return promote_0d(fmean), promote_0d(fvar)
 
-    def predict_probability(self: GPyTorchModel, x: Union[torch.Tensor, np.ndarray]):
+    def predict_probability(
+        self: GPyTorchModel, x: Union[torch.Tensor, np.ndarray]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         raise NotImplementedError
 
     def sample(
@@ -399,10 +431,8 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
         if name is None:
             name = cls.__name__
 
-        mean_covar_factory = config.getobj(
-            name, "mean_covar_factory", fallback=default_mean_covar_factory
-        )
-        mean, covar = mean_covar_factory(config)
+        mean = config.getobj(name, "mean_module", fallback=None)
+        covar = config.getobj(name, "covar_module", fallback=None)
 
         likelihood_cls = config.getobj(name, "likelihood", fallback=None)
         if likelihood_cls is not None:
@@ -413,21 +443,18 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
         else:
             likelihood = None  # fall back to __init__ default
 
-        max_fit_time = config.getfloat(name, "max_fit_time", fallback=None)
-
         options = {
             "likelihood": likelihood,
             "covar_module": covar,
             "mean_module": mean,
-            "max_fit_time": max_fit_time,
         }
 
         return options
 
     @classmethod
     def construct_inputs(cls, training_data, **kwargs):
-        train_X = training_data.X()
-        train_Y = training_data.Y()
+        train_X = training_data.X
+        train_Y = training_data.Y
 
         likelihood = kwargs.get("likelihood")
         covar_module = kwargs.get("covar_module")
@@ -447,73 +474,128 @@ class AEPsychModel(ConfigurableMixin, abc.ABC):
         self,
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, np.ndarray]:
+        weights: Optional[torch.Tensor] = None,
+    ) -> Tuple[Union[float, torch.Tensor], torch.Tensor]:
         """Return the maximum of the modeled function, subject to constraints
         Args:
             bounds (torch.Tensor): The lower and upper bounds in the parameter space to search for the maximum,
                 formatted as a 2xn tensor, where d is the number of parameters.
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                     inverse is along a slice of the full surface.
-            n_samples int: number of coarse grid points to sample for optimization estimate.
+            n_samples (int): How fine to make the grid of predictions from which the initial
+                guess will be derived.
+            weights (torch.Tensor, Optional): The relative weights of each of the dimensions
+                of y for multi-outcome models.
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Tuple containing the max and its location (argmax).
         """
         locked_dims = locked_dims or {}
-        return get_extremum(
-            self, "max", bounds, locked_dims, n_samples, max_time=max_time
+
+        _, fmax_loc = get_extremum(
+            self,
+            "max",
+            bounds,
+            locked_dims,
+            n_samples,
+            max_time=max_time,
+            weights=weights,
         )
+        if probability_space:
+            pred_function = self.predict_probability
+        else:
+            pred_function = self.predict
+        fmax_val = pred_function(fmax_loc.unsqueeze(0))[0]
+        return fmax_val, fmax_loc
 
     def get_min(
         self,
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
-    ) -> Tuple[float, np.ndarray]:
+        weights: Optional[torch.Tensor] = None,
+    ) -> Tuple[Union[float, torch.Tensor], torch.Tensor]:
         """Return the minimum of the modeled function, subject to constraints
         Args:
             bounds (torch.Tensor): The lower and upper bounds in the parameter space to search for the minimum,
                 formatted as a 2xn tensor, where d is the number of parameters.
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
+            n_samples (int): How fine to make the grid of predictions from which the initial
+                guess will be derived.
+            weights (torch.Tensor, Optional): The relative weights of each of the dimensions
+                of y for multi-outcome models.
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Tuple containing the min and its location (argmin).
         """
         locked_dims = locked_dims or {}
-        return get_extremum(
-            self, "min", bounds, locked_dims, n_samples, max_time=max_time
+
+        _, fmin_loc = get_extremum(
+            self,
+            "min",
+            bounds,
+            locked_dims,
+            n_samples,
+            max_time=max_time,
+            weights=weights,
         )
+        if probability_space:
+            pred_function = self.predict_probability
+        else:
+            pred_function = self.predict
+        fmin_val = pred_function(fmin_loc.unsqueeze(0))[0]
+        return fmin_val, fmin_loc
 
     def inv_query(
         self,
-        y: float,
+        y: Union[float, torch.Tensor],
         bounds: torch.Tensor,
         locked_dims: Optional[Mapping[int, List[float]]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
-    ) -> Tuple[float, Union[torch.Tensor, np.ndarray]]:
+        max_time: Optional[float] = None,
+        weights: Optional[torch.Tensor] = None,
+    ) -> Tuple[Union[float, torch.Tensor], torch.Tensor]:
         """Query the model inverse.
         Return nearest x such that f(x) = queried y, and also return the
             value of f at that point.
         Args:
-            y (float): Points at which to find the inverse.
+            y (float, torch.Tensor): Point at which to find the inverse.
+            bounds (torch.Tensor): The lower and upper bounds in the parameter space to search for the minimum,
+                    formatted as a 2xn tensor, where d is the number of parameters.
             locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
             probability_space (bool): Is y (and therefore the
                 returned nearest_y) in probability space instead of latent
                 function space? Defaults to False.
+            n_samples (int): How fine to make the grid of predictions from which the initial
+                guess will be derived.
+            weights (torch.Tensor, Optional): The relative weights of each of the dimensions
+                of y for multi-outcome models.
         Returns:
             Tuple[float, np.ndarray]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
         """
-        _, arg = inv_query(self, y, bounds, locked_dims, probability_space, n_samples)
+        _, arg = inv_query(
+            self,
+            y,
+            bounds,
+            locked_dims,
+            probability_space,
+            n_samples,
+            max_time,
+            weights,
+        )
+        arg = arg.reshape(1, -1)
         if probability_space:
-            val, _ = self.predict_probability(arg.reshape(1, -1))
+            val, _ = self.predict_probability(arg)
         else:
             val, _ = self.predict(arg)
-        return float(val.item()), arg
+        return val, arg
 
     @abc.abstractmethod
     def get_mll_class(self):
