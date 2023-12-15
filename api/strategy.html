@@ -192,11 +192,14 @@ n (int): number of observations</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.strategy.</span></span><span class="sig-name descname"><span class="pre">AEPsychStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.strategy.</span></span><span class="sig-name descname"><span class="pre">AEPsychStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ax_client</strong> (<em>AxClient</em>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax_client</strong> (<em>AxClient</em>) – </p></li>
+<li><p><strong>bounds</strong> (<em>torch.Tensor</em>) – </p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -255,6 +258,10 @@ n (int): number of observations</p>
 <dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.can_fit">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_fit</span></span><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.can_fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.model">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.plot_contours">
 <span class="sig-name descname"><span class="pre">plot_contours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.plot_contours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.plot_contours" title="Permalink to this definition">¶</a></dt>
@@ -290,6 +297,32 @@ parameters or the mode of choice parameters will be used.</p></li>
 <dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters">
 <span class="sig-name descname"><span class="pre">get_pareto_optimal_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.get_pareto_optimal_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the model for posterior mean and variance.; see AEPsychModel.predict.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.predict_probability">
+<span class="sig-name descname"><span class="pre">predict_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.predict_probability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.predict_probability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the model in prodbability space for posterior mean and variance.; see AEPsychModel.predict_probability.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.get_max">
+<span class="sig-name descname"><span class="pre">get_max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.get_max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.get_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the maximum of the modeled function; see AEPsychModel.get_max.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.get_min">
+<span class="sig-name descname"><span class="pre">get_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.get_min"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.get_min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minimum of the modeled function; see AEPsychModel.get_min.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.AEPsychStrategy.inv_query">
+<span class="sig-name descname"><span class="pre">inv_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#AEPsychStrategy.inv_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.AEPsychStrategy.inv_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return nearest x such that f(x) = queried y, and also return the
+value of f at that point.; see AEPsychModel.inv_query.</p>
+</dd></dl>
 </dd></dl>
 </section>
 </section>

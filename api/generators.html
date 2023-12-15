@@ -1194,26 +1194,6 @@ with this generator. It should work with other similar acquisition functions.</p
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.generators.MultiOutcomeOptimizationGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">MultiOutcomeOptimizationGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/multi_outcome_generator.html#MultiOutcomeOptimizationGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MultiOutcomeOptimizationGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerationStep" title="aepsych.generators.base.AEPsychGenerationStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerationStep</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.MultiOutcomeOptimizationGenerator.get_config_options">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/multi_outcome_generator.html#MultiOutcomeOptimizationGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MultiOutcomeOptimizationGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
-<li><p><strong>name</strong> (<em>str</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Dict</em></p>
-</dd>
-</dl>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.AxRandomGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">AxRandomGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#AxRandomGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AxRandomGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerationStep" title="aepsych.generators.base.AEPsychGenerationStep"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerationStep</span></code></a></p>
@@ -1246,7 +1226,11 @@ with this generator. It should work with other similar acquisition functions.</p
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.generators.AxRandomGenerator.completion_criteria">
-<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">CompletionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxRandomGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">completion_criteria</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">TransitionCriterion</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.AxRandomGenerator.completion_criteria" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.generators.AxRandomGenerator.model_name">
+<span class="sig-name descname"><span class="pre">model_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#aepsych.generators.AxRandomGenerator.model_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.generators.AxRandomGenerator.model_specs">

@@ -42,6 +42,7 @@
     <span class="n">_process_bounds</span><span class="p">,</span>
     <span class="n">get_objectives</span><span class="p">,</span>
     <span class="n">get_parameters</span><span class="p">,</span>
+    <span class="n">get_bounds</span><span class="p">,</span>
     <span class="n">make_scaled_sobol</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
@@ -246,14 +247,18 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.get_max"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_max">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_max</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_max</span><span class="p">(</span>
+            <span class="n">constraints</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.get_min"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_min">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_min</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_min</span><span class="p">(</span>
+            <span class="n">constraints</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.inv_query"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.inv_query">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
     <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -341,14 +346,14 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
                     <span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
@@ -363,14 +368,14 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
                     <span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
+                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
@@ -524,9 +529,10 @@
 <div class="viewcode-block" id="AEPsychStrategy"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy">[docs]</a><span class="k">class</span> <span class="nc">AEPsychStrategy</span><span class="p">(</span><span class="n">ConfigurableMixin</span><span class="p">):</span>
     <span class="n">is_finished</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax_client</span><span class="p">:</span> <span class="n">AxClient</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax_client</span><span class="p">:</span> <span class="n">AxClient</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span> <span class="o">=</span> <span class="n">ax_client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">num_asks</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
 
 <div class="viewcode-block" id="AEPsychStrategy.get_config_options"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
@@ -545,6 +551,7 @@
         <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_step</span><span class="p">)</span>
 
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">get_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">get_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">parameter_constraints</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
             <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"par_constraints"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
@@ -563,7 +570,7 @@
             <span class="n">objectives</span><span class="o">=</span><span class="n">objectives</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="s2">"ax_client"</span><span class="p">:</span> <span class="n">ax_client</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"ax_client"</span><span class="p">:</span> <span class="n">ax_client</span><span class="p">,</span> <span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -605,12 +612,18 @@
             <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">trial_indices_by_status</span><span class="p">[</span><span class="n">TrialStatus</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_warn_on_outcome_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ax_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ax_model</span><span class="p">,</span> <span class="s2">"surrogate"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="n">aepsych_model</span> <span class="o">=</span> <span class="n">ax_model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">surrogate</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">return</span> <span class="n">aepsych_model</span>
+
+    <span class="k">def</span> <span class="nf">_warn_on_outcome_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="nb">hasattr</span><span class="p">(</span><span class="n">aepsych_model</span><span class="p">,</span> <span class="s2">"outcome_type"</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">aepsych_model</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">!=</span> <span class="s2">"continuous"</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">"outcome_type"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">!=</span> <span class="s2">"continuous"</span>
         <span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">"Cannot directly plot non-continuous outcomes. Plotting the latent function instead."</span>
@@ -670,7 +683,28 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="AEPsychStrategy.get_pareto_optimal_parameters"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_pareto_optimal_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">get_pareto_optimal_parameters</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">get_pareto_optimal_parameters</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.predict"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance.; see AEPsychModel.predict."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.predict_probability"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.predict_probability">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Query the model in prodbability space for posterior mean and variance.; see AEPsychModel.predict_probability."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.get_max"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_max">[docs]</a>    <span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the maximum of the modeled function; see AEPsychModel.get_max."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.get_min"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_min">[docs]</a>    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the minimum of the modeled function; see AEPsychModel.get_min."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.inv_query"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.inv_query">[docs]</a>    <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return nearest x such that f(x) = queried y, and also return the</span>
+<span class="sd">        value of f at that point.; see AEPsychModel.inv_query."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">inv_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>

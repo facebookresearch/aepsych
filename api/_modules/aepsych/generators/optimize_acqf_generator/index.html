@@ -33,7 +33,7 @@
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
 <span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerationStep</span><span class="p">,</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.surrogate</span> <span class="kn">import</span> <span class="n">AEPsychSurrogate</span>
+<span class="kn">from</span> <span class="nn">ax.models.torch.botorch_modular.surrogate</span> <span class="kn">import</span> <span class="n">Surrogate</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">ax.modelbridge</span> <span class="kn">import</span> <span class="n">Models</span>
 <span class="kn">from</span> <span class="nn">ax.modelbridge.registry</span> <span class="kn">import</span> <span class="n">Cont_X_trans</span>
@@ -170,14 +170,11 @@
         <span class="n">acqf_options</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf_cls</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">gen_options</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_gen_options</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">model_options</span><span class="p">[</span><span class="s2">"max_fit_time"</span><span class="p">]</span>
-
         <span class="n">model_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"surrogate"</span><span class="p">:</span> <span class="n">AEPsychSurrogate</span><span class="p">(</span>
+            <span class="s2">"surrogate"</span><span class="p">:</span> <span class="n">Surrogate</span><span class="p">(</span>
                 <span class="n">botorch_model_class</span><span class="o">=</span><span class="n">model_class</span><span class="p">,</span>
                 <span class="n">mll_class</span><span class="o">=</span><span class="n">model_class</span><span class="o">.</span><span class="n">get_mll_class</span><span class="p">(),</span>
                 <span class="n">model_options</span><span class="o">=</span><span class="n">model_options</span><span class="p">,</span>
-                <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="s2">"acquisition_class"</span><span class="p">:</span> <span class="n">AEPsychAcquisition</span><span class="p">,</span>
             <span class="s2">"botorch_acqf_class"</span><span class="p">:</span> <span class="n">acqf_cls</span><span class="p">,</span>
