@@ -12,7 +12,6 @@ from .epsilon_greedy_generator import EpsilonGreedyGenerator
 from .manual_generator import ManualGenerator
 from .monotonic_rejection_generator import MonotonicRejectionGenerator
 from .monotonic_thompson_sampler_generator import MonotonicThompsonSamplerGenerator
-from .multi_outcome_generator import MultiOutcomeOptimizationGenerator
 from .optimize_acqf_generator import AxOptimizeAcqfGenerator, OptimizeAcqfGenerator
 from .pairwise_optimize_acqf_generator import PairwiseOptimizeAcqfGenerator
 from .pairwise_sobol_generator import PairwiseSobolGenerator
@@ -33,7 +32,6 @@ __all__ = [
     "AxOptimizeAcqfGenerator",
     "AxSobolGenerator",
     "IntensityAwareSemiPGenerator",
-    "MultiOutcomeOptimizationGenerator",
     "AxRandomGenerator",
 ]
 

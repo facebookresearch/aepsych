@@ -144,7 +144,7 @@ class AEPsychClient:
     def tell(
         self,
         config: Dict[str, List[Any]],
-        outcome: int,
+        outcome: Union[float, Dict[str, float]],
         model_data: bool = True,
         **metadata: Dict[str, Any],
     ) -> None:
@@ -254,6 +254,8 @@ class AEPsychClient:
             },
         }
         resp = self._send_recv(request)
+        if isinstance(resp, str):
+            resp = json.loads(resp)
         return resp["y"], resp["x"]
 
     def __del___(self):
