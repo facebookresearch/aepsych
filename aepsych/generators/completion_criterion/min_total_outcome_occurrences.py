@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 from aepsych.config import Config, ConfigurableMixin
 
-from ax.modelbridge.completion_criterion import MinimumPreferenceOccurances
+from ax.modelbridge.transition_criterion import MinimumPreferenceOccurances
 
 
 class MinTotalOutcomeOccurrences(MinimumPreferenceOccurances, ConfigurableMixin):
