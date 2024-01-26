@@ -482,5 +482,9 @@ def main(server_class=AEPsychServer):
     start_server(server_class, args)
 
 
-if __name__ == "__main__":
+def invoke_main() -> None:
     main(AEPsychServer)
+
+
+if __name__ == "__main__":
+    invoke_main()  # pragma: no cover
