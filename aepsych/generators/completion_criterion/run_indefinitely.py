@@ -13,10 +13,19 @@ from ax.modelbridge.transition_criterion import TransitionCriterion
 
 
 class RunIndefinitely(TransitionCriterion, ConfigurableMixin):
-    def __init__(self, run_indefinitely: bool) -> None:
+    def __init__(
+        self,
+        run_indefinitely: bool,
+        block_transition_if_unmet: Optional[bool] = False,
+        block_gen_if_met: Optional[bool] = False,
+    ) -> None:
         self.run_indefinitely = run_indefinitely
+        self.block_transition_if_unmet = block_transition_if_unmet
+        self.block_gen_if_met = block_gen_if_met
 
-    def is_met(self, experiment: Experiment) -> bool:
+    def is_met(
+        self, experiment: Experiment, trials_from_node: Optional[Set[int]] = None
+    ) -> bool:
         return not self.run_indefinitely
 
     def block_continued_generation_error(

@@ -14,10 +14,21 @@ from ax.modelbridge.transition_criterion import TransitionCriterion
 
 
 class MinAsks(TransitionCriterion, ConfigurableMixin):
-    def __init__(self, threshold: int) -> None:
+    def __init__(
+        self,
+        threshold: int,
+        block_transition_if_unmet: Optional[bool] = True,
+        block_gen_if_met: Optional[bool] = False,
+    ) -> None:
         self.threshold = threshold
+        super().__init__(
+            block_transition_if_unmet=block_transition_if_unmet,
+            block_gen_if_met=block_gen_if_met,
+        )
 
-    def is_met(self, experiment: Experiment) -> bool:
+    def is_met(
+        self, experiment: Experiment, trials_from_node: Optional[Set[int]] = None
+    ) -> bool:
         return experiment.num_asks >= self.threshold
 
     def block_continued_generation_error(
@@ -32,5 +43,7 @@ class MinAsks(TransitionCriterion, ConfigurableMixin):
     @classmethod
     def get_config_options(cls, config: Config, name: str) -> Dict[str, Any]:
         min_asks = config.getint(name, "min_asks", fallback=1)
-        options = {"threshold": min_asks}
+        options = {
+            "threshold": min_asks,
+        }
         return options
