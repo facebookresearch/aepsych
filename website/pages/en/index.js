@@ -67,12 +67,12 @@ class HomeSplash extends React.Component {
     return (
       <SplashContainer>
         {/* Main logo */}
-        <Logo img_src={`${baseUrl}img/animated-logo.gif`} alt="Animated Project Logo"/>
+        <Logo img_src={`${baseUrl}img/animated-logo.gif`} alt="Animated Project Logo" />
         <div className="inner">
           <ProjectTitle
-           tagline={siteConfig.tagline}
+            tagline={siteConfig.tagline}
           //  title={siteConfig.title}
-           />
+          />
           <PromoSection>
             <Button class="splash-btns" href={docUrl("introduction")}>INTRODUCTION</Button>
             <Button class="splash-btns" href={'#quickstart'}>Get Started</Button>
@@ -115,8 +115,7 @@ class Index extends React.Component {
     const devInstallBlock = `${pre}bash
     git clone https://github.com/facebookresearch/aepsych.git
     cd aepsych
-    pip install -r requirements.txt
-    pip install -e .
+    pip install -e .[dev]
     `;
 
     const runServerBlock = `${pre}bash
@@ -193,12 +192,12 @@ class Index extends React.Component {
             </li>
             <li>
               <h4>AEPsych clients:</h4>
-               <p className="disable">
+              <p className="disable">
                 AEPsych modeling and sample selection algorithms are
                 accessible via a server with
                 <a className="splash-btns" href={`${baseUrl}docs/clients`}> clients </a>
                 available in Python, MATLAB, and Unity.
-               </p>
+              </p>
 
             </li>
           </ol>
@@ -238,7 +237,7 @@ class Index extends React.Component {
       </div>
     );
 
-  const referenceCodeBlock  = `${pre}plaintext
+    const referenceCodeBlock = `${pre}plaintext
   @misc{https://doi.org/10.48550/arxiv.2104.09549,
   doi = {10.48550/ARXIV.2104.09549},
   url = {https://arxiv.org/abs/2104.09549},
@@ -261,12 +260,12 @@ class Index extends React.Component {
         style={{ textAlign: 'center' }}>
         <h2>References</h2>
         <Container>
-         <p className="refe-text">
-          <a href="https://arxiv.org/abs/2104.09549">Adaptive Nonparametric Psychophysics</a>
-        </p>
-         <MarkdownBlock >{referenceCodeBlock}</MarkdownBlock>
-         <p className="refe-text"><a href="docs/papers">Check out additional papers contributing to or using AEPsych</a>
-        </p>
+          <p className="refe-text">
+            <a href="https://arxiv.org/abs/2104.09549">Adaptive Nonparametric Psychophysics</a>
+          </p>
+          <MarkdownBlock >{referenceCodeBlock}</MarkdownBlock>
+          <p className="refe-text"><a href="docs/papers">Check out additional papers contributing to or using AEPsych</a>
+          </p>
         </Container>
       </div>
     );
