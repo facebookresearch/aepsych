@@ -22,9 +22,9 @@ from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils import (
     _process_bounds,
+    get_bounds,
     get_objectives,
     get_parameters,
-    get_bounds,
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
@@ -530,6 +530,7 @@ class AEPsychStrategy(ConfigurableMixin):
         # Add an extra step at the end that we can `ask` endlessly.
         final_step = copy(step)
         final_step.completion_criteria = []
+        final_step.num_trials = -1
         steps.append(final_step)
 
         parameters = get_parameters(config)
