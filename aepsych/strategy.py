@@ -22,9 +22,9 @@ from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils import (
     _process_bounds,
+    get_bounds,
     get_objectives,
     get_parameters,
-    get_bounds,
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
@@ -556,7 +556,7 @@ class AEPsychStrategy(ConfigurableMixin):
 
     @property
     def finished(self) -> bool:
-        if self.is_finished:
+        if self.is_finished or self.strat.optimization_complete:
             return True
 
         self.strat._maybe_move_to_next_step()
