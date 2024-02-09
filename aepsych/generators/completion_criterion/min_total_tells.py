@@ -19,5 +19,6 @@ class MinTotalTells(MinTrials, ConfigurableMixin):
         options = {
             "only_in_statuses": [TrialStatus.COMPLETED],
             "threshold": min_total_tells,
+            "use_all_trials_in_exp": True,
         }
         return options
