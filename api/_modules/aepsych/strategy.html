@@ -548,6 +548,7 @@
         <span class="c1"># Add an extra step at the end that we can `ask` endlessly.</span>
         <span class="n">final_step</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
         <span class="n">final_step</span><span class="o">.</span><span class="n">completion_criteria</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">final_step</span><span class="o">.</span><span class="n">num_trials</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_step</span><span class="p">)</span>
 
         <span class="n">parameters</span> <span class="o">=</span> <span class="n">get_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
