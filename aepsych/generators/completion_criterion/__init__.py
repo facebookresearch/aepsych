@@ -12,13 +12,11 @@ from aepsych.config import Config
 from .min_asks import MinAsks
 from .min_total_outcome_occurrences import MinTotalOutcomeOccurrences
 from .min_total_tells import MinTotalTells
-from .run_indefinitely import RunIndefinitely
 
 completion_criteria = [
     MinTotalTells,
     MinAsks,
     MinTotalOutcomeOccurrences,
-    RunIndefinitely,
 ]
 
 __all__ = [
@@ -26,7 +24,6 @@ __all__ = [
     "MinTotalTells",
     "MinAsks",
     "MinTotalOutcomeOccurrences",
-    "RunIndefinitely",
 ]
 
 Config.register_module(sys.modules[__name__])

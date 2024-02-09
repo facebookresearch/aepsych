@@ -12,7 +12,6 @@ from aepsych.generators.completion_criterion import (
     MinAsks,
     MinTotalOutcomeOccurrences,
     MinTotalTells,
-    RunIndefinitely,
 )
 from aepsych.strategy import AEPsychStrategy
 
@@ -102,25 +101,6 @@ class CompletionCriteriaTestCase(unittest.TestCase):
 
         self.strat.complete_new_trial({"x": 1.0}, 1.0)
         self.assertTrue(criterion.is_met(self.strat.experiment))
-
-    def run_indefinitely(self):
-        config_str = """
-        [common]
-        outcome_types = [binary]
-        run_indefinitely = False
-        """
-        config = Config(config_str=config_str)
-        criterion = RunIndefinitely(**RunIndefinitely.from_config(config, "test_strat"))
-        self.assertTrue(criterion.is_met(self.strat.experiment))
-
-        config_str = """
-        [common]
-        outcome_types = [binary]
-        run_indefinitely = True
-        """
-        config = Config(config_str=config_str)
-        criterion = RunIndefinitely(**RunIndefinitely.from_config(config, "test_strat"))
-        self.assertFalse(criterion.is_met(self.strat.experiment))
 
 
 if __name__ == "__main__":
