@@ -12,7 +12,7 @@ This particular client communicates to the server over pysocket. To run the serv
 
 ## Integrating the client into your Unity Project ##
 
-*You will need Unity 2020.3.16.  A later version may work as well.*
+*You will need Unity 2022.3.20f1.  A later version may work as well.*
 
 **Get the AEPsych Client**
 
