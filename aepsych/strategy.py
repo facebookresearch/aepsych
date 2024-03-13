@@ -139,7 +139,7 @@ class Strategy(object):
         self.run_indefinitely = run_indefinitely
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.min_total_outcome_occurrences = min_total_outcome_occurrences
-        self.max_asks = max_asks
+        self.max_asks = max_asks or generator.max_asks
         self.keep_most_recent = keep_most_recent
 
         self.min_post_range = min_post_range

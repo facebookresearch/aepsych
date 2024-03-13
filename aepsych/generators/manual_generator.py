@@ -38,10 +38,10 @@ class ManualGenerator(AEPsychGenerator):
             shuffle (bool): Whether or not to shuffle the order of the points. True by default.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
-        self.points = points
+        self.points = torch.tensor(points)
         if shuffle:
             np.random.shuffle(points)
-        self.finished = False
+        self.max_asks = len(self.points)
         self._idx = 0
 
     def gen(
@@ -62,8 +62,6 @@ class ManualGenerator(AEPsychGenerator):
             )
         points = self.points[self._idx : self._idx + num_points]
         self._idx += num_points
-        if self._idx >= len(self.points):
-            self.finished = True
         return points
 
     @classmethod

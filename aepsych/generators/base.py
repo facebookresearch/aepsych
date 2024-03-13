@@ -36,6 +36,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     _requires_model = True
     baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
     stimuli_per_trial = 1
+    max_asks = None
 
     def __init__(
         self,
