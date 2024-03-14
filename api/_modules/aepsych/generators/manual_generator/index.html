@@ -56,10 +56,10 @@
 <span class="sd">            shuffle (bool): Whether or not to shuffle the order of the points. True by default.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">finished</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="ManualGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.manual_generator.ManualGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span>
@@ -80,8 +80,6 @@
             <span class="p">)</span>
         <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">+</span> <span class="n">num_points</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">+=</span> <span class="n">num_points</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">finished</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">points</span></div>
 
 <div class="viewcode-block" id="ManualGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.manual_generator.ManualGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
