@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 from inspect import signature
-from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar
+from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar, Optional
 
 import torch
 from aepsych.config import Config, ConfigurableMixin
@@ -36,6 +36,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     _requires_model = True
     baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
     stimuli_per_trial = 1
+    max_asks: Optional[int] = None
 
     def __init__(
         self,
