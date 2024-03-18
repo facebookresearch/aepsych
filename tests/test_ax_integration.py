@@ -20,7 +20,6 @@ from ax.service.utils.report_utils import exp_to_df
 from parameterized import parameterized_class
 
 
-@unittest.skip("Test is flaky. Skipping for now.")
 @parameterized_class(
     ("config_file", "should_ignore"),
     [
