@@ -101,8 +101,7 @@ class SemiPPosterior(GPyTorchPosterior):
         return (
             super()
             .rsample_from_base_samples(
-                sample_shape=sample_shape,
-                base_samples=base_samples.expand(self._extended_shape(sample_shape)),
+                sample_shape=sample_shape, base_samples=base_samples
             )
             .squeeze(-1)
         )
@@ -116,7 +115,10 @@ class SemiPPosterior(GPyTorchPosterior):
             samps_ = super().rsample(sample_shape=sample_shape)
         else:
             samps_ = super().rsample_from_base_samples(
-                sample_shape=sample_shape, base_samples=base_samples
+                sample_shape=sample_shape,
+                base_samples=base_samples.expand(
+                    self._extended_shape(sample_shape)
+                ).squeeze(-1),
             )
         kcsamps = samps_.squeeze(-1)
         # fsamps is of shape nsamp x 2 x n, or nsamp x b x 2 x n
