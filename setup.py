@@ -18,7 +18,7 @@ REQUIRES = [
     "pandas",
     "aepsych_client==0.3.0",
     "statsmodels",
-    "ax-platform==0.3.6",
+    "ax-platform==0.3.7",
 ]
 
 BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess"]
