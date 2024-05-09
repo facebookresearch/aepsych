@@ -49,11 +49,7 @@ def ask(server, num_points=1):
             server.strat._make_next_strat()
         return None
 
-    if not server.use_ax:
-        # index by [0] is temporary HACK while serverside
-        # doesn't handle batched ask
-        next_x = server.strat.gen()[0]
-        return server._tensor_to_config(next_x)
-
-    next_x = server.strat.gen(num_points)
-    return next_x
+    # index by [0] is temporary HACK while serverside
+    # doesn't handle batched ask
+    next_x = server.strat.gen()[0]
+    return server._tensor_to_config(next_x)

@@ -167,7 +167,9 @@ class Problem:
                 .detach()
                 .numpy()
             )
-        except TypeError:  # vanilla models don't have proba_space samps, TODO maybe we should add them
+        except (
+            TypeError
+        ):  # vanilla models don't have proba_space samps, TODO maybe we should add them
             psamps = norm.cdf(fsamps)
 
         ferrs = fsamps - self.f_true[None, :]

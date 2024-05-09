@@ -61,19 +61,14 @@ def flatten_tell_record(server, rec):
     return out
 
 
-def tell(server, outcome, config=None, model_data=True, trial_index=-1):
+def tell(server, outcome, config=None, model_data=True):
     """tell the model which input was run and what the outcome was
     Arguments:
         server: The AEPsych server object.
-        outcome: The outcome of the trial. If using the legacy backend, this must be an int or a float. If using the Ax
-            backend, this may be an int or float if using a single outcome, or if using multiple outcomes, it must be a
-            dictionary mapping outcome names to values.
-        config: A dictionary mapping parameter names to values. This must be provided if using the legacy backend. If
-            using the Ax backend, this should be provided only for trials that do not already have a trial_index.
+        outcome: The outcome of the trial.
+        config: A dictionary mapping parameter names to values.
         model_data: If True, the data from this trial will be added to the model. If False, the trial will be recorded in
             the db, but will not be modeled.
-        trial_index: The trial_index for the trial as provided by the ask response when using the Ax backend. Ignored by
-            the legacy backend.
     """
 
     if config is None:
@@ -83,17 +78,8 @@ def tell(server, outcome, config=None, model_data=True, trial_index=-1):
         _record_tell(server, outcome, config, model_data)
 
     if model_data:
-        if not server.use_ax:
-            x = server._config_to_tensor(config)
-            server.strat.add_data(x, outcome)
-        else:
-            assert (
-                config or trial_index >= 0
-            ), "Must supply a trial parameterization or a trial index!"
-            if trial_index >= 0:
-                server.strat.complete_existing_trial(trial_index, outcome)
-            else:
-                server.strat.complete_new_trial(config, outcome)
+        x = server._config_to_tensor(config)
+        server.strat.add_data(x, outcome)
 
 
 def _record_tell(server, outcome, config, model_data):

@@ -10,30 +10,20 @@ from __future__ import annotations
 import time
 import warnings
 
-from copy import copy
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
+from typing import List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
 
-from aepsych.config import Config, ConfigurableMixin
-from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
-from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
+from aepsych.config import Config
+from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.sobol_generator import SobolGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils import (
     _process_bounds,
-    get_bounds,
-    get_objectives,
-    get_parameters,
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
-from ax.core.base_trial import TrialStatus
-from ax.modelbridge.generation_strategy import GenerationStrategy
-from ax.plot.contour import interact_contour
-from ax.plot.slice import plot_slice
-from ax.service.ax_client import AxClient
-from ax.utils.notebook.plotting import render
 from botorch.exceptions.errors import ModelFittingError
 
 logger = getLogger()
@@ -506,186 +496,3 @@ class SequentialStrategy(object):
             strats.append(strat)
 
         return cls(strat_list=strats)
-
-
-class AEPsychStrategy(ConfigurableMixin):
-    is_finished = False
-
-    def __init__(self, ax_client: AxClient, bounds: torch.Tensor):
-        self.ax_client = ax_client
-        self.ax_client.experiment.num_asks = 0
-        self.bounds = bounds
-
-    @classmethod
-    def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
-        # TODO: Fix the mypy errors
-        strat_names: List[str] = config.getlist("common", "strategy_names", element_type=str)  # type: ignore
-        steps = []
-        for name in strat_names:
-            generator = config.getobj(name, "generator", fallback=AxSobolGenerator)  # type: ignore
-            opts = generator.get_config_options(config, name)
-            step = AEPsychGenerationStep(**opts)
-            steps.append(step)
-
-        # Add an extra step at the end that we can `ask` endlessly.
-        final_step = copy(step)
-        final_step.completion_criteria = []
-        final_step._transition_criteria = []
-        final_step.num_trials = -1
-        steps.append(final_step)
-
-        parameters = get_parameters(config)
-        bounds = get_bounds(config)
-
-        parameter_constraints = config.getlist(
-            "common", "par_constraints", element_type=str, fallback=None
-        )
-
-        objectives = get_objectives(config)
-
-        seed = config.getint("common", "random_seed", fallback=None)
-
-        strat = GenerationStrategy(steps=steps)
-        ax_client = AxClient(strat, random_seed=seed)
-        ax_client.create_experiment(
-            name="experiment",
-            parameters=parameters,
-            parameter_constraints=parameter_constraints,
-            objectives=objectives,
-        )
-
-        return {"ax_client": ax_client, "bounds": bounds}
-
-    @property
-    def finished(self) -> bool:
-        if self.is_finished or self.strat.optimization_complete:
-            return True
-
-        self.strat._maybe_move_to_next_step()
-
-        return len(self.strat._steps) == (self.strat.current_step.index + 1)
-
-    def finish(self):
-        self.is_finished = True
-
-    def gen(self, num_points: int = 1):
-        x, _ = self.ax_client.get_next_trials(max_trials=num_points)
-        self.strat.experiment.num_asks += num_points
-
-        return x
-
-    def complete_new_trial(self, config, outcome):
-        _, trial_index = self.ax_client.attach_trial(config)
-        self.complete_existing_trial(trial_index, outcome)
-
-    def complete_existing_trial(self, trial_index, outcome):
-        self.ax_client.complete_trial(trial_index, outcome)
-
-    @property
-    def experiment(self):
-        return self.ax_client.experiment
-
-    @property
-    def strat(self):
-        return self.ax_client.generation_strategy
-
-    @property
-    def can_fit(self):
-        return (
-            self.strat.model is not None
-            and len(self.experiment.trial_indices_by_status[TrialStatus.COMPLETED]) > 0
-        )
-
-    @property
-    def model(self):
-        ax_model = self.ax_client.generation_strategy.model
-        if not hasattr(ax_model, "surrogate"):
-            return None
-        aepsych_model = ax_model.model.surrogate.model
-        return aepsych_model
-
-    def _warn_on_outcome_mismatch(self):
-        if (
-            hasattr(self.model, "outcome_type")
-            and self.model.outcome_type != "continuous"
-        ):
-            warnings.warn(
-                "Cannot directly plot non-continuous outcomes. Plotting the latent function instead."
-            )
-
-    def plot_contours(
-        self, density: int = 50, slice_values: Optional[Dict[str, Any]] = None
-    ):
-        """Plot predictions for a 2-d slice of the parameter space.
-
-        Args:
-            density: Number of points along each parameter to evaluate predictions.
-            slice_values: A dictionary {name: val} for the fixed values of the
-                other parameters. If not provided, then the mean of numeric
-                parameters or the mode of choice parameters will be used.
-        """
-        assert (
-            len(self.experiment.parameters) > 1
-        ), "plot_contours requires at least 2 parameters! Use 'plot_slice' instead."
-        ax_model = self.ax_client.generation_strategy.model
-        self._warn_on_outcome_mismatch()
-
-        render(
-            interact_contour(
-                model=ax_model,
-                metric_name="objective",
-                density=density,
-                slice_values=slice_values,
-            )
-        )
-
-    def plot_slice(
-        self,
-        param_name: str,
-        density: int = 50,
-        slice_values: Optional[Dict[str, Any]] = None,
-    ):
-        """Plot predictions for a 1-d slice of the parameter space.
-
-        Args:
-            param_name: Name of parameter that will be sliced
-            density: Number of points along slice to evaluate predictions.
-            slice_values: A dictionary {name: val} for the fixed values of the
-                other parameters. If not provided, then the mean of numeric
-                parameters or the mode of choice parameters will be used.
-        """
-        self._warn_on_outcome_mismatch()
-        ax_model = self.ax_client.generation_strategy.model
-        render(
-            plot_slice(
-                model=ax_model,
-                param_name=param_name,
-                metric_name="objective",
-                density=density,
-                slice_values=slice_values,
-            )
-        )
-
-    def get_pareto_optimal_parameters(self):
-        return self.ax_client.get_pareto_optimal_parameters()
-
-    def predict(self, *args, **kwargs):
-        """Query the model for posterior mean and variance.; see AEPsychModel.predict."""
-        return self.model.predict(self._bounds, *args, **kwargs)
-
-    def predict_probability(self, *args, **kwargs):
-        """Query the model in prodbability space for posterior mean and variance.; see AEPsychModel.predict_probability."""
-        return self.model.predict(self._bounds, *args, **kwargs)
-
-    def get_max(self, *args, **kwargs):
-        """Return the maximum of the modeled function; see AEPsychModel.get_max."""
-        return self.model.get_max(self._bounds, *args, **kwargs)
-
-    def get_min(self, *args, **kwargs):
-        """Return the minimum of the modeled function; see AEPsychModel.get_min."""
-        return self.model.get_min(self._bounds, *args, **kwargs)
-
-    def inv_query(self, *args, **kwargs):
-        """Return nearest x such that f(x) = queried y, and also return the
-        value of f at that point.; see AEPsychModel.inv_query."""
-        return self.model.inv_query(self._bounds, *args, **kwargs)

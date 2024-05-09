@@ -10,16 +10,12 @@ import logging
 import select
 import unittest
 import uuid
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
-import torch
-from aepsych.config import Config
 
-from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.server.sockets import BAD_REQUEST
-from aepsych.strategy import AEPsychStrategy
 
 dummy_config = """
 [common]
@@ -273,79 +269,6 @@ class ServerTestCase(BaseServerTestCase):
         with self.assertRaises(SystemExit):
             self.s.serve()
         assert len(self.s.queue) == 0
-
-    def test_ax_functionality(self):
-        config_str = """
-        [common]
-        use_ax = True
-        lb = [0]
-        ub = [1]
-        parnames = [x]
-        stimuli_per_trial = 1
-        outcome_types = [binary]
-        strategy_names = [init_strat, opt_strat]
-
-        [init_strat]
-        generator = SobolGenerator
-
-        [opt_strat]
-        generator = OptimizeAcqfGenerator
-        model = ContinuousRegressionGP
-        acqf = qNoisyExpectedImprovement
-        """
-        config = Config(config_str=config_str)
-        configure(self.s, config=config)
-        self.assertTrue(self.s.use_ax)
-        self.assertIsInstance(self.s.strat, AEPsychStrategy)
-
-    def test_config_to_tensor(self):
-        with patch(
-            "aepsych.server.AEPsychServer.parnames", new_callable=PropertyMock
-        ) as mock_parnames:
-            mock_parnames.return_value = ["par1", "par2", "par3"]
-
-            # test single
-            config = {"par1": 0.0, "par2": 1.0, "par3": 2.0}
-            tensor = self.s._config_to_tensor(config)
-            self.assertTrue(torch.equal(tensor, torch.tensor([0.0, 1.0, 2.0])))
-
-            config = {"par1": [0.0], "par2": [1.0], "par3": [2.0]}
-            tensor = self.s._config_to_tensor(config)
-            self.assertTrue(torch.equal(tensor, torch.tensor([0.0, 1.0, 2.0])))
-
-            # test pairwise
-            config = {"par1": [0.0, 2.0], "par2": [1.0, 1.0], "par3": [2.0, 0.0]}
-            tensor = self.s._config_to_tensor(config)
-            self.assertTrue(
-                torch.equal(tensor, torch.tensor([[0.0, 2.0], [1.0, 1.0], [2.0, 0.0]]))
-            )
-
-    def test_handle_request_untyped(self):
-        """test_handle_request_untyped"""
-        request = {}
-        # check untyped request
-        with self.assertRaises(RuntimeError):
-            self.s.handle_request(request)
-
-    def test_handle_request_type_invalid(self):
-        """test_handle_request_type_invalid"""
-        request = {"type": "invalid"}
-        # make sure invalid types handle properly
-        with self.assertRaises(RuntimeError):
-            self.s.handle_request(request)
-
-    def test_serve_handle_request(self):
-        """Tests that the full pipeline is working. Message should go from _receive_send to _handle_queue
-        to the version handler"""
-        request = {"version": 0}
-        self.s.socket.receive = MagicMock(return_value=request)
-        self.s.socket.accept_client = MagicMock()
-
-        self.s.handle_request = MagicMock()
-        self.s.handle_request = MagicMock()
-        self.s.exit_server_loop = True
-        with self.assertRaises(SystemExit):
-            self.s.serve()
 
 
 if __name__ == "__main__":

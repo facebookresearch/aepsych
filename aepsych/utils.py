@@ -11,7 +11,6 @@ from typing import Dict, List, Mapping, Optional, Tuple
 
 import numpy as np
 import torch
-from ax.service.utils.instantiation import ObjectiveProperties
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
 
@@ -298,25 +297,3 @@ def get_dim(config) -> int:
             )  # Choice parameters with n_choices < 3 add n_choices - 1 dims
 
     return dim
-
-
-def get_objectives(config) -> Dict:
-    outcome_types: List[str] = config.getlist(
-        "common", "outcome_types", element_type=str
-    )
-
-    outcome_names: List[str] = config.getlist(
-        "common", "outcome_names", element_type=str, fallback=None
-    )
-    if outcome_names is None:
-        outcome_names = [f"outcome_{i+1}" for i in range(len(outcome_types))]
-
-    objectives = {}
-    for out_name in outcome_names:
-        minimize = config.getboolean(out_name, "minimize", fallback=False)
-        threshold = config.getfloat(out_name, "threshold", fallback=None)
-        objectives[out_name] = ObjectiveProperties(
-            minimize=minimize, threshold=threshold
-        )
-
-    return objectives

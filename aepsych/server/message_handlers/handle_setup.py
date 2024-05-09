@@ -10,7 +10,7 @@ import logging
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
 
-from aepsych.strategy import AEPsychStrategy, SequentialStrategy
+from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
 logger = utils_logging.getLogger(logging.INFO)
@@ -33,16 +33,10 @@ def _configure(server, config):
         outcome_names = [f"outcome_{i+1}" for i in range(len(outcome_types))]
     server.outcome_names = outcome_names
     server.config = config
-    server.use_ax = config.getboolean("common", "use_ax", fallback=False)
     server.enable_pregen = config.getboolean("common", "pregen_asks", fallback=False)
-    if server.use_ax:
-        server.trial_index = -1
-        server.strat = AEPsychStrategy.from_config(config)
-        server.strat_id = server.n_strats - 1
 
-    else:
-        server.strat = SequentialStrategy.from_config(config)
-        server.strat_id = server.n_strats - 1  # 0-index strats
+    server.strat = SequentialStrategy.from_config(config)
+    server.strat_id = server.n_strats - 1  # 0-index strats
 
     return server.strat_id
 
