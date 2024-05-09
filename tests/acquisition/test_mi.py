@@ -14,6 +14,7 @@ from aepsych.acquisition.mutual_information import (
     MonotonicBernoulliMCMutualInformation,
 )
 from aepsych.acquisition.objective import ProbitObjective
+from aepsych.benchmark.test_functions import f_1d
 from aepsych.generators import (
     MonotonicRejectionGenerator,
     OptimizeAcqfGenerator,
@@ -24,8 +25,6 @@ from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean
 from scipy.stats import bernoulli, multivariate_normal, norm, pearsonr
-
-from ..common import f_1d
 
 
 class SingleProbitMI(unittest.TestCase):

@@ -14,6 +14,7 @@ import numpy.testing as npt
 import torch
 from aepsych import server, utils_logging
 from aepsych.acquisition.objective import ProbitObjective
+from aepsych.benchmark.test_functions import f_1d, f_2d, f_pairwise, new_novel_det
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import PairwiseProbitModel
@@ -24,8 +25,6 @@ from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 from scipy.stats import bernoulli, norm, pearsonr
-
-from ..common import f_1d, f_2d, f_pairwise, new_novel_det
 
 
 class PairwiseProbitModelStrategyTest(unittest.TestCase):
