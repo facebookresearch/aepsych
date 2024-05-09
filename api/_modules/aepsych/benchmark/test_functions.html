@@ -238,6 +238,175 @@
             <span class="n">t</span> <span class="o">+=</span> <span class="n">a_t</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="p">((</span><span class="n">X</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">p_t</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">+=</span> <span class="n">C_i</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span>
     <span class="k">return</span> <span class="o">-</span><span class="mi">10</span> <span class="o">*</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="f_1d"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.f_1d">[docs]</a><span class="k">def</span> <span class="nf">f_1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    latent is just a gaussian bump at mu</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="f_2d"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.f_2d">[docs]</a><span class="k">def</span> <span class="nf">f_2d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    a gaussian bump at 0 , 0</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="new_novel_det_params"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.new_novel_det_params">[docs]</a><span class="k">def</span> <span class="nf">new_novel_det_params</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the loc and scale params for 2D synthetic novel_det(frequency) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    freq -- 1D array of frequencies whose thresholds to return</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    target -- target threshold</span>
+<span class="sd">    """</span>
+    <span class="n">locs</span> <span class="o">=</span> <span class="mf">0.66</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">0.8</span> <span class="o">*</span> <span class="n">freq</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">freq</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.05</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">locs</span> <span class="o">/</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span>
+    <span class="n">loc</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">locs</span>
+    <span class="k">return</span> <span class="n">loc</span><span class="p">,</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="target_new_novel_det"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.target_new_novel_det">[docs]</a><span class="k">def</span> <span class="nf">target_new_novel_det</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the target (i.e. threshold) for 2D synthetic novel_det(frequency) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    freq -- 1D array of frequencies whose thresholds to return</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    target -- target threshold</span>
+<span class="sd">    """</span>
+    <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">new_novel_det_params</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">locs</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="new_novel_det"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.new_novel_det">[docs]</a><span class="k">def</span> <span class="nf">new_novel_det</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the cdf for 2D synthetic novel_det(frequency) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    x -- array of shape (n,2) of locations to sample;</span>
+<span class="sd">         x[...,0] is frequency from -1 to 1; x[...,1] is intensity from -1 to 1</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    """</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">new_novel_det_params</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">locs</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="cdf_new_novel_det"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.cdf_new_novel_det">[docs]</a><span class="k">def</span> <span class="nf">cdf_new_novel_det</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the cdf for 2D synthetic novel_det(frequency) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    x -- array of shape (n,2) of locations to sample;</span>
+<span class="sd">         x[...,0] is frequency from -1 to 1; x[...,1] is intensity from -1 to 1</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">new_novel_det</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="new_novel_det_channels_params"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.new_novel_det_channels_params">[docs]</a><span class="k">def</span> <span class="nf">new_novel_det_channels_params</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">wave_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the target parameters for 2D synthetic novel_det(channel) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    channel -- 1D array of channel locations whose thresholds to return</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    wave_freq -- frequency of location waveform on [-1,1]</span>
+<span class="sd">    target -- target threshold</span>
+<span class="sd">    """</span>
+    <span class="n">locs</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">wave_freq</span> <span class="o">*</span> <span class="p">(</span><span class="n">channel</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.5</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.75</span> <span class="o">+</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.3</span> <span class="o">+</span> <span class="n">channel</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="target_new_novel_det_channels"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.target_new_novel_det_channels">[docs]</a><span class="k">def</span> <span class="nf">target_new_novel_det_channels</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">wave_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the target (i.e. threshold) for 2D synthetic novel_det(channel) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    channel -- 1D array of channel locations whose thresholds to return</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    wave_freq -- frequency of location waveform on [-1,1]</span>
+<span class="sd">    target -- target threshold</span>
+<span class="sd">    """</span>
+    <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">new_novel_det_channels_params</span><span class="p">(</span>
+        <span class="n">channel</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">wave_freq</span><span class="p">,</span> <span class="n">target</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">locs</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="new_novel_det_channels"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.new_novel_det_channels">[docs]</a><span class="k">def</span> <span class="nf">new_novel_det_channels</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">wave_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the 2D synthetic novel_det(channel) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    x -- array of shape (n,2) of locations to sample;</span>
+<span class="sd">         x[...,0] is channel from -1 to 1; x[...,1] is intensity from -1 to 1</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    wave_freq -- frequency of location waveform on [-1,1]</span>
+<span class="sd">    """</span>
+    <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">new_novel_det_channels_params</span><span class="p">(</span>
+        <span class="n">channel</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">wave_freq</span><span class="p">,</span> <span class="n">target</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">locs</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="cdf_new_novel_det_channels"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.cdf_new_novel_det_channels">[docs]</a><span class="k">def</span> <span class="nf">cdf_new_novel_det_channels</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">wave_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Get the cdf for 2D synthetic novel_det(channel) function</span>
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">    x -- array of shape (n,2) of locations to sample;</span>
+<span class="sd">         x[...,0] is channel from -1 to 1; x[...,1] is intensity from -1 to 1</span>
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    wave_freq -- frequency of location waveform on [-1,1]</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">new_novel_det_channels</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">wave_freq</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="new_novel_det_3D_params"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.new_novel_det_3D_params">[docs]</a><span class="k">def</span> <span class="nf">new_novel_det_3D_params</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">chan</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">locs_freq</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.32</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.66</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">0.8</span> <span class="o">*</span> <span class="n">freq</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">freq</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">locs</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">0.7</span> <span class="o">*</span> <span class="p">((</span><span class="o">-</span><span class="mf">0.35</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="n">chan</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="o">+</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">locs_freq</span>
+    <span class="p">)</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">locs</span> <span class="o">/</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">scale_factor</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="mf">0.75</span> <span class="o">+</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.6</span> <span class="o">+</span> <span class="n">chan</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="new_novel_det_3D"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.new_novel_det_3D">[docs]</a><span class="k">def</span> <span class="nf">new_novel_det_3D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the synthetic 3D novel_det</span>
+<span class="sd">    function over freqs,channels and amplitudes</span>
+
+<span class="sd">    """</span>
+    <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">new_novel_det_3D_params</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">locs</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="cdf_new_novel_det_3D"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.cdf_new_novel_det_3D">[docs]</a><span class="k">def</span> <span class="nf">cdf_new_novel_det_3D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the cdf for 3D synthetic novel_det function</span>
+
+<span class="sd">    x -- array of shape (n,3) of locations to sample</span>
+<span class="sd">         x[...,0] is frequency, x[...,1] is channel, x[...,2] is intensity</span>
+
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">new_novel_det_3D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="target_new_novel_det_3D"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.target_new_novel_det_3D">[docs]</a><span class="k">def</span> <span class="nf">target_new_novel_det_3D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get target for 3D synthetic novel_det function at location x</span>
+
+<span class="sd">    x -- array of shape (n,2) of locations to sample</span>
+<span class="sd">         x[...,0] is frequency, x[...,1] is channel,</span>
+
+<span class="sd">    scale factor -- scale for the novel_det function, where higher is steeper/lower SD</span>
+<span class="sd">    target -- target threshold</span>
+
+<span class="sd">    """</span>
+    <span class="n">locs</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="n">new_novel_det_3D_params</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">locs</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="f_pairwise"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.f_pairwise">[docs]</a><span class="k">def</span> <span class="nf">f_pairwise</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">noise_scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span> <span class="o">/</span> <span class="p">(</span><span class="n">noise_scale</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span></div>
 </pre></div>
 </div>
 </div>
