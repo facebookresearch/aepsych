@@ -185,7 +185,9 @@
                 <span class="o">.</span><span class="n">detach</span><span class="p">()</span>
                 <span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
             <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># vanilla models don't have proba_space samps, TODO maybe we should add them</span>
+        <span class="k">except</span> <span class="p">(</span>
+            <span class="ne">TypeError</span>
+        <span class="p">):</span>  <span class="c1"># vanilla models don't have proba_space samps, TODO maybe we should add them</span>
             <span class="n">psamps</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fsamps</span><span class="p">)</span>
 
         <span class="n">ferrs</span> <span class="o">=</span> <span class="n">fsamps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>

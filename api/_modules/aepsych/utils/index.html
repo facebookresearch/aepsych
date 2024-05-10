@@ -29,7 +29,6 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">ax.service.utils.instantiation</span> <span class="kn">import</span> <span class="n">ObjectiveProperties</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 <span class="kn">from</span> <span class="nn">torch.quasirandom</span> <span class="kn">import</span> <span class="n">SobolEngine</span>
 
@@ -316,28 +315,6 @@
             <span class="p">)</span>  <span class="c1"># Choice parameters with n_choices &lt; 3 add n_choices - 1 dims</span>
 
     <span class="k">return</span> <span class="n">dim</span></div>
-
-
-<div class="viewcode-block" id="get_objectives"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_objectives">[docs]</a><span class="k">def</span> <span class="nf">get_objectives</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-    <span class="n">outcome_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-        <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"outcome_types"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span>
-    <span class="p">)</span>
-
-    <span class="n">outcome_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-        <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"outcome_names"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">outcome_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">outcome_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"outcome_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">))]</span>
-
-    <span class="n">objectives</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">out_name</span> <span class="ow">in</span> <span class="n">outcome_names</span><span class="p">:</span>
-        <span class="n">minimize</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s2">"minimize"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s2">"threshold"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="n">objectives</span><span class="p">[</span><span class="n">out_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ObjectiveProperties</span><span class="p">(</span>
-            <span class="n">minimize</span><span class="o">=</span><span class="n">minimize</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">objectives</span></div>
 </pre></div>
 </div>
 </div>

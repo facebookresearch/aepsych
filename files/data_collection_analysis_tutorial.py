@@ -109,7 +109,6 @@ def run_trial(angle, trial_number):
 
 show_fixation_cross()
 
-
 # After 1 second, the fixation cross will disappear, and two gabor patches will appear side-by-side. One patch will be the foil with a vertical orientation, and one will be the target with an angled orientation. The position of the target and whether the angle is measured clockwise or counterclockwise is randomized each trial. An example foil and target are shown below:
 
 # In[3]:
@@ -119,7 +118,6 @@ _, axs = plt.subplots(1, 2, figsize=(fig_size, fig_size))
 show_gabor(0, axs[0])
 show_gabor(5, axs[1])
 
-
 # After 0.5 seconds, the patches will disappear, and the participant will be prompted to report which one was the target by typing "F" for left or "J" for right, and then hitting enter. Try running the code block below to experience a trial for yourself. The `run_trial` function takes an angle and a trial number as input and returns whether or not you were correct (1 for correct, 0 for incorrect), as well as the side which the target was actually on. 
 
 # In[4]:
@@ -127,22 +125,21 @@ show_gabor(5, axs[1])
 
 run_trial(5, 0)
 
-
 # ## Starting the AEPsych Server
 # The code block below starts an AEPsych server that will run in the background (you can also start the server by running the second line in a command prompt). We can contact the server at IP address 0.0.0.0, port 5555, and the data will be saved in a database named "data_collection_analysis_tutorial.db". In this tutorial, we will run the server on the same computer as the experiment, but it is also possible to run the server remotely. 
 
 # In[5]:
 
 
-get_ipython().run_cell_magic('bash', '--bg', '\naepsych_server --ip 0.0.0.0 --port 5555 database --db data_collection_analysis_tutorial.db\n')
+%%bash --bg
 
+aepsych_server --ip 0.0.0.0 --port 5555 database --db data_collection_analysis_tutorial.db
 
 # In[6]:
 
 
 from aepsych_client import AEPsychClient
 client = AEPsychClient(ip="0.0.0.0", port=5555)
-
 
 # We tell the server what kind of experiment we are running by sending it a configure message (see the [configs folder](https://github.com/facebookresearch/aepsych/tree/main/configs) for some examples. The gist of the config here is that it is telling the server that our experiment will have one parameter called "angle", which will range from 0.1 to 5 degrees. (If you run this experiment on yourself and find that this range of angles makes the experiment too easy or too hard, you can adjust the `lb` and `ub` values in the string below). This experiment will last for 50 trials. The parameter values from the first 10 trials will be drawn from the [Sobol sequence](https://en.wikipedia.org/wiki/Sobol_sequence), to provide some initial data to initialize AEPsych's model; the following 40 trials will be drawn from that model. In this case, the model will be a classification [Gaussian Process](https://en.wikipedia.org/wiki/Gaussian_process) (GP). 
 # 
@@ -180,7 +177,6 @@ model = GPClassificationModel # The model class
 
 client.configure(config_str=config_str, config_name="1d_gabor_config")
 
-
 # Now that we have set up our client and configured our server, we can start collecting data. The basic loop of the experiment is as follows:
 # 
 # 1. Ask AEPsych what value of our parameter, angle, to try next.
@@ -195,14 +191,12 @@ client.configure(config_str=config_str, config_name="1d_gabor_config")
 
 client.ask()
 
-
 # We tell AEPsych about the parameter values we have tried by calling client.tell(). This method has two required arguments. The first, config, is a dictionary representing the set of parameter values you would like to tell AEPsych about, and takes the same format as the 'config' entry from client.ask(). The second argument is the binary outcome of a trial, indicated by 0 (the participant did not identify the target) or 1 (the participant did identify the target). This method also optionally takes other keyword arguments that will be stored as metadata in AEPsych's database. For our experiment, we will record which side the target was on.
 
 # In[9]:
 
 
 client.tell(config={'theta':[.1]}, outcome=0, target_side='right')
-
 
 # The code below asks AEPsych for parameter values and runs trials until the experiment is completed:
 
@@ -219,14 +213,12 @@ while not finished:
     finished = response["is_finished"]
     trial_number += 1
 
-
 # Note that even after the number of trials specified in the config have completed, you can still ask for more parameter values and conduct more trials:
 
 # In[11]:
 
 
 client.ask()
-
 
 # You are also not restricted to only using the parameter values that AEPsych suggests. You can tell it the outcome of any parameter values that you would like:
 
@@ -235,14 +227,12 @@ client.ask()
 
 client.tell(config={'theta':[5]}, outcome=1, target_side='left')
 
-
 # Once you are done collecting data, you can close the server by calling `client.finalize()`
 
 # In[13]:
 
 
 client.finalize()
-
 
 # ## Replaying the Experiment and Analyzing Data
 # To analyze the data, we open the database with an `AEPsychServer` object. This server runs here in the notebook rather than in the background like the server we used to collect data.
@@ -254,7 +244,6 @@ from aepsych.server import AEPsychServer
 
 serv = AEPsychServer(database_path="data_collection_analysis_tutorial.db")
 
-
 # The database is made of a set of experiments, which have unique experiment UUIDs. Every time the server is started (e.g. from the command line), a new experiment id is generated. For a list of all experiment ids:
 
 # In[15]:
@@ -262,7 +251,6 @@ serv = AEPsychServer(database_path="data_collection_analysis_tutorial.db")
 
 exp_ids = [rec.experiment_id for rec in serv.db.get_master_records()]
 print(exp_ids)
-
 
 # The above indicates that there is only 1 experiment_id in this database.
 # 
@@ -273,7 +261,6 @@ print(exp_ids)
 
 serv.replay(exp_ids[-1], skip_computations=True)
 
-
 # The data has been loaded into the servers list of strategies, which we can access through `serv._strats`. Per our config string, we have two strategies, the first being the model-less initialization strategy, and the second being the model-based threshold-finding strategy. We can see the model-based strategy's data using its `x` and `y` properties:
 
 # In[17]:
@@ -283,14 +270,12 @@ strat = serv._strats[-1]
 print(strat.x)
 print(strat.y)
 
-
 # Since we passed `skip_computations = True` into the replay method before, we will have to manually refit the strategy's model:
 
 # In[18]:
 
 
 strat.model.fit(strat.x, strat.y)
-
 
 # We can now plot the posterior of the fitted model:
 
@@ -302,7 +287,6 @@ plt.rcParams["figure.figsize"] = (15,15)
 plt.rcParams['figure.facecolor'] = 'white'
 
 plot_strat(strat, xlabel='angle (degrees)', ylabel='Probability of Selecting Target', target_level=.75)
-
 
 # In this plot, the blue and red ticks at the bottom represent angles at which the participant did and did not successfully identify the target, respectively. The dark blue curve represents the model's posterior probabilty that the participant would select the target, with 95% of the posterior mass lying in the shaded region. The orange horizontal line represents the participant's detection threshold, which once again is defined as the smallest angle at which the participant would select the target 75% of the time. If you are viewing the data from the example participant, you will see that their threshold is somewhere between about 0.5 and 1.5 degrees (note, however, that threshold estimation for non-monotonic models may not always be accurate; we are working on better algorithms for this). More data could be collected to reduce this uncertainty. If you collected data on your own data, your plot may look different; there are often large individual differences in psychophysics tasks. In any case you should see that most of the sampled points are near the estimated threshold; the level set estimation algorithm intelligently selects points so that time is not wasted collecting data at points far away from the threshold, allowing for a more accurate threshold estimate in fewer trials than traditional methods.
 # 

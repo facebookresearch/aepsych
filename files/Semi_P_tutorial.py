@@ -27,7 +27,6 @@ from torch.distributions import Bernoulli, Normal
 np.random.seed(1)
 torch.manual_seed(1)
 
-
 # Below we import the SemiP specific packages. Note that we are importing three link functions here, ```FloorGumbelObjective, FloorLogitObjective, FloorProbitObjective```. In this tutorial we will only use the ```FloorProbitObjective``` to match how we generate synthetic data. From a theoretical perspective, the link function is the CDF of the noise in the perceptual system (i.e. Probit link implies Gaussian Noise, Logit link implies Logistic noise, and Gumbel link implies Weibull noise) and empirically different links may perform better on different datasets, so we recommend that you select the appropriate link for your application based on cross-validated performance or a priori theoretical motivation. 
 
 # In[2]:
@@ -43,7 +42,6 @@ from aepsych.acquisition.objective import (
 )
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-
 
 # #### Test function
 # Here we will import the novel 2D detection test function, which provides detection probabilities ranging from 0 to 1 in a two dimensional space. The slope and intercept of the parameterized sigmoidal function vary with a fourth-order polynomial as a function of the context dimension, which makes this a challenging problem for fully parametric models that tend to not include such higher-order terms. 
@@ -69,7 +67,6 @@ plt.ylabel("intensity dimension")
 cbar.set_label("detection probability", rotation=270, labelpad=15)
 plt.title("2D detection test function")
 
-
 # In[4]:
 
 
@@ -94,7 +91,6 @@ approx_model = HadamardSemiPModel(lb=lb, ub=ub, dim=2, stim_dim=1,
 
 semip_model.fit(xtrain, ytrain)
 approx_model.fit(xtrain, ytrain)
-
 
 # In[6]:
 
@@ -124,7 +120,6 @@ axs[1].plot(xtrain[ytrain==1,0], xtrain[ytrain==1,1], 'g+')
 cb_ax = fig.add_axes([.92, 0.1, 0.02, 0.8])
 cbar = fig.colorbar(im1, cax=cb_ax)
 cbar.set_label("detection probability", rotation=270, labelpad=15)
-
 
 # It is apparent that in this case quasi-random sobol sampling over-explores parts of the psychometric field where detection probability approaches 1.0. In a real experiment we would also use active sampling to improve sample efficiency. 
 
@@ -193,7 +188,6 @@ axs[2].plot(xtrain[ytrain==1,0], xtrain[ytrain==1,1], 'g+')
 cb_ax = fig.add_axes([.92, 0.1, 0.02, 0.8])
 cbar = fig.colorbar(im1, cax=cb_ax)
 cbar.set_label("detection probability", rotation=270, labelpad=15)
-
 
 # # Active learning
 # 

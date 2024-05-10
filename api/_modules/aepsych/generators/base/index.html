@@ -26,17 +26,14 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">runtime_checkable</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychMixin</span>
-<span class="kn">from</span> <span class="nn">ax.core.experiment</span> <span class="kn">import</span> <span class="n">Experiment</span>
-<span class="kn">from</span> <span class="nn">ax.modelbridge.generation_node</span> <span class="kn">import</span> <span class="n">GenerationStep</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AcquisitionFunction</span><span class="p">,</span>
     <span class="n">NoisyExpectedImprovement</span><span class="p">,</span>
     <span class="n">qNoisyExpectedImprovement</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">.completion_criterion</span> <span class="kn">import</span> <span class="n">completion_criteria</span>
 
 <span class="n">AEPsychModelType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"AEPsychModelType"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">AEPsychMixin</span><span class="p">)</span>
 
@@ -109,28 +106,6 @@
             <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">return</span> <span class="n">extra_acqf_args</span></div>
-
-
-<div class="viewcode-block" id="AEPsychGenerationStep"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AEPsychGenerationStep">[docs]</a><span class="k">class</span> <span class="nc">AEPsychGenerationStep</span><span class="p">(</span><span class="n">GenerationStep</span><span class="p">,</span> <span class="n">ConfigurableMixin</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_trials</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-
-<div class="viewcode-block" id="AEPsychGenerationStep.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AEPsychGenerationStep.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="n">criteria</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">crit</span> <span class="ow">in</span> <span class="n">completion_criteria</span><span class="p">:</span>
-            <span class="c1"># TODO: Figure out how to convince mypy that CompletionCriterion have `from_config`</span>
-            <span class="n">criterion</span> <span class="o">=</span> <span class="n">crit</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="n">criteria</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">criterion</span><span class="p">)</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"completion_criteria"</span><span class="p">:</span> <span class="n">criteria</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
-        <span class="k">return</span> <span class="n">options</span></div>
-
-<div class="viewcode-block" id="AEPsychGenerationStep.finished"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AEPsychGenerationStep.finished">[docs]</a>    <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">):</span>
-        <span class="n">finished</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">criterion</span><span class="o">.</span><span class="n">is_met</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span> <span class="k">for</span> <span class="n">criterion</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">completion_criteria</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">finished</span></div></div>
 </pre></div>
 </div>
 </div>

@@ -28,30 +28,20 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 
-<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
-<span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerationStep</span><span class="p">,</span> <span class="n">AEPsychGenerator</span>
-<span class="kn">from</span> <span class="nn">aepsych.generators.sobol_generator</span> <span class="kn">import</span> <span class="n">AxSobolGenerator</span><span class="p">,</span> <span class="n">SobolGenerator</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
+<span class="kn">from</span> <span class="nn">aepsych.generators.sobol_generator</span> <span class="kn">import</span> <span class="n">SobolGenerator</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_process_bounds</span><span class="p">,</span>
-    <span class="n">get_bounds</span><span class="p">,</span>
-    <span class="n">get_objectives</span><span class="p">,</span>
-    <span class="n">get_parameters</span><span class="p">,</span>
     <span class="n">make_scaled_sobol</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">ax.core.base_trial</span> <span class="kn">import</span> <span class="n">TrialStatus</span>
-<span class="kn">from</span> <span class="nn">ax.modelbridge.generation_strategy</span> <span class="kn">import</span> <span class="n">GenerationStrategy</span>
-<span class="kn">from</span> <span class="nn">ax.plot.contour</span> <span class="kn">import</span> <span class="n">interact_contour</span>
-<span class="kn">from</span> <span class="nn">ax.plot.slice</span> <span class="kn">import</span> <span class="n">plot_slice</span>
-<span class="kn">from</span> <span class="nn">ax.service.ax_client</span> <span class="kn">import</span> <span class="n">AxClient</span>
-<span class="kn">from</span> <span class="nn">ax.utils.notebook.plotting</span> <span class="kn">import</span> <span class="n">render</span>
 <span class="kn">from</span> <span class="nn">botorch.exceptions.errors</span> <span class="kn">import</span> <span class="n">ModelFittingError</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
@@ -524,189 +514,6 @@
             <span class="n">strats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">strat_list</span><span class="o">=</span><span class="n">strats</span><span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="AEPsychStrategy"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy">[docs]</a><span class="k">class</span> <span class="nc">AEPsychStrategy</span><span class="p">(</span><span class="n">ConfigurableMixin</span><span class="p">):</span>
-    <span class="n">is_finished</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax_client</span><span class="p">:</span> <span class="n">AxClient</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span> <span class="o">=</span> <span class="n">ax_client</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">num_asks</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
-
-<div class="viewcode-block" id="AEPsychStrategy.get_config_options"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="c1"># TODO: Fix the mypy errors</span>
-        <span class="n">strat_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"strategy_names"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">strat_names</span><span class="p">:</span>
-            <span class="n">generator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"generator"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">AxSobolGenerator</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="n">opts</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-            <span class="n">step</span> <span class="o">=</span> <span class="n">AEPsychGenerationStep</span><span class="p">(</span><span class="o">**</span><span class="n">opts</span><span class="p">)</span>
-            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
-
-        <span class="c1"># Add an extra step at the end that we can `ask` endlessly.</span>
-        <span class="n">final_step</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
-        <span class="n">final_step</span><span class="o">.</span><span class="n">completion_criteria</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">final_step</span><span class="o">.</span><span class="n">_transition_criteria</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">final_step</span><span class="o">.</span><span class="n">num_trials</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_step</span><span class="p">)</span>
-
-        <span class="n">parameters</span> <span class="o">=</span> <span class="n">get_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">bounds</span> <span class="o">=</span> <span class="n">get_bounds</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="n">parameter_constraints</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-            <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"par_constraints"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span>
-
-        <span class="n">objectives</span> <span class="o">=</span> <span class="n">get_objectives</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="n">seed</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"random_seed"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="n">strat</span> <span class="o">=</span> <span class="n">GenerationStrategy</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
-        <span class="n">ax_client</span> <span class="o">=</span> <span class="n">AxClient</span><span class="p">(</span><span class="n">strat</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-        <span class="n">ax_client</span><span class="o">.</span><span class="n">create_experiment</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">"experiment"</span><span class="p">,</span>
-            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
-            <span class="n">parameter_constraints</span><span class="o">=</span><span class="n">parameter_constraints</span><span class="p">,</span>
-            <span class="n">objectives</span><span class="o">=</span><span class="n">objectives</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="s2">"ax_client"</span><span class="p">:</span> <span class="n">ax_client</span><span class="p">,</span> <span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">optimization_complete</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_maybe_move_to_next_step</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_steps</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-
-<div class="viewcode-block" id="AEPsychStrategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">True</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.gen"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">get_next_trials</span><span class="p">(</span><span class="n">max_trials</span><span class="o">=</span><span class="n">num_points</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">num_asks</span> <span class="o">+=</span> <span class="n">num_points</span>
-
-        <span class="k">return</span> <span class="n">x</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.complete_new_trial"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.complete_new_trial">[docs]</a>    <span class="k">def</span> <span class="nf">complete_new_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">outcome</span><span class="p">):</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">trial_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">attach_trial</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">complete_existing_trial</span><span class="p">(</span><span class="n">trial_index</span><span class="p">,</span> <span class="n">outcome</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.complete_existing_trial"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.complete_existing_trial">[docs]</a>    <span class="k">def</span> <span class="nf">complete_existing_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_index</span><span class="p">,</span> <span class="n">outcome</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">complete_trial</span><span class="p">(</span><span class="n">trial_index</span><span class="p">,</span> <span class="n">outcome</span><span class="p">)</span></div>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">experiment</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">can_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">trial_indices_by_status</span><span class="p">[</span><span class="n">TrialStatus</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ax_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">model</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ax_model</span><span class="p">,</span> <span class="s2">"surrogate"</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">aepsych_model</span> <span class="o">=</span> <span class="n">ax_model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">surrogate</span><span class="o">.</span><span class="n">model</span>
-        <span class="k">return</span> <span class="n">aepsych_model</span>
-
-    <span class="k">def</span> <span class="nf">_warn_on_outcome_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">"outcome_type"</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">!=</span> <span class="s2">"continuous"</span>
-        <span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">"Cannot directly plot non-continuous outcomes. Plotting the latent function instead."</span>
-            <span class="p">)</span>
-
-<div class="viewcode-block" id="AEPsychStrategy.plot_contours"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.plot_contours">[docs]</a>    <span class="k">def</span> <span class="nf">plot_contours</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">slice_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Plot predictions for a 2-d slice of the parameter space.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            density: Number of points along each parameter to evaluate predictions.</span>
-<span class="sd">            slice_values: A dictionary {name: val} for the fixed values of the</span>
-<span class="sd">                other parameters. If not provided, then the mean of numeric</span>
-<span class="sd">                parameters or the mode of choice parameters will be used.</span>
-<span class="sd">        """</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
-        <span class="p">),</span> <span class="s2">"plot_contours requires at least 2 parameters! Use 'plot_slice' instead."</span>
-        <span class="n">ax_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_warn_on_outcome_mismatch</span><span class="p">()</span>
-
-        <span class="n">render</span><span class="p">(</span>
-            <span class="n">interact_contour</span><span class="p">(</span>
-                <span class="n">model</span><span class="o">=</span><span class="n">ax_model</span><span class="p">,</span>
-                <span class="n">metric_name</span><span class="o">=</span><span class="s2">"objective"</span><span class="p">,</span>
-                <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span>
-                <span class="n">slice_values</span><span class="o">=</span><span class="n">slice_values</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.plot_slice"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.plot_slice">[docs]</a>    <span class="k">def</span> <span class="nf">plot_slice</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">param_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">density</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
-        <span class="n">slice_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Plot predictions for a 1-d slice of the parameter space.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            param_name: Name of parameter that will be sliced</span>
-<span class="sd">            density: Number of points along slice to evaluate predictions.</span>
-<span class="sd">            slice_values: A dictionary {name: val} for the fixed values of the</span>
-<span class="sd">                other parameters. If not provided, then the mean of numeric</span>
-<span class="sd">                parameters or the mode of choice parameters will be used.</span>
-<span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_warn_on_outcome_mismatch</span><span class="p">()</span>
-        <span class="n">ax_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">render</span><span class="p">(</span>
-            <span class="n">plot_slice</span><span class="p">(</span>
-                <span class="n">model</span><span class="o">=</span><span class="n">ax_model</span><span class="p">,</span>
-                <span class="n">param_name</span><span class="o">=</span><span class="n">param_name</span><span class="p">,</span>
-                <span class="n">metric_name</span><span class="o">=</span><span class="s2">"objective"</span><span class="p">,</span>
-                <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span>
-                <span class="n">slice_values</span><span class="o">=</span><span class="n">slice_values</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.get_pareto_optimal_parameters"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_pareto_optimal_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">get_pareto_optimal_parameters</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.predict"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance.; see AEPsychModel.predict."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.predict_probability"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.predict_probability">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Query the model in prodbability space for posterior mean and variance.; see AEPsychModel.predict_probability."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.get_max"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_max">[docs]</a>    <span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Return the maximum of the modeled function; see AEPsychModel.get_max."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.get_min"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_min">[docs]</a>    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Return the minimum of the modeled function; see AEPsychModel.get_min."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AEPsychStrategy.inv_query"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.inv_query">[docs]</a>    <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Return nearest x such that f(x) = queried y, and also return the</span>
-<span class="sd">        value of f at that point.; see AEPsychModel.inv_query."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">inv_query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
