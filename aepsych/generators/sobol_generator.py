@@ -11,10 +11,9 @@ from typing import Dict, Optional, Union
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
+from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds
-from ax.modelbridge import Models
 from torch.quasirandom import SobolEngine
 
 
@@ -84,23 +83,3 @@ class SobolGenerator(AEPsychGenerator):
         return cls(
             lb=lb, ub=ub, dim=dim, seed=seed, stimuli_per_trial=stimuli_per_trial
         )
-
-    @classmethod
-    def get_config_options(cls, config: Config, name: str):
-        return AxSobolGenerator.get_config_options(config, name)
-
-
-class AxSobolGenerator(AEPsychGenerationStep):
-    @classmethod
-    def get_config_options(cls, config: Config, name: str) -> Dict:
-        classname = "SobolGenerator"
-        seed = config.getint(classname, "seed", fallback=None)
-        scramble = config.getboolean(classname, "scramble", fallback=True)
-
-        opts = {
-            "model": Models.SOBOL,
-            "model_kwargs": {"seed": seed, "scramble": scramble},
-        }
-        opts.update(super().get_config_options(config, name))
-
-        return opts

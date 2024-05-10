@@ -80,6 +80,5 @@ def query(
         k: np.array([v]) if np.array(v).ndim == 0 else v
         for k, v in response["x"].items()
     }
-    if server.use_ax:
-        response["x"] = {v: response["x"][v][0] for v in response["x"]}
+
     return response

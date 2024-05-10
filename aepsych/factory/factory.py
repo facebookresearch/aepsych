@@ -86,14 +86,10 @@ def default_mean_covar_factory(
             except NoOptionError:
                 raise RuntimeError("Config got fixed_mean=True but no target included!")
 
-        if config.getboolean("common", "use_ax", fallback=False):
-            config_dim = get_dim(config)
-
-        else:
-            lb = config.gettensor("default_mean_covar_factory", "lb")
-            ub = config.gettensor("default_mean_covar_factory", "ub")
-            assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
-            config_dim = lb.shape[0]
+        lb = config.gettensor("default_mean_covar_factory", "lb")
+        ub = config.gettensor("default_mean_covar_factory", "ub")
+        assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
+        config_dim = lb.shape[0]
 
         if dim is not None:
             assert dim == config_dim, "Provided config does not match provided dim!"
@@ -211,14 +207,10 @@ def song_mean_covar_factory(
             constant mean object and additive kernel object.
     """
 
-    if config.getboolean("common", "use_ax", fallback=False):
-        dim = get_dim(config)
-
-    else:
-        lb = config.gettensor("song_mean_covar_factory", "lb")
-        ub = config.gettensor("song_mean_covar_factory", "ub")
-        assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
-        dim = lb.shape[0]
+    lb = config.gettensor("song_mean_covar_factory", "lb")
+    ub = config.gettensor("song_mean_covar_factory", "ub")
+    assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
+    dim = lb.shape[0]
 
     mean = gpytorch.means.ConstantMean()
 
