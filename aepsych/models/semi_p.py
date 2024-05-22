@@ -280,8 +280,10 @@ class SemiParametricGPModel(GPClassificationModel):
 
         if hasattr(likelihood_cls, "from_config"):
             likelihood = likelihood_cls.from_config(config)
-        else:
+        elif likelihood_cls is not None:
             likelihood = likelihood_cls()
+        else:
+            likelihood = None
 
         stim_dim = config.getint(classname, "stim_dim", fallback=0)
 
