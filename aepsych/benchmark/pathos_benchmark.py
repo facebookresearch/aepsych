@@ -182,6 +182,7 @@ def run_benchmarks_with_checkpoints(
     problems: List[Problem],
     configs: Mapping[str, Union[str, list]],
     global_seed: Optional[int] = None,
+    start_idx: int = 0,
     n_chunks: int = 1,
     n_reps_per_chunk: int = 1,
     log_every: Optional[int] = None,
@@ -202,6 +203,7 @@ def run_benchmarks_with_checkpoints(
             Lists at leaves are used to construct a cartesian product of configurations.
         global_seed (int, optional): Global seed to use for reproducible benchmarks.
             Defaults to randomized seeds.
+        start_idx (int): The chunk number to start from after the last checkpoint. Defaults to 0.
         n_chunks (int): The number of chunks to break the results into. Each chunk will contain at least 1 run of every
             combination of problem and config.
         n_reps_per_chunk (int, optional): Number of repetitions to run each problem/config in each chunk.
@@ -227,7 +229,7 @@ def run_benchmarks_with_checkpoints(
         final_results = bench.pandas()
         final_results.to_csv(out_fname)
     else:
-        for chunk in range(n_chunks):
+        for chunk in range(start_idx, n_chunks+start_idx):
             out_fname = Path(f"{out_path}/{benchmark_name}_chunk{chunk}_out.csv")
 
             intermediate_fname = Path(
