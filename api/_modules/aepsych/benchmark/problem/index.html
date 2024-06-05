@@ -22,16 +22,15 @@
 
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
-
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">aepsych</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">bernoulli</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">pearsonr</span>
 <span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">SequentialStrategy</span><span class="p">,</span> <span class="n">Strategy</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">make_scaled_sobol</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">bernoulli</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">pearsonr</span>
 
 
 <div class="viewcode-block" id="Problem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem">[docs]</a><span class="k">class</span> <span class="nc">Problem</span><span class="p">:</span>
@@ -298,6 +297,43 @@
             <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span>
         <span class="p">)</span>
 
+        <span class="k">return</span> <span class="n">metrics</span></div></div>
+
+
+<span class="sd">"""</span>
+<span class="sd">The LSEProblemWithEdgeLogging class is copied from bernoulli_lse github repository</span>
+<span class="sd">(https://github.com/facebookresearch/bernoulli_lse) by Letham et al. 2022.</span>
+<span class="sd">"""</span>
+
+
+<div class="viewcode-block" id="LSEProblemWithEdgeLogging"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblemWithEdgeLogging">[docs]</a><span class="k">class</span> <span class="nc">LSEProblemWithEdgeLogging</span><span class="p">(</span><span class="n">LSEProblem</span><span class="p">):</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+<div class="viewcode-block" id="LSEProblemWithEdgeLogging.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblemWithEdgeLogging.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">):</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
+
+        <span class="c1"># add number of edge samples to the log</span>
+
+        <span class="c1"># get the trials selected by the final strat only</span>
+        <span class="n">n_opt_trials</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">strat_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">n_trials</span>
+
+        <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">ub</span> <span class="o">-</span> <span class="n">lb</span>
+        <span class="n">lb2</span> <span class="o">=</span> <span class="n">lb</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">*</span> <span class="n">r</span>
+        <span class="n">ub2</span> <span class="o">=</span> <span class="n">ub</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">*</span> <span class="n">r</span>
+
+        <span class="n">near_edge</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="n">n_opt_trials</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">&lt;=</span> <span class="n">lb2</span><span class="p">),</span> <span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="n">n_opt_trials</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">&gt;=</span> <span class="n">ub2</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">double</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">metrics</span><span class="p">[</span><span class="s2">"prop_edge_sampling_mean"</span><span class="p">]</span> <span class="o">=</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="s2">"prop_edge_sampling_err"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">near_edge</span><span class="p">))</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">metrics</span></div></div>
 </pre></div>
 </div>

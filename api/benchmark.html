@@ -570,6 +570,38 @@ including parent class metrics.</p>
 </dl>
 </dd></dl>
 </dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblemWithEdgeLogging">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.problem.</span></span><span class="sig-name descname"><span class="pre">LSEProblemWithEdgeLogging</span></span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblemWithEdgeLogging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblemWithEdgeLogging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.LSEProblem" title="aepsych.benchmark.problem.LSEProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSEProblem</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblemWithEdgeLogging.eps">
+<span class="sig-name descname"><span class="pre">eps</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></em><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblemWithEdgeLogging.eps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.problem.LSEProblemWithEdgeLogging.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblemWithEdgeLogging.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.problem.LSEProblemWithEdgeLogging.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the model with respect to this problem.</p>
+<p>For level set estimation, we add metrics w.r.t. the true threshold:
+- brier_p_below_{thresh), the brier score w.r.t. p(f(x)&lt;thresh), in contrast to</p>
+<blockquote>
+<div><p>regular brier, which is the brier score for p(phi(f(x))=1), and the same
+for misclassification error.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>strat</strong> (<a class="reference internal" href="strategy.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>aepsych.strategy.Strategy</em></a>) – Strategy to evaluate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary containing metrics and their values,
+including parent class metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
 </section>
 <section id="module-aepsych.benchmark.test_functions">
 <span id="aepsych-benchmark-test-functions-module"></span><h2>aepsych.benchmark.test_functions module<a class="headerlink" href="#module-aepsych.benchmark.test_functions" title="Permalink to this heading">¶</a></h2>
@@ -661,28 +693,20 @@ to discrimination being at chance at zero stimulus intensity.</p>
 varies with the threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – Points at which to evaluate.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Value of function at these points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>np.ndarray, torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.benchmark.test_functions.discrim_highdim">
 <span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">discrim_highdim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#discrim_highdim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.discrim_highdim" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>ndarray</em>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>ndarray</em></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.benchmark.test_functions.modified_hartmann6">
 <span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.test_functions.</span></span><span class="sig-name descname"><span class="pre">modified_hartmann6</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#modified_hartmann6"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.test_functions.modified_hartmann6" title="Permalink to this definition">¶</a></dt>
@@ -1338,6 +1362,38 @@ including parent class metrics.</p>
 </dl>
 </dd></dl>
 </dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblemWithEdgeLogging">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">LSEProblemWithEdgeLogging</span></span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblemWithEdgeLogging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.LSEProblemWithEdgeLogging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.LSEProblem" title="aepsych.benchmark.problem.LSEProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSEProblem</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblemWithEdgeLogging.eps">
+<span class="sig-name descname"><span class="pre">eps</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></em><a class="headerlink" href="#aepsych.benchmark.LSEProblemWithEdgeLogging.eps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.LSEProblemWithEdgeLogging.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/problem.html#LSEProblemWithEdgeLogging.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.LSEProblemWithEdgeLogging.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the model with respect to this problem.</p>
+<p>For level set estimation, we add metrics w.r.t. the true threshold:
+- brier_p_below_{thresh), the brier score w.r.t. p(f(x)&lt;thresh), in contrast to</p>
+<blockquote>
+<div><p>regular brier, which is the brier score for p(phi(f(x))=1), and the same
+for misclassification error.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>strat</strong> (<a class="reference internal" href="strategy.html#aepsych.strategy.Strategy" title="aepsych.strategy.Strategy"><em>aepsych.strategy.Strategy</em></a>) – Strategy to evaluate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary containing metrics and their values,
+including parent class metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.benchmark.make_songetal_testfun">
 <span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">make_songetal_testfun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phenotype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Metabolic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#make_songetal_testfun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.make_songetal_testfun" title="Permalink to this definition">¶</a></dt>
@@ -1380,13 +1436,13 @@ The Journal of the Acoustical Society of America, 141(4), 2513–2525.
 varies with the threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em>) – Points at which to evaluate.</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – Points at which to evaluate.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Value of function at these points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>np.ndarray, torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1418,15 +1474,7 @@ to discrimination being at chance at zero stimulus intensity.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.benchmark.discrim_highdim">
 <span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">discrim_highdim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/test_functions.html#discrim_highdim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.discrim_highdim" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>ndarray</em>) – </p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>ndarray</em></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.benchmark.run_benchmarks_with_checkpoints">
 <span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">run_benchmarks_with_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">out_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chunks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_reps_per_chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_every</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_proc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serial_debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/pathos_benchmark.html#run_benchmarks_with_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.run_benchmarks_with_checkpoints" title="Permalink to this definition">¶</a></dt>
@@ -1458,6 +1506,123 @@ combination of problem and config.</p></li>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimLowDim">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">DiscrimLowDim</span></span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#DiscrimLowDim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.DiscrimLowDim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.LSEProblemWithEdgeLogging" title="aepsych.benchmark.problem.LSEProblemWithEdgeLogging"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSEProblemWithEdgeLogging</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimLowDim.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'discrim_lowdim'</span></em><a class="headerlink" href="#aepsych.benchmark.DiscrimLowDim.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimLowDim.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">tensor([[-1.,</span> <span class="pre">-1.],</span>         <span class="pre">[</span> <span class="pre">1.,</span>  <span class="pre">1.]])</span></em><a class="headerlink" href="#aepsych.benchmark.DiscrimLowDim.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimLowDim.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#aepsych.benchmark.DiscrimLowDim.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimLowDim.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#DiscrimLowDim.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.DiscrimLowDim.f" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimHighDim">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">DiscrimHighDim</span></span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#DiscrimHighDim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.DiscrimHighDim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.LSEProblemWithEdgeLogging" title="aepsych.benchmark.problem.LSEProblemWithEdgeLogging"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSEProblemWithEdgeLogging</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimHighDim.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'discrim_highdim'</span></em><a class="headerlink" href="#aepsych.benchmark.DiscrimHighDim.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimHighDim.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#aepsych.benchmark.DiscrimHighDim.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimHighDim.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">tensor([[-1.0000,</span> <span class="pre">-1.0000,</span>  <span class="pre">0.5000,</span>  <span class="pre">0.0500,</span>  <span class="pre">0.0500,</span>  <span class="pre">0.0000,</span>  <span class="pre">0.0000,</span>  <span class="pre">0.5000],</span>         <span class="pre">[</span> <span class="pre">1.0000,</span>  <span class="pre">1.0000,</span>  <span class="pre">1.5000,</span>  <span class="pre">0.1500,</span>  <span class="pre">0.2000,</span>  <span class="pre">0.9000,</span>  <span class="pre">1.5700,</span>  <span class="pre">2.0000]])</span></em><a class="headerlink" href="#aepsych.benchmark.DiscrimHighDim.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.DiscrimHighDim.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#DiscrimHighDim.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.DiscrimHighDim.f" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.Hartmann6Binary">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">Hartmann6Binary</span></span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#Hartmann6Binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Hartmann6Binary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.LSEProblemWithEdgeLogging" title="aepsych.benchmark.problem.LSEProblemWithEdgeLogging"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSEProblemWithEdgeLogging</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.Hartmann6Binary.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hartmann6_binary'</span></em><a class="headerlink" href="#aepsych.benchmark.Hartmann6Binary.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.Hartmann6Binary.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#aepsych.benchmark.Hartmann6Binary.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.Hartmann6Binary.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">tensor([[0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span>         <span class="pre">[1.,</span> <span class="pre">1.,</span> <span class="pre">1.,</span> <span class="pre">1.,</span> <span class="pre">1.,</span> <span class="pre">1.]])</span></em><a class="headerlink" href="#aepsych.benchmark.Hartmann6Binary.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.Hartmann6Binary.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#Hartmann6Binary.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.Hartmann6Binary.f" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.benchmark.ContrastSensitivity6d">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.benchmark.</span></span><span class="sig-name descname"><span class="pre">ContrastSensitivity6d</span></span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#ContrastSensitivity6d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.ContrastSensitivity6d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.benchmark.problem.LSEProblemWithEdgeLogging" title="aepsych.benchmark.problem.LSEProblemWithEdgeLogging"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSEProblemWithEdgeLogging</span></code></a></p>
+<p>Uses a surrogate model fit to real data from a constrast sensitivity study.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.ContrastSensitivity6d.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'contrast_sensitivity_6d'</span></em><a class="headerlink" href="#aepsych.benchmark.ContrastSensitivity6d.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.ContrastSensitivity6d.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.75</span></em><a class="headerlink" href="#aepsych.benchmark.ContrastSensitivity6d.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.benchmark.ContrastSensitivity6d.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">tensor([[-1.5000,</span> <span class="pre">-1.5000,</span>  <span class="pre">0.0000,</span>  <span class="pre">0.5000,</span>  <span class="pre">1.0000,</span>  <span class="pre">0.0000],</span>         <span class="pre">[</span> <span class="pre">0.0000,</span>  <span class="pre">0.0000,</span> <span class="pre">20.0000,</span>  <span class="pre">7.0000,</span> <span class="pre">10.0000,</span> <span class="pre">10.0000]])</span></em><a class="headerlink" href="#aepsych.benchmark.ContrastSensitivity6d.bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.benchmark.ContrastSensitivity6d.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/benchmark/example_problems.html#ContrastSensitivity6d.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.benchmark.ContrastSensitivity6d.f" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 </section>
 </section>

@@ -167,17 +167,17 @@
     <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">amp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">context</span></div>
 
 
-<div class="viewcode-block" id="novel_detection_testfun"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.novel_detection_testfun">[docs]</a><span class="k">def</span> <span class="nf">novel_detection_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="novel_detection_testfun"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.novel_detection_testfun">[docs]</a><span class="k">def</span> <span class="nf">novel_detection_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Evaluate novel detection test function from Owen et al.</span>
 
 <span class="sd">    The threshold is roughly parabolic with context, and the slope</span>
 <span class="sd">    varies with the threshold.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        x (np.ndarray): Points at which to evaluate.</span>
+<span class="sd">        x (np.ndarray, torch.Tensor): Points at which to evaluate.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        np.ndarray: Value of function at these points.</span>
+<span class="sd">        np.ndarray, torch.Tensor: Value of function at these points.</span>
 <span class="sd">    """</span>
     <span class="n">freq</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">amp</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
@@ -185,7 +185,7 @@
     <span class="k">return</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">amp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">context</span> <span class="o">-</span> <span class="mi">4</span></div>
 
 
-<div class="viewcode-block" id="discrim_highdim"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.discrim_highdim">[docs]</a><span class="k">def</span> <span class="nf">discrim_highdim</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="discrim_highdim"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.test_functions.discrim_highdim">[docs]</a><span class="k">def</span> <span class="nf">discrim_highdim</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">amp</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">freq</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">vscale</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
