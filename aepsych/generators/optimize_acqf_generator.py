@@ -14,15 +14,28 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition import AcquisitionFunction
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from botorch.optim import optimize_acqf
+from botorch.acquisition import (
+    AcquisitionFunction,
+    NoisyExpectedImprovement,
+    qNoisyExpectedImprovement,
+    LogNoisyExpectedImprovement,
+    qLogNoisyExpectedImprovement,
+)
 
 logger = getLogger()
 
 
 class OptimizeAcqfGenerator(AEPsychGenerator):
     """Generator that chooses points by minimizing an acquisition function."""
+
+    baseline_requiring_acqfs = [
+        NoisyExpectedImprovement,
+        LogNoisyExpectedImprovement,
+        qNoisyExpectedImprovement,
+        qLogNoisyExpectedImprovement,
+    ]
 
     def __init__(
         self,
@@ -57,9 +70,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             return self.acqf(pref_model=model)
 
         if self.acqf in self.baseline_requiring_acqfs:
-            return self.acqf(
-                model=model, X_baseline=model.train_inputs[0], **self.acqf_kwargs
-            )
+            return self.acqf(model, model.train_inputs[0], **self.acqf_kwargs)
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
