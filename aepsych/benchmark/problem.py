@@ -4,16 +4,15 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-
 from functools import cached_property
 from typing import Any, Dict, Union
 
 import aepsych
 import numpy as np
 import torch
+from scipy.stats import bernoulli, norm, pearsonr
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.utils import make_scaled_sobol
-from scipy.stats import bernoulli, norm, pearsonr
 
 
 class Problem:
@@ -280,4 +279,41 @@ class LSEProblem(Problem):
             + (1 - p_l) * self.true_below_threshold
         )
 
+        return metrics
+
+
+"""
+The LSEProblemWithEdgeLogging class is copied from bernoulli_lse github repository
+(https://github.com/facebookresearch/bernoulli_lse) by Letham et al. 2022.
+"""
+
+
+class LSEProblemWithEdgeLogging(LSEProblem):
+    eps = 0.05
+
+    def evaluate(self, strat):
+        metrics = super().evaluate(strat)
+
+        # add number of edge samples to the log
+
+        # get the trials selected by the final strat only
+        n_opt_trials = strat.strat_list[-1].n_trials
+
+        lb, ub = strat.lb, strat.ub
+        r = ub - lb
+        lb2 = lb + self.eps * r
+        ub2 = ub - self.eps * r
+
+        near_edge = (
+            np.logical_or(
+                (strat.x[-n_opt_trials:, :] <= lb2), (strat.x[-n_opt_trials:, :] >= ub2)
+            )
+            .any(axis=-1)
+            .double()
+        )
+
+        metrics["prop_edge_sampling_mean"] = near_edge.mean().item()
+        metrics["prop_edge_sampling_err"] = (
+            2 * near_edge.std() / np.sqrt(len(near_edge))
+        ).item()
         return metrics

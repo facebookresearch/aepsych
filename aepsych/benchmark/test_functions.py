@@ -149,17 +149,17 @@ def novel_discrimination_testfun(x: np.ndarray) -> np.ndarray:
     return 2 * (amp + 1) / context
 
 
-def novel_detection_testfun(x: np.ndarray) -> np.ndarray:
+def novel_detection_testfun(x):
     """Evaluate novel detection test function from Owen et al.
 
     The threshold is roughly parabolic with context, and the slope
     varies with the threshold.
 
     Args:
-        x (np.ndarray): Points at which to evaluate.
+        x (np.ndarray, torch.Tensor): Points at which to evaluate.
 
     Returns:
-        np.ndarray: Value of function at these points.
+        np.ndarray, torch.Tensor: Value of function at these points.
     """
     freq = x[..., 0]
     amp = x[..., 1]
@@ -167,7 +167,7 @@ def novel_detection_testfun(x: np.ndarray) -> np.ndarray:
     return 4 * (amp + 1) / context - 4
 
 
-def discrim_highdim(x: np.ndarray) -> np.ndarray:
+def discrim_highdim(x):
     amp = x[..., 0]
     freq = x[..., 1]
     vscale = x[..., 2]
