@@ -32,15 +32,28 @@
 <span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span> <span class="nn">botorch.acquisition</span> <span class="kn">import</span> <span class="n">AcquisitionFunction</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.preference</span> <span class="kn">import</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span>
 <span class="kn">from</span> <span class="nn">botorch.optim</span> <span class="kn">import</span> <span class="n">optimize_acqf</span>
+<span class="kn">from</span> <span class="nn">botorch.acquisition</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AcquisitionFunction</span><span class="p">,</span>
+    <span class="n">NoisyExpectedImprovement</span><span class="p">,</span>
+    <span class="n">qNoisyExpectedImprovement</span><span class="p">,</span>
+    <span class="n">LogNoisyExpectedImprovement</span><span class="p">,</span>
+    <span class="n">qLogNoisyExpectedImprovement</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="OptimizeAcqfGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator">[docs]</a><span class="k">class</span> <span class="nc">OptimizeAcqfGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Generator that chooses points by minimizing an acquisition function."""</span>
+
+    <span class="n">baseline_requiring_acqfs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">NoisyExpectedImprovement</span><span class="p">,</span>
+        <span class="n">LogNoisyExpectedImprovement</span><span class="p">,</span>
+        <span class="n">qNoisyExpectedImprovement</span><span class="p">,</span>
+        <span class="n">qLogNoisyExpectedImprovement</span><span class="p">,</span>
+    <span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -75,9 +88,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">pref_model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_requiring_acqfs</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span>
-                <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">X_baseline</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span>
-            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
 

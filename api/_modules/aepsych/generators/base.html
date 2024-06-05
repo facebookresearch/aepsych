@@ -32,6 +32,8 @@
     <span class="n">AcquisitionFunction</span><span class="p">,</span>
     <span class="n">NoisyExpectedImprovement</span><span class="p">,</span>
     <span class="n">qNoisyExpectedImprovement</span><span class="p">,</span>
+    <span class="n">LogNoisyExpectedImprovement</span><span class="p">,</span>
+    <span class="n">qLogNoisyExpectedImprovement</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -49,7 +51,12 @@
 <span class="w">    </span><span class="sd">"""Abstract base class for generators, which are responsible for generating new points to sample."""</span>
 
     <span class="n">_requires_model</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">baseline_requiring_acqfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">qNoisyExpectedImprovement</span><span class="p">,</span> <span class="n">NoisyExpectedImprovement</span><span class="p">]</span>
+    <span class="n">baseline_requiring_acqfs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">qNoisyExpectedImprovement</span><span class="p">,</span>
+        <span class="n">NoisyExpectedImprovement</span><span class="p">,</span>
+        <span class="n">qLogNoisyExpectedImprovement</span><span class="p">,</span>
+        <span class="n">LogNoisyExpectedImprovement</span><span class="p">,</span>
+    <span class="p">]</span>
     <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">max_asks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
