@@ -7,7 +7,13 @@
 
 from .benchmark import Benchmark, DerivedValue
 from .pathos_benchmark import PathosBenchmark, run_benchmarks_with_checkpoints
-from .problem import LSEProblem, Problem
+from .problem import LSEProblem, LSEProblemWithEdgeLogging, Problem
+from .example_problems import (
+    DiscrimLowDim,
+    DiscrimHighDim,
+    Hartmann6Binary,
+    ContrastSensitivity6d,
+)
 from .test_functions import (
     discrim_highdim,
     make_songetal_testfun,
@@ -23,10 +29,15 @@ __all__ = [
     "PathosBenchmark",
     "Problem",
     "LSEProblem",
+    "LSEProblemWithEdgeLogging",
     "make_songetal_testfun",
     "novel_detection_testfun",
     "novel_discrimination_testfun",
     "modified_hartmann6",
     "discrim_highdim",
     "run_benchmarks_with_checkpoints",
+    "DiscrimLowDim",
+    "DiscrimHighDim",
+    "Hartmann6Binary",
+    "ContrastSensitivity6d",
 ]
