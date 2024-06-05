@@ -30,7 +30,7 @@ from aepsych.models import (
 from aepsych.server import AEPsychServer
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.version import __version__
-from botorch.acquisition import qNoisyExpectedImprovement
+from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 
 from aepsych.server.message_handlers.handle_setup import configure
@@ -178,7 +178,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
-        self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
+        self.assertTrue(strat.strat_list[1].generator.acqf is qLogNoisyExpectedImprovement)
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
         )
@@ -540,7 +540,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].model is None)
 
         self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
-        self.assertTrue(strat.strat_list[1].generator.acqf is qNoisyExpectedImprovement)
+        self.assertTrue(strat.strat_list[1].generator.acqf is qLogNoisyExpectedImprovement)
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
         )

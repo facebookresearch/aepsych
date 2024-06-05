@@ -14,6 +14,8 @@ from botorch.acquisition import (
     AcquisitionFunction,
     NoisyExpectedImprovement,
     qNoisyExpectedImprovement,
+    LogNoisyExpectedImprovement,
+    qLogNoisyExpectedImprovement,
 )
 
 
@@ -31,7 +33,12 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     """Abstract base class for generators, which are responsible for generating new points to sample."""
 
     _requires_model = True
-    baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
+    baseline_requiring_acqfs = [
+        qNoisyExpectedImprovement,
+        NoisyExpectedImprovement,
+        qLogNoisyExpectedImprovement,
+        LogNoisyExpectedImprovement,
+    ]
     stimuli_per_trial = 1
     max_asks: Optional[int] = None
 
