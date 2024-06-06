@@ -6,6 +6,7 @@
 import abc
 from inspect import signature
 from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar, Optional
+import re
 
 import torch
 from aepsych.config import Config
@@ -73,9 +74,14 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                 for k in acqf_args_expected:
                     # if this thing is configured
                     if k in full_section.keys():
+                        v = config.get(acqf_name, k)
                         # if it's an object make it an object
                         if full_section[k] in Config.registered_names.keys():
                             extra_acqf_args[k] = config.getobj(acqf_name, k)
+                        elif re.search(
+                            r"^\[.*\]$", v, flags=re.DOTALL
+                        ):  # use regex to check if the value is a list
+                            extra_acqf_args[k] = config._str_to_list(v) # type: ignore
                         else:
                             # otherwise try a float
                             try:
