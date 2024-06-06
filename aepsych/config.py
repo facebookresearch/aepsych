@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 import ast
+import re
 import configparser
 import json
 import warnings
@@ -163,7 +164,9 @@ class Config(configparser.ConfigParser):
             del self["experiment"]
 
     def _str_to_list(self, v: str, element_type: _T = float) -> List[_T]:
-        if v[0] == "[" and v[-1] == "]":
+        v = re.sub(r"\n ", ",", v)
+        v = re.sub(r"(?<!,)\s+", ",", v)
+        if re.search(r"^\[.*\]$", v, flags=re.DOTALL):
             if v == "[]":  # empty list
                 return []
             else:
