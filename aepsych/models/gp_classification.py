@@ -104,15 +104,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         super().__init__(variational_strategy)
 
         if mean_module is None or covar_module is None:
-            config = Config(
-                config_dict={
-                    "default_mean_covar_factory": {
-                        "lb": str(self.lb.tolist()),
-                        "ub": str(self.ub.tolist()),
-                    }
-                }
-            )  # type: ignore
-            default_mean, default_covar = default_mean_covar_factory(config)
+            default_mean, default_covar = default_mean_covar_factory(dim=self.dim)
 
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
@@ -292,6 +284,11 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
         else:
             return promote_0d(fmean), promote_0d(fvar)
+
+    def predict_probability(
+        self, x: Union[torch.Tensor, np.ndarray]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.predict(x, probability_space=True)
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit."""

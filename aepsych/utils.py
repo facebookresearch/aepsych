@@ -11,7 +11,6 @@ from typing import Dict, List, Mapping, Optional, Tuple
 
 import numpy as np
 import torch
-from ax.service.utils.instantiation import ObjectiveProperties
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
 
@@ -35,11 +34,9 @@ def promote_0d(x):
 def dim_grid(
     lower: torch.Tensor,
     upper: torch.Tensor,
-    dim: int,
     gridsize: int = 30,
     slice_dims: Optional[Mapping[int, float]] = None,
 ) -> torch.Tensor:
-
     """Create a grid
     Create a grid based on lower, upper, and dim.
     Parameters
@@ -56,7 +53,7 @@ def dim_grid(
     """
     slice_dims = slice_dims or {}
 
-    lower, upper, _ = _process_bounds(lower, upper, None)
+    lower, upper, dim = _process_bounds(lower, upper, None)
 
     mesh_vals = []
 
@@ -131,7 +128,6 @@ def get_lse_interval(
     gridsize=30,
     **kwargs,
 ):
-
     xgrid = torch.Tensor(
         np.mgrid[
             [
@@ -155,7 +151,6 @@ def get_lse_interval(
     if cred_level is None:
         return np.mean(contours, 0.5, axis=0)
     else:
-
         alpha = 1 - cred_level
         qlower = alpha / 2
         qupper = 1 - alpha / 2
@@ -261,6 +256,30 @@ def get_parameters(config) -> List[Dict]:
     return range_params + choice_params + fixed_params
 
 
+def get_bounds(config) -> torch.Tensor:
+    range_params, choice_params, _ = _get_ax_parameters(config)
+    # Need to sum dimensions added by both range and choice parameters
+    bounds = [parm["bounds"] for parm in range_params]
+    for par in choice_params:
+        n_vals = len(par["values"])
+        if par["is_ordered"]:
+            bounds.append(
+                [0, 1]
+            )  # Ordered choice params are encoded like continuous parameters
+        elif n_vals > 2:
+            for _ in range(n_vals):
+                bounds.append(
+                    [0, 1]
+                )  # Choice parameter is one-hot encoded such that they add 1 dim for every choice
+        else:
+            for _ in range(n_vals - 1):
+                bounds.append(
+                    [0, 1]
+                )  # Choice parameters with n_choices <= 2 add n_choices - 1 dims
+
+    return torch.tensor(bounds)
+
+
 def get_dim(config) -> int:
     range_params, choice_params, _ = _get_ax_parameters(config)
     # Need to sum dimensions added by both range and choice parameters
@@ -278,30 +297,3 @@ def get_dim(config) -> int:
             )  # Choice parameters with n_choices < 3 add n_choices - 1 dims
 
     return dim
-
-
-def get_objectives(config) -> Dict:
-    outcome_types: List[str] = config.getlist(
-        "common", "outcome_types", element_type=str
-    )
-    if len(outcome_types) > 1:
-        for out_type in outcome_types:
-            assert (
-                out_type == "continuous"
-            ), "Multiple outcomes is only currently supported for continuous outcomes!"
-
-    outcome_names: List[str] = config.getlist(
-        "common", "outcome_names", element_type=str, fallback=None
-    )
-    if outcome_names is None:
-        outcome_names = [f"outcome_{i+1}" for i in range(len(outcome_types))]
-
-    objectives = {}
-    for out_name in outcome_names:
-        minimize = config.getboolean(out_name, "minimize", fallback=False)
-        threshold = config.getfloat(out_name, "threshold", fallback=None)
-        objectives[out_name] = ObjectiveProperties(
-            minimize=minimize, threshold=threshold
-        )
-
-    return objectives

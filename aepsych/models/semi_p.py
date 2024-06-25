@@ -74,7 +74,7 @@ def semi_p_posterior_transform(posterior):
         offset_cov=offset_cov,
     )
     approx_mvn = MultivariateNormal(mean=approx_mean, covariance_matrix=approx_cov)
-    return GPyTorchPosterior(mvn=approx_mvn)
+    return GPyTorchPosterior(distribution=approx_mvn)
 
 
 class SemiPPosterior(GPyTorchPosterior):
@@ -111,11 +111,16 @@ class SemiPPosterior(GPyTorchPosterior):
         sample_shape: Optional[torch.Size] = None,
         base_samples: Optional[torch.Tensor] = None,
     ):
-        kcsamps = (
-            super()
-            .rsample(sample_shape=sample_shape, base_samples=base_samples)
-            .squeeze(-1)
-        )
+        if base_samples is None:
+            samps_ = super().rsample(sample_shape=sample_shape)
+        else:
+            samps_ = super().rsample_from_base_samples(
+                sample_shape=sample_shape,
+                base_samples=base_samples.expand(
+                    self._extended_shape(sample_shape)
+                ).squeeze(-1),
+            )
+        kcsamps = samps_.squeeze(-1)
         # fsamps is of shape nsamp x 2 x n, or nsamp x b x 2 x n
         return kcsamps
 
@@ -275,8 +280,10 @@ class SemiParametricGPModel(GPClassificationModel):
 
         if hasattr(likelihood_cls, "from_config"):
             likelihood = likelihood_cls.from_config(config)
-        else:
+        elif likelihood_cls is not None:
             likelihood = likelihood_cls()
+        else:
+            likelihood = None
 
         stim_dim = config.getint(classname, "stim_dim", fallback=0)
 

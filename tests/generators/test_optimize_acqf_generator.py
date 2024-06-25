@@ -12,13 +12,11 @@ import numpy as np
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
-from aepsych.generators import AxOptimizeAcqfGenerator, OptimizeAcqfGenerator
+from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import (
-    ContinuousRegressionGP,
     GPClassificationModel,
     PairwiseProbitModel,
 )
-from ax.modelbridge import Models
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 
@@ -85,49 +83,6 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         model.fit(train_x, train_y)
         acqf = generator._instantiate_acquisition_fn(model=model)
         self.assertTrue(isinstance(acqf, AnalyticExpectedUtilityOfBestOption))
-
-    def test_axoptimizeacqf_config(self):
-        config_str = """
-                [common]
-                use_ax = True
-                parnames = [foo]
-                lb = [0]
-                ub = [1]
-                stimuli_per_trial = 1
-                outcome_types = [continuous]
-                strat_names = [opt]
-
-                [opt]
-                generator = OptimizeAcqfGenerator
-                model = ContinuousRegressionGP
-
-                [ContinuousRegressionGP]
-                max_fit_time = 1
-
-                [OptimizeAcqfGenerator]
-                acqf = MCLevelSetEstimation
-                max_gen_time = 1
-                restarts = 1
-                samps = 100
-
-                [MCLevelSetEstimation]
-                beta = 1
-                target = 0.5
-                """
-
-        config = Config(config_str=config_str)
-        gen = AxOptimizeAcqfGenerator.from_config(config, "opt")
-
-        self.assertEqual(gen.model, Models.BOTORCH_MODULAR)
-
-        self.assertEqual(
-            gen.model_kwargs["surrogate"].botorch_model_class, ContinuousRegressionGP
-        )
-        self.assertEqual(gen.model_gen_kwargs["restarts"], 1)
-        self.assertEqual(gen.model_gen_kwargs["samps"], 100)
-        self.assertEqual(gen.model_kwargs["acquisition_options"]["target"], 0.5)
-        self.assertEqual(gen.model_kwargs["acquisition_options"]["beta"], 1.0)
-        # TODO: Implement max_gen_time
 
 
 if __name__ == "__main__":

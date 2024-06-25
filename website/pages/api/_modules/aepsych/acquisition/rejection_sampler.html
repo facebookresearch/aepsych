@@ -26,7 +26,7 @@
 
 
 <div class="viewcode-block" id="RejectionSampler"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.rejection_sampler.RejectionSampler">[docs]</a><span class="k">class</span> <span class="nc">RejectionSampler</span><span class="p">(</span><span class="n">MCSampler</span><span class="p">):</span>
-    <span class="sd">"""</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Samples from a posterior subject to the constraint that samples in constrained_idx</span>
 <span class="sd">    should be &gt;= 0.</span>
 
@@ -37,7 +37,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_rejection_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">constrained_idx</span><span class="p">:</span> <span class="n">Tensor</span>
     <span class="p">):</span>
-        <span class="sd">"""Initialize RejectionSampler</span>
+<span class="w">        </span><span class="sd">"""Initialize RejectionSampler</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            num_samples (int): Number of samples to return. Note that if fewer samples</span>
@@ -53,7 +53,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">num_samples</span><span class="p">]))</span>
 
 <div class="viewcode-block" id="RejectionSampler.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.rejection_sampler.RejectionSampler.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posterior</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Run the rejection sampler.</span>
+<span class="w">        </span><span class="sd">"""Run the rejection sampler.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            posterior (Posterior): The unconstrained GP posterior object</span>

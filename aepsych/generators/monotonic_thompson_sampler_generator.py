@@ -71,8 +71,8 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         if self.explore_features is not None:
             for idx in self.explore_features:
                 val = (
-                    model.bounds_[0, idx]
-                    + torch.rand(1) * (model.bounds_[1, idx] - model.bounds_[0, idx])
+                    model.bounds_[0, idx]  # type: ignore
+                    + torch.rand(1) * (model.bounds_[1, idx] - model.bounds_[0, idx])  # type: ignore
                 ).item()
                 X[:, idx] = val
 

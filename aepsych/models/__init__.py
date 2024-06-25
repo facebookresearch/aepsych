@@ -8,7 +8,6 @@
 import sys
 
 from ..config import Config
-from .exact_gp import ContinuousRegressionGP, ExactGP
 from .gp_classification import GPBetaRegressionModel, GPClassificationModel
 from .gp_regression import GPRegressionModel
 from .monotonic_projection_gp import MonotonicProjectionGP
@@ -21,8 +20,6 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
-from .variational_gp import BetaRegressionGP, BinaryClassificationGP, OrdinalGP, VariationalGP
-
 
 
 __all__ = [
@@ -32,17 +29,11 @@ __all__ = [
     "PairwiseProbitModel",
     "OrdinalGPModel",
     "MonotonicProjectionGP",
-    "VariationalGP",
-    "BinaryClassificationGP",
-    "BetaRegressionGP",
-    "ExactGP",
-    "ContinuousRegressionGP",
     "MultitaskGPRModel",
     "IndependentMultitaskGPRModel",
     "HadamardSemiPModel",
     "SemiParametricGPModel",
     "semi_p_posterior_transform",
-    "OrdinalGP",
     "GPBetaRegressionModel",
 ]
 

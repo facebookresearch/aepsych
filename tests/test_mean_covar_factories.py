@@ -21,11 +21,7 @@ from scipy.stats import norm
 
 
 class TestFactories(unittest.TestCase):
-    def test_default_factory_1d(self):
-
-        conf = {"default_mean_covar_factory": {"lb": [0], "ub": [1]}}
-        config = Config(config_dict=conf)
-        meanfun, covarfun = default_mean_covar_factory(config)
+    def _test_mean_covar(self, meanfun, covarfun):
         self.assertTrue(covarfun.base_kernel.ard_num_dims == 1)
         self.assertTrue(meanfun.constant.requires_grad)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
@@ -43,6 +39,17 @@ class TestFactories(unittest.TestCase):
             )
         )
         self.assertTrue(isinstance(covarfun.base_kernel, gpytorch.kernels.RBFKernel))
+
+    def test_default_factory_1d_config(self):
+        config = Config(
+            config_dict={"default_mean_covar_factory": {"lb": [0], "ub": [1]}}
+        )
+        meanfun, covarfun = default_mean_covar_factory(config=config)
+        self._test_mean_covar(meanfun, covarfun)
+
+    def test_default_factory_1d_dim(self):
+        meanfun, covarfun = default_mean_covar_factory(dim=1)
+        self._test_mean_covar(meanfun, covarfun)
 
     def test_default_factory_args_1d(self):
 
@@ -109,6 +116,15 @@ class TestFactories(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 config = Config(conf)
                 _, __ = default_mean_covar_factory(config)
+
+        with self.assertRaises(AssertionError):
+            default_mean_covar_factory()
+
+        config = Config(
+            config_dict={"default_mean_covar_factory": {"lb": [0], "ub": [1]}}
+        )
+        with self.assertRaises(AssertionError):
+            default_mean_covar_factory(config=config, dim=2)
 
     def test_default_factory_2d(self):
         conf = {"default_mean_covar_factory": {"lb": [-2, 3], "ub": [1, 10]}}

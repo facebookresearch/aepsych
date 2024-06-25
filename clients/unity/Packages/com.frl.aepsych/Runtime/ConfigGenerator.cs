@@ -1,10 +1,4 @@
-﻿/*
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the
- * LICENSE file in the root directory of this source tree.
- */
+﻿// (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
 
 using System.Collections;
 using System.Collections.Generic;
@@ -170,7 +164,7 @@ public class ConfigGenerator: MonoBehaviour
                 {
                     combo[2] = method;
 
-                    // ensure last modified value remains intact 
+                    // ensure last modified value remains intact
                     combo[lastChanged] = lastChangedVal;
 
                     // Check combo validity
@@ -264,7 +258,7 @@ public class ConfigGenerator: MonoBehaviour
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
                 outcome_type = "binary";
-                acqf = "qNoisyExpectedImprovement";
+                acqf = "qLogNoisyExpectedImprovement";
                 model = "GPClassificationModel";
                 mean_covar_factory = "default_mean_covar_factory";
                 objective = "ProbitObjective";
@@ -284,7 +278,7 @@ public class ConfigGenerator: MonoBehaviour
                 init_generator = "SobolGenerator";
                 opt_generator = "OptimizeAcqfGenerator";
                 outcome_type = "continuous";
-                acqf = "qNoisyExpectedImprovement";
+                acqf = "qLogNoisyExpectedImprovement";
                 model = "GPRegressionModel";
                 target = -1f;
                 specifyAcqf = false;
@@ -302,7 +296,7 @@ public class ConfigGenerator: MonoBehaviour
                 init_generator = "PairwiseSobolGenerator";
                 opt_generator = "PairwiseOptimizeAcqfGenerator";
                 outcome_type = "binary";
-                acqf = "qNoisyExpectedImprovement";
+                acqf = "qLogNoisyExpectedImprovement";
                 model = "PairwiseProbitModel";
                 mean_covar_factory = "default_mean_covar_factory";
                 objective = "ProbitObjective";
@@ -398,7 +392,7 @@ public class ConfigGenerator: MonoBehaviour
                 sb.Append("beta = " + beta + "\n");
             sb.Append("objective = " + objective + "\n");
         }
-        
+
         return sb.ToString();
     }
 
@@ -413,7 +407,7 @@ public class ConfigGenerator: MonoBehaviour
             finalPath = Path.Combine(Application.streamingAssetsPath, "configs/" + experimentName + ".ini");
             relativePath = Path.Combine("Assets/StreamingAssets/configs/" + experimentName + ".ini");
         }
-            
+
         else
             finalPath = Path.Combine(Application.streamingAssetsPath, GetManualConfigPath());
 

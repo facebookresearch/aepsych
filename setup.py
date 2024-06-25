@@ -9,39 +9,40 @@ import os
 
 from setuptools import find_packages, setup
 
-root_dir = os.path.dirname(__file__)
-
 REQUIRES = [
     "matplotlib",
     "torch",
-    "pyzmq==19.0.2",
     "scipy",
-    "scikit-learn",
     "SQLAlchemy==1.4.46",
     "dill",
     "pandas",
-    "tqdm",
-    "pathos",
-    "aepsych_client>=0.2.0",
-    "voila==0.3.6",
-    "ipywidgets==7.6.5",
+    "aepsych_client==0.3.0",
     "statsmodels",
-    "ax-platform>=0.3.1",
+    "botorch==0.11.0",
 ]
 
-DEV_REQUIRES = [
+BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess"]
+
+DEV_REQUIRES = BENCHMARK_REQUIRES + [
     "coverage",
     "flake8",
     "black",
-    "numpy>=1.20, " "sqlalchemy-stubs",  # for mypy stubs
+    "numpy>=1.20",
+    "sqlalchemy-stubs",  # for mypy stubs
     "mypy",
     "parameterized",
+    "scikit-learn",  # used in unit tests
 ]
 
-with open(os.path.join(root_dir, "README.md"), "r") as fh:
+VISUALIZER_REQUIRES = [
+    "voila==0.3.6",
+    "ipywidgets==7.6.5",
+]
+
+with open("Readme.md", "r") as fh:
     long_description = fh.read()
 
-with open(os.path.join(root_dir, "aepsych", "version.py"), "r") as fh:
+with open(os.path.join("aepsych", "version.py"), "r") as fh:
     for line in fh.readlines():
         if line.startswith("__version__"):
             version = line.split('"')[1]
@@ -56,16 +57,15 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=REQUIRES,
+    extras_require={
+        "dev": DEV_REQUIRES,
+        "benchmark": BENCHMARK_REQUIRES,
+        "visualizer": VISUALIZER_REQUIRES,
+    },
     entry_points={
         "console_scripts": [
             "aepsych_server = aepsych.server.server:main",
             "aepsych_database = aepsych.server.utils:main",
         ],
-    },
-)
-
-extras_require = (
-    {
-        "dev": DEV_REQUIRES,
     },
 )

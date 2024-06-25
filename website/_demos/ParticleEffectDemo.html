@@ -1,0 +1,39 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<div class="notebook">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Particle-Effect-Demo">Particle Effect Demo<a class="anchor-link" href="#Particle-Effect-Demo">¶</a></h2><video controls="" muted="" style="width: 100%;">
+<source alt="Particle Effects Demo" src="https://github.com/facebookresearch/aepsych/assets/80999718/f03bd171-fa19-449c-8807-af891cc8629c" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video><p><strong>Description</strong></p>
+<p>This demo showcases a 5-dimensional perceptual optimization, where the optimal condition has a high degree of subjectivity. Each trial, AEPsych generates two new random particle effects by modifying particle hue, initial speed, gravity, glow, and lifetime. The user is then prompted with a subjective pairwise evaluation to indicate which of the two generated particles are more optimal, in this case: “which of the two particles looks more like fire?”. Within about 30 repetitions, AEPsych builds a reasonable Gaussian distribution to predict the parameter combinations of a fire particle effect. This showcases AEPsych’s ability to perform high-dimensional subjective optimizations of arbitrary conditions with relatively sparse data.</p>
+<p><strong>Output</strong></p>
+<p>By adjusting the evaluation condition, AEPsych can produce vastly different outputs. Here’s two examples of AEPsych’s optimal parameter suggestion after optimizing for water vs fire:</p>
+<div style="text-align: center;">
+<img alt="Water Demo GIF" src="https://github.com/facebookresearch/aepsych/assets/80999718/083b03c2-a7ed-43ed-9884-ed6665b1bc4f" width="300"/>
+<img alt="Fire Demo GIF" src="https://github.com/facebookresearch/aepsych/assets/80999718/253f03e0-a3b1-42b8-a95a-dfb6b139f4dd" width="300"/>
+</div><p><strong>Requirements</strong></p>
+<p>Windows or MacOS, and a local installation of the AEPsych server.</p>
+<p><strong>Installation</strong></p>
+<p>Download the .zip file that corresponds to your operating system
+Right click the .zip archive, and “Extract All” to somewhere on your computer
+Start your local AEPsych server
+Open the extracted archive directory, double click the ‘aepsych_unity.exe’ application</p>
+<h3>Download</h3>
+<div class="tutorialButtonWrapper buttonWrapper">
+  <a class="tutorialButton button" href="https://github.com/facebookresearch/aepsych/files/12034005/ParticleEffectDemo_Win.zip" download target="_blank">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="file-download" class="svg-inline--fa fa-file-download fa-w-12" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm76.45 211.36l-96.42 95.7c-6.65 6.61-17.39 6.61-24.04 0l-96.42-95.7C73.42 337.29 80.54 320 94.82 320H160v-80c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v80h65.18c14.28 0 21.4 17.29 11.27 27.36zM377 105L279.1 7c-4.5-4.5-10.6-7-17-7H256v128h128v-6.1c0-6.3-2.5-12.4-7-16.9z"></path></svg>
+    Download Win Demo
+  </a>
+  <a class="tutorialButton button" href="https://github.com/facebookresearch/aepsych/blob/main/demos/ParticleEffectDemo_Mac.zip" download target="_blank">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="file-download" class="svg-inline--fa fa-file-download fa-w-12" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm76.45 211.36l-96.42 95.7c-6.65 6.61-17.39 6.61-24.04 0l-96.42-95.7C73.42 337.29 80.54 320 94.82 320H160v-80c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v80h65.18c14.28 0 21.4 17.29 11.27 27.36zM377 105L279.1 7c-4.5-4.5-10.6-7-17-7H256v128h128v-6.1c0-6.3-2.5-12.4-7-16.9z"></path></svg>
+    Download Mac Demo
+  </a>
+</div>
+</div>
+</div>
+</div>
+</div>

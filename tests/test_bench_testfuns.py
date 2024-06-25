@@ -15,7 +15,7 @@ from aepsych.utils import dim_grid
 class BenchmarkTestCase(unittest.TestCase):
     def test_songetal_funs_smoke(self):
         valid_phenotypes = ["Metabolic", "Sensory", "Metabolic+Sensory", "Older-normal"]
-        grid = dim_grid(lower=[-3, -20], upper=[4, 120], dim=2, gridsize=30)
+        grid = dim_grid(lower=[-3, -20], upper=[4, 120], gridsize=30)
         try:
             for phenotype in valid_phenotypes:
                 testfun = make_songetal_testfun(phenotype=phenotype)

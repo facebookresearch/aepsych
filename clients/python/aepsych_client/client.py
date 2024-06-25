@@ -7,13 +7,15 @@
 import json
 import socket
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from aepsych.server import AEPsychServer
 
+
 class ServerError(RuntimeError):
     pass
+
 
 class AEPsychClient:
     def __init__(
@@ -55,7 +57,7 @@ class AEPsychClient:
         """Loads the config index when server is not None"""
         self.configs = []
         for i in range(self.server.n_strats):
-                    self.configs.append(i)
+            self.configs.append(i)
 
     def connect(self, ip: str, port: int) -> None:
         """Connect to the server.
@@ -87,26 +89,67 @@ class AEPsychClient:
 
         return response
 
-    def ask(self) -> Dict[str, Any]:
+    def ask(
+        self, num_points: int = 1
+    ) -> Union[Dict[str, List[float]], Dict[int, Dict[str, Any]]]:
         """Get next configuration from server.
 
+        Args:
+            num_points[int]: Number of points to return.
+
         Returns:
-            Dict[str, str]: Next configuration to evaluate.
+            Dict[int, Dict[str, Any]]: Next configuration(s) to evaluate.
+            If using the legacy backend, this is formatted as a dictionary where keys are parameter names and values
+            are lists of parameter values.
+            If using the Ax backend, this is formatted as a dictionary of dictionaries where the outer keys are trial indices,
+            the inner keys are parameter names, and the values are parameter values.
         """
-        request = {"message": "", "type": "ask", "version": "0.01"}
+        request = {"message": {"num_points": num_points}, "type": "ask"}
         response = self._send_recv(request)
         if isinstance(response, str):
             response = json.loads(response)
         return response
 
-    def tell(
+    def tell_trial_by_index(
         self,
-        config: Dict[str, List[Any]],
+        trial_index: int,
         outcome: int,
         model_data: bool = True,
         **metadata: Dict[str, Any],
     ) -> None:
-        """Update the server on a configuration that was executed.
+        """Update the server on a trial that already has a trial index, as provided by `ask`.
+
+        Args:
+            outcome (int): Outcome that was obtained.
+            model_data (bool): If True, the data will be recorded in the db and included in the server's model. If False,
+                the data will be recorded in the db, but will not be used by the model. Defaults to True.
+            trial_index (int): The associated trial index of the config.
+            metadata (optional kwargs) is passed to the extra_info field on the server.
+
+        Raises:
+            AssertionError if server failed to acknowledge the tell.
+        """
+
+        request = {
+            "type": "tell",
+            "message": {
+                "outcome": outcome,
+                "model_data": model_data,
+                "trial_index": trial_index,
+            },
+            "extra_info": metadata,
+        }
+        self._send_recv(request)
+
+    def tell(
+        self,
+        config: Dict[str, List[Any]],
+        outcome: Union[float, Dict[str, float]],
+        model_data: bool = True,
+        **metadata: Dict[str, Any],
+    ) -> None:
+        """Update the server on a configuration that was executed. Use this method when using the legacy backend or for
+        manually-generated trials without an associated trial_index when uding the Ax backend.
 
         Args:
             config (Dict[str, str]): Config that was evaluated.
@@ -121,7 +164,11 @@ class AEPsychClient:
 
         request = {
             "type": "tell",
-            "message": {"config": config, "outcome": outcome, "model_data": model_data},
+            "message": {
+                "config": config,
+                "outcome": outcome,
+                "model_data": model_data,
+            },
             "extra_info": metadata,
         }
         self._send_recv(request)
@@ -151,7 +198,6 @@ class AEPsychClient:
             ), "if config_str is passed, don't pass config_path"
         request = {
             "type": "setup",
-            "version": "0.01",
             "message": {"config_str": config_str},
         }
         idx = int(self._send_recv(request))
@@ -183,10 +229,34 @@ class AEPsychClient:
             config_id = self.config_names[config_name]
         request = {
             "type": "resume",
-            "version": "0.01",
             "message": {"strat_id": config_id},
         }
         self._send_recv(request)
+
+    def query(
+        self,
+        query_type="max",
+        probability_space=False,
+        x=None,
+        y=None,
+        constraints=None,
+        max_time=None,
+    ):
+        request = {
+            "type": "query",
+            "message": {
+                "query_type": query_type,
+                "probability_space": probability_space,
+                "x": x,
+                "y": y,
+                "constraints": constraints,
+                "max_time": max_time,
+            },
+        }
+        resp = self._send_recv(request)
+        if isinstance(resp, str):
+            resp = json.loads(resp)
+        return resp["y"], resp["x"]
 
     def __del___(self):
         self.finalize()

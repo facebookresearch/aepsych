@@ -5,20 +5,20 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 from inspect import signature
-from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar
+from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar, Optional
+import re
 
 import torch
-from aepsych.config import Config, ConfigurableMixin
+from aepsych.config import Config
 from aepsych.models.base import AEPsychMixin
-from ax.core.experiment import Experiment
-from ax.modelbridge.generation_node import GenerationStep
 from botorch.acquisition import (
     AcquisitionFunction,
     NoisyExpectedImprovement,
     qNoisyExpectedImprovement,
+    LogNoisyExpectedImprovement,
+    qLogNoisyExpectedImprovement,
 )
 
-from .completion_criterion import completion_criteria
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
@@ -34,8 +34,14 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     """Abstract base class for generators, which are responsible for generating new points to sample."""
 
     _requires_model = True
-    baseline_requiring_acqfs = [qNoisyExpectedImprovement, NoisyExpectedImprovement]
+    baseline_requiring_acqfs = [
+        qNoisyExpectedImprovement,
+        NoisyExpectedImprovement,
+        qLogNoisyExpectedImprovement,
+        LogNoisyExpectedImprovement,
+    ]
     stimuli_per_trial = 1
+    max_asks: Optional[int] = None
 
     def __init__(
         self,
@@ -68,9 +74,14 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                 for k in acqf_args_expected:
                     # if this thing is configured
                     if k in full_section.keys():
+                        v = config.get(acqf_name, k)
                         # if it's an object make it an object
                         if full_section[k] in Config.registered_names.keys():
                             extra_acqf_args[k] = config.getobj(acqf_name, k)
+                        elif re.search(
+                            r"^\[.*\]$", v, flags=re.DOTALL
+                        ):  # use regex to check if the value is a list
+                            extra_acqf_args[k] = config._str_to_list(v) # type: ignore
                         else:
                             # otherwise try a float
                             try:
@@ -90,25 +101,3 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
             extra_acqf_args = {}
 
         return extra_acqf_args
-
-
-class AEPsychGenerationStep(GenerationStep, ConfigurableMixin, abc.ABC):
-    def __init__(self, name, **kwargs):
-        super().__init__(num_trials=-1, **kwargs)
-        self.name = name
-
-    @classmethod
-    def get_config_options(cls, config: Config, name: str) -> Dict:
-        criteria = []
-        for crit in completion_criteria:
-            # TODO: Figure out how to convince mypy that CompletionCriterion have `from_config`
-            criterion = crit.from_config(config, name)  # type: ignore
-            criteria.append(criterion)
-        options = {"completion_criteria": criteria, "name": name}
-        return options
-
-    def finished(self, experiment: Experiment):
-        finished = all(
-            [criterion.is_met(experiment) for criterion in self.completion_criteria]
-        )
-        return finished

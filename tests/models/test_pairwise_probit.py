@@ -14,15 +14,17 @@ import numpy.testing as npt
 import torch
 from aepsych import server, utils_logging
 from aepsych.acquisition.objective import ProbitObjective
+from aepsych.benchmark.test_functions import f_1d, f_2d, f_pairwise, new_novel_det
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import PairwiseProbitModel
+from aepsych.server.message_handlers.handle_ask import ask
+from aepsych.server.message_handlers.handle_setup import configure
+from aepsych.server.message_handlers.handle_tell import tell
 from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 from scipy.stats import bernoulli, norm, pearsonr
-
-from ..common import f_1d, f_2d, f_pairwise, new_novel_det
 
 
 class PairwiseProbitModelStrategyTest(unittest.TestCase):
@@ -296,7 +298,6 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         self.assertTrue(pearsonr(fdiff_test_reref, ftrue_test)[0] >= 0.9)
 
     def test_2d_pairwise_probit(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -346,7 +347,6 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         self.assertTrue(np.all(np.abs(xy[np.argmax(zhat.detach().numpy())]) < 0.2))
 
     def test_2d_pairwise_probit_pure_exploration(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -462,7 +462,6 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             self.s.db.delete_db()
 
     def test_1d_pairwise_server(self):
-
         seed = 123
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -499,14 +498,15 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             """
 
         server = self.s
-        server.configure(
+        configure(
+            server,
             config_str=config_str,
         )
 
         for _i in range(n_init + n_opt):
-            next_config = server.ask()
+            next_config = ask(server)
             next_y = bernoulli.rvs(f_pairwise(f_1d, next_config["x"], noise_scale=0.1))
-            server.tell(config=next_config, outcome=next_y)
+            tell(server, config=next_config, outcome=next_y)
 
         x = torch.linspace(-4, 4, 100)
         zhat, _ = server.strat.predict(x)
@@ -549,14 +549,15 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             """
 
         server = self.s
-        server.configure(
+        configure(
+            server,
             config_str=config_str,
         )
         for _i in range(n_init + n_opt):
-            next_config = server.ask()
+            next_config = ask(server)
             next_pair = np.c_[next_config["x"], next_config["y"]].T
             next_y = bernoulli.rvs(f_pairwise(f_2d, next_pair, noise_scale=0.1))
-            server.tell(config=next_config, outcome=next_y)
+            tell(server, config=next_config, outcome=next_y)
 
         xy = np.mgrid[-1:1:30j, -1:1:30j].reshape(2, -1).T
 
@@ -566,7 +567,6 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         self.assertTrue(np.all(np.abs(xy[np.argmax(zhat.detach().numpy())]) < 0.2))
 
     def test_serialization_1d(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -603,12 +603,12 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             """
 
         server = self.s
-        server.configure(config_str=config_str)
+        configure(server, config_str=config_str)
 
         for _i in range(n_init + n_opt):
-            next_config = server.ask()
+            next_config = ask(server)
             next_y = bernoulli.rvs(f_pairwise(f_1d, next_config["x"]))
-            server.tell(config=next_config, outcome=next_y)
+            tell(server, config=next_config, outcome=next_y)
 
         import dill
 
@@ -627,7 +627,6 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             self.fail()
 
     def test_serialization_2d(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -666,13 +665,13 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         server = self.s
 
-        server.configure(config_str=config_str)
+        configure(server, config_str=config_str)
 
         for _i in range(n_init + n_opt):
-            next_config = server.ask()
+            next_config = ask(server)
             next_pair = np.c_[next_config["x"], next_config["y"]].T
             next_y = bernoulli.rvs(f_pairwise(f_2d, next_pair))
-            server.tell(config=next_config, outcome=next_y)
+            tell(server, config=next_config, outcome=next_y)
 
         import dill
 
@@ -721,9 +720,9 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             """
         server = self.s
 
-        server.configure(config_str=config_str)
+        configure(server, config_str=config_str)
 
-        conf = server.ask()
+        conf = ask(server)
 
         self.assertTrue(server._config_to_tensor(conf).shape == (1, 2))
 
@@ -757,9 +756,9 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             samps = 1000
             """
 
-        server.configure(config_str=config_str)
+        configure(server, config_str=config_str)
 
-        conf = server.ask()
+        conf = ask(server)
 
         self.assertTrue(server._config_to_tensor(conf).shape == (2, 2))
 
@@ -793,9 +792,9 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             samps = 1000
             """
 
-        server.configure(config_str=config_str)
+        configure(server, config_str=config_str)
 
-        conf = server.ask()
+        conf = ask(server)
 
         self.assertTrue(server._config_to_tensor(conf).shape == (3, 2))
 

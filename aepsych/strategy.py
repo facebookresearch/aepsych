@@ -9,29 +9,22 @@ from __future__ import annotations
 
 import time
 import warnings
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
+
+from typing import List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
-from ax.core.base_trial import TrialStatus
-from ax.modelbridge.generation_strategy import GenerationStrategy
-from ax.plot.contour import interact_contour
-from ax.plot.slice import plot_slice
-from ax.service.ax_client import AxClient
-from ax.utils.notebook.plotting import render
-from botorch.exceptions.errors import ModelFittingError
 
-from aepsych.config import Config, ConfigurableMixin
-from aepsych.generators.base import AEPsychGenerationStep, AEPsychGenerator
-from aepsych.generators.sobol_generator import AxSobolGenerator, SobolGenerator
+from aepsych.config import Config
+from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.sobol_generator import SobolGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils import (
     _process_bounds,
-    get_objectives,
-    get_parameters,
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
+from botorch.exceptions.errors import ModelFittingError
 
 logger = getLogger()
 
@@ -136,7 +129,7 @@ class Strategy(object):
         self.run_indefinitely = run_indefinitely
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.min_total_outcome_occurrences = min_total_outcome_occurrences
-        self.max_asks = max_asks
+        self.max_asks = max_asks or generator.max_asks
         self.keep_most_recent = keep_most_recent
 
         self.min_post_range = min_post_range
@@ -226,19 +219,25 @@ class Strategy(object):
         return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
-    def get_max(self, constraints=None):
+    def get_max(self, constraints=None, probability_space=False, max_time=None):
         constraints = constraints or {}
-        return self.model.get_max(constraints)
+        return self.model.get_max(
+            constraints, probability_space=probability_space, max_time=max_time
+        )
 
     @ensure_model_is_fresh
-    def get_min(self, constraints=None):
+    def get_min(self, constraints=None, probability_space=False, max_time=None):
         constraints = constraints or {}
-        return self.model.get_min(constraints)
+        return self.model.get_min(
+            constraints, probability_space=probability_space, max_time=max_time
+        )
 
     @ensure_model_is_fresh
-    def inv_query(self, y, constraints=None, probability_space=False):
+    def inv_query(self, y, constraints=None, probability_space=False, max_time=None):
         constraints = constraints or {}
-        return self.model.inv_query(y, constraints, probability_space)
+        return self.model.inv_query(
+            y, constraints, probability_space, max_time=max_time
+        )
 
     @ensure_model_is_fresh
     def predict(self, x, probability_space=False):
@@ -319,14 +318,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.fit(self.x, self.y)
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
@@ -341,14 +340,14 @@ class Strategy(object):
                         self.x[-self.keep_most_recent :],
                         self.y[-self.keep_most_recent :],
                     )
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
             else:
                 try:
                     self.model.update(self.x, self.y)
-                except (ModelFittingError):
+                except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
                     )
@@ -497,159 +496,3 @@ class SequentialStrategy(object):
             strats.append(strat)
 
         return cls(strat_list=strats)
-
-
-class AEPsychStrategy(ConfigurableMixin):
-    is_finished = False
-
-    def __init__(self, strategy: GenerationStrategy, ax_client: AxClient):
-        self.strat = strategy
-        self.strat.experiment.num_asks = 0
-        self.ax_client = ax_client
-
-    @classmethod
-    def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
-        # TODO: Fix the mypy errors
-        strat_names: List[str] = config.getlist("common", "strategy_names", element_type=str)  # type: ignore
-        steps = []
-        for name in strat_names:
-            generator = config.getobj(name, "generator", fallback=AxSobolGenerator)  # type: ignore
-            opts = generator.get_config_options(config, name)
-            step = AEPsychGenerationStep(**opts)
-            steps.append(step)
-
-        parameters = get_parameters(config)
-
-        parameter_constraints = config.getlist(
-            "common", "par_constraints", element_type=str, fallback=None
-        )
-
-        objectives = get_objectives(config)
-
-        strat = GenerationStrategy(steps=steps)
-        ax_client = AxClient(strat)
-        ax_client.create_experiment(
-            name="experiment",
-            parameters=parameters,
-            parameter_constraints=parameter_constraints,
-            objectives=objectives,
-        )
-
-        return {"strategy": strat, "ax_client": ax_client}
-
-    @property
-    def finished(self) -> bool:
-        if self.is_finished:
-            return True
-
-        steps_left = len(self.strat._steps) - (self.strat.current_step.index + 1)
-        return (
-            self.strat.current_step.finished(self.strat.experiment) and steps_left == 0
-        )
-
-    def finish(self):
-        self.is_finished = True
-
-    def gen(self, num_points: int = 1):
-        x, _ = self.ax_client.get_next_trials(max_trials=num_points)
-        self.strat.experiment.num_asks += num_points
-        next_x: Dict[str, Any] = {}
-        for par in self.strat.experiment.parameters:
-            next_x[par] = []
-            for i in x:
-                next_x[par].append(x[i][par])
-
-        return next_x
-
-    def add_data(self, x, y):
-        n = len(x[list(x.keys())[0]])
-        for i in range(n):
-            params = {par: x[par][i] for par in x}
-
-            # Check if this set of parameters already has an associated trial index. Usually it is the latest trial, so
-            # we iterate backwards. Ideally we would just pass in a trial index directly, but that would requre changes
-            # to server messages.
-            for i in reversed(range(len(self.ax_client.experiment.trials))):
-                trial = self.ax_client.get_trial(trial_index=i)
-                if (
-                    trial.arm.parameters == params
-                    and trial.status != TrialStatus.COMPLETED
-                ):
-                    trial_index = i
-                    break
-
-            else:
-                _, trial_index = self.ax_client.attach_trial(params)
-
-            self.ax_client.complete_trial(trial_index=trial_index, raw_data=y)
-
-    @property
-    def experiment(self):
-        return self.strat.experiment
-
-    def _warn_on_outcome_mismatch(self):
-        ax_model = self.ax_client.generation_strategy.model
-        aepsych_model = ax_model.model.surrogate.model
-        if (
-            hasattr(aepsych_model, "outcome_type")
-            and aepsych_model.outcome_type != "continuous"
-        ):
-            warnings.warn(
-                "Cannot directly plot non-continuous outcomes. Plotting the latent function instead."
-            )
-
-    def plot_contours(
-        self, density: int = 50, slice_values: Optional[Dict[str, Any]] = None
-    ):
-        """Plot predictions for a 2-d slice of the parameter space.
-
-        Args:
-            density: Number of points along each parameter to evaluate predictions.
-            slice_values: A dictionary {name: val} for the fixed values of the
-                other parameters. If not provided, then the mean of numeric
-                parameters or the mode of choice parameters will be used.
-        """
-        assert (
-            len(self.experiment.parameters) > 1
-        ), "plot_contours requires at least 2 parameters! Use 'plot_slice' instead."
-        ax_model = self.ax_client.generation_strategy.model
-        self._warn_on_outcome_mismatch()
-
-        render(
-            interact_contour(
-                model=ax_model,
-                metric_name="objective",
-                density=density,
-                slice_values=slice_values,
-            )
-        )
-
-    def plot_slice(
-        self,
-        param_name: str,
-        density: int = 50,
-        slice_values: Optional[Dict[str, Any]] = None,
-    ):
-        """Plot predictions for a 1-d slice of the parameter space.
-
-        Args:
-            param_name: Name of parameter that will be sliced
-            density: Number of points along slice to evaluate predictions.
-            slice_values: A dictionary {name: val} for the fixed values of the
-                other parameters. If not provided, then the mean of numeric
-                parameters or the mode of choice parameters will be used.
-        """
-        self._warn_on_outcome_mismatch()
-        ax_model = self.ax_client.generation_strategy.model
-        render(
-            plot_slice(
-                model=ax_model,
-                param_name=param_name,
-                metric_name="objective",
-                density=density,
-                slice_values=slice_values,
-            )
-        )
-
-    def get_pareto_optimal_parameters(self):
-        return self.ax_client.get_pareto_optimal_parameters()

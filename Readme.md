@@ -16,8 +16,7 @@ If you're a developer or want to use the latest features, you can install from G
 ```
 git clone https://github.com/facebookresearch/aepsych.git
 cd aepsych
-pip install -r requirements.txt
-pip install -e .
+pip install -e .[dev]
 ```
 
 ## Usage
@@ -26,23 +25,21 @@ pip install -e .
 The canonical way of using AEPsych is to launch it in server mode (you can run `aepsych_server` --help to see additional arguments):
 
 ```
-aepsych_server --port 5555 --ip 0.0.0.0 database --db mydatabase.db
+aepsych_server --port 5555 --ip 0.0.0.0 --db mydatabase.db
 ```
 
-The server accepts messages over either a unix socket or [ZMQ](https://zeromq.org/), and
+The server accepts messages over a unix socket, and
 all messages are formatted using [JSON](https://www.json.org/json-en.html). All messages
 have the following format:
 
 ```
 {
      "type":<TYPE>,
-     "version":<VERSION>,
      "message":<MESSAGE>,
 }
 ```
-Version can be omitted, in which case we default to the oldest / unversioned handler for this message
-type. There are five message types: `setup`, `resume`, `ask`, `tell` and `exit`.
 
+There are five message types: `setup`, `resume`, `ask`, `tell` and `exit` (see [aepsych/server/message_handlers](https://github.com/facebookresearch/aepsych/tree/main/aepsych/server/message_handlers) for the full set of messages).
 ### Setup
 The `setup` message prepares the server for making suggestions and accepting data. The setup
 message can be formatted as either INI or a python dict (similar to JSON) format, and an example
@@ -51,7 +48,6 @@ for psychometric threshold estimation is given in `configs/single_lse_example.in
 ```
 {
     "type":"setup",
-    "version":"0.01",
     "message":{"config_str":<PASTED CONFIG STRING>}
 }
 ```
@@ -63,7 +59,6 @@ The `resume` message tells the server to resume a strategy from earlier in the s
 ```
 {
     "type":"resume",
-    "version":"0.01",
     "message":{"strat_id":"0"}
 }
 ```
@@ -75,7 +70,6 @@ The `ask` message queries the server for the next trial configuration. It looks 
 ```
 {
     "type":"ask",
-    "version":"0.01",
     "message":""
 }
 ```
@@ -90,7 +84,6 @@ looks like this:
 ```
 {
     "type":"tell",
-    "version":"0.01",
     "message":{
         "config":{
                 "frequency":100,

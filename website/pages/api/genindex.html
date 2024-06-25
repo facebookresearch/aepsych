@@ -26,7 +26,6 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
- | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -228,8 +227,6 @@
 <li><a href="generators.html#module-aepsych.generators">module</a>
 </li>
 </ul></li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li>
     aepsych.generators.base
 
@@ -244,6 +241,8 @@
 <li><a href="generators.html#module-aepsych.generators.epsilon_greedy_generator">module</a>
 </li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li>
     aepsych.generators.manual_generator
 
@@ -405,15 +404,23 @@
 <li><a href="utils_logging.html#module-aepsych.utils_logging">module</a>
 </li>
 </ul></li>
+<li><a href="generators.html#aepsych.generators.base.AEPsychGenerationStep">AEPsychGenerationStep (class in aepsych.generators.base)</a>
+</li>
 <li><a href="generators.html#aepsych.generators.base.AEPsychGenerator">AEPsychGenerator (class in aepsych.generators.base)</a>
 </li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin">AEPsychMixin (class in aepsych.models.base)</a>
+</li>
+<li><a href="models.html#aepsych.models.base.AEPsychModel">AEPsychModel (class in aepsych.models.base)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.objective.AEPsychObjective">AEPsychObjective (class in aepsych.acquisition.objective)</a>
 </li>
 <li><a href="server.html#aepsych.server.AEPsychServer">AEPsychServer (class in aepsych.server)</a>
 <ul>
 <li><a href="server.html#aepsych.server.server.AEPsychServer">(class in aepsych.server.server)</a>
 </li>
 </ul></li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy">AEPsychStrategy (class in aepsych.strategy)</a>
+</li>
 <li><a href="acquisition.html#aepsych.acquisition.ApproxGlobalSUR">ApproxGlobalSUR (class in aepsych.acquisition)</a>
 <ul>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.ApproxGlobalSUR">(class in aepsych.acquisition.lookahead)</a>
@@ -421,9 +428,19 @@
 </ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead_utils.approximate_lookahead_levelset_at_xstar">approximate_lookahead_levelset_at_xstar() (in module aepsych.acquisition.lookahead_utils)</a>
 </li>
-<li><a href="server.html#aepsych.server.AEPsychServer.ask">ask() (aepsych.server.AEPsychServer method)</a>
+<li><a href="generators.html#aepsych.generators.AxOptimizeAcqfGenerator">AxOptimizeAcqfGenerator (class in aepsych.generators)</a>
 <ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.ask">(aepsych.server.server.AEPsychServer method)</a>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator">(class in aepsych.generators.optimize_acqf_generator)</a>
+</li>
+</ul></li>
+<li><a href="generators.html#aepsych.generators.AxRandomGenerator">AxRandomGenerator (class in aepsych.generators)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.random_generator.AxRandomGenerator">(class in aepsych.generators.random_generator)</a>
+</li>
+</ul></li>
+<li><a href="generators.html#aepsych.generators.AxSobolGenerator">AxSobolGenerator (class in aepsych.generators)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.sobol_generator.AxSobolGenerator">(class in aepsych.generators.sobol_generator)</a>
 </li>
 </ul></li>
 </ul></td>
@@ -446,18 +463,26 @@
 <li><a href="benchmark.html#aepsych.benchmark.benchmark.Benchmark">(class in aepsych.benchmark.benchmark)</a>
 </li>
 </ul></li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="acquisition.html#aepsych.acquisition.BernoulliMCMutualInformation">BernoulliMCMutualInformation (class in aepsych.acquisition)</a>
 <ul>
 <li><a href="acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation">(class in aepsych.acquisition.mutual_information)</a>
 </li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="likelihoods.html#aepsych.likelihoods.BernoulliObjectiveLikelihood">BernoulliObjectiveLikelihood (class in aepsych.likelihoods)</a>
+</li>
+<li><a href="models.html#aepsych.models.BetaRegressionGP">BetaRegressionGP (class in aepsych.models)</a>
+</li>
+<li><a href="models.html#aepsych.models.BinaryClassificationGP">BinaryClassificationGP (class in aepsych.models)</a>
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.Problem.bounds">bounds (aepsych.benchmark.Problem property)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.problem.Problem.bounds">(aepsych.benchmark.problem.Problem property)</a>
+</li>
+<li><a href="models.html#aepsych.models.base.AEPsychMixin.bounds">(aepsych.models.base.AEPsychMixin property)</a>
+</li>
+<li><a href="models.html#aepsych.models.base.ModelProtocol.bounds">(aepsych.models.base.ModelProtocol property)</a>
 </li>
 </ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.bvn.bvn_cdf">bvn_cdf() (in module aepsych.acquisition.bvn)</a>
@@ -467,8 +492,18 @@
 <h2 id="C">C</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="strategy.html#aepsych.strategy.Strategy.can_fit">can_fit (aepsych.strategy.Strategy property)</a>
+<li><a href="models.html#aepsych.models.OrdinalGPModel.calculate_probs">calculate_probs() (aepsych.models.OrdinalGPModel method)</a>
 </li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.can_fit">can_fit (aepsych.strategy.AEPsychStrategy property)</a>
+<ul>
+<li><a href="strategy.html#aepsych.strategy.Strategy.can_fit">(aepsych.strategy.Strategy property)</a>
+</li>
+</ul></li>
+<li><a href="server.html#aepsych.server.AEPsychServer.can_pregen_ask">can_pregen_ask (aepsych.server.AEPsychServer property)</a>
+<ul>
+<li><a href="server.html#aepsych.server.server.AEPsychServer.can_pregen_ask">(aepsych.server.server.AEPsychServer property)</a>
+</li>
+</ul></li>
 <li><a href="database.html#aepsych.database.tables.DBMasterTable.children_config">children_config (aepsych.database.tables.DBMasterTable attribute)</a>
 </li>
 <li><a href="database.html#aepsych.database.tables.DbRawTable.children_outcome">children_outcome (aepsych.database.tables.DbRawTable attribute)</a>
@@ -483,6 +518,11 @@
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.ClassErr">ClassErr() (in module aepsych.acquisition.lookahead)</a>
 </li>
+<li><a href="generators.html#aepsych.generators.AxRandomGenerator.classname">classname (aepsych.generators.AxRandomGenerator attribute)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.random_generator.AxRandomGenerator.classname">(aepsych.generators.random_generator.AxRandomGenerator attribute)</a>
+</li>
+</ul></li>
 <li><a href="server.html#aepsych.server.AEPsychServer.cleanup">cleanup() (aepsych.server.AEPsychServer method)</a>
 <ul>
 <li><a href="server.html#aepsych.server.server.AEPsychServer.cleanup">(aepsych.server.server.AEPsychServer method)</a>
@@ -497,13 +537,34 @@
 <li><a href="server.html#aepsych.server.sockets.ZMQSocket.close">(aepsych.server.sockets.ZMQSocket method)</a>
 </li>
 </ul></li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.collate_benchmarks">collate_benchmarks() (aepsych.benchmark.pathos_benchmark.PathosBenchmark method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.PathosBenchmark.collate_benchmarks">(aepsych.benchmark.PathosBenchmark method)</a>
 </li>
 </ul></li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.complete_existing_trial">complete_existing_trial() (aepsych.strategy.AEPsychStrategy method)</a>
+</li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.complete_new_trial">complete_new_trial() (aepsych.strategy.AEPsychStrategy method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.AxOptimizeAcqfGenerator.completion_criteria">completion_criteria (aepsych.generators.AxOptimizeAcqfGenerator attribute)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.AxRandomGenerator.completion_criteria">(aepsych.generators.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.AxSobolGenerator.completion_criteria">(aepsych.generators.AxSobolGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.base.AEPsychGenerationStep.completion_criteria">(aepsych.generators.base.AEPsychGenerationStep attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.MultiOutcomeOptimizationGenerator.completion_criteria">(aepsych.generators.MultiOutcomeOptimizationGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.completion_criteria">(aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.random_generator.AxRandomGenerator.completion_criteria">(aepsych.generators.random_generator.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.sobol_generator.AxSobolGenerator.completion_criteria">(aepsych.generators.sobol_generator.AxSobolGenerator attribute)</a>
+</li>
+</ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="database.html#aepsych.database.tables.DbConfigTable.config">config (aepsych.database.tables.DbConfigTable attribute)</a>
 <ul>
 <li><a href="server.html#aepsych.server.AEPsychServer.config">(aepsych.server.AEPsychServer property)</a>
@@ -513,12 +574,30 @@
 </ul></li>
 <li><a href="config.html#aepsych.config.Config">Config (class in aepsych.config)</a>
 </li>
-<li><a href="server.html#aepsych.server.AEPsychServer.configure">configure() (aepsych.server.AEPsychServer method)</a>
+<li><a href="config.html#aepsych.config.ConfigurableMixin">ConfigurableMixin (class in aepsych.config)</a>
+</li>
+<li><a href="means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad">ConstantMeanPartialObsGrad (class in aepsych.means.constant_partial_grad)</a>
+</li>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.construct_inputs">construct_inputs() (aepsych.models.base.AEPsychModel class method)</a>
 <ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.configure">(aepsych.server.server.AEPsychServer method)</a>
+<li><a href="models.html#aepsych.models.GPRegressionModel.construct_inputs">(aepsych.models.GPRegressionModel class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.MultitaskGPRModel.construct_inputs">(aepsych.models.MultitaskGPRModel class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.VariationalGP.construct_inputs">(aepsych.models.VariationalGP class method)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.mc_posterior_variance.construct_inputs">(in module aepsych.acquisition.mc_posterior_variance)</a>
 </li>
 </ul></li>
-<li><a href="means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad">ConstantMeanPartialObsGrad (class in aepsych.means.constant_partial_grad)</a>
+<li><a href="acquisition.html#aepsych.acquisition.lookahead.construct_inputs_global_lookahead">construct_inputs_global_lookahead() (in module aepsych.acquisition.lookahead)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.lookahead.construct_inputs_local_lookahead">construct_inputs_local_lookahead() (in module aepsych.acquisition.lookahead)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.lse.construct_inputs_lse">construct_inputs_lse() (in module aepsych.acquisition.lse)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.mutual_information.construct_inputs_mi">construct_inputs_mi() (in module aepsych.acquisition.mutual_information)</a>
+</li>
+<li><a href="models.html#aepsych.models.ContinuousRegressionGP">ContinuousRegressionGP (class in aepsych.models)</a>
 </li>
 <li><a href="config.html#aepsych.config.Config.convert">convert() (aepsych.config.Config method)</a>
 </li>
@@ -616,7 +695,13 @@
 </ul></li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="models.html#aepsych.models.ExactGP">ExactGP (class in aepsych.models)</a>
+</li>
 <li><a href="database.html#aepsych.database.db.Database.execute_sql_query">execute_sql_query() (aepsych.database.db.Database method)</a>
+</li>
+<li><a href="likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.expected_log_prob">expected_log_prob() (aepsych.likelihoods.LinearBernoulliLikelihood method)</a>
+</li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.experiment">experiment (aepsych.strategy.AEPsychStrategy property)</a>
 </li>
 <li><a href="database.html#aepsych.database.tables.DBMasterTable.experiment_description">experiment_description (aepsych.database.tables.DBMasterTable attribute)</a>
 </li>
@@ -630,6 +715,8 @@
 </li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.extremum_solver">extremum_solver (aepsych.models.base.AEPsychMixin attribute)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.extremum_solver">(aepsych.models.base.AEPsychModel attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.extremum_solver">(aepsych.models.base.ModelProtocol property)</a>
 </li>
 </ul></li>
@@ -641,6 +728,8 @@
 <li><a href="benchmark.html#aepsych.benchmark.Problem.f">f() (aepsych.benchmark.Problem method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.problem.Problem.f">(aepsych.benchmark.problem.Problem method)</a>
+</li>
+<li><a href="likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.f">(aepsych.likelihoods.LinearBernoulliLikelihood method)</a>
 </li>
 </ul></li>
 <li><a href="benchmark.html#aepsych.benchmark.Problem.f_hat">f_hat() (aepsych.benchmark.Problem method)</a>
@@ -658,18 +747,26 @@
 <li><a href="benchmark.html#aepsych.benchmark.problem.Problem.f_true">(aepsych.benchmark.problem.Problem property)</a>
 </li>
 </ul></li>
-<li><a href="strategy.html#aepsych.strategy.SequentialStrategy.finish">finish() (aepsych.strategy.SequentialStrategy method)</a>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.finish">finish() (aepsych.strategy.AEPsychStrategy method)</a>
 <ul>
+<li><a href="strategy.html#aepsych.strategy.SequentialStrategy.finish">(aepsych.strategy.SequentialStrategy method)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.finish">(aepsych.strategy.Strategy method)</a>
 </li>
 </ul></li>
-<li><a href="strategy.html#aepsych.strategy.SequentialStrategy.finished">finished (aepsych.strategy.SequentialStrategy property)</a>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.finished">finished (aepsych.strategy.AEPsychStrategy property)</a>
 <ul>
+<li><a href="strategy.html#aepsych.strategy.SequentialStrategy.finished">(aepsych.strategy.SequentialStrategy property)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.finished">(aepsych.strategy.Strategy property)</a>
 </li>
 </ul></li>
-<li><a href="models.html#aepsych.models.base.ModelProtocol.fit">fit() (aepsych.models.base.ModelProtocol method)</a>
+<li><a href="generators.html#aepsych.generators.base.AEPsychGenerationStep.finished">finished() (aepsych.generators.base.AEPsychGenerationStep method)</a>
+</li>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.fit">fit() (aepsych.models.base.AEPsychModel method)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.ModelProtocol.fit">(aepsych.models.base.ModelProtocol method)</a>
+</li>
 <li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.fit">(aepsych.models.gp_classification.GPClassificationModel method)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPClassificationModel.fit">(aepsych.models.GPClassificationModel method)</a>
@@ -681,6 +778,8 @@
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.fit">(aepsych.models.MonotonicRejectionGP method)</a>
 </li>
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.fit">(aepsych.models.PairwiseProbitModel method)</a>
+</li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.fit">(aepsych.models.SemiParametricGPModel method)</a>
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.fit">(aepsych.strategy.Strategy method)</a>
 </li>
@@ -695,8 +794,6 @@
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective">(class in aepsych.acquisition.objective)</a>
 </li>
 </ul></li>
-<li><a href="acquisition.html#aepsych.acquisition.objective.FloorLinkObjective">FloorLinkObjective (class in aepsych.acquisition.objective)</a>
-</li>
 <li><a href="acquisition.html#aepsych.acquisition.FloorLogitObjective">FloorLogitObjective (class in aepsych.acquisition)</a>
 <ul>
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorLogitObjective">(class in aepsych.acquisition.objective)</a>
@@ -725,9 +822,11 @@
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.mutual_information.BernoulliMCMutualInformation.forward">(aepsych.acquisition.mutual_information.BernoulliMCMutualInformation method)</a>
 </li>
-<li><a href="acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.forward">(aepsych.acquisition.objective.FloorLinkObjective method)</a>
-</li>
 <li><a href="acquisition.html#aepsych.acquisition.objective.ProbitObjective.forward">(aepsych.acquisition.objective.ProbitObjective method)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.objective.SemiPProbabilityObjective.forward">(aepsych.acquisition.objective.SemiPProbabilityObjective method)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.objective.SemiPThresholdObjective.forward">(aepsych.acquisition.objective.SemiPThresholdObjective method)</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.ProbitObjective.forward">(aepsych.acquisition.ProbitObjective method)</a>
 </li>
@@ -737,6 +836,8 @@
 </li>
 <li><a href="likelihoods.html#aepsych.likelihoods.BernoulliObjectiveLikelihood.forward">(aepsych.likelihoods.BernoulliObjectiveLikelihood method)</a>
 </li>
+<li><a href="likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.forward">(aepsych.likelihoods.LinearBernoulliLikelihood method)</a>
+</li>
 <li><a href="likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.forward">(aepsych.likelihoods.OrdinalLikelihood method)</a>
 </li>
 <li><a href="means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad.forward">(aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad method)</a>
@@ -745,15 +846,25 @@
 </li>
 <li><a href="models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward">(aepsych.models.derivative_gp.MixedDerivativeVariationalGP method)</a>
 </li>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel.forward">(aepsych.models.HadamardSemiPModel method)</a>
+</li>
+<li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel.forward">(aepsych.models.IndependentMultitaskGPRModel method)</a>
+</li>
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.forward">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP method)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.forward">(aepsych.models.MonotonicRejectionGP method)</a>
 </li>
+<li><a href="models.html#aepsych.models.MultitaskGPRModel.forward">(aepsych.models.MultitaskGPRModel method)</a>
+</li>
 </ul></li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.from_config">from_config() (aepsych.acquisition.objective.FloorLinkObjective class method)</a>
+<li><a href="acquisition.html#aepsych.acquisition.objective.SemiPProbabilityObjective.from_config">from_config() (aepsych.acquisition.objective.SemiPProbabilityObjective class method)</a>
 <ul>
+<li><a href="acquisition.html#aepsych.acquisition.objective.SemiPThresholdObjective.from_config">(aepsych.acquisition.objective.SemiPThresholdObjective class method)</a>
+</li>
+<li><a href="config.html#aepsych.config.ConfigurableMixin.from_config">(aepsych.config.ConfigurableMixin class method)</a>
+</li>
 <li><a href="generators.html#aepsych.generators.base.AcqArgProtocol.from_config">(aepsych.generators.base.AcqArgProtocol class method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.from_config">(aepsych.generators.base.AEPsychGenerator class method)</a>
@@ -792,6 +903,8 @@
 </li>
 <li><a href="likelihoods.html#aepsych.likelihoods.BernoulliObjectiveLikelihood.from_config">(aepsych.likelihoods.BernoulliObjectiveLikelihood class method)</a>
 </li>
+<li><a href="likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.from_config">(aepsych.likelihoods.LinearBernoulliLikelihood class method)</a>
+</li>
 <li><a href="likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.from_config">(aepsych.likelihoods.OrdinalLikelihood class method)</a>
 </li>
 <li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.from_config">(aepsych.models.gp_classification.GPClassificationModel class method)</a>
@@ -800,6 +913,8 @@
 </li>
 <li><a href="models.html#aepsych.models.GPRegressionModel.from_config">(aepsych.models.GPRegressionModel class method)</a>
 </li>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel.from_config">(aepsych.models.HadamardSemiPModel class method)</a>
+</li>
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.from_config">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP class method)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicProjectionGP.from_config">(aepsych.models.MonotonicProjectionGP class method)</a>
@@ -807,6 +922,8 @@
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.from_config">(aepsych.models.MonotonicRejectionGP class method)</a>
 </li>
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.from_config">(aepsych.models.PairwiseProbitModel class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.from_config">(aepsych.models.SemiParametricGPModel class method)</a>
 </li>
 <li><a href="strategy.html#aepsych.strategy.SequentialStrategy.from_config">(aepsych.strategy.SequentialStrategy class method)</a>
 </li>
@@ -839,6 +956,8 @@
 </li>
 <li><a href="generators.html#aepsych.generators.EpsilonGreedyGenerator.gen">(aepsych.generators.EpsilonGreedyGenerator method)</a>
 </li>
+<li><a href="generators.html#aepsych.generators.IntensityAwareSemiPGenerator.gen">(aepsych.generators.IntensityAwareSemiPGenerator method)</a>
+</li>
 <li><a href="generators.html#aepsych.generators.manual_generator.ManualGenerator.gen">(aepsych.generators.manual_generator.ManualGenerator method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.ManualGenerator.gen">(aepsych.generators.ManualGenerator method)</a>
@@ -863,6 +982,8 @@
 </li>
 <li><a href="generators.html#aepsych.generators.SobolGenerator.gen">(aepsych.generators.SobolGenerator method)</a>
 </li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.gen">(aepsych.strategy.AEPsychStrategy method)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.SequentialStrategy.gen">(aepsych.strategy.SequentialStrategy method)</a>
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.gen">(aepsych.strategy.Strategy method)</a>
@@ -882,13 +1003,58 @@
 </li>
 <li><a href="database.html#aepsych.database.db.Database.get_all_params_for">get_all_params_for() (aepsych.database.db.Database method)</a>
 </li>
+<li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel.get_config_args">get_config_args() (aepsych.models.IndependentMultitaskGPRModel class method)</a>
+</li>
 <li><a href="database.html#aepsych.database.db.Database.get_config_for">get_config_for() (aepsych.database.db.Database method)</a>
 </li>
+<li><a href="config.html#aepsych.config.ConfigurableMixin.get_config_options">get_config_options() (aepsych.config.ConfigurableMixin class method)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.AxOptimizeAcqfGenerator.get_config_options">(aepsych.generators.AxOptimizeAcqfGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.AxRandomGenerator.get_config_options">(aepsych.generators.AxRandomGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.AxSobolGenerator.get_config_options">(aepsych.generators.AxSobolGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.base.AEPsychGenerationStep.get_config_options">(aepsych.generators.base.AEPsychGenerationStep class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.MultiOutcomeOptimizationGenerator.get_config_options">(aepsych.generators.MultiOutcomeOptimizationGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.get_config_options">(aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.get_config_options">(aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.get_config_options">(aepsych.generators.OptimizeAcqfGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.random_generator.AxRandomGenerator.get_config_options">(aepsych.generators.random_generator.AxRandomGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.sobol_generator.AxSobolGenerator.get_config_options">(aepsych.generators.sobol_generator.AxSobolGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.sobol_generator.SobolGenerator.get_config_options">(aepsych.generators.sobol_generator.SobolGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.SobolGenerator.get_config_options">(aepsych.generators.SobolGenerator class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.get_config_options">(aepsych.models.base.AEPsychModel class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.BetaRegressionGP.get_config_options">(aepsych.models.BetaRegressionGP class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.BinaryClassificationGP.get_config_options">(aepsych.models.BinaryClassificationGP class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.OrdinalGP.get_config_options">(aepsych.models.OrdinalGP class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.VariationalGP.get_config_options">(aepsych.models.VariationalGP class method)</a>
+</li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.get_config_options">(aepsych.strategy.AEPsychStrategy class method)</a>
+</li>
+</ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="server.html#aepsych.server.AEPsychServer.get_dataframe_from_replay">get_dataframe_from_replay() (aepsych.server.AEPsychServer method)</a>
 <ul>
 <li><a href="server.html#aepsych.server.server.AEPsychServer.get_dataframe_from_replay">(aepsych.server.server.AEPsychServer method)</a>
 </li>
 </ul></li>
+<li><a href="utils.html#aepsych.utils.get_dim">get_dim() (in module aepsych.utils)</a>
+</li>
 <li><a href="database.html#aepsych.database.db.Database.get_engine">get_engine() (aepsych.database.db.Database method)</a>
 </li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.get_jnd">get_jnd() (aepsych.models.base.AEPsychMixin method)</a>
@@ -898,8 +1064,6 @@
 </ul></li>
 <li><a href="utils.html#aepsych.utils.get_jnd_1d">get_jnd_1d() (in module aepsych.utils)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="utils.html#aepsych.utils.get_jnd_multid">get_jnd_multid() (in module aepsych.utils)</a>
 </li>
 <li><a href="utils.html#aepsych.utils.get_lse_contour">get_lse_contour() (in module aepsych.utils)</a>
@@ -912,19 +1076,36 @@
 </li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.get_max">get_max() (aepsych.models.base.AEPsychMixin method)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.get_max">(aepsych.models.base.AEPsychModel method)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.get_max">(aepsych.strategy.Strategy method)</a>
 </li>
 </ul></li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.get_min">get_min() (aepsych.models.base.AEPsychMixin method)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.get_min">(aepsych.models.base.AEPsychModel method)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.get_min">(aepsych.strategy.Strategy method)</a>
+</li>
+</ul></li>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.get_mll_class">get_mll_class() (aepsych.models.base.AEPsychModel method)</a>
+<ul>
+<li><a href="models.html#aepsych.models.ExactGP.get_mll_class">(aepsych.models.ExactGP class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.VariationalGP.get_mll_class">(aepsych.models.VariationalGP class method)</a>
 </li>
 </ul></li>
 <li><a href="server.html#aepsych.server.server.get_next_filename">get_next_filename() (in module aepsych.server.server)</a>
 </li>
+<li><a href="utils.html#aepsych.utils.get_objectives">get_objectives() (in module aepsych.utils)</a>
+</li>
 <li><a href="database.html#aepsych.database.db.Database.get_outcome_for">get_outcome_for() (aepsych.database.db.Database method)</a>
 </li>
 <li><a href="database.html#aepsych.database.db.Database.get_param_for">get_param_for() (aepsych.database.db.Database method)</a>
+</li>
+<li><a href="utils.html#aepsych.utils.get_parameters">get_parameters() (in module aepsych.utils)</a>
+</li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters">get_pareto_optimal_parameters() (aepsych.strategy.AEPsychStrategy method)</a>
 </li>
 <li><a href="database.html#aepsych.database.db.Database.get_raw_for">get_raw_for() (aepsych.database.db.Database method)</a>
 </li>
@@ -960,6 +1141,11 @@
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.GlobalSUR">(class in aepsych.acquisition.lookahead)</a>
 </li>
 </ul></li>
+<li><a href="models.html#aepsych.models.GPBetaRegressionModel">GPBetaRegressionModel (class in aepsych.models)</a>
+<ul>
+<li><a href="models.html#aepsych.models.gp_classification.GPBetaRegressionModel">(class in aepsych.models.gp_classification)</a>
+</li>
+</ul></li>
 <li><a href="models.html#aepsych.models.GPClassificationModel">GPClassificationModel (class in aepsych.models)</a>
 <ul>
 <li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel">(class in aepsych.models.gp_classification)</a>
@@ -972,83 +1158,15 @@
 <h2 id="H">H</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_ask">handle_ask() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_ask">(aepsych.server.server.AEPsychServer method)</a>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel">HadamardSemiPModel (class in aepsych.models)</a>
 </li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_ask_v01">handle_ask_v01() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_ask_v01">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_can_model">handle_can_model() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_can_model">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_exit">handle_exit() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_exit">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_finish_strategy">handle_finish_strategy() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_finish_strategy">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_get_config">handle_get_config() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_get_config">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_params">handle_params() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_params">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_query">handle_query() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_query">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="server.html#aepsych.server.AEPsychServer.handle_request">handle_request() (aepsych.server.AEPsychServer method)</a>
 <ul>
 <li><a href="server.html#aepsych.server.server.AEPsychServer.handle_request">(aepsych.server.server.AEPsychServer method)</a>
 </li>
 </ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_resume_v01">handle_resume_v01() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_resume_v01">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_setup">handle_setup() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_setup">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_setup_v01">handle_setup_v01() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_setup_v01">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_strategy_name">handle_strategy_name() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_strategy_name">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_tell">handle_tell() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_tell">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.handle_update">handle_update() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.handle_update">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.Hb">Hb() (in module aepsych.acquisition.lookahead)</a>
 </li>
 </ul></td>
@@ -1056,14 +1174,20 @@
 <h2 id="I">I</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel">IndependentMultitaskGPRModel (class in aepsych.models)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.IntensityAwareSemiPGenerator">IntensityAwareSemiPGenerator (class in aepsych.generators)</a>
+</li>
 <li><a href="utils.html#aepsych.utils.interpolate_monotonic">interpolate_monotonic() (in module aepsych.utils)</a>
 </li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.inv_query">inv_query() (aepsych.models.base.AEPsychMixin method)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.inv_query">(aepsych.models.base.AEPsychModel method)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.inv_query">(aepsych.strategy.Strategy method)</a>
 </li>
 </ul></li>
-<li><a href="acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.inverse">inverse() (aepsych.acquisition.objective.FloorLinkObjective method)</a>
+<li><a href="acquisition.html#aepsych.acquisition.objective.AEPsychObjective.inverse">inverse() (aepsych.acquisition.objective.AEPsychObjective method)</a>
 <ul>
 <li><a href="acquisition.html#aepsych.acquisition.objective.ProbitObjective.inverse">(aepsych.acquisition.objective.ProbitObjective method)</a>
 </li>
@@ -1078,8 +1202,6 @@
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective.inverse_link">(aepsych.acquisition.objective.FloorGumbelObjective method)</a>
 </li>
-<li><a href="acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.inverse_link">(aepsych.acquisition.objective.FloorLinkObjective method)</a>
-</li>
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorLogitObjective.inverse_link">(aepsych.acquisition.objective.FloorLogitObjective method)</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorProbitObjective.inverse_link">(aepsych.acquisition.objective.FloorProbitObjective method)</a>
@@ -1092,6 +1214,8 @@
 <li><a href="benchmark.html#aepsych.benchmark.PathosBenchmark.is_done">(aepsych.benchmark.PathosBenchmark property)</a>
 </li>
 </ul></li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.is_finished">is_finished (aepsych.strategy.AEPsychStrategy attribute)</a>
+</li>
 <li><a href="database.html#aepsych.database.db.Database.is_update_required">is_update_required() (aepsych.database.db.Database method)</a>
 </li>
 <li><a href="database.html#aepsych.database.tables.DbOutcomeTable.iteration_id">iteration_id (aepsych.database.tables.DbOutcomeTable attribute)</a>
@@ -1123,6 +1247,41 @@
 </li>
 </ul></li>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.likelihood">likelihood (aepsych.models.base.ModelProtocol property)</a>
+<ul>
+<li><a href="models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.likelihood">(aepsych.models.derivative_gp.MixedDerivativeVariationalGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.gp_classification.GPBetaRegressionModel.likelihood">(aepsych.models.gp_classification.GPBetaRegressionModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.likelihood">(aepsych.models.gp_classification.GPClassificationModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.GPBetaRegressionModel.likelihood">(aepsych.models.GPBetaRegressionModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.GPClassificationModel.likelihood">(aepsych.models.GPClassificationModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.GPRegressionModel.likelihood">(aepsych.models.GPRegressionModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel.likelihood">(aepsych.models.HadamardSemiPModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel.likelihood">(aepsych.models.IndependentMultitaskGPRModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.likelihood">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.MonotonicProjectionGP.likelihood">(aepsych.models.MonotonicProjectionGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.MonotonicRejectionGP.likelihood">(aepsych.models.MonotonicRejectionGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.MultitaskGPRModel.likelihood">(aepsych.models.MultitaskGPRModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.OrdinalGPModel.likelihood">(aepsych.models.OrdinalGPModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.likelihood">(aepsych.models.PairwiseProbitModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.likelihood">(aepsych.models.SemiParametricGPModel attribute)</a>
+</li>
+</ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood">LinearBernoulliLikelihood (class in aepsych.likelihoods)</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.FloorGumbelObjective.link">link() (aepsych.acquisition.FloorGumbelObjective method)</a>
 <ul>
@@ -1132,8 +1291,6 @@
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective.link">(aepsych.acquisition.objective.FloorGumbelObjective method)</a>
 </li>
-<li><a href="acquisition.html#aepsych.acquisition.objective.FloorLinkObjective.link">(aepsych.acquisition.objective.FloorLinkObjective method)</a>
-</li>
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorLogitObjective.link">(aepsych.acquisition.objective.FloorLogitObjective method)</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.objective.FloorProbitObjective.link">(aepsych.acquisition.objective.FloorProbitObjective method)</a>
@@ -1141,8 +1298,6 @@
 </ul></li>
 <li><a href="database.html#aepsych.database.db.Database.list_master_records">list_master_records() (aepsych.database.db.Database method)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.LocalLookaheadAcquisitionFunction">LocalLookaheadAcquisitionFunction (class in aepsych.acquisition.lookahead)</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.LocalMI">LocalMI (class in aepsych.acquisition)</a>
@@ -1247,8 +1402,40 @@
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.MOCU">MOCU (class in aepsych.acquisition.lookahead)</a>
 </li>
+<li><a href="generators.html#aepsych.generators.AxOptimizeAcqfGenerator.model">model (aepsych.generators.AxOptimizeAcqfGenerator attribute)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.AxRandomGenerator.model">(aepsych.generators.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.AxSobolGenerator.model">(aepsych.generators.AxSobolGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.base.AEPsychGenerationStep.model">(aepsych.generators.base.AEPsychGenerationStep attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.MultiOutcomeOptimizationGenerator.model">(aepsych.generators.MultiOutcomeOptimizationGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.model">(aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.random_generator.AxRandomGenerator.model">(aepsych.generators.random_generator.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.sobol_generator.AxSobolGenerator.model">(aepsych.generators.sobol_generator.AxSobolGenerator attribute)</a>
+</li>
+</ul></li>
 <li><a href="database.html#aepsych.database.tables.DbRawTable.model_data">model_data (aepsych.database.tables.DbRawTable attribute)</a>
 </li>
+<li><a href="generators.html#aepsych.generators.AxOptimizeAcqfGenerator.model_specs">model_specs (aepsych.generators.AxOptimizeAcqfGenerator attribute)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.AxRandomGenerator.model_specs">(aepsych.generators.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.AxSobolGenerator.model_specs">(aepsych.generators.AxSobolGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.MultiOutcomeOptimizationGenerator.model_specs">(aepsych.generators.MultiOutcomeOptimizationGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.model_specs">(aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.random_generator.AxRandomGenerator.model_specs">(aepsych.generators.random_generator.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.sobol_generator.AxSobolGenerator.model_specs">(aepsych.generators.sobol_generator.AxSobolGenerator attribute)</a>
+</li>
+</ul></li>
 <li><a href="models.html#aepsych.models.base.ModelProtocol">ModelProtocol (class in aepsych.models.base)</a>
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.modified_hartmann6">modified_hartmann6() (in module aepsych.benchmark)</a>
@@ -1396,6 +1583,10 @@
 <li><a href="generators.html#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator">(class in aepsych.generators.monotonic_thompson_sampler_generator)</a>
 </li>
 </ul></li>
+<li><a href="generators.html#aepsych.generators.MultiOutcomeOptimizationGenerator">MultiOutcomeOptimizationGenerator (class in aepsych.generators)</a>
+</li>
+<li><a href="models.html#aepsych.models.MultitaskGPRModel">MultitaskGPRModel (class in aepsych.models)</a>
+</li>
 </ul></td>
 </tr></table>
 <h2 id="N">N</h2>
@@ -1423,8 +1614,6 @@
 <li><a href="strategy.html#aepsych.strategy.Strategy.normalize_inputs">(aepsych.strategy.Strategy method)</a>
 </li>
 </ul></li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="benchmark.html#aepsych.benchmark.novel_detection_testfun">novel_detection_testfun() (in module aepsych.benchmark)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.test_functions.novel_detection_testfun">(in module aepsych.benchmark.test_functions)</a>
@@ -1435,6 +1624,8 @@
 <li><a href="benchmark.html#aepsych.benchmark.test_functions.novel_discrimination_testfun">(in module aepsych.benchmark.test_functions)</a>
 </li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="benchmark.html#aepsych.benchmark.Benchmark.num_benchmarks">num_benchmarks (aepsych.benchmark.Benchmark property)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.benchmark.Benchmark.num_benchmarks">(aepsych.benchmark.benchmark.Benchmark property)</a>
@@ -1442,6 +1633,23 @@
 </ul></li>
 <li><a href="kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input">num_outputs_per_input() (aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad method)</a>
 </li>
+<li><a href="generators.html#aepsych.generators.AxOptimizeAcqfGenerator.num_trials">num_trials (aepsych.generators.AxOptimizeAcqfGenerator attribute)</a>
+<ul>
+<li><a href="generators.html#aepsych.generators.AxRandomGenerator.num_trials">(aepsych.generators.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.AxSobolGenerator.num_trials">(aepsych.generators.AxSobolGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.base.AEPsychGenerationStep.num_trials">(aepsych.generators.base.AEPsychGenerationStep attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.MultiOutcomeOptimizationGenerator.num_trials">(aepsych.generators.MultiOutcomeOptimizationGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator.num_trials">(aepsych.generators.optimize_acqf_generator.AxOptimizeAcqfGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.random_generator.AxRandomGenerator.num_trials">(aepsych.generators.random_generator.AxRandomGenerator attribute)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.sobol_generator.AxSobolGenerator.num_trials">(aepsych.generators.sobol_generator.AxSobolGenerator attribute)</a>
+</li>
+</ul></li>
 </ul></td>
 </tr></table>
 <h2 id="O">O</h2>
@@ -1457,27 +1665,51 @@
 <li><a href="factory.html#aepsych.factory.factory.ordinal_mean_covar_factory">(in module aepsych.factory.factory)</a>
 </li>
 </ul></li>
+<li><a href="models.html#aepsych.models.OrdinalGP">OrdinalGP (class in aepsych.models)</a>
+</li>
 <li><a href="models.html#aepsych.models.OrdinalGPModel">OrdinalGPModel (class in aepsych.models)</a>
 </li>
 <li><a href="likelihoods.html#aepsych.likelihoods.OrdinalLikelihood">OrdinalLikelihood (class in aepsych.likelihoods)</a>
 </li>
 <li><a href="database.html#aepsych.database.tables.DbOutcomeTable.outcome_name">outcome_name (aepsych.database.tables.DbOutcomeTable attribute)</a>
 </li>
-<li><a href="models.html#aepsych.models.base.ModelProtocol.outcome_type">outcome_type (aepsych.models.base.ModelProtocol property)</a>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.outcome_type">outcome_type (aepsych.models.base.AEPsychModel attribute)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.ModelProtocol.outcome_type">(aepsych.models.base.ModelProtocol property)</a>
+</li>
+<li><a href="models.html#aepsych.models.BetaRegressionGP.outcome_type">(aepsych.models.BetaRegressionGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.BinaryClassificationGP.outcome_type">(aepsych.models.BinaryClassificationGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.ContinuousRegressionGP.outcome_type">(aepsych.models.ContinuousRegressionGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.gp_classification.GPBetaRegressionModel.outcome_type">(aepsych.models.gp_classification.GPBetaRegressionModel attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.outcome_type">(aepsych.models.gp_classification.GPClassificationModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.GPBetaRegressionModel.outcome_type">(aepsych.models.GPBetaRegressionModel attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPClassificationModel.outcome_type">(aepsych.models.GPClassificationModel attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPRegressionModel.outcome_type">(aepsych.models.GPRegressionModel attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel.outcome_type">(aepsych.models.HadamardSemiPModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel.outcome_type">(aepsych.models.IndependentMultitaskGPRModel attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.outcome_type">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.outcome_type">(aepsych.models.MonotonicRejectionGP attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.MultitaskGPRModel.outcome_type">(aepsych.models.MultitaskGPRModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.OrdinalGP.outcome_type">(aepsych.models.OrdinalGP attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.OrdinalGPModel.outcome_type">(aepsych.models.OrdinalGPModel attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.outcome_type">(aepsych.models.PairwiseProbitModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.outcome_type">(aepsych.models.SemiParametricGPModel attribute)</a>
 </li>
 </ul></li>
 </ul></td>
@@ -1494,6 +1726,8 @@
 <li><a href="benchmark.html#aepsych.benchmark.Problem.p">p() (aepsych.benchmark.Problem method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.problem.Problem.p">(aepsych.benchmark.problem.Problem method)</a>
+</li>
+<li><a href="likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.p">(aepsych.likelihoods.LinearBernoulliLikelihood method)</a>
 </li>
 </ul></li>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.p_below_threshold">p_below_threshold() (aepsych.models.base.AEPsychMixin method)</a>
@@ -1546,8 +1780,6 @@
 </ul></li>
 <li><a href="server.html#aepsych.server.server.parse_argument">parse_argument() (in module aepsych.server.server)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="database.html#aepsych.database.tables.DBMasterTable.participant_id">participant_id (aepsych.database.tables.DBMasterTable attribute)</a>
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.PathosBenchmark">PathosBenchmark (class in aepsych.benchmark)</a>
@@ -1557,8 +1789,15 @@
 </ul></li>
 <li><a href="database.html#aepsych.database.db.Database.perform_updates">perform_updates() (aepsych.database.db.Database method)</a>
 </li>
-<li><a href="plotting.html#aepsych.plotting.plot_slice">plot_slice() (in module aepsych.plotting)</a>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.plot_contours">plot_contours() (aepsych.strategy.AEPsychStrategy method)</a>
 </li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.plot_slice">plot_slice() (aepsych.strategy.AEPsychStrategy method)</a>
+<ul>
+<li><a href="plotting.html#aepsych.plotting.plot_slice">(in module aepsych.plotting)</a>
+</li>
+</ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="plotting.html#aepsych.plotting.plot_strat">plot_strat() (in module aepsych.plotting)</a>
 </li>
 <li><a href="plotting.html#aepsych.plotting.plot_strat_3d">plot_strat_3d() (in module aepsych.plotting)</a>
@@ -1567,16 +1806,22 @@
 <ul>
 <li><a href="models.html#aepsych.models.MonotonicProjectionGP.posterior">(aepsych.models.MonotonicProjectionGP method)</a>
 </li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.posterior">(aepsych.models.SemiParametricGPModel method)</a>
+</li>
 </ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead_utils.posterior_at_xstar_xq">posterior_at_xstar_xq() (in module aepsych.acquisition.lookahead_utils)</a>
 </li>
-<li><a href="models.html#aepsych.models.base.ModelProtocol.predict">predict() (aepsych.models.base.ModelProtocol method)</a>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.predict">predict() (aepsych.models.base.AEPsychModel method)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.ModelProtocol.predict">(aepsych.models.base.ModelProtocol method)</a>
+</li>
 <li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.predict">(aepsych.models.gp_classification.GPClassificationModel method)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPClassificationModel.predict">(aepsych.models.GPClassificationModel method)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPRegressionModel.predict">(aepsych.models.GPRegressionModel method)</a>
+</li>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel.predict">(aepsych.models.HadamardSemiPModel method)</a>
 </li>
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.predict">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP method)</a>
 </li>
@@ -1584,7 +1829,26 @@
 </li>
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.predict">(aepsych.models.PairwiseProbitModel method)</a>
 </li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.predict">(aepsych.models.SemiParametricGPModel method)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.predict">(aepsych.strategy.Strategy method)</a>
+</li>
+</ul></li>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.predict_probability">predict_probability() (aepsych.models.base.AEPsychModel method)</a>
+<ul>
+<li><a href="models.html#aepsych.models.BinaryClassificationGP.predict_probability">(aepsych.models.BinaryClassificationGP method)</a>
+</li>
+<li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.predict_probability">(aepsych.models.gp_classification.GPClassificationModel method)</a>
+</li>
+<li><a href="models.html#aepsych.models.GPClassificationModel.predict_probability">(aepsych.models.GPClassificationModel method)</a>
+</li>
+<li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.predict_probability">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP method)</a>
+</li>
+<li><a href="models.html#aepsych.models.MonotonicRejectionGP.predict_probability">(aepsych.models.MonotonicRejectionGP method)</a>
+</li>
+<li><a href="models.html#aepsych.models.OrdinalGP.predict_probability">(aepsych.models.OrdinalGP method)</a>
+</li>
+<li><a href="models.html#aepsych.models.PairwiseProbitModel.predict_probability">(aepsych.models.PairwiseProbitModel method)</a>
 </li>
 </ul></li>
 <li><a href="models.html#aepsych.models.OrdinalGPModel.predict_probs">predict_probs() (aepsych.models.OrdinalGPModel method)</a>
@@ -1603,16 +1867,6 @@
 </li>
 <li><a href="server.html#aepsych.server.sockets.PySocket">PySocket (class in aepsych.server.sockets)</a>
 </li>
-</ul></td>
-</tr></table>
-<h2 id="Q">Q</h2>
-<table class="indextable genindextable" style="width: 100%"><tr>
-<td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="server.html#aepsych.server.AEPsychServer.query">query() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.query">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
 </ul></td>
 </tr></table>
 <h2 id="R">R</h2>
@@ -1708,8 +1962,10 @@
 <h2 id="S">S</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="models.html#aepsych.models.base.ModelProtocol.sample">sample() (aepsych.models.base.ModelProtocol method)</a>
+<li><a href="models.html#aepsych.models.base.AEPsychModel.sample">sample() (aepsych.models.base.AEPsychModel method)</a>
 <ul>
+<li><a href="models.html#aepsych.models.base.ModelProtocol.sample">(aepsych.models.base.ModelProtocol method)</a>
+</li>
 <li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.sample">(aepsych.models.gp_classification.GPClassificationModel method)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPClassificationModel.sample">(aepsych.models.GPClassificationModel method)</a>
@@ -1724,6 +1980,8 @@
 </li>
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.sample">(aepsych.models.PairwiseProbitModel method)</a>
 </li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.sample">(aepsych.models.SemiParametricGPModel method)</a>
+</li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.sample">(aepsych.strategy.Strategy method)</a>
 </li>
 </ul></li>
@@ -1732,6 +1990,14 @@
 <li><a href="benchmark.html#aepsych.benchmark.problem.Problem.sample_y">(aepsych.benchmark.problem.Problem method)</a>
 </li>
 </ul></li>
+<li><a href="models.html#aepsych.models.semi_p_posterior_transform">semi_p_posterior_transform() (in module aepsych.models)</a>
+</li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel">SemiParametricGPModel (class in aepsych.models)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.objective.SemiPProbabilityObjective">SemiPProbabilityObjective (class in aepsych.acquisition.objective)</a>
+</li>
+<li><a href="acquisition.html#aepsych.acquisition.objective.SemiPThresholdObjective">SemiPThresholdObjective (class in aepsych.acquisition.objective)</a>
+</li>
 <li><a href="server.html#aepsych.server.sockets.PySocket.send">send() (aepsych.server.sockets.PySocket method)</a>
 <ul>
 <li><a href="server.html#aepsych.server.sockets.ThriftSocketWrapper.send">(aepsych.server.sockets.ThriftSocketWrapper method)</a>
@@ -1783,17 +2049,29 @@
 </li>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.stimuli_per_trial">(aepsych.models.base.ModelProtocol property)</a>
 </li>
+<li><a href="models.html#aepsych.models.BinaryClassificationGP.stimuli_per_trial">(aepsych.models.BinaryClassificationGP attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.ContinuousRegressionGP.stimuli_per_trial">(aepsych.models.ContinuousRegressionGP attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.gp_classification.GPClassificationModel.stimuli_per_trial">(aepsych.models.gp_classification.GPClassificationModel attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPClassificationModel.stimuli_per_trial">(aepsych.models.GPClassificationModel attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.GPRegressionModel.stimuli_per_trial">(aepsych.models.GPRegressionModel attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel.stimuli_per_trial">(aepsych.models.HadamardSemiPModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel.stimuli_per_trial">(aepsych.models.IndependentMultitaskGPRModel attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP.stimuli_per_trial">(aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.stimuli_per_trial">(aepsych.models.MonotonicRejectionGP attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.MultitaskGPRModel.stimuli_per_trial">(aepsych.models.MultitaskGPRModel attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.stimuli_per_trial">(aepsych.models.PairwiseProbitModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.stimuli_per_trial">(aepsych.models.SemiParametricGPModel attribute)</a>
 </li>
 </ul></li>
 <li><a href="database.html#aepsych.database.tables.DbStratTable.strat">strat (aepsych.database.tables.DbStratTable attribute)</a>
@@ -1801,6 +2079,8 @@
 <li><a href="server.html#aepsych.server.AEPsychServer.strat">(aepsych.server.AEPsychServer property)</a>
 </li>
 <li><a href="server.html#aepsych.server.server.AEPsychServer.strat">(aepsych.server.server.AEPsychServer property)</a>
+</li>
+<li><a href="strategy.html#aepsych.strategy.AEPsychStrategy.strat">(aepsych.strategy.AEPsychStrategy property)</a>
 </li>
 </ul></li>
 <li><a href="strategy.html#aepsych.strategy.Strategy">Strategy (class in aepsych.strategy)</a>
@@ -1812,11 +2092,6 @@
 <h2 id="T">T</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="server.html#aepsych.server.AEPsychServer.tell">tell() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.tell">(aepsych.server.server.AEPsychServer method)</a>
-</li>
-</ul></li>
 <li><a href="benchmark.html#aepsych.benchmark.LSEProblem.threshold">threshold (aepsych.benchmark.LSEProblem attribute)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.problem.LSEProblem.threshold">(aepsych.benchmark.problem.LSEProblem attribute)</a>
@@ -1835,27 +2110,41 @@
 </ul></li>
 <li><a href="config.html#aepsych.config.Config.to_dict">to_dict() (aepsych.config.Config method)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.train_inputs">train_inputs (aepsych.models.base.ModelProtocol property)</a>
 </li>
 <li><a href="kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.training">training (aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad attribute)</a>
 <ul>
 <li><a href="likelihoods.html#aepsych.likelihoods.BernoulliObjectiveLikelihood.training">(aepsych.likelihoods.BernoulliObjectiveLikelihood attribute)</a>
 </li>
+<li><a href="likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.training">(aepsych.likelihoods.LinearBernoulliLikelihood attribute)</a>
+</li>
 <li><a href="likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.training">(aepsych.likelihoods.OrdinalLikelihood attribute)</a>
 </li>
 <li><a href="means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad.training">(aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.gp_classification.GPBetaRegressionModel.training">(aepsych.models.gp_classification.GPBetaRegressionModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.GPBetaRegressionModel.training">(aepsych.models.GPBetaRegressionModel attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.GPClassificationModel.training">(aepsych.models.GPClassificationModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.HadamardSemiPModel.training">(aepsych.models.HadamardSemiPModel attribute)</a>
+</li>
+<li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel.training">(aepsych.models.IndependentMultitaskGPRModel attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicProjectionGP.training">(aepsych.models.MonotonicProjectionGP attribute)</a>
 </li>
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.training">(aepsych.models.MonotonicRejectionGP attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.MultitaskGPRModel.training">(aepsych.models.MultitaskGPRModel attribute)</a>
+</li>
 <li><a href="models.html#aepsych.models.OrdinalGPModel.training">(aepsych.models.OrdinalGPModel attribute)</a>
 </li>
+<li><a href="models.html#aepsych.models.SemiParametricGPModel.training">(aepsych.models.SemiParametricGPModel attribute)</a>
+</li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="benchmark.html#aepsych.benchmark.LSEProblem.true_below_threshold">true_below_threshold (aepsych.benchmark.LSEProblem property)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.problem.LSEProblem.true_below_threshold">(aepsych.benchmark.problem.LSEProblem property)</a>
@@ -1886,11 +2175,6 @@
 <li><a href="database.html#aepsych.database.tables.DbReplayTable.unique_id">(aepsych.database.tables.DbReplayTable attribute)</a>
 </li>
 <li><a href="database.html#aepsych.database.tables.DbStratTable.unique_id">(aepsych.database.tables.DbStratTable attribute)</a>
-</li>
-</ul></li>
-<li><a href="server.html#aepsych.server.AEPsychServer.unversioned_handler">unversioned_handler() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.unversioned_handler">(aepsych.server.server.AEPsychServer method)</a>
 </li>
 </ul></li>
 <li><a href="config.html#aepsych.config.Config.update">update() (aepsych.config.Config method)</a>
@@ -1935,15 +2219,12 @@
 <h2 id="V">V</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="config.html#aepsych.config.Config.version">version (aepsych.config.Config property)</a>
+<li><a href="models.html#aepsych.models.VariationalGP">VariationalGP (class in aepsych.models)</a>
 </li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="server.html#aepsych.server.AEPsychServer.versioned_handler">versioned_handler() (aepsych.server.AEPsychServer method)</a>
-<ul>
-<li><a href="server.html#aepsych.server.server.AEPsychServer.versioned_handler">(aepsych.server.server.AEPsychServer method)</a>
+<li><a href="config.html#aepsych.config.Config.version">version (aepsych.config.Config property)</a>
 </li>
-</ul></li>
 </ul></td>
 </tr></table>
 <h2 id="W">W</h2>

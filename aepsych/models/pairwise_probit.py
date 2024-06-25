@@ -142,6 +142,13 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         else:
             return fmean, fvar
 
+    def predict_probability(
+        self, x, probability_space=False, num_samples=1000, rereference="x_min"
+    ):
+        return self.predict(
+            x, probability_space=True, num_samples=num_samples, rereference=rereference
+        )
+
     def sample(self, x, num_samples, rereference="x_min"):
         if len(x.shape) < 2:
             x = x.reshape(-1, 1)

@@ -1,0 +1,38 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<div class="notebook">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="VR-Throw-Optimizer-Demo">VR Throw Optimizer Demo<a class="anchor-link" href="#VR-Throw-Optimizer-Demo">¶</a></h2><video controls="" muted="" style="width: 100%;">
+<source alt="Throw Optimizer Demo" src="https://github.com/facebookresearch/aepsych/assets/80999718/a62f7fef-bb0f-4624-891f-7c49164a8e2a" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video><p><strong>Description</strong></p>
+<p>The throw optimizer demonstrates AEPsych’s continuous outcome model capabilities. AEPsych's continuous models can find parameters that optimize performance as well as preferences: here, we optimize a controller-based VR throw interaction to maximize throw accuracy.</p>
+<p>Phase 1: Throw Physics Continuous Optimization
+AEPsych modifies the object offset when held - equating to how the user holds projectile in their hand, release threshold - equating to the time during the throw that the user releases the object, and the number of frames to average over - representing a wrist-flick vs. arm-shot put style trade off. The user gets three tries to throw an object with these modified properties towards the center of a target on the floor, and AEPsych receives the average score across the final two throws as a continuous outcome indicating the quality of those parameters. After 24 trials, users are given their optimal throw parameters for which they are most accurate.</p>
+<p>Phase 2: Pairwise Visual Preference Optimization
+As an added bonus, users can further tune the visual aesthetic of their throwable object via an AEPsych pairwise optimization in which the user evaluates the subjective properties of parameterized fireball particle effects to tune their visual feedback. This in effect layers performance-tuned physics parameters with preference-tuned visual style to create an individualized interaction system driven entirely by Gaussian Process models.</p>
+<p><strong>Requirements</strong></p>
+<p>Windows OS, Oculus Quest/Quest 2 connected via link cable, and a local AEPsych server installation</p>
+<p><strong>Installation</strong></p>
+<ol>
+<li>Download the .zip file that corresponds to your operating system</li>
+<li>Right click the .zip archive, and “Extract All” to somewhere on your computer</li>
+<li>Start your local AEPsych server</li>
+<li>Launch Quest Link between your Windows machine and your Oculus Quest, and ensure that the headset displays the link home page.</li>
+<li>Open the extracted archive directory, double click the ‘Throw Optimizer.exe’ application</li>
+<li>Don your headset and follow the on-screen instructions</li>
+</ol>
+<h3>Download</h3>
+<div class="tutorialButtonWrapper buttonWrapper">
+  <a class="tutorialButton button" href="https://github.com/facebookresearch/aepsych/raw/main/demos/ThrowOptimizerDemo_Win.zip" download target="_blank">
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="file-download" class="svg-inline--fa fa-file-download fa-w-12" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm76.45 211.36l-96.42 95.7c-6.65 6.61-17.39 6.61-24.04 0l-96.42-95.7C73.42 337.29 80.54 320 94.82 320H160v-80c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v80h65.18c14.28 0 21.4 17.29 11.27 27.36zM377 105L279.1 7c-4.5-4.5-10.6-7-17-7H256v128h128v-6.1c0-6.3-2.5-12.4-7-16.9z"></path></svg>
+    Download Win Demo
+  </a>
+</div>
+</div>
+</div>
+</div>
+</div>

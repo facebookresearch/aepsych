@@ -17,6 +17,44 @@ usage() {
   exit 1
 }
 
+echo "-----------------------------------"
+echo "Checking environment "
+echo "-----------------------------------"
+
+os=$(uname -s)
+echo "Operating System: $os"
+
+check_command() {
+    command=$1
+    if ! command -v "$command" >/dev/null 2>&1; then
+        echo "Error: $command is not installed."
+        exit 1
+    fi
+}
+
+check_command python
+check_command node
+check_command yarn
+check_command make
+check_command sphinx-build
+
+missing_deps=$(python -m pip check -r requirements.txt 2>&1 | awk -F': ' '/is not installed/ {print $2}')
+
+if [ -n "$missing_deps" ]; then
+    echo "Error: Some dependencies in requirements.txt are not installed."
+    echo "Missing dependencies: $missing_deps"
+    echo "Please run 'pip install -r requirements.txt' in the root of the 'aepsych' directory."
+    exit 1
+fi
+
+echo "All required dependencies are installed."
+
+echo "python version: $(python --version)"
+echo "node version: $(node --version)"
+echo "yarn version: $(yarn --version)"
+echo "Sphinx version: $(sphinx-build --version)"
+echo "-----------------------------------"
+
 BUILD_STATIC=false
 ONLY_DOCUSAURUS=false
 
@@ -90,17 +128,25 @@ if [[ $ONLY_DOCUSAURUS == false ]]; then
   mkdir -p "website/static/files"
   python scripts/parse_tutorials.py -w "${cwd}"
 
+  echo "-----------------------------------"
+  echo "Generating demos"
+  echo "-----------------------------------"
+  mkdir -p "website/_demos"
+  mkdir -p "website/static/files/demos"
+  python scripts/parse_demos.py -w "${cwd}"
+
   cd website || exit
+
 fi  # end of not only Docusaurus block
 
 if [[ $BUILD_STATIC == true ]]; then
   echo "-----------------------------------"
   echo "Building static site"
   echo "-----------------------------------"
-  yarn build
+  yarn build || npm run build
 else
   echo "-----------------------------------"
   echo "Starting local server"
   echo "-----------------------------------"
-  yarn start
+  yarn start || npm start
 fi

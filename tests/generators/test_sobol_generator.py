@@ -11,9 +11,8 @@ import numpy as np
 import numpy.testing as npt
 import torch
 from aepsych.config import Config
-from aepsych.generators import AxSobolGenerator, SobolGenerator
+from aepsych.generators import SobolGenerator
 from aepsych.utils import make_scaled_sobol
-from ax.modelbridge import Models
 
 
 class TestSobolGenerator(unittest.TestCase):
@@ -76,29 +75,6 @@ class TestSobolGenerator(unittest.TestCase):
                 )
                 shape_out = (nsamp, dim, 2)
                 self.assertEqual(generator.gen(nsamp).shape, shape_out)
-
-    def test_axsobol_config(self):
-        config_str = """
-                [common]
-                parnames = [par1]
-                lb = [0]
-                ub = [1]
-                stimuli_per_trial = 1
-                outcome_types = [continuous]
-                strategy_names = [init]
-
-                [init]
-                generator = SobolGenerator
-
-                [SobolGenerator]
-                seed=12345
-                scramble=False
-                """
-        config = Config(config_str=config_str)
-        gen = AxSobolGenerator.from_config(config, name="init")
-        self.assertEqual(gen.model, Models.SOBOL)
-        self.assertEqual(gen.model_kwargs["seed"], 12345)
-        self.assertFalse(gen.model_kwargs["scramble"])
 
 
 if __name__ == "__main__":

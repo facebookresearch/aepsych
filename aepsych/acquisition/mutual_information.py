@@ -14,6 +14,7 @@ from typing import Optional
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
+from aepsych.acquisition.objective import ProbitObjective
 from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective
@@ -64,7 +65,7 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
     def __init__(
         self,
         model: Model,
-        objective: MCAcquisitionObjective,
+        objective: MCAcquisitionObjective = None,
         sampler: Optional[MCSampler] = None,
     ) -> None:
         r"""Single Bernoulli mutual information for active learning
@@ -77,6 +78,8 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
         """
         if sampler is None:
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([1024]))
+        if objective is None:
+            objective = ProbitObjective()
         super().__init__(
             model=model, sampler=sampler, objective=objective, X_pending=None
         )

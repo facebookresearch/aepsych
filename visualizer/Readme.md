@@ -6,12 +6,13 @@ This notebook is a visualization dashboard for AEPsych, a Python package for ada
 
 Requirements: anaconda, python=3.8.13
 
-Before running the AEPsych Visualizer you will need to install AEPsych. We recommend installing the AEPsych under a virtual environment like Anaconda. You can create a virtual environment using the following commands.
+Before running the AEPsych Visualizer you will need to install AEPsych. We recommend installing the AEPsych under a virtual environment like Anaconda. You can create a virtual environment and install the visualizer using the following commands.
 
 ```
 cd aepsych
 conda create -n aepsych_visualizer python=3.8.13
 conda activate aepsych_visualizer
+pip install aepsych[visualizer]
 ```
 
 Once the conda environment is activated refer to the [readme.md](https://github.com/facebookresearch/aepsych#:~:text=pip%20install%20%2Dr%20requirements.txt%0Apip%20install%20%2De%20.) in the root directory to install the aepsych dependencies. After installing the dependencies you can run the notebook using the following command.

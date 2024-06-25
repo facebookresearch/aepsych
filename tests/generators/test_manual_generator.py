@@ -50,15 +50,13 @@ class TestManualGenerator(unittest.TestCase):
         npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
         npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
 
-        self.assertFalse(gen.finished)
-
         p1 = list(gen.gen()[0])
         p2 = list(gen.gen()[0])
         p3 = list(gen.gen()[0])
         p4 = list(gen.gen()[0])
 
         self.assertEqual(sorted([p1, p2, p3, p4]), points)
-        self.assertTrue(gen.finished)
+        self.assertEqual(gen.max_asks, len(points))
 
 
 if __name__ == "__main__":

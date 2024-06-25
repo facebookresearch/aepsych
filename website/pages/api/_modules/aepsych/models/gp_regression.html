@@ -19,7 +19,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -36,7 +36,7 @@
 
 
 <div class="viewcode-block" id="GPRegressionModel"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel">[docs]</a><span class="k">class</span> <span class="nc">GPRegressionModel</span><span class="p">(</span><span class="n">AEPsychMixin</span><span class="p">,</span> <span class="n">ExactGP</span><span class="p">):</span>
-    <span class="sd">"""GP Regression model for continuous outcomes, using exact inference."""</span>
+<span class="w">    </span><span class="sd">"""GP Regression model for continuous outcomes, using exact inference."""</span>
 
     <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">_batch_size</span> <span class="o">=</span> <span class="mi">1</span>
@@ -52,9 +52,8 @@
         <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">num_outputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">"""Initialize the GP regression model</span>
+<span class="w">        </span><span class="sd">"""Initialize the GP regression model</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.</span>
@@ -72,26 +71,13 @@
         <span class="k">if</span> <span class="n">likelihood</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">likelihood</span> <span class="o">=</span> <span class="n">GaussianLikelihood</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">num_outputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_num_outputs</span> <span class="o">=</span> <span class="n">num_outputs</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">num_outputs</span>
-
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">max_fit_time</span>
 
         <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span>
-                <span class="n">config_dict</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">"default_mean_covar_factory"</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="s2">"lb"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">tolist</span><span class="p">()),</span>
-                        <span class="s2">"ub"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">tolist</span><span class="p">()),</span>
-                        <span class="s2">"num_outputs"</span><span class="p">:</span> <span class="n">num_outputs</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span> <span class="o">=</span> <span class="n">mean_module</span> <span class="ow">or</span> <span class="n">default_mean</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span> <span class="o">=</span> <span class="n">covar_module</span> <span class="ow">or</span> <span class="n">default_covar</span>
@@ -99,20 +85,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_likelihood_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
 
-<div class="viewcode-block" id="GPRegressionModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GPRegressionModel</span><span class="p">:</span>
-        <span class="sd">"""Alternate constructor for GP regression model.</span>
-
-<span class="sd">        This is used when we recursively build a full sampling strategy</span>
-<span class="sd">        from a configuration. TODO: document how this works in some tutorial.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            GPRegressionModel: Configured class instance.</span>
-<span class="sd">        """</span>
-
+<div class="viewcode-block" id="GPRegressionModel.construct_inputs"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.construct_inputs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">construct_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
@@ -136,19 +110,36 @@
             <span class="n">likelihood</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># fall back to __init__ default</span>
 
         <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"lb"</span><span class="p">:</span> <span class="n">lb</span><span class="p">,</span>
+            <span class="s2">"ub"</span><span class="p">:</span> <span class="n">ub</span><span class="p">,</span>
+            <span class="s2">"dim"</span><span class="p">:</span> <span class="n">dim</span><span class="p">,</span>
+            <span class="s2">"mean_module"</span><span class="p">:</span> <span class="n">mean</span><span class="p">,</span>
+            <span class="s2">"covar_module"</span><span class="p">:</span> <span class="n">covar</span><span class="p">,</span>
+            <span class="s2">"likelihood"</span><span class="p">:</span> <span class="n">likelihood</span><span class="p">,</span>
+            <span class="s2">"max_fit_time"</span><span class="p">:</span> <span class="n">max_fit_time</span><span class="p">,</span>
+        <span class="p">}</span></div>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
-            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
-            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="n">mean_module</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span>
-            <span class="n">covar_module</span><span class="o">=</span><span class="n">covar</span><span class="p">,</span>
-            <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
-            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
-        <span class="p">)</span></div>
+<div class="viewcode-block" id="GPRegressionModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GPRegressionModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Alternate constructor for GP regression model.</span>
+
+<span class="sd">        This is used when we recursively build a full sampling strategy</span>
+<span class="sd">        from a configuration. TODO: document how this works in some tutorial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            GPRegressionModel: Configured class instance.</span>
+<span class="sd">        """</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">construct_inputs</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GPRegressionModel.fit"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">"""Fit underlying model.</span>
+<span class="w">        </span><span class="sd">"""Fit underlying model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            train_x (torch.Tensor): Inputs.</span>
@@ -156,12 +147,12 @@
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_train_data</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
         <span class="n">mll</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">mlls</span><span class="o">.</span><span class="n">ExactMarginalLogLikelihood</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_mll</span><span class="p">(</span><span class="n">mll</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GPRegressionModel.sample"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">"""Sample from underlying model.</span>
+<span class="w">        </span><span class="sd">"""Sample from underlying model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Points at which to sample.</span>
@@ -173,14 +164,14 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rsample</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">num_samples</span><span class="p">]))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="GPRegressionModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-        <span class="sd">"""Perform a warm-start update of the model from previous fit."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
+<div class="viewcode-block" id="GPRegressionModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GPRegressionModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-        <span class="sd">"""Query the model for posterior mean and variance.</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>

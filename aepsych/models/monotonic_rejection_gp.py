@@ -279,6 +279,11 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         return mean, variance
 
+    def predict_probability(
+        self, x: Union[torch.Tensor, np.ndarray]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.predict(x, probability_space=True)
+
     def _augment_with_deriv_index(self, x: Tensor, indx):
         return torch.cat(
             (x, indx * torch.ones(x.shape[0], 1)),

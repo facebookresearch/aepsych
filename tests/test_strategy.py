@@ -11,11 +11,10 @@ from unittest.mock import MagicMock
 import numpy as np
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.config import Config
 from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
-from aepsych.strategy import AEPsychStrategy, SequentialStrategy, Strategy
+from aepsych.strategy import SequentialStrategy, Strategy
 
 
 class TestSequenceGenerators(unittest.TestCase):
@@ -333,30 +332,6 @@ class TestSequenceGenerators(unittest.TestCase):
             )
         except AssertionError:
             self.fail("Strategy raised unexpected AssertionError on __init__!")
-
-
-class GenerationStrategyTestCase(unittest.TestCase):
-    def test_finish(self):
-        config_str = """
-        [common]
-        use_ax = True
-        stimuli_per_trial = 1
-        outcome_types = [binary]
-        parnames = [x]
-        lb = [0]
-        ub = [1]
-        strategy_names = [test_strat]
-
-        [test_strat]
-        generator = SobolGenerator
-        run_indefinitely = True
-        """
-        config = Config(config_str=config_str)
-        strat = AEPsychStrategy.from_config(config)
-
-        self.assertFalse(strat.finished)
-        strat.finish()
-        self.assertTrue(strat.finished)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,16 @@
+{
+    "Downloadable demos": [
+        {
+            "id": "ParticleEffectDemo",
+            "title": "Particle Effect Demo"
+        },
+        {
+            "id": "ThrowOptimizerDemo",
+            "title": "VR Throw Optimizer Demo"
+        },
+        {
+            "id": "YannyLaurelDemo",
+            "title": "Yanny-Laurel Threshold Demo"
+        }
+    ]
+}
