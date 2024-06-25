@@ -1,6 +1,6 @@
 ---
 id: getting_started
-title: Getting Started with the AEPsych service
+title: Getting Started with AEPsych
 ---
 
 ## Installation
