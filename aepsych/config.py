@@ -166,6 +166,7 @@ class Config(configparser.ConfigParser):
     def _str_to_list(self, v: str, element_type: _T = float) -> List[_T]:
         v = re.sub(r"\n ", ",", v)
         v = re.sub(r"(?<!,)\s+", ",", v)
+        v = re.sub(r",]", "]", v)
         if re.search(r"^\[.*\]$", v, flags=re.DOTALL):
             if v == "[]":  # empty list
                 return []
