@@ -380,9 +380,11 @@ International Conference on Artificial Intelligence and Statistics (AISTATS) 202
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The gpytorch model.</p></li>
-<li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
-<li><p><strong>Xq</strong> – (m x d) global reference set.</p></li>
+<li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – The gpytorch model.</p></li>
+<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>k</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
