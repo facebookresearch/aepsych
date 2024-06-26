@@ -341,18 +341,38 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
        International Conference on Artificial Intelligence and Statistics (AISTATS) 2021.
     """
 
-    def __init__(self, k, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        model: GPyTorchModel,
+        lookahead_type="posterior",
+        target: Optional[float] = None,
+        query_set_size: Optional[int] = 256,
+        Xq: Optional[Tensor] = None,
+        k: Optional[float] = 20.0,
+    ):
+
+        super().__init__(
+            model=model,
+            target=target,
+            lookahead_type=lookahead_type,
+            query_set_size=query_set_size,
+            Xq=Xq,
+        )
         self.k = k
 
     def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
-        stacked = torch.stack((Px, 1 - Px), dim=-1)
-        current_softmax_query = torch.logsumexp(self.k * stacked, dim=-1) / self.k
+        current_softmax_query = (
+            torch.logsumexp(self.k * torch.stack((Px, 1 - Px), dim=-1), dim=-1) / self.k
+        )
         # expectation w.r.t. y* of the max of pq
-        lookahead_pq1_max = torch.maximum(P1, 1 - P1)
-        lookahead_pq0_max = torch.maximum(P0, 1 - P0)
-        lookahead_max_query = lookahead_pq1_max * py1 + lookahead_pq0_max * (1 - py1)
-        return (lookahead_max_query - current_softmax_query).mean(-1)
+        lookahead_pq1_softmax = (
+            torch.logsumexp(self.k * torch.stack((P1, 1 - P1), dim=-1), dim=-1) / self.k
+        )
+        lookahead_pq0_softmax = (
+            torch.logsumexp(self.k * torch.stack((P0, 1 - P0), dim=-1), dim=-1) / self.k
+        )
+        lookahead_softmax_query = lookahead_pq1_softmax * py1 + lookahead_pq0_softmax * (1 - py1)
+        return (lookahead_softmax_query - current_softmax_query).mean(-1)
 
 
 class BEMPS(GlobalLookaheadAcquisitionFunction):
