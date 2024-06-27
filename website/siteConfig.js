@@ -93,7 +93,6 @@ const siteConfig = {
     "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js",
     `${baseUrl}js/cookie_consent.js`,
     // Mathjax for rendering math content
-    'https://polyfill.io/v3/polyfill.min.js?features=es6',
     'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
   ],
 
