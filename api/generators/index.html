@@ -1020,6 +1020,65 @@ with this generator. It should work with other similar acquisition functions.</p
 </dl>
 </dd></dl>
 </dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.generators.AcqfThompsonSamplerGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">AcqfThompsonSamplerGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
+<p>Generator that chooses points by minimizing an acquisition function.</p>
+<p>Initialize OptimizeAcqfGenerator.
+:param acqf: Acquisition function to use.
+:type acqf: AcquisitionFunction
+:param acqf_kwargs: Extra arguments to</p>
+<blockquote>
+<div><p>pass to acquisition function. Defaults to no arguments.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer.</p></li>
+<li><p><strong>acqf</strong> (<em>AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.generators.AcqfThompsonSamplerGenerator.baseline_requiring_acqfs">
+<span class="sig-name descname"><span class="pre">baseline_requiring_acqfs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[botorch.acquisition.NoisyExpectedImprovement,</span> <span class="pre">botorch.acquisition.LogNoisyExpectedImprovement,</span> <span class="pre">botorch.acquisition.qNoisyExpectedImprovement,</span> <span class="pre">botorch.acquisition.qLogNoisyExpectedImprovement]</span></em><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator.baseline_requiring_acqfs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.generators.AcqfThompsonSamplerGenerator.gen">
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query next point(s) to run by optimizing the acquisition function.
+:param num_points: Number of points to query.
+:type num_points: int, optional
+:param model: Fitted model of the data.
+:type model: ModelProtocol</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.generators.AcqfThompsonSamplerGenerator.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
 </section>
 </section>
 </div>
