@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 from functools import cached_property
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, List
 
 import aepsych
 import numpy as np
@@ -208,14 +208,21 @@ class LSEProblem(Problem):
     in addition to the function estimate.
     """
 
-    threshold = 0.75
+    def __init__(self, thresholds: Union[float, List]):
+        super().__init__()
+        thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
+        self.thresholds = np.array(thresholds)
 
     @property
     def metadata(self) -> Dict[str, Any]:
         """A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
         Benchmark's output dataframe, with its associated value stored in each row."""
         md = super().metadata
-        md["threshold"] = self.threshold
+        md["thresholds"] = (
+            self.thresholds.tolist()
+            if len(self.thresholds) > 1
+            else self.thresholds.item()
+        )
         return md
 
     def f_threshold(self, model=None):
@@ -228,7 +235,7 @@ class LSEProblem(Problem):
 
         except AttributeError:
             inverse_link = norm.ppf
-        return float(inverse_link(self.threshold))
+        return inverse_link(self.thresholds).astype(np.float32)
 
     @cached_property
     def true_below_threshold(self) -> np.ndarray:
@@ -236,7 +243,9 @@ class LSEProblem(Problem):
         Evaluate whether the true function is below threshold over the eval grid
         (used for proper scoring and threshold missclassification metric).
         """
-        return (self.p(self.eval_grid) <= self.threshold).astype(float)
+        return (
+            self.p(self.eval_grid).reshape(1, -1) <= self.thresholds.reshape(-1, 1)
+        ).astype(float)
 
     def evaluate(self, strat: Union[Strategy, SequentialStrategy]) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.
@@ -264,21 +273,27 @@ class LSEProblem(Problem):
         # TODO bring back more threshold error metrics when we more clearly
         # define what "threshold" means in high-dim.
 
-        # Predict p(below threshold) at test points
-        p_l = model.p_below_threshold(self.eval_grid, self.f_threshold(model))
-
         # Brier score on level-set probabilities
-        thresh = self.threshold
-        brier_name = f"brier_p_below_{thresh}"
-        metrics[brier_name] = np.mean(2 * np.square(self.true_below_threshold - p_l))
-
-        # Classification error
-        classerr_name = f"missclass_on_thresh_{thresh}"
-        metrics[classerr_name] = np.mean(
-            p_l * (1 - self.true_below_threshold)
-            + (1 - p_l) * self.true_below_threshold
+        p_l = model.p_below_threshold(
+            self.eval_grid, self.f_threshold(model)
+        )
+        true_p_l = self.true_below_threshold
+        assert (
+            p_l.ndim == 2
+            and p_l.shape == true_p_l.shape
+            and p_l.shape[0] == len(self.thresholds)
         )
 
+        # Predict p(below threshold) at test points
+        brier_p_below_thresh = np.mean(2 * np.square(true_p_l - p_l), axis=1)
+        # Classification error
+        misclass_on_thresh = np.mean(
+            p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, axis=1
+        )
+
+        for i_threshold, threshold in enumerate(self.thresholds):
+            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh[i_threshold]
+            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh[i_threshold]
         return metrics
 
 
@@ -290,6 +305,9 @@ The LSEProblemWithEdgeLogging class is copied from bernoulli_lse github reposito
 
 class LSEProblemWithEdgeLogging(LSEProblem):
     eps = 0.05
+
+    def __init__(self, thresholds):
+        super().__init__(thresholds)
 
     def evaluate(self, strat):
         metrics = super().evaluate(strat)

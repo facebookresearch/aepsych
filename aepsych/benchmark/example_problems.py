@@ -19,15 +19,17 @@ by Letham et al. 2022."""
 class DiscrimLowDim(LSEProblemWithEdgeLogging):
     name = "discrim_lowdim"
     bounds = torch.tensor([[-1, 1], [-1, 1]], dtype=torch.double).T
-    threshold = 0.75
+
+    def __init__(self, thresholds=None):
+        thresholds = 0.75 if thresholds is None else thresholds
+        super().__init__(thresholds=thresholds)
 
     def f(self, x: torch.Tensor) -> torch.Tensor:
-        return novel_discrimination_testfun(x).to(torch.double) # type: ignore
+        return novel_discrimination_testfun(x).to(torch.double)  # type: ignore
 
 
 class DiscrimHighDim(LSEProblemWithEdgeLogging):
     name = "discrim_highdim"
-    threshold = 0.75
     bounds = torch.tensor(
         [
             [-1, 1],
@@ -42,19 +44,26 @@ class DiscrimHighDim(LSEProblemWithEdgeLogging):
         dtype=torch.double,
     ).T
 
+    def __init__(self, thresholds=None):
+        thresholds = 0.75 if thresholds is None else thresholds
+        super().__init__(thresholds=thresholds)
+
     def f(self, x: torch.Tensor) -> torch.Tensor:
         return torch.tensor(discrim_highdim(x), dtype=torch.double)
 
 
 class Hartmann6Binary(LSEProblemWithEdgeLogging):
     name = "hartmann6_binary"
-    threshold = 0.5
     bounds = torch.stack(
         (
             torch.zeros(6, dtype=torch.double),
             torch.ones(6, dtype=torch.double),
         )
     )
+
+    def __init__(self, thresholds=None):
+        thresholds = 0.5 if thresholds is None else thresholds
+        super().__init__(thresholds=thresholds)
 
     def f(self, X: torch.Tensor) -> torch.Tensor:
         y = torch.tensor([modified_hartmann6(x) for x in X], dtype=torch.double)
@@ -68,13 +77,14 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
     """
 
     name = "contrast_sensitivity_6d"
-    threshold = 0.75
     bounds = torch.tensor(
         [[-1.5, 0], [-1.5, 0], [0, 20], [0.5, 7], [1, 10], [0, 10]],
         dtype=torch.double,
     ).T
 
-    def __init__(self):
+    def __init__(self, thresholds=None):
+        thresholds = 0.75 if thresholds is None else thresholds
+        super().__init__(thresholds=thresholds)
 
         # Load the data
         self.data = np.loadtxt(
