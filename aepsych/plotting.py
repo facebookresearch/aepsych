@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Callable, Iterable, List, Optional, Union
+from typing import Any, Callable, Iterable, List, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -375,8 +375,14 @@ def plot_strat_3d(
         raise TypeError("slice_vals must be either an integer or a list of values")
     else:
         slices = np.array(slice_vals)
+    
+    # make mypy happy, note that this can't be more specific 
+    # because of https://github.com/numpy/numpy/issues/24738
+    axs: np.ndarray[Any, Any] 
+    _, axs = plt.subplots(1, len(slices), constrained_layout=True, figsize=(20, 3)) # type: ignore
 
-    _, axs = plt.subplots(1, len(slices), constrained_layout=True, figsize=(20, 3))
+    assert len(slices) > 1, "Must have at least 2 slices"
+    
 
     for _i, dim_val in enumerate(slices):
         img = plot_slice(
