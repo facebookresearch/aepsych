@@ -23,7 +23,7 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">aepsych</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -226,14 +226,21 @@
 <span class="sd">    in addition to the function estimate.</span>
 <span class="sd">    """</span>
 
-    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.75</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[</span><span class="n">thresholds</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="n">thresholds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">thresholds</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the</span>
 <span class="sd">        Benchmark's output dataframe, with its associated value stored in each row."""</span>
         <span class="n">md</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">metadata</span>
-        <span class="n">md</span><span class="p">[</span><span class="s2">"threshold"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>
+        <span class="n">md</span><span class="p">[</span><span class="s2">"thresholds"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">md</span>
 
 <div class="viewcode-block" id="LSEProblem.f_threshold"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.f_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">f_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -246,7 +253,7 @@
 
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">inverse_link</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">true_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -254,7 +261,9 @@
 <span class="sd">        Evaluate whether the true function is below threshold over the eval grid</span>
 <span class="sd">        (used for proper scoring and threshold missclassification metric).</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LSEProblem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Evaluate the model with respect to this problem.</span>
@@ -282,21 +291,27 @@
         <span class="c1"># TODO bring back more threshold error metrics when we more clearly</span>
         <span class="c1"># define what "threshold" means in high-dim.</span>
 
-        <span class="c1"># Predict p(below threshold) at test points</span>
-        <span class="n">p_l</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_threshold</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
-
         <span class="c1"># Brier score on level-set probabilities</span>
-        <span class="n">thresh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span>
-        <span class="n">brier_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"brier_p_below_</span><span class="si">{</span><span class="n">thresh</span><span class="si">}</span><span class="s2">"</span>
-        <span class="n">metrics</span><span class="p">[</span><span class="n">brier_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">))</span>
-
-        <span class="c1"># Classification error</span>
-        <span class="n">classerr_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"missclass_on_thresh_</span><span class="si">{</span><span class="n">thresh</span><span class="si">}</span><span class="s2">"</span>
-        <span class="n">metrics</span><span class="p">[</span><span class="n">classerr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
-            <span class="n">p_l</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span><span class="p">)</span>
-            <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span>
+        <span class="n">p_l</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_below_threshold</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_threshold</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">true_p_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">p_l</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="ow">and</span> <span class="n">p_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">true_p_l</span><span class="o">.</span><span class="n">shape</span>
+            <span class="ow">and</span> <span class="n">p_l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span>
         <span class="p">)</span>
 
+        <span class="c1"># Predict p(below threshold) at test points</span>
+        <span class="n">brier_p_below_thresh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">true_p_l</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Classification error</span>
+        <span class="n">misclass_on_thresh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="n">p_l</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">true_p_l</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">)</span> <span class="o">*</span> <span class="n">true_p_l</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i_threshold</span><span class="p">,</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">):</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">"brier_p_below_</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">brier_p_below_thresh</span><span class="p">[</span><span class="n">i_threshold</span><span class="p">]</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">"misclass_on_thresh_</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">misclass_on_thresh</span><span class="p">[</span><span class="n">i_threshold</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">metrics</span></div></div>
 
 
@@ -308,6 +323,9 @@
 
 <div class="viewcode-block" id="LSEProblemWithEdgeLogging"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblemWithEdgeLogging">[docs]</a><span class="k">class</span> <span class="nc">LSEProblemWithEdgeLogging</span><span class="p">(</span><span class="n">LSEProblem</span><span class="p">):</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">thresholds</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LSEProblemWithEdgeLogging.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblemWithEdgeLogging.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">):</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>

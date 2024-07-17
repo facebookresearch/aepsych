@@ -37,15 +37,17 @@
 <div class="viewcode-block" id="DiscrimLowDim"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.DiscrimLowDim">[docs]</a><span class="k">class</span> <span class="nc">DiscrimLowDim</span><span class="p">(</span><span class="n">LSEProblemWithEdgeLogging</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"discrim_lowdim"</span>
     <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.75</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="mf">0.75</span> <span class="k">if</span> <span class="n">thresholds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">thresholds</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">thresholds</span><span class="o">=</span><span class="n">thresholds</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DiscrimLowDim.f"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.DiscrimLowDim.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">novel_discrimination_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span> <span class="c1"># type: ignore</span></div></div>
+        <span class="k">return</span> <span class="n">novel_discrimination_testfun</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>  <span class="c1"># type: ignore</span></div></div>
 
 
 <div class="viewcode-block" id="DiscrimHighDim"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.DiscrimHighDim">[docs]</a><span class="k">class</span> <span class="nc">DiscrimHighDim</span><span class="p">(</span><span class="n">LSEProblemWithEdgeLogging</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"discrim_highdim"</span>
-    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.75</span>
     <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
@@ -60,19 +62,26 @@
         <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="mf">0.75</span> <span class="k">if</span> <span class="n">thresholds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">thresholds</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">thresholds</span><span class="o">=</span><span class="n">thresholds</span><span class="p">)</span>
+
 <div class="viewcode-block" id="DiscrimHighDim.f"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.DiscrimHighDim.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">discrim_highdim</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Hartmann6Binary"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.Hartmann6Binary">[docs]</a><span class="k">class</span> <span class="nc">Hartmann6Binary</span><span class="p">(</span><span class="n">LSEProblemWithEdgeLogging</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"hartmann6_binary"</span>
-    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.5</span>
     <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="p">(</span>
             <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">),</span>
             <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="k">if</span> <span class="n">thresholds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">thresholds</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">thresholds</span><span class="o">=</span><span class="n">thresholds</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Hartmann6Binary.f"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.Hartmann6Binary.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">modified_hartmann6</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
@@ -86,13 +95,14 @@
 <span class="sd">    """</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"contrast_sensitivity_6d"</span>
-    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.75</span>
     <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
         <span class="p">[[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]],</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">thresholds</span> <span class="o">=</span> <span class="mf">0.75</span> <span class="k">if</span> <span class="n">thresholds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">thresholds</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">thresholds</span><span class="o">=</span><span class="n">thresholds</span><span class="p">)</span>
 
         <span class="c1"># Load the data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span>
