@@ -11,6 +11,7 @@ from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 
 from . import acquisition, config, factory, generators, models, strategy, utils
 from .config import Config
+from .distributions import RTDistWithUniformLapseRate, LogNormalDDMDistribution, ShiftedGammaDDMDistribution, ShiftedInverseGammaDDMDistribution, ShiftedLogNormalDDMDistribution
 from .likelihoods import BernoulliObjectiveLikelihood
 from .models import GPClassificationModel
 from .strategy import SequentialStrategy, Strategy
@@ -31,6 +32,11 @@ __all__ = [
     "BernoulliObjectiveLikelihood",
     "BernoulliLikelihood",
     "GaussianLikelihood",
+    "RTDistWithUniformLapseRate",
+    "LogNormalDDMDistribution",
+    "ShiftedGammaDDMDistribution",
+    "ShiftedInverseGammaDDMDistribution",
+    "ShiftedLogNormalDDMDistribution",
 ]
 
 try:
