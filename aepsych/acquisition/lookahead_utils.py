@@ -57,6 +57,7 @@ def lookahead_levelset_at_xstar(
     Xstar: Tensor,
     Xq: Tensor,
     posterior_transform: Optional[PosteriorTransform] = None,
+    eps: float = 1e-8,
     **kwargs: Dict[str, Any],
 ):
     """
@@ -86,18 +87,18 @@ def lookahead_levelset_at_xstar(
     # Compute look-ahead components
     Norm = torch.distributions.Normal(0, 1)
     Sigma_q = torch.sqrt(Sigma2_q)
-    b_q = (gamma - Mu_q) / Sigma_q
+    b_q = (gamma - Mu_q) / (Sigma_q + eps)
     Phi_bq = Norm.cdf(b_q)
     denom = torch.sqrt(1 + Sigma2_s)
     a_s = Mu_s / denom
     Phi_as = Norm.cdf(a_s)
-    Z_rho = -Sigma_sq / (Sigma_q * denom)
+    Z_rho = -Sigma_sq / (Sigma_q * denom + eps)
     Z_qs = bvn_cdf(a_s, b_q, Z_rho)
 
     Px = Phi_bq
     py1 = Phi_as
-    P1 = Z_qs / py1
-    P0 = (Phi_bq - Z_qs) / (1 - py1)
+    P1 = Z_qs / (py1 + eps)
+    P0 = (Phi_bq - Z_qs) / (1 - py1 + eps)
     return Px, P1, P0, py1
 
 
