@@ -28,7 +28,6 @@ class SobolGenerator(AEPsychGenerator):
         ub: Union[np.ndarray, torch.Tensor],
         dim: Optional[int] = None,
         seed: Optional[int] = None,
-        stimuli_per_trial: int = 1,
     ):
         """Iniatialize SobolGenerator.
         Args:
@@ -38,13 +37,8 @@ class SobolGenerator(AEPsychGenerator):
             seed (int, optional): Random seed.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
-        self.lb = self.lb.repeat(stimuli_per_trial)
-        self.ub = self.ub.repeat(stimuli_per_trial)
-        self.stimuli_per_trial = stimuli_per_trial
         self.seed = seed
-        self.engine = SobolEngine(
-            dimension=self.dim * stimuli_per_trial, scramble=True, seed=self.seed
-        )
+        self.engine = SobolEngine(dimension=self.dim, scramble=True, seed=self.seed)
 
     def gen(
         self,
@@ -59,16 +53,7 @@ class SobolGenerator(AEPsychGenerator):
         """
         grid = self.engine.draw(num_points)
         grid = self.lb + (self.ub - self.lb) * grid
-        if self.stimuli_per_trial == 1:
-            return grid
-
-        return torch.tensor(
-            np.moveaxis(
-                grid.reshape(num_points, self.stimuli_per_trial, -1).numpy(),
-                -1,
-                -self.stimuli_per_trial,
-            )
-        )
+        return grid
 
     @classmethod
     def from_config(cls, config: Config):
@@ -78,8 +63,10 @@ class SobolGenerator(AEPsychGenerator):
         ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
         seed = config.getint(classname, "seed", fallback=None)
-        stimuli_per_trial = config.getint(classname, "stimuli_per_trial")
 
         return cls(
-            lb=lb, ub=ub, dim=dim, seed=seed, stimuli_per_trial=stimuli_per_trial
+            lb=lb,
+            ub=ub,
+            dim=dim,
+            seed=seed,
         )

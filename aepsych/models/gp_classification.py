@@ -42,7 +42,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
     _batch_size = 1
     _num_outputs = 1
-    stimuli_per_trial = 1
     outcome_type = "binary"
 
     def __init__(
@@ -56,6 +55,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        stimuli_per_trial: int = 1,
     ):
         """Initialize the GP Classification model
 
@@ -77,10 +77,19 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+            stimuli_per_trial (int): Number of stimuli that will be presented each trial. Currently only 1 or 2 are
+                supported. If 2, covar_module should use PairwiseKernel, and the dimensionality will be interpreted as
+                2*d, where the first d dimensions correspond to the dimensions of the first stimulus, and the second d
+                dimensions correspond to the dimensions of the second stimulus.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size
+
+        assert stimuli_per_trial in (1, 2), "stimuli_per_trial must be 1 or 2!"
+        if stimuli_per_trial == 2:
+            assert self.dim % 2 == 0, "Dimensionality does not match stimuli_per_trial!"
+        self.stimuli_per_trial = stimuli_per_trial
 
         if likelihood is None:
             likelihood = BernoulliLikelihood()
@@ -104,7 +113,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         super().__init__(variational_strategy)
 
         if mean_module is None or covar_module is None:
-            default_mean, default_covar = default_mean_covar_factory(dim=self.dim)
+            default_mean, default_covar = default_mean_covar_factory(
+                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
+            )
 
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
@@ -155,6 +166,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             likelihood = None  # fall back to __init__ default
 
+        stimuli_per_trial = config.getint(classname, "stimuli_per_trial", fallback=1)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -165,6 +178,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
             likelihood=likelihood,
+            stimuli_per_trial=stimuli_per_trial,
         )
 
     def _reset_hyperparameters(self):

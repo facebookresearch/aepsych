@@ -14,7 +14,6 @@ from .monotonic_projection_gp import MonotonicProjectionGP
 from .monotonic_rejection_gp import MonotonicRejectionGP
 from .multitask_regression import IndependentMultitaskGPRModel, MultitaskGPRModel
 from .ordinal_gp import OrdinalGPModel
-from .pairwise_probit import PairwiseProbitModel
 from .semi_p import (
     HadamardSemiPModel,
     semi_p_posterior_transform,
@@ -26,7 +25,6 @@ __all__ = [
     "GPClassificationModel",
     "MonotonicRejectionGP",
     "GPRegressionModel",
-    "PairwiseProbitModel",
     "OrdinalGPModel",
     "MonotonicProjectionGP",
     "MultitaskGPRModel",
