@@ -13,8 +13,9 @@ import torch
 from aepsych.config import Config
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
-from aepsych.utils import get_dim
 from scipy.stats import norm
+
+from ..kernels.pairwisekernel import PairwiseKernel
 
 """AEPsych factory functions.
 These functions generate a gpytorch Mean and Kernel objects from
@@ -36,7 +37,9 @@ __default_invgamma_rate = 1.0
 
 
 def default_mean_covar_factory(
-    config: Optional[Config] = None, dim: Optional[int] = None
+    config: Optional[Config] = None,
+    dim: Optional[int] = None,
+    stimuli_per_trial: int = 1,
 ) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
     """Default factory for generic GP models
 
@@ -54,6 +57,8 @@ def default_mean_covar_factory(
     assert (config is not None) or (
         dim is not None
     ), "Either config or dim must be provided!"
+
+    assert stimuli_per_trial in (1, 2), "stimuli_per_trial must be 1 or 2!"
 
     fixed_mean = False
     lengthscale_prior = "gamma"
@@ -135,6 +140,9 @@ def default_mean_covar_factory(
         ),
         outputscale_prior=os_prior,
     )
+
+    if stimuli_per_trial == 2:
+        covar = PairwiseKernel(covar)
 
     return mean, covar
 

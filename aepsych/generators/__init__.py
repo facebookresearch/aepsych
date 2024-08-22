@@ -13,8 +13,6 @@ from .manual_generator import ManualGenerator
 from .monotonic_rejection_generator import MonotonicRejectionGenerator
 from .monotonic_thompson_sampler_generator import MonotonicThompsonSamplerGenerator
 from .optimize_acqf_generator import OptimizeAcqfGenerator
-from .pairwise_optimize_acqf_generator import PairwiseOptimizeAcqfGenerator
-from .pairwise_sobol_generator import PairwiseSobolGenerator
 from .random_generator import RandomGenerator
 from .semi_p import IntensityAwareSemiPGenerator
 from .sobol_generator import SobolGenerator
@@ -28,8 +26,6 @@ __all__ = [
     "SobolGenerator",
     "EpsilonGreedyGenerator",
     "ManualGenerator",
-    "PairwiseOptimizeAcqfGenerator",
-    "PairwiseSobolGenerator",
     "IntensityAwareSemiPGenerator",
     "AcqfThompsonSamplerGenerator"
 ]

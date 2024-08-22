@@ -19,10 +19,7 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
 from aepsych.models.base import ModelProtocol
-from aepsych.utils import (
-    _process_bounds,
-    make_scaled_sobol,
-)
+from aepsych.utils import _process_bounds, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.exceptions.errors import ModelFittingError
 
@@ -147,13 +144,7 @@ class Strategy(object):
         self.min_total_tells = min_total_tells
         self.stimuli_per_trial = stimuli_per_trial
         self.outcome_types = outcome_types
-
-        if self.stimuli_per_trial == 1:
-            self.event_shape: Tuple[int, ...] = (self.dim,)
-
-        if self.stimuli_per_trial == 2:
-            self.event_shape = (self.dim, self.stimuli_per_trial)
-
+        self.event_shape: Tuple[int, ...] = (self.dim,)
         self.model = model
         self.refit_every = refit_every
         self._model_is_fresh = False

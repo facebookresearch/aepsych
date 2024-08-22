@@ -14,15 +14,15 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
-from botorch.optim import optimize_acqf
 from botorch.acquisition import (
     AcquisitionFunction,
-    NoisyExpectedImprovement,
-    qNoisyExpectedImprovement,
     LogNoisyExpectedImprovement,
+    NoisyExpectedImprovement,
     qLogNoisyExpectedImprovement,
+    qNoisyExpectedImprovement,
 )
+from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+from botorch.optim import optimize_acqf
 
 logger = getLogger()
 
@@ -44,7 +44,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         restarts: int = 10,
         samps: int = 1000,
         max_gen_time: Optional[float] = None,
-        stimuli_per_trial: int = 1,
     ) -> None:
         """Initialize OptimizeAcqfGenerator.
         Args:
@@ -63,7 +62,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.restarts = restarts
         self.samps = samps
         self.max_gen_time = max_gen_time
-        self.stimuli_per_trial = stimuli_per_trial
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol):
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
@@ -83,17 +81,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
 
-        if self.stimuli_per_trial == 2:
-            qbatch_points = self._gen(
-                num_points=num_points * 2, model=model, **gen_options
-            )
-
-            # output of super() is (q, dim) but the contract is (num_points, dim, 2)
-            # so we need to split q into q and pairs and then move the pair dim to the end
-            return qbatch_points.reshape(num_points, 2, -1).swapaxes(-1, -2)
-
-        else:
-            return self._gen(num_points=num_points, model=model, **gen_options)
+        return self._gen(num_points=num_points, model=model, **gen_options)
 
     def _gen(
         self, num_points: int, model: ModelProtocol, **gen_options
@@ -124,7 +112,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         classname = cls.__name__
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
-        stimuli_per_trial = config.getint(classname, "stimuli_per_trial")
         restarts = config.getint(classname, "restarts", fallback=10)
         samps = config.getint(classname, "samps", fallback=1000)
         max_gen_time = config.getfloat(classname, "max_gen_time", fallback=None)
@@ -135,5 +122,4 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             restarts=restarts,
             samps=samps,
             max_gen_time=max_gen_time,
-            stimuli_per_trial=stimuli_per_trial,
         )
