@@ -96,7 +96,7 @@ def select_inducing_points(
         elif method == "kmeans++":
             # initialize using kmeans
             inducing_points = torch.tensor(
-                kmeans2(unique_X.numpy(), inducing_size, minit="++")[0],
+                kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],
                 dtype=X.dtype,
             )
         return inducing_points

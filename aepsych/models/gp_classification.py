@@ -195,6 +195,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             variational_distribution,
             learn_inducing_locations=False,
         )
+        self.variational_strategy.to(self.train_targets.device)
 
     def fit(
         self,
