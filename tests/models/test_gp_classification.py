@@ -117,35 +117,39 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         Just see if we memorize the training set
         """
+        device = "cuda:0"
+
         X, y = self.X, self.y
+        X, y = X.to(device), y.to(device)
+
         model = GPClassificationModel(
-            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10
-        )
+            torch.Tensor([-3]).to(device), torch.Tensor([3]).to(device), inducing_size=10
+        ).to(device)
 
         model.fit(X[:50], y[:50])
 
         # pspace
         pm, _ = model.predict_probability(X[:50])
-        pred = (pm > 0.5).numpy()
-        npt.assert_allclose(pred, y[:50])
+        pred = (pm > 0.5).cpu().numpy()
+        npt.assert_allclose(pred, y[:50].cpu().numpy())
 
         # fspace
         pm, _ = model.predict(X[:50], probability_space=False)
-        pred = (pm > 0).numpy()
-        npt.assert_allclose(pred, y[:50])
+        pred = (pm > 0).cpu().numpy()
+        npt.assert_allclose(pred, y[:50].cpu().numpy())
 
         # smoke test update
         model.update(X, y)
 
         # pspace
         pm, _ = model.predict_probability(X)
-        pred = (pm > 0.5).numpy()
-        npt.assert_allclose(pred, y)
+        pred = (pm > 0.5).cpu().numpy()
+        npt.assert_allclose(pred, y.cpu().numpy())
 
         # fspace
         pm, _ = model.predict(X, probability_space=False)
-        pred = (pm > 0).numpy()
-        npt.assert_allclose(pred, y)
+        pred = (pm > 0).cpu().numpy()
+        npt.assert_allclose(pred, y.cpu().numpy())
 
     def test_1d_classification_pytorchopt(self):
         """

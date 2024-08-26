@@ -269,8 +269,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 a_star = fmean / torch.sqrt(1 + fvar)
                 pmean = Normal(0, 1).cdf(a_star)
                 t_term = torch.tensor(
-                    owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
+                    owens_t(a_star.cpu().numpy(), 1 / np.sqrt(1 + 2 * fvar.cpu().numpy())),
                     dtype=a_star.dtype,
+                    device=pmean.device,
                 )
                 pvar = pmean - 2 * t_term - pmean.square()
                 return promote_0d(pmean), promote_0d(pvar)
