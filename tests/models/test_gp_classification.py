@@ -117,39 +117,43 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         Just see if we memorize the training set
         """
-        device = "cuda:0"
+        if torch.cuda.is_available():
+            lst_devices = ["cuda:0", "cpu"]
+        else:
+            lst_devices = ["cpu"]
 
-        X, y = self.X, self.y
-        X, y = X.to(device), y.to(device)
+        for device in lst_devices:
+            X, y = self.X, self.y
+            X, y = X.to(device), y.to(device)
 
-        model = GPClassificationModel(
-            torch.Tensor([-3]).to(device), torch.Tensor([3]).to(device), inducing_size=10
-        ).to(device)
+            model = GPClassificationModel(
+                torch.Tensor([-3]).to(device), torch.Tensor([3]).to(device), inducing_size=10
+            ).to(device)
 
-        model.fit(X[:50], y[:50])
+            model.fit(X[:50], y[:50])
 
-        # pspace
-        pm, _ = model.predict_probability(X[:50])
-        pred = (pm > 0.5).cpu().numpy()
-        npt.assert_allclose(pred, y[:50].cpu().numpy())
+            # pspace
+            pm, _ = model.predict_probability(X[:50])
+            pred = (pm > 0.5).cpu().numpy()
+            npt.assert_allclose(pred, y[:50].cpu().numpy())
 
-        # fspace
-        pm, _ = model.predict(X[:50], probability_space=False)
-        pred = (pm > 0).cpu().numpy()
-        npt.assert_allclose(pred, y[:50].cpu().numpy())
+            # fspace
+            pm, _ = model.predict(X[:50], probability_space=False)
+            pred = (pm > 0).cpu().numpy()
+            npt.assert_allclose(pred, y[:50].cpu().numpy())
 
-        # smoke test update
-        model.update(X, y)
+            # smoke test update
+            model.update(X, y)
 
-        # pspace
-        pm, _ = model.predict_probability(X)
-        pred = (pm > 0.5).cpu().numpy()
-        npt.assert_allclose(pred, y.cpu().numpy())
+            # pspace
+            pm, _ = model.predict_probability(X)
+            pred = (pm > 0.5).cpu().numpy()
+            npt.assert_allclose(pred, y.cpu().numpy())
 
-        # fspace
-        pm, _ = model.predict(X, probability_space=False)
-        pred = (pm > 0).cpu().numpy()
-        npt.assert_allclose(pred, y.cpu().numpy())
+            # fspace
+            pm, _ = model.predict(X, probability_space=False)
+            pred = (pm > 0).cpu().numpy()
+            npt.assert_allclose(pred, y.cpu().numpy())
 
     def test_1d_classification_pytorchopt(self):
         """
