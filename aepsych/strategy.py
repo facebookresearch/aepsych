@@ -174,12 +174,12 @@ class Strategy(object):
         """converts inputs into normalized format for this strategy
 
         Args:
-            x (np.ndarray): training inputs
-            y (np.ndarray): training outputs
+            x (tensor): training inputs
+            y (tensor): training outputs
 
         Returns:
-            x (np.ndarray): training inputs, normalized
-            y (np.ndarray): training outputs, normalized
+            x (tensor): training inputs, normalized
+            y (tensor): training outputs, normalized
             n (int): number of observations
         """
         assert (
@@ -187,21 +187,12 @@ class Strategy(object):
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
         if x.shape == self.event_shape:
-            x = x[None, :]
+            x = x.unsqueeze(0)
 
-        if self.x is None:
-            x = np.r_[x]
-        else:
-            x = np.r_[self.x, x]
+        x = torch.cat([self.x, x], dim=0) if self.x is not None else x
+        y = torch.cat([self.y, y], dim=0) if self.y is not None else y
 
-        if self.y is None:
-            y = np.r_[y]
-        else:
-            y = np.r_[self.y, y]
-
-        n = y.shape[0]
-
-        return torch.Tensor(x), torch.Tensor(y), n
+        return x, y, y.size(0)
 
     # TODO: allow user to pass in generator options
     @ensure_model_is_fresh
