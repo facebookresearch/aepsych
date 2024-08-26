@@ -174,8 +174,8 @@ class Strategy(object):
         """converts inputs into normalized format for this strategy
 
         Args:
-            x (tensor): training inputs
-            y (tensor): training outputs
+            x (np.ndarray): training inputs
+            y (np.ndarray): training outputs
 
         Returns:
             x (tensor): training inputs, normalized
@@ -185,6 +185,9 @@ class Strategy(object):
         assert (
             x.shape == self.event_shape or x.shape[1:] == self.event_shape
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
+
+        x = torch.tensor(x)
+        y = torch.tensor(y)
 
         if x.shape == self.event_shape:
             x = x.unsqueeze(0)
