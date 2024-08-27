@@ -654,7 +654,7 @@ class GPClassificationTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(norm.cdf(next_x / 1.5))])
+            strat.add_data(next_x, Normal(0, 1).cdf(next_x / 1.5).bernoulli().view(-1))
 
         x = torch.linspace(-4, 4, 100)
 

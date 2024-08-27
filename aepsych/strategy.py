@@ -186,8 +186,9 @@ class Strategy(object):
             x.shape == self.event_shape or x.shape[1:] == self.event_shape
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
-        x = torch.tensor(x)
-        y = torch.tensor(y)
+        if isinstance(y, np.ndarray) or isinstance(y, list) or isinstance(y, int) or isinstance(y, float):
+            x = torch.tensor(x)
+            y = torch.tensor(y).view(-1)
 
         if x.shape == self.event_shape:
             x = x.unsqueeze(0)
