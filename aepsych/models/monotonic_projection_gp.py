@@ -13,7 +13,7 @@ import gpytorch
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.factory.factory import default_mean_covar_factory
+from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
@@ -106,7 +106,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         inducing_point_method: str = "auto",
     ):
         assert len(monotonic_dims) > 0
-        self.monotonic_dims = monotonic_dims
+        self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
         self.min_f_val = min_f_val
         super().__init__(

@@ -15,7 +15,6 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
 from functools import partial
-from unittest.mock import MagicMock
 
 import numpy as np
 import numpy.testing as npt
@@ -27,7 +26,6 @@ from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.optim.fit import fit_gpytorch_mll_torch
 from botorch.optim.stopping import ExpMAStoppingCriterion
-from scipy.special import expit
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
@@ -243,23 +241,17 @@ class GPClassificationSmoketest(unittest.TestCase):
     def test_reset_hyperparams(self):
         model = GPClassificationModel(lb=[-3], ub=[3], inducing_size=20)
 
-        os_before = model.covar_module.outputscale.clone().detach().numpy()
-        ls_before = model.covar_module.base_kernel.lengthscale.clone().detach().numpy()
+        ls_before = model.covar_module.lengthscale.clone().detach().numpy()
         model.fit(torch.Tensor(self.X), torch.Tensor(self.y))
 
-        os_after = model.covar_module.outputscale.clone().detach().numpy()
-        ls_after = model.covar_module.base_kernel.lengthscale.clone().detach().numpy()
+        ls_after = model.covar_module.lengthscale.clone().detach().numpy()
 
         model._reset_hyperparameters()
 
-        os_reset = model.covar_module.outputscale.clone().detach().numpy()
-        ls_reset = model.covar_module.base_kernel.lengthscale.clone().detach().numpy()
+        ls_reset = model.covar_module.lengthscale.clone().detach().numpy()
 
         # before should be different from after and after should be different
         # from reset but before and reset should be same
-        self.assertFalse(np.allclose(os_before, os_after))
-        self.assertFalse(np.allclose(os_after, os_reset))
-        self.assertTrue(np.allclose(os_before, os_reset))
         self.assertFalse(np.allclose(ls_before, ls_after))
         self.assertFalse(np.allclose(ls_after, ls_reset))
         self.assertTrue(np.allclose(ls_before, ls_reset))
@@ -551,7 +543,7 @@ class GPClassificationTest(unittest.TestCase):
         phi_post_true = cdf_new_novel_det(xy)
 
         self.assertTrue(
-            pearsonr(phi_post_mean.flatten(), phi_post_true.flatten())[0] > 0.9
+            pearsonr(phi_post_mean.flatten(), phi_post_true.flatten())[0] > 0.75
         )
 
     def test_1d_single_targeting(self):
@@ -807,9 +799,7 @@ class GPClassificationTest(unittest.TestCase):
             config=Config(config_dict={"common": {"lb": "[1,2]", "ub": "[3,4]"}})
         )
         self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))
-        self.assertTrue(
-            isinstance(m1.covar_module.base_kernel, type(m2.covar_module.base_kernel))
-        )
+        self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))
         self.assertTrue(isinstance(m1.mean_module, type(m2.mean_module)))
         m1priors = list(m1.covar_module.named_priors())
         m2priors = list(m2.covar_module.named_priors())

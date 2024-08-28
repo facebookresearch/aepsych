@@ -36,12 +36,30 @@ class MonotonicProjectionGPtest(unittest.TestCase):
 
     def test_posterior(self):
         X, y = self.X, self.y
-        model = MonotonicProjectionGP(
-            lb=torch.Tensor([-4, -4, -4]),
-            ub=torch.Tensor([4, 4, 4]),
-            inducing_size=10,
-            monotonic_dims=[0, 1],
-        )
+        config_str = """
+        [common]
+        parnames = [x, y]
+        lb = [-4, -4, -4]
+        ub = [4, 4, 4]
+        stimuli_per_trial = 1
+        outcome_types = [binary]
+
+        strategy_names = [init_strat]
+
+        [init_strat]
+        generator = OptimizeAcqfGenerator
+        model = MonotonicProjectionGP
+
+        [MonotonicProjectionGP]
+        monotonic_dims = [0, 1]
+        inducing_size=10
+
+        [default_mean_covar_factory]
+        lengthscale_prior = gamma
+        fixed_kernel_amplitude = False
+        """
+        config = Config(config_str=config_str)
+        model = MonotonicProjectionGP.from_config(config)
         model.fit(X, y)
 
         # Check that it is monotonic in both dims
@@ -58,14 +76,31 @@ class MonotonicProjectionGPtest(unittest.TestCase):
             )
 
         # Check that min_f_val is respected
-        model = MonotonicProjectionGP(
-            lb=torch.Tensor([-4]),
-            ub=torch.Tensor([4]),
-            inducing_size=10,
-            monotonic_dims=[0],
-            min_f_val=5.0,
-        )
-        model.fit(X, y)
+        config_str = """
+        [common]
+        parnames = [x, y]
+        lb = [-4, -4, -4]
+        ub = [4, 4, 4]
+        stimuli_per_trial = 1
+        outcome_types = [binary]
+
+        strategy_names = [init_strat]
+
+        [init_strat]
+        generator = OptimizeAcqfGenerator
+        model = MonotonicProjectionGP
+
+        [MonotonicProjectionGP]
+        monotonic_dims = [0]
+        inducing_size=10
+        min_f_val = 5.0
+
+        [default_mean_covar_factory]
+        lengthscale_prior = gamma
+        fixed_kernel_amplitude = False
+        """
+        config = Config(config_str=config_str)
+        model = MonotonicProjectionGP.from_config(config)
         post = model.posterior(Xtest)
         mu = post.mean.squeeze()
         self.assertTrue(mu.min().item() >= 4.9)

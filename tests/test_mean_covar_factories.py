@@ -22,23 +22,16 @@ from scipy.stats import norm
 
 class TestFactories(unittest.TestCase):
     def _test_mean_covar(self, meanfun, covarfun):
-        self.assertTrue(covarfun.base_kernel.ard_num_dims == 1)
+        self.assertTrue(covarfun.ard_num_dims == 1)
         self.assertTrue(meanfun.constant.requires_grad)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
-        self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
+        self.assertTrue(isinstance(covarfun, gpytorch.kernels.RBFKernel))
         self.assertTrue(
             isinstance(
-                covarfun.base_kernel._priors["lengthscale_prior"][0],
-                gpytorch.priors.GammaPrior,
+                covarfun._priors["lengthscale_prior"][0],
+                gpytorch.priors.LogNormalPrior,
             )
         )
-        self.assertTrue(
-            isinstance(
-                covarfun._priors["outputscale_prior"][0],
-                gpytorch.priors.SmoothedBoxPrior,
-            )
-        )
-        self.assertTrue(isinstance(covarfun.base_kernel, gpytorch.kernels.RBFKernel))
 
     def test_default_factory_1d_config(self):
         config = Config(
@@ -59,6 +52,7 @@ class TestFactories(unittest.TestCase):
                 "ub": [1],
                 "fixed_mean": True,
                 "lengthscale_prior": "gamma",
+                "fixed_kernel_amplitude": False,
                 "outputscale_prior": "gamma",
                 "target": 0.5,
                 "kernel": "MaternKernel",
@@ -107,6 +101,7 @@ class TestFactories(unittest.TestCase):
                 "default_mean_covar_factory": {
                     "lb": [0],
                     "ub": [1],
+                    "fixed_kernel_amplitude": False,
                     "outputscale_prior": "normal",
                 }
             },
@@ -129,7 +124,7 @@ class TestFactories(unittest.TestCase):
     def test_default_factory_2d(self):
         conf = {"default_mean_covar_factory": {"lb": [-2, 3], "ub": [1, 10]}}
         config = Config(config_dict=conf)
-        meanfun, covarfun = default_mean_covar_factory(config)
+        meanfun, covarfun = default_mean_covar_factory(config, stimuli_per_trial=2)
         self.assertTrue(covarfun.base_kernel.ard_num_dims == 2)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
