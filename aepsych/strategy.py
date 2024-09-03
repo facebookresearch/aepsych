@@ -19,6 +19,7 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
 from aepsych.models.base import ModelProtocol
+from aepsych.models import GPClassificationModel
 from aepsych.utils import (
     _process_bounds,
     make_scaled_sobol,
@@ -304,6 +305,22 @@ class Strategy(object):
     def add_data(self, x, y):
         self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
+
+        if self.x.size(0) >= 100:
+            # TODO: Support more models beyond GPClassificationModel
+            if (
+                isinstance(self.model, GPClassificationModel) and
+                self.model.variational_strategy.inducing_points.size(0) >= 100
+            ):
+                # move the model and data to GPUs if the number of training points is at least 100 and
+                # the number of inducing points is at least 100
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+                self.model.to(device)
+                self.model.lb = self.model.lb.to(device)
+                self.model.ub = self.model.ub.to(device)
+
+                self.x = self.x.to(device)
+                self.y = self.y.to(device)
 
     def fit(self):
         if self.can_fit:
