@@ -121,7 +121,7 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
             assert target is not None, "Need a target for levelset lookahead!"
             self.gamma = norm.ppf(target)
         elif lookahead_type == "posterior":
-            self.lookahead_fn = lookahead_p_at_xstar
+            self.lookahead_fn = lookahead_p_at_xstar  # type: ignore
             self.gamma = None
         else:
             raise RuntimeError(f"Got unknown lookahead type {lookahead_type}!")
@@ -371,7 +371,9 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         lookahead_pq0_softmax = (
             torch.logsumexp(self.k * torch.stack((P0, 1 - P0), dim=-1), dim=-1) / self.k
         )
-        lookahead_softmax_query = lookahead_pq1_softmax * py1 + lookahead_pq0_softmax * (1 - py1)
+        lookahead_softmax_query = (
+            lookahead_pq1_softmax * py1 + lookahead_pq0_softmax * (1 - py1)
+        )
         return (lookahead_softmax_query - current_softmax_query).mean(-1)
 
 

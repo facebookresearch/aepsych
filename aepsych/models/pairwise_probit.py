@@ -78,7 +78,9 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
                     }
                 }
             )  # type: ignore
-            _, covar_module = default_mean_covar_factory(config)
+            _, covar_module = default_mean_covar_factory(
+                config, stimuli_per_trial=self.stimuli_per_trial
+            )
 
         super().__init__(
             datapoints=None,
@@ -188,7 +190,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         )
 
         # no way of passing mean into PairwiseGP right now
-        _, covar = mean_covar_factory(config)
+        _, covar = mean_covar_factory(config, stimuli_per_trial=cls.stimuli_per_trial)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")

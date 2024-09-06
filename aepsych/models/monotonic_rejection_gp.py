@@ -15,7 +15,7 @@ import numpy as np
 import torch
 from aepsych.acquisition.rejection_sampler import RejectionSampler
 from aepsych.config import Config
-from aepsych.factory.factory import monotonic_mean_covar_factory
+from aepsych.factory.monotonic import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin

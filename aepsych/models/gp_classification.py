@@ -13,7 +13,7 @@ import gpytorch
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.factory.factory import default_mean_covar_factory
+from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, promote_0d
@@ -104,7 +104,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         super().__init__(variational_strategy)
 
         if mean_module is None or covar_module is None:
-            default_mean, default_covar = default_mean_covar_factory(dim=self.dim)
+            default_mean, default_covar = default_mean_covar_factory(
+                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
+            )
 
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
