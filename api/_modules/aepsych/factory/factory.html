@@ -104,10 +104,14 @@
             <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Config got fixed_mean=True but no target included!"</span><span class="p">)</span>
 
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"bounds shape mismatch!"</span>
-        <span class="n">config_dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"use_ax"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">config_dim</span> <span class="o">=</span> <span class="n">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+            <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"default_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"bounds shape mismatch!"</span>
+            <span class="n">config_dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">dim</span> <span class="o">==</span> <span class="n">config_dim</span><span class="p">,</span> <span class="s2">"Provided config does not match provided dim!"</span>
@@ -225,10 +229,14 @@
 <span class="sd">            constant mean object and additive kernel object.</span>
 <span class="sd">    """</span>
 
-    <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"song_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-    <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"song_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"bounds shape mismatch!"</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"use_ax"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dim</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"song_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"song_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"bounds shape mismatch!"</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">mean</span> <span class="o">=</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">()</span>
 

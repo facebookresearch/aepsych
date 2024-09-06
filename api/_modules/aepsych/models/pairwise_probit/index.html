@@ -96,7 +96,9 @@
                     <span class="p">}</span>
                 <span class="p">}</span>
             <span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">covar_module</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">covar_module</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
+            <span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">datapoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -206,7 +208,7 @@
         <span class="p">)</span>
 
         <span class="c1"># no way of passing mean into PairwiseGP right now</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="p">)</span>
 
         <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
         <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>

@@ -139,7 +139,7 @@
             <span class="k">assert</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Need a target for levelset lookahead!"</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">lookahead_type</span> <span class="o">==</span> <span class="s2">"posterior"</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lookahead_fn</span> <span class="o">=</span> <span class="n">lookahead_p_at_xstar</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lookahead_fn</span> <span class="o">=</span> <span class="n">lookahead_p_at_xstar</span>  <span class="c1"># type: ignore</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Got unknown lookahead type </span><span class="si">{</span><span class="n">lookahead_type</span><span class="si">}</span><span class="s2">!"</span><span class="p">)</span></div>
@@ -389,7 +389,9 @@
         <span class="n">lookahead_pq0_softmax</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">torch</span><span class="o">.</span><span class="n">logsumexp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">P0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">P0</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span>
         <span class="p">)</span>
-        <span class="n">lookahead_softmax_query</span> <span class="o">=</span> <span class="n">lookahead_pq1_softmax</span> <span class="o">*</span> <span class="n">py1</span> <span class="o">+</span> <span class="n">lookahead_pq0_softmax</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">py1</span><span class="p">)</span>
+        <span class="n">lookahead_softmax_query</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">lookahead_pq1_softmax</span> <span class="o">*</span> <span class="n">py1</span> <span class="o">+</span> <span class="n">lookahead_pq0_softmax</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">py1</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">lookahead_softmax_query</span> <span class="o">-</span> <span class="n">current_softmax_query</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
 
 

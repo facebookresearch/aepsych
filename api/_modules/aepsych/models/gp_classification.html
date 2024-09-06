@@ -31,7 +31,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">aepsych.factory.factory</span> <span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
+<span class="kn">from</span> <span class="nn">aepsych.factory.default</span> <span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychMixin</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.utils</span> <span class="kn">import</span> <span class="n">select_inducing_points</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">promote_0d</span>
@@ -122,7 +122,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">variational_strategy</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+            <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span>
+                <span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span> <span class="o">=</span> <span class="n">mean_module</span> <span class="ow">or</span> <span class="n">default_mean</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span> <span class="o">=</span> <span class="n">covar_module</span> <span class="ow">or</span> <span class="n">default_covar</span>
