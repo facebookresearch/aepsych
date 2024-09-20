@@ -58,7 +58,12 @@ class SobolGenerator(AEPsychGenerator):
             np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
         grid = self.engine.draw(num_points)
+
+        # PyTorch's sobol engine always returns tenors on CPU.
+        # Thus, we have to move the tensor to the correct device manually.
+        grid = grid.to(self.lb.device)
         grid = self.lb + (self.ub - self.lb) * grid
+
         if self.stimuli_per_trial == 1:
             return grid
 

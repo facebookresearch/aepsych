@@ -108,7 +108,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
         new_candidate, _ = optimize_acqf(
             acq_function=acqf,
-            bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
+            bounds=torch.stack([model.lb, model.ub]).to(train_x),
             q=num_points,
             num_restarts=self.restarts,
             raw_samples=self.samps,
