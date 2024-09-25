@@ -3,7 +3,7 @@
 AEPsych is a framework and library for adaptive experimetation in psychophysics and related domains.
 
 ## Installation
-`AEPsych` only supports python 3.8+. We recommend installing `AEPsych` under a virtual environment like
+`AEPsych` only supports python 3.10+. We recommend installing `AEPsych` under a virtual environment like
 [Anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
 Once you've created a virtual environment for `AEPsych` and activated it, you can install `AEPsych` using pip:
 
