@@ -365,7 +365,9 @@ class AEPsychMixin(GPyTorchModel):
             # figure out how long evaluating a single samp
             starttime = time.time()
             _ = mll(self(train_x), train_y)
-            single_eval_time = time.time() - starttime
+            single_eval_time = (
+                time.time() - starttime + 1e-6
+            )  # add an epsilon to avoid divide by zero
             n_eval = int(max_fit_time / single_eval_time)
             optimizer_kwargs["options"] = {"maxfun": n_eval}
             logger.info(f"fit maxfun is {n_eval}")
