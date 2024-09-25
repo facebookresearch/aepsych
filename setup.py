@@ -10,6 +10,7 @@ import os
 from setuptools import find_packages, setup
 
 REQUIRES = [
+    "numpy<2.0, >=1.20",
     "matplotlib",
     "torch",
     "scipy",
@@ -27,7 +28,6 @@ DEV_REQUIRES = BENCHMARK_REQUIRES + [
     "coverage",
     "flake8",
     "black",
-    "numpy>=1.20",
     "sqlalchemy-stubs",  # for mypy stubs
     "mypy",
     "parameterized",
