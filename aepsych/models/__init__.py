@@ -26,7 +26,6 @@ __all__ = [
     "GPClassificationModel",
     "MonotonicRejectionGP",
     "GPRegressionModel",
-    "PairwiseProbitModel",
     "OrdinalGPModel",
     "MonotonicProjectionGP",
     "MultitaskGPRModel",
@@ -35,6 +34,7 @@ __all__ = [
     "SemiParametricGPModel",
     "semi_p_posterior_transform",
     "GPBetaRegressionModel",
+    "PairwiseProbitModel",
 ]
 
 Config.register_module(sys.modules[__name__])
