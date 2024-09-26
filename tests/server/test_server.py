@@ -11,6 +11,7 @@ import select
 import unittest
 import uuid
 from unittest.mock import MagicMock
+import time
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
@@ -61,6 +62,9 @@ class BaseServerTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.s.cleanup()
+
+        # sleep to ensure db is closed
+        time.sleep(0.1)
 
         # cleanup the db
         if self.s.db is not None:
