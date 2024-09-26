@@ -19,7 +19,7 @@ REQUIRES = [
     "pandas",
     "aepsych_client==0.3.0",
     "statsmodels",
-    "botorch==0.11.0",
+    "botorch==0.12.0",
 ]
 
 BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess"]
@@ -51,7 +51,7 @@ with open(os.path.join("aepsych", "version.py"), "r") as fh:
 setup(
     name="aepsych",
     version=version,
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     packages=find_packages(),
     description="Adaptive experimetation for psychophysics",
     long_description=long_description,
