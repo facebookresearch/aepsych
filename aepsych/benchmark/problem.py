@@ -213,6 +213,10 @@ class LSEProblem(Problem):
         thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
         self.thresholds = np.array(thresholds)
 
+        min_f = max(self.f_true.min(), -12)
+        max_f = min(self.f_true.max(), 12)
+        self.f_thresholds = np.arange(int(np.ceil(min_f)), int(np.floor(max_f))+1)
+
     @property
     def metadata(self) -> Dict[str, Any]:
         """A dictionary of metadata passed to the Benchmark to be logged. Each key will become a column in the
@@ -246,6 +250,11 @@ class LSEProblem(Problem):
         return (
             self.p(self.eval_grid).reshape(1, -1) <= self.thresholds.reshape(-1, 1)
         ).astype(float)
+    
+    @cached_property
+    def true_f_below_threshold(self) -> np.ndarray:
+        return self.f_true.reshape(1, -1) < self.f_thresholds.reshape(-1, 1)
+
 
     def evaluate(self, strat: Union[Strategy, SequentialStrategy]) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.
@@ -286,14 +295,25 @@ class LSEProblem(Problem):
 
         # Predict p(below threshold) at test points
         brier_p_below_thresh = np.mean(2 * np.square(true_p_l - p_l), axis=1)
-        # Classification error
-        misclass_on_thresh = np.mean(
+        # Classification error in the probability space
+        misclass_on_p_thresh = np.mean(
             p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, axis=1
+        )
+
+        # classification error in units of latent space f(x) (or g(x1,x2))
+        f, _ = model.predict(self.eval_grid)
+        pred_f = f.numpy().reshape(1, -1) < self.f_thresholds.reshape(-1, 1)
+        
+        misclass_on_f_thresh = np.mean(
+            pred_f * (1 - self.true_f_below_threshold) + (1 - pred_f) * self.true_f_below_threshold, axis=1
         )
 
         for i_threshold, threshold in enumerate(self.thresholds):
             metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh[i_threshold]
-            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh[i_threshold]
+            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_p_thresh[i_threshold]
+
+        for i_f_threshold, f_threshold in enumerate(self.f_thresholds):
+            metrics[f"misclass_on_f_thresh_{int(f_threshold)}"] = misclass_on_f_thresh[i_f_threshold]
         return metrics
 
 
