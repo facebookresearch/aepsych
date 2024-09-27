@@ -131,9 +131,9 @@ class SampleAroundPointsGenerator(ManualGenerator):
             grid = self.engine.draw(samples_per_point)
             grid = p_lb + (p_ub - p_lb) * grid
             generated.append(grid)
-        generated = torch.Tensor(np.vstack(generated))
+        generated = torch.Tensor(np.vstack(generated)) #type: ignore
 
-        super().__init__(lb, ub, generated, dim, shuffle, seed)
+        super().__init__(lb, ub, generated, dim, shuffle, seed) #type: ignore
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
