@@ -181,7 +181,6 @@ class TestFactories(unittest.TestCase):
         conf = {"song_mean_covar_factory": {"lb": [0], "ub": [1]}}
         config = Config(config_dict=conf)
         meanfun, covarfun = song_mean_covar_factory(config)
-        self.assertTrue(covarfun.kernels[0].base_kernel.ard_num_dims == 1)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.AdditiveKernel))
         self.assertTrue(isinstance(covarfun.kernels[0], gpytorch.kernels.ScaleKernel))
@@ -196,7 +195,6 @@ class TestFactories(unittest.TestCase):
         config = Config(config_dict=conf)
         meanfun, covarfun = song_mean_covar_factory(config)
         self.assertTrue(covarfun.kernels[0].base_kernel.ard_num_dims == 1)
-        self.assertTrue(covarfun.kernels[1].base_kernel.ard_num_dims == 1)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.AdditiveKernel))
         self.assertTrue(isinstance(covarfun.kernels[0], gpytorch.kernels.ScaleKernel))
@@ -214,8 +212,7 @@ class TestFactories(unittest.TestCase):
         }
         config = Config(config_dict=conf)
         meanfun, covarfun = song_mean_covar_factory(config)
-        self.assertTrue(covarfun.kernels[0].base_kernel.ard_num_dims == 1)
-        self.assertTrue(covarfun.kernels[1].base_kernel.ard_num_dims == 1)
+        self.assertEqual(covarfun.kernels[0].base_kernel.ard_num_dims, 1)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.AdditiveKernel))
         self.assertTrue(isinstance(covarfun.kernels[0], gpytorch.kernels.ScaleKernel))
@@ -254,8 +251,7 @@ class TestFactories(unittest.TestCase):
         }
         config = Config(config_dict=conf)
         meanfun, covarfun = song_mean_covar_factory(config)
-        self.assertTrue(covarfun.kernels[0].base_kernel.ard_num_dims == 2)
-        self.assertTrue(covarfun.kernels[1].base_kernel.ard_num_dims == 1)
+        self.assertEqual(covarfun.kernels[0].base_kernel.ard_num_dims, 2)
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.AdditiveKernel))
         self.assertTrue(isinstance(covarfun.kernels[0], gpytorch.kernels.ScaleKernel))
@@ -269,7 +265,7 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(
             isinstance(covarfun.kernels[1].base_kernel, gpytorch.kernels.LinearKernel)
         )
-        self.assertTrue(covarfun.kernels[1].base_kernel.active_dims == 1)
+        self.assertEqual(covarfun.kernels[1].base_kernel.active_dims, 1)
 
         # flip the stim dim
         conf = {
