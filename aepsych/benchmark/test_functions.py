@@ -10,6 +10,7 @@ import math
 from typing import Callable
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy.interpolate import CubicSpline, interp1d
 from scipy.stats import norm
@@ -53,7 +54,7 @@ freq,thresh,phenotype
 dubno_data = pd.read_csv(io.StringIO(raw))
 
 
-def make_songetal_threshfun(x: np.ndarray, y: np.ndarray) -> Callable[[float], float]:
+def make_songetal_threshfun(x: npt.NDArray, y: npt.NDArray) -> Callable[[float], float]:
     """Generate a synthetic threshold function by interpolation of real data.
 
     Real data is from Dubno et al. 2013, and procedure follows Song et al. 2017, 2018.
@@ -83,7 +84,7 @@ def make_songetal_threshfun(x: np.ndarray, y: np.ndarray) -> Callable[[float], f
 
 def make_songetal_testfun(
     phenotype: str = "Metabolic", beta: float = 1
-) -> Callable[[np.ndarray, bool], np.ndarray]:
+) -> Callable[[npt.NDArray, bool], npt.NDArray]:
     """Make an audiometric test function following Song et al. 2017.
 
     To do so,we first compute a threshold by interpolation/extrapolation
@@ -129,7 +130,7 @@ def make_songetal_testfun(
     return song_testfun
 
 
-def novel_discrimination_testfun(x: np.ndarray) -> np.ndarray:
+def novel_discrimination_testfun(x: npt.NDArray) -> npt.NDArray:
     """Evaluate novel discrimination test function from Owen et al.
 
     The threshold is roughly parabolic with context, and the slope

@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.acquisition.rejection_sampler import RejectionSampler
 from aepsych.config import Config
@@ -52,8 +53,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     def __init__(
         self,
         monotonic_idxs: Sequence[int],
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         mean_module: Optional[Mean] = None,
         covar_module: Optional[Kernel] = None,
@@ -280,7 +281,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         return mean, variance
 
     def predict_probability(
-        self, x: Union[torch.Tensor, np.ndarray]
+        self, x: Union[torch.Tensor, npt.NDArray]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 

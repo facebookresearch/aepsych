@@ -11,6 +11,7 @@ from typing import Dict, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
@@ -33,8 +34,8 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -140,7 +141,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         return self._fit_mll(mll, **kwargs)
 
     def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
+        self, x: Union[torch.Tensor, npt.NDArray], num_samples: int
     ) -> torch.Tensor:
         """Sample from underlying model.
 
@@ -159,7 +160,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         return self.fit(train_x, train_y, **kwargs)
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], **kwargs
+        self, x: Union[torch.Tensor, npt.NDArray], **kwargs
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 

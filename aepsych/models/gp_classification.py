@@ -11,6 +11,7 @@ from typing import Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
@@ -47,8 +48,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -232,7 +233,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self._fit_mll(mll, **kwargs)
 
     def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
+        self, x: Union[torch.Tensor, npt.NDArray], num_samples: int
     ) -> torch.Tensor:
         """Sample from underlying model.
 
@@ -247,7 +248,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: Union[torch.Tensor, npt.NDArray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -288,7 +289,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             return promote_0d(fmean), promote_0d(fvar)
 
     def predict_probability(
-        self, x: Union[torch.Tensor, np.ndarray]
+        self, x: Union[torch.Tensor, npt.NDArray]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 
@@ -304,8 +305,8 @@ class GPBetaRegressionModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,

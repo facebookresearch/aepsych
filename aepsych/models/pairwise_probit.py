@@ -9,6 +9,7 @@ from typing import Any, Dict, Optional, Union
 
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.config import Config
 from aepsych.factory import default_mean_covar_factory
@@ -57,8 +58,8 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         max_fit_time: Optional[float] = None,

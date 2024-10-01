@@ -16,6 +16,7 @@ from typing import Any, ClassVar, Dict, List, Mapping, Optional, Sequence, TypeV
 import botorch
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 
 from aepsych.version import __version__
@@ -175,7 +176,7 @@ class Config(configparser.ConfigParser):
         else:
             return [v.strip()]
 
-    def _str_to_array(self, v: str) -> np.ndarray:
+    def _str_to_array(self, v: str) -> npt.NDArray:
         v = ast.literal_eval(v)
         return np.array(v, dtype=float)
 
