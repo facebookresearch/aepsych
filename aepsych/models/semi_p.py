@@ -12,6 +12,7 @@ from typing import Any, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.acquisition.objective import FloorLogitObjective
 
@@ -173,8 +174,8 @@ class SemiParametricGPModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         stim_dim: int = 0,
         mean_module: Optional[gpytorch.means.Mean] = None,
@@ -332,7 +333,7 @@ class SemiParametricGPModel(GPClassificationModel):
 
     def sample(
         self,
-        x: Union[torch.Tensor, np.ndarray],
+        x: Union[torch.Tensor, npt.NDArray],
         num_samples: int,
         probability_space=False,
     ) -> torch.Tensor:
@@ -356,7 +357,7 @@ class SemiParametricGPModel(GPClassificationModel):
         return samps.squeeze(1)
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: Union[torch.Tensor, npt.NDArray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -418,8 +419,8 @@ class HadamardSemiPModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         stim_dim: int = 0,
         slope_mean_module: Optional[gpytorch.means.Mean] = None,
@@ -604,7 +605,7 @@ class HadamardSemiPModel(GPClassificationModel):
         )
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: Union[torch.Tensor, npt.NDArray], probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 

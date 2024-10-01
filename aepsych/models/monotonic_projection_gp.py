@@ -11,6 +11,7 @@ from typing import Any, List, Optional, Union
 
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
@@ -92,8 +93,8 @@ class MonotonicProjectionGP(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         monotonic_dims: List[int],
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,
@@ -135,7 +136,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         for i, dim in enumerate(self.monotonic_dims):
             # using numpy because torch doesn't support vectorized linspace,
             # pytorch/issues/61292
-            grid: Union[np.ndarray, torch.Tensor] = np.linspace(
+            grid: Union[npt.NDArray, torch.Tensor] = np.linspace(
                 self.lb[dim],
                 X[:, dim].numpy(),
                 s + 1,
@@ -167,7 +168,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         return GPyTorchPosterior(mvn_proj)
 
     def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
+        self, x: Union[torch.Tensor, npt.NDArray], num_samples: int
     ) -> torch.Tensor:
         samps = super().sample(x=x, num_samples=num_samples)
         if self.min_f_val is not None:

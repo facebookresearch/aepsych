@@ -11,6 +11,7 @@ import warnings
 from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
+import numpy.typing as npt
 import torch
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import PosteriorTransform
@@ -55,7 +56,7 @@ def select_inducing_points(
     inducing_size: int,
     covar_module: Kernel = None,
     X: Optional[torch.Tensor] = None,
-    bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
+    bounds: Optional[Union[torch.Tensor, npt.NDArray]] = None,
     method: str = "auto",
 ):
     with torch.no_grad():

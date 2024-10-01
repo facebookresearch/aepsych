@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Dict, Optional, Union
 
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
@@ -24,8 +25,8 @@ class SobolGenerator(AEPsychGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         seed: Optional[int] = None,
         stimuli_per_trial: int = 1,

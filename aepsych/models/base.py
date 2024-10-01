@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 
 import gpytorch
 import numpy as np
+import numpy.typing as npt
 import torch
 
 from aepsych.config import Config, ConfigurableMixin
@@ -91,7 +92,7 @@ class ModelProtocol(Protocol):
         extremum_type: str,
         locked_dims: Optional[Mapping[int, List[float]]],
         n_samples=1000,
-    ) -> Tuple[float, np.ndarray]:
+    ) -> Tuple[float, npt.NDArray]:
         pass
 
     def dim_grid(self, gridsize: int = 30) -> torch.Tensor:
@@ -105,7 +106,7 @@ class ModelProtocol(Protocol):
     ) -> None:
         pass
 
-    def p_below_threshold(self, x, f_thresh) -> np.ndarray:
+    def p_below_threshold(self, x, f_thresh) -> npt.NDArray:
         pass
 
 
@@ -216,7 +217,7 @@ class AEPsychMixin(GPyTorchModel):
 
     def get_jnd(
         self: ModelProtocol,
-        grid: Optional[Union[np.ndarray, torch.Tensor]] = None,
+        grid: Optional[Union[npt.NDArray, torch.Tensor]] = None,
         cred_level: Optional[float] = None,
         intensity_dim: int = -1,
         confsamps: int = 500,
@@ -378,7 +379,7 @@ class AEPsychMixin(GPyTorchModel):
         )
         return res
 
-    def p_below_threshold(self, x, f_thresh) -> np.ndarray:
+    def p_below_threshold(self, x, f_thresh) -> npt.NDArray:
         f, var = self.predict(x)
         f_thresh = f_thresh.reshape(-1, 1)
         f = f.reshape(1, -1)

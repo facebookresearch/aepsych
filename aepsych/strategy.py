@@ -13,6 +13,7 @@ import warnings
 from typing import List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
+import numpy.typing as npt
 import torch
 
 from aepsych.config import Config
@@ -56,8 +57,8 @@ class Strategy(object):
     def __init__(
         self,
         generator: AEPsychGenerator,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
         stimuli_per_trial: int,
         outcome_types: Sequence[Type[str]],
         dim: Optional[int] = None,

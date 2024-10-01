@@ -9,6 +9,7 @@ import warnings
 from typing import Optional, Union, Dict
 
 import numpy as np
+import numpy.typing as npt
 import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
@@ -24,9 +25,9 @@ class ManualGenerator(AEPsychGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
-        points: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
+        points: Union[npt.NDArray, torch.Tensor],
         dim: Optional[int] = None,
         shuffle: bool = True,
         seed: Optional[int] = None,
@@ -101,10 +102,10 @@ class SampleAroundPointsGenerator(ManualGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
-        window: Union[np.ndarray, torch.Tensor],
-        points: Union[np.ndarray, torch.Tensor],
+        lb: Union[npt.NDArray, torch.Tensor],
+        ub: Union[npt.NDArray, torch.Tensor],
+        window: Union[npt.NDArray, torch.Tensor],
+        points: Union[npt.NDArray, torch.Tensor],
         samples_per_point: int,
         dim: Optional[int] = None,
         shuffle: bool = True,

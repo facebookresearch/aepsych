@@ -9,6 +9,7 @@ from typing import Any, Dict, Union, List
 
 import aepsych
 import numpy as np
+import numpy.typing as npt
 import torch
 from scipy.stats import bernoulli, norm, pearsonr
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -51,7 +52,7 @@ class Problem:
         Benchmark's output dataframe, with its associated value stored in each row."""
         return {"name": self.name}
 
-    def p(self, x: np.ndarray) -> np.ndarray:
+    def p(self, x: npt.NDArray) -> npt.NDArray:
         """Evaluate response probability from test function.
 
         Args:
@@ -62,7 +63,7 @@ class Problem:
         """
         return norm.cdf(self.f(x))
 
-    def sample_y(self, x: np.ndarray) -> np.ndarray:
+    def sample_y(self, x: npt.NDArray) -> npt.NDArray:
         """Sample a response from test function.
 
         Args:
@@ -86,7 +87,7 @@ class Problem:
         return f_hat
 
     @cached_property
-    def f_true(self) -> np.ndarray:
+    def f_true(self) -> npt.NDArray:
         """Evaluate true test function over evaluation grid.
 
         Returns:
@@ -238,7 +239,7 @@ class LSEProblem(Problem):
         return inverse_link(self.thresholds).astype(np.float32)
 
     @cached_property
-    def true_below_threshold(self) -> np.ndarray:
+    def true_below_threshold(self) -> npt.NDArray:
         """
         Evaluate whether the true function is below threshold over the eval grid
         (used for proper scoring and threshold missclassification metric).
