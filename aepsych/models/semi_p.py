@@ -13,9 +13,9 @@ from typing import Any, Optional, Tuple, Union
 import gpytorch
 import numpy as np
 import torch
-from aepsych.acquisition.objective import FloorLogitObjective
+from aepsych.objective import FloorLogitObjective
 
-from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
+from aepsych.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel

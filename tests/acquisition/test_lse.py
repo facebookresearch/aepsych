@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 import torch
 from aepsych.acquisition.lse import MCLevelSetEstimation
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from botorch.utils.testing import MockModel, MockPosterior
 from scipy.stats import norm
 

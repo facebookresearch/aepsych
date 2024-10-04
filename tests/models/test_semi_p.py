@@ -13,7 +13,7 @@ import numpy.testing as npt
 import torch
 from aepsych.acquisition import MCPosteriorVariance
 from aepsych.acquisition.lookahead import GlobalMI
-from aepsych.acquisition.objective import (
+from aepsych.objective import (
     FloorGumbelObjective,
     FloorLogitObjective,
     FloorProbitObjective,
@@ -22,7 +22,7 @@ from aepsych.acquisition.objective import (
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.strategy import SequentialStrategy, Strategy
-from aepsych.acquisition.objective.semi_p import (
+from aepsych.objective.semi_p import (
     SemiPProbabilityObjective,
     SemiPThresholdObjective,
 )

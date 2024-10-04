@@ -13,7 +13,7 @@ import uuid
 import torch
 from aepsych.acquisition import EAVC, MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.acquisition.objective import FloorGumbelObjective, ProbitObjective
+from aepsych.objective import FloorGumbelObjective, ProbitObjective
 from aepsych.config import Config
 from aepsych.generators import (
     MonotonicRejectionGenerator,

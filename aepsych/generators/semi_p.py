@@ -8,7 +8,7 @@
 from typing import Type
 
 import torch
-from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
+from aepsych.objective.semi_p import SemiPThresholdObjective
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models.semi_p import SemiParametricGPModel
 

@@ -13,7 +13,7 @@ from aepsych.acquisition.mutual_information import (
     BernoulliMCMutualInformation,
     MonotonicBernoulliMCMutualInformation,
 )
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from aepsych.benchmark.test_functions import f_1d
 from aepsych.generators import (
     MonotonicRejectionGenerator,
