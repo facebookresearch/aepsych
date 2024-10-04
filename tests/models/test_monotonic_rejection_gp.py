@@ -15,7 +15,7 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 
 
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from aepsych.generators import MonotonicRejectionGenerator
 from aepsych.models import MonotonicRejectionGP
 from aepsych.strategy import Strategy

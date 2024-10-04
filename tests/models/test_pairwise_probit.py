@@ -13,7 +13,7 @@ import numpy as np
 import numpy.testing as npt
 import torch
 from aepsych import server, utils_logging
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from aepsych.benchmark.test_functions import f_1d, f_2d, f_pairwise, new_novel_det
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator

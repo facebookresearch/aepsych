@@ -823,11 +823,11 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd></dd></dl>
 </dd></dl>
 </section>
-<section id="module-aepsych.acquisition.objective">
-<span id="aepsych-acquisition-objective-module"></span><h2>aepsych.acquisition.objective module<a class="headerlink" href="#module-aepsych.acquisition.objective" title="Permalink to this headline">¶</a></h2>
+<section id="module-aepsych.objective">
+<span id="aepsych-acquisition-objective-module"></span><h2>aepsych.objective module<a class="headerlink" href="#module-aepsych.objective" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.ProbitObjective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.objective.</span></span><span class="sig-name descname"><span class="pre">ProbitObjective</span></span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#ProbitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.ProbitObjective" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.ProbitObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.objective.</span></span><span class="sig-name descname"><span class="pre">ProbitObjective</span></span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#ProbitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.ProbitObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">botorch.acquisition.objective.MCAcquisitionObjective</span></code></p>
 <p>Probit objective</p>
 <p>Transforms the input through the normal CDF (probit).</p>
@@ -838,8 +838,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.ProbitObjective.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#ProbitObjective.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.ProbitObjective.forward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.ProbitObjective.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#ProbitObjective.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.ProbitObjective.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates the objective (normal CDF).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -859,15 +859,15 @@ with MCAcquisitionObjective.</p></li>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLinkObjective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.objective.</span></span><span class="sig-name descname"><span class="pre">FloorLinkObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLinkObjective" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.FloorLinkObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.objective.</span></span><span class="sig-name descname"><span class="pre">FloorLinkObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorLinkObjective" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">botorch.acquisition.objective.MCAcquisitionObjective</span></code></p>
 <p>Wrapper for objectives to add a floor, when
 the probability is known not to go below it.</p>
 <p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLinkObjective.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLinkObjective.forward" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.FloorLinkObjective.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorLinkObjective.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates the objective for input x and floor f</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -886,31 +886,31 @@ with MCAcquisitionObjective.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLinkObjective.link">
-<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLinkObjective.link" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.FloorLinkObjective.link">
+<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorLinkObjective.link" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLinkObjective.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLinkObjective.from_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.FloorLinkObjective.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLinkObjective.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorLinkObjective.from_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLogitObjective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.objective.</span></span><span class="sig-name descname"><span class="pre">FloorLogitObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLogitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLogitObjective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.objective.FloorLinkObjective" title="aepsych.acquisition.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.acquisition.objective.FloorLinkObjective</span></code></a></p>
+<dt class="sig sig-object py" id="aepsych.objective.FloorLogitObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.objective.</span></span><span class="sig-name descname"><span class="pre">FloorLogitObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLogitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorLogitObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.objective.FloorLinkObjective" title="aepsych.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.objective.FloorLinkObjective</span></code></a></p>
 <p>Logistic sigmoid (aka expit, aka logistic CDF),
 but with a floor so that its output is
 between floor and 1.0.</p>
 <p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLogitObjective.link">
-<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLogitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLogitObjective.link" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.FloorLogitObjective.link">
+<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLogitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorLogitObjective.link" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorGumbelObjective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.objective.</span></span><span class="sig-name descname"><span class="pre">FloorGumbelObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorGumbelObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorGumbelObjective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.objective.FloorLinkObjective" title="aepsych.acquisition.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.acquisition.objective.FloorLinkObjective</span></code></a></p>
+<dt class="sig sig-object py" id="aepsych.objective.FloorGumbelObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.objective.</span></span><span class="sig-name descname"><span class="pre">FloorGumbelObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorGumbelObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorGumbelObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.objective.FloorLinkObjective" title="aepsych.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.objective.FloorLinkObjective</span></code></a></p>
 <p>Gumbel CDF but with a floor so that its output
 is between floor and 1.0. Note that this is not
 the standard Gumbel distribution, but rather the
@@ -918,20 +918,20 @@ left-skewed Gumbel that arises as the log of the Weibull
 distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorGumbelObjective.link">
-<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorGumbelObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorGumbelObjective.link" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.FloorGumbelObjective.link">
+<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorGumbelObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorGumbelObjective.link" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorProbitObjective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.objective.</span></span><span class="sig-name descname"><span class="pre">FloorProbitObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorProbitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorProbitObjective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.objective.FloorLinkObjective" title="aepsych.acquisition.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.acquisition.objective.FloorLinkObjective</span></code></a></p>
+<dt class="sig sig-object py" id="aepsych.objective.FloorProbitObjective">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.objective.</span></span><span class="sig-name descname"><span class="pre">FloorProbitObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorProbitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorProbitObjective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.objective.FloorLinkObjective" title="aepsych.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.objective.FloorLinkObjective</span></code></a></p>
 <p>Probit (aka Gaussian CDF), but with a floor
 so that its output is between floor and 1.0.</p>
 <p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorProbitObjective.link">
-<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorProbitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorProbitObjective.link" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="aepsych.objective.FloorProbitObjective.link">
+<span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorProbitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.objective.FloorProbitObjective.link" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 </section>
@@ -1315,7 +1315,7 @@ with MCAcquisitionObjective.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorProbitObjective">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">FloorProbitObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorProbitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorProbitObjective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.objective.FloorLinkObjective" title="aepsych.acquisition.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.acquisition.objective.FloorLinkObjective</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.objective.FloorLinkObjective" title="aepsych.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.objective.FloorLinkObjective</span></code></a></p>
 <p>Probit (aka Gaussian CDF), but with a floor
 so that its output is between floor and 1.0.</p>
 <p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
@@ -1327,7 +1327,7 @@ so that its output is between floor and 1.0.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorLogitObjective">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">FloorLogitObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorLogitObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorLogitObjective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.objective.FloorLinkObjective" title="aepsych.acquisition.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.acquisition.objective.FloorLinkObjective</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.objective.FloorLinkObjective" title="aepsych.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.objective.FloorLinkObjective</span></code></a></p>
 <p>Logistic sigmoid (aka expit, aka logistic CDF),
 but with a floor so that its output is
 between floor and 1.0.</p>
@@ -1340,7 +1340,7 @@ between floor and 1.0.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorGumbelObjective">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.</span></span><span class="sig-name descname"><span class="pre">FloorGumbelObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">floor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective.html#FloorGumbelObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorGumbelObjective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.acquisition.objective.FloorLinkObjective" title="aepsych.acquisition.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.acquisition.objective.FloorLinkObjective</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.objective.FloorLinkObjective" title="aepsych.objective.FloorLinkObjective"><code class="xref py py-class docutils literal notranslate"><span class="pre">aepsych.objective.FloorLinkObjective</span></code></a></p>
 <p>Gumbel CDF but with a floor so that its output
 is between floor and 1.0. Note that this is not
 the standard Gumbel distribution, but rather the

@@ -59,7 +59,7 @@
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1">### SemiP imports</span>
 
 <span class="kn">from</span> <span class="nn">aepsych.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliObjectiveLikelihood</span>
-<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">aepsych.objective</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">FloorGumbelObjective</span><span class="p">,</span>
     <span class="n">FloorLogitObjective</span><span class="p">,</span>
     <span class="n">FloorProbitObjective</span><span class="p">,</span>
@@ -85,7 +85,7 @@
 <div class="inner_cell">
 <div class="input_area">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Detection test function</span>
-<span class="n">lb</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> 
+<span class="n">lb</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">ub</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 
 <span class="n">xgrid</span> <span class="o">=</span> <span class="n">dim_grid</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -149,7 +149,7 @@
 <div class="inner_cell">
 <div class="input_area">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1">### fit SemiP models</span>
-<span class="n">semip_model</span> <span class="o">=</span> <span class="n">SemiParametricGPModel</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stim_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+<span class="n">semip_model</span> <span class="o">=</span> <span class="n">SemiParametricGPModel</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stim_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                                     <span class="n">likelihood</span><span class="o">=</span><span class="n">LinearBernoulliLikelihood</span><span class="p">(</span><span class="n">objective</span><span class="o">=</span><span class="n">FloorProbitObjective</span><span class="p">(</span><span class="n">floor</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
 <span class="n">approx_model</span> <span class="o">=</span> <span class="n">HadamardSemiPModel</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stim_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                                   <span class="n">likelihood</span><span class="o">=</span><span class="n">BernoulliObjectiveLikelihood</span><span class="p">(</span><span class="n">objective</span><span class="o">=</span><span class="n">FloorProbitObjective</span><span class="p">(</span><span class="n">floor</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>

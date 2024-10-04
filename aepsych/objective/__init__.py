@@ -8,8 +8,9 @@
 import sys
 
 from ...config import Config
-from .objective import (
-    AEPsychObjective,
+from .aepsych_objective import AEPsychObjective
+from .probit import ProbitObjective
+from .floor_objective import (
     FloorGumbelObjective,
     FloorLogitObjective,
     FloorProbitObjective,

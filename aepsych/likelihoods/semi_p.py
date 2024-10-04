@@ -8,8 +8,8 @@
 from typing import Optional
 
 import torch
-from aepsych.acquisition.objective import AEPsychObjective, FloorProbitObjective
 from aepsych.config import Config
+from aepsych.objective import AEPsychObjective, FloorProbitObjective
 from gpytorch.likelihoods import _OneDimensionalLikelihood
 
 
