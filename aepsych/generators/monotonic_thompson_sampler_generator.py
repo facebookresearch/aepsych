@@ -9,7 +9,7 @@ from typing import List, Optional, Type
 
 import numpy as np
 import torch
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP

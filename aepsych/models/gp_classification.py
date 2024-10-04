@@ -7,23 +7,23 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
 import torch
+from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
+from gpytorch.models import ApproximateGP
+from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
+
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.utils import select_inducing_points
+from aepsych.objective import AEPsychObjective, IdentityObjective
+from aepsych.objective.probit import ProbitObjective
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
-from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
-from gpytorch.models import ApproximateGP
-from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
-from scipy.special import owens_t
-from scipy.stats import norm
-from torch.distributions import Normal
 
 logger = getLogger()
 
@@ -247,7 +247,10 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self,
+        x: Union[torch.Tensor, np.ndarray],
+        probability_space: bool = False,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -255,42 +258,33 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             x (torch.Tensor): Points at which to predict from the model.
             probability_space (bool, optional): Return outputs in units of
                 response probability instead of latent function value. Defaults to False.
+            kwargs: Kewyord arguments to pass to the likelihood.objective.posterior_transform.
 
         Returns:
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
             post = self.posterior(x)
-            fmean = post.mean.squeeze()
-            fvar = post.variance.squeeze()
+
         if probability_space:
-            if isinstance(self.likelihood, BernoulliLikelihood):
-                # Probability-space mean and variance for Bernoulli-probit models is
-                # available in closed form, Proposition 1 in Letham et al. 2022 (AISTATS).
-                a_star = fmean / torch.sqrt(1 + fvar)
-                pmean = Normal(0, 1).cdf(a_star)
-                t_term = torch.tensor(
-                    owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
-                    dtype=a_star.dtype,
-                )
-                pvar = pmean - 2 * t_term - pmean.square()
-                return promote_0d(pmean), promote_0d(pvar)
+            if hasattr(self.likelihood, "objective") and isinstance(
+                self.likelihood.objective, AEPsychObjective
+            ):
+                objective = self.likelihood.objective
             else:
-                fsamps = post.sample(torch.Size([10000]))
-                if hasattr(self.likelihood, "objective"):
-                    psamps = self.likelihood.objective(fsamps)
-                else:
-                    psamps = norm.cdf(fsamps)
-                pmean, pvar = psamps.mean(0), psamps.var(0)
-                return promote_0d(pmean), promote_0d(pvar)
+                objective = ProbitObjective()
+            pmean, pvar = objective.posterior_transform(post, **kwargs)
+            return promote_0d(pmean), promote_0d(pvar)
 
         else:
+            fmean = post.mean.squeeze()
+            fvar = post.variance.squeeze()
             return promote_0d(fmean), promote_0d(fvar)
 
     def predict_probability(
-        self, x: Union[torch.Tensor, np.ndarray]
+        self, x: Union[torch.Tensor, np.ndarray], **kwargs: Any
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        return self.predict(x, probability_space=True)
+        return self.predict(x, probability_space=True, **kwargs)
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit."""

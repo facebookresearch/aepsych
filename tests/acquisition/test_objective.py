@@ -10,7 +10,7 @@ from itertools import product
 
 import numpy as np
 import torch
-from aepsych.acquisition.objective import (
+from aepsych.objective import (
     FloorGumbelObjective,
     FloorLogitObjective,
     FloorProbitObjective,

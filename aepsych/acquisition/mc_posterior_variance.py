@@ -9,7 +9,7 @@ from typing import Optional
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
 from botorch.acquisition.objective import MCAcquisitionObjective

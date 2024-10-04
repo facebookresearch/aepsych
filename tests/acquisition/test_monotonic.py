@@ -7,7 +7,7 @@
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from aepsych.models.derivative_gp import MixedDerivativeVariationalGP
 from botorch.acquisition.objective import IdentityMCObjective
 from botorch.utils.testing import BotorchTestCase
