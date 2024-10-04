@@ -1,4 +1,4 @@
-aepsych.acquisition 
+aepsych.acquisition
 ===========================
 
 Submodules
@@ -60,10 +60,10 @@ aepsych.acquisition.mutual\_information module
    :undoc-members:
    :show-inheritance:
 
-aepsych.acquisition.objective module
+aepsych.objective module
 ------------------------------------
 
-.. automodule:: aepsych.acquisition.objective
+.. automodule:: aepsych.objective
    :members:
    :undoc-members:
    :show-inheritance:

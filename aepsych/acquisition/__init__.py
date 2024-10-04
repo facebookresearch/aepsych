@@ -8,6 +8,13 @@
 import sys
 
 from ..config import Config
+from ..objective import (
+    FloorGumbelObjective,
+    FloorLogitObjective,
+    FloorProbitObjective,
+    ProbitObjective,
+    semi_p,
+)
 from .lookahead import ApproxGlobalSUR, EAVC, GlobalMI, GlobalSUR, LocalMI, LocalSUR
 from .lse import MCLevelSetEstimation
 from .mc_posterior_variance import MCPosteriorVariance, MonotonicMCPosteriorVariance
@@ -15,13 +22,6 @@ from .monotonic_rejection import MonotonicMCLSE
 from .mutual_information import (
     BernoulliMCMutualInformation,
     MonotonicBernoulliMCMutualInformation,
-)
-from .objective import (
-    FloorGumbelObjective,
-    FloorLogitObjective,
-    FloorProbitObjective,
-    ProbitObjective,
-    semi_p,
 )
 
 lse_acqfs = [

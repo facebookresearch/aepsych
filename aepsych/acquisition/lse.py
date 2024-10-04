@@ -8,7 +8,7 @@
 from typing import Optional, Union
 
 import torch
-from aepsych.acquisition.objective import ProbitObjective
+from aepsych.objective import ProbitObjective
 from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import (
     MCAcquisitionFunction,

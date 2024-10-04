@@ -7,14 +7,14 @@
 
 import sys
 
-from ...config import Config
-from .objective import (
-    AEPsychObjective,
+from ..config import Config
+from .base import AEPsychObjective
+from .floor_objective import (
     FloorGumbelObjective,
     FloorLogitObjective,
     FloorProbitObjective,
-    ProbitObjective,
 )
+from .probit import ProbitObjective
 from .semi_p import SemiPProbabilityObjective, SemiPThresholdObjective
 
 
