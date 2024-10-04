@@ -3,14 +3,23 @@
 from typing import Any, Optional, Tuple
 
 import torch
-from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.posteriors import GPyTorchPosterior
 from torch import Tensor
 
+from .base import AEPsychObjective
 
-class AEPsychObjective(MCAcquisitionObjective):
-    def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
-        raise NotImplementedError
+
+class IdentityObjective(AEPsychObjective):
+    r"""Trivial objective extracting the last dimension.
+
+    Example:
+        >>> identity_objective = IdentityMCObjective()
+        >>> samples = sampler(posterior)
+        >>> objective = identity_objective(samples)
+    """
+
+    def forward(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
+        return samples.squeeze(-1)
 
     def posterior_transform(
         self, posterior: GPyTorchPosterior, **kwargs: Any
@@ -26,7 +35,6 @@ class AEPsychObjective(MCAcquisitionObjective):
         """
 
         samps = kwargs.get("samples", 10000)
-        fsamps = posterior.sample(torch.Size([samps]))
-        psamps = self.forward(fsamps)
-        pmean, pvar = psamps.mean(0), psamps.var(0)
-        return pmean, pvar
+        fmean = posterior.mean.squeeze()
+        fvar = posterior.variance.squeeze()
+        return fmean, fvar
