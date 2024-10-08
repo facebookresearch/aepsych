@@ -174,34 +174,44 @@ class Strategy(object):
         """converts inputs into normalized format for this strategy
 
         Args:
-            x (np.ndarray): training inputs
-            y (np.ndarray): training outputs
+            x (torch.Tensor): training inputs
+            y (torch.Tensor): training outputs
 
         Returns:
-            x (np.ndarray): training inputs, normalized
-            y (np.ndarray): training outputs, normalized
+            x (torch.Tensor): training inputs, normalized
+            y (torch.Tensor): training outputs, normalized
             n (int): number of observations
         """
         assert (
             x.shape == self.event_shape or x.shape[1:] == self.event_shape
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
+        if isinstance(y, np.ndarray) or isinstance(y, List):
+            y = torch.tensor(y)
+        elif isinstance(y, torch.Tensor):
+            y = y.clone().detach()
+
+        if isinstance(x, np.ndarray):
+            x = torch.tensor(x)
+        elif isinstance(x, torch.Tensor):
+            x = x.clone().detach()
+
         if x.shape == self.event_shape:
             x = x[None, :]
 
         if self.x is None:
-            x = np.r_[x]
+            x = x
         else:
-            x = np.r_[self.x, x]
+            x = torch.cat((self.x, x), dim=0)
 
         if self.y is None:
-            y = np.r_[y]
+            y = y
         else:
-            y = np.r_[self.y, y]
+            y = torch.cat((self.y, y), dim=0)
 
         n = y.shape[0]
 
-        return torch.Tensor(x), torch.Tensor(y), n
+        return x, y, n
 
     # TODO: allow user to pass in generator options
     @ensure_model_is_fresh
@@ -213,7 +223,7 @@ class Strategy(object):
             Other arguments are forwared to underlying model.
 
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
         self._count = self._count + num_points
         return self.generator.gen(num_points, self.model)
