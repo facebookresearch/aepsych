@@ -231,11 +231,14 @@ class LSEProblem(Problem):
             inverse_torch = model.likelihood.objective.inverse
 
             def inverse_link(x):
-                return inverse_torch(torch.tensor(x)).numpy()
+                return inverse_torch(torch.tensor(x))
 
         except AttributeError:
-            inverse_link = norm.ppf
-        return inverse_link(self.thresholds).astype(np.float32)
+            def inverse_link(x):
+                return torch.tensor(norm.ppf(x))  # norm.ppf returns a scalar/array, convert to tensor
+        return inverse_link(self.thresholds).float()  # Return as float32 tensor
+
+
 
     @cached_property
     def true_below_threshold(self) -> np.ndarray:
@@ -277,18 +280,18 @@ class LSEProblem(Problem):
         p_l = model.p_below_threshold(
             self.eval_grid, self.f_threshold(model)
         )
-        true_p_l = self.true_below_threshold
+        true_p_l = torch.tensor(self.true_below_threshold)
         assert (
             p_l.ndim == 2
             and p_l.shape == true_p_l.shape
             and p_l.shape[0] == len(self.thresholds)
         )
 
-        # Predict p(below threshold) at test points
-        brier_p_below_thresh = np.mean(2 * np.square(true_p_l - p_l), axis=1)
+        # Now, perform the Brier score calculation and classification error in PyTorch
+        brier_p_below_thresh = torch.mean(2 * torch.square(true_p_l - p_l), dim=1)
         # Classification error
-        misclass_on_thresh = np.mean(
-            p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, axis=1
+        misclass_on_thresh = torch.mean(
+        p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, dim=1
         )
 
         for i_threshold, threshold in enumerate(self.thresholds):
