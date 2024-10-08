@@ -76,7 +76,7 @@ class MultipleLSETestCase(unittest.TestCase):
             lb=self.test_problem.lb, ub=self.test_problem.ub
         )
 
-    def unvectorized_p_below_threshold(self, x, f_thresh) -> np.ndarray:
+    def unvectorized_p_below_threshold(self, x, f_thresh) -> torch.Tensor:
         """this is the original p_below_threshold method in the AEPsychMixin that calculates model prediction
         of the probability of the stimulus being below a threshold
         for one single threshold"""
