@@ -105,7 +105,7 @@ class ModelProtocol(Protocol):
     ) -> None:
         pass
 
-    def p_below_threshold(self, x, f_thresh) -> np.ndarray:
+    def p_below_threshold(self, x, f_thresh) -> torch.Tensor:
         pass
 
 
