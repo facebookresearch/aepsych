@@ -15,7 +15,7 @@ from botorch.utils.testing import MockModel, MockPosterior
 from scipy.stats import norm
 
 
-class TestLSE(unittest.TestCase): # checking if actions work as expected
+class TestLSE(unittest.TestCase):
     def setUp(self):
         f = torch.ones(1) * 1.7
         var = torch.ones(1) * 2.3
