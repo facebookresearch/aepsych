@@ -65,11 +65,11 @@ class Problem:
         return normal_dist.cdf(self.f(x))  # Use PyTorch's CDF equivalent
 
 
-    def sample_y(self, x: np.ndarray) -> np.ndarray:
+    def sample_y(self, x: torch.Tensor) -> np.ndarray:
         """Sample a response from test function.
 
         Args:
-            x (np.ndarray): Points at which to sample.
+            x (torch.Tensor): Points at which to sample.
 
         Returns:
             np.ndarray: A single (bernoulli) sample at points.
