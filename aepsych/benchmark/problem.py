@@ -51,22 +51,25 @@ class Problem:
         Benchmark's output dataframe, with its associated value stored in each row."""
         return {"name": self.name}
 
-    def p(self, x: np.ndarray) -> np.ndarray:
-        """Evaluate response probability from test function.
+    def p(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Evaluate response probability from test function.
 
         Args:
-            x (np.ndarray): Points at which to evaluate.
+            x (torch.Tensor): Points at which to evaluate.
 
         Returns:
-            np.ndarray: Response probability at queries points.
+            torch.Tensor: Response probability at queried points.
         """
-        return norm.cdf(self.f(x))
+        normal_dist = torch.distributions.Normal(0, 1)  # Standard normal distribution
+        return normal_dist.cdf(self.f(x))  # Use PyTorch's CDF equivalent
 
-    def sample_y(self, x: np.ndarray) -> np.ndarray:
+
+    def sample_y(self, x: torch.Tensor) -> np.ndarray:
         """Sample a response from test function.
 
         Args:
-            x (np.ndarray): Points at which to sample.
+            x (torch.Tensor): Points at which to sample.
 
         Returns:
             np.ndarray: A single (bernoulli) sample at points.
@@ -211,7 +214,7 @@ class LSEProblem(Problem):
     def __init__(self, thresholds: Union[float, List]):
         super().__init__()
         thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
-        self.thresholds = np.array(thresholds)
+        self.thresholds = torch.tensor(thresholds)
 
     @property
     def metadata(self) -> Dict[str, Any]:
@@ -225,27 +228,32 @@ class LSEProblem(Problem):
         )
         return md
 
-    def f_threshold(self, model=None):
-
+    def f_threshold(self, model=None) -> torch.Tensor:
         try:
             inverse_torch = model.likelihood.objective.inverse
 
             def inverse_link(x):
-                return inverse_torch(torch.tensor(x)).numpy()
+                return inverse_torch(torch.tensor(x))
 
         except AttributeError:
-            inverse_link = norm.ppf
-        return inverse_link(self.thresholds).astype(np.float32)
+            def inverse_link(x):
+                normal_dist = torch.distributions.Normal(0, 1)  
+                return normal_dist.icdf(torch.tensor(x))  # Same as norm.ppf but using Torch
+        
+        return inverse_link(self.thresholds).float()  # Return as float32 tensor
+
+
+
 
     @cached_property
-    def true_below_threshold(self) -> np.ndarray:
+    def true_below_threshold(self) -> torch.Tensor:
         """
         Evaluate whether the true function is below threshold over the eval grid
         (used for proper scoring and threshold missclassification metric).
         """
         return (
             self.p(self.eval_grid).reshape(1, -1) <= self.thresholds.reshape(-1, 1)
-        ).astype(float)
+        ).to(torch.float32)
 
     def evaluate(self, strat: Union[Strategy, SequentialStrategy]) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.
@@ -284,16 +292,16 @@ class LSEProblem(Problem):
             and p_l.shape[0] == len(self.thresholds)
         )
 
-        # Predict p(below threshold) at test points
-        brier_p_below_thresh = np.mean(2 * np.square(true_p_l - p_l), axis=1)
+        # Now, perform the Brier score calculation and classification error in PyTorch
+        brier_p_below_thresh = torch.mean(2 * torch.square(true_p_l - p_l), dim=1)
         # Classification error
-        misclass_on_thresh = np.mean(
-            p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, axis=1
+        misclass_on_thresh = torch.mean(
+        p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, dim=1
         )
 
         for i_threshold, threshold in enumerate(self.thresholds):
-            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh[i_threshold]
-            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh[i_threshold]
+            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh.detach().cpu().numpy()[i_threshold]
+            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh.detach().cpu().numpy()[i_threshold]
         return metrics
 
 

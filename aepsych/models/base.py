@@ -105,7 +105,7 @@ class ModelProtocol(Protocol):
     ) -> None:
         pass
 
-    def p_below_threshold(self, x, f_thresh) -> np.ndarray:
+    def p_below_threshold(self, x, f_thresh) -> torch.Tensor:
         pass
 
 
@@ -378,9 +378,12 @@ class AEPsychMixin(GPyTorchModel):
         )
         return res
 
-    def p_below_threshold(self, x, f_thresh) -> np.ndarray:
+    def p_below_threshold(self, x, f_thresh) -> torch.Tensor:  # Return a tensor instead of NumPy array
         f, var = self.predict(x)
         f_thresh = f_thresh.reshape(-1, 1)
         f = f.reshape(1, -1)
         var = var.reshape(1, -1)
-        return norm.cdf((f_thresh - f.detach().numpy()) / var.sqrt().detach().numpy())
+        
+        # Perform all operations in PyTorch (no .detach().numpy())
+        z = (f_thresh - f) / var.sqrt()
+        return torch.distributions.Normal(0, 1).cdf(z)  # Use PyTorch's CDF equivalent
