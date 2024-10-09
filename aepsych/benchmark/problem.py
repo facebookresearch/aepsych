@@ -295,8 +295,8 @@ class LSEProblem(Problem):
         )
 
         for i_threshold, threshold in enumerate(self.thresholds):
-            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh[i_threshold]
-            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh[i_threshold]
+            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh[i_threshold].detach().cpu().numpy() 
+            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh[i_threshold].detach().cpu().numpy() 
         return metrics
 
 
