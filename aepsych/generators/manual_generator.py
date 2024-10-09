@@ -57,7 +57,7 @@ class ManualGenerator(AEPsychGenerator):
         Args:
             num_points (int): Number of points to query.
         Returns:
-            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points, dim].
         """
         if num_points > (len(self.points) - self._idx):
             warnings.warn(

@@ -45,7 +45,7 @@ class RandomGenerator(AEPsychGenerator):
         Args:
             num_points (int, optional): Number of points to query. Currently, only 1 point can be queried at a time.
         Returns:
-            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points, dim].
         """
         X = self.bounds_[0] + torch.rand((num_points, self.bounds_.shape[1])) * (
             self.bounds_[1] - self.bounds_[0]

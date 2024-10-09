@@ -80,7 +80,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             num_points (int, optional): Number of points to query.
             model (AEPsychMixin): Fitted model of the data.
         Returns:
-            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points, dim].
         """
 
         options = self.model_gen_options or {}

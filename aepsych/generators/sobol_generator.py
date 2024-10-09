@@ -55,8 +55,8 @@ class SobolGenerator(AEPsychGenerator):
         Args:
             num_points (int, optional): Number of points to query.
         Returns:
-            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points x dim] 
-            or shape [num_points x dim x stimuli_per_trial] if `stimuli_per_trial` is greater than 1.
+            torch.Tensor: Next set of point(s) to evaluate, with shape [num_points, dim] 
+            or shape [num_points, dim , stimuli_per_trial] if `stimuli_per_trial` is greater than 1.
         """
         grid = self.engine.draw(num_points)
         grid = self.lb + (self.ub - self.lb) * grid
