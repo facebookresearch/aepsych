@@ -226,7 +226,6 @@ class LSEProblem(Problem):
         return md
 
     def f_threshold(self, model=None):
-
         try:
             inverse_torch = model.likelihood.objective.inverse
 
@@ -235,8 +234,11 @@ class LSEProblem(Problem):
 
         except AttributeError:
             def inverse_link(x):
-                return torch.tensor(norm.ppf(x))  # norm.ppf returns a scalar/array, convert to tensor
+                normal_dist = torch.distributions.Normal(0, 1)  # Standard normal distribution
+                return normal_dist.icdf(torch.tensor(x))  # Same as norm.ppf but in Torch
+        
         return inverse_link(self.thresholds).float()  # Return as float32 tensor
+
 
 
 
