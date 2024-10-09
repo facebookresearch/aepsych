@@ -88,14 +88,12 @@ class MultipleLSETestCase(unittest.TestCase):
 
     def unvectorized_true_below_threshold(self, threshold):
         """the original true_below_threshold method in the LSEProblem class"""
-        return (self.test_problem.p(self.test_problem.eval_grid) <= threshold).astype(
-            float
-        )
+        return (self.test_problem.p(self.test_problem.eval_grid) <= threshold).to(torch.float32)
 
     def test_vectorized_score_calculation(self):
         f_thresholds = self.test_problem.f_threshold(self.model)
         p_l = self.model.p_below_threshold(self.test_problem.eval_grid, f_thresholds)
-        true_p_l = torch.tensor(self.test_problem.true_below_threshold)
+        true_p_l = self.test_problem.true_below_threshold
         # Now, perform the Brier score calculation and classification error in PyTorch
         brier_p_below_thresh = torch.mean(2 * torch.square(true_p_l - p_l), dim=1)
         # Classification error
@@ -110,22 +108,22 @@ class MultipleLSETestCase(unittest.TestCase):
 
         for i_threshold, single_threshold in enumerate(self.thresholds):
             single_f_threshold = norm.ppf(single_threshold)
-            assert np.isclose(single_f_threshold, f_thresholds[i_threshold])
+            assert torch.isclose(single_f_threshold, f_thresholds[i_threshold])
 
-            unvectorized_p_l = torch.tensor(self.unvectorized_p_below_threshold(
+            unvectorized_p_l = self.unvectorized_p_below_threshold(
                 self.test_problem.eval_grid, single_f_threshold
-            ))
-            assert np.all(np.isclose(unvectorized_p_l, p_l[i_threshold]))
+            )
+            assert torch.all(np.isclose(unvectorized_p_l, p_l[i_threshold]))
 
-            unvectorized_true_p_l = torch.tensor(self.unvectorized_true_below_threshold(
+            unvectorized_true_p_l = self.unvectorized_true_below_threshold(
                 single_threshold
-            ))
-            assert np.all(np.isclose(unvectorized_true_p_l, true_p_l[i_threshold]))
+            )
+            assert torch.all(np.isclose(unvectorized_true_p_l, true_p_l[i_threshold]))
 
             unvectorized_brier_score = torch.mean(
                 2 * torch.square(unvectorized_true_p_l - unvectorized_p_l)
             )
-            assert np.isclose(
+            assert torch.isclose(
                 unvectorized_brier_score, brier_p_below_thresh[i_threshold]
             )
 
@@ -133,7 +131,7 @@ class MultipleLSETestCase(unittest.TestCase):
                 unvectorized_p_l * (1 - unvectorized_true_p_l)
                 + (1 - unvectorized_p_l) * unvectorized_true_p_l
             )
-            assert np.isclose(
+            assert torch.isclose(
                 unvectorized_misclass_err, misclass_on_thresh[i_threshold]
             )
 

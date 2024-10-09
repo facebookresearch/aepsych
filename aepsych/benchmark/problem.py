@@ -51,16 +51,19 @@ class Problem:
         Benchmark's output dataframe, with its associated value stored in each row."""
         return {"name": self.name}
 
-    def p(self, x: np.ndarray) -> np.ndarray:
-        """Evaluate response probability from test function.
+    def p(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Evaluate response probability from test function.
 
         Args:
-            x (np.ndarray): Points at which to evaluate.
+            x (torch.Tensor): Points at which to evaluate.
 
         Returns:
-            np.ndarray: Response probability at queries points.
+            torch.Tensor: Response probability at queried points.
         """
-        return norm.cdf(self.f(x))
+        normal_dist = torch.distributions.Normal(0, 1)  # Standard normal distribution
+        return normal_dist.cdf(self.f(x))  # Use PyTorch's CDF equivalent
+
 
     def sample_y(self, x: np.ndarray) -> np.ndarray:
         """Sample a response from test function.
@@ -250,7 +253,7 @@ class LSEProblem(Problem):
         """
         return (
             self.p(self.eval_grid).reshape(1, -1) <= self.thresholds.reshape(-1, 1)
-        ).astype(float)
+        ).to(torch.float32)
 
     def evaluate(self, strat: Union[Strategy, SequentialStrategy]) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.

@@ -2,9 +2,9 @@ name: Build, lint, test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, optimize-torch-cdf ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, optimize-torch-cdf ]
 
 jobs:
   lint:
