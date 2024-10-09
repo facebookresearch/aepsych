@@ -60,7 +60,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             num_points (int, optional): Number of points to query.
             model (AEPsychMixin): Fitted model of the data.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: The next set of point(s) to evaluate, with shape [num_points x dim].
         """
 
         # Generate the points at which to sample
