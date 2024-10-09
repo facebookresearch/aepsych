@@ -70,7 +70,7 @@ class MultipleLSETestCase(unittest.TestCase):
         np.random.seed(1)
 
         self.n_thresholds = 5
-        self.thresholds = np.linspace(0.55, 0.95, self.n_thresholds)
+        self.thresholds = torch.linspace(0.55, 0.95, self.n_thresholds)
         self.test_problem = example_problems.DiscrimLowDim(thresholds=self.thresholds)
         self.model = GPClassificationModel(
             lb=self.test_problem.lb, ub=self.test_problem.ub
@@ -107,18 +107,20 @@ class MultipleLSETestCase(unittest.TestCase):
         )
 
         for i_threshold, single_threshold in enumerate(self.thresholds):
-            single_f_threshold = norm.ppf(single_threshold)
+            normal_dist = torch.distributions.Normal(0, 1)  
+            single_f_threshold = normal_dist.icdf(single_threshold).float()   # equivalent to norm.ppf
+
             assert torch.isclose(single_f_threshold, f_thresholds[i_threshold])
 
             unvectorized_p_l = self.unvectorized_p_below_threshold(
                 self.test_problem.eval_grid, single_f_threshold
             )
-            assert torch.all(np.isclose(unvectorized_p_l, p_l[i_threshold]))
+            assert torch.all(torch.isclose(unvectorized_p_l, p_l[i_threshold]))
 
             unvectorized_true_p_l = self.unvectorized_true_below_threshold(
                 single_threshold
             )
-            assert torch.all(np.isclose(unvectorized_true_p_l, true_p_l[i_threshold]))
+            assert torch.all(torch.isclose(unvectorized_true_p_l, true_p_l[i_threshold]))
 
             unvectorized_brier_score = torch.mean(
                 2 * torch.square(unvectorized_true_p_l - unvectorized_p_l)

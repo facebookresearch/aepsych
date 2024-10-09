@@ -214,7 +214,7 @@ class LSEProblem(Problem):
     def __init__(self, thresholds: Union[float, List]):
         super().__init__()
         thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
-        self.thresholds = np.array(thresholds)
+        self.thresholds = torch.tensor(thresholds)
 
     @property
     def metadata(self) -> Dict[str, Any]:
@@ -228,7 +228,7 @@ class LSEProblem(Problem):
         )
         return md
 
-    def f_threshold(self, model=None):
+    def f_threshold(self, model=None) -> torch.Tensor:
         try:
             inverse_torch = model.likelihood.objective.inverse
 
@@ -246,7 +246,7 @@ class LSEProblem(Problem):
 
 
     @cached_property
-    def true_below_threshold(self) -> np.ndarray:
+    def true_below_threshold(self) -> torch.Tensor:
         """
         Evaluate whether the true function is below threshold over the eval grid
         (used for proper scoring and threshold missclassification metric).
@@ -285,7 +285,7 @@ class LSEProblem(Problem):
         p_l = model.p_below_threshold(
             self.eval_grid, self.f_threshold(model)
         )
-        true_p_l = torch.tensor(self.true_below_threshold)
+        true_p_l = self.true_below_threshold
         assert (
             p_l.ndim == 2
             and p_l.shape == true_p_l.shape
