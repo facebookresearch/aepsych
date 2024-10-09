@@ -76,7 +76,8 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
             num_points (int, optional): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: The next set of point(s) to evaluate, with shape [num_points x dim].
+            or shape [num_points x dim x 2] if pairing is applied. 
         """
 
         if self.stimuli_per_trial == 2:
