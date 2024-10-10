@@ -40,14 +40,22 @@ class ConfigTestCase(unittest.TestCase):
     def test_single_probit_config(self):
         config_str = """
         [common]
-        lb = [0, 0]
-        ub = [1, 1]
         stimuli_per_trial = 1
         outcome_types = [binary]
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat]
         model = GPClassificationModel
         acqf = MCLevelSetEstimation
+
+        [par1]
+        par_type = continuous
+        lower_bound = 0
+        upper_bound = 1
+
+        [par2]
+        par_type = continuous
+        lower_bound = 0
+        upper_bound = 1
 
         [init_strat]
         generator = SobolGenerator
@@ -210,12 +218,20 @@ class ConfigTestCase(unittest.TestCase):
     def test_multiple_models_and_strats(self):
         config_str = """
         [common]
-        lb = [0, 0]
-        ub = [1, 1]
         stimuli_per_trial = 1
         outcome_types = [binary]
         parnames = [par1, par2]
         strategy_names = [init_strat, opt_strat1, opt_strat2]
+
+        [par1]
+        par_type = continuous
+        lower_bound = 0
+        upper_bound = 1
+
+        [par2]
+        par_type = continuous
+        lower_bound = 0
+        upper_bound = 1
 
         [init_strat]
         generator = SobolGenerator
@@ -268,14 +284,22 @@ class ConfigTestCase(unittest.TestCase):
     def test_to_string(self):
         in_str = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
             model = GPClassificationModel
             acqf = LevelSetEstimation
+            lb = [0, 0]
+            ub = [1, 1]
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
             [init_strat]
             generator = SobolGenerator
             min_asks = 10
@@ -360,12 +384,21 @@ class ConfigTestCase(unittest.TestCase):
     def test_warn_about_refit(self):
         config_str = """
         [common]
-        lb = [0, 0]
-        ub = [1, 1]
+        parnames = [par1, par2]
         stimuli_per_trial = 1
         outcome_types = [binary]
         strategy_names = [init_strat]
         model = GPClassificationModel
+
+        [par1]
+        par_type = continuous
+        lower_bound = 0 # lower bound
+        upper_bound = 1 # upper bound
+
+        [par2]
+        par_type = continuous
+        lower_bound = 0
+        upper_bound = 1
 
         [init_strat]
         generator = SobolGenerator
@@ -381,14 +414,22 @@ class ConfigTestCase(unittest.TestCase):
     def test_pairwise_probit_config(self):
         config_str = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 2
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
             model = PairwiseProbitModel
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0 # lower bound
+            upper_bound = 1 # upper bound
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             min_asks = 10
@@ -568,13 +609,21 @@ class ConfigTestCase(unittest.TestCase):
     def test_jsonify(self):
         sample_configstr = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             outcome_type = pairwise_probit
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
             acqf = PairwiseMCPosteriorVariance
             model = PairwiseProbitModel
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             min_asks = 10
@@ -607,13 +656,23 @@ class ConfigTestCase(unittest.TestCase):
         configedjson = temporaryconfig.jsonifyAll()
         referencejsonstr = """{
             "common": {
-                "lb": "[0, 0]",
-                "ub": "[1, 1]",
                 "outcome_type": "pairwise_probit",
                 "parnames": "[par1, par2]",
                 "strategy_names": "[init_strat, opt_strat]",
                 "acqf": "PairwiseMCPosteriorVariance",
-                "model": "PairwiseProbitModel"
+                "model": "PairwiseProbitModel",
+                "lb": "[0, 0]",
+                "ub": "[1, 1]"
+            },
+            "par1": {
+                "par_type": "continuous",
+                "lower_bound": "0",
+                "upper_bound": "1"
+            },
+            "par2": {
+                "par_type": "continuous",
+                "lower_bound": "0",
+                "upper_bound": "1"
             },
             "init_strat": {
                 "min_asks": "10",
@@ -646,12 +705,20 @@ class ConfigTestCase(unittest.TestCase):
     def test_stimuli_compatibility(self):
         config_str1 = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -662,12 +729,20 @@ class ConfigTestCase(unittest.TestCase):
 
         config_str2 = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -678,12 +753,20 @@ class ConfigTestCase(unittest.TestCase):
 
         config_str3 = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -706,12 +789,20 @@ class ConfigTestCase(unittest.TestCase):
     def test_outcome_compatibility(self):
         config_str1 = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -722,12 +813,20 @@ class ConfigTestCase(unittest.TestCase):
 
         config_str2 = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [continuous]
             parnames = [par1, par2]
             strategy_names = [init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -738,12 +837,20 @@ class ConfigTestCase(unittest.TestCase):
 
         config_str3 = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -766,12 +873,20 @@ class ConfigTestCase(unittest.TestCase):
     def test_strat_names(self):
         good_str = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -784,12 +899,20 @@ class ConfigTestCase(unittest.TestCase):
 
         bad_str = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = SobolGenerator
@@ -809,14 +932,22 @@ class ConfigTestCase(unittest.TestCase):
     def test_semip_config(self):
         config_str = """
             [common]
-            lb = [0, 0]
-            ub = [1, 1]
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
             acqf = MCLevelSetEstimation
             model = HadamardSemiPModel
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             min_asks = 10
@@ -860,6 +991,150 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(model.inducing_point_method == "sobol")
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
+
+    def test_derived_bounds(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+            strategy_names = [init_strat, opt_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = -10
+            upper_bound = 10
+
+            [init_strat]
+            min_total_tells = 10
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_total_tells = 20
+            refit_every = 5
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+        """
+
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+        opt_strat = strat.strat_list[1]
+        model = opt_strat.model
+
+        self.assertTrue(torch.all(model.lb == torch.Tensor([0, -10])))
+        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 10])))
+
+    def test_ignore_specific_bounds(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            lb = [0, 0]
+            ub = [1, 1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+            strategy_names = [init_strat, opt_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [par2]
+            par_type = continuous
+            lower_bound = -5
+            upper_bound = 1
+
+            [init_strat]
+            min_total_tells = 10
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_total_tells = 20
+            refit_every = 5
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+        """
+
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+        opt_strat = strat.strat_list[1]
+        model = opt_strat.model
+
+        self.assertTrue(torch.all(model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 1])))
+
+    def test_parameter_setting_block_validation(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+        """
+        config = Config()
+
+        with self.assertRaises(ValueError):
+            config.update(config_str=config_str)
+
+    def test_invalid_parameter_type(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+
+            [par1]
+            par_type = invalid_type
+        """
+        config = Config()
+        with self.assertRaises(ValueError):
+            config.update(config_str=config_str)
+
+    def test_continuous_parameter_lb_validation(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [par2]
+            par_type = continuous
+            upper_bound = 1
+        """
+        config = Config()
+        with self.assertRaises(ValueError):
+            config.update(config_str=config_str)
+
+    def test_continuous_parameter_ub_validation(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [par2]
+            par_type = continuous
+            lower_bound = 0
+        """
+        config = Config()
+        with self.assertRaises(ValueError):
+            config.update(config_str=config_str)
+
+
 
 
 if __name__ == "__main__":

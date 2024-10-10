@@ -22,7 +22,6 @@ from aepsych.version import __version__
 
 _T = TypeVar("_T")
 
-
 class Config(configparser.ConfigParser):
 
     # names in these packages can be referred to by string name
@@ -157,6 +156,26 @@ class Config(configparser.ConfigParser):
         if config_str is not None:
             self.read_string(config_str)
 
+        # Warn if ub/lb is defined in common section
+        if "ub" in self["common"] and "lb" in self["common"]:
+            warnings.warn(
+                "ub and lb have been defined in common section, ignoring parameter specific blocks, be very careful!"
+            )
+        elif "parnames" in self["common"]: # it's possible to pass no parnames
+            par_names = self.getlist("common", "parnames", element_type=str, fallback = [])
+            lb = [None] * len(par_names)
+            ub = [None] * len(par_names)
+            for i, par_name in enumerate(par_names):
+                # Validate the parameter-specific block
+                self._check_param_settings(par_name)
+
+                lb[i] = self[par_name]["lower_bound"]
+                ub[i] = self[par_name]["upper_bound"]
+
+            self["common"]["lb"] = f"[{', '.join(lb)}]"
+            self["common"]["ub"] = f"[{', '.join(ub)}]"
+
+
         # Deprecation warning for "experiment" section
         if "experiment" in self:
             for i in self["experiment"]:
@@ -190,6 +209,33 @@ class Config(configparser.ConfigParser):
             if warn:
                 warnings.warn(f'No known object "{v}"!')
             return fallback_type(v)
+
+    def _check_param_settings(self, param_name: str) -> None:
+        """Check parameter-specific blocks have the correct settings, raises a ValueError if not.
+
+        Args:
+            param_name (str): Parameter block to check.
+        """
+        # Check if the config block exists at all
+        if param_name not in self:
+            raise ValueError(f"Parameter {param_name} is missing its own config block.")
+
+        param_block = self[param_name]
+
+        # Checking if param_type is set
+        if "par_type" not in param_block:
+            raise ValueError(f"Parameter {param_name} is missing the param_type setting.")
+
+        # Each parameter type has a different set of required settings
+        if param_block['par_type'] == "continuous":
+            # Check if bounds exist
+            if "lower_bound" not in param_block:
+                raise ValueError(f"Parameter {param_name} is missing the lower_bound setting.")
+            if "upper_bound" not in param_block:
+                raise ValueError(f"Parameter {param_name} is missing the upper_bound setting.")
+        else:
+            raise ValueError(f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}.")
+
 
     def __repr__(self):
         return f"Config at {hex(id(self))}: \n {str(self)}"
