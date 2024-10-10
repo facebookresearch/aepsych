@@ -182,11 +182,34 @@ class Config(configparser.ConfigParser):
                 self["common"][i] = self["experiment"][i]
             del self["experiment"]
 
-    def _str_to_list(self, v: str, element_type: _T = float) -> List[_T]:
+    def _str_to_list(
+        self, v: str, element_type: _T = float
+    ) -> List[_T] | List[List[_T]]:
         v = re.sub(r"\n ", ",", v)
         v = re.sub(r"(?<!,)\s+", ",", v)
         v = re.sub(r",]", "]", v)
         if re.search(r"^\[.*\]$", v, flags=re.DOTALL):
+            if len(re.findall(r"\[", v)) > 1:
+                if element_type in [float, int]:  # Easy to handle nested numbers
+
+                    def _nested_cast(v, element_type):
+                        result = []
+                        for item in v:
+                            if isinstance(item, list):
+                                # Recursively convert nested lists
+                                result.append(_nested_cast(item, element_type))
+                            else:
+                                # Convert individual values
+                                result.append(element_type(item))
+                        return result
+
+                    v = ast.literal_eval(v)
+                    return _nested_cast(v, element_type)
+
+                else:
+                    raise ValueError(
+                        "Nested list detected with an element_type that is hard to evaluate"
+                    )
             if v == "[]":  # empty list
                 return []
             else:
