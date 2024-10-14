@@ -315,7 +315,7 @@ class Strategy(object):
 
     def add_data(self, x, y):
         """
-        Adds new data points to the strategy, normalizing the inputs if necessary.
+        Adds new data points to the strategy, and normalizes the inputs.
 
         Args:
             x (torch.Tensor, np.ndarray): The input data points. Can be a PyTorch tensor or NumPy array.
