@@ -183,24 +183,24 @@ class Problem:
         miae_p = torch.mean(torch.abs(perrs))
         mise_p = torch.mean(perrs**2)
 
-        expected_brier = (2 * torch.square(self.p_true[None, :] - psamps)).mean()
+        expected_brier = torch.mean((2 * torch.square(self.p_true[None, :] - psamps)))
 
         metrics = {
-            "mean_abs_err_f": mae_f,
-            "mean_integrated_abs_err_f": miae_f,
-            "mean_square_err_f": mse_f,
-            "mean_integrated_square_err_f": mise_f,
-            "max_abs_err_f": max_abs_err_f,
-            "pearson_corr_f": corr_f,
-            "mean_abs_err_p": mae_p,
-            "mean_integrated_abs_err_p": miae_p,
-            "mean_square_err_p": mse_p,
-            "mean_integrated_square_err_p": mise_p,
-            "max_abs_err_p": max_abs_err_p,
-            "pearson_corr_p": corr_p,
-            "brier": brier,
-            "expected_brier": expected_brier,
-        }
+        "mean_abs_err_f": mae_f.item(),
+        "mean_integrated_abs_err_f": miae_f.item(),
+        "mean_square_err_f": mse_f.item(),
+        "mean_integrated_square_err_f": mise_f.item(),
+        "max_abs_err_f": max_abs_err_f.item(),
+        "pearson_corr_f": corr_f.item(),
+        "mean_abs_err_p": mae_p.item(),
+        "mean_integrated_abs_err_p": miae_p.item(),
+        "mean_square_err_p": mse_p.item(),
+        "mean_integrated_square_err_p": mise_p.item(),
+        "max_abs_err_p": max_abs_err_p.item(),
+        "pearson_corr_p": corr_p.item(),
+        "brier": brier.item(),
+        "expected_brier": expected_brier.item(),
+    }
 
         return metrics
 
@@ -302,8 +302,8 @@ class LSEProblem(Problem):
         )
 
         for i_threshold, threshold in enumerate(self.thresholds):
-            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh[i_threshold]
-            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh[i_threshold]
+            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh.detach().cpu().numpy()[i_threshold]
+            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh.detach().cpu().numpy()[i_threshold]
         return metrics
 
 
