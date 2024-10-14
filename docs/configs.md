@@ -27,8 +27,6 @@ To be more concrete, we will break down [one of the example config files](https:
 ```
 [common]
 parnames = [par1, par2] # names of the parameters
-lb = [0, 0] # lower bounds of the parameters, in the same order as above
-ub = [1, 1] # upper bounds of parameter, in the same order as above
 outcome_type = single_probit # we show a single stimulus and receive a binary outcome e
 strategy_names = [init_strat, opt_strat] # the names we give to our strategies
 ```
@@ -37,13 +35,30 @@ The first section in the file is the `common` section. All AEPsych config files 
 
 **`parnames`**: This is a list of parameter names. This example uses the generic names par1 and par2, but you can name your parameters whatever you would like. Note that this list should be the same length as lb and ub.
 
-**`lb`**: This is a list of numbers specifying the lower bounds of each of your parameters.
-
-**`ub`**: This is a list of numbers specifying the upper bounds of each of your parameters.
-
 **`outcome_type`**: This is the type of outcome you will receive on each trial of your experiment. `single_probit` should be used for experiments where participants are shown a single stimulus and asked to make a binary choice, such as whether they detected the stimulus or not. `single_continuous` should be used for experiments where participants are shown a single stimulus and asked to provide a continous rating, such as how bright or loud the stimulus is.
 
 **`strategy_names`**: This is a list of the data-collection strategies you plan on using in your experiment. Each named strategy in this list will receive its own section later in the config where we can specify the settings we want. This example follows a typical AEPsych paradigm where we first sample points in a quasi-random way to initialize our model, then we search for the optimal points using the model. Therefore we specify two strategies: `init_strat` (the initialization strategy) and `opt_strat` (the optimization strategy). Note that we chose these names to be mnemonic, but we could have named them whatever we wanted.
+
+<h3>Parameter specific settings</h3>
+```
+[par1]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
+
+[par2]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
+```
+
+Each parameter will have its own section based on the name defined in the `common` section.
+
+**`par_type`**: This is the type of parameter it is, for now, this should just always be continuous.
+
+**`lower_bound`**: This is the lower bound of this parameter.
+
+**`upper_bound`**: This is the upper bound of this parameter.
 
 <h3>init_strat</h3>
 ```
@@ -129,10 +144,18 @@ AEPsych configs allow you mix-and-match as many strategies as you would like, an
 ```
 [common]
 parnames = [par1, par2]
-lb = [0, 0]
-ub = [1, 1]
 outcome_type = single_probit
 strategy_names = [sobol_strat, explore_strat, opt_strat]
+
+[par1]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
+
+[par2]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
 
 [sobol_strat]
 min_asks = 5
@@ -162,11 +185,30 @@ Some generators, such as `SobolGenerator` and `RandomGenerator`, do not use mode
 
 ```
 [common]
-parnames = [par1, par2, par3, par4, par5, par6, par7, par8, par9, par10, par11, par12]
-lb = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-ub = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+parnames = [par1, par2, par3, par4]
 outcome_type = single_probit
 strategy_names = [sobol_strat]
+
+[par1]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
+
+[par2]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
+
+[par3]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
+
+[par4]
+par_type = continuous
+lower_bound = 0
+upper_bound = 1
+
 [sobol_strat]
 min_asks = 20
 refit_every = 20
