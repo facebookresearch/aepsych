@@ -234,12 +234,12 @@ class LSEProblem(Problem):
             inverse_torch = model.likelihood.objective.inverse
 
             def inverse_link(x):
-                return inverse_torch(torch.tensor(x).clone().detach())
+                return inverse_torch(x)
 
         except AttributeError:
             def inverse_link(x):
                 normal_dist = torch.distributions.Normal(0, 1)  
-                return normal_dist.icdf(torch.tensor(x).clone().detach())
+                return normal_dist.icdf(x)
 
         
         return inverse_link(self.thresholds).float()  # Return as float32 tensor
