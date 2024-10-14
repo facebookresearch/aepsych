@@ -10,7 +10,7 @@ from typing import Any, Dict, Union, List
 import aepsych
 import numpy as np
 import torch
-from scipy.stats import bernoulli, norm, pearsonr
+from scipy.stats import bernoulli
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.utils import make_scaled_sobol
 
@@ -65,7 +65,7 @@ class Problem:
         return normal_dist.cdf(self.f(x))  # Use PyTorch's CDF equivalent
 
 
-    def sample_y(self, x: torch.Tensor) -> np.ndarray:
+    def sample_y(self, x: torch.Tensor) -> np.ndarray: # TODO: This can be done with  torch.bernoulli(self.p(x)), but Strategy.add_data() expects a numpy array for now
         """Sample a response from test function.
 
         Args:
@@ -89,13 +89,13 @@ class Problem:
         return f_hat
 
     @cached_property
-    def f_true(self) -> np.ndarray:
+    def f_true(self) -> torch.Tensor:
         """Evaluate true test function over evaluation grid.
 
         Returns:
             torch.Tensor: Values of true test function over evaluation grid.
         """
-        return self.f(self.eval_grid).detach().numpy()
+        return self.f(self.eval_grid)
 
     @cached_property
     def p_true(self) -> torch.Tensor:
@@ -104,7 +104,8 @@ class Problem:
         Returns:
             torch.Tensor: Values of true response probability over evaluation grid.
         """
-        return norm.cdf(self.f_true)
+        normal_dist = torch.distributions.Normal(0, 1) 
+        return normal_dist.cdf(self.f_true)  
 
     def p_hat(self, model: aepsych.models.base.ModelProtocol) -> torch.Tensor:
         """Generate mean predictions from the model over the evaluation grid.
@@ -145,44 +146,44 @@ class Problem:
         assert model is not None, "Cannot evaluate strategy without a model!"
 
         # always eval f
-        f_hat = self.f_hat(model).detach().numpy()
-        p_hat = self.p_hat(model).detach().numpy()
+        f_hat = self.f_hat(model)
+        p_hat = self.p_hat(model)
         assert (
             self.f_true.shape == f_hat.shape
         ), f"self.f_true.shape=={self.f_true.shape} != f_hat.shape=={f_hat.shape}"
 
-        mae_f = np.mean(np.abs(self.f_true - f_hat))
-        mse_f = np.mean((self.f_true - f_hat) ** 2)
-        max_abs_err_f = np.max(np.abs(self.f_true - f_hat))
-        corr_f = pearsonr(self.f_true.flatten(), f_hat.flatten())[0]
-        mae_p = np.mean(np.abs(self.p_true - p_hat))
-        mse_p = np.mean((self.p_true - p_hat) ** 2)
-        max_abs_err_p = np.max(np.abs(self.p_true - p_hat))
-        corr_p = pearsonr(self.p_true.flatten(), p_hat.flatten())[0]
-        brier = np.mean(2 * np.square(self.p_true - p_hat))
+        mae_f = torch.mean(torch.abs(self.f_true - f_hat))
+        mse_f = torch.mean((self.f_true - f_hat) ** 2)
+        max_abs_err_f = torch.max(torch.abs(self.f_true - f_hat))
+        corr_f = torch.corrcoef(torch.stack((self.f_true.flatten(), f_hat.flatten())))[0, 1]
+        mae_p = torch.mean(torch.abs(self.p_true - p_hat))
+        mse_p = torch.mean((self.p_true - p_hat) ** 2)
+        max_abs_err_p = torch.max(torch.abs(self.p_true - p_hat))
+        corr_p = torch.corrcoef(torch.stack((self.p_true.flatten(), p_hat.flatten())))[0, 1]
+        brier = torch.mean(2 * torch.square(self.p_true - p_hat))
 
         # eval in samp-based expectation over posterior instead of just mean
-        fsamps = model.sample(self.eval_grid, num_samples=1000).detach().numpy()
+        fsamps = model.sample(self.eval_grid, num_samples=1000)
         try:
             psamps = (
                 model.sample(self.eval_grid, num_samples=1000, probability_space=True)  # type: ignore
-                .detach()
-                .numpy()
+                
             )
         except (
             TypeError
         ):  # vanilla models don't have proba_space samps, TODO maybe we should add them
-            psamps = norm.cdf(fsamps)
+            normal_dist = torch.distributions.Normal(0, 1)  # Standard normal distribution
+            psamps = normal_dist.cdf(fsamps)
 
         ferrs = fsamps - self.f_true[None, :]
-        miae_f = np.mean(np.abs(ferrs))
-        mise_f = np.mean(ferrs**2)
+        miae_f = torch.mean(torch.abs(ferrs))
+        mise_f = torch.mean(ferrs**2)
 
         perrs = psamps - self.p_true[None, :]
-        miae_p = np.mean(np.abs(perrs))
-        mise_p = np.mean(perrs**2)
+        miae_p = torch.mean(torch.abs(perrs))
+        mise_p = torch.mean(perrs**2)
 
-        expected_brier = (2 * np.square(self.p_true[None, :] - psamps)).mean()
+        expected_brier = (2 * torch.square(self.p_true[None, :] - psamps)).mean()
 
         metrics = {
             "mean_abs_err_f": mae_f,
@@ -233,12 +234,13 @@ class LSEProblem(Problem):
             inverse_torch = model.likelihood.objective.inverse
 
             def inverse_link(x):
-                return inverse_torch(torch.tensor(x))
+                return inverse_torch(torch.tensor(x).clone().detach())
 
         except AttributeError:
             def inverse_link(x):
                 normal_dist = torch.distributions.Normal(0, 1)  
-                return normal_dist.icdf(torch.tensor(x))  # Same as norm.ppf but using Torch
+                return normal_dist.icdf(torch.tensor(x).clone().detach())
+
         
         return inverse_link(self.thresholds).float()  # Return as float32 tensor
 
@@ -300,8 +302,8 @@ class LSEProblem(Problem):
         )
 
         for i_threshold, threshold in enumerate(self.thresholds):
-            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh.detach().cpu().numpy()[i_threshold]
-            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh.detach().cpu().numpy()[i_threshold]
+            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh[i_threshold]
+            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh[i_threshold]
         return metrics
 
 
@@ -331,15 +333,15 @@ class LSEProblemWithEdgeLogging(LSEProblem):
         ub2 = ub - self.eps * r
 
         near_edge = (
-            np.logical_or(
+            torch.logical_or(
                 (strat.x[-n_opt_trials:, :] <= lb2), (strat.x[-n_opt_trials:, :] >= ub2)
             )
-            .any(axis=-1)
+            .any(dim=-1)
             .double()
         )
 
         metrics["prop_edge_sampling_mean"] = near_edge.mean().item()
         metrics["prop_edge_sampling_err"] = (
-            2 * near_edge.std() / np.sqrt(len(near_edge))
+            2 * near_edge.std() / torch.sqrt(len(near_edge))
         ).item()
         return metrics
