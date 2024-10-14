@@ -185,17 +185,11 @@ class Strategy(object):
         assert (
             x.shape == self.event_shape or x.shape[1:] == self.event_shape
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
-
-        if isinstance(y, np.ndarray) or isinstance(y, List):
-            y = torch.tensor(y)
-        elif isinstance(y, torch.Tensor):
-            y = y.clone().detach()
-
-        if isinstance(x, np.ndarray):
-            x = torch.tensor(x)
-        elif isinstance(x, torch.Tensor):
-            x = x.clone().detach()
-
+        
+        # Handle scalar y values
+        if y.ndim == 0:
+            y = y.unsqueeze(0)
+        
         if x.shape == self.event_shape:
             x = x[None, :]
 
@@ -223,7 +217,7 @@ class Strategy(object):
             Other arguments are forwared to underlying model.
 
         Returns:
-            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
+            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
         """
         self._count = self._count + num_points
         return self.generator.gen(num_points, self.model)
@@ -317,6 +311,11 @@ class Strategy(object):
         return self.min_asks
 
     def add_data(self, x, y):
+        if not isinstance(y, torch.Tensor):
+            y = torch.tensor(y, dtype=torch.float32)
+        if not isinstance(x, torch.Tensor):
+            x = torch.tensor(x, dtype=torch.float32)
+
         self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
 
