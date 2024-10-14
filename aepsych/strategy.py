@@ -314,7 +314,15 @@ class Strategy(object):
         return self.min_asks
 
     def add_data(self, x, y):
-        # Necessary as sometimes the data is passed in as numpy arrays, torch tensors, or lists.
+        """
+        Adds new data points to the strategy, normalizing the inputs if necessary.
+
+        Args:
+            x (torch.Tensor, np.ndarray): The input data points. Can be a PyTorch tensor or NumPy array.
+            y (torch.Tensor, np.ndarray): The output data points. Can be a PyTorch tensor or NumPy array.
+
+        """
+        # Necessary as sometimes the data is passed in as numpy arrays or torch tensors.
         if not isinstance(y, torch.Tensor):
             y = torch.tensor(y, dtype=torch.float64)
         if not isinstance(x, torch.Tensor):
