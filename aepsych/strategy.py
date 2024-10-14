@@ -203,6 +203,9 @@ class Strategy(object):
         else:
             y = torch.cat((self.y, y), dim=0)
 
+        # Ensure the correct dtype
+        x = x.to(torch.float64)
+        y = y.to(torch.float64)
         n = y.shape[0]
 
         return x, y, n
@@ -311,10 +314,11 @@ class Strategy(object):
         return self.min_asks
 
     def add_data(self, x, y):
+        # Necessary as sometimes the data is passed in as numpy arrays, torch tensors, or lists.
         if not isinstance(y, torch.Tensor):
-            y = torch.tensor(y, dtype=torch.float32)
+            y = torch.tensor(y, dtype=torch.float64)
         if not isinstance(x, torch.Tensor):
-            x = torch.tensor(x, dtype=torch.float32)
+            x = torch.tensor(x, dtype=torch.float64)
 
         self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
