@@ -186,7 +186,9 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             isinstance(strat.strat_list[1].generator, OptimizeAcqfGenerator)
         )
-        self.assertTrue(strat.strat_list[1].generator.acqf is qLogNoisyExpectedImprovement)
+        self.assertTrue(
+            strat.strat_list[1].generator.acqf is qLogNoisyExpectedImprovement
+        )
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
         )
@@ -411,6 +413,31 @@ class ConfigTestCase(unittest.TestCase):
         with self.assertWarns(UserWarning):
             Strategy.from_config(config, "init_strat")
 
+    def test_nested_tensor(self):
+        points = [[0.25, 0.75], [0.5, 0.9]]
+        config_str = f"""
+                [common]
+                parnames = [par1, par2]
+
+                [par1]
+                par_type = continuous
+                lower_bound = 0
+                upper_bound = 1
+
+                [par2]
+                par_type = continuous
+                lower_bound = 0
+                upper_bound = 1
+
+                [SampleAroundPointsGenerator]
+                points = {points}
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        config_points = config.gettensor("SampleAroundPointsGenerator", "points")
+        self.assertTrue(torch.all(config_points == torch.tensor(points)))
+
     def test_pairwise_probit_config(self):
         config_str = """
             [common]
@@ -581,7 +608,9 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].model is None)
 
         self.assertTrue(isinstance(strat.strat_list[1].model, PairwiseProbitModel))
-        self.assertTrue(strat.strat_list[1].generator.acqf is qLogNoisyExpectedImprovement)
+        self.assertTrue(
+            strat.strat_list[1].generator.acqf is qLogNoisyExpectedImprovement
+        )
         self.assertTrue(
             set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"objective"}
         )
