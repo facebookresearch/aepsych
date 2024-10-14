@@ -170,7 +170,7 @@ class Strategy(object):
 
         self.name = name
 
-    def normalize_inputs(self, x, y):
+    def normalize_inputs(self, x:torch.Tensor, y:torch.Tensor):
         """converts inputs into normalized format for this strategy
 
         Args:
@@ -193,14 +193,10 @@ class Strategy(object):
         if x.shape == self.event_shape:
             x = x[None, :]
 
-        if self.x is None:
-            x = x
-        else:
+        if self.x is not None:
             x = torch.cat((self.x, x), dim=0)
 
-        if self.y is None:
-            y = y
-        else:
+        if self.y is not None:
             y = torch.cat((self.y, y), dim=0)
 
         # Ensure the correct dtype
@@ -313,7 +309,7 @@ class Strategy(object):
         )
         return self.min_asks
 
-    def add_data(self, x, y):
+    def add_data(self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]):
         """
         Adds new data points to the strategy, and normalizes the inputs.
 
