@@ -2,9 +2,10 @@ name: Build, lint, test
 
 on:
   push:
-    branches: [ main, strategy-normalize_inputs-fix ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, strategy-normalize_inputs-fix ]
+    branches: [ main ]
+
 jobs:
   lint:
     runs-on: macos-latest
