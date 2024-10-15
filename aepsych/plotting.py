@@ -158,6 +158,8 @@ def _plot_strat_1d(
         grid = strat.model.dim_grid(gridsize=gridsize)
         samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
         phimean = samps.mean(0)
+    else:
+        raise RuntimeError("No model to plot!")
 
     ax.plot(np.squeeze(grid), phimean)
     if cred_level is not None:
@@ -260,6 +262,8 @@ def _plot_strat_2d(
         grid = strat.model.dim_grid(gridsize=gridsize)
         fmean, _ = strat.model.predict(grid)
         phimean = norm.cdf(fmean.reshape(gridsize, gridsize).detach().numpy()).T
+    else:
+        raise RuntimeError("No model to plot!")
 
     extent = np.r_[strat.lb[0], strat.ub[0], strat.lb[1], strat.ub[1]]
     colormap = ax.imshow(
