@@ -8,6 +8,7 @@
 import json
 import os
 import shutil
+import time
 import unittest
 import uuid
 from configparser import DuplicateOptionError
@@ -26,6 +27,7 @@ class DBTestCase(unittest.TestCase):
         self._database = db.Database(db_path=self._dbname)
 
     def tearDown(self):
+        time.sleep(0.1)
         self._database.delete_db()
 
     def test_db_create(self):
@@ -129,6 +131,9 @@ class DBTestCase(unittest.TestCase):
         shutil.copy(str(db_path), str(dst_db_path))
         self.assertTrue(dst_db_path.is_file())
 
+        # add sleep to ensure file is ready to go
+        time.sleep(0.1)
+
         # open the new db
         test_database = db.Database(db_path=dst_db_path.as_posix())
 
@@ -169,6 +174,9 @@ class DBTestCase(unittest.TestCase):
         dst_db_path = Path(self._dbname)
         shutil.copy(str(db_path), str(dst_db_path))
         self.assertTrue(dst_db_path.is_file())
+
+        # add sleep to ensure file is ready to go
+        time.sleep(0.1)
 
         # open the new db
         test_database = db.Database(db_path=dst_db_path.as_posix())

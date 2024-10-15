@@ -622,7 +622,7 @@ class GPClassificationTest(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        n_init = 150
+        n_init = 200
         n_opt = 1
         lb = -4.0
         ub = 4.0

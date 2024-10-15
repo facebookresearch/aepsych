@@ -13,7 +13,6 @@ from typing import List, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
-from botorch.exceptions.errors import ModelFittingError
 
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
@@ -22,6 +21,7 @@ from aepsych.models import GPClassificationModel
 from aepsych.models.base import ModelProtocol
 from aepsych.utils import _process_bounds, make_scaled_sobol
 from aepsych.utils_logging import getLogger
+from botorch.exceptions.errors import ModelFittingError
 
 logger = getLogger()
 
@@ -184,19 +184,30 @@ class Strategy(object):
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
 
         if (
+            isinstance(x, np.ndarray)
+            or isinstance(x, list)
+            or isinstance(x, int)
+            or isinstance(x, float)
+        ):
+            x = torch.tensor(x)
+
+        if (
             isinstance(y, np.ndarray)
             or isinstance(y, list)
             or isinstance(y, int)
             or isinstance(y, float)
         ):
-            x = torch.tensor(x, dtype=torch.float64)
-            y = torch.tensor(y, dtype=torch.float64).view(-1)
+            y = torch.tensor(y).view(-1)
 
         if x.shape == self.event_shape:
             x = x.unsqueeze(0)
 
         x = torch.cat([self.x, x], dim=0) if self.x is not None else x
         y = torch.cat([self.y, y], dim=0) if self.y is not None else y
+
+        # Ensure data is float64 for numerical stability (and compat)
+        x = x.to(torch.float64)
+        y = y.to(torch.float64)
 
         return x, y, y.size(0)
 
