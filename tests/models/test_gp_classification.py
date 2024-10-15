@@ -115,35 +115,55 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         Just see if we memorize the training set
         """
-        X, y = self.X, self.y
-        model = GPClassificationModel(
-            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10
-        )
+        if torch.cuda.is_available():
+            lst_devices = ["cuda", "cpu"]
+        else:
+            lst_devices = ["cpu"]
 
-        model.fit(X[:50], y[:50])
+        for device in lst_devices:
+            X, y = self.X, self.y
+            X, y = X.to(device), y.to(device)
 
-        # pspace
-        pm, _ = model.predict_probability(X[:50])
-        pred = (pm > 0.5).numpy()
-        npt.assert_allclose(pred, y[:50])
+            model = GPClassificationModel(
+                torch.Tensor([-3]).to(device),
+                torch.Tensor([3]).to(device),
+                inducing_size=10,
+            ).to(device)
 
-        # fspace
-        pm, _ = model.predict(X[:50], probability_space=False)
-        pred = (pm > 0).numpy()
-        npt.assert_allclose(pred, y[:50])
+        for device in lst_devices:
+            X, y = self.X, self.y
+            X, y = X.to(device), y.to(device)
 
-        # smoke test update
-        model.update(X, y)
+            model = GPClassificationModel(
+                torch.Tensor([-3]).to(device),
+                torch.Tensor([3]).to(device),
+                inducing_size=10,
+            ).to(device)
 
-        # pspace
-        pm, _ = model.predict_probability(X)
-        pred = (pm > 0.5).numpy()
-        npt.assert_allclose(pred, y)
+            model.fit(X[:50], y[:50])
 
-        # fspace
-        pm, _ = model.predict(X, probability_space=False)
-        pred = (pm > 0).numpy()
-        npt.assert_allclose(pred, y)
+            # pspace
+            pm, _ = model.predict_probability(X[:50])
+            pred = (pm > 0.5).cpu().numpy()
+            npt.assert_allclose(pred, y[:50].cpu().numpy())
+
+            # fspace
+            pm, _ = model.predict(X[:50], probability_space=False)
+            pred = (pm > 0).cpu().numpy()
+            npt.assert_allclose(pred, y[:50].cpu().numpy())
+
+            # smoke test update
+            model.update(X, y)
+
+            # pspace
+            pm, _ = model.predict_probability(X)
+            pred = (pm > 0.5).cpu().numpy()
+            npt.assert_allclose(pred, y.cpu().numpy())
+
+            # fspace
+            pm, _ = model.predict(X, probability_space=False)
+            pred = (pm > 0).cpu().numpy()
+            npt.assert_allclose(pred, y.cpu().numpy())
 
     def test_1d_classification_pytorchopt(self):
         """
@@ -638,7 +658,7 @@ class GPClassificationTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(norm.cdf(next_x / 1.5))])
+            strat.add_data(next_x, Normal(0, 1).cdf(next_x / 1.5).bernoulli().view(-1))
 
         x = torch.linspace(-4, 4, 100)
 
