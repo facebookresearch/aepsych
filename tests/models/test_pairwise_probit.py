@@ -619,7 +619,9 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             self.assertEqual(len(server2._strats), len(server._strats))
             for strat1, strat2 in zip(server._strats, server2._strats):
                 self.assertEqual(type(strat1), type(strat2))
-                self.assertEqual(type(strat1.model), type(strat2.model))
+                self.assertEqual(
+                    type(strat1.model._base_obj), type(strat2.model._base_obj)
+                )
                 self.assertTrue(torch.equal(strat1.x, strat2.x))
                 self.assertTrue(torch.equal(strat1.y, strat2.y))
 
@@ -682,7 +684,9 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             self.assertEqual(len(server2._strats), len(server._strats))
             for strat1, strat2 in zip(server._strats, server2._strats):
                 self.assertEqual(type(strat1), type(strat2))
-                self.assertEqual(type(strat1.model), type(strat2.model))
+                self.assertEqual(
+                    type(strat1.model._base_obj), type(strat2.model._base_obj)
+                )
                 self.assertTrue(torch.equal(strat1.x, strat2.x))
                 self.assertTrue(torch.equal(strat1.y, strat2.y))
         except Exception:

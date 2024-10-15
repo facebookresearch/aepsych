@@ -17,13 +17,14 @@ import torch
 
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.generators.sobol_generator import SobolGenerator
 from aepsych.models.base import ModelProtocol
+from aepsych.transforms import GeneratorWrapper, ModelWrapper
 from aepsych.utils import (
     _process_bounds,
     make_scaled_sobol,
 )
 from aepsych.utils_logging import getLogger
+from botorch.models.transforms.input import ChainedInputTransform
 from botorch.exceptions.errors import ModelFittingError
 
 logger = getLogger()
@@ -71,6 +72,7 @@ class Strategy(object):
         min_post_range: Optional[float] = None,
         name: str = "",
         run_indefinitely: bool = False,
+        transforms: Optional[ChainedInputTransform] = ChainedInputTransform(**{}),
     ):
         """Initialize the strategy object.
 
@@ -96,6 +98,11 @@ class Strategy(object):
             name (str): The name of the strategy. Defaults to the empty string.
             run_indefinitely (bool): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will
                 be ignored. Defaults to False.
+            transforms (ReversibleInputTransform, optional): Transforms
+                to apply parameters. This is immediately applied to lb/ub, thus lb/ub
+                should be defined in raw parameter space for initialization. However,
+                if the lb/ub attribute are access from an initialized Strategy object,
+                it will be returned in transformed space.
         """
         self.is_finished = False
 
@@ -132,6 +139,11 @@ class Strategy(object):
         self.max_asks = max_asks or generator.max_asks
         self.keep_most_recent = keep_most_recent
 
+        self.transforms = transforms
+        if self.transforms is not None:
+            self.lb = self.transforms.transform(self.lb)
+            self.ub = self.transforms.transform(self.ub)
+
         self.min_post_range = min_post_range
         if self.min_post_range is not None:
             assert model is not None, "min_post_range must be None if model is None!"
@@ -139,6 +151,12 @@ class Strategy(object):
                 lb=self.lb, ub=self.ub, size=self._n_eval_points
             )
 
+            # this grid needs to be in untransformed space because it goes through a
+            # transform wrapped model
+            if self.transforms is not None:
+                self.eval_grid = self.transforms.untransform(self.eval_grid)
+
+        # similar to ub/lb/grid, x is in raw parameter space
         self.x = None
         self.y = None
         self.n = 0
@@ -360,17 +378,14 @@ class Strategy(object):
         ub = config.gettensor(name, "ub")
         dim = config.getint(name, "dim", fallback=None)
 
+        transforms = config.build_transforms()
+
         stimuli_per_trial = config.getint(name, "stimuli_per_trial", fallback=1)
         outcome_types = config.getlist(name, "outcome_types", element_type=str)
 
-        gen_cls = config.getobj(name, "generator", fallback=SobolGenerator)
-        generator = gen_cls.from_config(config)
+        generator = GeneratorWrapper.from_config(name, config)
 
-        model_cls = config.getobj(name, "model", fallback=None)
-        if model_cls is not None:
-            model = model_cls.from_config(config)
-        else:
-            model = None
+        model = ModelWrapper.from_config(name, config)
 
         acqf_cls = config.getobj(name, "acqf", fallback=None)
         if acqf_cls is not None and hasattr(generator, "acqf"):
@@ -413,6 +428,7 @@ class Strategy(object):
             stimuli_per_trial=stimuli_per_trial,
             outcome_types=outcome_types,
             dim=dim,
+            transforms=transforms,
             model=model,
             generator=generator,
             min_asks=min_asks,

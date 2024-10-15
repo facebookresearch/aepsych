@@ -11,6 +11,10 @@ from typing import Any, ClassVar, Dict, List, Mapping, Optional, TypeVar, Union
 
 import numpy as np
 import torch
+from botorch.models.transforms.input import (
+    ChainedInputTransform,
+    ReversibleInputTransform,
+)
 
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
@@ -65,6 +69,9 @@ class Config(configparser.ConfigParser):
     def register_module(cls: _T, module): ...
     def jsonifyMetadata(self) -> str: ...
     def jsonifyAll(self) -> str: ...
+    def build_transforms(self) -> ChainedInputTransform | ReversibleInputTransform: ...
+    def clone(self) -> Config: ...
+    def transform_options(self): ...
 
 class ConfigurableMixin(abc.ABC):
     @classmethod
