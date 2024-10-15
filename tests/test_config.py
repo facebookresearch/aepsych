@@ -32,6 +32,7 @@ from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
+from botorch.models.transforms.input import Log10
 
 from aepsych.server.message_handlers.handle_setup import configure
 
@@ -1163,7 +1164,157 @@ class ConfigTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             config.update(config_str=config_str)
 
+    def test_clone_transform_options(self):
+        points = [[0.25, 50], [0.9, 99]]
+        window = [0.05, 10]
+        config_str = f"""
+                [common]
+                parnames = [contPar, logPar]
+                stimuli_per_trial=1
+                outcome_types=[binary]
+                target=0.75
+                strategy_names = [init_strat]
 
+                [contPar]
+                par_type = continuous
+                lower_bound = 0
+                upper_bound = 1
+
+                [logPar]
+                par_type = continuous
+                lower_bound = 10
+                upper_bound = 100
+                log_scale = True
+
+                [init_strat]
+                min_total_tells = 10
+                generator = SampleAroundPointsGenerator
+
+                [SampleAroundPointsGenerator]
+                points = {points}
+                window = {window}
+            """
+        config = Config()
+        config.update(config_str=config_str)
+
+        config_clone = config.clone()
+        config_clone.transform_options()
+
+        self.assertTrue(id(config) != id(config_clone))
+
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        config_points = config.gettensor("SampleAroundPointsGenerator", "points")
+        config_window = config.gettensor("SampleAroundPointsGenerator", "window")
+        xformed_lb = config_clone.gettensor("common", "lb")
+        xformed_ub = config_clone.gettensor("common", "ub")
+        xformed_points = config_clone.gettensor("SampleAroundPointsGenerator", "points")
+        xformed_window = config_clone.gettensor("SampleAroundPointsGenerator", "window")
+
+        self.assertFalse(torch.all(lb == xformed_lb))
+        self.assertFalse(torch.all(ub == xformed_ub))
+        self.assertFalse(torch.all(config_points == xformed_points))
+        self.assertFalse(torch.all(config_window == xformed_window))
+
+        self.assertTrue(torch.allclose(xformed_lb, torch.tensor([0.0, 1.0])))
+        self.assertTrue(torch.allclose(xformed_ub, torch.tensor([1.0, 2.0])))
+
+        transforms = config.build_transforms()
+        reversed_points = transforms.untransform(xformed_points)
+        reversed_window = transforms.untransform(xformed_window)
+
+        self.assertTrue(torch.allclose(reversed_points, torch.tensor(points)))
+        self.assertTrue(torch.allclose(reversed_window, torch.tensor(window)))
+
+    def test_build_transform(self):
+        config_str = """
+            [common]
+            parnames = [signal1, signal2]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+            log_scale = false 
+
+            [signal2]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+            log_scale = true 
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        transforms = config.build_transforms()
+
+        self.assertTrue(len(transforms.values()) == 1)
+
+        tf = list(transforms.items())[0]
+        self.assertTrue(tf[0] == "signal2_log")
+        self.assertTrue(isinstance(tf[1], Log10))
+
+    def test_clone_transform_options(self):
+        points = [[0.25, 50], [0.9, 99]]
+        window = [0.05, 10]
+        config_str = f"""
+                [common]
+                parnames = [contPar, logPar]
+                stimuli_per_trial=1
+                outcome_types=[binary]
+                target=0.75
+                strategy_names = [init_strat]
+
+                [contPar]
+                par_type = continuous
+                lower_bound = 0
+                upper_bound = 1
+
+                [logPar]
+                par_type = continuous
+                lower_bound = 10
+                upper_bound = 100
+                log_scale = True
+
+                [init_strat]
+                min_total_tells = 10
+                generator = SampleAroundPointsGenerator
+
+                [SampleAroundPointsGenerator]
+                points = {points}
+                window = {window}
+            """
+        config = Config()
+        config.update(config_str=config_str)
+
+        config_clone = config.clone()
+        config_clone.transform_options()
+
+        self.assertTrue(id(config) != id(config_clone))
+
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        config_points = config.gettensor("SampleAroundPointsGenerator", "points")
+        config_window = config.gettensor("SampleAroundPointsGenerator", "window")
+        xformed_lb = config_clone.gettensor("common", "lb")
+        xformed_ub = config_clone.gettensor("common", "ub")
+        xformed_points = config_clone.gettensor("SampleAroundPointsGenerator", "points")
+        xformed_window = config_clone.gettensor("SampleAroundPointsGenerator", "window")
+
+        self.assertFalse(torch.all(lb == xformed_lb))
+        self.assertFalse(torch.all(ub == xformed_ub))
+        self.assertFalse(torch.all(config_points == xformed_points))
+        self.assertFalse(torch.all(config_window == xformed_window))
+
+        self.assertTrue(torch.allclose(xformed_lb, torch.tensor([0.0, 1.0])))
+        self.assertTrue(torch.allclose(xformed_ub, torch.tensor([1.0, 2.0])))
+
+        transforms = config.build_transforms()
+        reversed_points = transforms.untransform(xformed_points)
+        reversed_window = transforms.untransform(xformed_window)
+
+        self.assertTrue(torch.allclose(reversed_points, torch.tensor(points)))
+        self.assertTrue(torch.allclose(reversed_window, torch.tensor(window)))
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ from inspect import signature
 from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar, Optional
 import re
 
-import torch
+from torch import Tensor
 from aepsych.config import Config
 from aepsych.models.base import AEPsychMixin
 from botorch.acquisition import (
@@ -49,7 +49,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
         pass
 
     @abc.abstractmethod
-    def gen(self, num_points: int, model: AEPsychModelType) -> torch.Tensor:
+    def gen(self, num_points: int, model: AEPsychModelType) -> Tensor:
         pass
 
     @classmethod
@@ -81,7 +81,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                         elif re.search(
                             r"^\[.*\]$", v, flags=re.DOTALL
                         ):  # use regex to check if the value is a list
-                            extra_acqf_args[k] = config._str_to_list(v) # type: ignore
+                            extra_acqf_args[k] = config._str_to_list(v)  # type: ignore
                         else:
                             # otherwise try a float
                             try:

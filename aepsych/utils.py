@@ -139,6 +139,9 @@ def get_lse_interval(
         .T
     )
 
+    if model.transforms is not None:
+        xgrid = model.transforms.untransform(xgrid)
+
     samps = model.sample(xgrid, num_samples=n_samps, **kwargs)
     samps = [s.reshape((gridsize,) * model.dim) for s in samps.detach().numpy()]
     contours = np.stack(
