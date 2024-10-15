@@ -157,7 +157,7 @@ def _plot_strat_1d(
     if strat.model is not None:
         grid = strat.model.dim_grid(gridsize=gridsize)
         samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
-    phimean = samps.mean(0)
+        phimean = samps.mean(0)
 
     ax.plot(np.squeeze(grid), phimean)
     if cred_level is not None:
