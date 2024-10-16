@@ -139,8 +139,8 @@ class Strategy(object):
                 lb=self.lb, ub=self.ub, size=self._n_eval_points
             )
 
-        self.x = None
-        self.y = None
+        self.x: Optional[torch.Tensor] = None
+        self.y: Optional[torch.Tensor] = None
         self.n = 0
         self.min_asks = min_asks
         self._count = 0
@@ -170,7 +170,7 @@ class Strategy(object):
 
         self.name = name
 
-    def normalize_inputs(self, x:torch.Tensor, y:torch.Tensor):
+    def normalize_inputs(self, x:torch.Tensor, y:torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, int]:
         """converts inputs into normalized format for this strategy
 
         Args:
