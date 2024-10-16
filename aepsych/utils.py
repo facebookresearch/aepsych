@@ -59,11 +59,11 @@ def dim_grid(
 
     for i in range(dim):
         if i in slice_dims.keys():
-            mesh_vals.append(slice(slice_dims[i] - 1e-10, slice_dims[i] + 1e-10, 1))
+            mesh_vals.append(torch.tensor([slice_dims[i]]))
         else:
-            mesh_vals.append(slice(lower[i].item(), upper[i].item(), gridsize * 1j))
+            mesh_vals.append(torch.linspace(lower[i].item(), upper[i].item(), gridsize))
 
-    return torch.Tensor(np.mgrid[mesh_vals].reshape(dim, -1).T)
+    return torch.stack(torch.meshgrid(*mesh_vals, indexing='ij'), dim=-1).reshape(-1, dim)
 
 
 def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
@@ -98,22 +98,26 @@ def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
     return lb, ub, dim
 
 
-def interpolate_monotonic(x, y, z, min_x=-np.inf, max_x=np.inf):
+def interpolate_monotonic(x, y, z, min_x=-float('inf'), max_x=float('inf')):
     # Ben Letham's 1d interpolation code, assuming monotonicity.
     # basic idea is find the nearest two points to the LSE and
     # linearly interpolate between them (I think this is bisection
     # root-finding)
-    idx = np.searchsorted(y, z)
-    if idx == len(y):
-        return float(max_x)
-    elif idx == 0:
-        return float(min_x)
+    idx = torch.searchsorted(y, z, right=False)
+    
+    # Handle edge cases where idx is 0 or at the end
+    idx = torch.clamp(idx, 1, len(y) - 1)
+    
     x0 = x[idx - 1]
     x1 = x[idx]
     y0 = y[idx - 1]
     y1 = y[idx]
 
     x_star = x0 + (x1 - x0) * (z - y0) / (y1 - y0)
+    # Apply min and max boundaries
+    x_star = torch.where(z < y[0], min_x, x_star)
+    x_star = torch.where(z > y[-1], max_x, x_star)
+    
     return x_star
 
 
@@ -124,69 +128,90 @@ def get_lse_interval(
     cred_level=None,
     mono_dim=-1,
     n_samps=500,
-    lb=-np.inf,
-    ub=np.inf,
+    lb=-float('inf'),
+    ub=float('inf'),
     gridsize=30,
     **kwargs,
 ):
-    xgrid = torch.Tensor(
-        np.mgrid[
-            [
-                slice(model.lb[i].item(), model.ub[i].item(), gridsize * 1j)
-                for i in range(model.dim)
-            ]
-        ]
-        .reshape(model.dim, -1)
-        .T
-    )
+    # Create a meshgrid using torch.linspace
+    xgrid = torch.stack(
+        torch.meshgrid(
+            [torch.linspace(model.lb[i].item(), model.ub[i].item(), gridsize) for i in range(model.dim)]
+        ),
+        dim=-1
+    ).reshape(-1, model.dim)
 
     samps = model.sample(xgrid, num_samples=n_samps, **kwargs)
-    samps = [s.reshape((gridsize,) * model.dim) for s in samps.detach().numpy()]
-    contours = np.stack(
+    samps = [s.reshape((gridsize,) * model.dim) for s in samps]
+
+    # Define the normal distribution for the CDF
+    normal_dist = torch.distributions.Normal(0, 1)
+
+    # Calculate contours using torch.stack and the torch CDF for each sample
+    contours = torch.stack(
         [
-            get_lse_contour(norm.cdf(s), mono_grid, target_level, mono_dim, lb, ub)
+            get_lse_contour(normal_dist.cdf(s), mono_grid, target_level, mono_dim, lb, ub)
             for s in samps
         ]
     )
 
     if cred_level is None:
-        return np.mean(contours, 0.5, axis=0)
+        return torch.median(contours, dim=0).values
     else:
         alpha = 1 - cred_level
         qlower = alpha / 2
         qupper = 1 - alpha / 2
 
-        upper = np.quantile(contours, qupper, axis=0)
-        lower = np.quantile(contours, qlower, axis=0)
-        median = np.quantile(contours, 0.5, axis=0)
+        lower = torch.quantile(contours, qlower, dim=0)
+        upper = torch.quantile(contours, qupper, dim=0)
+        median = torch.quantile(contours, 0.5, dim=0)
 
         return median, lower, upper
 
 
-def get_lse_contour(post_mean, mono_grid, level, mono_dim=-1, lb=-np.inf, ub=np.inf):
-    return np.apply_along_axis(
-        lambda p: interpolate_monotonic(mono_grid, p, level, lb, ub),
-        mono_dim,
-        post_mean,
-    )
+def get_lse_contour(post_mean, mono_grid, level, mono_dim=-1, lb=-float('inf'), ub=float('inf')):
+    post_mean = torch.tensor(post_mean, dtype=torch.float32)
+    mono_grid = torch.tensor(mono_grid, dtype=torch.float32)
+    
+    # Move mono_dim to the last dimension if it isn't already
+    if mono_dim != -1:
+        post_mean = post_mean.transpose(mono_dim, -1)
+    
+    # Apply interpolation across all rows at once
+    result = interpolate_monotonic(mono_grid, post_mean, level, lb, ub)
+    
+    # Transpose back if necessary
+    if mono_dim != -1:
+        result = result.transpose(-1, mono_dim)
+    
+    return result
 
 
-def get_jnd_1d(post_mean, mono_grid, df=1, mono_dim=-1, lb=-np.inf, ub=np.inf):
+
+def get_jnd_1d(post_mean, mono_grid, df=1, mono_dim=-1, lb=-float('inf'), ub=float('inf')):
+    
+    # Calculate interpolate_to in a vectorized way
     interpolate_to = post_mean + df
-    return (
-        np.array(
-            [interpolate_monotonic(mono_grid, post_mean, ito) for ito in interpolate_to]
-        )
-        - mono_grid
-    )
+    
+    # Apply interpolation to the entire tensor
+    interpolated_values = interpolate_monotonic(mono_grid, post_mean, interpolate_to, lb, ub)
+    
+    return interpolated_values - mono_grid
 
-
-def get_jnd_multid(post_mean, mono_grid, df=1, mono_dim=-1, lb=-np.inf, ub=np.inf):
-    return np.apply_along_axis(
-        lambda p: get_jnd_1d(p, mono_grid, df=df, mono_dim=mono_dim, lb=lb, ub=ub),
-        mono_dim,
-        post_mean,
-    )
+def get_jnd_multid(post_mean, mono_grid, df=1, mono_dim=-1, lb=-float('inf'), ub=float('inf')):
+    
+    # Move mono_dim to the last dimension if it isn't already
+    if mono_dim != -1:
+        post_mean = post_mean.transpose(mono_dim, -1)
+    
+    # Apply get_jnd_1d in a vectorized way
+    result = get_jnd_1d(post_mean, mono_grid, df=df, mono_dim=-1, lb=lb, ub=ub)
+    
+    # Transpose back if necessary
+    if mono_dim != -1:
+        result = result.transpose(-1, mono_dim)
+    
+    return result
 
 
 def _get_ax_parameters(config):
