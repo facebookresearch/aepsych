@@ -154,9 +154,12 @@ def _plot_strat_1d(
     x, y = strat.x, strat.y
     assert x is not None and y is not None, "No data to plot!"
 
-    grid = strat.model.dim_grid(gridsize=gridsize)
-    samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
-    phimean = samps.mean(0)
+    if strat.model is not None:
+        grid = strat.model.dim_grid(gridsize=gridsize)
+        samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
+        phimean = samps.mean(0)
+    else:
+        raise RuntimeError("Cannot plot without a model!")
 
     ax.plot(np.squeeze(grid), phimean)
     if cred_level is not None:
@@ -215,14 +218,14 @@ def _plot_strat_1d(
     ax.scatter(
         x[y == 0, 0],
         np.zeros_like(x[y == 0, 0]),
-        marker=3,
+        marker="3",
         color="r",
         label=no_label,
     )
     ax.scatter(
         x[y == 1, 0],
         np.zeros_like(x[y == 1, 0]),
-        marker=3,
+        marker="3",
         color="b",
         label=yes_label,
     )
@@ -253,11 +256,14 @@ def _plot_strat_2d(
     assert x is not None and y is not None, "No data to plot!"
 
     # make sure the model is fit well if we've been limiting fit time
-    strat.model.fit(train_x=x, train_y=y, max_fit_time=None)
+    if strat.model is not None:
+        strat.model.fit(train_x=x, train_y=y, max_fit_time=None)
 
-    grid = strat.model.dim_grid(gridsize=gridsize)
-    fmean, _ = strat.model.predict(grid)
-    phimean = norm.cdf(fmean.reshape(gridsize, gridsize).detach().numpy()).T
+        grid = strat.model.dim_grid(gridsize=gridsize)
+        fmean, _ = strat.model.predict(grid)
+        phimean = norm.cdf(fmean.reshape(gridsize, gridsize).detach().numpy()).T
+    else:
+        raise RuntimeError("Cannot plot without a model!")
 
     extent = np.r_[strat.lb[0], strat.ub[0], strat.lb[1], strat.ub[1]]
     colormap = ax.imshow(
@@ -277,7 +283,7 @@ def _plot_strat_2d(
 
     # hacky relabel to be in logspace
     if logx:
-        locs = np.arange(strat.lb[0], strat.ub[0])
+        locs: np.ndarray = np.arange(strat.lb[0], strat.ub[0])
         ax.set_xticks(ticks=locs)
         ax.set_xticklabels(2.0**locs)
 
