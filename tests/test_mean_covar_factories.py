@@ -14,8 +14,10 @@ from aepsych.factory import (
     default_mean_covar_factory,
     monotonic_mean_covar_factory,
     song_mean_covar_factory,
+    pairwise_mean_covar_factory,
 )
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
+from aepsych.kernels.pairwisekernel import PairwiseKernel
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from scipy.stats import norm
 
@@ -283,3 +285,38 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(
             np.allclose(covarfun.kernels[0].base_kernel.active_dims, [0, 1])
         )
+
+    def test_pairwise_factory_1d(self):
+        conf = {"common": {"lb": [0], "ub": [1]}}
+        config = Config(config_dict=conf)
+        with self.assertRaises(AssertionError):
+            meanfun, covarfun = pairwise_mean_covar_factory(config)
+
+    def test_pairwise_factory_2d(self):
+        conf = {"common": {"lb": [0,0], "ub": [1,1]}}
+        config = Config(config_dict=conf)
+        meanfun, covarfun = pairwise_mean_covar_factory(config)
+        self.assertTrue(covarfun.latent_kernel.ard_num_dims == 1)
+        self.assertIsInstance(meanfun, gpytorch.means.ConstantMean)
+        self.assertIsInstance(covarfun, PairwiseKernel)
+        self.assertIsInstance(covarfun.latent_kernel, gpytorch.kernels.RBFKernel)
+
+    def test_pairwise_factory_3d(self):
+        conf = {"common": {"lb": [0, 0, 0], "ub": [1, 1, 1]}}
+        config = Config(config_dict=conf)
+        with self.assertRaises(AssertionError):
+            meanfun, covarfun = pairwise_mean_covar_factory(config)
+
+    def test_pairwise_factory_shared(self):
+        conf = {"common": {"lb": [0, 0, 0], "ub": [1, 1, 1]}, "pairwise_mean_covar_factory": {"shared_dims": [0]}}
+        config = Config(config_dict=conf)
+        meanfun, covarfun = pairwise_mean_covar_factory(config)
+        self.assertIsInstance(meanfun, gpytorch.means.ConstantMean)
+        self.assertIsInstance(covarfun, gpytorch.kernels.ProductKernel)
+        self.assertEqual(len(covarfun.kernels), 2)
+
+        pairwise, rbf = covarfun.kernels
+        self.assertIsInstance(rbf, gpytorch.kernels.RBFKernel)
+        self.assertIsInstance(pairwise, PairwiseKernel)
+        self.assertIsInstance(pairwise.latent_kernel, gpytorch.kernels.RBFKernel)
+        self.assertTrue(pairwise.latent_kernel.ard_num_dims == 1)
