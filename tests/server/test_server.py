@@ -8,10 +8,10 @@
 import json
 import logging
 import select
+import time
 import unittest
 import uuid
 from unittest.mock import MagicMock
-import time
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
@@ -64,11 +64,14 @@ class BaseServerTestCase(unittest.TestCase):
         self.s.cleanup()
 
         # sleep to ensure db is closed
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         # cleanup the db
         if self.s.db is not None:
-            self.s.db.delete_db()
+            try:
+                self.s.db.delete_db()
+            except PermissionError as e:
+                print("Failed to deleted database: ", e)
 
     def dummy_create_setup(self, server, request=None):
         request = request or {"test": "test request"}
