@@ -19,10 +19,7 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
 from aepsych.models.base import ModelProtocol
-from aepsych.utils import (
-    _process_bounds,
-    make_scaled_sobol,
-)
+from aepsych.utils import _process_bounds, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.exceptions.errors import ModelFittingError
 
@@ -170,7 +167,9 @@ class Strategy(object):
 
         self.name = name
 
-    def normalize_inputs(self, x:torch.Tensor, y:torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, int]:
+    def normalize_inputs(
+        self, x: torch.Tensor, y: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, int]:
         """converts inputs into normalized format for this strategy
 
         Args:
@@ -185,11 +184,11 @@ class Strategy(object):
         assert (
             x.shape == self.event_shape or x.shape[1:] == self.event_shape
         ), f"x shape should be {self.event_shape} or batch x {self.event_shape}, instead got {x.shape}"
-        
+
         # Handle scalar y values
         if y.ndim == 0:
             y = y.unsqueeze(0)
-        
+
         if x.shape == self.event_shape:
             x = x[None, :]
 
@@ -309,7 +308,9 @@ class Strategy(object):
         )
         return self.min_asks
 
-    def add_data(self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]):
+    def add_data(
+        self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
+    ):
         """
         Adds new data points to the strategy, and normalizes the inputs.
 

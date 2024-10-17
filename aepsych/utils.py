@@ -76,8 +76,9 @@ def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
     if not isinstance(ub, torch.Tensor):
         ub = torch.tensor(ub)
 
-    lb = lb.float()
-    ub = ub.float()
+    lb = lb.to(torch.float64)
+    ub = ub.to(torch.float64)
+
     assert lb.shape[0] == ub.shape[0], "bounds should be of equal shape!"
 
     if dim is not None:

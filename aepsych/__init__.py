@@ -7,6 +7,8 @@
 
 import sys
 
+import torch
+
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 
 from . import acquisition, config, factory, generators, models, strategy, utils
@@ -14,6 +16,8 @@ from .config import Config
 from .likelihoods import BernoulliObjectiveLikelihood
 from .models import GPClassificationModel
 from .strategy import SequentialStrategy, Strategy
+
+torch.set_default_dtype(torch.float64)
 
 __all__ = [
     # modules

@@ -30,8 +30,6 @@ from scipy.stats import norm
 
 logger = getLogger()
 
-torch.set_default_dtype(torch.double)  # TODO: find a better way to prevent type errors
-
 
 class ModelProtocol(Protocol):
     @property

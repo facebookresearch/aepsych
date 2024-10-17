@@ -180,7 +180,7 @@ class Config(configparser.ConfigParser):
         return np.array(v, dtype=float)
 
     def _str_to_tensor(self, v: str) -> torch.Tensor:
-        return torch.Tensor(self._str_to_list(v))
+        return torch.Tensor(self._str_to_list(v)).to(torch.float64)
 
     def _str_to_obj(self, v: str, fallback_type: _T = str, warn: bool = True) -> object:
 
