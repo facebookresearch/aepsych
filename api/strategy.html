@@ -65,17 +65,17 @@ be ignored. Defaults to False.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>np.ndarray</em>) – training inputs</p></li>
-<li><p><strong>y</strong> (<em>np.ndarray</em>) – training outputs</p></li>
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – training inputs</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor</em>) – training outputs</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>training inputs, normalized
-y (np.ndarray): training outputs, normalized
+y (torch.Tensor): training outputs, normalized
 n (int): number of observations</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>x (np.ndarray)</p>
+<dd class="field-odd"><p>x (torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -126,7 +126,16 @@ n (int): number of observations</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.strategy.Strategy.add_data">
 <span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#Strategy.add_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.Strategy.add_data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Adds new data points to the strategy, and normalizes the inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em><em>, </em><em>np.ndarray</em>) – The input data points. Can be a PyTorch tensor or NumPy array.</p></li>
+<li><p><strong>y</strong> (<em>torch.Tensor</em><em>, </em><em>np.ndarray</em>) – The output data points. Can be a PyTorch tensor or NumPy array.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.strategy.Strategy.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#Strategy.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.Strategy.fit" title="Permalink to this definition">¶</a></dt>
