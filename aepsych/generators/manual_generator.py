@@ -6,15 +6,16 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Optional, Union, Dict
+from typing import Dict, Optional, Union
 
 import numpy as np
 import torch
+from torch.quasirandom import SobolEngine
+
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds
-from torch.quasirandom import SobolEngine
 
 
 class ManualGenerator(AEPsychGenerator):
@@ -95,6 +96,10 @@ class ManualGenerator(AEPsychGenerator):
 
         return options
 
+    @property
+    def finished(self):
+        return self._idx >= len(self.points)
+
 
 class SampleAroundPointsGenerator(ManualGenerator):
     """Generator that samples in a window around reference points in a predefined list."""
@@ -131,9 +136,9 @@ class SampleAroundPointsGenerator(ManualGenerator):
             grid = self.engine.draw(samples_per_point)
             grid = p_lb + (p_ub - p_lb) * grid
             generated.append(grid)
-        generated = torch.Tensor(np.vstack(generated)) #type: ignore
+        generated = torch.Tensor(np.vstack(generated))  # type: ignore
 
-        super().__init__(lb, ub, generated, dim, shuffle, seed) #type: ignore
+        super().__init__(lb, ub, generated, dim, shuffle, seed)  # type: ignore
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
