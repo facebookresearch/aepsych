@@ -7,13 +7,14 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Dict, List, Mapping, Optional, Tuple
+from typing import Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
 
+from aepsych.config import Config
 
 def make_scaled_sobol(lb, ub, size, seed=None):
     lb, ub, ndim = _process_bounds(lb, ub, None)
@@ -59,7 +60,7 @@ def dim_grid(
 
     for i in range(dim):
         if i in slice_dims.keys():
-            mesh_vals.append(torch.tensor([slice_dims[i]]))
+            mesh_vals.append(torch.tensor([slice_dims[i] - 1e-10, slice_dims[i] + 1e-10]))
         else:
             mesh_vals.append(torch.linspace(lower[i].item(), upper[i].item(), gridsize))
 
@@ -98,7 +99,7 @@ def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
     return lb, ub, dim
 
 
-def interpolate_monotonic(x, y, z, min_x=-float('inf'), max_x=float('inf')):
+def interpolate_monotonic(x: torch.Tensor, y: torch.Tensor, z: Union[torch.Tensor, float], min_x: float =-float('inf'), max_x: float =float('inf')) -> torch.Tensor:
     # Ben Letham's 1d interpolation code, assuming monotonicity.
     # basic idea is find the nearest two points to the LSE and
     # linearly interpolate between them (I think this is bisection
@@ -123,16 +124,16 @@ def interpolate_monotonic(x, y, z, min_x=-float('inf'), max_x=float('inf')):
 
 def get_lse_interval(
     model,
-    mono_grid,
-    target_level,
-    cred_level=None,
-    mono_dim=-1,
-    n_samps=500,
-    lb=-float('inf'),
-    ub=float('inf'),
-    gridsize=30,
+    mono_grid: Union[torch.Tensor, np.ndarray],
+    target_level: float,
+    cred_level: Optional[float]=None,
+    mono_dim: int =-1,
+    n_samps: int =500,
+    lb: float =-float('inf'),
+    ub: float =float('inf'),
+    gridsize: int =30,
     **kwargs,
-):
+) -> Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]:
     # Create a meshgrid using torch.linspace
     xgrid = torch.stack(
         torch.meshgrid(
@@ -169,7 +170,7 @@ def get_lse_interval(
         return median, lower, upper
 
 
-def get_lse_contour(post_mean, mono_grid, level, mono_dim=-1, lb=-float('inf'), ub=float('inf')):
+def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.ndarray], level: float, mono_dim: int =-1, lb: float =-float('inf'), ub: float =float('inf')) -> torch.Tensor:
     post_mean = torch.tensor(post_mean, dtype=torch.float32)
     mono_grid = torch.tensor(mono_grid, dtype=torch.float32)
     
@@ -187,8 +188,7 @@ def get_lse_contour(post_mean, mono_grid, level, mono_dim=-1, lb=-float('inf'), 
     return result
 
 
-
-def get_jnd_1d(post_mean, mono_grid, df=1, mono_dim=-1, lb=-float('inf'), ub=float('inf')):
+def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: float =-float('inf'), ub: float =float('inf')) -> torch.Tensor:
     
     # Calculate interpolate_to in a vectorized way
     interpolate_to = post_mean + df
@@ -198,7 +198,7 @@ def get_jnd_1d(post_mean, mono_grid, df=1, mono_dim=-1, lb=-float('inf'), ub=flo
     
     return interpolated_values - mono_grid
 
-def get_jnd_multid(post_mean, mono_grid, df=1, mono_dim=-1, lb=-float('inf'), ub=float('inf')):
+def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: float =-float('inf'), ub: float =float('inf')) -> torch.Tensor:
     
     # Move mono_dim to the last dimension if it isn't already
     if mono_dim != -1:
