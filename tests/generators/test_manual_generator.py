@@ -9,6 +9,7 @@ import unittest
 
 import numpy as np
 import numpy.testing as npt
+
 from aepsych.config import Config
 from aepsych.generators import ManualGenerator, SampleAroundPointsGenerator
 
@@ -50,6 +51,7 @@ class TestManualGenerator(unittest.TestCase):
         gen = ManualGenerator.from_config(config)
         npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
         npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
+        self.assertFalse(gen.finished)
 
         p1 = list(gen.gen()[0])
         p2 = list(gen.gen()[0])
@@ -60,6 +62,7 @@ class TestManualGenerator(unittest.TestCase):
         self.assertEqual(sorted([p1, p2, p3, p4]), points)
         self.assertEqual(gen.max_asks, len(points))
         self.assertEqual(gen.seed, 123)
+        self.assertTrue(gen.finished)
 
 
 class TestSampleAroundPointsGenerator(unittest.TestCase):
@@ -86,12 +89,48 @@ class TestSampleAroundPointsGenerator(unittest.TestCase):
         npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
         self.assertEqual(gen.max_asks, len(points * samples_per_point))
         self.assertEqual(gen.seed, 123)
+        self.assertFalse(gen.finished)
 
         points = gen.gen(gen.max_asks)
         for i in range(len(window)):
             npt.assert_array_less(points[:, i], points[:, i] + window[i])
             npt.assert_array_less(np.array([0] * len(points)), points[:, i])
             npt.assert_array_less(points[:, i], np.array([1] * len(points)))
+
+        self.assertTrue(gen.finished)
+
+    def test_sample_around_points_generator_high_dim(self):
+        points = [[[0.5, 0], [0.5, 1], [0, 0.5]], [[0.25, 0], [0.25, 1], [0, 0.25]]]
+        window = [0.1, 2]
+        samples_per_point = 2
+        config_str = f"""
+                [common]
+                lb = [0, 0]
+                ub = [1, 1]
+                parnames = [par1, par2]
+
+                [SampleAroundPointsGenerator]
+                points = {points}
+                window = {window}
+                samples_per_point = {samples_per_point}
+                seed = 123
+                """
+        config = Config()
+        config.update(config_str=config_str)
+        gen = SampleAroundPointsGenerator.from_config(config)
+        npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
+        npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
+        self.assertEqual(gen.max_asks, len(points * samples_per_point))
+        self.assertEqual(gen.seed, 123)
+        self.assertFalse(gen.finished)
+
+        points = gen.gen(gen.max_asks)
+        for i in range(len(window)):
+            npt.assert_array_less(points[:, i], points[:, i] + window[i])
+            npt.assert_array_less(np.zeros(points[..., i].shape), points[..., i])
+            npt.assert_array_less(points[..., i], np.ones(points[..., i].shape))
+
+        self.assertTrue(gen.finished)
 
 
 if __name__ == "__main__":
