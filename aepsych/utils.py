@@ -99,7 +99,7 @@ def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
     return lb, ub, dim
 
 
-def interpolate_monotonic(x: torch.Tensor, y: torch.Tensor, z: Union[torch.Tensor, float], min_x: float =-float('inf'), max_x: float =float('inf')) -> torch.Tensor:
+def interpolate_monotonic(x: torch.Tensor, y: torch.Tensor, z: Union[torch.Tensor, float], min_x: Union[torch.Tensor, float] =-float('inf'), max_x: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
     # Ben Letham's 1d interpolation code, assuming monotonicity.
     # basic idea is find the nearest two points to the LSE and
     # linearly interpolate between them (I think this is bisection
@@ -170,7 +170,7 @@ def get_lse_interval(
         return median, lower, upper
 
 
-def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.ndarray], level: float, mono_dim: int =-1, lb: float =-float('inf'), ub: float =float('inf')) -> torch.Tensor:
+def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.ndarray], level: float, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
     post_mean = torch.tensor(post_mean, dtype=torch.float32)
     mono_grid = torch.tensor(mono_grid, dtype=torch.float32)
     
@@ -188,7 +188,7 @@ def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.n
     return result
 
 
-def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: float =-float('inf'), ub: float =float('inf')) -> torch.Tensor:
+def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
     
     # Calculate interpolate_to in a vectorized way
     interpolate_to = post_mean + df
@@ -198,7 +198,7 @@ def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mon
     
     return interpolated_values - mono_grid
 
-def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: float =-float('inf'), ub: float =float('inf')) -> torch.Tensor:
+def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
     
     # Move mono_dim to the last dimension if it isn't already
     if mono_dim != -1:
