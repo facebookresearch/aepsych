@@ -179,8 +179,8 @@ def _plot_strat_1d(
 
         threshold_samps = [
             interpolate_monotonic(
-                grid.squeeze().numpy(), s, target_level, strat.lb[0], strat.ub[0]
-            )
+                grid, s, target_level, strat.lb[0], strat.ub[0]
+            ).cpu().numpy()
             for s in samps
         ]
         thresh_med = np.mean(threshold_samps)
@@ -201,12 +201,12 @@ def _plot_strat_1d(
         ax.plot(grid, true_f.squeeze(), label="True function")
         if target_level is not None:
             true_thresh = interpolate_monotonic(
-                grid.squeeze().numpy(),
+                grid,
                 true_f.squeeze(),
                 target_level,
                 strat.lb[0],
                 strat.ub[0],
-            )
+            ).cpu().numpy()
 
             ax.plot(
                 true_thresh,
@@ -305,18 +305,18 @@ def _plot_strat_2d(
         )
         ax.plot(
             context_grid,
-            thresh_75,
+            thresh_75.cpu().numpy(),
             label=f"Est. {target_level*100:.0f}% threshold \n(with {cred_level*100:.0f}% posterior \nmass shaded)",
         )
         ax.fill_between(
-            context_grid, lower, upper, alpha=0.3, hatch="///", edgecolor="gray"
+            context_grid, lower.cpu().numpy(), upper.cpu().numpy(), alpha=0.3, hatch="///", edgecolor="gray"
         )
 
         if true_testfun is not None:
             true_f = true_testfun(grid).reshape(gridsize, gridsize)
             true_thresh = get_lse_contour(
                 true_f, mono_grid, level=target_level, lb=strat.lb[-1], ub=strat.ub[-1]
-            )
+            ).cpu().numpy()
             ax.plot(context_grid, true_thresh, label="Ground truth threshold")
 
     ax.set_xlabel(xlabel)

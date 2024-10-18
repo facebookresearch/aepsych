@@ -270,12 +270,10 @@ class AEPsychMixin(GPyTorchModel):
                 return torch.tensor(1 / np.gradient(fmean, coords, axis=intensity_dim))
             elif method == "step":
                 return torch.clip(
-                    torch.tensor(
-                        get_jnd_multid(
-                            fmean.detach().numpy(),
-                            coords.detach().numpy(),
-                            mono_dim=intensity_dim,
-                        )
+                    get_jnd_multid(
+                        fmean,
+                        coords,
+                        mono_dim=intensity_dim,
                     ),
                     0,
                     np.inf,
