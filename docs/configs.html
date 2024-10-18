@@ -77,17 +77,28 @@ To be more concrete, we will break down <a href="https://github.com/facebookrese
 <p><h3>common</h3></p>
 <pre><code class="hljs"><span class="hljs-section">[common]</span>
 <span class="hljs-attr">parnames</span> = [par1, par2] <span class="hljs-comment"># names of the parameters</span>
-<span class="hljs-attr">lb</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>] <span class="hljs-comment"># lower bounds of the parameters, in the same order as above</span>
-<span class="hljs-attr">ub</span> = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>] <span class="hljs-comment"># upper bounds of parameter, in the same order as above</span>
 <span class="hljs-attr">outcome_type</span> = single_probit <span class="hljs-comment"># we show a single stimulus and receive a binary outcome e</span>
 <span class="hljs-attr">strategy_names</span> = [init_strat, opt_strat] <span class="hljs-comment"># the names we give to our strategies</span>
 </code></pre>
 <p>The first section in the file is the <code>common</code> section. All AEPsych config files will have this section because it specifies global settings that all experiments use. Here is an explanation of each of these settings:</p>
 <p><strong><code>parnames</code></strong>: This is a list of parameter names. This example uses the generic names par1 and par2, but you can name your parameters whatever you would like. Note that this list should be the same length as lb and ub.</p>
-<p><strong><code>lb</code></strong>: This is a list of numbers specifying the lower bounds of each of your parameters.</p>
-<p><strong><code>ub</code></strong>: This is a list of numbers specifying the upper bounds of each of your parameters.</p>
 <p><strong><code>outcome_type</code></strong>: This is the type of outcome you will receive on each trial of your experiment. <code>single_probit</code> should be used for experiments where participants are shown a single stimulus and asked to make a binary choice, such as whether they detected the stimulus or not. <code>single_continuous</code> should be used for experiments where participants are shown a single stimulus and asked to provide a continous rating, such as how bright or loud the stimulus is.</p>
 <p><strong><code>strategy_names</code></strong>: This is a list of the data-collection strategies you plan on using in your experiment. Each named strategy in this list will receive its own section later in the config where we can specify the settings we want. This example follows a typical AEPsych paradigm where we first sample points in a quasi-random way to initialize our model, then we search for the optimal points using the model. Therefore we specify two strategies: <code>init_strat</code> (the initialization strategy) and <code>opt_strat</code> (the optimization strategy). Note that we chose these names to be mnemonic, but we could have named them whatever we wanted.</p>
+<p><h3>Parameter specific settings</h3></p>
+<pre><code class="hljs"><span class="hljs-section">[par1]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
+
+<span class="hljs-section">[par2]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
+</code></pre>
+<p>Each parameter will have its own section based on the name defined in the <code>common</code> section.</p>
+<p><strong><code>par_type</code></strong>: This is the type of parameter it is, for now, this should just always be continuous.</p>
+<p><strong><code>lower_bound</code></strong>: This is the lower bound of this parameter.</p>
+<p><strong><code>upper_bound</code></strong>: This is the upper bound of this parameter.</p>
 <p><h3>init_strat</h3></p>
 <pre><code class="hljs">[init_strat]
 min_asks = 10 # <span class="hljs-keyword">number</span> of sobol trials <span class="hljs-keyword">to</span> run
@@ -144,10 +155,18 @@ Some settings have default values and do not have to be explicitly set in the co
 AEPsych configs allow you mix-and-match as many strategies as you would like, and each strategy can have its own generator, model, and acquisition function. For example, the config below first does 5 Sobol trials, then 10 global exploration trials, and then finally 15 optimization trials.</p>
 <pre><code class="hljs"><span class="hljs-section">[common]</span>
 <span class="hljs-attr">parnames</span> = [par1, par2]
-<span class="hljs-attr">lb</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>]
-<span class="hljs-attr">ub</span> = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
 <span class="hljs-attr">outcome_type</span> = single_probit
 <span class="hljs-attr">strategy_names</span> = [sobol_strat, explore_strat, opt_strat]
+
+<span class="hljs-section">[par1]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
+
+<span class="hljs-section">[par2]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
 
 <span class="hljs-section">[sobol_strat]</span>
 <span class="hljs-attr">min_asks</span> = <span class="hljs-number">5</span>
@@ -173,17 +192,36 @@ AEPsych configs allow you mix-and-match as many strategies as you would like, an
 </code></pre>
 <p><h2>Adding Models to Model-less Generators</h2>
 Some generators, such as <code>SobolGenerator</code> and <code>RandomGenerator</code>, do not use models to generate points, so you do not have to specify a model in their strategies. However, there may be situations where you want to generate points using a model-less generator, but still fit a model. For example, if you have a very high-dimensional problem, it may be more efficient to sample the parameter space using <code>SobolGenerator</code> than to try to optimize an acquisition function with <code>OptimizeAcqfGenerator</code>, but a model is still required to analyze your data. In that case, you can specify a model in your strategy section, but you should set <code>refit_every</code> to be equal to <code>min_asks</code> so that you wait to fit the model at the end of the experiment and do not unnecessarily waste time fitting it while generating points (see the example below).</p>
-<pre><code class="hljs">[common]
-parnames = [par1, par2, par3, par4, par5, par6, par7, par8, par9, par10, par11, par12]
-lb = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>]
-ub = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
-outcome_type = single_probit
-strategy_names = [sobol_strat]
-[sobol_strat]
-min_asks = <span class="hljs-number">20</span>
-<span class="hljs-built_in">ref</span>it_every = <span class="hljs-number">20</span>
-generator = SobolGenerator
-model = GPClassificationModel
+<pre><code class="hljs"><span class="hljs-section">[common]</span>
+<span class="hljs-attr">parnames</span> = [par1, par2, par3, par4]
+<span class="hljs-attr">outcome_type</span> = single_probit
+<span class="hljs-attr">strategy_names</span> = [sobol_strat]
+
+<span class="hljs-section">[par1]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
+
+<span class="hljs-section">[par2]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
+
+<span class="hljs-section">[par3]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
+
+<span class="hljs-section">[par4]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span>
+
+<span class="hljs-section">[sobol_strat]</span>
+<span class="hljs-attr">min_asks</span> = <span class="hljs-number">20</span>
+<span class="hljs-attr">refit_every</span> = <span class="hljs-number">20</span>
+<span class="hljs-attr">generator</span> = SobolGenerator
+<span class="hljs-attr">model</span> = GPClassificationModel
 </code></pre>
 <p><h2>Controlling the Timing of Trials (Experimental)</h2>
 It is often important that each trial in a psychophysics experiment can be completed quickly so that the participant's and experimenter's time is not wasted. As noted elsewhere in this document, there are many settings that can be tweaked to make point generation and model fitting faster, but determining what values these settings should take to meet your timing constraints can take a lot of trial and error. To eliminate this guesswork, we have introduced two settings to explicitly control trial timing. You can set the maximum amount of time, in seconds, that should be spent generating points using max_gen_time under <code>OptimizeAcqfGenerator</code>, and you can set the maximum amount of time, in seconds, that should be spent fitting the model using <code>max_fit_time</code> under <code>GPClassificationModel</code>. These settings are considered experimental because they are still undergoing testing, but our initial findings indicate that they can be used to dramatically decrease computation time with minimal impact on results.</p>
