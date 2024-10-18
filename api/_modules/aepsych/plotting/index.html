@@ -197,8 +197,8 @@
 
         <span class="n">threshold_samps</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">interpolate_monotonic</span><span class="p">(</span>
-                <span class="n">grid</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">s</span><span class="p">,</span> <span class="n">target_level</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="p">)</span>
+                <span class="n">grid</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">target_level</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samps</span>
         <span class="p">]</span>
         <span class="n">thresh_med</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">threshold_samps</span><span class="p">)</span>
@@ -219,12 +219,12 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">true_f</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="s2">"True function"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">target_level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">true_thresh</span> <span class="o">=</span> <span class="n">interpolate_monotonic</span><span class="p">(</span>
-                <span class="n">grid</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
+                <span class="n">grid</span><span class="p">,</span>
                 <span class="n">true_f</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
                 <span class="n">target_level</span><span class="p">,</span>
                 <span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                 <span class="n">true_thresh</span><span class="p">,</span>
@@ -323,18 +323,18 @@
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
             <span class="n">context_grid</span><span class="p">,</span>
-            <span class="n">thresh_75</span><span class="p">,</span>
+            <span class="n">thresh_75</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
             <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Est. </span><span class="si">{</span><span class="n">target_level</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">% threshold </span><span class="se">\n</span><span class="s2">(with </span><span class="si">{</span><span class="n">cred_level</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">% posterior </span><span class="se">\n</span><span class="s2">mass shaded)"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
-            <span class="n">context_grid</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s2">"///"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"gray"</span>
+            <span class="n">context_grid</span><span class="p">,</span> <span class="n">lower</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">upper</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="s2">"///"</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"gray"</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">true_testfun</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">true_f</span> <span class="o">=</span> <span class="n">true_testfun</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">gridsize</span><span class="p">,</span> <span class="n">gridsize</span><span class="p">)</span>
             <span class="n">true_thresh</span> <span class="o">=</span> <span class="n">get_lse_contour</span><span class="p">(</span>
                 <span class="n">true_f</span><span class="p">,</span> <span class="n">mono_grid</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">target_level</span><span class="p">,</span> <span class="n">lb</span><span class="o">=</span><span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ub</span><span class="o">=</span><span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">context_grid</span><span class="p">,</span> <span class="n">true_thresh</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Ground truth threshold"</span><span class="p">)</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>

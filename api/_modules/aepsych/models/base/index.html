@@ -288,12 +288,10 @@
                 <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">fmean</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">intensity_dim</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"step"</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span>
-                    <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-                        <span class="n">get_jnd_multid</span><span class="p">(</span>
-                            <span class="n">fmean</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
-                            <span class="n">coords</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
-                            <span class="n">mono_dim</span><span class="o">=</span><span class="n">intensity_dim</span><span class="p">,</span>
-                        <span class="p">)</span>
+                    <span class="n">get_jnd_multid</span><span class="p">(</span>
+                        <span class="n">fmean</span><span class="p">,</span>
+                        <span class="n">coords</span><span class="p">,</span>
+                        <span class="n">mono_dim</span><span class="o">=</span><span class="n">intensity_dim</span><span class="p">,</span>
                     <span class="p">),</span>
                     <span class="mi">0</span><span class="p">,</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
