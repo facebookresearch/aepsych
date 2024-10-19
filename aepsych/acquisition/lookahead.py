@@ -410,10 +410,12 @@ def construct_inputs_global_lookahead(
     Xq: Optional[Tensor] = None,
     **kwargs,
 ) -> Dict[str, Any]:
+
     lb = torch.tensor([bounds[0] for bounds in kwargs["bounds"]])
     ub = torch.tensor([bounds[1] for bounds in kwargs["bounds"]])
     if Xq is None and query_set_size is None:
         raise ValueError("Either Xq or query_set_size must be provided.")
+
 
     if Xq is None and query_set_size is not None:
         Xq = make_scaled_sobol(lb, ub, query_set_size)
