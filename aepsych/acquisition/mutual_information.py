@@ -10,7 +10,7 @@ r"""
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
@@ -123,7 +123,7 @@ def construct_inputs_mi(
     objective=None,
     sampler=None,
     **kwargs,
-):
+) -> Dict[str, Any]:
     return {
         "model": model,
         "objective": objective,
