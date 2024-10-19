@@ -31,7 +31,7 @@ logger = utils_logging.getLogger(logging.INFO)
 class PathosBenchmark(Benchmark):
     """Benchmarking class for parallelized benchmarks using pathos"""
 
-    def __init__(self, nproc: int = 1, *args, **kwargs):
+    def __init__(self, nproc: int = 1, *args, **kwargs) -> None:
         """Initialize pathos benchmark.
 
         Args:
@@ -58,7 +58,7 @@ class PathosBenchmark(Benchmark):
             )
         self.pool = pathos.pools.ProcessPool(nodes=nproc)
 
-    def __del__(self):
+    def __del__(self) -> None:
         # destroy the pool (for when we're testing or running
         # multiple benchmarks in one script) but if the GC already
         # cleared the underlying multiprocessing object (usually on
@@ -104,7 +104,7 @@ class PathosBenchmark(Benchmark):
 
             return [], SequentialStrategy([])
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict[str, Any]:
         self_dict = self.__dict__.copy()
         if "pool" in self_dict.keys():
             del self_dict["pool"]
@@ -112,7 +112,7 @@ class PathosBenchmark(Benchmark):
             del self_dict["futures"]
         return self_dict
 
-    def run_benchmarks(self):
+    def run_benchmarks(self) -> None:
         """Run all the benchmarks,
 
         Note that this blocks while waiting for benchmarks to complete. If you
@@ -123,14 +123,14 @@ class PathosBenchmark(Benchmark):
         self.start_benchmarks()
         self.collate_benchmarks(wait=True)
 
-    def start_benchmarks(self):
+    def start_benchmarks(self) -> None:
         """Start benchmark run.
 
         This does not block: after running it, self.futures holds the
         status of benchmarks running in parallel.
         """
 
-        def run_discard_strat(*conf):
+        def run_discard_strat(*conf) -> List[Dict[str, Any]]:
             logger, _ = self.run_experiment(*conf)
             return logger
 
