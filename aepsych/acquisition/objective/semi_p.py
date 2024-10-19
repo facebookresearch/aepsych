@@ -26,7 +26,7 @@ class SemiPObjectiveBase(MCAcquisitionObjective):
     # all the q-batch output shape checks fail, disable them here
     _verify_output_shape: bool = False
 
-    def __init__(self, stim_dim: int = 0):
+    def __init__(self, stim_dim: int = 0) -> None:
         super().__init__()
         self.stim_dim = stim_dim
 
@@ -87,7 +87,7 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
     that gives the threshold distribution.
     """
 
-    def __init__(self, target: float, likelihood=None, *args, **kwargs):
+    def __init__(self, target: float, likelihood: Optional[LinearBernoulliLikelihood] =None, *args, **kwargs):
         """Evaluates the probability objective.
 
         Args:

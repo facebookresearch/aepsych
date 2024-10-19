@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from math import pi as _pi
-
+from typing import Tuple
 import torch
 
 
@@ -14,7 +14,7 @@ inv_2pi = 1 / (2 * _pi)
 _neg_inv_sqrt2 = -1 / (2**0.5)
 
 
-def _gauss_legendre20(dtype):
+def _gauss_legendre20(dtype: torch.dtype) -> Tuple[torch.Tensor, torch.Tensor]:
     _abscissae = torch.tensor(
         [
             0.9931285991850949,

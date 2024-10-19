@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import torch
 from aepsych.acquisition.objective import ProbitObjective
@@ -96,7 +96,7 @@ def construct_inputs_lse(
     beta=3.84,
     sampler=None,
     **kwargs,
-):
+) -> Dict[str, Any]:
 
     return {
         "model": model,
