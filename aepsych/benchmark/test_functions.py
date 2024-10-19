@@ -112,8 +112,8 @@ def make_songetal_testfun(
     """
     valid_phenotypes = ["Metabolic", "Sensory", "Metabolic+Sensory", "Older-normal"]
     assert phenotype in valid_phenotypes, f"Phenotype must be one of {valid_phenotypes}"
-    x = torch.tensor(dubno_data[dubno_data.phenotype == phenotype].freq.values, dtype=torch.float32)
-    y = torch.tensor(dubno_data[dubno_data.phenotype == phenotype].thresh.values, dtype=torch.float32)
+    x = torch.tensor(dubno_data[dubno_data.phenotype == phenotype].freq.values, dtype=torch.float64)
+    y = torch.tensor(dubno_data[dubno_data.phenotype == phenotype].thresh.values, dtype=torch.float64)
 
     # first, make the threshold fun
     threshfun = make_songetal_threshfun(x, y)
@@ -202,13 +202,13 @@ def modified_hartmann6(X: torch.Tensor) -> torch.Tensor:
     """
     The modified Hartmann6 function used in Lyu et al.
     """
-    C = torch.tensor([0.2, 0.22, 0.28, 0.3], dtype=torch.float32)
+    C = torch.tensor([0.2, 0.22, 0.28, 0.3], dtype=torch.float64)
     a_t = torch.tensor([
         [8, 3, 10, 3.5, 1.7, 6],
         [0.5, 8, 10, 1.0, 6, 9],
         [3, 3.5, 1.7, 8, 10, 6],
         [10, 6, 0.5, 8, 1.0, 9]
-    ], dtype=torch.float32)
+    ], dtype=torch.float64)
 
     p_t = (
         10 ** (-4)
@@ -217,12 +217,12 @@ def modified_hartmann6(X: torch.Tensor) -> torch.Tensor:
             [2329, 4135, 8307, 3736, 1004, 9991],
             [2348, 1451, 3522, 2883, 3047, 6650],
             [4047, 8828, 8732, 5743, 1091, 381]
-        ], dtype=torch.float32)
+        ], dtype=torch.float64)
     )
 
-    y = torch.tensor(0.0, dtype=torch.float32)
+    y = torch.tensor(0.0, dtype=torch.float64)
     for i, C_i in enumerate(C):
-        t = torch.tensor(0.0, dtype=torch.float32)  
+        t = torch.tensor(0.0, dtype=torch.float64)  
         for j in range(6):
             t += a_t[i, j] * ((X[j] - p_t[i, j]) ** 2)
         y += C_i * torch.exp(-t)
