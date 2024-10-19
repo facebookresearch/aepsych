@@ -23,7 +23,7 @@ class Problem:
     n_eval_points = 1000
 
     @cached_property
-    def eval_grid(self):
+    def eval_grid(self) -> torch.Tensor:
         return make_scaled_sobol(lb=self.lb, ub=self.ub, size=self.n_eval_points)
 
     @property
@@ -121,7 +121,7 @@ class Problem:
 
     def evaluate(
         self,
-        strat: Union[Strategy, SequentialStrategy],
+        strat: SequentialStrategy,
     ) -> Dict[str, float]:
         """Evaluate the strategy with respect to this problem.
 
@@ -212,7 +212,7 @@ class LSEProblem(Problem):
     in addition to the function estimate.
     """
 
-    def __init__(self, thresholds: Union[float, List]):
+    def __init__(self, thresholds: Union[float, List, torch.Tensor, None]) -> None:
         super().__init__()
         thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
         self.thresholds = torch.tensor(thresholds)
@@ -257,7 +257,7 @@ class LSEProblem(Problem):
             self.p(self.eval_grid).reshape(1, -1) <= self.thresholds.reshape(-1, 1)
         ).to(torch.float32)
 
-    def evaluate(self, strat: Union[Strategy, SequentialStrategy]) -> Dict[str, float]:
+    def evaluate(self, strat: SequentialStrategy) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.
 
         For level set estimation, we add metrics w.r.t. the true threshold:
@@ -316,10 +316,10 @@ The LSEProblemWithEdgeLogging class is copied from bernoulli_lse github reposito
 class LSEProblemWithEdgeLogging(LSEProblem):
     eps = 0.05
 
-    def __init__(self, thresholds):
+    def __init__(self, thresholds: Union[float, List, torch.Tensor, None]):
         super().__init__(thresholds)
 
-    def evaluate(self, strat):
+    def evaluate(self, strat: SequentialStrategy) -> Dict[str, float]:
         metrics = super().evaluate(strat)
 
         # add number of edge samples to the log
@@ -332,6 +332,7 @@ class LSEProblemWithEdgeLogging(LSEProblem):
         lb2 = lb + self.eps * r
         ub2 = ub - self.eps * r
 
+        assert isinstance(strat.x, torch.Tensor), "strat.x must be a tensor"
         near_edge = (
             torch.logical_or(
                 (strat.x[-n_opt_trials:, :] <= lb2), (strat.x[-n_opt_trials:, :] >= ub2)
@@ -342,6 +343,6 @@ class LSEProblemWithEdgeLogging(LSEProblem):
 
         metrics["prop_edge_sampling_mean"] = near_edge.mean().item()
         metrics["prop_edge_sampling_err"] = (
-            2 * near_edge.std() / torch.sqrt(len(near_edge))
+            2 * near_edge.std() / torch.sqrt(torch.Tensor(len(near_edge)))
         ).item()
         return metrics
