@@ -30,12 +30,13 @@ from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch import Tensor
 from torch.distributions import Normal
+from botorch.acquisition.objective import PosteriorTransform
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()
 
 
-def _hadamard_mvn_approx(x_intensity, slope_mean, slope_cov, offset_mean, offset_cov):
+def _hadamard_mvn_approx(x_intensity: torch.Tensor, slope_mean: torch.Tensor, slope_cov: torch.Tensor, offset_mean: torch.Tensor, offset_cov: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     """
 
     MVN approximation to the hadamard product of GPs (from the SemiP paper, extending the
@@ -58,7 +59,7 @@ def _hadamard_mvn_approx(x_intensity, slope_mean, slope_cov, offset_mean, offset
     return mean_x, cov_x
 
 
-def semi_p_posterior_transform(posterior):
+def semi_p_posterior_transform(posterior: GPyTorchPosterior) -> GPyTorchPosterior:
     batch_mean = posterior.mvn.mean
     batch_cov = posterior.mvn.covariance_matrix
     offset_mean = batch_mean[..., 0, :]
@@ -83,7 +84,7 @@ class SemiPPosterior(GPyTorchPosterior):
         mvn: MultivariateNormal,
         likelihood: LinearBernoulliLikelihood,
         Xi: torch.Tensor,
-    ):
+    ) -> None:
         super().__init__(distribution=mvn)
         self.likelihood = likelihood
         self.Xi = Xi
@@ -110,7 +111,7 @@ class SemiPPosterior(GPyTorchPosterior):
         self,
         sample_shape: Optional[torch.Size] = None,
         base_samples: Optional[torch.Tensor] = None,
-    ):
+    ) -> torch.Tensor:
         if base_samples is None:
             samps_ = super().rsample(sample_shape=sample_shape)
         else:
@@ -128,7 +129,7 @@ class SemiPPosterior(GPyTorchPosterior):
         self,
         sample_shape: Optional[torch.Size] = None,
         base_samples: Optional[torch.Tensor] = None,
-    ):
+    ) -> torch.Tensor:
         kcsamps = self.rsample(sample_shape=sample_shape, base_samples=base_samples)
         return self.likelihood.p(function_samples=kcsamps, Xi=self.Xi).squeeze(-1)
 
@@ -136,7 +137,7 @@ class SemiPPosterior(GPyTorchPosterior):
         self,
         sample_shape: Optional[torch.Size] = None,
         base_samples: Optional[torch.Tensor] = None,
-    ):
+    ) -> torch.Tensor:
         kcsamps = self.rsample(sample_shape=sample_shape, base_samples=base_samples)
         return self.likelihood.f(function_samples=kcsamps, Xi=self.Xi).squeeze(-1)
 
@@ -145,7 +146,7 @@ class SemiPPosterior(GPyTorchPosterior):
         threshold_level: float,
         sample_shape: Optional[torch.Size] = None,
         base_samples: Optional[torch.Tensor] = None,
-    ):
+    ) -> SemiPThresholdObjective:
 
         fsamps = self.rsample(sample_shape=sample_shape, base_samples=base_samples)
         return SemiPThresholdObjective(
@@ -184,7 +185,7 @@ class SemiParametricGPModel(GPClassificationModel):
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         """
         Initialize SemiParametricGP.
         Args:
@@ -375,7 +376,9 @@ class SemiParametricGPModel(GPClassificationModel):
         m, v = samps.mean(0), samps.var(0)
         return promote_0d(m), promote_0d(v)
 
-    def posterior(self, X, posterior_transform=None):
+    def posterior(self, X: Union[torch.Tensor, np.ndarray], posterior_transform: Optional[PosteriorTransform] = None) -> SemiPPosterior:
+        if isinstance(X, np.ndarray):
+            X = torch.tensor(X)
         # Assume x is (b) x n x d
         if X.ndim > 3:
             raise ValueError
@@ -431,7 +434,7 @@ class HadamardSemiPModel(GPClassificationModel):
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         """
         Initialize HadamardSemiPModel.
         Args:

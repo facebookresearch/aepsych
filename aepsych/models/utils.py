@@ -28,6 +28,7 @@ from scipy.special import owens_t
 from scipy.stats import norm
 from torch import Tensor
 from torch.distributions import Normal
+from gpytorch.likelihoods import Likelihood
 
 
 def compute_p_quantile(
@@ -57,7 +58,7 @@ def select_inducing_points(
     X: Optional[torch.Tensor] = None,
     bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
     method: str = "auto",
-):
+) -> Optional[torch.Tensor]:
     with torch.no_grad():
         assert method in (
             "pivoted_chol",
@@ -102,7 +103,7 @@ def select_inducing_points(
         return inducing_points
 
 
-def get_probability_space(likelihood, posterior):
+def get_probability_space(likelihood: Likelihood, posterior: GPyTorchPosterior):
     fmean = posterior.mean.squeeze()
     fvar = posterior.variance.squeeze()
     if isinstance(likelihood, BernoulliLikelihood):
@@ -231,7 +232,7 @@ def inv_query(
 class TargetDistancePosteriorTransform(PosteriorTransform):
     def __init__(
         self, target_value: Union[float, Tensor], weights: Optional[Tensor] = None
-    ):
+    ) -> None:
         super().__init__()
         self.target_value = target_value
         self.weights = weights
@@ -239,7 +240,7 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
     def evaluate(self, Y: Tensor) -> Tensor:
         return (Y - self.target_value) ** 2
 
-    def _forward(self, mean, var):
+    def _forward(self, mean: Tensor, var: Tensor) -> GPyTorchPosterior:
         q, _ = mean.shape[-2:]
         batch_shape = mean.shape[:-2]
 

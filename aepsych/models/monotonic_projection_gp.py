@@ -104,7 +104,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size

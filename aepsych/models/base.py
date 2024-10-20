@@ -114,7 +114,7 @@ class AEPsychMixin(GPyTorchModel):
     outcome_types: List[str] = []
 
     @property
-    def bounds(self):
+    def bounds(self) -> torch.Tensor:
         return torch.stack((self.lb, self.ub))
 
     def get_max(
@@ -312,7 +312,7 @@ class AEPsychMixin(GPyTorchModel):
     ) -> torch.Tensor:
         return dim_grid(self.lb, self.ub, gridsize, slice_dims)
 
-    def set_train_data(self, inputs=None, targets=None, strict=False):
+    def set_train_data(self, inputs: Optional[torch.Tensor] = None, targets: Optional[torch.Tensor] = None, strict: bool = False):
         """
         :param torch.Tensor inputs: The new training inputs.
         :param torch.Tensor targets: The new training targets.
@@ -326,7 +326,7 @@ class AEPsychMixin(GPyTorchModel):
         if targets is not None:
             self.train_targets = targets
 
-    def normalize_inputs(self, x):
+    def normalize_inputs(self, x: torch.Tensor) -> torch.Tensor:
         scale = self.ub - self.lb
         return (x - self.lb) / scale
 
@@ -374,12 +374,11 @@ class AEPsychMixin(GPyTorchModel):
         )
         return res
 
-    def p_below_threshold(self, x, f_thresh) -> torch.Tensor:  # Return a tensor instead of NumPy array
+    def p_below_threshold(self, x: torch.Tensor, f_thresh: torch.Tensor) -> torch.Tensor: 
         f, var = self.predict(x)
         f_thresh = f_thresh.reshape(-1, 1)
         f = f.reshape(1, -1)
         var = var.reshape(1, -1)
         
-        # Perform all operations in PyTorch (no .detach().numpy())
         z = (f_thresh - f) / var.sqrt()
         return torch.distributions.Normal(0, 1).cdf(z)  # Use PyTorch's CDF equivalent
