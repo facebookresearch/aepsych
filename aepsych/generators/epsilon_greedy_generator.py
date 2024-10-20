@@ -15,7 +15,7 @@ from .optimize_acqf_generator import OptimizeAcqfGenerator
 
 
 class EpsilonGreedyGenerator(AEPsychGenerator):
-    def __init__(self, subgenerator: AEPsychGenerator, epsilon: float = 0.1):
+    def __init__(self, subgenerator: AEPsychGenerator, epsilon: float = 0.1) -> None:
         self.subgenerator = subgenerator
         self.epsilon = epsilon
 
@@ -29,7 +29,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         epsilon = config.getfloat(classname, "epsilon", fallback=0.1)
         return cls(subgenerator=subgen, epsilon=epsilon)
 
-    def gen(self, num_points: int, model: ModelProtocol):
+    def gen(self, num_points: int, model: ModelProtocol) -> torch.Tensor:
         if num_points > 1:
             raise NotImplementedError("Epsilon-greedy batched gen is not implemented!")
         if np.random.uniform() < self.epsilon:

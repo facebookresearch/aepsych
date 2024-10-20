@@ -25,7 +25,7 @@ class RandomGenerator(AEPsychGenerator):
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
         dim: Optional[int] = None,
-    ):
+    ) -> None:
         """Iniatialize RandomGenerator.
         Args:
             lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
@@ -45,7 +45,7 @@ class RandomGenerator(AEPsychGenerator):
         Args:
             num_points (int, optional): Number of points to query. Currently, only 1 point can be queried at a time.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
         X = self.bounds_[0] + torch.rand((num_points, self.bounds_.shape[1])) * (
             self.bounds_[1] - self.bounds_[0]

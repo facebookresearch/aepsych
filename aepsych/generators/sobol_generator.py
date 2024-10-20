@@ -29,7 +29,7 @@ class SobolGenerator(AEPsychGenerator):
         dim: Optional[int] = None,
         seed: Optional[int] = None,
         stimuli_per_trial: int = 1,
-    ):
+    ) -> None:
         """Iniatialize SobolGenerator.
         Args:
             lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
@@ -50,12 +50,12 @@ class SobolGenerator(AEPsychGenerator):
         self,
         num_points: int = 1,
         model: Optional[AEPsychMixin] = None,  # included for API compatibility
-    ):
+    ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
             num_points (int, optional): Number of points to query.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
         grid = self.engine.draw(num_points)
         grid = self.lb + (self.ub - self.lb) * grid

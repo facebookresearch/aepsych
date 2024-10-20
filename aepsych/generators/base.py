@@ -58,7 +58,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
         pass
 
     @classmethod
-    def _get_acqf_options(cls, acqf: AcquisitionFunction, config: Config):
+    def _get_acqf_options(cls, acqf: AcquisitionFunction, config: Config) -> Dict[str, Any]:
         if acqf is not None:
             acqf_name = acqf.__name__
 
