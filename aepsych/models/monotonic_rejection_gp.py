@@ -284,13 +284,13 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 
-    def _augment_with_deriv_index(self, x: Tensor, indx):
+    def _augment_with_deriv_index(self, x: Tensor, indx) -> Tensor:
         return torch.cat(
             (x, indx * torch.ones(x.shape[0], 1)),
             dim=1,
         )
 
-    def _get_deriv_constraint_points(self):
+    def _get_deriv_constraint_points(self) -> Tensor:
         deriv_cp = torch.tensor([])
         for i in self.monotonic_idxs:
             induc_i = self._augment_with_deriv_index(self.inducing_points, i + 1)

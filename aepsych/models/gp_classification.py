@@ -56,7 +56,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         """Initialize the GP Classification model
 
         Args:
@@ -100,7 +100,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
         )
-
+        
+        assert inducing_points is not None, "Inducing points cannot be None"
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -178,7 +179,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             likelihood=likelihood,
         )
 
-    def _reset_hyperparameters(self):
+    def _reset_hyperparameters(self) -> None:
         # warmstart_hyperparams affects hyperparams but not the variational strat,
         # so we keep the old variational strat (which is only refreshed
         # if warmstart_induc=False).
@@ -189,7 +190,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self.load_state_dict(state_dict)
         self.likelihood.load_state_dict(self._fresh_likelihood_dict)
 
-    def _reset_variational_strategy(self):
+    def _reset_variational_strategy(self) -> None:
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
@@ -197,6 +198,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             bounds=self.bounds,
             method=self.inducing_point_method,
         )
+        assert inducing_points is not None, "Inducing points cannot be None"
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -322,7 +324,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         if likelihood is None:
             likelihood = BetaLikelihood()
         super().__init__(
