@@ -2,7 +2,10 @@ from typing import Any, Optional, Union
 import torch
 from gpytorch.kernels import Kernel
 from linear_operator import to_linear_operator
+<<<<<<< HEAD
 
+=======
+>>>>>>> d082e9a9 (fix an import in pairwisekernal)
 class PairwiseKernel(Kernel):
     """
     Wrapper to convert a kernel K on R^k to a kernel K' on R^{2k}, modeling
@@ -20,7 +23,6 @@ class PairwiseKernel(Kernel):
         self.is_partial_obs = is_partial_obs
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor, diag: bool=False, **params) -> Optional[torch.Tensor]:
-
         r"""
         TODO: make last_batch_dim work properly
 
