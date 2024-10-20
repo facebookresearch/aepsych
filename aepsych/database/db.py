@@ -25,6 +25,7 @@ logger = logging.getLogger()
 
 class Database:
     def __init__(self, db_path: Optional[str] = None) -> None:
+
         if db_path is None:
             db_path = "./databases/default.db"
 
@@ -124,6 +125,7 @@ class Database:
         return None
 
     def get_replay_for(self, master_id: int) -> Optional[List[tables.DbReplayTable]]:
+
         """Get the replay records for a specific master row."""
         master_record = self.get_master_record(master_id)
 

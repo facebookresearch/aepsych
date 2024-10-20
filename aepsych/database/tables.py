@@ -159,7 +159,9 @@ class DbReplayTable(Base):
     __mapper_args__ = {}
 
     @classmethod
+
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbReplayTable':
+
         this = DbReplayTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -278,6 +280,7 @@ class DbStratTable(Base):
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbStratTable':
+
         this = DbStratTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -313,7 +316,9 @@ class DbConfigTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_config")
 
     @classmethod
+
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbConfigTable':
+
         this = DbConfigTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -356,6 +361,7 @@ class DbRawTable(Base):
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbRawTable':
+
         this = DbRawTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -477,7 +483,9 @@ class DbParamTable(Base):
     parent = relationship("DbRawTable", back_populates="children_param")
 
     @classmethod
+
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbParamTable':
+
         this = DbParamTable()
         this.unique_id = row["unique_id"]
         this.param_name = row["param_name"]
@@ -518,6 +526,7 @@ class DbOutcomeTable(Base):
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbOutcomeTable':
+
         this = DbOutcomeTable()
         this.unique_id = row["unique_id"]
         this.outcome_name = row["outcome_name"]
