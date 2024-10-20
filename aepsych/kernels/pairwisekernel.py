@@ -2,10 +2,6 @@ from typing import Any, Optional, Union
 import torch
 from gpytorch.kernels import Kernel
 from linear_operator import to_linear_operator
-<<<<<<< HEAD
-
-=======
->>>>>>> d082e9a9 (fix an import in pairwisekernal)
 class PairwiseKernel(Kernel):
     """
     Wrapper to convert a kernel K on R^k to a kernel K' on R^{2k}, modeling
