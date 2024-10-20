@@ -2,9 +2,6 @@ from typing import Any, Optional
 import torch
 from gpytorch.kernels import Kernel
 from linear_operator import to_linear_operator
-from gpytorch.kernels import RBFKernel
-from pytorch.lazy import LazyTensor
-
 class PairwiseKernel(Kernel):
     """
     Wrapper to convert a kernel K on R^k to a kernel K' on R^{2k}, modeling
@@ -21,7 +18,7 @@ class PairwiseKernel(Kernel):
         self.latent_kernel = latent_kernel
         self.is_partial_obs = is_partial_obs
 
-    def forward(self, x1: torch.Tensor, x2: torch.Tensor, diag: bool=False, **params) -> tuple[torch.Tensor, LazyTensor]:
+    def forward(self, x1: torch.Tensor, x2: torch.Tensor, diag: bool=False, **params) -> Optional[torch.Tensor]:
         r"""
         TODO: make last_batch_dim work properly
 
