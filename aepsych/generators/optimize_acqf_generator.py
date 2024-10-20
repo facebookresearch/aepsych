@@ -66,6 +66,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.stimuli_per_trial = stimuli_per_trial
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
+
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 

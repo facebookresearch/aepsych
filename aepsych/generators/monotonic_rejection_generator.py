@@ -64,6 +64,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.explore_features = explore_features
 
     def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP) -> AcquisitionFunction:
+
         return self.acqf(
             model=model,
             deriv_constraint_points=model._get_deriv_constraint_points(),
