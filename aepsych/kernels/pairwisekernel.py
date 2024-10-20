@@ -2,6 +2,7 @@ from typing import Any, Optional, Union
 import torch
 from gpytorch.kernels import Kernel
 from linear_operator import to_linear_operator
+
 class PairwiseKernel(Kernel):
     """
     Wrapper to convert a kernel K on R^k to a kernel K' on R^{2k}, modeling
@@ -19,6 +20,7 @@ class PairwiseKernel(Kernel):
         self.is_partial_obs = is_partial_obs
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor, diag: bool=False, **params) -> Optional[torch.Tensor]:
+
         r"""
         TODO: make last_batch_dim work properly
 
@@ -43,7 +45,8 @@ class PairwiseKernel(Kernel):
             assert d == x2.shape[-1] - 1, "tensors not the same dimension"
             assert d % 2 == 0, "dimension must be even"
 
-            k = int(d / 2)
+
+            k = int(d_ / 2)
 
             # special handling for kernels that (also) do funky
             # things with the input dimension
@@ -56,12 +59,12 @@ class PairwiseKernel(Kernel):
             d = torch.cat((x2[..., k:-1], deriv_idx_2), dim=1)
 
         else:
-            d = x1.shape[-1]
+            d_ = x1.shape[-1]
 
-            assert d == x2.shape[-1], "tensors not the same dimension"
-            assert d % 2 == 0, "dimension must be even"
+            assert d_ == x2.shape[-1], "tensors not the same dimension"
+            assert d_ % 2 == 0, "dimension must be even"
 
-            k = int(d / 2)
+            k = int(d_ / 2)
 
             a = x1[..., :k]
             b = x1[..., k:]
