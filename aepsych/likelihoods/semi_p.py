@@ -19,7 +19,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
     GPs and sigma is a flexible link function.
     """
 
-    def __init__(self, objective: Optional[AEPsychObjective] = None):
+    def __init__(self, objective: Optional[AEPsychObjective] = None) -> None:
         """Initializes the linear bernoulli likelihood.
 
         Args:

@@ -7,6 +7,7 @@
 
 from typing import Callable, Optional
 
+from aepsych.config import Config
 import gpytorch
 import torch
 from gpytorch.likelihoods import Likelihood
@@ -22,7 +23,7 @@ class OrdinalLikelihood(Likelihood):
     and :math:`d_k` is a learned cutpoint parameter for each level.
     """
 
-    def __init__(self, n_levels: int, link: Optional[Callable] = None):
+    def __init__(self, n_levels: int, link: Optional[Callable] = None) -> None:
         super().__init__()
         self.n_levels = n_levels
         self.register_parameter(
@@ -33,14 +34,14 @@ class OrdinalLikelihood(Likelihood):
         self.link = link or Normal(0, 1).cdf
 
     @property
-    def cutpoints(self):
+    def cutpoints(self) -> torch.Tensor:
         cutpoint_deltas = self.raw_cutpoint_deltas_constraint.transform(
             self.raw_cutpoint_deltas
         )
         # for identification, the first cutpoint is 0
         return torch.cat((torch.tensor([0]), torch.cumsum(cutpoint_deltas, 0)))
 
-    def forward(self, function_samples, *params, **kwargs):
+    def forward(self, function_samples: torch.Tensor, *params, **kwargs) -> Categorical:
 
         # this whole thing can probably be some clever batched thing, meh
         probs = torch.zeros(*function_samples.size(), self.n_levels)
@@ -56,7 +57,7 @@ class OrdinalLikelihood(Likelihood):
         return res
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config: Config):
         classname = cls.__name__
         n_levels = config.getint(classname, "n_levels")
         link = config.getobj(classname, "link", fallback=None)
