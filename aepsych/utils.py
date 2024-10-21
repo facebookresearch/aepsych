@@ -16,7 +16,7 @@ from torch.quasirandom import SobolEngine
 
 from aepsych.config import Config
 
-def make_scaled_sobol(lb, ub, size, seed=None):
+def make_scaled_sobol(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tensor, np.ndarray], size: int, seed: Optional[int] = None) -> torch.Tensor:
     lb, ub, ndim = _process_bounds(lb, ub, None)
     grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
 
@@ -67,7 +67,7 @@ def dim_grid(
     return torch.stack(torch.meshgrid(*mesh_vals, indexing='ij'), dim=-1).reshape(-1, dim)
 
 
-def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
+def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tensor, np.ndarray], dim : Optional[int] ) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type."""
     lb = promote_0d(lb)
     ub = promote_0d(ub)
@@ -214,7 +214,7 @@ def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1,
     return result
 
 
-def _get_ax_parameters(config):
+def _get_ax_parameters(config: Config):
     range_parnames = config.getlist("common", "parnames", element_type=str, fallback=[])
     lb = config.getlist("common", "lb", element_type=float, fallback=[])
     ub = config.getlist("common", "ub", element_type=float, fallback=[])
@@ -277,12 +277,12 @@ def _get_ax_parameters(config):
     return range_params, choice_params, fixed_params
 
 
-def get_parameters(config) -> List[Dict]:
+def get_parameters(config: Config) -> List[Dict]:
     range_params, choice_params, fixed_params = _get_ax_parameters(config)
     return range_params + choice_params + fixed_params
 
 
-def get_bounds(config) -> torch.Tensor:
+def get_bounds(config: Config) -> torch.Tensor:
     range_params, choice_params, _ = _get_ax_parameters(config)
     # Need to sum dimensions added by both range and choice parameters
     bounds = [parm["bounds"] for parm in range_params]
@@ -306,7 +306,7 @@ def get_bounds(config) -> torch.Tensor:
     return torch.tensor(bounds)
 
 
-def get_dim(config) -> int:
+def get_dim(config: Config) -> int:
     range_params, choice_params, _ = _get_ax_parameters(config)
     # Need to sum dimensions added by both range and choice parameters
     dim = len(range_params)  # 1 dim per range parameter
