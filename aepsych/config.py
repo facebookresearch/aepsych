@@ -32,7 +32,7 @@ class Config(configparser.ConfigParser):
         config_dict: Optional[Mapping[str, Any]] = None,
         config_fnames: Optional[Sequence[str]] = None,
         config_str: Optional[str] = None,
-    ):
+    ) -> None:
         """Initialize the AEPsych config object. This can be used to instantiate most
         objects in AEPsych by calling object.from_config(config).
 
@@ -108,7 +108,7 @@ class Config(configparser.ConfigParser):
             )
 
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
-    def to_dict(self, deduplicate=True):
+    def to_dict(self, deduplicate: bool = True) -> dict:
         _dict = {}
         for section in self:
             _dict[section] = {}
@@ -133,7 +133,7 @@ class Config(configparser.ConfigParser):
         config_dict: Mapping[str, str] = None,
         config_fnames: Sequence[str] = None,
         config_str: str = None,
-    ):
+    ) -> None:
         """Update this object with a new configuration.
 
         Args:
@@ -237,11 +237,11 @@ class Config(configparser.ConfigParser):
             raise ValueError(f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}.")
 
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Config at {hex(id(self))}: \n {str(self)}"
 
     @classmethod
-    def register_module(cls: _T, module: ModuleType):
+    def register_module(cls: _T, module: ModuleType) -> None:
         """Register a module with Config so that objects in it can
            be referred to by their string name in config files.
 
@@ -257,7 +257,7 @@ class Config(configparser.ConfigParser):
         )
 
     @classmethod
-    def register_object(cls: _T, obj: object):
+    def register_object(cls: _T, obj: object) -> None:
         """Register an object with Config so that it can be
             referred to by its string name in config files.
 
