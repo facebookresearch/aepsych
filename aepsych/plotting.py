@@ -362,7 +362,7 @@ def plot_strat_3d(
 
     if parnames is None:
         parnames = ["x1", "x2", "x3"]
-    # Get global min/max for all slices
+
     if probability_space:
         vmax = 1
         vmin = 0
