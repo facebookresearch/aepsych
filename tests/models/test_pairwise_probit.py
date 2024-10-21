@@ -509,7 +509,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         for _i in range(n_init + n_opt):
             next_config = ask(server)
         
-            next_x = torch.tensor(next_config["x"], dtype=torch.float32)
+            next_x = torch.tensor(next_config["x"], dtype=torch.float64)
             
             next_y = bernoulli.rvs(f_pairwise(f_1d, next_x, noise_scale=0.1))
             tell(server, config=next_config, outcome=next_y)
@@ -613,7 +613,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_config = ask(server)
-            next_x = torch.tensor(next_config["x"], dtype=torch.float32)
+            next_x = torch.tensor(next_config["x"], dtype=torch.float64)
             
             next_y = bernoulli.rvs(f_pairwise(f_1d, next_x))
             tell(server, config=next_config, outcome=next_y)

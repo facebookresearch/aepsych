@@ -119,7 +119,7 @@ def make_songetal_testfun(
     threshfun = make_songetal_threshfun(x, y)
 
     # now make it into a test function
-    def song_testfun(x: torch.Tensor, cdf: bool = False) -> torch.Tensor:
+    def song_testfun(x, cdf = False):
         logfreq = x[..., 0]
         intensity = x[..., 1]
         thresh = threshfun(2 ** logfreq)
@@ -291,7 +291,12 @@ def cdf_new_novel_det(x: torch.Tensor, scale_factor: float = 1.0) -> torch.Tenso
     return normal_dist.cdf(z)
 
 
-def new_novel_det_channels_params(channel: torch.Tensor, scale_factor: float = 1.0, wave_freq: float = 1, target: float = 0.75) -> Tuple[torch.Tensor, torch.Tensor]:
+def new_novel_det_channels_params(
+        channel: torch.Tensor, 
+        scale_factor: float = 1.0, 
+        wave_freq: float = 1, 
+        target: float = 0.75
+        ) -> Tuple[torch.Tensor, torch.Tensor]:
     """Get the target parameters for 2D synthetic novel_det(channel) function
         Keyword arguments:
     channel -- 1D tensor of channel locations whose thresholds to return
@@ -394,6 +399,6 @@ def target_new_novel_det_3D(x: torch.Tensor, scale_factor: float = 1.0, target: 
     return normal_dist.icdf(torch.tensor(target))
 
 
-def f_pairwise(f, x: torch.Tensor, noise_scale: float = 1) -> torch.Tensor:
+def f_pairwise(f: Callable, x: torch.Tensor, noise_scale: float = 1) -> torch.Tensor:
     normal_dist = torch.distributions.Normal(0, 1)
     return normal_dist.cdf((f(x[..., 1]) - f(x[..., 0])) / (noise_scale * torch.sqrt(torch.tensor(2.0))))
