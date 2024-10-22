@@ -227,8 +227,8 @@ def _get_ax_parameters(config: Config):
         {
             "name": parname,
             "type": "range",
-            "value_type": config.get(parname, "value_type", fallback="float"),
-            "log_scale": config.getboolean(parname, "log_scale", fallback=False),
+            "value_type": config.get(str(parname), "value_type", fallback="float"),
+            "log_scale": config.getboolean(str(parname), "log_scale", fallback=False),
             "bounds": [l, u],
         }
         for parname, l, u in zip(range_parnames, lb, ub)
@@ -238,15 +238,15 @@ def _get_ax_parameters(config: Config):
         "common", "choice_parnames", element_type=str, fallback=[]
     )
     choices = [
-        config.getlist(parname, "choices", element_type=str, fallback=["True", "False"])
+        config.getlist(str(parname), "choices", element_type=str, fallback=["True", "False"])
         for parname in choice_parnames
     ]
     choice_params = [
         {
             "name": parname,
             "type": "choice",
-            "value_type": config.get(parname, "value_type", fallback="str"),
-            "is_ordered": config.getboolean(parname, "is_ordered", fallback=False),
+            "value_type": config.get(str(parname), "value_type", fallback="str"),
+            "is_ordered": config.getboolean(str(parname), "is_ordered", fallback=False),
             "values": choice,
         }
         for parname, choice in zip(choice_parnames, choices)
@@ -259,9 +259,10 @@ def _get_ax_parameters(config: Config):
     for parname in fixed_parnames:
         try:
             try:
-                value = config.getfloat(parname, "value")
+                value: Union[float, str] = config.getfloat(str(parname), "value")
             except ValueError:
-                value = config.get(parname, "value")
+                value = config.get(str(parname), "value")   
+                         
             values.append(value)
         except NoOptionError:
             raise RuntimeError(f"Missing value for fixed parameter {parname}!")

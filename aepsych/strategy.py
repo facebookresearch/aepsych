@@ -10,7 +10,7 @@ from __future__ import annotations
 import time
 import warnings
 
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
@@ -221,7 +221,7 @@ class Strategy(object):
         return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
-    def get_max(self, constraints: Optional[Dict[str, Any]] = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
+    def get_max(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
         assert self.model is not None, "a model is needed here!"
         return self.model.get_max(
@@ -229,7 +229,7 @@ class Strategy(object):
         )
 
     @ensure_model_is_fresh
-    def get_min(self, constraints: Optional[Dict[str, Any]] = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
+    def get_min(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
         assert self.model is not None, "a model is needed here!"
         return self.model.get_min(
@@ -237,7 +237,7 @@ class Strategy(object):
         )
 
     @ensure_model_is_fresh
-    def inv_query(self, y: int, constraints: Optional[Dict[str, Any]] = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
+    def inv_query(self, y: int, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
         assert self.model is not None, "a model is needed here!"
         return self.model.inv_query(
@@ -471,12 +471,14 @@ class SequentialStrategy(object):
         self.strat_list = strat_list
         self._strat_idx = 0
         self._suggest_count = 0
+        self.x: Optional[torch.Tensor]
+        self.y: Optional[torch.Tensor]
 
     @property
     def _strat(self) -> Strategy:
         return self.strat_list[self._strat_idx]
 
-    def __getattr__(self, name: str) -> Callable:
+    def __getattr__(self, name: str) -> Any:
         # return current strategy's attr if it's not a container attr
         if "strat_list" not in vars(self):
             raise AttributeError("Have no strategies in container, what happened?")
@@ -508,7 +510,7 @@ class SequentialStrategy(object):
         self._strat.finish()
 
     @property
-    def finished(self) -> bool:
+    def finished(self) -> Union[bool, Any]:
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
 
     def add_data(self, x, y) -> None:
