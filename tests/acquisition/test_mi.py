@@ -69,11 +69,13 @@ class SingleProbitMI(unittest.TestCase):
 
         zhat, _ = strat.predict(x)
 
-        true = f_1d(x.detach().numpy())
-        est = zhat.detach().numpy()
+        true = f_1d(x)
+        est = zhat
 
         # close enough!
-        self.assertTrue((((norm.cdf(est) - true) ** 2).mean()) < 0.25)
+        normal_dist = torch.distributions.Normal(0, 1)
+        self.assertTrue((((normal_dist.cdf(est) - true) ** 2).mean()) < 0.25)
+
 
     def test_1d_single_probit(self):
 
@@ -117,11 +119,12 @@ class SingleProbitMI(unittest.TestCase):
 
         zhat, _ = strat.predict(x)
 
-        true = f_1d(x.detach().numpy())
-        est = zhat.detach().numpy()
+        true = f_1d(x)
+        est = zhat
 
         # close enough!
-        self.assertTrue((((norm.cdf(est) - true) ** 2).mean()) < 0.25)
+        normal_dist = torch.distributions.Normal(0, 1)
+        self.assertTrue((((normal_dist.cdf(est) - true) ** 2).mean()) < 0.25)
 
     def test_mi_acqf(self):
 

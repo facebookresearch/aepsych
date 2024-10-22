@@ -387,9 +387,12 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 next_pair, [bernoulli.rvs(f_pairwise(new_novel_det, next_pair))]
             )
 
-        xy = np.mgrid[-1:1:30j, -1:1:30j].reshape(2, -1).T
+        xy = torch.stack(torch.meshgrid(
+                torch.linspace(-1, 1, 30),
+                torch.linspace(-1, 1, 30)
+            ), dim=-1).view(-1, 2)
 
-        zhat, _ = strat.predict(torch.Tensor(xy))
+        zhat, _ = strat.predict(xy)
 
         ztrue = new_novel_det(xy)
 
@@ -505,7 +508,10 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_config = ask(server)
-            next_y = bernoulli.rvs(f_pairwise(f_1d, next_config["x"], noise_scale=0.1))
+        
+            next_x = torch.tensor(next_config["x"], dtype=torch.float64)
+            
+            next_y = bernoulli.rvs(f_pairwise(f_1d, next_x, noise_scale=0.1))
             tell(server, config=next_config, outcome=next_y)
 
         x = torch.linspace(-4, 4, 100)
@@ -555,7 +561,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         )
         for _i in range(n_init + n_opt):
             next_config = ask(server)
-            next_pair = np.c_[next_config["x"], next_config["y"]].T
+            next_pair = torch.stack((torch.tensor(next_config["x"]), torch.tensor(next_config["y"])), dim=0)
             next_y = bernoulli.rvs(f_pairwise(f_2d, next_pair, noise_scale=0.1))
             tell(server, config=next_config, outcome=next_y)
 
@@ -607,7 +613,9 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_config = ask(server)
-            next_y = bernoulli.rvs(f_pairwise(f_1d, next_config["x"]))
+            next_x = torch.tensor(next_config["x"], dtype=torch.float64)
+            
+            next_y = bernoulli.rvs(f_pairwise(f_1d, next_x))
             tell(server, config=next_config, outcome=next_y)
 
         import dill
@@ -669,7 +677,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
         for _i in range(n_init + n_opt):
             next_config = ask(server)
-            next_pair = np.c_[next_config["x"], next_config["y"]].T
+            next_pair = torch.stack((torch.tensor(next_config["x"]), torch.tensor(next_config["y"])), dim=0)
             next_y = bernoulli.rvs(f_pairwise(f_2d, next_pair))
             tell(server, config=next_config, outcome=next_y)
 
