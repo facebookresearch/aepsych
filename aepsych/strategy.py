@@ -504,7 +504,7 @@ class SequentialStrategy(object):
         self._strat.finish()
 
     @property
-    def finished(self) -> bool:
+    def finished(self) -> Union[bool, Any]:
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
 
     def add_data(self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]) -> None:
