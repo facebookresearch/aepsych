@@ -477,7 +477,7 @@ of lb and ub.</p></li>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood.</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
@@ -617,7 +617,7 @@ of lb and ub.</p></li>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood.</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
@@ -825,7 +825,7 @@ of lb and ub.</p></li>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood.</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
@@ -1280,7 +1280,7 @@ of lb and ub.</p></li>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood.</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
@@ -1371,7 +1371,7 @@ be enforced.</p></li>
 <li><p><strong>mean_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.means.Mean</em><em>]</em>) – </p></li>
 <li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.kernels.Kernel</em><em>]</em>) – </p></li>
 <li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>Likelihood</em><em>]</em>) – </p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – </p></li>
+<li><p><strong>inducing_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 <li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
 </ul>
@@ -1390,7 +1390,7 @@ of lb and ub.</p></li>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood.</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
@@ -1604,7 +1604,7 @@ Logistic or Gumbel nonlinearity with a floor.</p>
 <li><p><strong>offset_mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – Mean module to use (default: constant mean) for offset.</p></li>
 <li><p><strong>offset_covar_module</strong> (<em>gpytorch.kernels.Kernel</em><em>, </em><em>optional</em>) – Covariance kernel to use (default: scaled RBF) for offset.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em><em>)</em>) – defaults to bernoulli with logistic input and a floor of .5</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
@@ -1717,7 +1717,7 @@ Args:
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 linear-Bernouli likelihood with probit link.</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
@@ -1845,7 +1845,7 @@ of lb and ub.</p></li>
 gamma prior.</p></li>
 <li><p><strong>likelihood</strong> (<em>gpytorch.likelihood.Likelihood</em><em>, </em><em>optional</em>) – The likelihood function to use. If None defaults to
 Bernouli likelihood.</p></li>
-<li><p><strong>inducing_size</strong> (<em>int</em>) – Number of inducing points. Defaults to 100.</p></li>
+<li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
 <li><p><strong>inducing_point_method</strong> (<em>string</em>) – The method to use to select the inducing points. Defaults to “auto”.
