@@ -2,9 +2,9 @@ name: Build, lint, test
 
 on:
   push:
-    branches: [ main, fix-types ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, fix-types ]
+    branches: [ main ]
 
 jobs:
   lint:
