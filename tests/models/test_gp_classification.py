@@ -809,7 +809,9 @@ class GPClassificationTest(unittest.TestCase):
             self.assertTrue(name1 == name2)
             self.assertTrue(isinstance(parent1, type(parent2)))
             self.assertTrue(isinstance(prior1, type(prior2)))
-            # no obvious way to test paramtransform equivalence
+            # no obvious way to test paramtransform equivalence)
+
+        self.assertTrue(m1.inducing_size == m2.inducing_size)
 
 
 if __name__ == "__main__":

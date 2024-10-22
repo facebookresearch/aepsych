@@ -181,7 +181,7 @@ class SemiParametricGPModel(GPClassificationModel):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Any] = None,
         slope_mean: float = 2,
-        inducing_size: int = 100,
+        inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
     ):
@@ -199,7 +199,7 @@ class SemiParametricGPModel(GPClassificationModel):
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 linear-Bernouli likelihood with probit link.
-            inducing_size (int): Number of inducing points. Defaults to 100.
+            inducing_size (int): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
@@ -264,7 +264,7 @@ class SemiParametricGPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=100)
+        inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
@@ -428,7 +428,7 @@ class HadamardSemiPModel(GPClassificationModel):
         offset_covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         slope_mean: float = 2,
-        inducing_size: int = 100,
+        inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
     ):
@@ -445,7 +445,7 @@ class HadamardSemiPModel(GPClassificationModel):
             offset_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for offset.
             offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.
             likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5
-            inducing_size (int): Number of inducing points. Defaults to 100.
+            inducing_size (int): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
@@ -554,7 +554,7 @@ class HadamardSemiPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=100)
+        inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")

@@ -101,7 +101,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: int = 100,
+        inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
     ):
@@ -189,7 +189,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=10)
+        inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
