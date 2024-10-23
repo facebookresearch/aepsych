@@ -40,6 +40,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         max_fit_time: Optional[float] = None,
+        allow_gpu: bool = True,
     ):
         """Initialize the GP regression model
 
@@ -55,7 +56,19 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
                 Gaussian likelihood.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
+            allow_gpu (bool): If True, allows GPU to be used where speed-ups are likely. Defaults to True.
         """
+        if allow_gpu:
+            if not torch.cuda.is_available():
+                self.allow_gpu = False
+            else:
+                self.allow_gpu = True
+        else:
+            self.allow_gpu = False
+
+        # initial device of model is always cpu
+        self.device = torch.device("cpu")
+
         if likelihood is None:
             likelihood = GaussianLikelihood()
 
@@ -100,6 +113,8 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
             likelihood = None  # fall back to __init__ default
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
+
+        allow_gpu = config.getboolean(classname, "allow_gpu", fallback=True)
         return {
             "lb": lb,
             "ub": ub,
@@ -108,6 +123,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
             "covar_module": covar,
             "likelihood": likelihood,
             "max_fit_time": max_fit_time,
+            "allow_gpu": allow_gpu,
         }
 
     @classmethod
@@ -128,6 +144,32 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
 
         return cls(**args)
 
+    def _move_device(self, device=None):
+        # Moves important tensors (e.g., bounds/data) to a specific device. If device
+        # is not set, it will automatically move tensors to the device most likely to
+        # provide a speedup.
+        if device is None:
+            if self.allow_gpu:  # Initialized state overrides any automatic behavior
+                device = "cuda"
+            else:
+                device = "cpu"
+
+        # Change device for model when queried, otherwise doesn't do anything
+        self.device = torch.device(device)
+
+        self.lb = self.lb.to(torch.device(device))
+        self.ub = self.ub.to(torch.device(device))
+        self.likelihood = self.likelihood.to(torch.device(device))
+
+        self.mean_module = self.mean_module.to(torch.device(device))
+        self.covar_module = self.covar_module.to(torch.device(device))
+
+        train_inputs = []
+        for input in self.train_inputs:
+            train_inputs.append(input.to(torch.device(device)))
+        self.train_inputs = tuple(train_inputs)
+        self.train_targets = self.train_targets.to(torch.device(device))
+
     def fit(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs) -> None:
         """Fit underlying model.
 
@@ -136,12 +178,11 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
             train_y (torch.LongTensor): Responses.
         """
         self.set_train_data(train_x, train_y)
+        self._move_device()
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
         return self._fit_mll(mll, **kwargs)
 
-    def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model.
 
         Args:
@@ -152,15 +193,14 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
         """
+        x = x.to(self.device)
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit."""
         return self.fit(train_x, train_y, **kwargs)
 
-    def predict(
-        self, x: Union[torch.Tensor, np.ndarray], **kwargs
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict(self, x: torch.Tensor, **kwargs) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
@@ -172,6 +212,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
+            x = x.to(self.device)
             post = self.posterior(x)
         fmean = post.mean.squeeze()
         fvar = post.variance.squeeze()

@@ -64,6 +64,10 @@ class ModelProtocol(Protocol):
     def dim(self) -> int:
         pass
 
+    @property
+    def device(self) -> torch.device:
+        pass
+
     def posterior(self, x: torch.Tensor) -> GPyTorchPosterior:
         pass
 
@@ -258,13 +262,23 @@ class AEPsychMixin(GPyTorchModel):
 
         # this is super awkward, back into intensity dim grid assuming a square grid
         gridsize = int(grid.shape[0] ** (1 / grid.shape[1]))
-        coords = torch.linspace(
-            self.lb[intensity_dim].item(), self.ub[intensity_dim].item(), gridsize
+        coords = (
+            torch.linspace(
+                self.lb[intensity_dim].item(), self.ub[intensity_dim].item(), gridsize
+            )
+            .detach()
+            .cpu()
+            .numpy()
         )
 
         if cred_level is None:
             fmean, _ = self.predict(grid)
-            fmean = fmean.reshape(*[gridsize for i in range(self.dim)])
+            fmean = (
+                fmean.reshape(*[gridsize for i in range(self.dim)])
+                .detach()
+                .cpu()
+                .numpy()
+            )
 
             if method == "taylor":
                 return torch.tensor(1 / np.gradient(fmean, coords, axis=intensity_dim))
@@ -374,12 +388,14 @@ class AEPsychMixin(GPyTorchModel):
         )
         return res
 
-    def p_below_threshold(self, x, f_thresh) -> torch.Tensor:  # Return a tensor instead of NumPy array
+    def p_below_threshold(
+        self, x, f_thresh
+    ) -> torch.Tensor:  # Return a tensor instead of NumPy array
         f, var = self.predict(x)
         f_thresh = f_thresh.reshape(-1, 1)
         f = f.reshape(1, -1)
         var = var.reshape(1, -1)
-        
+
         # Perform all operations in PyTorch (no .detach().numpy())
         z = (f_thresh - f) / var.sqrt()
         return torch.distributions.Normal(0, 1).cdf(z)  # Use PyTorch's CDF equivalent

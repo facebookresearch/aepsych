@@ -193,14 +193,17 @@ class Strategy(object):
             x = x[None, :]
 
         if self.x is not None:
+            x = x.to(self.x)
             x = torch.cat((self.x, x), dim=0)
 
         if self.y is not None:
+            y = y.to(self.y)
             y = torch.cat((self.y, y), dim=0)
 
         # Ensure the correct dtype
         x = x.to(torch.float64)
         y = y.to(torch.float64)
+
         n = y.shape[0]
 
         return x, y, n

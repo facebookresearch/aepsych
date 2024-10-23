@@ -19,21 +19,19 @@ from aepsych.acquisition.objective import (
     FloorProbitObjective,
     ProbitObjective,
 )
-from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
-from aepsych.likelihoods import BernoulliObjectiveLikelihood
-from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.acquisition.objective.semi_p import (
     SemiPProbabilityObjective,
     SemiPThresholdObjective,
 )
+from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
+from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-from aepsych.models.semi_p import (
-    _hadamard_mvn_approx,
-    semi_p_posterior_transform,
-)
+from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
+from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
+
 
 def _hadamard_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObjective):
     return HadamardSemiPModel(
@@ -76,9 +74,7 @@ class SemiPSmokeTests(unittest.TestCase):
         xcontext = X[..., self.context_dim]
         xintensity = X[..., self.stim_dim]
         # polynomial context
-        slope = (
-            xcontext - 0.7 * xcontext**2 + 0.3 * xcontext**3 - 0.1 * xcontext**4
-        )
+        slope = xcontext - 0.7 * xcontext**2 + 0.3 * xcontext**3 - 0.1 * xcontext**4
         intercept = (
             xcontext + 0.03 * xcontext**5 - 0.2 * xcontext**3 - 0.7 * xcontext**4
         )
@@ -234,7 +230,9 @@ class SemiPSmokeTests(unittest.TestCase):
                 self.assertEqual(samps.shape, torch.Size([11, 3]))
                 post = model.posterior(train_x)
                 self.assertEqual(post.mvn.mean.shape, torch.Size([2, 3]))
-                self.assertTrue(torch.equal(post.Xi, torch.tensor([0.0, 2.0, 2.0])))
+                self.assertTrue(
+                    torch.equal(post.Xi.cpu(), torch.tensor([0.0, 2.0, 2.0]))
+                )
                 samps = post.rsample(sample_shape=torch.Size([6]))
                 # samps should be n_samp x 2 (slope, intercept) * 3 (xshape)
                 self.assertEqual(samps.shape, torch.Size([6, 2, 3]))
@@ -277,14 +275,14 @@ class SemiPSmokeTests(unittest.TestCase):
             model.fit(torch.Tensor(self.X[:15]), torch.Tensor(y[:15]))
 
             variational_params_after = [
-                v.clone().detach().numpy() for v in model.variational_parameters()
+                v.clone().detach().cpu().numpy() for v in model.variational_parameters()
             ]
             induc_after = model.variational_strategy.inducing_points
 
             model._reset_variational_strategy()
 
             variational_params_reset = [
-                v.clone().detach().numpy() for v in model.variational_parameters()
+                v.clone().detach().cpu().numpy() for v in model.variational_parameters()
             ]
             induc_reset = model.variational_strategy.inducing_points
 
@@ -341,37 +339,65 @@ class HadamardSemiPtest(unittest.TestCase):
 
         model = HadamardSemiPModel(lb=[-3, -3], ub=[3, 3], inducing_size=20)
 
-        slope_os_before = model.slope_covar_module.outputscale.clone().detach().numpy()
+        slope_os_before = (
+            model.slope_covar_module.outputscale.clone().detach().cpu().numpy()
+        )
         offset_os_before = (
-            model.offset_covar_module.outputscale.clone().detach().numpy()
+            model.offset_covar_module.outputscale.clone().detach().cpu().numpy()
         )
         slope_ls_before = (
-            model.slope_covar_module.base_kernel.lengthscale.clone().detach().numpy()
+            model.slope_covar_module.base_kernel.lengthscale.clone()
+            .detach()
+            .cpu()
+            .numpy()
         )
         offset_ls_before = (
-            model.offset_covar_module.base_kernel.lengthscale.clone().detach().numpy()
+            model.offset_covar_module.base_kernel.lengthscale.clone()
+            .detach()
+            .cpu()
+            .numpy()
         )
 
         model.fit(self.X[:15], self.y[:15])
 
-        slope_os_after = model.slope_covar_module.outputscale.clone().detach().numpy()
-        offset_os_after = model.offset_covar_module.outputscale.clone().detach().numpy()
+        slope_os_after = (
+            model.slope_covar_module.outputscale.clone().detach().cpu().numpy()
+        )
+        offset_os_after = (
+            model.offset_covar_module.outputscale.clone().detach().cpu().numpy()
+        )
         slope_ls_after = (
-            model.slope_covar_module.base_kernel.lengthscale.clone().detach().numpy()
+            model.slope_covar_module.base_kernel.lengthscale.clone()
+            .detach()
+            .cpu()
+            .numpy()
         )
         offset_ls_after = (
-            model.offset_covar_module.base_kernel.lengthscale.clone().detach().numpy()
+            model.offset_covar_module.base_kernel.lengthscale.clone()
+            .detach()
+            .cpu()
+            .numpy()
         )
 
         model._reset_hyperparameters()
 
-        slope_os_reset = model.slope_covar_module.outputscale.clone().detach().numpy()
-        offset_os_reset = model.offset_covar_module.outputscale.clone().detach().numpy()
+        slope_os_reset = (
+            model.slope_covar_module.outputscale.clone().detach().cpu().numpy()
+        )
+        offset_os_reset = (
+            model.offset_covar_module.outputscale.clone().detach().cpu().numpy()
+        )
         slope_ls_reset = (
-            model.slope_covar_module.base_kernel.lengthscale.clone().detach().numpy()
+            model.slope_covar_module.base_kernel.lengthscale.clone()
+            .detach()
+            .cpu()
+            .numpy()
         )
         offset_ls_reset = (
-            model.offset_covar_module.base_kernel.lengthscale.clone().detach().numpy()
+            model.offset_covar_module.base_kernel.lengthscale.clone()
+            .detach()
+            .cpu()
+            .numpy()
         )
 
         # before should be different from after and after should be different

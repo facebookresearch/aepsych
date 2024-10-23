@@ -119,8 +119,8 @@ class SingleProbitMI(unittest.TestCase):
 
         zhat, _ = strat.predict(x)
 
-        true = f_1d(x)
-        est = zhat
+        true = f_1d(x.detach().numpy())
+        est = zhat.cpu().detach().numpy()
 
         # close enough!
         normal_dist = torch.distributions.Normal(0, 1)
