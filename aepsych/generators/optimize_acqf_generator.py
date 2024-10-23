@@ -14,15 +14,15 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
-from botorch.optim import optimize_acqf
 from botorch.acquisition import (
     AcquisitionFunction,
-    NoisyExpectedImprovement,
-    qNoisyExpectedImprovement,
     LogNoisyExpectedImprovement,
+    NoisyExpectedImprovement,
     qLogNoisyExpectedImprovement,
+    qNoisyExpectedImprovement,
 )
+from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+from botorch.optim import optimize_acqf
 
 logger = getLogger()
 
@@ -108,7 +108,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
         new_candidate, _ = optimize_acqf(
             acq_function=acqf,
-            bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
+            bounds=model.bounds.to(train_x),
             q=num_points,
             num_restarts=self.restarts,
             raw_samples=self.samps,

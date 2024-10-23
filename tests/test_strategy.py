@@ -163,7 +163,7 @@ class TestSequenceGenerators(unittest.TestCase):
 
             lb = max(0, i - self.strat.keep_most_recent + 1)
             self.assertTrue(
-                torch.equal(self.strat.model.train_inputs[0], data[lb : i + 1])
+                torch.equal(self.strat.model.train_inputs[0].to(data), data[lb : i + 1])
             )
 
     def test_run_indefinitely(self):

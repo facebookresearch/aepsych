@@ -376,6 +376,7 @@ class SemiParametricGPModel(GPClassificationModel):
         return promote_0d(m), promote_0d(v)
 
     def posterior(self, X, posterior_transform=None):
+        X = X.to(self.device)
         # Assume x is (b) x n x d
         if X.ndim > 3:
             raise ValueError
@@ -508,6 +509,38 @@ class HadamardSemiPModel(GPClassificationModel):
         self._fresh_state_dict = deepcopy(self.state_dict())
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
 
+    def _move_device(self, device=None):
+        # Moves important tensors (e.g., bounds/data) to a specific device. If device
+        # is not set, it will automatically move tensors to the device most likely to
+        # provide a speedup.
+        if device is None:
+            if self.allow_gpu:  # Initialized state overrides any automatic behavior
+                device = "cuda"
+            else:
+                device = "cpu"
+
+        self.device = torch.device(device)
+
+        self.lb = self.lb.to(torch.device(device))
+        self.ub = self.ub.to(torch.device(device))
+        self.likelihood = self.likelihood.to(torch.device(device))
+
+        self.mean_module = self.mean_module.to(torch.device(device))
+        self.covar_module = self.covar_module.to(torch.device(device))
+
+        self.slope_mean_module = self.slope_mean_module.to(torch.device(device))
+        self.offset_mean_module = self.offset_mean_module.to(torch.device(device))
+        self.slope_covar_module = self.slope_covar_module.to(torch.device(device))
+        self.offset_covar_module = self.offset_covar_module.to(torch.device(device))
+
+        self.variational_strategy = self.variational_strategy.to(torch.device(device))
+
+        train_inputs = []
+        for input in self.train_inputs:
+            train_inputs.append(input.to(torch.device(device)))
+        self.train_inputs = tuple(train_inputs)
+        self.train_targets = self.train_targets.to(torch.device(device))
+
     def forward(self, x: torch.Tensor) -> MultivariateNormal:
         """Forward pass for semip GP.
 
@@ -616,6 +649,7 @@ class HadamardSemiPModel(GPClassificationModel):
         Returns:
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
+        x = x.to(self.device)
         if probability_space:
             if hasattr(self.likelihood, "objective"):
                 fsamps = self.sample(x, 1000)

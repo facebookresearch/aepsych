@@ -71,7 +71,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
             self.assertTrue(
                 torch.equal(
                     torch.tensor([0, 1, 2], dtype=torch.long),
-                    torch.argsort(mu),
+                    torch.argsort(mu.cpu()),
                 )
             )
 

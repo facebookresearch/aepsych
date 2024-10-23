@@ -63,6 +63,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
         inducing_point_method: str = "auto",
+        allow_gpu: bool = True,
     ) -> None:
         """Initialize MonotonicRejectionGP.
 
@@ -82,7 +83,19 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             acqf (MonotonicMCAcquisition, optional): Acquisition function to use for querying points. Defaults to MonotonicMCLSE.
             objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
             extra_acqf_args (Optional[Dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
+            allow_gpu (bool): If True, allows GPU to be used where speed-ups are likely. Defaults to True.
         """
+        if allow_gpu:
+            if not torch.cuda.is_available():
+                self.allow_gpu = False
+            else:
+                self.allow_gpu = True
+        else:
+            self.allow_gpu = False
+
+        # initial device of model is always cpu
+        self.device = torch.device("cpu")
+
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
             likelihood = BernoulliLikelihood()
@@ -147,6 +160,36 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         self.fixed_prior_mean = fixed_prior_mean
         self.inducing_points = inducing_points
 
+    def _move_device(self, device=None):
+        # Moves important tensors (e.g., bounds/data) to a specific device. If device
+        # is not set, it will automatically move tensors to the device most likely to
+        # provide a speedup.
+        if device is None:
+            if self.allow_gpu:  # Initialized state overrides any automatic behavior
+                device = "cuda"
+            else:
+                device = "cpu"
+
+        # Change device for model when queried, otherwise doesn't do anything
+        self.device = torch.device(device)
+
+        self.lb = self.lb.to(torch.device(device))
+        self.ub = self.ub.to(torch.device(device))
+        self.likelihood = self.likelihood.to(torch.device(device))
+
+        self.mean_module = self.mean_module.to(torch.device(device))
+        self.covar_module = self.covar_module.to(torch.device(device))
+
+        # TODO: THIS ONE IS COMPLICATED. GET ALL THE RIGHT BITS IN PLACE.
+
+        self.variational_strategy = self.variational_strategy.to(torch.device(device))
+
+        train_inputs = []
+        for input in self.train_inputs:
+            train_inputs.append(input.to(torch.device(device)))
+        self.train_inputs = tuple(train_inputs)
+        self.train_targets = self.train_targets.to(torch.device(device))
+
     def fit(self, train_x: Tensor, train_y: Tensor, **kwargs) -> None:
         """Fit the model
 
@@ -179,6 +222,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             self.load_state_dict(model_state_dict)
         if likelihood_state_dict is not None:
             self.likelihood.load_state_dict(likelihood_state_dict)
+
+        self._move_device()
 
         # Fit!
         mll = VariationalELBO(
@@ -236,6 +281,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             )
 
         n = x.shape[0]
+        x = x.to(self.device)
         # Augment with derivative index
         x_aug = self._augment_with_deriv_index(x, 0)
         # Add in monotonicity constraint points
@@ -320,6 +366,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             classname, "monotonic_idxs", fallback=[-1]
         )
 
+        allow_gpu = config.getboolean(classname, "allow_gpu")
+
         return cls(
             monotonic_idxs=monotonic_idxs,
             lb=lb,
@@ -330,6 +378,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             num_rejection_samples=num_rejection_samples,
             mean_module=mean,
             covar_module=covar,
+            allow_gpu=allow_gpu,
         )
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:

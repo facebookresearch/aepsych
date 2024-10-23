@@ -104,6 +104,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        allow_gpu: bool = True,
     ):
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
@@ -119,6 +120,7 @@ class MonotonicProjectionGP(GPClassificationModel):
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            allow_gpu=allow_gpu,
         )
 
     def posterior(
@@ -127,6 +129,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         observation_noise: Union[bool, torch.Tensor] = False,
         **kwargs: Any,
     ) -> GPyTorchPosterior:
+        X = X.to(self.device)
         # Augment X with monotonicity grid points, for each monotonic dim
         n, d = X.shape  # Require no batch dimensions
         m = len(self.monotonic_dims)
@@ -137,7 +140,7 @@ class MonotonicProjectionGP(GPClassificationModel):
             # pytorch/issues/61292
             grid: Union[np.ndarray, torch.Tensor] = np.linspace(
                 self.lb[dim],
-                X[:, dim].numpy(),
+                X[:, dim].cpu().numpy(),
                 s + 1,
             )  # (s+1 x n)
             grid = torch.tensor(grid[:-1, :], dtype=X.dtype)  # Drop x; (s x n)
@@ -158,17 +161,16 @@ class MonotonicProjectionGP(GPClassificationModel):
         # Adjust the whole covariance matrix to accomadate the projected marginals
         with torch.no_grad():
             post = super().posterior(X=X)
-            R = cov2corr(post.distribution.covariance_matrix.squeeze().numpy())
-            S_proj = torch.tensor(corr2cov(R, sigma_proj.numpy()), dtype=X.dtype)
+            R = cov2corr(post.distribution.covariance_matrix.squeeze().cpu().numpy())
+            S_proj = torch.tensor(corr2cov(R, sigma_proj.cpu().numpy()), dtype=X.dtype)
         mvn_proj = gpytorch.distributions.MultivariateNormal(
             mu_proj.unsqueeze(0),
             S_proj.unsqueeze(0),
         )
         return GPyTorchPosterior(mvn_proj)
 
-    def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
+        x = x.to(self.device)
         samps = super().sample(x=x, num_samples=num_samples)
         if self.min_f_val is not None:
             samps = samps.clamp(min=self.min_f_val)
@@ -224,6 +226,8 @@ class MonotonicProjectionGP(GPClassificationModel):
         )
         min_f_val = config.getfloat(classname, "min_f_val", fallback=None)
 
+        allow_gpu = config.getboolean(classname, "allow_gpu", fallback=True)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -237,4 +241,5 @@ class MonotonicProjectionGP(GPClassificationModel):
             monotonic_dims=monotonic_dims,
             monotonic_grid_size=monotonic_grid_size,
             min_f_val=min_f_val,
+            allow_gpu=allow_gpu,
         )

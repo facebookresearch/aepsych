@@ -41,6 +41,7 @@ class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel)
         mean_module: Optional[Mean] = None,
         covar_module: Optional[Kernel] = None,
         fixed_prior_mean: Optional[float] = None,
+        allow_gpu: bool = True,
     ) -> None:
         """Initialize MixedDerivativeVariationalGP
 
@@ -60,7 +61,19 @@ class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel)
             fixed_prior_mean (float, optional): A prior mean value to use with the
                 constant mean. Often setting this to the target threshold speeds
                 up experiments. Defaults to None, in which case the mean will be inferred.
+            allow_gpu (bool): If True, allows GPU to be used where speed-ups are likely. Defaults to True.
         """
+        if allow_gpu:
+            if not torch.cuda.is_available():
+                self.allow_gpu = False
+            else:
+                self.allow_gpu = True
+        else:
+            self.allow_gpu = False
+
+        # initial device of model is always cpu
+        self.device = torch.device("cpu")
+
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0)
         )
@@ -101,6 +114,31 @@ class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel)
         self.train_targets = train_y
         self(train_x)  # Necessary for CholeskyVariationalDistribution
 
+    def _move_device(self, device=None):
+        # Moves important tensors (e.g., bounds/data) to a specific device. If device
+        # is not set, it will automatically move tensors to the device most likely to
+        # provide a speedup.
+        if device is None:
+            if self.allow_gpu:  # Initialized state overrides any automatic behavior
+                device = "cuda"
+            else:
+                device = "cpu"
+
+        # Change device for model when queried, otherwise doesn't do anything
+        self.device = torch.device(device)
+
+        self.base_kernel = self.base_kernel.to(torch.device(device))
+        self.mean_module = self.mean_module.to(torch.device(device))
+        self.covar_module = self.covar_module.to(torch.device(device))
+
+        self.variational_strategy = self.variational_strategy.to(torch.device(device))
+
+        train_inputs = []
+        for input in self.train_inputs:
+            train_inputs.append(input.to(torch.device(device)))
+        self.train_inputs = tuple(train_inputs)
+        self.train_targets = self.train_targets.to(torch.device(device))
+
     def forward(self, x: torch.Tensor) -> MultivariateNormal:
         """Evaluate the model
 
@@ -111,6 +149,9 @@ class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel)
             MultivariateNormal: Object containig mean and covariance
                 of GP at these points.
         """
+        self._move_device()
+        x = x.to(self.device)
+
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return MultivariateNormal(mean_x, covar_x)

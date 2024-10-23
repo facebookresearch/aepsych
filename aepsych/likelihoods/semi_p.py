@@ -90,6 +90,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
         Returns:
             torch.distributions.Bernoulli: Outcome likelihood.
         """
+        Xi = Xi.to(function_samples)
         output_probs = self.p(function_samples, Xi)
         return torch.distributions.Bernoulli(probs=output_probs)
 

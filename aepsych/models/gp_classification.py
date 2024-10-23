@@ -56,6 +56,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        allow_gpu: bool = True,
     ):
         """Initialize the GP Classification model
 
@@ -77,7 +78,19 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+            allow_gpu (bool): If True, allows GPU to be used where speed-ups are likely. Defaults to True.
         """
+        if allow_gpu:
+            if not torch.cuda.is_available():
+                self.allow_gpu = False
+            else:
+                self.allow_gpu = True
+        else:
+            self.allow_gpu = False
+
+        # initial device of model is always cpu
+        self.device = torch.device("cpu")
+
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
@@ -103,7 +116,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        )
+        ).to(inducing_points)
+
         variational_strategy = VariationalStrategy(
             self,
             inducing_points,
@@ -166,6 +180,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             likelihood = None  # fall back to __init__ default
 
+        allow_gpu = config.getboolean(classname, "allow_gpu", fallback=True)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -176,7 +192,36 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
             likelihood=likelihood,
+            allow_gpu=allow_gpu,
         )
+
+    def _move_device(self, device=None):
+        # Moves important tensors (e.g., bounds/data) to a specific device. If device
+        # is not set, it will automatically move tensors to the device most likely to
+        # provide a speedup.
+        if device is None:
+            if self.allow_gpu:  # Initialized state overrides any automatic behavior
+                device = "cuda"
+            else:
+                device = "cpu"
+
+        # Change device for model when queried, otherwise doesn't do anything
+        self.device = torch.device(device)
+
+        self.lb = self.lb.to(torch.device(device))
+        self.ub = self.ub.to(torch.device(device))
+        self.likelihood = self.likelihood.to(torch.device(device))
+
+        self.mean_module = self.mean_module.to(torch.device(device))
+        self.covar_module = self.covar_module.to(torch.device(device))
+
+        self.variational_strategy = self.variational_strategy.to(torch.device(device))
+
+        train_inputs = []
+        for input in self.train_inputs:
+            train_inputs.append(input.to(torch.device(device)))
+        self.train_inputs = tuple(train_inputs)
+        self.train_targets = self.train_targets.to(torch.device(device))
 
     def _reset_hyperparameters(self):
         # warmstart_hyperparams affects hyperparams but not the variational strat,
@@ -199,7 +244,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         )
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        )
+        ).to(inducing_points)
         self.variational_strategy = VariationalStrategy(
             self,
             inducing_points,
@@ -235,14 +280,15 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         if not warmstart_induc:
             self._reset_variational_strategy()
 
+        # Moves to GPU maybe
+        self._move_device()
+
         n = train_y.shape[0]
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
 
         self._fit_mll(mll, **kwargs)
 
-    def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model.
 
         Args:
@@ -253,10 +299,11 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
         """
+        x = x.to(self.device)
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: torch.Tensor, probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -269,9 +316,10 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
+            x = x.to(self.device)
             post = self.posterior(x)
-            fmean = post.mean.squeeze()
-            fvar = post.variance.squeeze()
+            fmean = post.mean.squeeze().detach().cpu()
+            fvar = post.variance.squeeze().detach().cpu()
         if probability_space:
             if isinstance(self.likelihood, BernoulliLikelihood):
                 # Probability-space mean and variance for Bernoulli-probit models is
@@ -296,9 +344,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             return promote_0d(fmean), promote_0d(fvar)
 
-    def predict_probability(
-        self, x: Union[torch.Tensor, np.ndarray]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
