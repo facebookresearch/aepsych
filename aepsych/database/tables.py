@@ -280,7 +280,6 @@ class DbStratTable(Base):
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbStratTable':
-
         this = DbStratTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -361,7 +360,6 @@ class DbRawTable(Base):
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbRawTable':
-
         this = DbRawTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -526,7 +524,6 @@ class DbOutcomeTable(Base):
 
     @classmethod
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbOutcomeTable':
-
         this = DbOutcomeTable()
         this.unique_id = row["unique_id"]
         this.outcome_name = row["outcome_name"]

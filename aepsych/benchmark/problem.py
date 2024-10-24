@@ -121,7 +121,7 @@ class Problem:
 
     def evaluate(
         self,
-        strat: SequentialStrategy,
+        strat: Union[SequentialStrategy, Strategy],
     ) -> Dict[str, float]:
         """Evaluate the strategy with respect to this problem.
 
@@ -213,7 +213,6 @@ class LSEProblem(Problem):
     """
 
     def __init__(self, thresholds: Union[float, List, torch.Tensor]) -> None:
-
         super().__init__()
         thresholds = [thresholds] if isinstance(thresholds, float) else thresholds
         self.thresholds = torch.tensor(thresholds)
@@ -258,7 +257,7 @@ class LSEProblem(Problem):
             self.p(self.eval_grid).reshape(1, -1) <= self.thresholds.reshape(-1, 1)
         ).to(torch.float32)
 
-    def evaluate(self, strat: SequentialStrategy) -> Dict[str, float]:
+    def evaluate(self, strat: Union[SequentialStrategy, Strategy]) -> Dict[str, float]:
         """Evaluate the model with respect to this problem.
 
         For level set estimation, we add metrics w.r.t. the true threshold:
@@ -322,13 +321,16 @@ class LSEProblemWithEdgeLogging(LSEProblem):
 
         super().__init__(thresholds)
 
-    def evaluate(self, strat: SequentialStrategy) -> Dict[str, float]:
+    def evaluate(self, strat: Union[SequentialStrategy, Strategy]) -> Dict[str, float]:
         metrics = super().evaluate(strat)
 
         # add number of edge samples to the log
 
         # get the trials selected by the final strat only
-        n_opt_trials = strat.strat_list[-1].n_trials
+        if isinstance(strat, SequentialStrategy):
+            n_opt_trials = strat.strat_list[-1].n_trials
+        elif isinstance(strat, Strategy):
+            n_opt_trials = strat.n_trials
 
         lb, ub = strat.lb, strat.ub
         r = ub - lb

@@ -101,7 +101,6 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
         )
         
-
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
