@@ -89,12 +89,12 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
 
 @acqf_input_constructor(MCLevelSetEstimation)
 def construct_inputs_lse(
-    model,
-    training_data,
-    objective=None,
-    target=0.75,
-    beta=3.84,
-    sampler=None,
+    model: Model,
+    training_data: None,
+    objective: Optional[MCAcquisitionObjective] = None,
+    target: Union[float, Tensor] = 0.75,
+    beta: Union[float, Tensor] = 3.84,
+    sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
 

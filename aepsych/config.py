@@ -12,7 +12,6 @@ import json
 import warnings
 from types import ModuleType
 from typing import Any, ClassVar, Dict, List, Mapping, Optional, Sequence, TypeVar
-
 import botorch
 import gpytorch
 import numpy as np
@@ -415,7 +414,7 @@ class ConfigurableMixin(abc.ABC):
         )
 
     @classmethod
-    def from_config(cls, config: Config, name: Optional[str] = None):
+    def from_config(cls, config: Config, name: Optional[str] = None) -> 'ConfigurableMixin':
         return cls(**cls.get_config_options(config, name))
 
 

@@ -65,7 +65,7 @@ class SemiPProbabilityObjective(SemiPObjectiveBase):
         return self.likelihood.p(function_samples=samples, Xi=Xi).squeeze(-1)
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> SemiPProbabilityObjective:
 
         classname = cls.__name__
 
@@ -115,7 +115,7 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
         return (self.fspace_target + slope * offset) / slope
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> SemiPThresholdObjective:
 
         classname = cls.__name__
 

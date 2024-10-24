@@ -9,6 +9,7 @@ import warnings
 from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 import numpy as np
 
 from aepsych.strategy import Strategy
@@ -358,9 +359,7 @@ def plot_strat_3d(
 
     contour_levels_list: List[float] = []
 
-    if contour_levels is True:
-        contour_levels_list = [0.75]
-    elif isinstance(contour_levels, Iterable):
+    if isinstance(contour_levels, Iterable):
         contour_levels_list = list(contour_levels)
     elif contour_levels is None:
         contour_levels_list = []
@@ -433,11 +432,11 @@ def plot_strat_3d(
 
 
 def plot_slice(
-    ax,
+    ax: Axes,
     strat: Strategy,
     parnames: List[str],
     slice_dim: int,
-    slice_val,
+    slice_val: int,
     vmin: float,
     vmax: float,
     gridsize: int = 30,
@@ -484,7 +483,7 @@ def plot_slice(
     plt_parnames = np.delete(parnames, slice_dim)
 
     img = ax.imshow(
-        fmean.T, extent=plt_extents, origin="lower", aspect="auto", vmin=vmin, vmax=vmax
+        fmean.T, extent=tuple(plt_extents), origin="lower", aspect="auto", vmin=vmin, vmax=vmax
     )
     ax.set_title(parnames[slice_dim] + "=" + str(dim_val_scaled))
     ax.set_xlabel(plt_parnames[0])

@@ -92,8 +92,8 @@ class MonotonicProjectionGP(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         monotonic_dims: List[int],
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,

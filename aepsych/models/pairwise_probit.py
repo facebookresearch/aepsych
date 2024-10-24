@@ -28,7 +28,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
     stimuli_per_trial = 2
     outcome_type = "binary"
 
-    def _pairs_to_comparisons(self, x: torch.Tensor, y: torch.Tensor) -> Tuple[Any, torch.Tensor]:
+    def _pairs_to_comparisons(self, x: torch.Tensor, y: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Takes x, y structured as pairs and judgments and
         returns pairs and comparisons as PairwiseGP requires
@@ -57,8 +57,8 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         max_fit_time: Optional[float] = None,
@@ -179,7 +179,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return -samps + samps_ref
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'PairwiseProbitModel':
 
         classname = cls.__name__
 

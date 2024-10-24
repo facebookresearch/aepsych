@@ -54,7 +54,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
 
     @classmethod
     @abc.abstractmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> Any:
         pass
 
     @classmethod
