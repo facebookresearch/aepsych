@@ -22,14 +22,14 @@ class RandomGenerator(AEPsychGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
     ) -> None:
         """Iniatialize RandomGenerator.
         Args:
-            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
-            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
+            lb torch.Tensor: Lower bounds of each parameter.
+            ub torch.Tensor: Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
         """
 
@@ -53,7 +53,7 @@ class RandomGenerator(AEPsychGenerator):
         return X
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'RandomGenerator':
         classname = cls.__name__
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")

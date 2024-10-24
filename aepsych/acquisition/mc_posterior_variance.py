@@ -89,10 +89,10 @@ class MCPosteriorVariance(MCAcquisitionFunction):
 
 @acqf_input_constructor(MCPosteriorVariance)
 def construct_inputs(
-    model,
-    training_data,
-    objective=None,
-    sampler=None,
+    model: Model,
+    training_data: None,
+    objective: Optional[MCAcquisitionObjective] = None,
+    sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     return {

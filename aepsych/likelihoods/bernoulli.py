@@ -26,7 +26,7 @@ class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood):
         return torch.distributions.Bernoulli(probs=output_probs)
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'BernoulliObjectiveLikelihood':
         objective_cls = config.getobj(cls.__name__, "objective")
         objective = objective_cls.from_config(config)
         return cls(objective=objective)

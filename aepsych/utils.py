@@ -7,16 +7,17 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
 
+from botorch.models.gpytorch import GPyTorchModel
 from aepsych.config import Config
 
-def make_scaled_sobol(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tensor, np.ndarray], size: int, seed: Optional[int] = None) -> torch.Tensor:
+def make_scaled_sobol(lb : torch.Tensor, ub : torch.Tensor, size: int, seed: Optional[int] = None) -> torch.Tensor:
     lb, ub, ndim = _process_bounds(lb, ub, None)
     grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
 
@@ -26,7 +27,7 @@ def make_scaled_sobol(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Ten
     return grid
 
 
-def promote_0d(x):
+def promote_0d(x: Union[torch.Tensor, np.ndarray]):
     if not isinstance(x, Iterable):
         return [x]
     return x
@@ -123,7 +124,7 @@ def interpolate_monotonic(x: torch.Tensor, y: torch.Tensor, z: Union[torch.Tenso
 
 
 def get_lse_interval(
-    model,
+    model: GPyTorchModel,
     mono_grid: Union[torch.Tensor, np.ndarray],
     target_level: float,
     cred_level: Optional[float]=None,
@@ -214,7 +215,7 @@ def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1,
     return result
 
 
-def _get_ax_parameters(config: Config):
+def _get_ax_parameters(config: Config) -> Tuple[list[Dict[str, Any]],list[Dict[str, Any]],list[Dict[str, Any]]]:
     range_parnames = config.getlist("common", "parnames", element_type=str, fallback=[])
     lb = config.getlist("common", "lb", element_type=float, fallback=[])
     ub = config.getlist("common", "ub", element_type=float, fallback=[])

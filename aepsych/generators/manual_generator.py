@@ -25,8 +25,8 @@ class ManualGenerator(AEPsychGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         points: Union[np.ndarray, torch.Tensor],
         dim: Optional[int] = None,
         shuffle: bool = True,
@@ -34,8 +34,8 @@ class ManualGenerator(AEPsychGenerator):
     ) -> None:
         """Iniatialize ManualGenerator.
         Args:
-            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
-            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
+            lb torch.Tensor: Lower bounds of each parameter.
+            ub torch.Tensor: Upper bounds of each parameter.
             points (Union[np.ndarray, torch.Tensor]): The points that will be generated.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             shuffle (bool): Whether or not to shuffle the order of the points. True by default.
@@ -70,7 +70,7 @@ class ManualGenerator(AEPsychGenerator):
         return points
 
     @classmethod
-    def from_config(cls, config: Config, name: Optional[str] = None):
+    def from_config(cls, config: Config, name: Optional[str] = None) -> 'ManualGenerator':
         return cls(**cls.get_config_options(config, name))
 
     @classmethod

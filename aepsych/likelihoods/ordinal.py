@@ -57,7 +57,7 @@ class OrdinalLikelihood(Likelihood):
         return res
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'OrdinalLikelihood':
         classname = cls.__name__
         n_levels = config.getint(classname, "n_levels")
         link = config.getobj(classname, "link", fallback=None)

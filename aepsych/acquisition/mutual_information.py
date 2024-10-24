@@ -118,10 +118,10 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
 
 @acqf_input_constructor(BernoulliMCMutualInformation)
 def construct_inputs_mi(
-    model,
-    training_data,
-    objective=None,
-    sampler=None,
+    model: Model,
+    training_data: None,
+    objective: Optional[MCAcquisitionObjective] = None,
+    sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     return {

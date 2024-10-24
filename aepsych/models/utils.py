@@ -58,7 +58,7 @@ def select_inducing_points(
     X: Optional[torch.Tensor] = None,
     bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
     method: str = "auto",
-) -> Optional[torch.Tensor]:
+) -> torch.Tensor:
     with torch.no_grad():
         assert method in (
             "pivoted_chol",
@@ -103,7 +103,7 @@ def select_inducing_points(
         return inducing_points
 
 
-def get_probability_space(likelihood: Likelihood, posterior: GPyTorchPosterior):
+def get_probability_space(likelihood: Likelihood, posterior: GPyTorchPosterior) -> Tuple[torch.Tensor, torch.Tensor]:
     fmean = posterior.mean.squeeze()
     fvar = posterior.variance.squeeze()
     if isinstance(likelihood, BernoulliLikelihood):

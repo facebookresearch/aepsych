@@ -10,7 +10,7 @@ from __future__ import annotations
 import time
 import warnings
 
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
@@ -263,7 +263,7 @@ class Strategy(object):
         self.is_finished = True
 
     @property
-    def finished(self) -> Union[bool,torch.Tensor, None]:
+    def finished(self) -> bool:
         if self.is_finished:
             return True
 
@@ -282,9 +282,9 @@ class Strategy(object):
         if "binary" in self.outcome_types:
             n_yes_trials = (self.y == 1).sum()
             n_no_trials = (self.y == 0).sum()
-            sufficient_outcomes: Union[torch.Tensor, bool] = (
-                n_yes_trials >= self.min_total_outcome_occurrences
-                and n_no_trials >= self.min_total_outcome_occurrences
+            sufficient_outcomes = bool(
+                (n_yes_trials >= self.min_total_outcome_occurrences).item()
+                and (n_no_trials >= self.min_total_outcome_occurrences).item()
             )
         else:
             sufficient_outcomes = True
@@ -292,7 +292,7 @@ class Strategy(object):
         if self.min_post_range is not None:
             assert self.model is not None, "a model is needed here!"
             fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
-            meets_post_range = (fmean.max() - fmean.min()) >= self.min_post_range
+            meets_post_range = ((fmean.max() - fmean.min()) >= self.min_post_range).item()
         else:
             meets_post_range = True
         finished = (
@@ -304,7 +304,7 @@ class Strategy(object):
         return finished
 
     @property
-    def can_fit(self) -> Optional[bool]:
+    def can_fit(self) -> bool:
         return self.has_model and self.x is not None and self.y is not None
 
     @property
@@ -388,7 +388,7 @@ class Strategy(object):
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     @classmethod
-    def from_config(cls, config: Config, name: str):
+    def from_config(cls, config: Config, name: str) -> Strategy:
         lb = config.gettensor(name, "lb")
         ub = config.gettensor(name, "ub")
         dim = config.getint(name, "dim", fallback=None)
@@ -510,14 +510,14 @@ class SequentialStrategy(object):
         self._strat.finish()
 
     @property
-    def finished(self) -> Union[bool, Any]:
+    def finished(self) -> bool:
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
 
-    def add_data(self, x, y) -> None:
+    def add_data(self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]) -> None:
         self._strat.add_data(x, y)
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> SequentialStrategy:
         strat_names = config.getlist("common", "strategy_names", element_type=str)
 
         # ensure strat_names are unique

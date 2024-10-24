@@ -184,8 +184,8 @@ class LocalSUR(LocalLookaheadAcquisitionFunction):
 @acqf_input_constructor(LocalMI, LocalSUR)
 def construct_inputs_local_lookahead(
     model: GPyTorchModel,
-    training_data,
-    lookahead_type="levelset",
+    training_data: None,
+    lookahead_type: str ="levelset",
     target: Optional[float] = None,
     posterior_transform: Optional[PosteriorTransform] = None,
     **kwargs,

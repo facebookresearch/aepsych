@@ -89,7 +89,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         return torch.Tensor(X[best_indx])
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'MonotonicThompsonSamplerGenerator':
         classname = cls.__name__
         n_samples = config.getint(classname, "num_samples", fallback=1)
         n_rejection_samples = config.getint(

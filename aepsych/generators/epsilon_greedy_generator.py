@@ -20,7 +20,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         self.epsilon = epsilon
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'EpsilonGreedyGenerator':
         classname = cls.__name__
         subgen_cls = config.getobj(
             classname, "subgenerator", fallback=OptimizeAcqfGenerator

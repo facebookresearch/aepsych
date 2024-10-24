@@ -15,7 +15,7 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+from botorch.acquisition.preference import  AnalyticExpectedUtilityOfBestOption
 from torch.quasirandom import SobolEngine
 from botorch.utils.sampling import draw_sobol_samples, manual_seed
 from botorch.acquisition import (
@@ -61,7 +61,7 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         self.samps = samps
         self.stimuli_per_trial = stimuli_per_trial
 
-    def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AnalyticExpectedUtilityOfBestOption:
+    def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 
@@ -128,7 +128,7 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         return new_candidate
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> AcqfThompsonSamplerGenerator:
         classname = cls.__name__
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
