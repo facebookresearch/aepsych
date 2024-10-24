@@ -60,7 +60,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             num_points (int, optional): Number of points to query.
             model (AEPsychMixin): Fitted model of the data.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
 
         # Generate the points at which to sample
@@ -89,7 +89,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         return torch.Tensor(X[best_indx])
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'MonotonicThompsonSamplerGenerator':
         classname = cls.__name__
         n_samples = config.getint(classname, "num_samples", fallback=1)
         n_rejection_samples = config.getint(

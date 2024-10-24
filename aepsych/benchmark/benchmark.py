@@ -177,7 +177,7 @@ class Benchmark:
             next_x = strat.gen()
             gentime = time.time() - starttime
             total_gentime += gentime
-            next_y = [problem.sample_y(next_x)]
+            next_y = problem.sample_y(next_x)
             strat.add_data(next_x, next_y)
             # strat usually defers model fitting until it is needed
             # (e.g. for gen or predict) so that we don't refit
@@ -190,7 +190,7 @@ class Benchmark:
             total_fittime += fittime
             if (self.log_at(i) or strat.finished) and strat.has_model:
                 metrics = problem.evaluate(strat)
-                result = {
+                result: Dict[str, Union[float, str]] = {
                     "fit_time": fittime,
                     "cum_fit_time": total_fittime,
                     "gen_time": gentime,
@@ -210,7 +210,7 @@ class Benchmark:
 
         return results, strat
 
-    def run_benchmarks(self):
+    def run_benchmarks(self) -> None:
         """Run all the benchmarks, sequentially."""
         for i, (rep, config, problem) in enumerate(
             tproduct(range(self.n_reps), self.combinations, self.problems)

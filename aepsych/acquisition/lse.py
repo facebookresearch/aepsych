@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import torch
 from aepsych.acquisition.objective import ProbitObjective
@@ -89,14 +89,14 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
 
 @acqf_input_constructor(MCLevelSetEstimation)
 def construct_inputs_lse(
-    model,
-    training_data,
-    objective=None,
-    target=0.75,
-    beta=3.84,
-    sampler=None,
+    model: Model,
+    training_data: None,
+    objective: Optional[MCAcquisitionObjective] = None,
+    target: Union[float, Tensor] = 0.75,
+    beta: Union[float, Tensor] = 3.84,
+    sampler: Optional[MCSampler] = None,
     **kwargs,
-):
+) -> Dict[str, Any]:
 
     return {
         "model": model,

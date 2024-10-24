@@ -17,7 +17,7 @@ class PairwiseOptimizeAcqfGenerator(OptimizeAcqfGenerator):
     stimuli_per_trial = 2
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'OptimizeAcqfGenerator':
         warnings.warn(
             "PairwiseOptimizeAcqfGenerator is deprecated. Use OptimizeAcqfGenerator instead.",
             DeprecationWarning,

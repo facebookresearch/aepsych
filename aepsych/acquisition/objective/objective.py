@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Optional
 
 import torch
+from aepsych.config import Config
 from botorch.acquisition.objective import MCAcquisitionObjective
 from torch import Tensor
 from torch.distributions.normal import Normal
@@ -59,7 +60,7 @@ class FloorLinkObjective(AEPsychObjective):
     the probability is known not to go below it.
     """
 
-    def __init__(self, floor=0.5):
+    def __init__(self, floor: float=0.5) -> None:
         self.floor = floor
         super().__init__()
 
@@ -89,14 +90,14 @@ class FloorLinkObjective(AEPsychObjective):
         """
         return self.inverse_link((samples - self.floor) / (1 - self.floor))
 
-    def link(self, samples):
+    def link(self, samples: Tensor) -> Tensor:
         raise NotImplementedError
 
-    def inverse_link(self, samples):
+    def inverse_link(self, samples: Tensor) -> Tensor:
         raise NotImplementedError
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config: Config) -> FloorLinkObjective:
         floor = config.getfloat(cls.__name__, "floor")
         return cls(floor=floor)
 
@@ -108,10 +109,10 @@ class FloorLogitObjective(FloorLinkObjective):
     between floor and 1.0.
     """
 
-    def link(self, samples):
+    def link(self, samples: Tensor) -> Tensor:
         return torch.special.expit(samples)
 
-    def inverse_link(self, samples):
+    def inverse_link(self, samples: Tensor) -> Tensor:
         return torch.special.logit(samples)
 
 
@@ -124,12 +125,12 @@ class FloorGumbelObjective(FloorLinkObjective):
     distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.
     """
 
-    def link(self, samples):
+    def link(self, samples: Tensor) -> Tensor:
         return torch.nan_to_num(
             -torch.special.expm1(-torch.exp(samples)), posinf=1.0, neginf=0.0
         )
 
-    def inverse_link(self, samples):
+    def inverse_link(self, samples: Tensor) -> Tensor:
         return torch.log(-torch.special.log1p(-samples))
 
 
@@ -139,8 +140,8 @@ class FloorProbitObjective(FloorLinkObjective):
     so that its output is between floor and 1.0.
     """
 
-    def link(self, samples):
+    def link(self, samples: Tensor) -> Tensor:
         return Normal(0, 1).cdf(samples)
 
-    def inverse_link(self, samples):
+    def inverse_link(self, samples: Tensor) -> Tensor:
         return Normal(0, 1).icdf(samples)

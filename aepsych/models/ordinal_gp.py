@@ -5,6 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+from typing import Optional, Union
 import gpytorch
 import torch
 from aepsych.likelihoods import OrdinalLikelihood
@@ -50,11 +51,11 @@ class OrdinalGPModel(GPClassificationModel):
             **kwargs,
         )
 
-    def predict_probs(self, xgrid):
+    def predict_probs(self, xgrid:torch.Tensor) -> torch.Tensor:
         fmean, fvar = self.predict(xgrid)
         return self.calculate_probs(fmean, fvar)
 
-    def calculate_probs(self, fmean, fvar):
+    def calculate_probs(self, fmean: torch.Tensor, fvar: torch.Tensor) -> torch.Tensor:
         fsd = torch.sqrt(1 + fvar)
         probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
 

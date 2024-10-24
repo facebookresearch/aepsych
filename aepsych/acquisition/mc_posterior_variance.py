@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
@@ -89,12 +89,12 @@ class MCPosteriorVariance(MCAcquisitionFunction):
 
 @acqf_input_constructor(MCPosteriorVariance)
 def construct_inputs(
-    model,
-    training_data,
-    objective=None,
-    sampler=None,
+    model: Model,
+    training_data: None,
+    objective: Optional[MCAcquisitionObjective] = None,
+    sampler: Optional[MCSampler] = None,
     **kwargs,
-):
+) -> Dict[str, Any]:
     return {
         "model": model,
         "objective": objective,

@@ -47,8 +47,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -56,12 +56,12 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         """Initialize the GP Classification model
 
         Args:
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            lb torch.Tensor: Lower bounds of the parameters.
+            ub torch.Tensor: Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
@@ -100,7 +100,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
         )
-
+        
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -178,7 +178,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             likelihood=likelihood,
         )
 
-    def _reset_hyperparameters(self):
+    def _reset_hyperparameters(self) -> None:
         # warmstart_hyperparams affects hyperparams but not the variational strat,
         # so we keep the old variational strat (which is only refreshed
         # if warmstart_induc=False).
@@ -189,7 +189,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self.load_state_dict(state_dict)
         self.likelihood.load_state_dict(self._fresh_likelihood_dict)
 
-    def _reset_variational_strategy(self):
+    def _reset_variational_strategy(self) -> None:
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
@@ -197,6 +197,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             bounds=self.bounds,
             method=self.inducing_point_method,
         )
+        assert inducing_points is not None, "Inducing points cannot be None"
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -313,8 +314,8 @@ class GPBetaRegressionModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -322,7 +323,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         if likelihood is None:
             likelihood = BetaLikelihood()
         super().__init__(

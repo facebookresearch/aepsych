@@ -40,7 +40,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         max_fit_time: Optional[float] = None,
-    ):
+    ) -> None:
         """Initialize the GP regression model
 
         Args:

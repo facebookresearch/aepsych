@@ -7,8 +7,9 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
+from aepsych.config import Config
 import gpytorch
 
 import torch
@@ -43,7 +44,7 @@ class MultitaskGPRModel(GPRegressionModel):
         likelihood: Optional[gpytorch.likelihoods.Likelihood] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize multitask GPR model.
 
         Args:
@@ -77,18 +78,18 @@ class MultitaskGPRModel(GPRegressionModel):
             self.covar_module, num_tasks=num_outputs, rank=rank
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultitaskMultivariateNormal:
         transformed_x = self.normalize_inputs(x)
         mean_x = self.mean_module(transformed_x)
         covar_x = self.covar_module(transformed_x)
         return gpytorch.distributions.MultitaskMultivariateNormal(mean_x, covar_x)
 
     @classmethod
-    def construct_inputs(cls, config):
+    def construct_inputs(cls, config: Config):
         classname = cls.__name__
         args = super().construct_inputs(config)
-        args["num_outputs"] = config.getint(classname, "num_outputs", 2)
-        args["rank"] = config.getint(classname, "rank", 1)
+        args["num_outputs"] = config.getint(classname, "num_outputs", fallback=2)
+        args["rank"] = config.getint(classname, "rank", fallback=1)
         return args
 
 
@@ -113,7 +114,7 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
         likelihood: Optional[gpytorch.likelihoods.Likelihood] = None,
         *args,
         **kwargs,
-    ):
+    ) -> None:
         """Initialize independent multitask GPR model.
 
         Args:
@@ -149,15 +150,15 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
             **kwargs,
         )  # type: ignore # mypy issue 4335
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultitaskMultivariateNormal:
         base_mvn = super().forward(x)  # do transforms
         return gpytorch.distributions.MultitaskMultivariateNormal.from_batch_mvn(
             base_mvn
         )
 
     @classmethod
-    def get_config_args(cls, config):
+    def get_config_args(cls, config: Config) -> Dict[str, Any]:
         classname = cls.__name__
         args = super().get_config_args(config)
-        args["num_outputs"] = config.getint(classname, "num_outputs", 2)
+        args["num_outputs"] = config.getint(classname, "num_outputs", fallback=2)
         return args

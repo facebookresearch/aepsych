@@ -10,7 +10,7 @@ r"""
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
@@ -118,12 +118,12 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
 
 @acqf_input_constructor(BernoulliMCMutualInformation)
 def construct_inputs_mi(
-    model,
-    training_data,
-    objective=None,
-    sampler=None,
+    model: Model,
+    training_data: None,
+    objective: Optional[MCAcquisitionObjective] = None,
+    sampler: Optional[MCSampler] = None,
     **kwargs,
-):
+) -> Dict[str, Any]:
     return {
         "model": model,
         "objective": objective,
