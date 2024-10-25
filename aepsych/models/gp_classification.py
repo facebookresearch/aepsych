@@ -188,7 +188,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             bounds=self.bounds,
             method=self.inducing_point_method,
         )
-        assert inducing_points is not None, "Inducing points cannot be None"
+        
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )

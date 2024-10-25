@@ -359,10 +359,6 @@ def plot_strat_3d(
 
     contour_levels_list: List[float] = []
 
-    if isinstance(contour_levels, Iterable):
-        contour_levels_list = list(contour_levels)
-    elif contour_levels is None:
-        contour_levels_list = []
 
     if parnames is None:
         parnames = ["x1", "x2", "x3"]
