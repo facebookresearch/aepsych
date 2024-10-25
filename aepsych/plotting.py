@@ -11,6 +11,7 @@ from typing import Any, Callable, Iterable, List, Optional, Union
 import matplotlib.pyplot as plt
 import numpy as np
 
+import torch
 from aepsych.strategy import Strategy
 from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
 from scipy.stats import norm
@@ -155,7 +156,7 @@ def _plot_strat_1d(
     assert x is not None and y is not None, "No data to plot!"
 
     if strat.model is not None:
-        grid = strat.model.dim_grid(gridsize=gridsize)
+        grid = strat.model.dim_grid(gridsize=gridsize).cpu()
         samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
         phimean = samps.mean(0)
     else:
@@ -177,10 +178,17 @@ def _plot_strat_1d(
     if target_level is not None:
         from aepsych.utils import interpolate_monotonic
 
+        lb = strat.transforms.untransform(strat.lb)[0]
+        ub = strat.transforms.untransform(strat.ub)[0]
+
         threshold_samps = [
             interpolate_monotonic(
-                grid, s, target_level, strat.lb[0], strat.ub[0]
-            ).cpu().numpy()
+                x=grid.squeeze(),
+                y=s,
+                z=target_level,
+                min_x=lb,
+                max_x=ub,
+            )
             for s in samps
         ]
         thresh_med = np.mean(threshold_samps)
@@ -200,13 +208,17 @@ def _plot_strat_1d(
         true_f = true_testfun(grid)
         ax.plot(grid, true_f.squeeze(), label="True function")
         if target_level is not None:
-            true_thresh = interpolate_monotonic(
-                grid,
-                true_f.squeeze(),
-                target_level,
-                strat.lb[0],
-                strat.ub[0],
-            ).cpu().numpy()
+            true_thresh = (
+                interpolate_monotonic(
+                    grid,
+                    true_f.squeeze(),
+                    target_level,
+                    strat.lb[0],
+                    strat.ub[0],
+                )
+                .cpu()
+                .numpy()
+            )
 
             ax.plot(
                 true_thresh,
@@ -265,25 +277,28 @@ def _plot_strat_2d(
     else:
         raise RuntimeError("Cannot plot without a model!")
 
-    extent = np.r_[strat.lb[0], strat.ub[0], strat.lb[1], strat.ub[1]]
+    lb = strat.transforms.untransform(strat.lb)
+    ub = strat.transforms.untransform(strat.ub)
+
+    extent = np.r_[lb[0], ub[0], lb[1], ub[1]]
     colormap = ax.imshow(
         phimean, aspect="auto", origin="lower", extent=extent, alpha=0.5
     )
 
     if flipx:
-        extent = np.r_[strat.lb[0], strat.ub[0], strat.ub[1], strat.lb[1]]
+        extent = np.r_[lb[0], ub[0], ub[1], lb[1]]
         colormap = ax.imshow(
             phimean, aspect="auto", origin="upper", extent=extent, alpha=0.5
         )
     else:
-        extent = np.r_[strat.lb[0], strat.ub[0], strat.lb[1], strat.ub[1]]
+        extent = np.r_[lb[0], ub[0], lb[1], ub[1]]
         colormap = ax.imshow(
             phimean, aspect="auto", origin="lower", extent=extent, alpha=0.5
         )
 
     # hacky relabel to be in logspace
     if logx:
-        locs: np.ndarray = np.arange(strat.lb[0], strat.ub[0])
+        locs: np.ndarray = np.arange(lb[0], ub[0])
         ax.set_xticks(ticks=locs)
         ax.set_xticklabels(2.0**locs)
 
@@ -291,8 +306,8 @@ def _plot_strat_2d(
     ax.plot(x[y == 1, 0], x[y == 1, 1], "bo", alpha=0.7, label=yes_label)
 
     if target_level is not None:  # plot threshold
-        mono_grid = np.linspace(strat.lb[1], strat.ub[1], num=gridsize)
-        context_grid = np.linspace(strat.lb[0], strat.ub[0], num=gridsize)
+        mono_grid = np.linspace(lb[1], ub[1], num=gridsize)
+        context_grid = np.linspace(lb[0], ub[0], num=gridsize)
         thresh_75, lower, upper = get_lse_interval(
             model=strat.model,
             mono_grid=mono_grid,
@@ -309,14 +324,19 @@ def _plot_strat_2d(
             label=f"Est. {target_level*100:.0f}% threshold \n(with {cred_level*100:.0f}% posterior \nmass shaded)",
         )
         ax.fill_between(
-            context_grid, lower.cpu().numpy(), upper.cpu().numpy(), alpha=0.3, hatch="///", edgecolor="gray"
+            context_grid,
+            lower.cpu().numpy(),
+            upper.cpu().numpy(),
+            alpha=0.3,
+            hatch="///",
+            edgecolor="gray",
         )
 
         if true_testfun is not None:
             true_f = true_testfun(grid).reshape(gridsize, gridsize)
             true_thresh = get_lse_contour(
-                true_f, mono_grid, level=target_level, lb=strat.lb[-1], ub=strat.ub[-1]
-            ).cpu().numpy()
+                true_f, mono_grid, level=target_level, lb=lb[-1], ub=ub[-1]
+            )
             ax.plot(context_grid, true_thresh, label="Ground truth threshold")
 
     ax.set_xlabel(xlabel)
@@ -381,14 +401,13 @@ def plot_strat_3d(
         raise TypeError("slice_vals must be either an integer or a list of values")
     else:
         slices = np.array(slice_vals)
-    
-    # make mypy happy, note that this can't be more specific 
+
+    # make mypy happy, note that this can't be more specific
     # because of https://github.com/numpy/numpy/issues/24738
-    axs: np.ndarray[Any, Any] 
-    _, axs = plt.subplots(1, len(slices), constrained_layout=True, figsize=(20, 3)) # type: ignore
+    axs: np.ndarray[Any, Any]
+    _, axs = plt.subplots(1, len(slices), constrained_layout=True, figsize=(20, 3))  # type: ignore
 
     assert len(slices) > 1, "Must have at least 2 slices"
-    
 
     for _i, dim_val in enumerate(slices):
         img = plot_slice(
