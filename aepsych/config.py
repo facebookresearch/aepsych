@@ -6,12 +6,23 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 import ast
-import re
 import configparser
 import json
+import re
 import warnings
 from types import ModuleType
-from typing import Any, ClassVar, Dict, List, Mapping, Optional, Sequence, TypeVar
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    TypeVar,
+)
 
 import botorch
 import gpytorch
@@ -21,6 +32,7 @@ import torch
 from aepsych.version import __version__
 
 _T = TypeVar("_T")
+
 
 class Config(configparser.ConfigParser):
 
@@ -76,7 +88,6 @@ class Config(configparser.ConfigParser):
         fallback=configparser._UNSET,
         **kwargs,
     ):
-
         """
         Override configparser to:
         1. Return from common if a section doesn't exist. This comes
@@ -108,8 +119,8 @@ class Config(configparser.ConfigParser):
             )
 
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
-    def to_dict(self, deduplicate=True):
-        _dict = {}
+    def to_dict(self, deduplicate: bool = True) -> Dict[str, Any]:
+        _dict: Dict[str, Any] = {}
         for section in self:
             _dict[section] = {}
             for setting in self[section]:
@@ -161,8 +172,10 @@ class Config(configparser.ConfigParser):
             warnings.warn(
                 "ub and lb have been defined in common section, ignoring parameter specific blocks, be very careful!"
             )
-        elif "parnames" in self["common"]: # it's possible to pass no parnames
-            par_names = self.getlist("common", "parnames", element_type=str, fallback = [])
+        elif "parnames" in self["common"]:  # it's possible to pass no parnames
+            par_names = self.getlist(
+                "common", "parnames", element_type=str, fallback=[]
+            )
             lb = [None] * len(par_names)
             ub = [None] * len(par_names)
             for i, par_name in enumerate(par_names):
@@ -175,14 +188,15 @@ class Config(configparser.ConfigParser):
             self["common"]["lb"] = f"[{', '.join(lb)}]"
             self["common"]["ub"] = f"[{', '.join(ub)}]"
 
-
         # Deprecation warning for "experiment" section
         if "experiment" in self:
             for i in self["experiment"]:
                 self["common"][i] = self["experiment"][i]
             del self["experiment"]
 
-    def _str_to_list(self, v: str, element_type: _T = float) -> List[_T]:
+    def _str_to_list(
+        self, v: str, element_type: Callable[[_T], _T] = float
+    ) -> List[_T]:
         v = re.sub(r"\n ", ",", v)
         v = re.sub(r"(?<!,)\s+", ",", v)
         v = re.sub(r",]", "]", v)
@@ -224,18 +238,25 @@ class Config(configparser.ConfigParser):
 
         # Checking if param_type is set
         if "par_type" not in param_block:
-            raise ValueError(f"Parameter {param_name} is missing the param_type setting.")
+            raise ValueError(
+                f"Parameter {param_name} is missing the param_type setting."
+            )
 
         # Each parameter type has a different set of required settings
-        if param_block['par_type'] == "continuous":
+        if param_block["par_type"] == "continuous":
             # Check if bounds exist
             if "lower_bound" not in param_block:
-                raise ValueError(f"Parameter {param_name} is missing the lower_bound setting.")
+                raise ValueError(
+                    f"Parameter {param_name} is missing the lower_bound setting."
+                )
             if "upper_bound" not in param_block:
-                raise ValueError(f"Parameter {param_name} is missing the upper_bound setting.")
+                raise ValueError(
+                    f"Parameter {param_name} is missing the upper_bound setting."
+                )
         else:
-            raise ValueError(f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}.")
-
+            raise ValueError(
+                f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}."
+            )
 
     def __repr__(self):
         return f"Config at {hex(id(self))}: \n {str(self)}"
