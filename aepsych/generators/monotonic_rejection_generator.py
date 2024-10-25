@@ -15,7 +15,7 @@ from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from botorch.logging import logger
 from botorch.optim.initializers import gen_batch_initial_conditions
 from botorch.optim.utils import columnwise_clamp, fix_features
-
+from botorch.acquisition import AcquisitionFunction
 
 def default_loss_constraint_fun(
     loss: torch.Tensor, candidates: torch.Tensor
@@ -63,7 +63,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.model_gen_options = model_gen_options
         self.explore_features = explore_features
 
-    def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP) -> MonotonicMCAcquisition:
+    def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP) -> AcquisitionFunction:
         return self.acqf(
             model=model,
             deriv_constraint_points=model._get_deriv_constraint_points(),

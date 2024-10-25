@@ -138,7 +138,7 @@ class Strategy(object):
 
         self.x: Optional[torch.Tensor] = None
         self.y: Optional[torch.Tensor] = None
-        self.n = 0
+        self.n: int = 0
         self.min_asks = min_asks
         self._count = 0
         self.min_total_tells = min_total_tells
@@ -339,11 +339,10 @@ class Strategy(object):
         if self.can_fit:
             if self.keep_most_recent is not None:
                 try:
-                    assert self.model is not None, "a model is needed here!"
-                    assert self.x is not None and self.y is not None, "Data must me added first!"
-                    self.model.fit(
-                        self.x[-self.keep_most_recent :],
-                        self.y[-self.keep_most_recent :],
+                    
+                    self.model.fit( # type: ignore
+                        self.x[-self.keep_most_recent :], # type: ignore
+                        self.y[-self.keep_most_recent :], # type: ignore
                     )
                 except ModelFittingError:
                     logger.warning(
@@ -351,8 +350,7 @@ class Strategy(object):
                     )
             else:
                 try:
-                    assert self.model is not None, "a model is needed here!"
-                    self.model.fit(self.x, self.y)
+                    self.model.fit(self.x, self.y) # type: ignore
                 except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
@@ -361,17 +359,13 @@ class Strategy(object):
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     def update(self) -> None:
-        assert self.model is not None, "a model is needed here!"
-        assert self.x is not None or self.y is not None, "Data must me added first!"
         
         if self.can_fit:
             if self.keep_most_recent is not None:
                 try: 
-                    assert self.model is not None, "a model is needed here!"
-                    assert self.x is not None and self.y is not None, "Data must me added first!"
-                    self.model.update(
-                        self.x[-self.keep_most_recent :],
-                        self.y[-self.keep_most_recent :],
+                    self.model.update( # type: ignore
+                        self.x[-self.keep_most_recent :], # type: ignore
+                        self.y[-self.keep_most_recent :], # type: ignore
                     )
                 except ModelFittingError:
                     logger.warning(
@@ -379,7 +373,7 @@ class Strategy(object):
                     )
             else:
                 try:
-                    self.model.update(self.x, self.y)
+                    self.model.update(self.x, self.y) # type: ignore
                 except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
