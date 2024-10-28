@@ -90,6 +90,16 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
 
     @classmethod
     def from_config(cls, config: Config) -> 'MonotonicThompsonSamplerGenerator':
+        """
+        Creates an instance of MonotonicThompsonSamplerGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            MonotonicThompsonSamplerGenerator: A configured instance of the generator class with specified number of samples,
+            rejection samples, Thompson sampling points, target value, objective transformation, and optional exploration features.
+        """
         classname = cls.__name__
         n_samples = config.getint(classname, "num_samples", fallback=1)
         n_rejection_samples = config.getint(

@@ -71,10 +71,37 @@ class ManualGenerator(AEPsychGenerator):
 
     @classmethod
     def from_config(cls, config: Config, name: Optional[str] = None) -> 'ManualGenerator':
+        """
+        Creates an instance of ManualGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            name (Optional[str]): Name of the configuration section for this generator. Defaults to the class name.
+
+        Returns:
+            ManualGenerator: A configured instance of the generator class with specified bounds, points, dimensionality, shuffling,
+            and random seed.
+        """
         return cls(**cls.get_config_options(config, name))
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
+        """
+        Extracts and processes configuration options for initializing the ManualGenerator.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            name (Optional[str]): Name of the configuration section for this generator. Defaults to the class name.
+
+        Returns:
+            Dict: A dictionary of options, including:
+                - "lb" (torch.Tensor): Lower bounds of each parameter.
+                - "ub" (torch.Tensor): Upper bounds of each parameter.
+                - "dim" (Optional[int]): Dimensionality of the parameter space.
+                - "points" (Union[np.ndarray, torch.Tensor]): Predefined points to generate.
+                - "shuffle" (bool): Whether to shuffle the order of points.
+                - "seed" (Optional[int]): Random seed for shuffling.
+        """
         if name is None:
             name = cls.__name__
 
@@ -142,6 +169,24 @@ class SampleAroundPointsGenerator(ManualGenerator):
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
+        """
+        Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            name (Optional[str]): Name of the configuration section for this generator. Defaults to the class name.
+
+        Returns:
+            Dict: A dictionary of options, including:
+                - "lb" (torch.Tensor): Lower bounds of each parameter.
+                - "ub" (torch.Tensor): Upper bounds of each parameter.
+                - "dim" (Optional[int]): Dimensionality of the parameter space.
+                - "points" (Union[np.ndarray, torch.Tensor]): Predefined reference points.
+                - "shuffle" (bool): Whether to shuffle the order of points.
+                - "seed" (Optional[int]): Random seed for shuffling.
+                - "window" (torch.Tensor): Sampling range around each reference point along each dimension.
+                - "samples_per_point" (int): Number of samples to generate around each reference point.
+        """
         if name is None:
             name = cls.__name__
 

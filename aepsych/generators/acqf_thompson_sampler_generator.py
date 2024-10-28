@@ -62,6 +62,16 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         self.stimuli_per_trial = stimuli_per_trial
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
+        """
+        Instantiates the acquisition function with the specified model and additional arguments.
+
+        Args:
+            model (ModelProtocol): The model to use with the acquisition function.
+
+        Returns:
+            AcquisitionFunction: Configured acquisition function.
+        """
+
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 
@@ -76,7 +86,7 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
             num_points (int, optional): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
 
         if self.stimuli_per_trial == 2:
@@ -94,6 +104,19 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
     def _gen(
         self, num_points: int, model: ModelProtocol, **gen_options
     ) -> torch.Tensor:
+        """
+        Generates the next query points by optimizing the acquisition function.
+
+        Args:
+            num_points (int): The number of points to query.
+            model (ModelProtocol): The fitted model used to evaluate the acquisition function.
+            gen_options (dict): Additional options for generating points, including:
+                - "seed": Random seed for reproducibility.
+
+        Returns:
+            torch.Tensor: The next set of query points to evaluate, with shape [num_points x dim].
+        """
+
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         acqf = self._instantiate_acquisition_fn(model)
@@ -129,6 +152,16 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
 
     @classmethod
     def from_config(cls, config: Config) -> AcqfThompsonSamplerGenerator:
+        """
+        Creates an instance of AcqfThompsonSamplerGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            AcqfThompsonSamplerGenerator: A configured instance of the generator class with specified acquisition function,
+            arguments, sampling parameters, and stimuli per trial.
+        """
         classname = cls.__name__
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)

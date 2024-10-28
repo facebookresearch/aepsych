@@ -66,6 +66,16 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.stimuli_per_trial = stimuli_per_trial
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
+        """
+        Instantiates the acquisition function with the specified model and additional arguments.
+
+        Args:
+            model (ModelProtocol): The model to use with the acquisition function.
+
+        Returns:
+            AcquisitionFunction: Configured acquisition function.
+        """
+
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 
@@ -98,6 +108,17 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
     def _gen(
         self, num_points: int, model: ModelProtocol, **gen_options
     ) -> torch.Tensor:
+        """
+        Generates the next query points by optimizing the acquisition function.
+
+        Args:
+            num_points (int): Number of points to query.
+            model (ModelProtocol): Fitted model of the data.
+            gen_options (dict): Additional options for generating points, such as custom configurations.
+
+        Returns:
+            torch.Tensor: Next set of points to evaluate, with shape [num_points x dim].
+        """
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         train_x = model.train_inputs[0]
@@ -121,6 +142,16 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
     @classmethod
     def from_config(cls, config: Config) -> 'OptimizeAcqfGenerator':
+        """
+        Creates an instance of OptimizeAcqfGenerator from a configuration object.
+        
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            
+        Returns:
+            OptimizeAcqfGenerator: A configured instance of OptimizeAcqfGenerator with specified acquisition function,
+            restart and sample parameters, maximum generation time, and stimuli per trial.
+            """
         classname = cls.__name__
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)

@@ -64,6 +64,15 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.explore_features = explore_features
 
     def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP) -> AcquisitionFunction:
+        """
+        Instantiates the acquisition function with the specified model and additional arguments.
+
+        Args:
+            model (MonotonicRejectionGP): The model to use with the acquisition function.
+
+        Returns:
+            AcquisitionFunction: Configured acquisition function.
+        """
         return self.acqf(
             model=model,
             deriv_constraint_points=model._get_deriv_constraint_points(),
@@ -167,6 +176,16 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
 
     @classmethod
     def from_config(cls, config: Config) -> 'MonotonicRejectionGenerator':
+        """
+        Creates an instance of MonotonicRejectionGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            MonotonicRejectionGenerator: A configured instance of the generator class with specified acquisition function,
+            gradient descent options, exploration features, and acquisition function arguments.
+        """
         classname = cls.__name__
         acqf = config.getobj("common", "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)

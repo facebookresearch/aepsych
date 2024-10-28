@@ -18,7 +18,7 @@ class PairwiseSobolGenerator(SobolGenerator):
     stimuli_per_trial = 2
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'SobolGenerator':
         warnings.warn(
             "PairwiseSobolGenerator is deprecated. Use SobolGenerator instead.",
             DeprecationWarning,

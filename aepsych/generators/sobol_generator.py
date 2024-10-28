@@ -72,6 +72,16 @@ class SobolGenerator(AEPsychGenerator):
 
     @classmethod
     def from_config(cls, config: Config) -> 'SobolGenerator':
+        """
+        Creates an instance of SobolGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            SobolGenerator: A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.
+        """
+
         classname = cls.__name__
 
         lb = config.gettensor(classname, "lb")

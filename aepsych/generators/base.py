@@ -59,6 +59,19 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
 
     @classmethod
     def _get_acqf_options(cls, acqf: AcquisitionFunction, config: Config) -> Dict[str, Any]:
+        """
+        Extracts acquisition function arguments from a configuration object.
+
+        Args:
+            acqf (AcquisitionFunction): The acquisition function to configure.
+            config (Config): Configuration object containing parameter specifications.
+
+        Returns:
+            Dict[str, Any]: A dictionary of extra arguments for the acquisition function, extracted and processed
+            from the configuration file. The keys correspond to acquisition function parameters (excluding the model),
+            and values are parsed as objects, lists, floats, or strings based on their format in the config.
+        """
+
         if acqf is not None:
             acqf_name = acqf.__name__
 
