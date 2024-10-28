@@ -333,7 +333,7 @@ class SemiParametricGPModel(GPClassificationModel):
 
     def sample(
         self,
-        x: Union[torch.Tensor, np.ndarray],
+        x: torch.Tensor,
         num_samples: int,
         probability_space=False,
     ) -> torch.Tensor:
@@ -357,7 +357,7 @@ class SemiParametricGPModel(GPClassificationModel):
         return samps.squeeze(1)
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: torch.Tensor, probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -367,7 +367,7 @@ class SemiParametricGPModel(GPClassificationModel):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at query points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         with torch.no_grad():
             samps = self.sample(
@@ -376,9 +376,7 @@ class SemiParametricGPModel(GPClassificationModel):
         m, v = samps.mean(0), samps.var(0)
         return promote_0d(m), promote_0d(v)
 
-    def posterior(self, X: Union[torch.Tensor, np.ndarray], posterior_transform: Optional[PosteriorTransform] = None) -> SemiPPosterior:
-        if isinstance(X, np.ndarray):
-            X = torch.tensor(X)
+    def posterior(self, X: torch.Tensor, posterior_transform: Optional[PosteriorTransform] = None) -> SemiPPosterior:
         # Assume x is (b) x n x d
         if X.ndim > 3:
             raise ValueError
@@ -607,7 +605,7 @@ class HadamardSemiPModel(GPClassificationModel):
         )
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: torch.Tensor, probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -617,7 +615,7 @@ class HadamardSemiPModel(GPClassificationModel):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         if probability_space:
             if hasattr(self.likelihood, "objective"):

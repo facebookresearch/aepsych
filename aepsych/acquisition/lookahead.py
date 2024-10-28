@@ -406,14 +406,17 @@ def construct_inputs_global_lookahead(
     lookahead_type="levelset",
     target: Optional[float] = None,
     posterior_transform: Optional[PosteriorTransform] = None,
-    query_set_size: int = 256,
+    query_set_size: Optional[int] = 256,
     Xq: Optional[Tensor] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     lb = torch.tensor([bounds[0] for bounds in kwargs["bounds"]])
     ub = torch.tensor([bounds[1] for bounds in kwargs["bounds"]])
-    Xq = Xq if Xq is not None else make_scaled_sobol(lb, ub, query_set_size)
+    if Xq is None and query_set_size is None:
+        raise ValueError("Either Xq or query_set_size must be provided.")
 
+    if Xq is None and query_set_size is not None:
+        Xq = make_scaled_sobol(lb, ub, query_set_size)
     return {
         "model": model,
         "lookahead_type": lookahead_type,

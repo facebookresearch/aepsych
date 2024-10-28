@@ -242,7 +242,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self._fit_mll(mll, **kwargs)
 
     def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
+        self, x: torch.Tensor, num_samples: int
     ) -> torch.Tensor:
         """Sample from underlying model.
 
@@ -257,7 +257,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: torch.Tensor, probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -267,7 +267,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
             post = self.posterior(x)
@@ -280,7 +280,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 a_star = fmean / torch.sqrt(1 + fvar)
                 pmean = Normal(0, 1).cdf(a_star)
                 t_term = torch.tensor(
-                    owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
+                    owens_t(a_star, 1 / torch.sqrt(1 + 2 * fvar)),
                     dtype=a_star.dtype,
                 )
                 pvar = pmean - 2 * t_term - pmean.square()
@@ -298,7 +298,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             return promote_0d(fmean), promote_0d(fvar)
 
     def predict_probability(
-        self, x: Union[torch.Tensor, np.ndarray]
+        self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 

@@ -167,7 +167,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         return GPyTorchPosterior(mvn_proj)
 
     def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
+        self, x: torch.Tensor, num_samples: int
     ) -> torch.Tensor:
         samps = super().sample(x=x, num_samples=num_samples)
         if self.min_f_val is not None:

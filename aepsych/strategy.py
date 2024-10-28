@@ -223,7 +223,7 @@ class Strategy(object):
     @ensure_model_is_fresh
     def get_max(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
-        assert self.model is not None, "a model is needed here!"
+        assert self.model is not None, "model is None! Cannot get the max without a model!"
         return self.model.get_max(
             constraints, probability_space=probability_space, max_time=max_time
         )
@@ -231,7 +231,7 @@ class Strategy(object):
     @ensure_model_is_fresh
     def get_min(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
-        assert self.model is not None, "a model is needed here!"
+        assert self.model is not None, "model is None! Cannot get the min without a model!"
         return self.model.get_min(
             constraints, probability_space=probability_space, max_time=max_time
         )
@@ -239,24 +239,24 @@ class Strategy(object):
     @ensure_model_is_fresh
     def inv_query(self, y: int, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
-        assert self.model is not None, "a model is needed here!"
+        assert self.model is not None, "model is None! Cannot get the inv_query without a model!"
         return self.model.inv_query(
             y, constraints, probability_space, max_time=max_time
         )
 
     @ensure_model_is_fresh
     def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
-        assert self.model is not None, "a model is needed here!"
+        assert self.model is not None, "model is None! Cannot predict without a model!"
         return self.model.predict(x=x, probability_space=probability_space)
 
     @ensure_model_is_fresh
     def get_jnd(self, *args, **kwargs) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
-        assert self.model is not None, "a model is needed here!"
+        assert self.model is not None, "model is None! Cannot get the get jnd without a model!"
         return self.model.get_jnd(*args, **kwargs)
 
     @ensure_model_is_fresh
     def sample(self, x: torch.Tensor, num_samples: Optional[int] = None) -> torch.Tensor:
-        assert self.model is not None, "a model is needed here!"
+        assert self.model is not None, "model is None! Cannot sample without a model!"
         return self.model.sample(x, num_samples=num_samples)
 
     def finish(self) -> None:
@@ -290,7 +290,7 @@ class Strategy(object):
             sufficient_outcomes = True
 
         if self.min_post_range is not None:
-            assert self.model is not None, "a model is needed here!"
+            assert self.model is not None, "model is None! Cannot predict without a model!"
             fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
             meets_post_range = ((fmean.max() - fmean.min()) >= self.min_post_range).item()
         else:

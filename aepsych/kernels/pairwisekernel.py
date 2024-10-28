@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Union
 import torch
 from gpytorch.kernels import Kernel
 from linear_operator import to_linear_operator
@@ -39,11 +39,11 @@ class PairwiseKernel(Kernel):
                 * `diag`: `n` or `b x n`
         """
         if self.is_partial_obs:
-            d_ = x1.shape[-1] - 1 #avoiding assigning d int then tensor(for mypy)
-            assert d_ == x2.shape[-1] - 1, "tensors not the same dimension"
-            assert d_ % 2 == 0, "dimension must be even"
+            d : Union[torch.Tensor, int] = x1.shape[-1] - 1 
+            assert d == x2.shape[-1] - 1, "tensors not the same dimension"
+            assert d % 2 == 0, "dimension must be even"
 
-            k = int(d_ / 2)
+            k = int(d / 2)
 
             # special handling for kernels that (also) do funky
             # things with the input dimension
@@ -56,12 +56,12 @@ class PairwiseKernel(Kernel):
             d = torch.cat((x2[..., k:-1], deriv_idx_2), dim=1)
 
         else:
-            d_ = x1.shape[-1]
+            d = x1.shape[-1]
 
-            assert d_ == x2.shape[-1], "tensors not the same dimension"
-            assert d_ % 2 == 0, "dimension must be even"
+            assert d == x2.shape[-1], "tensors not the same dimension"
+            assert d % 2 == 0, "dimension must be even"
 
-            k = int(d_ / 2)
+            k = int(d / 2)
 
             a = x1[..., :k]
             b = x1[..., k:]
