@@ -114,7 +114,7 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
                 - "seed": Random seed for reproducibility.
 
         Returns:
-            torch.Tensor: The next set of query points to evaluate, with shape [num_points x dim].
+            torch.Tensor: Next set of points to evaluate, with shape [num_points x dim].
         """
 
         # eval should be inherited from superclass

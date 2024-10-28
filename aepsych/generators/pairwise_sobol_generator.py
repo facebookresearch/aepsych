@@ -19,6 +19,15 @@ class PairwiseSobolGenerator(SobolGenerator):
 
     @classmethod
     def from_config(cls, config: Config) -> 'SobolGenerator':
+        """
+        Create an instance of PairwiseSobolGenerator from a configration object.
+        
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            
+        Returns:
+            SobolGenerator: A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial(two in this case).
+        """
         warnings.warn(
             "PairwiseSobolGenerator is deprecated. Use SobolGenerator instead.",
             DeprecationWarning,
