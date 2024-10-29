@@ -47,8 +47,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -56,12 +56,12 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         """Initialize the GP Classification model
 
         Args:
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            lb torch.Tensor: Lower bounds of the parameters.
+            ub torch.Tensor: Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
@@ -100,7 +100,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
         )
-
+        
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -178,7 +178,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             likelihood=likelihood,
         )
 
-    def _reset_hyperparameters(self):
+    def _reset_hyperparameters(self) -> None:
         # warmstart_hyperparams affects hyperparams but not the variational strat,
         # so we keep the old variational strat (which is only refreshed
         # if warmstart_induc=False).
@@ -189,7 +189,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self.load_state_dict(state_dict)
         self.likelihood.load_state_dict(self._fresh_likelihood_dict)
 
-    def _reset_variational_strategy(self):
+    def _reset_variational_strategy(self) -> None:
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
@@ -197,6 +197,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             bounds=self.bounds,
             method=self.inducing_point_method,
         )
+        
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -241,7 +242,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self._fit_mll(mll, **kwargs)
 
     def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
+        self, x: torch.Tensor, num_samples: int
     ) -> torch.Tensor:
         """Sample from underlying model.
 
@@ -256,7 +257,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
-        self, x: Union[torch.Tensor, np.ndarray], probability_space: bool = False
+        self, x: torch.Tensor, probability_space: bool = False
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
@@ -266,7 +267,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
             post = self.posterior(x)
@@ -279,7 +280,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 a_star = fmean / torch.sqrt(1 + fvar)
                 pmean = Normal(0, 1).cdf(a_star)
                 t_term = torch.tensor(
-                    owens_t(a_star.numpy(), 1 / np.sqrt(1 + 2 * fvar.numpy())),
+                    owens_t(a_star, 1 / torch.sqrt(1 + 2 * fvar)),
                     dtype=a_star.dtype,
                 )
                 pvar = pmean - 2 * t_term - pmean.square()
@@ -297,7 +298,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             return promote_0d(fmean), promote_0d(fvar)
 
     def predict_probability(
-        self, x: Union[torch.Tensor, np.ndarray]
+        self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 
@@ -313,8 +314,8 @@ class GPBetaRegressionModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -322,7 +323,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
-    ):
+    ) -> None:
         if likelihood is None:
             likelihood = BetaLikelihood()
         super().__init__(

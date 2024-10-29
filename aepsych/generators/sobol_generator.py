@@ -24,16 +24,16 @@ class SobolGenerator(AEPsychGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         seed: Optional[int] = None,
         stimuli_per_trial: int = 1,
-    ):
+    ) -> None:
         """Iniatialize SobolGenerator.
         Args:
-            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
-            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
+            lb torch.Tensor: Lower bounds of each parameter.
+            ub torch.Tensor: Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             seed (int, optional): Random seed.
         """
@@ -50,12 +50,12 @@ class SobolGenerator(AEPsychGenerator):
         self,
         num_points: int = 1,
         model: Optional[AEPsychMixin] = None,  # included for API compatibility
-    ):
+    ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
             num_points (int, optional): Number of points to query.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
         grid = self.engine.draw(num_points)
         grid = self.lb + (self.ub - self.lb) * grid
@@ -71,7 +71,7 @@ class SobolGenerator(AEPsychGenerator):
         )
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'SobolGenerator':
         classname = cls.__name__
 
         lb = config.gettensor(classname, "lb")

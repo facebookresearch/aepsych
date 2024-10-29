@@ -7,16 +7,17 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
 
+from botorch.models.gpytorch import GPyTorchModel
 from aepsych.config import Config
 
-def make_scaled_sobol(lb, ub, size, seed=None):
+def make_scaled_sobol(lb : torch.Tensor, ub : torch.Tensor, size: int, seed: Optional[int] = None) -> torch.Tensor:
     lb, ub, ndim = _process_bounds(lb, ub, None)
     grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
 
@@ -26,7 +27,7 @@ def make_scaled_sobol(lb, ub, size, seed=None):
     return grid
 
 
-def promote_0d(x):
+def promote_0d(x: Union[torch.Tensor, np.ndarray]):
     if not isinstance(x, Iterable):
         return [x]
     return x
@@ -67,7 +68,7 @@ def dim_grid(
     return torch.stack(torch.meshgrid(*mesh_vals, indexing='ij'), dim=-1).reshape(-1, dim)
 
 
-def _process_bounds(lb, ub, dim) -> Tuple[torch.Tensor, torch.Tensor, int]:
+def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tensor, np.ndarray], dim : Optional[int] ) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type."""
     lb = promote_0d(lb)
     ub = promote_0d(ub)
@@ -123,7 +124,7 @@ def interpolate_monotonic(x: torch.Tensor, y: torch.Tensor, z: Union[torch.Tenso
 
 
 def get_lse_interval(
-    model,
+    model: GPyTorchModel,
     mono_grid: Union[torch.Tensor, np.ndarray],
     target_level: float,
     cred_level: Optional[float]=None,
@@ -214,7 +215,7 @@ def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1,
     return result
 
 
-def _get_ax_parameters(config):
+def _get_ax_parameters(config: Config) -> Tuple[list[Dict[str, Any]],list[Dict[str, Any]],list[Dict[str, Any]]]:
     range_parnames = config.getlist("common", "parnames", element_type=str, fallback=[])
     lb = config.getlist("common", "lb", element_type=float, fallback=[])
     ub = config.getlist("common", "ub", element_type=float, fallback=[])
@@ -227,8 +228,8 @@ def _get_ax_parameters(config):
         {
             "name": parname,
             "type": "range",
-            "value_type": config.get(parname, "value_type", fallback="float"),
-            "log_scale": config.getboolean(parname, "log_scale", fallback=False),
+            "value_type": config.get(str(parname), "value_type", fallback="float"),
+            "log_scale": config.getboolean(str(parname), "log_scale", fallback=False),
             "bounds": [l, u],
         }
         for parname, l, u in zip(range_parnames, lb, ub)
@@ -238,15 +239,15 @@ def _get_ax_parameters(config):
         "common", "choice_parnames", element_type=str, fallback=[]
     )
     choices = [
-        config.getlist(parname, "choices", element_type=str, fallback=["True", "False"])
+        config.getlist(str(parname), "choices", element_type=str, fallback=["True", "False"])
         for parname in choice_parnames
     ]
     choice_params = [
         {
             "name": parname,
             "type": "choice",
-            "value_type": config.get(parname, "value_type", fallback="str"),
-            "is_ordered": config.getboolean(parname, "is_ordered", fallback=False),
+            "value_type": config.get(str(parname), "value_type", fallback="str"),
+            "is_ordered": config.getboolean(str(parname), "is_ordered", fallback=False),
             "values": choice,
         }
         for parname, choice in zip(choice_parnames, choices)
@@ -259,9 +260,10 @@ def _get_ax_parameters(config):
     for parname in fixed_parnames:
         try:
             try:
-                value = config.getfloat(parname, "value")
+                value: Union[float, str] = config.getfloat(str(parname), "value")
             except ValueError:
-                value = config.get(parname, "value")
+                value = config.get(str(parname), "value")   
+                         
             values.append(value)
         except NoOptionError:
             raise RuntimeError(f"Missing value for fixed parameter {parname}!")
@@ -277,12 +279,12 @@ def _get_ax_parameters(config):
     return range_params, choice_params, fixed_params
 
 
-def get_parameters(config) -> List[Dict]:
+def get_parameters(config: Config) -> List[Dict]:
     range_params, choice_params, fixed_params = _get_ax_parameters(config)
     return range_params + choice_params + fixed_params
 
 
-def get_bounds(config) -> torch.Tensor:
+def get_bounds(config: Config) -> torch.Tensor:
     range_params, choice_params, _ = _get_ax_parameters(config)
     # Need to sum dimensions added by both range and choice parameters
     bounds = [parm["bounds"] for parm in range_params]
@@ -306,7 +308,7 @@ def get_bounds(config) -> torch.Tensor:
     return torch.tensor(bounds)
 
 
-def get_dim(config) -> int:
+def get_dim(config: Config) -> int:
     range_params, choice_params, _ = _get_ax_parameters(config)
     # Need to sum dimensions added by both range and choice parameters
     dim = len(range_params)  # 1 dim per range parameter

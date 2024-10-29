@@ -19,7 +19,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
     GPs and sigma is a flexible link function.
     """
 
-    def __init__(self, objective: Optional[AEPsychObjective] = None):
+    def __init__(self, objective: Optional[AEPsychObjective] = None) -> None:
         """Initializes the linear bernoulli likelihood.
 
         Args:
@@ -93,7 +93,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
         output_probs = self.p(function_samples, Xi)
         return torch.distributions.Bernoulli(probs=output_probs)
 
-    def expected_log_prob(self, observations, function_dist, *args, **kwargs):
+    def expected_log_prob(self, observations:torch.Tensor, function_dist: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         """This has to be overridden to fix a bug in gpytorch where the kwargs
         aren't being passed along to self.forward.
         """
@@ -106,7 +106,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
         return log_prob
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'LinearBernoulliLikelihood':
         classname = cls.__name__
 
         objective = config.getobj(classname, "objective")

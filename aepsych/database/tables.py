@@ -10,6 +10,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 import pickle
 from collections.abc import Iterable
+from typing import Any, Dict
 
 from aepsych.config import Config
 from aepsych.version import __version__
@@ -25,6 +26,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.engine import Engine
 
 logger = logging.getLogger()
 
@@ -73,7 +75,7 @@ class DBMasterTable(Base):
     children_raw = relationship("DbRawTable", back_populates="parent")
 
     @classmethod
-    def from_sqlite(cls, row):
+    def from_sqlite(cls, row: Dict[str, Any]) -> 'DBMasterTable':
         this = DBMasterTable()
         this.unique_id = row["unique_id"]
         this.experiment_name = row["experiment_name"]
@@ -81,7 +83,7 @@ class DBMasterTable(Base):
         this.experiment_id = row["experiment_id"]
         return this
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DBMasterTable(unique_id={self.unique_id})"
             f", experiment_name={self.experiment_name}, "
@@ -90,7 +92,7 @@ class DBMasterTable(Base):
         )
 
     @staticmethod
-    def update(engine):
+    def update(engine: Engine) -> None:
         logger.info("DBMasterTable : update called")
         if not DBMasterTable._has_column(engine, "extra_metadata"):
             DBMasterTable._add_column(engine, "extra_metadata")
@@ -98,13 +100,13 @@ class DBMasterTable(Base):
             DBMasterTable._add_column(engine, "participant_id")
 
     @staticmethod
-    def requires_update(engine):
+    def requires_update(engine: Engine) -> bool:
         return not DBMasterTable._has_column(
             engine, "extra_metadata"
         ) or not DBMasterTable._has_column(engine, "participant_id")
 
     @staticmethod
-    def _has_column(engine, column: str):
+    def _has_column(engine: Engine, column: str) -> bool:
         result = engine.execute(
             "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
                 column
@@ -115,7 +117,7 @@ class DBMasterTable(Base):
         return count != 0
 
     @staticmethod
-    def _add_column(engine, column: str):
+    def _add_column(engine: Engine, column: str) -> None:
         try:
             result = engine.execute(
                 "SELECT COUNT(*) FROM pragma_table_info('master') WHERE name='{0}'".format(
@@ -157,7 +159,7 @@ class DbReplayTable(Base):
     __mapper_args__ = {}
 
     @classmethod
-    def from_sqlite(cls, row):
+    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbReplayTable':
         this = DbReplayTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -173,7 +175,7 @@ class DbReplayTable(Base):
         this.strat = row["strat"]
         return this
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DbReplayTable(unique_id={self.unique_id})"
             f", timestamp={self.timestamp}, "
@@ -182,7 +184,7 @@ class DbReplayTable(Base):
         )
 
     @staticmethod
-    def _has_extra_info(engine):
+    def _has_extra_info(engine: Engine) -> bool:
         result = engine.execute(
             "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
         )
@@ -191,7 +193,7 @@ class DbReplayTable(Base):
         return count != 0
 
     @staticmethod
-    def _configs_require_conversion(engine):
+    def _configs_require_conversion(engine: Engine) -> bool:
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -207,7 +209,7 @@ class DbReplayTable(Base):
         return False
 
     @staticmethod
-    def update(engine):
+    def update(engine: Engine) -> None:
         logger.info("DbReplayTable : update called")
 
         if not DbReplayTable._has_extra_info(engine):
@@ -217,13 +219,13 @@ class DbReplayTable(Base):
             DbReplayTable._convert_configs(engine)
 
     @staticmethod
-    def requires_update(engine):
+    def requires_update(engine: Engine) -> bool:
         return not DbReplayTable._has_extra_info(
             engine
         ) or DbReplayTable._configs_require_conversion(engine)
 
     @staticmethod
-    def _add_extra_info(engine):
+    def _add_extra_info(engine: Engine) -> None:
         try:
             result = engine.execute(
                 "SELECT COUNT(*) FROM pragma_table_info('replay_data') WHERE name='extra_info'"
@@ -241,7 +243,7 @@ class DbReplayTable(Base):
             logger.debug(f"Column already exists, no need to alter. [{e}]")
 
     @staticmethod
-    def _convert_configs(engine):
+    def _convert_configs(engine: Engine) -> None:
         Session = sessionmaker(bind=engine)
         session = Session()
         results = session.query(DbReplayTable).all()
@@ -275,7 +277,7 @@ class DbStratTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_strat")
 
     @classmethod
-    def from_sqlite(cls, row):
+    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbStratTable':
         this = DbStratTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -284,7 +286,7 @@ class DbStratTable(Base):
 
         return this
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DbStratTable(unique_id={self.unique_id})"
             f", timestamp={self.timestamp} "
@@ -292,11 +294,11 @@ class DbStratTable(Base):
         )
 
     @staticmethod
-    def update(engine):
+    def update(engine: Engine) -> None:
         logger.info("DbStratTable : update called")
 
     @staticmethod
-    def requires_update(engine):
+    def requires_update(engine: Engine) -> bool:
         return False
 
 
@@ -311,7 +313,7 @@ class DbConfigTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_config")
 
     @classmethod
-    def from_sqlite(cls, row):
+    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbConfigTable':
         this = DbConfigTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -320,7 +322,7 @@ class DbConfigTable(Base):
 
         return this
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DbStratTable(unique_id={self.unique_id})"
             f", timestamp={self.timestamp} "
@@ -328,11 +330,11 @@ class DbConfigTable(Base):
         )
 
     @staticmethod
-    def update(engine):
+    def update(engine: Engine) -> None:
         logger.info("DbConfigTable : update called")
 
     @staticmethod
-    def requires_update(engine):
+    def requires_update(engine: Engine) -> bool:
         return False
 
 
@@ -353,7 +355,7 @@ class DbRawTable(Base):
     children_outcome = relationship("DbOutcomeTable", back_populates="parent")
 
     @classmethod
-    def from_sqlite(cls, row):
+    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbRawTable':
         this = DbRawTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -362,7 +364,7 @@ class DbRawTable(Base):
 
         return this
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DbRawTable(unique_id={self.unique_id})"
             f", timestamp={self.timestamp} "
@@ -370,7 +372,7 @@ class DbRawTable(Base):
         )
 
     @staticmethod
-    def update(db, engine):
+    def update(db: Any, engine: Engine) -> None:
         logger.info("DbRawTable : update called")
 
         # Get every master table
@@ -446,7 +448,7 @@ class DbRawTable(Base):
                     )
 
     @staticmethod
-    def requires_update(engine):
+    def requires_update(engine: Engine) -> bool:
         """Check if the raw table is empty, and data already exists."""
         n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
         n_tells = engine.execute(
@@ -475,7 +477,7 @@ class DbParamTable(Base):
     parent = relationship("DbRawTable", back_populates="children_param")
 
     @classmethod
-    def from_sqlite(cls, row):
+    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbParamTable':
         this = DbParamTable()
         this.unique_id = row["unique_id"]
         this.param_name = row["param_name"]
@@ -484,18 +486,18 @@ class DbParamTable(Base):
 
         return this
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DbParamTable(unique_id={self.unique_id})"
             f", iteration_id={self.iteration_id}>"
         )
 
     @staticmethod
-    def update(engine):
+    def update(engine: Engine) -> None:
         logger.info("DbParamTable : update called")
 
     @staticmethod
-    def requires_update(engine):
+    def requires_update(engine: Engine) -> bool:
         return False
 
 
@@ -515,7 +517,7 @@ class DbOutcomeTable(Base):
     parent = relationship("DbRawTable", back_populates="children_outcome")
 
     @classmethod
-    def from_sqlite(cls, row):
+    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbOutcomeTable':
         this = DbOutcomeTable()
         this.unique_id = row["unique_id"]
         this.outcome_name = row["outcome_name"]
@@ -524,16 +526,16 @@ class DbOutcomeTable(Base):
 
         return this
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DbOutcomeTable(unique_id={self.unique_id})"
             f", iteration_id={self.iteration_id}>"
         )
 
     @staticmethod
-    def update(engine):
+    def update(engine: Engine) -> None:
         logger.info("DbOutcomeTable : update called")
 
     @staticmethod
-    def requires_update(engine):
+    def requires_update(engine: Engine) -> bool:
         return False

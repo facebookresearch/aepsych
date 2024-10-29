@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import time
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -28,7 +28,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
     stimuli_per_trial = 2
     outcome_type = "binary"
 
-    def _pairs_to_comparisons(self, x, y):
+    def _pairs_to_comparisons(self, x: torch.Tensor, y: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Takes x, y structured as pairs and judgments and
         returns pairs and comparisons as PairwiseGP requires
@@ -57,12 +57,12 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         max_fit_time: Optional[float] = None,
-    ):
+    ) -> None:
         self.lb, self.ub, dim = _process_bounds(lb, ub, dim)
 
         self.max_fit_time = max_fit_time
@@ -98,7 +98,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         train_y: torch.Tensor,
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs,
-    ):
+    ) -> None:
         self.train()
         mll = PairwiseLaplaceMarginalLogLikelihood(self.likelihood, self)
         datapoints, comparisons = self._pairs_to_comparisons(train_x, train_y)
@@ -122,13 +122,13 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
     def update(
         self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
-    ):
+    ) -> None:
         """Perform a warm-start update of the model from previous fit."""
         self.fit(train_x, train_y)
 
     def predict(
-        self, x, probability_space=False, num_samples=1000, rereference="x_min"
-    ):
+        self, x: torch.Tensor, probability_space: bool =False, num_samples: int =1000, rereference: str ="x_min"
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         if rereference is not None:
             samps = self.sample(x, num_samples, rereference)
             fmean, fvar = samps.mean(0).squeeze(), samps.var(0).squeeze()
@@ -145,13 +145,13 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return fmean, fvar
 
     def predict_probability(
-        self, x, probability_space=False, num_samples=1000, rereference="x_min"
-    ):
+        self, x: torch.Tensor, probability_space: bool = False, num_samples: int = 1000, rereference: str = "x_min"
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(
             x, probability_space=True, num_samples=num_samples, rereference=rereference
         )
 
-    def sample(self, x, num_samples, rereference="x_min"):
+    def sample(self, x: torch.Tensor, num_samples: int, rereference: str = "x_min") -> torch.Tensor:
         if len(x.shape) < 2:
             x = x.reshape(-1, 1)
         if rereference is None:
@@ -179,7 +179,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return -samps + samps_ref
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config: Config) -> 'PairwiseProbitModel':
 
         classname = cls.__name__
 

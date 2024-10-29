@@ -10,7 +10,7 @@ from __future__ import annotations
 import time
 import warnings
 
-from typing import List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import numpy as np
 import torch
@@ -18,7 +18,7 @@ import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
-from aepsych.models.base import ModelProtocol
+from aepsych.models.base import AEPsychMixin, ModelProtocol
 from aepsych.utils import _process_bounds, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.exceptions.errors import ModelFittingError
@@ -26,7 +26,7 @@ from botorch.exceptions.errors import ModelFittingError
 logger = getLogger()
 
 
-def ensure_model_is_fresh(f):
+def ensure_model_is_fresh(f:Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
         if self.can_fit and not self._model_is_fresh:
             starttime = time.time()
@@ -60,7 +60,7 @@ class Strategy(object):
         dim: Optional[int] = None,
         min_total_tells: int = 0,
         min_asks: int = 0,
-        model: Optional[ModelProtocol] = None,
+        model: Optional[AEPsychMixin] = None,
         refit_every: int = 1,
         min_total_outcome_occurrences: int = 1,
         max_asks: Optional[int] = None,
@@ -68,7 +68,7 @@ class Strategy(object):
         min_post_range: Optional[float] = None,
         name: str = "",
         run_indefinitely: bool = False,
-    ):
+    ) -> None:
         """Initialize the strategy object.
 
         Args:
@@ -138,7 +138,7 @@ class Strategy(object):
 
         self.x: Optional[torch.Tensor] = None
         self.y: Optional[torch.Tensor] = None
-        self.n = 0
+        self.n: int = 0
         self.min_asks = min_asks
         self._count = 0
         self.min_total_tells = min_total_tells
@@ -207,7 +207,7 @@ class Strategy(object):
 
     # TODO: allow user to pass in generator options
     @ensure_model_is_fresh
-    def gen(self, num_points: int = 1):
+    def gen(self, num_points: int = 1) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
 
         Args:
@@ -215,49 +215,55 @@ class Strategy(object):
             Other arguments are forwared to underlying model.
 
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
         self._count = self._count + num_points
         return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
-    def get_max(self, constraints=None, probability_space=False, max_time=None):
+    def get_max(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
+        assert self.model is not None, "model is None! Cannot get the max without a model!"
         return self.model.get_max(
             constraints, probability_space=probability_space, max_time=max_time
         )
 
     @ensure_model_is_fresh
-    def get_min(self, constraints=None, probability_space=False, max_time=None):
+    def get_min(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
+        assert self.model is not None, "model is None! Cannot get the min without a model!"
         return self.model.get_min(
             constraints, probability_space=probability_space, max_time=max_time
         )
 
     @ensure_model_is_fresh
-    def inv_query(self, y, constraints=None, probability_space=False, max_time=None):
+    def inv_query(self, y: int, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
+        assert self.model is not None, "model is None! Cannot get the inv_query without a model!"
         return self.model.inv_query(
             y, constraints, probability_space, max_time=max_time
         )
 
     @ensure_model_is_fresh
-    def predict(self, x, probability_space=False):
+    def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
+        assert self.model is not None, "model is None! Cannot predict without a model!"
         return self.model.predict(x=x, probability_space=probability_space)
 
     @ensure_model_is_fresh
-    def get_jnd(self, *args, **kwargs):
+    def get_jnd(self, *args, **kwargs) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+        assert self.model is not None, "model is None! Cannot get the get jnd without a model!"
         return self.model.get_jnd(*args, **kwargs)
 
     @ensure_model_is_fresh
-    def sample(self, x, num_samples=None):
+    def sample(self, x: torch.Tensor, num_samples: Optional[int] = None) -> torch.Tensor:
+        assert self.model is not None, "model is None! Cannot sample without a model!"
         return self.model.sample(x, num_samples=num_samples)
 
-    def finish(self):
+    def finish(self) -> None:
         self.is_finished = True
 
     @property
-    def finished(self):
+    def finished(self) -> bool:
         if self.is_finished:
             return True
 
@@ -276,16 +282,17 @@ class Strategy(object):
         if "binary" in self.outcome_types:
             n_yes_trials = (self.y == 1).sum()
             n_no_trials = (self.y == 0).sum()
-            sufficient_outcomes = (
-                n_yes_trials >= self.min_total_outcome_occurrences
-                and n_no_trials >= self.min_total_outcome_occurrences
+            sufficient_outcomes = bool(
+                (n_yes_trials >= self.min_total_outcome_occurrences).item()
+                and (n_no_trials >= self.min_total_outcome_occurrences).item()
             )
         else:
             sufficient_outcomes = True
 
         if self.min_post_range is not None:
+            assert self.model is not None, "model is None! Cannot predict without a model!"
             fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
-            meets_post_range = (fmean.max() - fmean.min()) >= self.min_post_range
+            meets_post_range = ((fmean.max() - fmean.min()) >= self.min_post_range).item()
         else:
             meets_post_range = True
         finished = (
@@ -297,11 +304,11 @@ class Strategy(object):
         return finished
 
     @property
-    def can_fit(self):
+    def can_fit(self) -> bool:
         return self.has_model and self.x is not None and self.y is not None
 
     @property
-    def n_trials(self):
+    def n_trials(self) -> int:
         warnings.warn(
             "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead.",
             DeprecationWarning,
@@ -310,7 +317,7 @@ class Strategy(object):
 
     def add_data(
         self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
-    ):
+    ) -> None:
         """
         Adds new data points to the strategy, and normalizes the inputs.
 
@@ -328,13 +335,14 @@ class Strategy(object):
         self.x, self.y, self.n = self.normalize_inputs(x, y)
         self._model_is_fresh = False
 
-    def fit(self):
+    def fit(self) -> None:
         if self.can_fit:
             if self.keep_most_recent is not None:
                 try:
-                    self.model.fit(
-                        self.x[-self.keep_most_recent :],
-                        self.y[-self.keep_most_recent :],
+                    
+                    self.model.fit( # type: ignore
+                        self.x[-self.keep_most_recent :], # type: ignore
+                        self.y[-self.keep_most_recent :], # type: ignore
                     )
                 except ModelFittingError:
                     logger.warning(
@@ -342,7 +350,7 @@ class Strategy(object):
                     )
             else:
                 try:
-                    self.model.fit(self.x, self.y)
+                    self.model.fit(self.x, self.y) # type: ignore
                 except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
@@ -350,13 +358,14 @@ class Strategy(object):
         else:
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
-    def update(self):
+    def update(self) -> None:
+        
         if self.can_fit:
             if self.keep_most_recent is not None:
-                try:
-                    self.model.update(
-                        self.x[-self.keep_most_recent :],
-                        self.y[-self.keep_most_recent :],
+                try: 
+                    self.model.update( # type: ignore
+                        self.x[-self.keep_most_recent :], # type: ignore
+                        self.y[-self.keep_most_recent :], # type: ignore
                     )
                 except ModelFittingError:
                     logger.warning(
@@ -364,7 +373,7 @@ class Strategy(object):
                     )
             else:
                 try:
-                    self.model.update(self.x, self.y)
+                    self.model.update(self.x, self.y) # type: ignore
                 except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
@@ -373,7 +382,7 @@ class Strategy(object):
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     @classmethod
-    def from_config(cls, config: Config, name: str):
+    def from_config(cls, config: Config, name: str) -> Strategy:
         lb = config.gettensor(name, "lb")
         ub = config.gettensor(name, "ub")
         dim = config.getint(name, "dim", fallback=None)
@@ -452,22 +461,24 @@ class SequentialStrategy(object):
         strat_list (list[Strategy]): TODO make this nicely typed / doc'd
     """
 
-    def __init__(self, strat_list: List[Strategy]):
+    def __init__(self, strat_list: List[Strategy]) -> None:
         self.strat_list = strat_list
         self._strat_idx = 0
         self._suggest_count = 0
+        self.x: Optional[torch.Tensor]
+        self.y: Optional[torch.Tensor]
 
     @property
-    def _strat(self):
+    def _strat(self) -> Strategy:
         return self.strat_list[self._strat_idx]
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         # return current strategy's attr if it's not a container attr
         if "strat_list" not in vars(self):
             raise AttributeError("Have no strategies in container, what happened?")
         return getattr(self._strat, name)
 
-    def _make_next_strat(self):
+    def _make_next_strat(self) -> None:
         if (self._strat_idx + 1) >= len(self.strat_list):
             warnings.warn(
                 "Ran out of generators, staying on final generator!", RuntimeWarning
@@ -483,24 +494,24 @@ class SequentialStrategy(object):
         self._suggest_count = 0
         self._strat_idx = self._strat_idx + 1
 
-    def gen(self, num_points: int = 1, **kwargs):
+    def gen(self, num_points: int = 1, **kwargs) -> torch.Tensor:
         if self._strat.finished:
             self._make_next_strat()
         self._suggest_count = self._suggest_count + num_points
         return self._strat.gen(num_points=num_points, **kwargs)
 
-    def finish(self):
+    def finish(self) -> None:
         self._strat.finish()
 
     @property
-    def finished(self):
+    def finished(self) -> bool:
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
 
-    def add_data(self, x, y):
+    def add_data(self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]) -> None:
         self._strat.add_data(x, y)
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> SequentialStrategy:
         strat_names = config.getlist("common", "strategy_names", element_type=str)
 
         # ensure strat_names are unique

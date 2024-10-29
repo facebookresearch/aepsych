@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Tuple, cast
+from typing import Any, Callable, Dict, Optional, Tuple, cast
 
 import numpy as np
 import torch
@@ -25,7 +25,7 @@ from .lookahead_utils import (
 )
 
 
-def Hb(p: Tensor):
+def Hb(p: Tensor) -> Tensor:
     """
     Binary entropy.
 
@@ -184,12 +184,12 @@ class LocalSUR(LocalLookaheadAcquisitionFunction):
 @acqf_input_constructor(LocalMI, LocalSUR)
 def construct_inputs_local_lookahead(
     model: GPyTorchModel,
-    training_data,
-    lookahead_type="levelset",
+    training_data: None,
+    lookahead_type: str ="levelset",
     target: Optional[float] = None,
     posterior_transform: Optional[PosteriorTransform] = None,
     **kwargs,
-):
+) -> Dict[str, Any]:
     return {
         "model": model,
         "lookahead_type": lookahead_type,
@@ -349,7 +349,7 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         query_set_size: Optional[int] = 256,
         Xq: Optional[Tensor] = None,
         k: Optional[float] = 20.0,
-    ):
+    ) -> None:
 
         super().__init__(
             model=model,
@@ -385,7 +385,7 @@ class BEMPS(GlobalLookaheadAcquisitionFunction):
         Advances in Neural Information Processing Systems 34 (2021).
     """
 
-    def __init__(self, scorefun, *args, **kwargs):
+    def __init__(self, scorefun: Callable, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.scorefun = scorefun
 
@@ -409,11 +409,14 @@ def construct_inputs_global_lookahead(
     query_set_size: Optional[int] = 256,
     Xq: Optional[Tensor] = None,
     **kwargs,
-):
-    lb = [bounds[0] for bounds in kwargs["bounds"]]
-    ub = [bounds[1] for bounds in kwargs["bounds"]]
-    Xq = Xq if Xq is not None else make_scaled_sobol(lb, ub, query_set_size)
+) -> Dict[str, Any]:
+    lb = torch.tensor([bounds[0] for bounds in kwargs["bounds"]])
+    ub = torch.tensor([bounds[1] for bounds in kwargs["bounds"]])
+    if Xq is None and query_set_size is None:
+        raise ValueError("Either Xq or query_set_size must be provided.")
 
+    if Xq is None and query_set_size is not None:
+        Xq = make_scaled_sobol(lb, ub, query_set_size)
     return {
         "model": model,
         "lookahead_type": lookahead_type,

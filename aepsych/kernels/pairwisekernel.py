@@ -1,8 +1,7 @@
+from typing import Any, Optional, Union
 import torch
 from gpytorch.kernels import Kernel
 from linear_operator import to_linear_operator
-
-
 class PairwiseKernel(Kernel):
     """
     Wrapper to convert a kernel K on R^k to a kernel K' on R^{2k}, modeling
@@ -13,13 +12,13 @@ class PairwiseKernel(Kernel):
 
     """
 
-    def __init__(self, latent_kernel, is_partial_obs=False, **kwargs):
+    def __init__(self, latent_kernel: Any, is_partial_obs: bool=False, **kwargs) -> None:
         super(PairwiseKernel, self).__init__(**kwargs)
 
         self.latent_kernel = latent_kernel
         self.is_partial_obs = is_partial_obs
 
-    def forward(self, x1, x2, diag=False, **params):
+    def forward(self, x1: torch.Tensor, x2: torch.Tensor, diag: bool=False, **params) -> Optional[torch.Tensor]:
         r"""
         TODO: make last_batch_dim work properly
 
@@ -40,7 +39,7 @@ class PairwiseKernel(Kernel):
                 * `diag`: `n` or `b x n`
         """
         if self.is_partial_obs:
-            d = x1.shape[-1] - 1
+            d : Union[torch.Tensor, int] = x1.shape[-1] - 1 
             assert d == x2.shape[-1] - 1, "tensors not the same dimension"
             assert d % 2 == 0, "dimension must be even"
 

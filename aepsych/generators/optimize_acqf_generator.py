@@ -65,7 +65,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.max_gen_time = max_gen_time
         self.stimuli_per_trial = stimuli_per_trial
 
-    def _instantiate_acquisition_fn(self, model: ModelProtocol):
+    def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 
@@ -80,7 +80,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             num_points (int, optional): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
 
         if self.stimuli_per_trial == 2:
@@ -120,7 +120,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         return new_candidate
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'OptimizeAcqfGenerator':
         classname = cls.__name__
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)

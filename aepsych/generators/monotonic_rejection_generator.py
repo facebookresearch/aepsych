@@ -15,7 +15,7 @@ from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from botorch.logging import logger
 from botorch.optim.initializers import gen_batch_initial_conditions
 from botorch.optim.utils import columnwise_clamp, fix_features
-
+from botorch.acquisition import AcquisitionFunction
 
 def default_loss_constraint_fun(
     loss: torch.Tensor, candidates: torch.Tensor
@@ -63,7 +63,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.model_gen_options = model_gen_options
         self.explore_features = explore_features
 
-    def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP):
+    def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP) -> AcquisitionFunction:
         return self.acqf(
             model=model,
             deriv_constraint_points=model._get_deriv_constraint_points(),
@@ -74,13 +74,13 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self,
         num_points: int,  # Current implementation only generates 1 point at a time
         model: MonotonicRejectionGP,
-    ):
+    ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int, optional): Number of points to query.
             model (AEPsychMixin): Fitted model of the data.
         Returns:
-            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
 
         options = self.model_gen_options or {}
@@ -166,7 +166,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         return Xopt
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'MonotonicRejectionGenerator':
         classname = cls.__name__
         acqf = config.getobj("common", "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)

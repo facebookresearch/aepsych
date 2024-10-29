@@ -6,9 +6,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Any, Callable, Iterable, List, Optional, Union
+from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 import numpy as np
 
 from aepsych.strategy import Strategy
@@ -339,7 +340,7 @@ def plot_strat_3d(
     extent_multiplier: Optional[List[float]] = None,
     save_path: Optional[str] = None,
     show: bool = True,
-):
+) -> None:
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
@@ -356,7 +357,9 @@ def plot_strat_3d(
     """
     assert strat.model is not None, "Cannot plot without a model!"
 
-    contour_levels_list = contour_levels or []
+    contour_levels_list: List[float] = []
+
+
     if parnames is None:
         parnames = ["x1", "x2", "x3"]
     # Get global min/max for all slices
@@ -372,24 +375,27 @@ def plot_strat_3d(
         vmax = np.max(fmean)
         vmin = np.min(fmean)
         if contour_levels is True:
-            contour_levels_list = np.arange(np.ceil(vmin), vmax + 1)
+            contour_levels_list = list(np.arange(np.ceil(vmin), vmax + 1))
+
+    if not isinstance(contour_levels_list, Sized):
+        raise TypeError("contour_levels_list must be Sized (e.g., a list or an array).")
+    
     # slice_vals is either a list of values or an integer number of values to slice on
-    if type(slice_vals) is int:
+    if isinstance(slice_vals, int):
         slices = np.linspace(strat.lb[slice_dim], strat.ub[slice_dim], slice_vals)
         slices = np.around(slices, 4)
-    elif type(slice_vals) is not list:
+    elif not isinstance(slice_vals, list):
         raise TypeError("slice_vals must be either an integer or a list of values")
     else:
         slices = np.array(slice_vals)
     
     # make mypy happy, note that this can't be more specific 
     # because of https://github.com/numpy/numpy/issues/24738
-    axs: np.ndarray[Any, Any] 
-    _, axs = plt.subplots(1, len(slices), constrained_layout=True, figsize=(20, 3)) # type: ignore
+    axs: np.ndarray
+    _, axs = plt.subplots(1, len(slices), constrained_layout=True, figsize=(20, 3))  # type: ignore
 
     assert len(slices) > 1, "Must have at least 2 slices"
     
-
     for _i, dim_val in enumerate(slices):
         img = plot_slice(
             axs[_i],
@@ -411,7 +417,7 @@ def plot_strat_3d(
         cbar.ax.set_ylabel(f"Probability of {outcome_label}")
     else:
         cbar.ax.set_ylabel(outcome_label)
-    for clevel in contour_levels_list:  # type: ignore
+    for clevel in contour_levels_list: # type: ignore
         cbar.ax.axhline(y=clevel, c="w")
 
     if save_path is not None:
@@ -422,17 +428,17 @@ def plot_strat_3d(
 
 
 def plot_slice(
-    ax,
-    strat,
-    parnames,
-    slice_dim,
-    slice_val,
-    vmin,
-    vmax,
-    gridsize=30,
-    contour_levels=None,
-    lse=False,
-    extent_multiplier=None,
+    ax: Axes,
+    strat: Strategy,
+    parnames: List[str],
+    slice_dim: int,
+    slice_val: int,
+    vmin: float,
+    vmax: float,
+    gridsize: int = 30,
+    contour_levels:Optional[Sized] = None,
+    lse: bool = False,
+    extent_multiplier: Optional[List] = None,
 ):
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
@@ -449,7 +455,10 @@ def plot_slice(
         extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None
     """
     extent = np.c_[strat.lb, strat.ub].reshape(-1)
-    x = strat.model.dim_grid(gridsize=gridsize, slice_dims={slice_dim: slice_val})
+    if strat.model is not None:
+        x = strat.model.dim_grid(gridsize=gridsize, slice_dims={slice_dim: slice_val})
+    else:
+        raise RuntimeError("Cannot plot without a model!")
     if lse:
         fmean, fvar = strat.predict(x)
         fmean = fmean.detach().numpy().reshape(gridsize, gridsize)
@@ -470,18 +479,20 @@ def plot_slice(
     plt_parnames = np.delete(parnames, slice_dim)
 
     img = ax.imshow(
-        fmean.T, extent=plt_extents, origin="lower", aspect="auto", vmin=vmin, vmax=vmax
+        fmean.T, extent=tuple(plt_extents), origin="lower", aspect="auto", vmin=vmin, vmax=vmax
     )
     ax.set_title(parnames[slice_dim] + "=" + str(dim_val_scaled))
     ax.set_xlabel(plt_parnames[0])
-
-    if len(contour_levels) > 0:
-        ax.contour(
-            fmean.T,
-            contour_levels,
-            colors="w",
-            extent=plt_extents,
-            origin="lower",
-            aspect="auto",
-        )
+    if contour_levels is not None:
+        if len(contour_levels) > 0:
+            ax.contour(
+                fmean.T,
+                contour_levels,
+                colors="w",
+                extent=plt_extents,
+                origin="lower",
+                aspect="auto",
+            )
+    else:
+        raise(ValueError("Countour Levels should not be None!"))
     return img

@@ -4,7 +4,7 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-from typing import Callable
+from typing import Any, Callable
 
 import torch
 from aepsych.config import Config
@@ -17,16 +17,16 @@ class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood):
     by a callable (which can be a botorch objective)
     """
 
-    def __init__(self, objective: Callable):
+    def __init__(self, objective: Callable) -> None:
         super().__init__()
         self.objective = objective
 
-    def forward(self, function_samples, **kwargs):
+    def forward(self, function_samples: torch.Tensor, **kwargs: Any) -> torch.distributions.Bernoulli:
         output_probs = self.objective(function_samples)
         return torch.distributions.Bernoulli(probs=output_probs)
 
     @classmethod
-    def from_config(cls, config: Config):
+    def from_config(cls, config: Config) -> 'BernoulliObjectiveLikelihood':
         objective_cls = config.getobj(cls.__name__, "objective")
         objective = objective_cls.from_config(config)
         return cls(objective=objective)

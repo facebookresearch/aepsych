@@ -59,7 +59,7 @@ def lookahead_levelset_at_xstar(
     posterior_transform: Optional[PosteriorTransform] = None,
     eps: float = 1e-8,
     **kwargs: Dict[str, Any],
-):
+) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
     """
     Evaluate the look-ahead level-set posterior at Xq given observation at xstar.
 
@@ -135,7 +135,7 @@ def lookahead_p_at_xstar(
 
     probit = Normal(0, 1).cdf
 
-    def lookahead_inner(f_q):
+    def lookahead_inner(f_q: Normal) -> Tensor:
         mu_tilde_star = Mu_s + (f_q - Mu_q) * Sigma_sq / Sigma2_q
         sigma_tilde_star = Sigma2_s - (Sigma_sq**2) / Sigma2_q
         return probit(mu_tilde_star / torch.sqrt(sigma_tilde_star + 1)) * probit(f_q)
