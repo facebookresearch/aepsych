@@ -50,10 +50,11 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Args:
             acqf (AcquisitionFunction): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
-                pass to acquisition function. Defaults to no arguments.
-            restarts (int): Number of restarts for acquisition function optimization.
-            samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer.
-            max_gen_time (optional, float): Maximum time (in seconds) to optimize the acquisition function.
+                pass to acquisition function. Defaults to no arguments. 
+            restarts (int, optional): Number of restarts for acquisition function optimization. Defaults to 10.
+            samps (int, optional): Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.
+            max_gen_time (float, optional): Maximum time (in seconds) to optimize the acquisition function. Defaults to None.
+            stimuli_per_trial (int, optional): Number of stimuli per trial. Defaults to 1.
         """
 
         if acqf_kwargs is None:
@@ -87,7 +88,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
     def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
-            num_points (int, optional): Number of points to query.
+            num_points (int): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
@@ -106,7 +107,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             return self._gen(num_points=num_points, model=model, **gen_options)
 
     def _gen(
-        self, num_points: int, model: ModelProtocol, **gen_options
+        self, num_points: int, model: ModelProtocol, **gen_options: Dict[str, Any]
     ) -> torch.Tensor:
         """
         Generates the next query points by optimizing the acquisition function.
@@ -114,7 +115,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Args:
             num_points (int): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
-            gen_options (dict): Additional options for generating points, such as custom configurations.
+            gen_options (Dict[str, Any]): Additional options for generating points, such as custom configurations.
 
         Returns:
             torch.Tensor: Next set of points to evaluate, with shape [num_points x dim].

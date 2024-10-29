@@ -28,8 +28,8 @@ class RandomGenerator(AEPsychGenerator):
     ) -> None:
         """Iniatialize RandomGenerator.
         Args:
-            lb torch.Tensor: Lower bounds of each parameter.
-            ub torch.Tensor: Upper bounds of each parameter.
+            lb (torch.Tensor): Lower bounds of each parameter.
+            ub (torch.Tensor): Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
         """
 

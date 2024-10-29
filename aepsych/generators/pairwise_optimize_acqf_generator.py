@@ -22,7 +22,7 @@ class PairwiseOptimizeAcqfGenerator(OptimizeAcqfGenerator):
         Create an instance of PairwiseOptimizeAcqfGenerator from a configration object.
         
         Args:
-            config: Configuration object containing initialization parameters.
+            config (Config): Configuration object containing initialization parameters.
             
         Returns:
             OptimizeAcqfGenerator: A configured instance of OptimizeAcqfGenerator with specified acquisition function,
