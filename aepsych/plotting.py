@@ -8,6 +8,7 @@
 import warnings
 from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 
+from matplotlib.image import AxesImage
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import numpy as np
@@ -149,8 +150,25 @@ def _plot_strat_1d(
     yes_label: str,
     no_label: str,
     gridsize: int,
-):
-    """Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments."""
+) -> plt.Axes:
+    """Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments.
+    
+    Args:
+        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 1.
+        ax (plt.Axes): Matplotlib axis to plot on
+        true_testfun (Callable): Ground truth response function. Should take a n_samples x n_parameters tensor
+                    as input and produce the response probability at each sample as output.
+        cred_level (float): Percentage of posterior mass around the mean to be shaded.
+        target_level (float): Response probability to estimate the threshold of.
+        xlabel (str): Label of the x-axis.
+        ylabel (str): Label of the y-axis.
+        yes_label (str): Label of trials with response of 1.
+        no_label (str): Label of trials with response of 0.
+        gridsize (int): The number of points to sample each dimension at.
+
+    Returns:
+        plt.Axes: The resulting axis object.
+    """
 
     x, y = strat.x, strat.y
     assert x is not None and y is not None, "No data to plot!"
@@ -250,8 +268,26 @@ def _plot_strat_2d(
     logx: bool,
     gridsize: int,
     include_colorbar: bool,
-):
-    """Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments."""
+) -> None:
+    """Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments.
+    
+    Args:
+        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 2.
+        ax (plt.Axes): Matplotlib axis to plot on
+        true_testfun (Callable): Ground truth response function. Should take a n_samples x n_parameters tensor
+                    as input and produce the response probability at each sample as output.
+        cred_level (float): Percentage of posterior mass around the mean to be shaded.
+        target_level (float): Response probability to estimate the threshold of.
+        xlabel (str): Label of the x-axis.
+        ylabel (str): Label of the y-axis.
+        yes_label (str): Label of trials with response of 1.
+        no_label (str): Label of trials with response of 0.
+        flipx (bool): Whether the values of the x-axis should be flipped such that the min becomes the max and vice
+                      versa.
+        logx (bool): Whether the x-axis should be log-transformed.
+        gridsize (int): The number of points to sample each dimension at.
+        include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials.
+    """
 
     x, y = strat.x, strat.y
     assert x is not None and y is not None, "No data to plot!"
@@ -439,7 +475,7 @@ def plot_slice(
     contour_levels:Optional[Sized] = None,
     lse: bool = False,
     extent_multiplier: Optional[List] = None,
-):
+) -> AxesImage:
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
@@ -453,6 +489,9 @@ def plot_slice(
         contour_levels (int list): Contours to plot. Default: None
         lse (bool): Whether to plot probability. Default: False
         extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None
+
+    Returns:
+        AxesImage: The resulting axis Image object.
     """
     extent = np.c_[strat.lb, strat.ub].reshape(-1)
     if strat.model is not None:

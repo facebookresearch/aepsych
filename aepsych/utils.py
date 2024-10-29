@@ -18,6 +18,17 @@ from botorch.models.gpytorch import GPyTorchModel
 from aepsych.config import Config
 
 def make_scaled_sobol(lb : torch.Tensor, ub : torch.Tensor, size: int, seed: Optional[int] = None) -> torch.Tensor:
+    """Create a scaled Sobol grid with a given size.
+
+    Args:
+        lb (torch.Tensor): Lower bounds for the grid.
+        ub (torch.Tensor): Upper bounds for the grid.
+        size (int): Number of points in the grid.
+        seed (Optional[int], optional): Random seed. Defaults to None.
+
+    Returns:
+        torch.Tensor: The Sobol grid.
+    """
     lb, ub, ndim = _process_bounds(lb, ub, None)
     grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
 
@@ -28,6 +39,10 @@ def make_scaled_sobol(lb : torch.Tensor, ub : torch.Tensor, size: int, seed: Opt
 
 
 def promote_0d(x: Union[torch.Tensor, np.ndarray]):
+    """Promote a 0d tensor to a 1d tensor.
+    
+    Args:
+        x (Union[torch.Tensor, np.ndarray]): The tensor to promote."""
     if not isinstance(x, Iterable):
         return [x]
     return x
@@ -41,17 +56,14 @@ def dim_grid(
 ) -> torch.Tensor:
     """Create a grid
     Create a grid based on lower, upper, and dim.
-    Parameters
-    ----------
-    - lower ('int') - lower bound
-    - upper ('int') - upper bound
-    - dim ('int) - dimension
-    - gridsize ('int') - size for grid
-    - slice_dims (Optional, dict) - values to use for slicing axes, as an {index:value} dict
-    Returns
-    ----------
-    grid : torch.FloatTensor
-        Tensor
+    Args:
+        lower (torch.Tensor): Lower bounds for the grid.
+        upper (torch.Tensor): Upper bounds for the grid.
+        gridsize (int, optional): Number of points in the grid. Defaults to 30.
+        slice_dims (Optional[Mapping[int, float]], optional): Dimensions to slice. Defaults to None.
+
+    Returns:
+        torch.Tensor: The grid created.
     """
     slice_dims = slice_dims or {}
 
@@ -69,7 +81,15 @@ def dim_grid(
 
 
 def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tensor, np.ndarray], dim : Optional[int] ) -> Tuple[torch.Tensor, torch.Tensor, int]:
-    """Helper function for ensuring bounds are correct shape and type."""
+    """Helper function for ensuring bounds are correct shape and type.
+    
+    Args:
+        lb (Union[torch.Tensor, np.ndarray]): Lower bounds.
+        ub (Union[torch.Tensor, np.ndarray]): Upper bounds.
+        dim (Optional[int]): Dimension of the bounds.
+        
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor, int]: The processed bounds."""
     lb = promote_0d(lb)
     ub = promote_0d(ub)
 
@@ -101,6 +121,18 @@ def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tenso
 
 
 def interpolate_monotonic(x: torch.Tensor, y: torch.Tensor, z: Union[torch.Tensor, float], min_x: Union[torch.Tensor, float] =-float('inf'), max_x: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
+    """Interpolate a monotonic function.
+
+    Args:
+        x (torch.Tensor): The x values.
+        y (torch.Tensor): The y values.
+        z (Union[torch.Tensor, float]): The z values.
+        min_x (Union[torch.Tensor, float], optional): The minimum x value. Defaults to -float('inf').
+        max_x (Union[torch.Tensor, float], optional): The maximum x value. Defaults to float('inf').
+
+    Returns:
+        torch.Tensor: The interpolated values.
+    """
     # Ben Letham's 1d interpolation code, assuming monotonicity.
     # basic idea is find the nearest two points to the LSE and
     # linearly interpolate between them (I think this is bisection
@@ -135,6 +167,22 @@ def get_lse_interval(
     gridsize: int =30,
     **kwargs,
 ) -> Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]:
+    """Get the level set estimate interval.
+
+    Args:
+        model (GPyTorchModel): The model to use.
+        mono_grid (Union[torch.Tensor, np.ndarray]): The grid to use.
+        target_level (float): The target level.
+        cred_level (Optional[float], optional): The credibility level. Defaults to None.
+        mono_dim (int, optional): The dimension to use. Defaults to -1.
+        n_samps (int, optional): The number of samples. Defaults to 500.
+        lb (float, optional): The lower bound. Defaults to -float('inf').
+        ub (float, optional): The upper bound. Defaults to float('inf').
+        gridsize (int, optional): The grid size. Defaults to 30.
+
+    Returns:
+        Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]: The level set estimate interval.
+    """
     # Create a meshgrid using torch.linspace
     xgrid = torch.stack(
         torch.meshgrid(
@@ -172,6 +220,19 @@ def get_lse_interval(
 
 
 def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.ndarray], level: float, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
+    """Get the level set estimate contour.
+
+    Args:
+        post_mean (torch.Tensor): The posterior mean.
+        mono_grid (Union[torch.Tensor, np.ndarray]): The grid to use.
+        level (float): The level.
+        mono_dim (int, optional): The dimension to use. Defaults to -1.
+        lb (Union[torch.Tensor, float], optional): The lower bound. Defaults to -float('inf').
+        ub (Union[torch.Tensor, float], optional): The upper bound. Defaults to float('inf').
+
+    Returns:
+        torch.Tensor: The level set estimate contour.
+    """
     post_mean = torch.tensor(post_mean, dtype=torch.float32)
     mono_grid = torch.tensor(mono_grid, dtype=torch.float32)
     
@@ -190,7 +251,18 @@ def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.n
 
 
 def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
+    """Get the just noticeable difference in 1D.
     
+    Args:
+        post_mean (torch.Tensor): The posterior mean.
+        mono_grid (torch.Tensor): The grid to use.
+        df (int, optional): The degrees of freedom. Defaults to 1.
+        mono_dim (int, optional): The dimension to use. Defaults to -1.
+        lb (Union[torch.Tensor, float], optional): The lower bound. Defaults to -float('inf').
+        ub (Union[torch.Tensor, float], optional): The upper bound. Defaults to float('inf').
+        
+    Returns:
+        torch.Tensor: The just noticeable difference in 1D."""
     # Calculate interpolate_to in a vectorized way
     interpolate_to = post_mean + df
     
@@ -200,7 +272,18 @@ def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mon
     return interpolated_values - mono_grid
 
 def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
+    """Get the just noticeable difference in multiple dimensions.
     
+    Args:
+        post_mean (torch.Tensor): The posterior mean.
+        mono_grid (torch.Tensor): The grid to use.
+        df (int, optional): The degrees of freedom. Defaults to 1.
+        mono_dim (int, optional): The dimension to use. Defaults to -1.
+        lb (Union[torch.Tensor, float], optional): The lower bound. Defaults to -float('inf').
+        ub (Union[torch.Tensor, float], optional): The upper bound. Defaults to float('inf').
+        
+    Returns:
+        torch.Tensor: The just noticeable difference in multiple dimensions."""
     # Move mono_dim to the last dimension if it isn't already
     if mono_dim != -1:
         post_mean = post_mean.transpose(mono_dim, -1)
@@ -216,6 +299,14 @@ def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1,
 
 
 def _get_ax_parameters(config: Config) -> Tuple[list[Dict[str, Any]],list[Dict[str, Any]],list[Dict[str, Any]]]:
+    """Get the Ax parameters from the config.
+
+    Args:
+        config (Config): The config object.
+
+    Returns:
+        Tuple[list[Dict[str, Any]],list[Dict[str, Any]],list[Dict[str, Any]]]: The range, choice, and fixed parameters.
+    """
     range_parnames = config.getlist("common", "parnames", element_type=str, fallback=[])
     lb = config.getlist("common", "lb", element_type=float, fallback=[])
     ub = config.getlist("common", "ub", element_type=float, fallback=[])
@@ -280,11 +371,26 @@ def _get_ax_parameters(config: Config) -> Tuple[list[Dict[str, Any]],list[Dict[s
 
 
 def get_parameters(config: Config) -> List[Dict]:
+    """ Get all parameters from the config.
+
+    Args:
+        config (Config): The config object.
+
+    Returns:
+        List[Dict]: The parameters.
+    """
     range_params, choice_params, fixed_params = _get_ax_parameters(config)
     return range_params + choice_params + fixed_params
 
 
 def get_bounds(config: Config) -> torch.Tensor:
+    """Get the bounds from the config.
+    
+    Args:
+        config (Config): The config object.
+        
+    Returns:
+        torch.Tensor: The bounds from the config."""
     range_params, choice_params, _ = _get_ax_parameters(config)
     # Need to sum dimensions added by both range and choice parameters
     bounds = [parm["bounds"] for parm in range_params]
@@ -309,6 +415,13 @@ def get_bounds(config: Config) -> torch.Tensor:
 
 
 def get_dim(config: Config) -> int:
+    """Get the dimension from the config.
+    
+    Args:
+        config (Config): The config object.
+        
+    Returns:
+        int: The dimension from the config."""
     range_params, choice_params, _ = _get_ax_parameters(config)
     # Need to sum dimensions added by both range and choice parameters
     dim = len(range_params)  # 1 dim per range parameter
