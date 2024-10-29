@@ -80,6 +80,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -105,6 +108,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator"><em>EpsilonGreedyGenerator</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 <dl class="py method">
@@ -116,6 +122,9 @@
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -129,10 +138,8 @@
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from a predefined list.</p>
 <p>Iniatialize ManualGenerator.
-:param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
-:param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
+:param lb torch.Tensor: Lower bounds of each parameter.
+:param ub torch.Tensor: Upper bounds of each parameter.
 :param points: The points that will be generated.
 :type points: Union[np.ndarray, torch.Tensor]
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
@@ -142,8 +149,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
@@ -162,7 +169,7 @@
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -181,6 +188,9 @@
 <li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
 <li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.manual_generator.ManualGenerator" title="aepsych.generators.manual_generator.ManualGenerator"><em>ManualGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -201,7 +211,7 @@
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.generators.manual_generator.ManualGenerator.finished">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.finished" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">finished</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.finished" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
@@ -318,7 +328,7 @@ fixed for acquisition fn optimization.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -334,6 +344,9 @@ fixed for acquisition fn optimization.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator" title="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator"><em>MonotonicRejectionGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -376,7 +389,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -392,6 +405,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator" title="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator"><em>MonotonicThompsonSamplerGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -440,7 +456,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -457,6 +473,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><em>OptimizeAcqfGenerator</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -469,17 +488,15 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points randomly without an acquisition function.</p>
 <p>Iniatialize RandomGenerator.
-:param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
-:param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
+:param lb torch.Tensor: Lower bounds of each parameter.
+:param ub torch.Tensor: Upper bounds of each parameter.
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -495,7 +512,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -512,6 +529,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.random_generator.RandomGenerator" title="aepsych.generators.random_generator.RandomGenerator"><em>RandomGenerator</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -524,10 +544,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from the Sobol Sequence.</p>
 <p>Iniatialize SobolGenerator.
-:param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
-:param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
+:param lb torch.Tensor: Lower bounds of each parameter.
+:param ub torch.Tensor: Upper bounds of each parameter.
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param seed: Random seed.
@@ -535,8 +553,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
@@ -554,7 +572,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -570,6 +588,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><em>SobolGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -618,7 +639,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -634,6 +655,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><em>OptimizeAcqfGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -676,7 +700,7 @@ fixed for acquisition fn optimization.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -692,6 +716,9 @@ fixed for acquisition fn optimization.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator" title="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator"><em>MonotonicRejectionGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -731,7 +758,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -748,6 +775,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator" title="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator"><em>MonotonicThompsonSamplerGenerator</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -757,17 +787,15 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points randomly without an acquisition function.</p>
 <p>Iniatialize RandomGenerator.
-:param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
-:param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
+:param lb torch.Tensor: Lower bounds of each parameter.
+:param ub torch.Tensor: Upper bounds of each parameter.
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -783,7 +811,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -800,6 +828,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.random_generator.RandomGenerator" title="aepsych.generators.random_generator.RandomGenerator"><em>RandomGenerator</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -809,10 +840,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from the Sobol Sequence.</p>
 <p>Iniatialize SobolGenerator.
-:param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
-:param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
+:param lb torch.Tensor: Lower bounds of each parameter.
+:param ub torch.Tensor: Upper bounds of each parameter.
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param seed: Random seed.
@@ -820,8 +849,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
@@ -839,7 +868,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -855,6 +884,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><em>SobolGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -878,6 +910,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator"><em>EpsilonGreedyGenerator</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 <dl class="py method">
@@ -890,6 +925,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
 </ul>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -899,10 +937,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from a predefined list.</p>
 <p>Iniatialize ManualGenerator.
-:param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
-:param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
+:param lb torch.Tensor: Lower bounds of each parameter.
+:param ub torch.Tensor: Upper bounds of each parameter.
 :param points: The points that will be generated.
 :type points: Union[np.ndarray, torch.Tensor]
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
@@ -912,8 +948,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
@@ -932,7 +968,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -951,6 +987,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
 <li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.manual_generator.ManualGenerator" title="aepsych.generators.manual_generator.ManualGenerator"><em>ManualGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -971,7 +1010,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.generators.ManualGenerator.finished">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#aepsych.generators.ManualGenerator.finished" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">finished</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.generators.ManualGenerator.finished" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
@@ -1061,6 +1100,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><em>OptimizeAcqfGenerator</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -1070,10 +1112,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SobolGenerator</span></code></a></p>
 <p>Deprecated. Use SobolGenerator instead.</p>
 <p>Iniatialize SobolGenerator.
-:param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
-:param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
+:param lb torch.Tensor: Lower bounds of each parameter.
+:param ub torch.Tensor: Upper bounds of each parameter.
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param seed: Random seed.
@@ -1081,8 +1121,8 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
@@ -1158,7 +1198,7 @@ with this generator. It should work with other similar acquisition functions.</p
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1225,6 +1265,9 @@ with this generator. It should work with other similar acquisition functions.</p
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.AcqfThompsonSamplerGenerator" title="aepsych.generators.acqf_thompson_sampler_generator.AcqfThompsonSamplerGenerator"><em>AcqfThompsonSamplerGenerator</em></a></p>
 </dd>
 </dl>
 </dd></dl>

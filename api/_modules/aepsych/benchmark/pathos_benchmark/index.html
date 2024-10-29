@@ -49,7 +49,7 @@
 <div class="viewcode-block" id="PathosBenchmark"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">[docs]</a><span class="k">class</span> <span class="nc">PathosBenchmark</span><span class="p">(</span><span class="n">Benchmark</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Benchmarking class for parallelized benchmarks using pathos"""</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nproc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nproc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize pathos benchmark.</span>
 
 <span class="sd">        Args:</span>
@@ -76,7 +76,7 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">pathos</span><span class="o">.</span><span class="n">pools</span><span class="o">.</span><span class="n">ProcessPool</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nproc</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># destroy the pool (for when we're testing or running</span>
         <span class="c1"># multiple benchmarks in one script) but if the GC already</span>
         <span class="c1"># cleared the underlying multiprocessing object (usually on</span>
@@ -122,7 +122,7 @@
 
             <span class="k">return</span> <span class="p">[],</span> <span class="n">SequentialStrategy</span><span class="p">([])</span></div>
 
-    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="n">self_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="s2">"pool"</span> <span class="ow">in</span> <span class="n">self_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="k">del</span> <span class="n">self_dict</span><span class="p">[</span><span class="s2">"pool"</span><span class="p">]</span>
@@ -130,7 +130,7 @@
             <span class="k">del</span> <span class="n">self_dict</span><span class="p">[</span><span class="s2">"futures"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">self_dict</span>
 
-<div class="viewcode-block" id="PathosBenchmark.run_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">run_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PathosBenchmark.run_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.run_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">run_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Run all the benchmarks,</span>
 
 <span class="sd">        Note that this blocks while waiting for benchmarks to complete. If you</span>
@@ -141,14 +141,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">start_benchmarks</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collate_benchmarks</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PathosBenchmark.start_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">start_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PathosBenchmark.start_benchmarks"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark.start_benchmarks">[docs]</a>    <span class="k">def</span> <span class="nf">start_benchmarks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Start benchmark run.</span>
 
 <span class="sd">        This does not block: after running it, self.futures holds the</span>
 <span class="sd">        status of benchmarks running in parallel.</span>
 <span class="sd">        """</span>
 
-        <span class="k">def</span> <span class="nf">run_discard_strat</span><span class="p">(</span><span class="o">*</span><span class="n">conf</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">run_discard_strat</span><span class="p">(</span><span class="o">*</span><span class="n">conf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
             <span class="n">logger</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_experiment</span><span class="p">(</span><span class="o">*</span><span class="n">conf</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">logger</span>
 

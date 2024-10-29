@@ -83,7 +83,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_gen_time</span> <span class="o">=</span> <span class="n">max_gen_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">stimuli_per_trial</span>
 
-    <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="o">==</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">pref_model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
@@ -98,7 +98,7 @@
 <span class="sd">            num_points (int, optional): Number of points to query.</span>
 <span class="sd">            model (ModelProtocol): Fitted model of the data.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].</span>
+<span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -138,7 +138,7 @@
         <span class="k">return</span> <span class="n">new_candidate</span>
 
 <div class="viewcode-block" id="OptimizeAcqfGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'OptimizeAcqfGenerator'</span><span class="p">:</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>

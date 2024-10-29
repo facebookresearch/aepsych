@@ -193,7 +193,7 @@
 <dd></dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.bounds">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.bounds" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.bounds" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.get_max">
@@ -362,7 +362,15 @@ to not require it.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.normalize_inputs">
 <span class="sig-name descname"><span class="pre">normalize_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.normalize_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.normalize_inputs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.forward" title="Permalink to this definition">¶</a></dt>
@@ -387,8 +395,14 @@ to not require it.</p>
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.p_below_threshold">
 <span class="sig-name descname"><span class="pre">p_below_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_thresh</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.p_below_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.p_below_threshold" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Tensor</em></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>f_thresh</strong> (<em>Tensor</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -468,8 +482,8 @@ yes/no trials.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> (<em>ub</em>) – Lower bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> – Upper bounds of the parameters.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -485,6 +499,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -570,7 +586,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dd class="field-even"><p>Posterior mean and variance at queries points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -579,7 +595,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <span class="sig-name descname"><span class="pre">predict_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.predict_probability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.predict_probability" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – </p>
+<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>Tuple</em>[<em>Tensor</em>, <em>Tensor</em>]</p>
@@ -608,8 +624,8 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> (<em>ub</em>) – Lower bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> – Upper bounds of the parameters.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -625,6 +641,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -816,8 +834,8 @@ yes/no trials.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> (<em>ub</em>) – Lower bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> – Upper bounds of the parameters.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -833,6 +851,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -922,7 +942,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dd class="field-even"><p>Posterior mean and variance at queries points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -931,7 +951,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <span class="sig-name descname"><span class="pre">predict_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.predict_probability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel.predict_probability" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – </p>
+<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><em>Tuple</em>[<em>Tensor</em>, <em>Tensor</em>]</p>
@@ -1271,8 +1291,8 @@ model classes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> (<em>ub</em>) – Lower bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> – Upper bounds of the parameters.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -1298,11 +1318,30 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.predict_probs">
 <span class="sig-name descname"><span class="pre">predict_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xgrid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/ordinal_gp.html#OrdinalGPModel.predict_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.OrdinalGPModel.predict_probs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xgrid</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.calculate_probs">
 <span class="sig-name descname"><span class="pre">calculate_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fvar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/ordinal_gp.html#OrdinalGPModel.calculate_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.OrdinalGPModel.calculate_probs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fmean</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>fvar</strong> (<em>Tensor</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.MonotonicProjectionGP">
@@ -1365,8 +1404,8 @@ of:</p>
 be enforced.</p></li>
 <li><p><strong>monotonic_grid_size</strong> (<em>int</em>) – The size of the grid, s, in 1. above.</p></li>
 <li><p><strong>min_f_val</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – If provided, maintains this minimum in the projection in 5.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>mean_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.means.Mean</em><em>]</em>) – </p></li>
 <li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.kernels.Kernel</em><em>]</em>) – </p></li>
@@ -1381,8 +1420,8 @@ be enforced.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> (<em>ub</em>) – Lower bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> – Upper bounds of the parameters.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -1398,6 +1437,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>monotonic_dims</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>monotonic_grid_size</strong> (<em>int</em>) – </p></li>
 <li><p><strong>min_f_val</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
@@ -1517,7 +1558,12 @@ Defaults to scaled RBF kernel.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.MultitaskGPRModel.construct_inputs">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">construct_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/multitask_regression.html#MultitaskGPRModel.construct_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MultitaskGPRModel.construct_inputs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.IndependentMultitaskGPRModel">
@@ -1571,7 +1617,15 @@ Defaults to scaled RBF kernel.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.IndependentMultitaskGPRModel.get_config_args">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/multitask_regression.html#IndependentMultitaskGPRModel.get_config_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.IndependentMultitaskGPRModel.get_config_args" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel">
@@ -1612,8 +1666,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
 <li><p><strong>slope_mean</strong> (<em>float</em>) – </p></li>
 </ul>
@@ -1682,7 +1736,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dd class="field-even"><p>Posterior mean and variance at queries points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1815,19 +1869,38 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dd class="field-even"><p>Posterior mean and variance at query points.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
+<dd class="field-odd"><p>Tuple[torch.Tensor, torch.Tensor]</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.posterior">
 <span class="sig-name descname"><span class="pre">posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#SemiParametricGPModel.posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.posterior" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.PosteriorTransform</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>SemiPPosterior</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.models.semi_p_posterior_transform">
 <span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">semi_p_posterior_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#semi_p_posterior_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.semi_p_posterior_transform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>posterior</strong> (<em>botorch.posteriors.GPyTorchPosterior</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>botorch.posteriors.GPyTorchPosterior</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.GPBetaRegressionModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">GPBetaRegressionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPBetaRegressionModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPBetaRegressionModel" title="Permalink to this definition">¶</a></dt>
@@ -1836,8 +1909,8 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Lower bounds of the parameters.</p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> (<em>ub</em>) – Lower bounds of the parameters.</p></li>
+<li><p><strong>torch.Tensor</strong> – Upper bounds of the parameters.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -1853,6 +1926,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1876,8 +1951,8 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>Kernel</em><em>]</em>) – </p></li>
 <li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
@@ -1903,6 +1978,9 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <li><p><strong>optimizer_kwargs</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
 </dl>
 </dd></dl>
 <dl class="py method">
@@ -1917,24 +1995,73 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <li><p><strong>warmstart</strong> (<em>bool</em>) – </p></li>
 </ul>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rereference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x_min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.predict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>probability_space</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>num_samples</strong> (<em>int</em>) – </p></li>
+<li><p><strong>rereference</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tuple</em>[<em>Tensor</em>, <em>Tensor</em>]</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.predict_probability">
 <span class="sig-name descname"><span class="pre">predict_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rereference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x_min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.predict_probability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.predict_probability" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>probability_space</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>num_samples</strong> (<em>int</em>) – </p></li>
+<li><p><strong>rereference</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tuple</em>[<em>Tensor</em>, <em>Tensor</em>]</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.sample">
 <span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rereference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'x_min'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.sample" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>num_samples</strong> (<em>int</em>) – </p></li>
+<li><p><strong>rereference</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.from_config" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.models.PairwiseProbitModel" title="aepsych.models.pairwise_probit.PairwiseProbitModel"><em>PairwiseProbitModel</em></a></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 </section>
 </section>

@@ -24,9 +24,10 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sized</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">Axes</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">Strategy</span>
@@ -357,7 +358,7 @@
     <span class="n">extent_multiplier</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">save_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours</span>
 <span class="sd">    Args:</span>
 <span class="sd">        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.</span>
@@ -374,7 +375,9 @@
 <span class="sd">    """</span>
     <span class="k">assert</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Cannot plot without a model!"</span>
 
-    <span class="n">contour_levels_list</span> <span class="o">=</span> <span class="n">contour_levels</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">contour_levels_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+
     <span class="k">if</span> <span class="n">parnames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">parnames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"x1"</span><span class="p">,</span> <span class="s2">"x2"</span><span class="p">,</span> <span class="s2">"x3"</span><span class="p">]</span>
     <span class="c1"># Get global min/max for all slices</span>
@@ -390,24 +393,27 @@
         <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">fmean</span><span class="p">)</span>
         <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">fmean</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">contour_levels</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">contour_levels_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="n">vmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">contour_levels_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="n">vmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">contour_levels_list</span><span class="p">,</span> <span class="n">Sized</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"contour_levels_list must be Sized (e.g., a list or an array)."</span><span class="p">)</span>
+    
     <span class="c1"># slice_vals is either a list of values or an integer number of values to slice on</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="n">slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="n">slice_dim</span><span class="p">],</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">[</span><span class="n">slice_dim</span><span class="p">],</span> <span class="n">slice_vals</span><span class="p">)</span>
         <span class="n">slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">slices</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"slice_vals must be either an integer or a list of values"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">slice_vals</span><span class="p">)</span>
     
     <span class="c1"># make mypy happy, note that this can't be more specific </span>
     <span class="c1"># because of https://github.com/numpy/numpy/issues/24738</span>
-    <span class="n">axs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> 
-    <span class="n">_</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">slices</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="c1"># type: ignore</span>
+    <span class="n">axs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">slices</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">slices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Must have at least 2 slices"</span>
     
-
     <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">dim_val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slices</span><span class="p">):</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">plot_slice</span><span class="p">(</span>
             <span class="n">axs</span><span class="p">[</span><span class="n">_i</span><span class="p">],</span>
@@ -429,7 +435,7 @@
         <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Probability of </span><span class="si">{</span><span class="n">outcome_label</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">outcome_label</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">clevel</span> <span class="ow">in</span> <span class="n">contour_levels_list</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+    <span class="k">for</span> <span class="n">clevel</span> <span class="ow">in</span> <span class="n">contour_levels_list</span><span class="p">:</span> <span class="c1"># type: ignore</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">clevel</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"w"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">save_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -440,17 +446,17 @@
 
 
 <div class="viewcode-block" id="plot_slice"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_slice">[docs]</a><span class="k">def</span> <span class="nf">plot_slice</span><span class="p">(</span>
-    <span class="n">ax</span><span class="p">,</span>
-    <span class="n">strat</span><span class="p">,</span>
-    <span class="n">parnames</span><span class="p">,</span>
-    <span class="n">slice_dim</span><span class="p">,</span>
-    <span class="n">slice_val</span><span class="p">,</span>
-    <span class="n">vmin</span><span class="p">,</span>
-    <span class="n">vmax</span><span class="p">,</span>
-    <span class="n">gridsize</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
-    <span class="n">contour_levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">lse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">extent_multiplier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
+    <span class="n">strat</span><span class="p">:</span> <span class="n">Strategy</span><span class="p">,</span>
+    <span class="n">parnames</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">slice_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">slice_val</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">contour_levels</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Sized</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">extent_multiplier</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours</span>
 <span class="sd">    Args:</span>
@@ -467,7 +473,10 @@
 <span class="sd">        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None</span>
 <span class="sd">    """</span>
     <span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dim_grid</span><span class="p">(</span><span class="n">gridsize</span><span class="o">=</span><span class="n">gridsize</span><span class="p">,</span> <span class="n">slice_dims</span><span class="o">=</span><span class="p">{</span><span class="n">slice_dim</span><span class="p">:</span> <span class="n">slice_val</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dim_grid</span><span class="p">(</span><span class="n">gridsize</span><span class="o">=</span><span class="n">gridsize</span><span class="p">,</span> <span class="n">slice_dims</span><span class="o">=</span><span class="p">{</span><span class="n">slice_dim</span><span class="p">:</span> <span class="n">slice_val</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Cannot plot without a model!"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">lse</span><span class="p">:</span>
         <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">fmean</span> <span class="o">=</span> <span class="n">fmean</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">gridsize</span><span class="p">,</span> <span class="n">gridsize</span><span class="p">)</span>
@@ -488,20 +497,22 @@
     <span class="n">plt_parnames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">parnames</span><span class="p">,</span> <span class="n">slice_dim</span><span class="p">)</span>
 
     <span class="n">img</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
-        <span class="n">fmean</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">plt_extents</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span>
+        <span class="n">fmean</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">plt_extents</span><span class="p">),</span> <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span>
     <span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">parnames</span><span class="p">[</span><span class="n">slice_dim</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"="</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dim_val_scaled</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">plt_parnames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contour_levels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
-            <span class="n">fmean</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
-            <span class="n">contour_levels</span><span class="p">,</span>
-            <span class="n">colors</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span>
-            <span class="n">extent</span><span class="o">=</span><span class="n">plt_extents</span><span class="p">,</span>
-            <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span>
-            <span class="n">aspect</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">contour_levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contour_levels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+                <span class="n">fmean</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                <span class="n">contour_levels</span><span class="p">,</span>
+                <span class="n">colors</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span>
+                <span class="n">extent</span><span class="o">=</span><span class="n">plt_extents</span><span class="p">,</span>
+                <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">,</span>
+                <span class="n">aspect</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Countour Levels should not be None!"</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">img</span></div>
 </pre></div>
 </div>

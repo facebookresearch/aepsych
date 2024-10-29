@@ -78,7 +78,7 @@
 <span class="sd">            num_points (int, optional): Number of points to query.</span>
 <span class="sd">            model (AEPsychMixin): Fitted model of the data.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].</span>
+<span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
 
         <span class="c1"># Generate the points at which to sample</span>
@@ -107,7 +107,7 @@
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">best_indx</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="MonotonicThompsonSamplerGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'MonotonicThompsonSamplerGenerator'</span><span class="p">:</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"num_samples"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">n_rejection_samples</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>

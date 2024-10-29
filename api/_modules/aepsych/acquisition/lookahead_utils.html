@@ -77,7 +77,7 @@
     <span class="n">posterior_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PosteriorTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Evaluate the look-ahead level-set posterior at Xq given observation at xstar.</span>
 
@@ -153,7 +153,7 @@
 
     <span class="n">probit</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span>
 
-    <span class="k">def</span> <span class="nf">lookahead_inner</span><span class="p">(</span><span class="n">f_q</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">lookahead_inner</span><span class="p">(</span><span class="n">f_q</span><span class="p">:</span> <span class="n">Normal</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
         <span class="n">mu_tilde_star</span> <span class="o">=</span> <span class="n">Mu_s</span> <span class="o">+</span> <span class="p">(</span><span class="n">f_q</span> <span class="o">-</span> <span class="n">Mu_q</span><span class="p">)</span> <span class="o">*</span> <span class="n">Sigma_sq</span> <span class="o">/</span> <span class="n">Sigma2_q</span>
         <span class="n">sigma_tilde_star</span> <span class="o">=</span> <span class="n">Sigma2_s</span> <span class="o">-</span> <span class="p">(</span><span class="n">Sigma_sq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">Sigma2_q</span>
         <span class="k">return</span> <span class="n">probit</span><span class="p">(</span><span class="n">mu_tilde_star</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_tilde_star</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">probit</span><span class="p">(</span><span class="n">f_q</span><span class="p">)</span>

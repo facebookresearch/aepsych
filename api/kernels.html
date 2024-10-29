@@ -118,6 +118,14 @@ functions of the form g(a, b) = f(a) - f(b), where f ~ GP(mu, K).</p>
 <p>Since g is a linear combination of Gaussians, it follows that g ~ GP(0, K’)
 where K’((a,b), (c,d)) = K(a,c) - K(a, d) - K(b, c) + K(b, d).</p>
 <p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>latent_kernel</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>is_partial_obs</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.kernels.PairwiseKernel.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/pairwisekernel.html#PairwiseKernel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.PairwiseKernel.forward" title="Permalink to this definition">¶</a></dt>
@@ -140,6 +148,16 @@ where K’((a,b), (c,d)) = K(a,c) - K(a, d) - K(b, c) + K(b, d).</p>
 </dd>
 </dl>
 </p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>x1</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>x2</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Optional</em>[<em>Tensor</em>]</p>
 </dd>
 </dl>
 </dd></dl>

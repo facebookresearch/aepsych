@@ -41,7 +41,7 @@
     <span class="n">n_eval_points</span> <span class="o">=</span> <span class="mi">1000</span>
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">eval_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">eval_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_eval_points</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -139,7 +139,7 @@
 
 <div class="viewcode-block" id="Problem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">],</span>
+        <span class="n">strat</span><span class="p">:</span> <span class="n">SequentialStrategy</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Evaluate the strategy with respect to this problem.</span>
 
@@ -230,7 +230,7 @@
 <span class="sd">    in addition to the function estimate.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[</span><span class="n">thresholds</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thresholds</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="n">thresholds</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">thresholds</span><span class="p">)</span>
@@ -275,7 +275,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LSEProblem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Strategy</span><span class="p">,</span> <span class="n">SequentialStrategy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="LSEProblem.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblem.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">SequentialStrategy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Evaluate the model with respect to this problem.</span>
 
 <span class="sd">        For level set estimation, we add metrics w.r.t. the true threshold:</span>
@@ -334,10 +334,10 @@
 <div class="viewcode-block" id="LSEProblemWithEdgeLogging"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblemWithEdgeLogging">[docs]</a><span class="k">class</span> <span class="nc">LSEProblemWithEdgeLogging</span><span class="p">(</span><span class="n">LSEProblem</span><span class="p">):</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="mf">0.05</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">thresholds</span><span class="p">)</span>
 
-<div class="viewcode-block" id="LSEProblemWithEdgeLogging.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblemWithEdgeLogging.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">):</span>
+<div class="viewcode-block" id="LSEProblemWithEdgeLogging.evaluate"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.LSEProblemWithEdgeLogging.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat</span><span class="p">:</span> <span class="n">SequentialStrategy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
 
         <span class="c1"># add number of edge samples to the log</span>
@@ -350,6 +350,7 @@
         <span class="n">lb2</span> <span class="o">=</span> <span class="n">lb</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">*</span> <span class="n">r</span>
         <span class="n">ub2</span> <span class="o">=</span> <span class="n">ub</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">*</span> <span class="n">r</span>
 
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">),</span> <span class="s2">"strat.x must be a tensor"</span>
         <span class="n">near_edge</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">torch</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="n">n_opt_trials</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">&lt;=</span> <span class="n">lb2</span><span class="p">),</span> <span class="p">(</span><span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="n">n_opt_trials</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">&gt;=</span> <span class="n">ub2</span><span class="p">)</span>
@@ -360,7 +361,7 @@
 
         <span class="n">metrics</span><span class="p">[</span><span class="s2">"prop_edge_sampling_mean"</span><span class="p">]</span> <span class="o">=</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">"prop_edge_sampling_err"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="mi">2</span> <span class="o">*</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">near_edge</span><span class="p">))</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">near_edge</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">near_edge</span><span class="p">)))</span>
         <span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">metrics</span></div></div>
 </pre></div>

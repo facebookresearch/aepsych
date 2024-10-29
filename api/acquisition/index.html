@@ -61,6 +61,9 @@ Journal of Statist. Comput. Simul. 35, pp. 101-107.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>p</strong> (<em>Tensor</em>) – Tensor of probabilities.</p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
 </dl>
 <p>Returns: Binary entropy for each probability.</p>
 </dd></dl>
@@ -228,9 +231,14 @@ averaged over Xq.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – </p></li>
+<li><p><strong>training_data</strong> (<em>None</em>) – </p></li>
+<li><p><strong>lookahead_type</strong> (<em>str</em>) – </p></li>
 <li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 <li><p><strong>posterior_transform</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.PosteriorTransform</em><em>]</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, <em>Any</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -405,6 +413,7 @@ Advances in Neural Information Processing Systems 34 (2021).</p>
 <li><p><strong>model</strong> – The gpytorch model.</p></li>
 <li><p><strong>target</strong> – Threshold value to target in p-space.</p></li>
 <li><p><strong>Xq</strong> – (m x d) global reference set.</p></li>
+<li><p><strong>scorefun</strong> (<em>Callable</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -421,6 +430,9 @@ Advances in Neural Information Processing Systems 34 (2021).</p>
 <li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, <em>Any</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -593,7 +605,22 @@ by the objective. Should be samples x batch_shape.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.acquisition.lse.construct_inputs_lse">
 <span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.lse.</span></span><span class="sig-name descname"><span class="pre">construct_inputs_lse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aepsych.acquisition.lse.construct_inputs_lse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>botorch.models.model.Model</em>) – </p></li>
+<li><p><strong>training_data</strong> (<em>None</em>) – </p></li>
+<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.monte_carlo.MCAcquisitionObjective</em><em>]</em>) – </p></li>
+<li><p><strong>target</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>beta</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.monte_carlo.MCSampler</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
 </section>
 <section id="module-aepsych.acquisition.mc_posterior_variance">
 <span id="aepsych-acquisition-mc-posterior-variance-module"></span><h2>aepsych.acquisition.mc_posterior_variance module<a class="headerlink" href="#module-aepsych.acquisition.mc_posterior_variance" title="Permalink to this heading">¶</a></h2>
@@ -664,7 +691,20 @@ hopes to maximize</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.acquisition.mc_posterior_variance.construct_inputs">
 <span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.mc_posterior_variance.</span></span><span class="sig-name descname"><span class="pre">construct_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aepsych.acquisition.mc_posterior_variance.construct_inputs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>botorch.models.model.Model</em>) – </p></li>
+<li><p><strong>training_data</strong> (<em>None</em>) – </p></li>
+<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.MCAcquisitionObjective</em><em>]</em>) – </p></li>
+<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>botorch.sampling.base.MCSampler</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.mc_posterior_variance.</span></span><span class="sig-name descname"><span class="pre">MonotonicMCPosteriorVariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/mc_posterior_variance.html#MonotonicMCPosteriorVariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance" title="Permalink to this definition">¶</a></dt>
@@ -873,7 +913,20 @@ learning hopes to maximize.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.acquisition.mutual_information.construct_inputs_mi">
 <span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.mutual_information.</span></span><span class="sig-name descname"><span class="pre">construct_inputs_mi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aepsych.acquisition.mutual_information.construct_inputs_mi" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>botorch.models.model.Model</em>) – </p></li>
+<li><p><strong>training_data</strong> (<em>None</em>) – </p></li>
+<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>botorch.acquisition.objective.MCAcquisitionObjective</em><em>]</em>) – </p></li>
+<li><p><strong>sampler</strong> (<em>Optional</em><em>[</em><em>botorch.sampling.base.MCSampler</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Dict</em>[str, <em>Any</em>]</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.mutual_information.MonotonicBernoulliMCMutualInformation">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.mutual_information.</span></span><span class="sig-name descname"><span class="pre">MonotonicBernoulliMCMutualInformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/mutual_information.html#MonotonicBernoulliMCMutualInformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.mutual_information.MonotonicBernoulliMCMutualInformation" title="Permalink to this definition">¶</a></dt>
@@ -969,11 +1022,27 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorGumbelObjective.link">
 <span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorGumbelObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorGumbelObjective.link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorGumbelObjective.inverse_link">
 <span class="sig-name descname"><span class="pre">inverse_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorGumbelObjective.inverse_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorGumbelObjective.inverse_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLogitObjective">
@@ -996,11 +1065,27 @@ between floor and 1.0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLogitObjective.link">
 <span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorLogitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLogitObjective.link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorLogitObjective.inverse_link">
 <span class="sig-name descname"><span class="pre">inverse_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorLogitObjective.inverse_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorLogitObjective.inverse_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorProbitObjective">
@@ -1022,11 +1107,27 @@ so that its output is between floor and 1.0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorProbitObjective.link">
 <span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorProbitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorProbitObjective.link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.FloorProbitObjective.inverse_link">
 <span class="sig-name descname"><span class="pre">inverse_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorProbitObjective.inverse_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.objective.FloorProbitObjective.inverse_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.objective.ProbitObjective">
@@ -1128,6 +1229,9 @@ we need X here to split out the intensity dimension.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.acquisition.objective.SemiPProbabilityObjective" title="aepsych.acquisition.objective.semi_p.SemiPProbabilityObjective"><em>SemiPProbabilityObjective</em></a></p>
+</dd>
 </dl>
 </dd></dl>
 </dd></dl>
@@ -1172,6 +1276,9 @@ that gives the threshold distribution.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#aepsych.acquisition.objective.SemiPThresholdObjective" title="aepsych.acquisition.objective.semi_p.SemiPThresholdObjective"><em>SemiPThresholdObjective</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1561,11 +1668,27 @@ so that its output is between floor and 1.0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorProbitObjective.link">
 <span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorProbitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorProbitObjective.link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorProbitObjective.inverse_link">
 <span class="sig-name descname"><span class="pre">inverse_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorProbitObjective.inverse_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorProbitObjective.inverse_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorLogitObjective">
@@ -1588,11 +1711,27 @@ between floor and 1.0.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorLogitObjective.link">
 <span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorLogitObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorLogitObjective.link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorLogitObjective.inverse_link">
 <span class="sig-name descname"><span class="pre">inverse_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorLogitObjective.inverse_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorLogitObjective.inverse_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorGumbelObjective">
@@ -1617,11 +1756,27 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorGumbelObjective.link">
 <span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorGumbelObjective.link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorGumbelObjective.link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.acquisition.FloorGumbelObjective.inverse_link">
 <span class="sig-name descname"><span class="pre">inverse_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/objective/objective.html#FloorGumbelObjective.inverse_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.FloorGumbelObjective.inverse_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> (<em>Tensor</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.acquisition.GlobalMI">
