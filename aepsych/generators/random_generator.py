@@ -28,8 +28,8 @@ class RandomGenerator(AEPsychGenerator):
     ) -> None:
         """Iniatialize RandomGenerator.
         Args:
-            lb torch.Tensor: Lower bounds of each parameter.
-            ub torch.Tensor: Upper bounds of each parameter.
+            lb (torch.Tensor): Lower bounds of each parameter.
+            ub (torch.Tensor): Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
         """
 
@@ -54,6 +54,15 @@ class RandomGenerator(AEPsychGenerator):
 
     @classmethod
     def from_config(cls, config: Config) -> 'RandomGenerator':
+        """
+        Create an instance of RandomGenerator from a configuration object.
+        
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            
+        Returns:
+            RandomGenerator: A configured instance of the generator with specified bounds and dimensionality.
+        """
         classname = cls.__name__
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")

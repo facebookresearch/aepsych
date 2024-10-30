@@ -10,6 +10,7 @@ from typing import List, Optional, Type
 import numpy as np
 import torch
 from aepsych.acquisition.objective import ProbitObjective
+from aepsych.models.base import AEPsychMixin
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
@@ -41,7 +42,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             target_value (float): target value that is being looked for
             objective (Optional[MCAcquisitionObjective], optional): Objective transform of the GP output
                 before evaluating the acquisition. Defaults to identity transform.
-            explore_features (Sequence[int], optional)
+            explore_features (Optional[List[Type[int]]], optional)
         """
         self.n_samples = n_samples
         self.n_rejection_samples = n_rejection_samples
@@ -53,11 +54,11 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
     def gen(
         self,
         num_points: int,  # Current implementation only generates 1 point at a time
-        model: MonotonicRejectionGP,
+        model: AEPsychMixin,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
-            num_points (int, optional): Number of points to query.
+            num_points (int): Number of points to query.
             model (AEPsychMixin): Fitted model of the data.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
@@ -90,6 +91,16 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
 
     @classmethod
     def from_config(cls, config: Config) -> 'MonotonicThompsonSamplerGenerator':
+        """
+        Creates an instance of MonotonicThompsonSamplerGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            MonotonicThompsonSamplerGenerator: A configured instance of the generator class with specified number of samples,
+            rejection samples, Thompson sampling points, target value, objective transformation, and optional exploration features.
+        """
         classname = cls.__name__
         n_samples = config.getint(classname, "num_samples", fallback=1)
         n_rejection_samples = config.getint(

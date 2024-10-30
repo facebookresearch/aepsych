@@ -27,7 +27,7 @@ def default_loss_constraint_fun(
 
     Args:
         loss (torch.Tensor): Value of loss at candidate points.
-        candidates (torch.Tensor): Location of candidate points.
+        candidates (torch.Tensor): Location of candidate points. Unused.
 
     Returns:
         torch.Tensor: New loss (unchanged)
@@ -51,9 +51,9 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             acqf (AcquisitionFunction): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to no arguments.
-            model_gen_options: Dictionary with options for generating candidate, such as
+            model_gen_options (Optional[Dict[str, Any]], optional): Dictionary with options for generating candidate, such as
                 SGD parameters. See code for all options and their defaults.
-            explore_features: List of features that will be selected randomly and then
+            explore_features (Optional[Sequence[int]], optional): List of features that will be selected randomly and then
                 fixed for acquisition fn optimization.
         """
         if acqf_kwargs is None:
@@ -64,6 +64,15 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.explore_features = explore_features
 
     def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP) -> AcquisitionFunction:
+        """
+        Instantiates the acquisition function with the specified model and additional arguments.
+
+        Args:
+            model (MonotonicRejectionGP): The model to use with the acquisition function.
+
+        Returns:
+            AcquisitionFunction: Configured acquisition function.
+        """
         return self.acqf(
             model=model,
             deriv_constraint_points=model._get_deriv_constraint_points(),
@@ -77,7 +86,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
-            num_points (int, optional): Number of points to query.
+            num_points (int): Number of points to query.
             model (AEPsychMixin): Fitted model of the data.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
@@ -167,6 +176,16 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
 
     @classmethod
     def from_config(cls, config: Config) -> 'MonotonicRejectionGenerator':
+        """
+        Creates an instance of MonotonicRejectionGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            MonotonicRejectionGenerator: A configured instance of the generator class with specified acquisition function,
+            gradient descent options, exploration features, and acquisition function arguments.
+        """
         classname = cls.__name__
         acqf = config.getobj("common", "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
