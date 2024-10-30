@@ -288,14 +288,14 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_indefinitely</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"finished"</span><span class="p">):</span>  <span class="c1"># defer to generator if possible</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">finished</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># always need some data before switching strats</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"finished"</span><span class="p">):</span>  <span class="c1"># defer to generator if possible</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">finished</span>
 
         <span class="k">if</span> <span class="s2">"binary"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_types</span><span class="p">:</span>
             <span class="n">n_yes_trials</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
