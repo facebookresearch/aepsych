@@ -43,7 +43,7 @@ class PairwiseKernel(Kernel):
             assert d == x2.shape[-1] - 1, "tensors not the same dimension"
             assert d % 2 == 0, "dimension must be even"
 
-            k = int(d_ / 2)
+            k = int(d / 2)
 
             # special handling for kernels that (also) do funky
             # things with the input dimension
@@ -56,12 +56,12 @@ class PairwiseKernel(Kernel):
             d = torch.cat((x2[..., k:-1], deriv_idx_2), dim=1)
 
         else:
-            d_ = x1.shape[-1]
+            d = x1.shape[-1]
 
-            assert d_ == x2.shape[-1], "tensors not the same dimension"
-            assert d_ % 2 == 0, "dimension must be even"
+            assert d == x2.shape[-1], "tensors not the same dimension"
+            assert d % 2 == 0, "dimension must be even"
 
-            k = int(d_ / 2)
+            k = int(d / 2)
 
             a = x1[..., :k]
             b = x1[..., k:]

@@ -93,6 +93,13 @@ def _process_bounds(lb : torch.Tensor, ub : torch.Tensor, dim : Optional[int] ) 
     lb = promote_0d(lb)
     ub = promote_0d(ub)
 
+    if not isinstance(lb, torch.Tensor):
+        lb = torch.tensor(lb)
+    if not isinstance(ub, torch.Tensor):
+        ub = torch.tensor(ub)
+
+    lb = lb.to(torch.float64)
+    ub = ub.to(torch.float64)
 
     assert lb.shape[0] == ub.shape[0], "bounds should be of equal shape!"
 

@@ -174,8 +174,8 @@ class SemiParametricGPModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         stim_dim: int = 0,
         mean_module: Optional[gpytorch.means.Mean] = None,
@@ -190,8 +190,8 @@ class SemiParametricGPModel(GPClassificationModel):
         Initialize SemiParametricGP.
         Args:
         Args:
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.

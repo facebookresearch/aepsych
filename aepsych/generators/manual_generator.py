@@ -27,7 +27,7 @@ class ManualGenerator(AEPsychGenerator):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
-        points: Union[np.ndarray, torch.Tensor],
+        points: torch.Tensor,
         dim: Optional[int] = None,
         shuffle: bool = True,
         seed: Optional[int] = None,
@@ -36,7 +36,7 @@ class ManualGenerator(AEPsychGenerator):
         Args:
             lb (torch.Tensor): Lower bounds of each parameter.
             ub (torch.Tensor): Upper bounds of each parameter.
-            points (Union[np.ndarray, torch.Tensor]): The points that will be generated.
+            points (torch.Tensor): The points that will be generated.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             shuffle (bool): Whether or not to shuffle the order of the points. True by default.
         """
@@ -123,10 +123,10 @@ class SampleAroundPointsGenerator(ManualGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
-        window: Union[np.ndarray, torch.Tensor],
-        points: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
+        window: torch.Tensor,
+        points: torch.Tensor,
         samples_per_point: int,
         dim: Optional[int] = None,
         shuffle: bool = True,
@@ -134,10 +134,10 @@ class SampleAroundPointsGenerator(ManualGenerator):
     ) -> None:
         """Iniatialize SampleAroundPointsGenerator.
         Args:
-            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
-            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
-            window (Union[np.ndarray, torch.Tensor]): How far away to sample from the reference point along each dimension.
-            points (Union[np.ndarray, torch.Tensor]): The points that will be generated.
+            lb (torch.Tensor): Lower bounds of each parameter.
+            ub (torch.Tensor): Upper bounds of each parameter.
+            window (torch.Tensor): How far away to sample from the reference point along each dimension.
+            points (torch.Tensor): The points that will be generated.
             samples_per_point (int): How many samples around each point to take.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             shuffle (bool, optional): Whether or not to shuffle the order of the points. True by default.
