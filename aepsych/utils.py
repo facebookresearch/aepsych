@@ -11,13 +11,16 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from aepsych.config import Config
+
+from botorch.models.gpytorch import GPyTorchModel
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
 
-from botorch.models.gpytorch import GPyTorchModel
-from aepsych.config import Config
 
-def make_scaled_sobol(lb : torch.Tensor, ub : torch.Tensor, size: int, seed: Optional[int] = None) -> torch.Tensor:
+def make_scaled_sobol(
+    lb: torch.Tensor, ub: torch.Tensor, size: int, seed: Optional[int] = None
+) -> torch.Tensor:
     lb, ub, ndim = _process_bounds(lb, ub, None)
     grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
 
@@ -61,14 +64,22 @@ def dim_grid(
 
     for i in range(dim):
         if i in slice_dims.keys():
-            mesh_vals.append(torch.tensor([slice_dims[i] - 1e-10, slice_dims[i] + 1e-10]))
+            mesh_vals.append(
+                torch.tensor([slice_dims[i] - 1e-10, slice_dims[i] + 1e-10])
+            )
         else:
             mesh_vals.append(torch.linspace(lower[i].item(), upper[i].item(), gridsize))
 
-    return torch.stack(torch.meshgrid(*mesh_vals, indexing='ij'), dim=-1).reshape(-1, dim)
+    return torch.stack(torch.meshgrid(*mesh_vals, indexing="ij"), dim=-1).reshape(
+        -1, dim
+    )
 
 
-def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tensor, np.ndarray], dim : Optional[int] ) -> Tuple[torch.Tensor, torch.Tensor, int]:
+def _process_bounds(
+    lb: Union[torch.Tensor, np.ndarray],
+    ub: Union[torch.Tensor, np.ndarray],
+    dim: Optional[int],
+) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type."""
     lb = promote_0d(lb)
     ub = promote_0d(ub)
@@ -100,26 +111,23 @@ def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tenso
     return lb, ub, dim
 
 
-def interpolate_monotonic(x: torch.Tensor, y: torch.Tensor, z: Union[torch.Tensor, float], min_x: Union[torch.Tensor, float] =-float('inf'), max_x: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
+def interpolate_monotonic(x, y, z, min_x=-np.inf, max_x=np.inf):
     # Ben Letham's 1d interpolation code, assuming monotonicity.
     # basic idea is find the nearest two points to the LSE and
     # linearly interpolate between them (I think this is bisection
     # root-finding)
-    idx = torch.searchsorted(y, z, right=False)
-    
-    # Handle edge cases where idx is 0 or at the end
-    idx = torch.clamp(idx, 1, len(y) - 1)
-    
+    idx = np.searchsorted(y, z)
+    if idx == len(y):
+        return float(max_x)
+    elif idx == 0:
+        return float(min_x)
     x0 = x[idx - 1]
     x1 = x[idx]
     y0 = y[idx - 1]
     y1 = y[idx]
 
     x_star = x0 + (x1 - x0) * (z - y0) / (y1 - y0)
-    # Apply min and max boundaries
-    x_star = torch.where(z < y[0], min_x, x_star)
-    x_star = torch.where(z > y[-1], max_x, x_star)
-    
+
     return x_star
 
 
@@ -127,20 +135,23 @@ def get_lse_interval(
     model: GPyTorchModel,
     mono_grid: Union[torch.Tensor, np.ndarray],
     target_level: float,
-    cred_level: Optional[float]=None,
-    mono_dim: int =-1,
-    n_samps: int =500,
-    lb: float =-float('inf'),
-    ub: float =float('inf'),
-    gridsize: int =30,
+    cred_level: Optional[float] = None,
+    mono_dim: int = -1,
+    n_samps: int = 500,
+    lb: float = -float("inf"),
+    ub: float = float("inf"),
+    gridsize: int = 30,
     **kwargs,
 ) -> Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]:
     # Create a meshgrid using torch.linspace
     xgrid = torch.stack(
         torch.meshgrid(
-            [torch.linspace(model.lb[i].item(), model.ub[i].item(), gridsize) for i in range(model.dim)]
+            [
+                torch.linspace(model.lb[i].item(), model.ub[i].item(), gridsize)
+                for i in range(model.dim)
+            ]
         ),
-        dim=-1
+        dim=-1,
     ).reshape(-1, model.dim)
 
     samps = model.sample(xgrid, num_samples=n_samps, **kwargs)
@@ -152,7 +163,9 @@ def get_lse_interval(
     # Calculate contours using torch.stack and the torch CDF for each sample
     contours = torch.stack(
         [
-            get_lse_contour(normal_dist.cdf(s), mono_grid, target_level, mono_dim, lb, ub)
+            get_lse_contour(
+                normal_dist.cdf(s), mono_grid, target_level, mono_dim, lb, ub
+            )
             for s in samps
         ]
     )
@@ -171,51 +184,57 @@ def get_lse_interval(
         return median, lower, upper
 
 
-def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.ndarray], level: float, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
-    post_mean = torch.tensor(post_mean, dtype=torch.float32)
-    mono_grid = torch.tensor(mono_grid, dtype=torch.float32)
-    
-    # Move mono_dim to the last dimension if it isn't already
-    if mono_dim != -1:
-        post_mean = post_mean.transpose(mono_dim, -1)
-    
-    # Apply interpolation across all rows at once
-    result = interpolate_monotonic(mono_grid, post_mean, level, lb, ub)
-    
-    # Transpose back if necessary
-    if mono_dim != -1:
-        result = result.transpose(-1, mono_dim)
-    
-    return result
+def get_lse_contour(post_mean, mono_grid, level, mono_dim=-1, lb=-np.inf, ub=np.inf):
+    return torch.tensor(
+        np.apply_along_axis(
+            lambda p: interpolate_monotonic(mono_grid, p, level, lb, ub),
+            mono_dim,
+            post_mean,
+        )
+    )
 
 
-def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
-    
-    # Calculate interpolate_to in a vectorized way
+def get_jnd_1d(post_mean, mono_grid, df=1, mono_dim=-1, lb=-np.inf, ub=np.inf):
     interpolate_to = post_mean + df
-    
-    # Apply interpolation to the entire tensor
-    interpolated_values = interpolate_monotonic(mono_grid, post_mean, interpolate_to, lb, ub)
-    
-    return interpolated_values - mono_grid
+    return torch.tensor(
+        (
+            np.array(
+                [
+                    interpolate_monotonic(mono_grid, post_mean, ito)
+                    for ito in interpolate_to
+                ]
+            )
+            - mono_grid.numpy()
+        )
+    )
 
-def get_jnd_multid(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int =1, mono_dim: int =-1, lb: Union[torch.Tensor, float] =-float('inf'), ub: Union[torch.Tensor, float] =float('inf')) -> torch.Tensor:
-    
+
+def get_jnd_multid(
+    post_mean: torch.Tensor,
+    mono_grid: torch.Tensor,
+    df: int = 1,
+    mono_dim: int = -1,
+    lb: Union[torch.Tensor, float] = -float("inf"),
+    ub: Union[torch.Tensor, float] = float("inf"),
+) -> torch.Tensor:
+
     # Move mono_dim to the last dimension if it isn't already
     if mono_dim != -1:
         post_mean = post_mean.transpose(mono_dim, -1)
-    
+
     # Apply get_jnd_1d in a vectorized way
     result = get_jnd_1d(post_mean, mono_grid, df=df, mono_dim=-1, lb=lb, ub=ub)
-    
+
     # Transpose back if necessary
     if mono_dim != -1:
         result = result.transpose(-1, mono_dim)
-    
+
     return result
 
 
-def _get_ax_parameters(config: Config) -> Tuple[list[Dict[str, Any]],list[Dict[str, Any]],list[Dict[str, Any]]]:
+def _get_ax_parameters(
+    config: Config,
+) -> Tuple[list[Dict[str, Any]], list[Dict[str, Any]], list[Dict[str, Any]]]:
     range_parnames = config.getlist("common", "parnames", element_type=str, fallback=[])
     lb = config.getlist("common", "lb", element_type=float, fallback=[])
     ub = config.getlist("common", "ub", element_type=float, fallback=[])
@@ -239,7 +258,9 @@ def _get_ax_parameters(config: Config) -> Tuple[list[Dict[str, Any]],list[Dict[s
         "common", "choice_parnames", element_type=str, fallback=[]
     )
     choices = [
-        config.getlist(str(parname), "choices", element_type=str, fallback=["True", "False"])
+        config.getlist(
+            str(parname), "choices", element_type=str, fallback=["True", "False"]
+        )
         for parname in choice_parnames
     ]
     choice_params = [
@@ -262,8 +283,8 @@ def _get_ax_parameters(config: Config) -> Tuple[list[Dict[str, Any]],list[Dict[s
             try:
                 value: Union[float, str] = config.getfloat(str(parname), "value")
             except ValueError:
-                value = config.get(str(parname), "value")   
-                         
+                value = config.get(str(parname), "value")
+
             values.append(value)
         except NoOptionError:
             raise RuntimeError(f"Missing value for fixed parameter {parname}!")
