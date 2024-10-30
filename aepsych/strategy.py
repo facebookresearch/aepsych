@@ -270,14 +270,14 @@ class Strategy(object):
         if self.run_indefinitely:
             return False
 
-        if hasattr(self.generator, "finished"):  # defer to generator if possible
-            return self.generator.finished
-
         if self.y is None:  # always need some data before switching strats
             return False
 
         if self.max_asks is not None and self._count >= self.max_asks:
             return True
+
+        if hasattr(self.generator, "finished"):  # defer to generator if possible
+            return self.generator.finished
 
         if "binary" in self.outcome_types:
             n_yes_trials = (self.y == 1).sum()
