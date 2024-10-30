@@ -325,10 +325,7 @@ class LSEProblemWithEdgeLogging(LSEProblem):
         # add number of edge samples to the log
 
         # get the trials selected by the final strat only
-        if isinstance(strat, SequentialStrategy):
-            n_opt_trials = strat.strat_list[-1].n_trials
-        elif isinstance(strat, Strategy):
-            n_opt_trials = strat.n_trials
+        n_opt_trials = strat.strat_list[-1].n_trials
 
         lb, ub = strat.lb, strat.ub
         r = ub - lb

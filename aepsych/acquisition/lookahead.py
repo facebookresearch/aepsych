@@ -406,7 +406,7 @@ def construct_inputs_global_lookahead(
     lookahead_type="levelset",
     target: Optional[float] = None,
     posterior_transform: Optional[PosteriorTransform] = None,
-    query_set_size: int = 256,
+    query_set_size: Optional[int] = 256,
     Xq: Optional[Tensor] = None,
     **kwargs,
 ) -> Dict[str, Any]:
