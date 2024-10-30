@@ -273,6 +273,58 @@ class ServerTestCase(BaseServerTestCase):
             self.s.serve()
         assert len(self.s.queue) == 0
 
+    def test_replay(self):
+        exp_config = f"""
+            [common]
+            lb = [0]
+            ub = [1]
+            parnames = [x]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [manual_strat, sobol_strat]
+
+            [manual_strat]
+            generator = ManualGenerator
+            
+            [ManualGenerator]
+            points = [[0.5], [0.2]]
+
+            [sobol_strat]
+            min_asks = 2
+            generator = SobolGenerator
+            min_total_outcome_occurrences = 0
+
+        """
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": exp_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+        exit_request = {"message": "", "type": "exit"}
+
+        self.s.handle_request(setup_request)
+        while not self.s.strat.finished:
+            self.s.handle_request(ask_request)
+            self.s.handle_request(tell_request)
+
+        self.s.handle_request(exit_request)
+
+        socket = server.sockets.PySocket(port=0)
+        serv = server.AEPsychServer(socket=socket, database_path=self.db_path)
+        exp_ids = [rec.experiment_id for rec in serv.db.get_master_records()]
+
+        serv.replay(exp_ids[-1], skip_computations=True)
+        strat = serv._strats[-1]
+
+        self.assertTrue(strat._strat_idx == 1)
+        self.assertTrue(strat.finished)
+        self.assertTrue(strat.x.shape[0] == 4)
+
 
 if __name__ == "__main__":
     unittest.main()
