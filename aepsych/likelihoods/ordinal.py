@@ -8,7 +8,6 @@
 from typing import Callable, Optional
 
 from aepsych.config import Config
-from aepsych.config import Config
 import gpytorch
 import torch
 from gpytorch.likelihoods import Likelihood

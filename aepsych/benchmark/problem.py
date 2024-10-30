@@ -316,9 +316,7 @@ The LSEProblemWithEdgeLogging class is copied from bernoulli_lse github reposito
 class LSEProblemWithEdgeLogging(LSEProblem):
     eps = 0.05
 
-
     def __init__(self, thresholds: Union[float, List, torch.Tensor]) -> None:
-
         super().__init__(thresholds)
 
     def evaluate(self, strat: SequentialStrategy) -> Dict[str, float]:

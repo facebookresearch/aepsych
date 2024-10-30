@@ -159,9 +159,7 @@ class DbReplayTable(Base):
     __mapper_args__ = {}
 
     @classmethod
-
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbReplayTable':
-
         this = DbReplayTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -315,9 +313,7 @@ class DbConfigTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_config")
 
     @classmethod
-
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbConfigTable':
-
         this = DbConfigTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -481,9 +477,7 @@ class DbParamTable(Base):
     parent = relationship("DbRawTable", back_populates="children_param")
 
     @classmethod
-
     def from_sqlite(cls, row: Dict[str, Any]) -> 'DbParamTable':
-
         this = DbParamTable()
         this.unique_id = row["unique_id"]
         this.param_name = row["param_name"]
