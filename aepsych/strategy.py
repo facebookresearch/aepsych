@@ -61,8 +61,8 @@ class Strategy(object):
     def __init__(
         self,
         generator: AEPsychGenerator,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         stimuli_per_trial: int,
         outcome_types: Sequence[Type[str]],
         dim: Optional[int] = None,
@@ -81,25 +81,27 @@ class Strategy(object):
 
         Args:
             generator (AEPsychGenerator): The generator object that determines how points are sampled.
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
+            stimuli_per_trial (int): The number of stimuli per trial.
+            outcome_types (Sequence[Type[str]]): The types of outcomes that the strategy will generate.
+            dim (Optional[int], optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
-            min_total_tells (int): The minimum number of total observations needed to complete this strategy.
-            min_asks (int): The minimum number of points that should be generated from this strategy.
-            model (ModelProtocol, optional): The AEPsych model of the data.
-            refit_every (int): How often to refit the model from scratch.
-            min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.
+            min_total_tells (int, optional): The minimum number of total observations needed to complete this strategy.
+            min_asks (int, optional): The minimum number of points that should be generated from this strategy.
+            model (Optional[AEPsychMixin], optional): The AEPsych model of the data.
+            refit_every (int, optional): How often to refit the model from scratch. Defaults to 1.
+            min_total_outcome_occurrences (int, optional): The minimum number of total observations needed for each outcome before the strategy will finish.
                 Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).
-            max_asks (int, optional): The maximum number of trials to generate using this strategy.
+            max_asks (Optional[int], optional): The maximum number of trials to generate using this strategy.
                 If None, there is no upper bound (default).
-            keep_most_recent (int, optional): Experimental. The number of most recent data points that the model will be fitted on.
+            keep_most_recent (Optional[int], optional): Experimental. The number of most recent data points that the model will be fitted on.
                 This may be useful for discarding noisy data from trials early in the experiment that are not as informative
                 as data collected from later trials. When None, the model is fitted on all data.
-            min_post_range (float, optional): Experimental. The required difference between the posterior's minimum and maximum value in
+            min_post_range (Optional[float], optional): Experimental. The required difference between the posterior's minimum and maximum value in
                 probablity space before the strategy will finish. Ignored if None (default).
-            name (str): The name of the strategy. Defaults to the empty string.
-            run_indefinitely (bool): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will
+            name (str, optional): The name of the strategy. Defaults to the empty string.
+            run_indefinitely (bool, optional): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will
                 be ignored. Defaults to False.
         """
         self.is_finished = False

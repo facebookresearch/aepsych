@@ -38,11 +38,11 @@ def make_scaled_sobol(lb : torch.Tensor, ub : torch.Tensor, size: int, seed: Opt
     return grid
 
 
-def promote_0d(x: Union[torch.Tensor, np.ndarray]):
+def promote_0d(x: torch.Tensor):
     """Promote a 0d tensor to a 1d tensor.
     
     Args:
-        x (Union[torch.Tensor, np.ndarray]): The tensor to promote."""
+        x (torch.Tensor): The tensor to promote."""
     if not isinstance(x, Iterable):
         return [x]
     return x
@@ -80,12 +80,12 @@ def dim_grid(
     return torch.stack(torch.meshgrid(*mesh_vals, indexing='ij'), dim=-1).reshape(-1, dim)
 
 
-def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tensor, np.ndarray], dim : Optional[int] ) -> Tuple[torch.Tensor, torch.Tensor, int]:
+def _process_bounds(lb : torch.Tensor, ub : torch.Tensor, dim : Optional[int] ) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type.
     
     Args:
-        lb (Union[torch.Tensor, np.ndarray]): Lower bounds.
-        ub (Union[torch.Tensor, np.ndarray]): Upper bounds.
+        lb (torch.Tensor): Lower bounds.
+        ub (torch.Tensor): Upper bounds.
         dim (Optional[int]): Dimension of the bounds.
         
     Returns:
@@ -93,13 +93,6 @@ def _process_bounds(lb : Union[torch.Tensor, np.ndarray], ub : Union[torch.Tenso
     lb = promote_0d(lb)
     ub = promote_0d(ub)
 
-    if not isinstance(lb, torch.Tensor):
-        lb = torch.tensor(lb)
-    if not isinstance(ub, torch.Tensor):
-        ub = torch.tensor(ub)
-
-    lb = lb.to(torch.float64)
-    ub = ub.to(torch.float64)
 
     assert lb.shape[0] == ub.shape[0], "bounds should be of equal shape!"
 

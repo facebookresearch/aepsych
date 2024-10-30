@@ -36,12 +36,12 @@ class Config(configparser.ConfigParser):
         objects in AEPsych by calling object.from_config(config).
 
         Args:
-            config_dict (Mapping[str, str], optional): Mapping to build configuration from.
+            config_dict (Optional[Mapping[str, Any]], optional): Mapping to build configuration from.
                 Keys are section names, values are dictionaries with keys and values that
                 should be present in the section. Defaults to None.
-            config_fnames (Sequence[str], optional): List of INI filenames to load
+            config_fnames (Optional[Sequence[str]], optional): List of INI filenames to load
                 configuration from. Defaults to None.
-            config_str (str, optional): String formatted as an INI file to load configuration
+            config_str (Optional[str] , optional): String formatted as an INI file to load configuration
                 from. Defaults to None.
         """
         super().__init__(
@@ -71,7 +71,7 @@ class Config(configparser.ConfigParser):
         option: str,
         *,
         raw: bool = False,
-        vars: Optional[Dict[str, Any]]=None,
+        vars: Optional[Dict[str, Any]] = None,
         fallback: _T = configparser._UNSET,
         **kwargs,
     ) -> _T:
@@ -88,9 +88,9 @@ class Config(configparser.ConfigParser):
             section (str): Section to get the option from.
             conv (_T): Converter to use.
             option (str): Option to get.
-            raw (bool): Whether to return the raw value. Defaults to False.
-            vars (Optional[Dict[str, Any]]): Optional dictionary to use for interpolation. Defaults to None.
-            fallback (_T): Value to return if the option is not found. Defaults to configparser._UNSET.
+            raw (bool, optional): Whether to return the raw value. Defaults to False.
+            vars (Optional[Dict[str, Any]], optional): Optional dictionary to use for interpolation. Defaults to None.
+            fallback (_T, optional): Value to return if the option is not found. Defaults to configparser._UNSET.
 
         Returns:
             _T: Converted value of the option.
@@ -124,7 +124,7 @@ class Config(configparser.ConfigParser):
         """Convert the config into a dictionary.
         
         Args:
-            deduplicate (bool): Whether to deduplicate the 'common' section. Defaults to True.
+            deduplicate (bool, optional): Whether to deduplicate the 'common' section. Defaults to True.
             
         Returns:
             dict: Dictionary representation of the config.
