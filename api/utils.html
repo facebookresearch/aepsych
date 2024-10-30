@@ -80,21 +80,7 @@ Create a grid based on lower, upper, and dim.
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.utils.interpolate_monotonic">
 <span class="sig-prename descclassname"><span class="pre">aepsych.utils.</span></span><span class="sig-name descname"><span class="pre">interpolate_monotonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils.html#interpolate_monotonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils.interpolate_monotonic" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>y</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>z</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>min_x</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>max_x</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>float</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tensor</em></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.utils.get_lse_interval">
 <span class="sig-prename descclassname"><span class="pre">aepsych.utils.</span></span><span class="sig-name descname"><span class="pre">get_lse_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cred_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils.html#get_lse_interval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils.get_lse_interval" title="Permalink to this definition">¶</a></dt>
@@ -120,41 +106,11 @@ Create a grid based on lower, upper, and dim.
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.utils.get_lse_contour">
 <span class="sig-prename descclassname"><span class="pre">aepsych.utils.</span></span><span class="sig-name descname"><span class="pre">get_lse_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils.html#get_lse_contour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils.get_lse_contour" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>post_mean</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>mono_grid</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – </p></li>
-<li><p><strong>level</strong> (<em>float</em>) – </p></li>
-<li><p><strong>mono_dim</strong> (<em>int</em>) – </p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>float</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tensor</em></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.utils.get_jnd_1d">
 <span class="sig-prename descclassname"><span class="pre">aepsych.utils.</span></span><span class="sig-name descname"><span class="pre">get_jnd_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils.html#get_jnd_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils.get_jnd_1d" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>post_mean</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>mono_grid</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>df</strong> (<em>int</em>) – </p></li>
-<li><p><strong>mono_dim</strong> (<em>int</em>) – </p></li>
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>float</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tensor</em></p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.utils.get_jnd_multid">
 <span class="sig-prename descclassname"><span class="pre">aepsych.utils.</span></span><span class="sig-name descname"><span class="pre">get_jnd_multid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_mean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mono_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils.html#get_jnd_multid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils.get_jnd_multid" title="Permalink to this definition">¶</a></dt>
