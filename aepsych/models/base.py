@@ -131,14 +131,17 @@ class AEPsychMixin(GPyTorchModel):
         max_time: Optional[float] = None,
     ) -> Tuple[float, torch.Tensor]:
         """Return the maximum of the modeled function, subject to constraints
+
         Args:
-            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
-                inverse is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
+            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
+                inverse is along a slice of the full surface. Defaults to None.
+            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples int: number of coarse grid points to sample for optimization estimate.
+            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
+            max_time (Optional[float], optional): Maximum time to spend optimizing. Defaults to None.
+
         Returns:
-            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
+            Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).
         """
         locked_dims = locked_dims or {}
         _, _arg = get_extremum(
@@ -160,11 +163,13 @@ class AEPsychMixin(GPyTorchModel):
     ) -> Tuple[float, torch.Tensor]:
         """Return the minimum of the modeled function, subject to constraints
         Args:
-            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
+            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples int: number of coarse grid points to sample for optimization estimate.
+            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
+            max_time (Optional[float], optional): Maximum time to spend optimizing. Defaults to None.
+
         Returns:
             Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
         """
@@ -191,12 +196,17 @@ class AEPsychMixin(GPyTorchModel):
         """Query the model inverse.
         Return nearest x such that f(x) = queried y, and also return the
             value of f at that point.
+
         Args:
             y (float): Points at which to find the inverse.
-            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
+            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
+            n_samples (int, optional): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
+            max_time (Optional[float], optional): Maximum time to spend optimizing. Defaults to None.
+            weights (Optional[torch.Tensor], optional): Weights for the optimization. Defaults to None.
+
         Returns:
             Tuple[float, torch.Tensor]: Tuple containing the value of f
                 nearest to queried y and the x position of this value.
@@ -239,8 +249,8 @@ class AEPsychMixin(GPyTorchModel):
         Both definitions are equivalent for linear psychometric functions.
 
         Args:
-            grid (Optional[np.ndarray], optional): Mesh grid over which to find the JND.
-                Defaults to a square grid of size as determined by aepsych.utils.dim_grid
+            grid (Optional[Union[np.ndarray, torch.Tensor]], optional): Mesh grid over which to find the JND.
+                Defaults to a square grid of size as determined by aepsych.utils.dim_grid. 
             cred_level (float, optional): Credible level for computing an interval.
                 Defaults to None, computing no interval.
             intensity_dim (int, optional): Dimension over which to compute the JND.
@@ -316,6 +326,12 @@ class AEPsychMixin(GPyTorchModel):
         gridsize: int = 30,
         slice_dims: Optional[Mapping[int, float]] = None,
     ) -> torch.Tensor:
+        """Generate a grid based on lower, upper, and dim.
+        
+        Args:
+            gridsize (int, optional): Number of points in each dimension. Defaults to 30.
+            slice_dims (Optional[Mapping[int, float]], optional): Dimensions to fix at a 
+            certain value. Defaults to None."""
         return dim_grid(self.lb, self.ub, gridsize, slice_dims)
 
     def set_train_data(
@@ -325,9 +341,11 @@ class AEPsychMixin(GPyTorchModel):
         strict: bool = False,
     ):
         """
-        :param torch.Tensor inputs: The new training inputs.
-        :param torch.Tensor targets: The new training targets.
-        :param bool strict: (default False, ignored). Here for compatibility with
+        Args:
+            inputs (Optional[torch.Tensor], optional):  The new training inputs.
+            targets (Optional[torch.Tensor], optional): The new training targets.
+            strict (bool, optional):  Default is False. Ignored, just for compatibility.
+
         input transformers. TODO: actually use this arg or change input transforms
         to not require it.
         """
@@ -359,6 +377,13 @@ class AEPsychMixin(GPyTorchModel):
         optimizer=fit_gpytorch_mll_scipy,
         **kwargs,
     ) -> None:
+        """Fits the model by maximizing the marginal log likelihood.
+        
+        Args:
+            mll (MarginalLogLikelihood): Marginal log likelihood object.
+            optimizer_kwargs (Optional[Dict[str, Any]], optional): Keyword arguments for the optimizer.
+            optimizer: Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
+        """
         self.train()
         train_x, train_y = mll.model.train_inputs[0], mll.model.train_targets
         optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
@@ -381,8 +406,19 @@ class AEPsychMixin(GPyTorchModel):
         return res
 
     def p_below_threshold(
-        self, x, f_thresh
-    ) -> torch.Tensor:  # Return a tensor instead of NumPy array
+        self,
+        x: torch.Tensor,
+        f_thresh: torch.Tensor
+        ) -> torch.Tensor: 
+        """Compute the probability that the latent function is below a threshold.
+        
+        Args:
+            x (torch.Tensor): Points at which to evaluate the probability.
+            f_thresh (torch.Tensor): Threshold value.
+            
+        Returns:
+            torch.Tensor: Probability that the latent function is below the threshold.
+        """
         f, var = self.predict(x)
         f_thresh = f_thresh.reshape(-1, 1)
         f = f.reshape(1, -1)

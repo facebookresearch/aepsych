@@ -52,8 +52,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     def __init__(
         self,
         monotonic_idxs: Sequence[int],
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         mean_module: Optional[Mean] = None,
         covar_module: Optional[Kernel] = None,
@@ -67,22 +67,23 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         """Initialize MonotonicRejectionGP.
 
         Args:
+            monotonic_idxs (Sequence[int]): List of which columns of x should be given monotonicity
+            constraints.
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
+            dim (Optional[int], optional): The number of dimensions in the parameter space. If None, it is inferred from the size.
+            covar_module (Optional[Kernel], optional): Covariance kernel to use. Default is scaled RBF.
+            mean_module (Optional[Mean], optional): Mean module to use. Default is constant mean.
             likelihood (str): Link function and likelihood. Can be 'probit-bernoulli' or
                 'identity-gaussian'.
-            monotonic_idxs (List[int]): List of which columns of x should be given monotonicity
-            constraints.
             fixed_prior_mean (Optional[float], optional): Fixed prior mean. If classification, should be the prior
             classification probability (not the latent function value). Defaults to None.
-            covar_module (Optional[Kernel], optional): Covariance kernel to use (default: scaled RBF).
-            mean_module (Optional[Mean], optional): Mean module to use (default: constant mean).
             num_induc (int, optional): Number of inducing points for variational GP.]. Defaults to 25.
             num_samples (int, optional): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
-            num_rejection_samples (int, optional): Number of samples used for rejection sampling. Defaults to 4096.
-            acqf (MonotonicMCAcquisition, optional): Acquisition function to use for querying points. Defaults to MonotonicMCLSE.
-            objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
-            extra_acqf_args (Optional[Dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
-        """
+            num_rejection_samples (int, optional): Number of samples used for rejection sampling. Defaults to 4096. 
+            inducing_point_method (str, optional): Method for selecting inducing points. Defaults to "auto".
+           """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
             likelihood = BernoulliLikelihood()
@@ -171,6 +172,14 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         model_state_dict: Optional[Dict[str, Tensor]] = None,
         likelihood_state_dict: Optional[Dict[str, Tensor]] = None,
     ) -> None:
+        """Sets the model with the given data and state dicts.
+        
+        Args:
+            train_x (Tensor): Training x points
+            train_y (Tensor): Training y points. Should be (n x 1).
+            model_state_dict (Optional[Dict[str, Tensor]], optional): State dict for the model
+            likelihood_state_dict (Optional[Dict[str, Tensor]], optional): State dict for the likelihood
+            """
         train_x_aug = self._augment_with_deriv_index(train_x, 0)
         self.set_train_data(train_x_aug, train_y)
         # Set model parameters
@@ -194,7 +203,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         Args:
             train_x (Tensor): Train X.
             train_y (Tensor): Train Y. Should be (n x 1).
-            warmstart (bool): If True, warm-start model fitting with current parameters.
+            warmstart (bool, optional): If True, warm-start model fitting with current parameters. Defaults to True.
         """
         if warmstart:
             model_state_dict = self.state_dict()
@@ -219,7 +228,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         Args:
             x (Tensor): tensor of n points at which to sample
-            num_samples (int, optional): how many points to sample (default: self.num_samples)
+            num_samples (Optional[int], optional): how many points to sample. Default is self.num_samples.
+            num_rejection_samples (Optional[int], optional): how many samples to use for rejection sampling. Default is self.num_rejection_samples.
 
         Returns: a Tensor of shape [n_samp, n]
         """
@@ -262,7 +272,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         """Predict
 
         Args:
-            x: tensor of n points at which to predict.
+            x (torch.Tensor): tensor of n points at which to predict.
+            probability_space (bool, optional): whether to return in probability space. Defaults to False.
 
         Returns: tuple (f, var) where f is (n,) and var is (n,)
         """
@@ -279,17 +290,35 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         return mean, variance
 
     def predict_probability(
-        self, x: Union[torch.Tensor, np.ndarray]
+        self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Predict in probability space
+
+        Args:
+            x (torch.Tensor): Points at which to predict.
+        
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
+        """
         return self.predict(x, probability_space=True)
 
-    def _augment_with_deriv_index(self, x: Tensor, indx) -> Tensor:
+    def _augment_with_deriv_index(self, x: Tensor, indx: int) -> Tensor:
+        """Augment input with derivative index
+
+        Args:
+            x (Tensor): Input tensor
+            indx (int): Derivative index
+        
+        Returns:
+            Tensor: Augmented tensor
+        """
         return torch.cat(
             (x, indx * torch.ones(x.shape[0], 1)),
             dim=1,
         )
 
     def _get_deriv_constraint_points(self) -> Tensor:
+        """Get derivative constraint points"""
         deriv_cp = torch.tensor([])
         for i in self.monotonic_idxs:
             induc_i = self._augment_with_deriv_index(self.inducing_points, i + 1)
@@ -298,6 +327,14 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
     @classmethod
     def from_config(cls, config: Config) -> MonotonicRejectionGP:
+        """ Alternate constructor for MonotonicRejectionGP
+        
+        Args:
+            config (Config): a configuration containing keys/values matching this class
+            
+        Returns:
+            MonotonicRejectionGP: configured class instance
+        """
         classname = cls.__name__
         num_induc = config.gettensor(classname, "num_induc", fallback=25)
         num_samples = config.gettensor(classname, "num_samples", fallback=250)

@@ -59,6 +59,19 @@ def select_inducing_points(
     bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
     method: str = "auto",
 ) -> torch.Tensor:
+    """Select inducing points for GP model
+
+    Args:
+        inducing_size (int): Number of inducing points to select.
+        covar_module (Kernel): The kernel module to use for inducing point selection.
+        X (torch.Tensor): The training data.
+        bounds (torch.Tensor): The bounds of the input space.
+        method (str): The method to use for inducing point selection. One of
+            "pivoted_chol", "kmeans++", "auto", or "sobol".
+        
+    Returns:
+        torch.Tensor: The selected inducing points.
+    """
     with torch.no_grad():
         assert (
             method
@@ -111,6 +124,15 @@ def select_inducing_points(
 def get_probability_space(
     likelihood: Likelihood, posterior: GPyTorchPosterior
 ) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Get the mean and variance of the probability space for a given posterior
+
+    Args:
+        likelihood (Likelihood): The likelihood function.
+        posterior (GPyTorchPosterior): The posterior to transform.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: The mean and variance of the probability space.
+    """
     fmean = posterior.mean.squeeze()
     fvar = posterior.variance.squeeze()
     if isinstance(likelihood, BernoulliLikelihood):
@@ -243,14 +265,37 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
     def __init__(
         self, target_value: Union[float, Tensor], weights: Optional[Tensor] = None
     ) -> None:
+        """Initialize the TargetDistancePosteriorTransform
+        
+        Args:
+            target_value (Union[float, Tensor]): The target value to transform the posterior to.
+            weights (Optional[Tensor]): Weights to apply to the target value. Defaults to None.
+        """
         super().__init__()
         self.target_value = target_value
         self.weights = weights
 
     def evaluate(self, Y: Tensor) -> Tensor:
+        """Evaluate the squared distance from the target value.
+        
+        Args:
+            Y (Tensor): The tensor to evaluate.
+            
+        Returns:
+            Tensor: The squared distance from the target value.
+        """
         return (Y - self.target_value) ** 2
 
     def _forward(self, mean: Tensor, var: Tensor) -> GPyTorchPosterior:
+        """Transform the posterior mean and variance based on the target value.
+        
+        Args:
+            mean (Tensor): The posterior mean.
+            var (Tensor): The posterior variance.
+            
+        Returns:
+            GPyTorchPosterior: The transformed posterior.
+        """
         q, _ = mean.shape[-2:]
         batch_shape = mean.shape[:-2]
 
@@ -265,6 +310,14 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
         return GPyTorchPosterior(mvn)
 
     def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
+        """Transform the given posterior distribution to reflect the target distance.
+        
+        Args:
+            posterior (GPyTorchPosterior): The posterior to transform.
+            
+        Returns:
+            GPyTorchPosterior: The transformed posterior.
+        """
         mean = posterior.mean
         var = posterior.variance
         return self._forward(mean, var)
@@ -273,6 +326,14 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
 # Requires botorch approximate model to accept posterior transforms
 class TargetProbabilityDistancePosteriorTransform(TargetDistancePosteriorTransform):
     def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
+        """Transform the given posterior distribution to reflect the target probability distance.
+        
+        Args:
+            posterior (GPyTorchPosterior): The posterior to transform.
+            
+        Returns:
+            GPyTorchPosterior: The transformed posterior distribution reflecting the target probability distance.
+        """
         pmean, pvar = get_probability_space(BernoulliLikelihood(), posterior)
         pmean = pmean.unsqueeze(-1).unsqueeze(-1)
         pvar = pvar.unsqueeze(-1).unsqueeze(-1)

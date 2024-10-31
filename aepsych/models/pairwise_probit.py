@@ -31,10 +31,19 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
     def _pairs_to_comparisons(
         self, x: torch.Tensor, y: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Takes x, y structured as pairs and judgments and
-        returns pairs and comparisons as PairwiseGP requires
-        """
+        """Convert pairs of points and their judgements to comparisons.
+
+        Args:
+            x (torch.Tensor): Tensor of shape (n, 2, d) where n is the number of pairs and d is the dimensionality of the
+                parameter space.
+            y (torch.Tensor): Tensor of shape (n,) where n is the number of pairs. Each element is 0 if the first point
+                in the pair is preferred, and 1 if the second point is preferred.
+            
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple of tensors. The first tensor is of shape (n, d) and contains the
+                unique points in the pairs. The second tensor is of shape (n, 2) and contains the indices of the unique
+                points in the first tensor that correspond to the points in the pairs.
+        """        
         # This needs to take a unique over the feature dim by flattening
         # over pairs but not instances/batches. This is actually tensor
         # matricization over the feature dimension but awkward in numpy
@@ -65,6 +74,17 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         max_fit_time: Optional[float] = None,
     ) -> None:
+        """Initialize the PairwiseProbitModel
+
+        Args:
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
+            dim (Optional[int], optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+                of lb and ub. Defaults to None.
+            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP covariance kernel class. Defaults to scaled RBF with a
+                gamma prior. Defaults to None.
+            max_fit_time (Optional[float], optional): The maximum amount of time, in seconds, to spend fitting the model. Defaults to None.
+            """
         self.lb, self.ub, dim = _process_bounds(lb, ub, dim)
 
         self.max_fit_time = max_fit_time
@@ -101,6 +121,13 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> None:
+        """Fit the model to the training data.
+
+        Args:
+            train_x (torch.Tensor): Trainin x points.
+            train_y (torch.Tensor): Training y points.
+            optimizer_kwargs (Optional[Dict[str, Any]], optional): Keyword arguments to pass to the optimizer. Defaults to None.
+        """
         self.train()
         mll = PairwiseLaplaceMarginalLogLikelihood(self.likelihood, self)
         datapoints, comparisons = self._pairs_to_comparisons(train_x, train_y)
@@ -125,7 +152,13 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
     def update(
         self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
     ) -> None:
-        """Perform a warm-start update of the model from previous fit."""
+        """Perform a warm-start update of the model from previous fit.
+        
+        Args:
+            train_x (torch.Tensor): Train X.
+            train_y (torch.Tensor): Train Y.
+            warmstart (bool, optional): If True, warm-start model fitting with current parameters. Defaults to True.
+        """
         self.fit(train_x, train_y)
 
     def predict(
@@ -135,6 +168,15 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         num_samples: int = 1000,
         rereference: str = "x_min",
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            probability_space (bool, optional): Return outputs in units of response probability instead of latent function value. Defaults to False.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+        """
         if rereference is not None:
             samps = self.sample(x, num_samples, rereference)
             fmean, fvar = samps.mean(0).squeeze(), samps.var(0).squeeze()
@@ -157,6 +199,15 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         num_samples: int = 1000,
         rereference: str = "x_min",
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance in probability space.
+        
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            probability_space (bool, optional): Return outputs in units of response probability instead of latent function value. Defaults to False.
+            
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+        """
         return self.predict(
             x, probability_space=True, num_samples=num_samples, rereference=rereference
         )
@@ -164,6 +215,16 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
     def sample(
         self, x: torch.Tensor, num_samples: int, rereference: str = "x_min"
     ) -> torch.Tensor:
+        """Sample from the model.
+
+        Args:
+            x (torch.Tensor): Points at which to sample.
+            num_samples (int): Number of samples to return.
+            rereference (str, optional): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
+
+        Returns:
+            torch.Tensor: Posterior samples [num_samples x dim]
+        """
         if len(x.shape) < 2:
             x = x.reshape(-1, 1)
         if rereference is None:
@@ -191,7 +252,15 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return -samps + samps_ref
 
     @classmethod
-    def from_config(cls, config: Config) -> "PairwiseProbitModel":
+    def from_config(cls, config: Config) -> 'PairwiseProbitModel':
+        """Initialize the model from a config object.
+
+        Args:
+            config (Config): a configuration containing keys/values matching this class
+
+        Returns:
+            PairwiseProbitModel: Configured class instance.
+        """
         classname = cls.__name__
 
         mean_covar_factory = config.getobj(

@@ -79,12 +79,25 @@ class MultitaskGPRModel(GPRegressionModel):
     def forward(
         self, x: torch.Tensor
     ) -> gpytorch.distributions.MultitaskMultivariateNormal:
+        """ Evaluate GP.
+        
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+            
+        Returns:
+            gpytorch.distributions.MultitaskMultivariateNormal: Distribution object
+                holding the mean and covariance at x."""
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultitaskMultivariateNormal(mean_x, covar_x)
 
     @classmethod
     def construct_inputs(cls, config: Config):
+        """Construct inputs for the Multitask GPR model from configuration.
+        
+        Args:
+            config (Config): A configuration containing keys/values matching this class.
+        """
         classname = cls.__name__
         args = super().construct_inputs(config)
         args["num_outputs"] = config.getint(classname, "num_outputs", fallback=2)
@@ -152,6 +165,14 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
     def forward(
         self, x: torch.Tensor
     ) -> gpytorch.distributions.MultitaskMultivariateNormal:
+        """ Evaluate GP.
+
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+
+        Returns:
+            gpytorch.distributions.MultitaskMultivariateNormal: Distribution object
+                holding the mean and covariance at x."""
         base_mvn = super().forward(x)  # do transforms
         return gpytorch.distributions.MultitaskMultivariateNormal.from_batch_mvn(
             base_mvn
@@ -159,6 +180,14 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
 
     @classmethod
     def get_config_args(cls, config: Config) -> Dict[str, Any]:
+        """Get configuration arguments for the model.
+
+        Args:
+            config (Config): A configuration containing keys/values matching this class.
+
+        Returns:
+            Dict[str, Any]: Dictionary of configuration arguments.
+        """
         classname = cls.__name__
         args = super().get_config_args(config)
         args["num_outputs"] = config.getint(classname, "num_outputs", fallback=2)
