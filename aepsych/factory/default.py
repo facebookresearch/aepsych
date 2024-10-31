@@ -35,6 +35,7 @@ def default_mean_covar_factory(
             config details).
         dim (int, optional): Dimensionality of the parameter space. Must be provided
             if config is None.
+        stimuli_per_trial (int, optional): Number of stimuli per trial. Defaults to 1.
 
     Returns:
         Tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated
@@ -68,6 +69,14 @@ def default_mean_covar_factory(
 def _get_default_mean_function(
     config: Optional[Config] = None,
 ) -> gpytorch.means.ConstantMean:
+    """Creates a default mean function for Gaussian Processes.
+
+    Args:
+        config (Config, optional): Configuration object.
+
+    Returns:
+        gpytorch.means.ConstantMean: An instantiated mean function with appropriate priors based on the configuration.
+    """
     # default priors
     fixed_mean = False
     mean = gpytorch.means.ConstantMean()
@@ -93,6 +102,18 @@ def _get_default_cov_function(
     stimuli_per_trial: int,
     active_dims: Optional[List[int]] = None,
 ) -> gpytorch.kernels.Kernel:
+    """Creates a default covariance function for Gaussian Processes.
+    
+    Args:
+        config (Config): Configuration object.
+        dim (int): Dimensionality of the parameter space.
+        stimuli_per_trial (int): Number of stimuli per trial.
+        active_dims (List[int], optional): List of dimensions to use in the covariance function. Defaults to None.
+        
+    Returns:
+        gpytorch.kernels.Kernel: An instantiated kernel with appropriate priors based on the configuration.
+    """
+
     # default priors
     lengthscale_prior = "lognormal" if stimuli_per_trial == 1 else "gamma"
     ls_loc = torch.tensor(math.sqrt(2.0), dtype=torch.float64)
