@@ -16,8 +16,13 @@ class PairwiseKernel(Kernel):
     """
 
     def __init__(
-        self, latent_kernel: Any, is_partial_obs: bool = False, **kwargs
+          self, latent_kernel: Any, is_partial_obs: bool=False, **kwargs
     ) -> None:
+        """
+         Args:
+            latent_kernel (Any): The underlying kernel used to compute the covariance for the GP.
+            is_partial_obs (bool, optional): If the kernel should handle partial observations. Defaults to False.
+        """
         super(PairwiseKernel, self).__init__(**kwargs)
 
         self.latent_kernel = latent_kernel
@@ -30,20 +35,20 @@ class PairwiseKernel(Kernel):
         TODO: make last_batch_dim work properly
 
         d must be 2*k for integer k, k is the dimension of the latent space
+
         Args:
-            :attr:`x1` (Tensor `n x d` or `b x n x d`):
-                First set of data
-            :attr:`x2` (Tensor `m x d` or `b x m x d`):
-                Second set of data
-            :attr:`diag` (bool):
-                Should the Kernel compute the whole kernel, or just the diag?
+            x1 (torch.Tensor): A `b x n x d` or `n x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
+            x2 (torch.Tensor): A `b x m x d` or `m x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
+            diag (bool, optional): Should the Kernel compute the whole covariance matrix or just the diagonal? Defaults to False.
+            
 
         Returns:
-            :class:`Tensor` or :class:`gpytorch.lazy.LazyTensor`.
-                The exact size depends on the kernel's evaluation mode:
+            Optional[torch.Tensor] (or :class:`gpytorch.lazy.LazyTensor`) : A `b x n x m` or `n x m` tensor representing
+            the covariance matrix between `x1` and `x2`. 
+            The exact size depends on the kernel's evaluation mode:
+            * `full_covar`: `n x m` or `b x n x m`
+            * `diag`: `n` or `b x n`
 
-                * `full_covar`: `n x m` or `b x n x m`
-                * `diag`: `n` or `b x n`
         """
         if self.is_partial_obs:
             d: Union[torch.Tensor, int] = x1.shape[-1] - 1
