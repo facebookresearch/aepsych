@@ -71,9 +71,9 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
 
         Args:
             model (Model): A fitted model.
-            objective (MCAcquisitionObjective): An MCAcquisitionObjective representing the link function
+            objective (MCAcquisitionObjective, optional): An MCAcquisitionObjective representing the link function
                 (e.g., logistic or probit)
-            sampler (MCSampler, optional): The sampler used for drawing MC samples.
+            sampler (Optional[MCSampler], optional): The sampler used for drawing MC samples.
         """
         if sampler is None:
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([1024]))
@@ -88,7 +88,7 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
         r"""Evaluate mutual information on the candidate set `X`.
 
         Args:
-            X: A `batch_size x q x d`-dim Tensor.
+            X (Tensor): A `batch_size x q x d`-dim Tensor.
         Returns:
             Tensor of shape `batch_size x q` representing the mutual
             information of a hypothetical trial at X that active
@@ -123,6 +123,19 @@ def construct_inputs_mi(
     sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
+    """
+    Constructs the input dictionary for initializing the BernoulliMCMutualInformation acquisition function.
+
+    Args:
+        model (Model): The fitted model to use.
+        training_data (None): Placeholder for compatibility; not used in this function.
+        objective (Optional[MCAcquisitionObjective], optional): Objective function for transforming samples (e.g., logit or probit).
+        sampler (Optional[MCSampler], optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+
+    Returns:
+        Dict[str, Any]: Dictionary of constructed inputs for the BernoulliMCMutualInformation acquisition function.
+    """
+
     return {
         "model": model,
         "objective": objective,

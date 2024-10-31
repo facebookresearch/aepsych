@@ -27,6 +27,11 @@ class SemiPObjectiveBase(MCAcquisitionObjective):
     _verify_output_shape: bool = False
 
     def __init__(self, stim_dim: int = 0) -> None:
+        """Initializes the SemiPObjectiveBase object.
+        
+        Args:
+            stim_dim (int): The dimension of the stimulus.
+        """
         super().__init__()
         self.stim_dim = stim_dim
 
@@ -66,6 +71,16 @@ class SemiPProbabilityObjective(SemiPObjectiveBase):
 
     @classmethod
     def from_config(cls, config: Config) -> SemiPProbabilityObjective:
+        """
+        Creates an instance of SemiPProbabilityObjective from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            SemiPProbabilityObjective: A configured instance of the objective with the specified likelihood.
+        """
+
         classname = cls.__name__
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
@@ -121,6 +136,17 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
 
     @classmethod
     def from_config(cls, config: Config) -> SemiPThresholdObjective:
+        """
+        Creates an instance of SemiPThresholdObjective from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            SemiPThresholdObjective: A configured instance of the objective with the specified target threshold
+            and likelihood.
+        """
+
         classname = cls.__name__
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)

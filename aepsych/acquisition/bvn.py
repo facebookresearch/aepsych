@@ -15,6 +15,16 @@ _neg_inv_sqrt2 = -1 / (2**0.5)
 
 
 def _gauss_legendre20(dtype: torch.dtype) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Computes the abscissae and weights for the Gauss-Legendre quadrature of order 20.
+
+    Args:
+        dtype (torch.dtype): The desired data type of the output tensors.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]:
+            - abscissae: The quadrature points.
+            - weights: The corresponding weights for each quadrature point.
+    """
     _abscissae = torch.tensor(
         [
             0.9931285991850949,
@@ -54,6 +64,12 @@ def _gauss_legendre20(dtype: torch.dtype) -> Tuple[torch.Tensor, torch.Tensor]:
 def _ndtr(x: torch.Tensor) -> torch.Tensor:
     """
     Standard normal CDF. Called <phid> in Genz's original code.
+
+    Args:
+        x (torch.Tensor): Input tensor of values.
+
+    Returns:
+        torch.Tensor: CDF values for each element in the input tensor.
     """
     return 0.5 * torch.erfc(_neg_inv_sqrt2 * x)
 
@@ -65,6 +81,14 @@ def _bvnu(
 ) -> torch.Tensor:
     """
     Primary subroutine for bvnu()
+
+    Args:
+        dh (torch.Tensor): Input tensor representing the first variable values.
+        dk (torch.Tensor): Input tensor representing the second variable values.
+        r (torch.Tensor): Input tensor for the correlation coefficient.
+
+    Returns:
+        torch.Tensor: Approximated bivariate normal CDF values.
     """
     # Precompute some terms
     h = dh
@@ -106,9 +130,9 @@ def bvn_cdf(
     Journal of Statist. Comput. Simul. 35, pp. 101-107.
 
     Args:
-        xu: Upper limits for cdf evaluation in x
-        yu: Upper limits for cdf evaluation in y
-        r: BVN correlation
+        xu (torch.Tensor): Upper limits for cdf evaluation in x
+        yu (torch.Tensor): Upper limits for cdf evaluation in y
+        r (torch.Tensor): BVN correlation
 
     Returns: Tensor of cdf evaluations of same size as xu, yu, and r.
     """

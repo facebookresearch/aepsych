@@ -97,6 +97,22 @@ def construct_inputs_lse(
     sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
+    """
+    Constructs the input dictionary for initializing the MCLevelSetEstimation acquisition function.
+
+    Args:
+        model (Model): The fitted model to be used.
+        training_data (None): Placeholder for compatibility; not used in this function.
+        objective (Optional[MCAcquisitionObjective], optional): Objective function for transforming samples (e.g., logistic or probit).
+        target (Union[float, Tensor], optional): Level set to be estimated, defaulting to 0.75.
+        beta (Union[float, Tensor], optional): Parameter controlling explore-exploit tradeoff, default is 3.84.
+        sampler (Optional[MCSampler], optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+
+    Returns:
+        Dict[str, Any]: Dictionary of constructed inputs for the MCLevelSetEstimation acquisition function.
+    """
+
+
     return {
         "model": model,
         "objective": objective,

@@ -87,6 +87,13 @@ class MonotonicMCAcquisition(AcquisitionFunction):
         return self.acquisition(obj_samples)
 
     def _set_sampler(self, Xshape: torch.Size) -> None:
+        """
+        Sets up the rejection sampler for generating samples with derivative constraints.
+
+        Args:
+            Xshape (torch.Size): The shape of the input points `X` for which the sampler is set up.
+
+        """
         sampler = RejectionSampler(
             num_samples=self.num_samples,
             num_rejection_samples=self.num_rejection_samples,
@@ -134,6 +141,17 @@ class MonotonicMCLSE(MonotonicMCAcquisition):
         )
 
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
+        """
+        Computes the acquisition function value for level set estimation in monotonic models.
+
+        Args:
+            obj_samples (torch.Tensor): Tensor of samples from the model, transformed by the objective.
+                Expected shape is samples x batch_shape.
+
+        Returns:
+            torch.Tensor: The acquisition function value, calculated as the difference between an exploration-exploitation term
+            (based on the variance and `beta` parameter) and the absolute difference between the mean and the target level set.
+        """
         mean = obj_samples.mean(dim=0)
         variance = obj_samples.var(dim=0)
         # prevent numerical issues if probit makes all the values 1 or 0

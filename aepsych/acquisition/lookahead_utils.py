@@ -28,16 +28,18 @@ def posterior_at_xstar_xq(
     Evaluate the posteriors of f at single point Xstar and set of points Xq.
 
     Args:
-        model: The model to evaluate.
-        Xstar: (b x 1 x d) tensor.
-        Xq: (b x m x d) tensor.
+        model (GP): The model to evaluate.
+        Xstar (Tensor): (b x 1 x d) observation point.
+        Xq (Tensor): (b x m x d) reference points.
+        posterior_transform (Optional[PosteriorTransform], optional): A transform to apply to the
 
     Returns:
-        Mu_s: (b x 1) mean at Xstar.
-        Sigma2_s: (b x 1) variance at Xstar.
-        Mu_q: (b x m) mean at Xq.
-        Sigma2_q: (b x m) variance at Xq.
-        Sigma_sq: (b x m) covariance between Xstar and each point in Xq.
+        Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]: Tuple of the following:
+            Mu_s: (b x 1) mean at Xstar.
+            Sigma2_s: (b x 1) variance at Xstar.
+            Mu_q: (b x m) mean at Xq.
+            Sigma2_q: (b x m) variance at Xq.
+            Sigma_sq: (b x m) covariance between Xstar and each point in Xq.
     """
     # Evaluate posterior and extract needed components
     Xext = torch.cat((Xstar, Xq), dim=-2)
@@ -64,16 +66,19 @@ def lookahead_levelset_at_xstar(
     Evaluate the look-ahead level-set posterior at Xq given observation at xstar.
 
     Args:
-        model: The model to evaluate.
-        Xstar: (b x 1 x d) observation point.
-        Xq: (b x m x d) reference points.
-        gamma: Threshold in f-space.
+        model (GP): The model to evaluate.
+        Xstar (Tensor): (b x 1 x d) observation point.
+        Xq (Tensor): (b x m x d) reference points.
+        posterior_transform (Optional[PosteriorTransform], optional): A transform to apply to the
+        eps (float, optional): Small value to avoid division by zero.
+
 
     Returns:
-        Px: (b x m) Level-set posterior at Xq, before observation at xstar.
-        P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.
-        P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.
-        py1: (b x 1) Probability of observing 1 at xstar.
+        Tuple[Tensor, Tensor, Tensor, Tensor]: Tuple of the following:
+            Px: (b x m) Level-set posterior at Xq, before observation at xstar.
+            P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.
+            P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.
+            py1: (b x 1) Probability of observing 1 at xstar.
     """
     Mu_s, Sigma2_s, Mu_q, Sigma2_q, Sigma_sq = posterior_at_xstar_xq(
         model=model, Xstar=Xstar, Xq=Xq, posterior_transform=posterior_transform
@@ -118,16 +123,18 @@ def lookahead_p_at_xstar(
 
 
     Args:
-        model: The model to evaluate.
-        Xstar: (b x 1 x d) observation point.
-        Xq: (b x m x d) reference points.
+        model (GP): The model to evaluate.
+        Xstar (Tensor): (b x 1 x d) observation point.
+        Xq (Tensor): (b x m x d) reference points.
+        posterior_transform (Optional[PosteriorTransform], optional): A transform to apply to the
         kwargs: ignored (here for compatibility with other kinds of lookahead)
 
     Returns:
-        Px: (b x m) Response posterior at Xq, before observation at xstar.
-        P1: (b x m) Response posterior at Xq, given observation of 1 at xstar.
-        P0: (b x m) Response posterior at Xq, given observation of 0 at xstar.
-        py1: (b x 1) Probability of observing 1 at xstar.
+        Tuple[Tensor, Tensor, Tensor, Tensor]: Tuple of the following:
+            Px: (b x m) Response posterior at Xq, before observation at xstar.
+            P1: (b x m) Response posterior at Xq, given observation of 1 at xstar.
+            P0: (b x m) Response posterior at Xq, given observation of 0 at xstar.
+            py1: (b x 1) Probability of observing 1 at xstar.
     """
     Mu_s, Sigma2_s, Mu_q, Sigma2_q, Sigma_sq = posterior_at_xstar_xq(
         model=model, Xstar=Xstar, Xq=Xq, posterior_transform=posterior_transform
@@ -166,16 +173,18 @@ def approximate_lookahead_levelset_at_xstar(
     The look-ahead posterior approximation of Lyu et al.
 
     Args:
-        model: The model to evaluate.
-        Xstar: (b x 1 x d) observation point.
-        Xq: (b x m x d) reference points.
-        gamma: Threshold in f-space.
+        model (GP): The model to evaluate.
+        Xstar (Tensor): (b x 1 x d) observation point.
+        Xq (Tensor): (b x m x d) reference points.
+        gamma (float): The threshold value.
+        posterior_transform (Optional[PosteriorTransform], optional): A transform to apply to the
 
     Returns:
-        Px: (b x m) Level-set posterior at Xq, before observation at xstar.
-        P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.
-        P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.
-        py1: (b x 1) Probability of observing 1 at xstar.
+        Tuple[Tensor, Tensor, Tensor, Tensor]: Tuple of the following:
+            Px: (b x m) Level-set posterior at Xq, before observation at xstar.
+            P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.
+            P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.
+            py1: (b x 1) Probability of observing 1 at xstar.
     """
     Mu_s, Sigma2_s, Mu_q, Sigma2_q, Sigma_sq = posterior_at_xstar_xq(
         model=model, Xstar=Xstar, Xq=Xq, posterior_transform=posterior_transform

@@ -60,7 +60,12 @@ class FloorLinkObjective(AEPsychObjective):
     the probability is known not to go below it.
     """
 
-    def __init__(self, floor: float = 0.5) -> None:
+    def __init__(self, floor: float=0.5) -> None:
+        """
+        Initialize the objective with a floor.
+        
+        Args:
+            floor (float): The floor value."""
         self.floor = floor
         super().__init__()
 
@@ -110,9 +115,27 @@ class FloorLogitObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
+        """
+        Generator that implements a logistic sigmoid function with a specified floor.
+
+        Args:
+            samples (Tensor): GP samples to evaluate.
+
+        Returns:
+            Tensor: The output of the logistic sigmoid function, constrained to be between the specified floor and 1.0.
+        """
         return torch.special.expit(samples)
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """
+        Evaluates the inverse of the floor-constrained logistic sigmoid function.
+
+        Args:
+            samples (Tensor): GP samples to evaluate.
+
+        Returns:
+            Tensor: The inverse of the logistic sigmoid function, adjusted for the floor constraint.
+        """
         return torch.special.logit(samples)
 
 
@@ -126,11 +149,29 @@ class FloorGumbelObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
+        """
+        Generates the output of the Gumbel cumulative distribution function (CDF) with a specified floor.
+
+        Args:
+            samples (Tensor): GP samples to evaluate.
+
+        Returns:
+            Tensor: The output of the Gumbel CDF, constrained to be between the specified floor and 1.0.
+        """
         return torch.nan_to_num(
             -torch.special.expm1(-torch.exp(samples)), posinf=1.0, neginf=0.0
         )
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """
+        Evaluates the inverse of the floor-constrained Gumbel CDF.
+
+        Args:
+            samples (Tensor): GP samples to evaluate.
+
+        Returns:
+            Tensor: The inverse of the Gumbel CDF, adjusted for the floor constraint.
+        """
         return torch.log(-torch.special.log1p(-samples))
 
 
@@ -141,6 +182,15 @@ class FloorProbitObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
+        """
+        Generates the output of the probit function with a specified floor.
+
+        Args:
+            samples (Tensor): GP samples to evaluate.
+
+        Returns:
+            Tensor: The output of the probit function, constrained between the specified floor and 1.0.
+        """
         return Normal(0, 1).cdf(samples)
 
     def inverse_link(self, samples: Tensor) -> Tensor:

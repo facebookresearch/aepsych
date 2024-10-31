@@ -30,7 +30,7 @@ def Hb(p: Tensor) -> Tensor:
     Binary entropy.
 
     Args:
-        p: Tensor of probabilities.
+        p (Tensor): Tensor of probabilities.
 
     Returns: Binary entropy for each probability.
     """
@@ -45,10 +45,10 @@ def MI_fn(Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
     H(p) - E_y*[H(p | y*)]
 
     Args:
-        Px: (b x m) Level-set posterior before observation
-        P1: (b x m) Level-set posterior given observation of 1
-        P0: (b x m) Level-set posterior given observation of 0
-        py1: (b x 1) Probability of observing 1
+        Px (Tensor): (b x m) Level-set posterior before observation
+        P1 (Tensor): (b x m) Level-set posterior given observation of 1
+        P0 (Tensor): (b x m) Level-set posterior given observation of 0
+        py1 (Tensor): (b x 1) Probability of observing 1
 
     Returns: (b) tensor of mutual information averaged over Xq.
     """
@@ -59,6 +59,12 @@ def MI_fn(Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
 def ClassErr(p: Tensor) -> Tensor:
     """
     Expected classification error, min(p, 1-p).
+
+    Args:
+        p (Tensor): Tensor of predicted probabilities.
+
+    Returns:
+        Tensor: Expected classification error for each probability, computed as min(p, 1 - p).
     """
     return torch.min(p, 1 - p)
 
@@ -71,12 +77,13 @@ def SUR_fn(Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
     averaged over Xq.
 
     Args:
-        Px: (b x m) Level-set posterior before observation
-        P1: (b x m) Level-set posterior given observation of 1
-        P0: (b x m) Level-set posterior given observation of 0
-        py1: (b x 1) Probability of observing 1
+        Px (Tensor): (b x m) Level-set posterior before observation
+        P1 (Tensor): (b x m) Level-set posterior given observation of 1
+        P0 (Tensor): (b x m) Level-set posterior given observation of 0
+        py1 (Tensor): (b x 1) Probability of observing 1
 
-    Returns: (b) tensor of SUR values.
+    Returns:
+        (b) tensor of SUR values.
     """
     P1 = P1.to(Px)
     py1 = py1.to(Px)
@@ -91,12 +98,13 @@ def EAVC_fn(Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
     Expected absolute change in expected level-set volume given observation at Xstar.
 
     Args:
-        Px: (b x m) Level-set posterior before observation
-        P1: (b x m) Level-set posterior given observation of 1
-        P0: (b x m) Level-set posterior given observation of 0
-        py1: (b x 1) Probability of observing 1
+        Px (Tensor): (b x m) Level-set posterior before observation
+        P1 (Tensor): (b x m) Level-set posterior given observation of 1
+        P0 (Tensor): (b x m) Level-set posterior given observation of 0
+        py1 (Tensor): (b x 1) Probability of observing 1
 
-    Returns: (b) tensor of EAVC values.
+    Returns:
+        (b) tensor of EAVC values.
     """
     avc1 = torch.abs((Px - P1).sum(dim=-1))
     avc0 = torch.abs((Px - P0).sum(dim=-1))
@@ -114,8 +122,9 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
         A localized look-ahead acquisition function.
 
         Args:
-            model: The gpytorch model.
-            target: Threshold value to target in p-space.
+            model (GPyTorchModel): The gpytorch model to use.
+            target (Optional[float]): Threshold value to target in p-space.
+            lookahead_type (str, optional): The type of look-ahead to perform (default is "levelset").
         """
         super().__init__(model=model)
         if lookahead_type == "levelset":
@@ -142,8 +151,10 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         A localized look-ahead acquisition function.
 
         Args:
-            model: The gpytorch model.
-            target: Threshold value to target in p-space.
+            model (GPyTorchModel): The gpytorch model to use.
+            lookahead_type (str, optional): The type of look-ahead to perform (default is "levelset").
+            target (Optional[float], optional): Threshold value to target in p-space.
+            posterior_transform (Optional[PosteriorTransform], optional): Optional transformation to apply to the posterior.
         """
 
         super().__init__(model=model, target=target, lookahead_type=lookahead_type)
@@ -155,9 +166,10 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         Evaluate acquisition function at X.
 
         Args:
-            X: (b x 1 x d) point at which to evalaute acquisition function.
+            X (Tensor): (b x 1 x d) point at which to evalaute acquisition function.
 
-        Returns: (b) tensor of acquisition values.
+        Returns:
+            (b) tensor of acquisition values.
         """
 
         Px, P1, P0, py1 = self.lookahead_fn(
@@ -215,9 +227,12 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         A global look-ahead acquisition function.
 
         Args:
-            model: The gpytorch model.
-            target: Threshold value to target in p-space.
-            Xq: (m x d) global reference set.
+            model (GPyTorchModel): The gpytorch model to use.
+            lookahead_type (str, optional): The type of look-ahead to perform (default is "levelset").
+            target (Optional[float], optional): Threshold value to target in p-space.
+            posterior_transform (Optional[PosteriorTransform], optional): Optional transformation to apply to the posterior.
+            query_set_size (Optional[int], optional): Number of points in the query set.
+            Xq (Optional[Tensor]): (m x d) global reference set.
         """
         super().__init__(model=model, target=target, lookahead_type=lookahead_type)
         self.posterior_transform = posterior_transform
@@ -245,9 +260,10 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         Evaluate acquisition function at X.
 
         Args:
-            X: (b x 1 x d) point at which to evalaute acquisition function.
+            X (Tensor): (b x 1 x d) point at which to evalaute acquisition function.
 
-        Returns: (b) tensor of acquisition values.
+        Returns:
+            (b) tensor of acquisition values.
         """
         Px, P1, P0, py1 = self._get_lookahead_posterior(X)
         return self._compute_acqf(Px, P1, P0, py1)
@@ -288,6 +304,16 @@ class ApproxGlobalSUR(GlobalSUR):
         query_set_size: Optional[int] = 256,
         Xq: Optional[Tensor] = None,
     ) -> None:
+        """
+        An approximate global look-ahead acquisition function.
+        Args:
+
+            model (GPyTorchModel): The gpytorch model to use.
+            lookahed_type (str, optional): The type of look-ahead to perform (default is "levelset").
+            target (Optional[float], optional): Threshold value to target in p-space.
+            query_set_size (Optional[int], optional): Number of points in the query set.
+            Xq (Optional[Tensor], optional): (m x d) global reference set.
+        """
         assert (
             lookahead_type == "levelset"
         ), f"ApproxGlobalSUR only supports lookahead on level set, got {lookahead_type}!"
@@ -302,6 +328,13 @@ class ApproxGlobalSUR(GlobalSUR):
     def _get_lookahead_posterior(
         self, X: Tensor
     ) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
+        """
+        Computes the look-ahead posterior distribution for given points.
+        Args:
+            X (Tensor): Input tensor representing the points at which to evaluate the look-ahead posterior.
+        Returns:
+            Tuple[Tensor, Tensor, Tensor, Tensor]: A tuple containing tensors corresponding to the posterior's computed values.
+        """
         Xq_batch = self.Xq.expand(X.shape[0], *self.Xq.shape)
 
         return approximate_lookahead_levelset_at_xstar(
@@ -327,6 +360,18 @@ class MOCU(GlobalLookaheadAcquisitionFunction):
     """
 
     def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        """
+        Computes the MOCU (Measure of Class Uncertainty) acquisition function.
+
+        Args:
+            Px (Tensor): Tensor representing the current probability of class prediction.
+            P1 (Tensor): Tensor of look-ahead predictions for the positive class.
+            P0 (Tensor): Tensor of look-ahead predictions for the negative class.
+            py1 (Tensor): Tensor representing the probability of the positive class.
+
+        Returns:
+            Tensor: Expected value of the look-ahead uncertainty reduction for each query point.
+        """
         current_max_query = torch.maximum(Px, 1 - Px)
         # expectation w.r.t. y* of the max of pq
         lookahead_pq1_max = torch.maximum(P1, 1 - P1)
@@ -352,6 +397,15 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         Xq: Optional[Tensor] = None,
         k: Optional[float] = 20.0,
     ) -> None:
+        """
+        model (GPyTorchModel): The gpytorch model to use.
+        lookahead_type (str, optional): The type of look-ahead to perform (default is "posterior").
+        target (Optional[float], optional): Threshold value to target in p-space.
+        query_set_size (Optional[int], optional): Number of points in the query set.
+        Xq (Optional[Tensor], optional): (m x d) global reference set.
+        k (Optional[float], optional): Scaling factor for the softmax approximation, controlling the "softness" of the maximum operation.
+        """
+
         super().__init__(
             model=model,
             target=target,
@@ -362,6 +416,18 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         self.k = k
 
     def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        """
+        Computes the SMOCU acquisition function.
+
+        Args:
+            Px (Tensor): Tensor representing the current probability of class prediction.
+            P1 (Tensor): Tensor of look-ahead predictions for the positive class.
+            P0 (Tensor): Tensor of look-ahead predictions for the negative class.
+            py1 (Tensor): Tensor representing the probability of the positive class.
+
+        Returns:
+            Tensor: Expected reduction in uncertainty, based on the softmax approximation of the maximum query.
+        """
         current_softmax_query = (
             torch.logsumexp(self.k * torch.stack((Px, 1 - Px), dim=-1), dim=-1) / self.k
         )
@@ -387,10 +453,25 @@ class BEMPS(GlobalLookaheadAcquisitionFunction):
     """
 
     def __init__(self, scorefun: Callable, *args, **kwargs) -> None:
+        """
+        scorefun (Callable): Scoring function to use for the BEMPS acquisition function.
+        """
         super().__init__(*args, **kwargs)
         self.scorefun = scorefun
 
     def _compute_acqf(self, Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
+        """
+        Computes the BEMPS acquisition function.
+
+        Args:
+            Px (Tensor): Tensor representing the current probability of class prediction.
+            P1 (Tensor): Tensor of look-ahead predictions for the positive class.
+            P0 (Tensor): Tensor of look-ahead predictions for the negative class.
+            py1 (Tensor): Tensor representing the probability of the positive class.
+
+        Returns:
+            Tensor: Expected improvement in the scoring function values, based on the current and look-ahead states.
+        """
         current_score = self.scorefun(Px)
         lookahead_pq1_score = self.scorefun(P1)
         lookahead_pq0_score = self.scorefun(P0)
@@ -411,6 +492,22 @@ def construct_inputs_global_lookahead(
     Xq: Optional[Tensor] = None,
     **kwargs,
 ) -> Dict[str, Any]:
+    """
+    Constructs the input dictionary for initializing global lookahead acquisition functions.
+
+    Args:
+        model (GPyTorchModel): The gpytorch model to use.
+        training_data (None): Placeholder for compatibility; not used in this function.
+        lookahead_type (str, optional): Type of look-ahead to perform. Default is "levelset".
+        target (Optional[float], optional): Target threshold value in probability space.
+        posterior_transform (Optional[PosteriorTransform], optional): Optional transformation to apply to the posterior.
+        query_set_size (Optional[int]): Number of points in the query set. Default is 256.
+        Xq (Optional[Tensor], optional): (m x d) global reference set. If not provided, a Sobol sequence is generated.
+
+    Returns:
+        Dict[str, Any]: Dictionary of constructed inputs for global lookahead acquisition functions.
+    """
+     
     lb = torch.tensor([bounds[0] for bounds in kwargs["bounds"]])
     ub = torch.tensor([bounds[1] for bounds in kwargs["bounds"]])
     if Xq is None and query_set_size is None:
