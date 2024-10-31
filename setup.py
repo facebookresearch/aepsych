@@ -39,7 +39,7 @@ VISUALIZER_REQUIRES = [
     "ipywidgets==7.6.5",
 ]
 
-with open("Readme.md", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 with open(os.path.join("aepsych", "version.py"), "r") as fh:
