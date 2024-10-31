@@ -49,10 +49,10 @@ class MultitaskGPRModel(GPRegressionModel):
             num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.
             rank (int, optional): Rank of cross-task covariance. Lower rank is a simpler model.
                 Should be less than or equal to num_outputs. Defaults to 1.
-            mean_module (Optional[gpytorch.means.Mean], optional): GP mean. Defaults to a constant mean.
-            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP kernel module.
+            mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.
+            covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.
                 Defaults to scaled RBF kernel.
-            likelihood (Optional[gpytorch.likelihoods.Likelihood], optional): Likelihood
+            likelihood (gpytorch.likelihoods.Likelihood, optional): Likelihood
                 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.
         """
         self._num_outputs = num_outputs
@@ -131,10 +131,10 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
 
         Args:
             num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.
-            mean_module (Optional[gpytorch.means.Mean], optional): GP mean. Defaults to a constant mean.
-            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP kernel module.
+            mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.
+            covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.
                 Defaults to scaled RBF kernel.
-            likelihood (Optional[gpytorch.likelihoods.Likelihood], optional): Likelihood
+            likelihood (gpytorch.likelihoods.Likelihood, optional): Likelihood
                 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.
         """
 
@@ -172,7 +172,8 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
 
         Returns:
             gpytorch.distributions.MultitaskMultivariateNormal: Distribution object
-                holding the mean and covariance at x."""
+                holding the mean and covariance at x.
+        """
         base_mvn = super().forward(x)  # do transforms
         return gpytorch.distributions.MultitaskMultivariateNormal.from_batch_mvn(
             base_mvn

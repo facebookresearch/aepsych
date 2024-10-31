@@ -70,7 +70,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 Bernouli likelihood.
-            inducing_size (Optional[int], optional): Number of inducing points. Defaults to 99.
+            inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             inducing_point_method (string, optional): The method to use to select the inducing points. Defaults to "auto".
@@ -355,15 +355,15 @@ class GPBetaRegressionModel(GPClassificationModel):
         Args:
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
-            dim (Optional[int], optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub. Defaults to None.
-            mean_module (Optional[gpytorch.means.Mean], optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
-            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP covariance kernel class. Defaults to scaled RBF with a
+            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
+            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 Beta likelihood.
-            inducing_size (Optional[int], optional): Number of inducing points. Defaults to 100.
-            max_fit_time (Optional[float], optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
+            inducing_size (int, optional): Number of inducing points. Defaults to 100.
+            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
             inducing_point_method (string, optional): The method to use to select the inducing points. Defaults to "auto".
             """

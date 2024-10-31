@@ -34,7 +34,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         """Convert pairs of points and their judgements to comparisons.
 
         Args:
-            x (torch.Tensor): Tensor of shape (n, 2, d) where n is the number of pairs and d is the dimensionality of the
+            x (torch.Tensor): Tensor of shape (n, d, 2) where n is the number of pairs and d is the dimensionality of the
                 parameter space.
             y (torch.Tensor): Tensor of shape (n,) where n is the number of pairs. Each element is 0 if the first point
                 in the pair is preferred, and 1 if the second point is preferred.
@@ -79,11 +79,11 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         Args:
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
-            dim (Optional[int], optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub. Defaults to None.
-            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP covariance kernel class. Defaults to scaled RBF with a
+            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior. Defaults to None.
-            max_fit_time (Optional[float], optional): The maximum amount of time, in seconds, to spend fitting the model. Defaults to None.
+            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. Defaults to None.
             """
         self.lb, self.ub, dim = _process_bounds(lb, ub, dim)
 
@@ -126,7 +126,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         Args:
             train_x (torch.Tensor): Trainin x points.
             train_y (torch.Tensor): Training y points.
-            optimizer_kwargs (Optional[Dict[str, Any]], optional): Keyword arguments to pass to the optimizer. Defaults to None.
+            optimizer_kwargs (Dict[str, Any], optional): Keyword arguments to pass to the optimizer. Defaults to None.
         """
         self.train()
         mll = PairwiseLaplaceMarginalLogLikelihood(self.likelihood, self)

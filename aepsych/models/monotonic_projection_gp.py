@@ -113,16 +113,16 @@ class MonotonicProjectionGP(GPClassificationModel):
             monotonic_dims (List[int]): A list of the dimensions on which monotonicity should
                 be enforced.
             monotonic_grid_size (int, optional): The size of the grid, s, in 1. above. Defaults to 20.
-            min_f_val (Optional[float], optional): If provided, maintains this minimum in the projection in 5. Defaults to None.
-            dim (Optional[int], optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+            min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub. Defaults to None.
-            mean_module (Optional[gpytorch.means.Mean], optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
-            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP covariance kernel class. Defaults to scaled RBF with a
+            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
+            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior. Defaults to None.
-            likelihood (Optional[Likelihood], optional): The likelihood function to use. If None defaults to
+            likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
                 Gaussian likelihood. Defaults to None.
-            inducing_size (Optional[int], optional): The number of inducing points to use. Defaults to None.
-            max_fit_time (Optional[float], optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
+            inducing_size (int, optional): The number of inducing points to use. Defaults to None.
+            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
             inducing_point_method (string, optional): The method to use to select the inducing points. Defaults to "auto".
             """

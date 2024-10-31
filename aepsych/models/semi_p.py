@@ -149,8 +149,8 @@ class SemiPPosterior(GPyTorchPosterior):
         """Sample from the posterior distribution using the reparameterization trick
         
         Args:
-            sample_shape (Optional[torch.Size], optional): The desired shape of the samples. Defaults to None.
-            base_samples (Optional[torch.Tensor], optional): The base samples. Defaults to None.
+            sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
+            base_samples (torch.Tensor, optional): The base samples. Defaults to None.
             
         Returns:
             torch.Tensor: The sampled values from the posterior distribution.
@@ -176,11 +176,12 @@ class SemiPPosterior(GPyTorchPosterior):
         """Sample from the likelihood distribution of the modeled function.
         
         Args:
-            sample_shape (Optional[torch.Size], optional): The desired shape of the samples. Defaults to None.
-            base_samples (Optional[torch.Tensor], optional): The base samples. Defaults to None.
+            sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
+            base_samples (torch.Tensor, optional): The base samples. Defaults to None.
             
         Returns:
-            torch.Tensor: The sampled values from the likelihood distribution."""
+            torch.Tensor: The sampled values from the likelihood distribution.
+        """
         kcsamps = self.rsample(sample_shape=sample_shape, base_samples=base_samples)
         return self.likelihood.p(function_samples=kcsamps, Xi=self.Xi).squeeze(-1)
 
@@ -192,11 +193,12 @@ class SemiPPosterior(GPyTorchPosterior):
         """Sample from the function values of the modeled distribution.
         
         Args:
-            sample_shape (Optional[torch.Size], optional): The desired shape of the samples. Defaults to None.
-            base_samples (Optional[torch.Tensor], optional): The base samples. Defaults to None.
+            sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
+            base_samples (torch.Tensor, optional): The base samples. Defaults to None.
             
         Returns:
-            torch.Tensor: The sampled function values from the likelihood."""
+            torch.Tensor: The sampled function values from the likelihood.
+        """
         
         kcsamps = self.rsample(sample_shape=sample_shape, base_samples=base_samples)
         return self.likelihood.f(function_samples=kcsamps, Xi=self.Xi).squeeze(-1)
@@ -211,8 +213,8 @@ class SemiPPosterior(GPyTorchPosterior):
         
         Args:
         threshold_level (float): The target threshold level for sampling.
-        sample_shape (Optional[torch.Size], optional): The desired shape of the samples. Defaults to None.
-        base_samples (Optional[torch.Tensor], optional): The base samples. Defaults to None.
+        sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
+        base_samples (torch.Tensor, optional): The base samples. Defaults to None.
 
         Returns:
             SemiPThresholdObjective: The sampled thresholds based on the threshold level.
@@ -455,7 +457,7 @@ class SemiParametricGPModel(GPClassificationModel):
 
         Args:
             X (torch.Tensor): Points at which to evaluate the posterior.
-            posterior_transform (Optional[PosteriorTransform], optional): A transform to apply to the posterior. Defaults to None.
+            posterior_transform (PosteriorTransform, optional): A transform to apply to the posterior. Defaults to None.
 
         Returns:
             SemiPPosterior: The posterior distribution at the given points.
@@ -531,7 +533,7 @@ class HadamardSemiPModel(GPClassificationModel):
             offset_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for offset.
             offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.
             likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5
-            inducing_size (Optional[int], optional): Number of inducing points. Defaults to 99.
+            inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             inducing_point_method (string, optional): The method to use to select the inducing points. Defaults to "auto".

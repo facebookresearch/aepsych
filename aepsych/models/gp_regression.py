@@ -157,8 +157,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
         Args:
             x (torch.Tensor): Points at which to sample.
-            num_samples (int, optional): Number of samples to return. Defaults to None.
-            kwargs are ignored
+            num_samples (int): Number of samples to return.
 
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
@@ -170,7 +169,8 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         
         Args:
             train_x (torch.Tensor): Inputs.
-            train_y (torch.Tensor): Responses."""
+            train_y (torch.Tensor): Responses.
+        """
         return self.fit(train_x, train_y, **kwargs)
 
     def predict(self, x: torch.Tensor, **kwargs) -> Tuple[torch.Tensor, torch.Tensor]:

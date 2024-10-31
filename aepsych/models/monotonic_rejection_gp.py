@@ -71,12 +71,12 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             constraints.
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
-            dim (Optional[int], optional): The number of dimensions in the parameter space. If None, it is inferred from the size.
-            covar_module (Optional[Kernel], optional): Covariance kernel to use. Default is scaled RBF.
-            mean_module (Optional[Mean], optional): Mean module to use. Default is constant mean.
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size.
+            covar_module (Kernel, optional): Covariance kernel to use. Default is scaled RBF.
+            mean_module (Mean, optional): Mean module to use. Default is constant mean.
             likelihood (str): Link function and likelihood. Can be 'probit-bernoulli' or
                 'identity-gaussian'.
-            fixed_prior_mean (Optional[float], optional): Fixed prior mean. If classification, should be the prior
+            fixed_prior_mean (float, optional): Fixed prior mean. If classification, should be the prior
             classification probability (not the latent function value). Defaults to None.
             num_induc (int, optional): Number of inducing points for variational GP.]. Defaults to 25.
             num_samples (int, optional): Number of samples for estimating posterior on preDict or
@@ -177,8 +177,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         Args:
             train_x (Tensor): Training x points
             train_y (Tensor): Training y points. Should be (n x 1).
-            model_state_dict (Optional[Dict[str, Tensor]], optional): State dict for the model
-            likelihood_state_dict (Optional[Dict[str, Tensor]], optional): State dict for the likelihood
+            model_state_dict (Dict[str, Tensor], optional): State dict for the model
+            likelihood_state_dict (Dict[str, Tensor], optional): State dict for the likelihood
             """
         train_x_aug = self._augment_with_deriv_index(train_x, 0)
         self.set_train_data(train_x_aug, train_y)
@@ -228,8 +228,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         Args:
             x (Tensor): tensor of n points at which to sample
-            num_samples (Optional[int], optional): how many points to sample. Default is self.num_samples.
-            num_rejection_samples (Optional[int], optional): how many samples to use for rejection sampling. Default is self.num_rejection_samples.
+            num_samples (int, optional): how many points to sample. Default is self.num_samples.
+            num_rejection_samples (int, optional): how many samples to use for rejection sampling. Default is self.num_rejection_samples.
 
         Returns: a Tensor of shape [n_samp, n]
         """

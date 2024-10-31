@@ -30,7 +30,7 @@ class OrdinalGPModel(GPClassificationModel):
         """Initialize the OrdinalGPModel
         
         Args:
-            likelihood (Optional[Likelihood], optional): The likelihood function to use. If None defaults to
+            likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
                 Ordinal likelihood.
         """
         covar_module = kwargs.pop("covar_module", None)

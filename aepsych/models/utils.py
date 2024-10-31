@@ -176,6 +176,7 @@ def get_extremum(
             inverse is along a slice of the full surface.
         n_samples (int): number of coarse grid points to sample for optimization estimate.
         max_time (float): Maximum amount of time in seconds to spend optimizing.
+        weights (Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
         Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
     """
@@ -269,7 +270,7 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
         
         Args:
             target_value (Union[float, Tensor]): The target value to transform the posterior to.
-            weights (Optional[Tensor]): Weights to apply to the target value. Defaults to None.
+            weights (Tensor, optional): Weights to apply to the target value. Defaults to None.
         """
         super().__init__()
         self.target_value = target_value
