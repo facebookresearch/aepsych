@@ -13,8 +13,10 @@ from typing import List, Mapping, Optional, Tuple, Union
 import numpy as np
 import torch
 from botorch.acquisition import PosteriorMean
-from botorch.acquisition.objective import PosteriorTransform
-from botorch.acquisition.objective import ScalarizedPosteriorTransform
+from botorch.acquisition.objective import (
+    PosteriorTransform,
+    ScalarizedPosteriorTransform,
+)
 from botorch.models.model import Model
 from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
 from botorch.optim import optimize_acqf
@@ -22,13 +24,12 @@ from botorch.posteriors import GPyTorchPosterior
 from botorch.utils.sampling import draw_sobol_samples
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import Kernel
-from gpytorch.likelihoods import BernoulliLikelihood
+from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from scipy.cluster.vq import kmeans2
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch import Tensor
 from torch.distributions import Normal
-from gpytorch.likelihoods import Likelihood
 
 
 def compute_p_quantile(
@@ -57,7 +58,7 @@ def select_inducing_points(
     covar_module: Kernel = None,
     X: Optional[torch.Tensor] = None,
     bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
-    method: str = "auto",
+    method: str = "pivoted_chol",
 ) -> torch.Tensor:
     with torch.no_grad():
         assert method in (
@@ -65,6 +66,7 @@ def select_inducing_points(
             "kmeans++",
             "auto",
             "sobol",
+            "data",
         ), f"Inducing point method should be one of pivoted_chol, kmeans++, sobol, or auto; got {method}"
 
         if method == "sobol":
@@ -80,6 +82,13 @@ def select_inducing_points(
         # remove dupes from X, which is both wasteful for inducing points
         # and would break kmeans++
         unique_X = torch.unique(X, dim=0)
+
+        if method == "data":
+            warnings.warn(
+                "Using all unique data points as inducing points, ignoring inducing_size"
+            )
+            return unique_X
+
         if method == "auto":
             if unique_X.shape[0] <= inducing_size:
                 return unique_X
@@ -103,7 +112,9 @@ def select_inducing_points(
         return inducing_points
 
 
-def get_probability_space(likelihood: Likelihood, posterior: GPyTorchPosterior) -> Tuple[torch.Tensor, torch.Tensor]:
+def get_probability_space(
+    likelihood: Likelihood, posterior: GPyTorchPosterior
+) -> Tuple[torch.Tensor, torch.Tensor]:
     fmean = posterior.mean.squeeze()
     fvar = posterior.variance.squeeze()
     if isinstance(likelihood, BernoulliLikelihood):
