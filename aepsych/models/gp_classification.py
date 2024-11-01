@@ -53,9 +53,9 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: Optional[int] = None,
+        inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: str = "pivoted_chol",
     ) -> None:
         """Initialize the GP Classification model
 
@@ -69,27 +69,19 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 Bernouli likelihood.
-            inducing_size (int, optional): Number of inducing points. Defaults to 99.
+            inducing_size (int, optional): Number of inducing points. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
+            inducing_point_method (string): The method to use to select the inducing points. Defaults to "pivoted_chol".
                 If "sobol", a number of Sobol points equal to inducing_size will be selected.
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+                If "data", uses all of the unique data as inducing points.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
-        self.inducing_size = inducing_size or 99
-
-        if self.inducing_size >= 100:
-            logger.warning(
-                (
-                    "inducing_size in GPClassificationModel is >=100, more inducing points "
-                    "can lead to better fits but slower performance in general. Performance "
-                    "at >=100 inducing points is especially slow."
-                )
-            )
+        self.inducing_size = inducing_size
 
         if likelihood is None:
             likelihood = BernoulliLikelihood()
@@ -100,7 +92,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
         )
-        
+
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -139,7 +131,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
@@ -153,7 +145,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+            classname, "inducing_point_method", fallback="pivoted_chol"
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
@@ -197,7 +189,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             bounds=self.bounds,
             method=self.inducing_point_method,
         )
-        
+
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         )
@@ -241,9 +233,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
         self._fit_mll(mll, **kwargs)
 
-    def sample(
-        self, x: torch.Tensor, num_samples: int
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model.
 
         Args:
@@ -297,9 +287,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             return promote_0d(fmean), promote_0d(fvar)
 
-    def predict_probability(
-        self, x: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
@@ -320,9 +308,9 @@ class GPBetaRegressionModel(GPClassificationModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: Optional[int] = None,
+        inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: str = "pivoted_chol",
     ) -> None:
         if likelihood is None:
             likelihood = BetaLikelihood()

@@ -101,9 +101,9 @@ class MonotonicProjectionGP(GPClassificationModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: Optional[int] = None,
+        inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: str = "pivoted_chol",
     ) -> None:
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
@@ -166,9 +166,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         )
         return GPyTorchPosterior(mvn_proj)
 
-    def sample(
-        self, x: torch.Tensor, num_samples: int
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         samps = super().sample(x=x, num_samples=num_samples)
         if self.min_f_val is not None:
             samps = samps.clamp(min=self.min_f_val)
@@ -189,7 +187,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
@@ -203,7 +201,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+            classname, "inducing_point_method", fallback="pivoted_chol"
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)

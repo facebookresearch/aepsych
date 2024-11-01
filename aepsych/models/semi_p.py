@@ -21,6 +21,7 @@ from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLik
 from aepsych.models import GPClassificationModel
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
+from botorch.acquisition.objective import PosteriorTransform
 from botorch.optim.fit import fit_gpytorch_mll_scipy
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.distributions import MultivariateNormal
@@ -30,13 +31,18 @@ from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch import Tensor
 from torch.distributions import Normal
-from botorch.acquisition.objective import PosteriorTransform
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()
 
 
-def _hadamard_mvn_approx(x_intensity: torch.Tensor, slope_mean: torch.Tensor, slope_cov: torch.Tensor, offset_mean: torch.Tensor, offset_cov: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+def _hadamard_mvn_approx(
+    x_intensity: torch.Tensor,
+    slope_mean: torch.Tensor,
+    slope_cov: torch.Tensor,
+    offset_mean: torch.Tensor,
+    offset_cov: torch.Tensor,
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
 
     MVN approximation to the hadamard product of GPs (from the SemiP paper, extending the
@@ -182,9 +188,9 @@ class SemiParametricGPModel(GPClassificationModel):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Any] = None,
         slope_mean: float = 2,
-        inducing_size: Optional[int] = None,
+        inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: str = "pivoted_chol",
     ) -> None:
         """
         Initialize SemiParametricGP.
@@ -200,14 +206,15 @@ class SemiParametricGPModel(GPClassificationModel):
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 linear-Bernouli likelihood with probit link.
-            inducing_size (int): Number of inducing points. Defaults to 99.
+            inducing_size (int): Number of inducing points. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
+            inducing_point_method (string): The method to use to select the inducing points. Defaults to "pivoted_chol".
                 If "sobol", a number of Sobol points equal to inducing_size will be selected.
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+                If "data", uses all of the unique data as inducing points.
         """
 
         lb, ub, dim = _process_bounds(lb, ub, dim)
@@ -265,7 +272,7 @@ class SemiParametricGPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
@@ -274,7 +281,7 @@ class SemiParametricGPModel(GPClassificationModel):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+            classname, "inducing_point_method", fallback="pivoted_chol"
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
@@ -376,7 +383,9 @@ class SemiParametricGPModel(GPClassificationModel):
         m, v = samps.mean(0), samps.var(0)
         return promote_0d(m), promote_0d(v)
 
-    def posterior(self, X: torch.Tensor, posterior_transform: Optional[PosteriorTransform] = None) -> SemiPPosterior:
+    def posterior(
+        self, X: torch.Tensor, posterior_transform: Optional[PosteriorTransform] = None
+    ) -> SemiPPosterior:
         # Assume x is (b) x n x d
         if X.ndim > 3:
             raise ValueError
@@ -429,9 +438,9 @@ class HadamardSemiPModel(GPClassificationModel):
         offset_covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         slope_mean: float = 2,
-        inducing_size: Optional[int] = None,
+        inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: str = "pivoted_chol",
     ) -> None:
         """
         Initialize HadamardSemiPModel.
@@ -446,7 +455,7 @@ class HadamardSemiPModel(GPClassificationModel):
             offset_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for offset.
             offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.
             likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5
-            inducing_size (int): Number of inducing points. Defaults to 99.
+            inducing_size (int): Number of inducing points. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
@@ -454,6 +463,7 @@ class HadamardSemiPModel(GPClassificationModel):
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+                If "data", uses all of the unique data as inducing points.
         """
         super().__init__(
             lb=lb,
@@ -555,7 +565,7 @@ class HadamardSemiPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
@@ -575,7 +585,7 @@ class HadamardSemiPModel(GPClassificationModel):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+            classname, "inducing_point_method", fallback="pivoted_chol"
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
