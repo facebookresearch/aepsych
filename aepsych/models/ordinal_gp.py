@@ -5,8 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Union
-
 import gpytorch
 import torch
 from aepsych.likelihoods import OrdinalLikelihood
@@ -30,7 +28,7 @@ class OrdinalGPModel(GPClassificationModel):
         """Initialize the OrdinalGPModel
         
         Args:
-            likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
+            likelihood (Likelihood): The likelihood function to use. If None defaults to
                 Ordinal likelihood.
         """
         covar_module = kwargs.pop("covar_module", None)

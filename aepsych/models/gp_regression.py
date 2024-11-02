@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple
 
 import gpytorch
 import numpy as np
@@ -178,8 +178,6 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of
-                response probability instead of latent function value. Defaults to False.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.

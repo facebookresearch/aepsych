@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import warnings
 from copy import deepcopy
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 import gpytorch
 import numpy as np
@@ -73,7 +73,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (string, optional): The method to use to select the inducing points. Defaults to "auto".
+            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
                 If "sobol", a number of Sobol points equal to inducing_size will be selected.
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
@@ -234,9 +234,9 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         Args:
             train_x (torch.Tensor): Inputs.
             train_y (torch.LongTensor): Responses.
-            warmstart_hyperparams (bool, optional): Whether to reuse the previous hyperparameters (True) or fit from scratch
+            warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters (True) or fit from scratch
                 (False). Defaults to False.
-            warmstart_induc (bool, optional): Whether to reuse the previous inducing points or fit from scratch (False).
+            warmstart_induc (bool): Whether to reuse the previous inducing points or fit from scratch (False).
                 Defaults to False.
         """
         self.set_train_data(train_x, train_y)
@@ -259,7 +259,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): Points at which to sample.
-            num_samples (int, optional): Number of samples to return. Defaults to None.
+            num_samples (int): Number of samples to return. Defaults to None.
             kwargs are ignored
 
         Returns:
@@ -275,7 +275,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of
+            probability_space (bool): Return outputs in units of
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
@@ -329,7 +329,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         Args:
             train_x (torch.Tensor): Inputs.
             train_y (torch.Tensor): Responses.
-           """
+        """
         return self.fit(
             train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True, **kwargs
         )
@@ -365,8 +365,8 @@ class GPBetaRegressionModel(GPClassificationModel):
             inducing_size (int, optional): Number of inducing points. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
-            inducing_point_method (string, optional): The method to use to select the inducing points. Defaults to "auto".
-            """
+            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
+        """
         if likelihood is None:
             likelihood = BetaLikelihood()
         super().__init__(

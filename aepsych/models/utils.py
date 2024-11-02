@@ -46,6 +46,14 @@ def compute_p_quantile(
     A 95% CI for p can be computed as
     p_l = compute_p_quantile(f_mean, f_std, 0.025)
     p_u = compute_p_quantile(f_mean, f_std, 0.975)
+
+    Args:
+        f_mean (torch.Tensor): The mean of the latent function.
+        f_std (torch.Tensor): The standard deviation of the latent function.
+        alpha (Union[torch.Tensor, float]): The quantile to compute.
+
+    Returns:
+        torch.Tensor: The quantile of p.
     """
     norm = torch.distributions.Normal(0, 1)
     alpha = torch.tensor(alpha, dtype=f_mean.dtype)
@@ -56,7 +64,7 @@ def select_inducing_points(
     inducing_size: int,
     covar_module: Kernel = None,
     X: Optional[torch.Tensor] = None,
-    bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
+    bounds: Optional[torch.Tensor] = None,
     method: str = "auto",
 ) -> torch.Tensor:
     """Select inducing points for GP model
@@ -64,8 +72,8 @@ def select_inducing_points(
     Args:
         inducing_size (int): Number of inducing points to select.
         covar_module (Kernel): The kernel module to use for inducing point selection.
-        X (torch.Tensor): The training data.
-        bounds (torch.Tensor): The bounds of the input space.
+        X (torch.Tensor, optional): The training data.
+        bounds (torch.Tensor, optional): The bounds of the input space.
         method (str): The method to use for inducing point selection. One of
             "pivoted_chol", "kmeans++", "auto", or "sobol".
         
@@ -172,13 +180,14 @@ def get_extremum(
     Args:
         extremum_type (str): Type of extremum (currently 'min' or 'max'.
         bounds (tensor): Lower and upper bounds of the search space.
-        locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+        locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface.
         n_samples (int): number of coarse grid points to sample for optimization estimate.
-        max_time (float): Maximum amount of time in seconds to spend optimizing.
+        posterior_transform (PosteriorTransform, optional): Posterior transform to apply to the model.
+        max_time (float, optional): Maximum amount of time in seconds to spend optimizing.
         weights (Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
-        Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+        Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
     """
     locked_dims = locked_dims or {}
 
@@ -225,17 +234,18 @@ def inv_query(
     Return nearest x such that f(x) = queried y, and also return the
         value of f at that point.
     Args:
-        y (float): Points at which to find the inverse.
+        y (Union[float, torch.Tensor]): Points at which to find the inverse.
         bounds (tensor): Lower and upper bounds of the search space.
-        locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
-            inverse is along a slice of the full surface.
+        locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
+            inverse is along a slice of the full surface. Defaults to None.
         probability_space (bool): Is y (and therefore the
             returned nearest_y) in probability space instead of latent
             function space? Defaults to False.
-        n_samples (int): number of coarse grid points to sample for optimization estimate.
-        max_time float: Maximum amount of time in seconds to spend optimizing.
+        n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
+        max_time (float, optional): Maximum amount of time in seconds to spend optimizing. Defaults to None.
+        weights (Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
-        Tuple[float, np.ndarray]: Tuple containing the value of f
+        Tuple[float, torch.Tensor]: Tuple containing the value of f
             nearest to queried y and the x position of this value.
     """
     locked_dims = locked_dims or {}

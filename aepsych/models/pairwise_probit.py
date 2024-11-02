@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import time
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
 import numpy as np
@@ -84,7 +84,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior. Defaults to None.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. Defaults to None.
-            """
+        """
         self.lb, self.ub, dim = _process_bounds(lb, ub, dim)
 
         self.max_fit_time = max_fit_time
@@ -157,7 +157,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         Args:
             train_x (torch.Tensor): Train X.
             train_y (torch.Tensor): Train Y.
-            warmstart (bool, optional): If True, warm-start model fitting with current parameters. Defaults to True.
+            warmstart (bool): If True, warm-start model fitting with current parameters. Defaults to True.
         """
         self.fit(train_x, train_y)
 
@@ -172,7 +172,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of response probability instead of latent function value. Defaults to False.
+            probability_space (bool): Return outputs in units of response probability instead of latent function value. Defaults to False.
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
@@ -203,7 +203,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of response probability instead of latent function value. Defaults to False.
+            probability_space (bool): Return outputs in units of response probability instead of latent function value. Defaults to False.
             
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
@@ -220,7 +220,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         Args:
             x (torch.Tensor): Points at which to sample.
             num_samples (int): Number of samples to return.
-            rereference (str, optional): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
+            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]

@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import gpytorch
 import numpy as np
@@ -74,16 +74,16 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size.
             covar_module (Kernel, optional): Covariance kernel to use. Default is scaled RBF.
             mean_module (Mean, optional): Mean module to use. Default is constant mean.
-            likelihood (str): Link function and likelihood. Can be 'probit-bernoulli' or
+            likelihood (str, optional): Link function and likelihood. Can be 'probit-bernoulli' or
                 'identity-gaussian'.
             fixed_prior_mean (float, optional): Fixed prior mean. If classification, should be the prior
             classification probability (not the latent function value). Defaults to None.
-            num_induc (int, optional): Number of inducing points for variational GP.]. Defaults to 25.
-            num_samples (int, optional): Number of samples for estimating posterior on preDict or
+            num_induc (int): Number of inducing points for variational GP.]. Defaults to 25.
+            num_samples (int): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
-            num_rejection_samples (int, optional): Number of samples used for rejection sampling. Defaults to 4096. 
-            inducing_point_method (str, optional): Method for selecting inducing points. Defaults to "auto".
-           """
+            num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096. 
+            inducing_point_method (str): Method for selecting inducing points. Defaults to "auto".
+        """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
             likelihood = BernoulliLikelihood()
@@ -179,7 +179,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             train_y (Tensor): Training y points. Should be (n x 1).
             model_state_dict (Dict[str, Tensor], optional): State dict for the model
             likelihood_state_dict (Dict[str, Tensor], optional): State dict for the likelihood
-            """
+        """
         train_x_aug = self._augment_with_deriv_index(train_x, 0)
         self.set_train_data(train_x_aug, train_y)
         # Set model parameters
@@ -203,7 +203,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         Args:
             train_x (Tensor): Train X.
             train_y (Tensor): Train Y. Should be (n x 1).
-            warmstart (bool, optional): If True, warm-start model fitting with current parameters. Defaults to True.
+            warmstart (bool): If True, warm-start model fitting with current parameters. Defaults to True.
         """
         if warmstart:
             model_state_dict = self.state_dict()
@@ -273,7 +273,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): tensor of n points at which to predict.
-            probability_space (bool, optional): whether to return in probability space. Defaults to False.
+            probability_space (bool): whether to return in probability space. Defaults to False.
 
         Returns: tuple (f, var) where f is (n,) and var is (n,)
         """
