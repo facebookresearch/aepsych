@@ -47,7 +47,15 @@ from botorch.models.transforms.input import ChainedInputTransform
 logger = getLogger()
 
 
-def ensure_model_is_fresh(f: Callable) -> Callable:
+def ensure_model_is_fresh(f:Callable) -> Callable:
+    """Decorator to ensure that the model is up-to-date before running a method.
+
+    Args:
+        f (Callable): The function to wrap.
+
+    Returns:
+        Callable: The wrapped function.
+    """
     def wrapper(self, *args, **kwargs):
         if self.can_fit and not self._model_is_fresh:
             starttime = time.time()
@@ -104,8 +112,10 @@ class Strategy(object):
 
         Args:
             generator (AEPsychGenerator): The generator object that determines how points are sampled.
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
+            stimuli_per_trial (int): The number of stimuli per trial.
+            outcome_types (Sequence[Type[str]]): The types of outcomes that the strategy will generate.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             min_total_tells (int): The minimum number of total observations needed to complete this strategy.
@@ -301,7 +311,7 @@ class Strategy(object):
         """Query next point(s) to run by optimizing the acquisition function.
 
         Args:
-            num_points (int, optional): Number of points to query. Defaults to 1.
+            num_points (int): Number of points to query. Defaults to 1.
             Other arguments are forwared to underlying model.
 
         Returns:
@@ -322,11 +332,21 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def get_max(
-        self,
-        constraints: Optional[Mapping[int, List[float]]] = None,
-        probability_space: bool = False,
-        max_time: Optional[float] = None,
+        self, 
+        constraints: Optional[Mapping[int, List[float]]]  = None, 
+        probability_space: bool = False, 
+        max_time: Optional[float] = None
     ) -> Tuple[float, torch.Tensor]:
+        """Get the maximum value of the acquisition function.
+        
+        Args:
+            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
+            probability_space (bool): Whether to return the max in probability space. Defaults to False.
+            max_time (float, optional): Maximum time to run the optimization. Defaults to None.
+            
+        Returns:
+            Tuple[float, torch.Tensor]: The maximum value of the acquisition function and the corresponding input.
+        """
         constraints = constraints or {}
         assert (
             self.model is not None
@@ -338,11 +358,21 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def get_min(
-        self,
-        constraints: Optional[Mapping[int, List[float]]] = None,
-        probability_space: bool = False,
-        max_time: Optional[float] = None,
+        self, 
+        constraints: Optional[Mapping[int, List[float]]]  = None, 
+        probability_space: bool = False, 
+        max_time: Optional[float] = None
     ) -> Tuple[float, torch.Tensor]:
+        """Get the minimum value of the acquisition function.
+        
+        Args:
+            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
+            probability_space (bool): Whether to return the min in probability space. Defaults to False.
+            max_time (float, optional): Maximum time to run the optimization. Defaults to None.
+            
+        Returns:
+            Tuple[float, torch.Tensor]: The minimum value of the acquisition function and the corresponding input.
+        """
         constraints = constraints or {}
         assert (
             self.model is not None
@@ -354,12 +384,23 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def inv_query(
-        self,
-        y: int,
-        constraints: Optional[Mapping[int, List[float]]] = None,
-        probability_space: bool = False,
-        max_time: Optional[float] = None,
+        self, 
+        y: int, 
+        constraints: Optional[Mapping[int, List[float]]]  = None, 
+        probability_space: bool = False, 
+        max_time: Optional[float] = None
     ) -> Tuple[float, torch.Tensor]:
+        """Get the input that corresponds to a given output value.
+        
+        Args:
+            y (int): The output value.
+            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
+            probability_space (bool): Whether to return the input in probability space. Defaults to False.
+            max_time (float, optional): Maximum time to run the optimization. Defaults to None.
+
+        Returns:
+            Tuple[float, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.    
+        """
         constraints = constraints or {}
         assert (
             self.model is not None
@@ -371,6 +412,15 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
+        """Predict the output value(s) for the given input(s).
+        
+        Args:
+            x (torch.Tensor): The input value(s).
+            probability_space (bool): Whether to return the output in probability space. Defaults to False.
+            
+        Returns:
+            torch.Tensor: The predicted output value(s).
+        """
         assert self.model is not None, "model is None! Cannot predict without a model!"
         self.model.to(self.model_device)
         return self.model.predict(x=x, probability_space=probability_space)
@@ -379,6 +429,11 @@ class Strategy(object):
     def get_jnd(
         self, *args, **kwargs
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+        """Get the just-noticeable difference (JND) for the given input(s).
+        
+        Returns:
+            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: The JND value(s).
+        """
         assert (
             self.model is not None
         ), "model is None! Cannot get the get jnd without a model!"
@@ -389,15 +444,30 @@ class Strategy(object):
     def sample(
         self, x: torch.Tensor, num_samples: Optional[int] = None
     ) -> torch.Tensor:
+        """Sample the output value(s) for the given input(s).
+
+        Args:
+            x (torch.Tensor): The input value(s).
+            num_samples (int, optional): The number of samples to generate. Defaults to None.
+        
+        Returns:
+            torch.Tensor: The sampled output value(s).
+        """
         assert self.model is not None, "model is None! Cannot sample without a model!"
         self.model.to(self.model_device)
         return self.model.sample(x, num_samples=num_samples)
 
     def finish(self) -> None:
+        """Finish the strategy."""
         self.is_finished = True
 
     @property
     def finished(self) -> bool:
+        """Check if the strategy is finished.
+        
+        Returns:
+            bool: True if the strategy is finished, False otherwise.
+        """
         if self.is_finished:
             return True
 
@@ -443,10 +513,20 @@ class Strategy(object):
 
     @property
     def can_fit(self) -> bool:
+        """Check if the strategy can be fitted.
+        
+        Returns:
+            bool: True if the strategy can be fitted, False otherwise.
+        """
         return self.has_model and self.x is not None and self.y is not None
 
     @property
     def n_trials(self) -> int:
+        """Get the number of trials.
+        
+        Returns:
+            int: The number of trials.
+        """
         warnings.warn(
             "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead.",
             DeprecationWarning,
@@ -460,8 +540,8 @@ class Strategy(object):
         Adds new data points to the strategy, and normalizes the inputs.
 
         Args:
-            x (torch.Tensor, np.ndarray): The input data points. Can be a PyTorch tensor or NumPy array.
-            y (torch.Tensor, np.ndarray): The output data points. Can be a PyTorch tensor or NumPy array.
+            x (Union[np.ndarray, torch.Tensor]): The input data points. Can be a PyTorch tensor or NumPy array.
+            y (Union[np.ndarray, torch.Tensor]): The output data points. Can be a PyTorch tensor or NumPy array.
 
         """
         # Necessary as sometimes the data is passed in as numpy arrays or torch tensors.
@@ -474,6 +554,7 @@ class Strategy(object):
         self._model_is_fresh = False
 
     def fit(self) -> None:
+        """Fit the model."""
         if self.can_fit:
             self.model.to(self.model_device)  # type: ignore
             if self.keep_most_recent is not None:
@@ -497,6 +578,7 @@ class Strategy(object):
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     def update(self) -> None:
+        """Update the model."""
         if self.can_fit:
             self.model.to(self.model_device)  # type: ignore
             if self.keep_most_recent is not None:
@@ -521,6 +603,15 @@ class Strategy(object):
 
     @classmethod
     def from_config(cls, config: Config, name: str) -> Strategy:
+        """Create a strategy object from a configuration object.
+        
+        Args:
+            config (Config): The configuration object.
+            name (str): The name of the strategy.
+            
+        Returns:
+            Strategy: The strategy object.
+        """
         lb = config.gettensor(name, "lb")
         ub = config.gettensor(name, "ub")
         dim = config.getint(name, "dim", fallback=None)
@@ -618,6 +709,11 @@ class SequentialStrategy(object):
     """
 
     def __init__(self, strat_list: List[Strategy]) -> None:
+        """Initialize the SequentialStrategy object.
+        
+        Args:
+            strat_list (List[Strategy]): The list of strategies.
+        """
         self.strat_list = strat_list
         self._strat_idx = 0
         self._suggest_count = 0
@@ -626,15 +722,29 @@ class SequentialStrategy(object):
 
     @property
     def _strat(self) -> Strategy:
+        """Get the current strategy.
+        
+        Returns:
+            Strategy: The current strategy.
+        """
         return self.strat_list[self._strat_idx]
 
     def __getattr__(self, name: str) -> Any:
+        """Get the attribute of the current strategy.
+        
+        Args:
+            name (str): The name of the attribute.
+            
+        Returns:
+            Any: The attribute of the current strategy.
+        """
         # return current strategy's attr if it's not a container attr
         if "strat_list" not in vars(self):
             raise AttributeError("Have no strategies in container, what happened?")
         return getattr(self._strat, name)
 
     def _make_next_strat(self) -> None:
+        """Switch to the next strategy."""
         if (self._strat_idx + 1) >= len(self.strat_list):
             warnings.warn(
                 "Ran out of generators, staying on final generator!", RuntimeWarning
@@ -651,25 +761,53 @@ class SequentialStrategy(object):
         self._strat_idx = self._strat_idx + 1
 
     def gen(self, num_points: int = 1, **kwargs) -> torch.Tensor:
+        """Generate the next set of points to evaluate.
+        
+        Args:
+            num_points (int): The number of points to generate. Defaults to 1.
+            
+        Returns:
+            torch.Tensor: The next set of points to evaluate.
+        """
         if self._strat.finished:
             self._make_next_strat()
         self._suggest_count = self._suggest_count + num_points
         return self._strat.gen(num_points=num_points, **kwargs)
 
     def finish(self) -> None:
+        """Finish the strategy."""
         self._strat.finish()
 
     @property
     def finished(self) -> bool:
+        """Check if the strategy is finished.
+        
+        Returns:
+            bool: True if the strategy is finished, False otherwise.
+        """
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
 
     def add_data(
         self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
     ) -> None:
+        """Add new data points to the strategy.
+        
+        Args:
+            x (Union[np.ndarray, torch.Tensor]): The input data points.
+            y (Union[np.ndarray, torch.Tensor]): The output data points.
+        """
         self._strat.add_data(x, y)
 
     @classmethod
     def from_config(cls, config: Config) -> SequentialStrategy:
+        """Create a SequentialStrategy object from a configuration object.
+        
+        Args:
+            config (Config): The configuration object.
+            
+        Returns:
+            SequentialStrategy: The SequentialStrategy object.
+        """
         strat_names = config.getlist("common", "strategy_names", element_type=str)
 
         # ensure strat_names are unique

@@ -8,6 +8,7 @@
 import warnings
 from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 
+from matplotlib.image import AxesImage
 import matplotlib.pyplot as plt
 import numpy as np
 from aepsych.strategy import Strategy
@@ -44,9 +45,9 @@ def plot_strat(
         true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor
                     as input and produce the response probability at each sample as output. Default: None.
         cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.
-        target_level (float): Response probability to estimate the threshold of. Default: 0.75.
-        xlabel (str): Label of the x-axis. Default: "Context (abstract)".
-        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or
+        target_level (float, optional): Response probability to estimate the threshold of. Default: 0.75.
+        xlabel (str, optional): Label of the x-axis. Default: "Context (abstract)".
+        ylabel (str, optional): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or
                       "Intensity (Abstract)" for 2-d plots). Default: None.
         yes_label (str): Label of trials with response of 1. Default: "Yes trial".
         no_label (str): Label of trials with response of 0. Default: "No trial".
@@ -148,8 +149,26 @@ def _plot_strat_1d(
     yes_label: str,
     no_label: str,
     gridsize: int,
-):
-    """Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments."""
+) -> plt.Axes:
+    """Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments.
+    
+    Args:
+        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 1.
+        ax (plt.Axes): Matplotlib axis to plot on
+        true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor
+                    as input and produce the response probability at each sample as output. Default: None.
+        cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.
+        target_level (float, optional): Response probability to estimate the threshold of. Default: 0.75.
+        xlabel (str): Label of the x-axis. Default: "Context (abstract)".
+        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or
+                      "Intensity (Abstract)" for 2-d plots). Default: None.
+        yes_label (str): Label of trials with response of 1. Default: "Yes trial".
+        no_label (str): Label of trials with response of 0. Default: "No trial".
+        gridsize (int): The number of points to sample each dimension at. Default: 30.
+
+    Returns:
+        plt.Axes: The axis object with the plot.
+    """
 
     x, y = strat.x, strat.y
     assert x is not None and y is not None, "No data to plot!"
@@ -251,7 +270,31 @@ def _plot_strat_2d(
     gridsize: int,
     include_colorbar: bool,
 ):
-    """Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments."""
+    """Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments.
+    
+    Args:
+        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 2.
+        ax (plt.Axes): Matplotlib axis to plot on
+        true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor
+                    as input and produce the response probability at each sample as output. Default: None.
+        cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.
+        target_level (float, optional): Response probability to estimate the threshold of. Default: 0.75.
+        xlabel (str): Label of the x-axis. Default: "Context (abstract)".
+        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or
+                      "Intensity (Abstract)" for 2-d plots). Default: None.
+        yes_label (str): Label of trials with response of 1. Default: "Yes trial".
+        no_label (str): Label of trials with response of 0. Default: "No trial".
+        flipx (bool): Whether the values of the x-axis should be flipped such that the min becomes the max and vice
+                      versa.
+               (Only valid for 2-d plots.) Default: False.
+        logx (bool): Whether the x-axis should be log-transformed. (Only valid for 2-d plots.) Default: False.
+        gridsize (int): The number of points to sample each dimension at. Default: 30.
+        include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials.
+                                 Default: True.
+
+    Returns:
+        plt.Axes: The axis object with the plot.
+    """
 
     x, y = strat.x, strat.y
     assert x is not None and y is not None, "No data to plot!"
@@ -360,14 +403,14 @@ def plot_strat_3d(
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
-        parnames (str list): list of the parameter names
+        parnames (List[str], optional): list of the parameter names
         outcome_label (str): The label of the outcome variable
-        slice_dim (int): dimension to slice on
-        dim_vals (list of floats or int): values to take slices; OR number of values to take even slices from
-        contour_levels (iterable of floats or bool, optional): List contour values to plot. Default: None. If true, all integer levels.
+        slice_dim (int): dimension to slice on. Default: 0.
+        slice_vals (Union[List[float], int]): values to take slices; OR number of values to take even slices from. Default: 5.
+        contour_levels (Union[Iterable[float], bool], optional): List contour values to plot. Default: None. If true, all integer levels.
         probability_space (bool): Whether to plot probability. Default: False
         gridsize (int): The number of points to sample each dimension at. Default: 30.
-        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None
+        extent_multiplier (List[float], optional): multipliers for each of the dimensions when plotting. Default:None
         save_path (str, optional): File name to save the plot to. Default: None.
         show (bool): Whether the plot should be shown in an interactive window. Default: True.
     """
@@ -453,20 +496,23 @@ def plot_slice(
     contour_levels: Optional[Sized] = None,
     lse: bool = False,
     extent_multiplier: Optional[List] = None,
-):
+) -> AxesImage:
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
-        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
         ax (plt.Axes): Matplotlib axis to plot on
-        parnames (str list): list of the parameter names
-        slice_dim (int): dimension to slice on
-        slice_vals (float): value to take the slice along that dimension
-        vmin (float): global model minimum to use for plotting
-        vmax (float): global model maximum to use for plotting
+        start (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
+        parnames (List[str]): list of the parameter names.
+        slice_dim (int): dimension to slice on.
+        slice_val (int): value to take the slice along that dimension.
+        vmin (float): global model minimum to use for plotting.
+        vmax (float): global model maximum to use for plotting.
         gridsize (int): The number of points to sample each dimension at. Default: 30.
-        contour_levels (int list): Contours to plot. Default: None
+        contour_levels (Sized): Contours to plot. Default: None
         lse (bool): Whether to plot probability. Default: False
-        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None
+        extent_multiplier (List, optional): multipliers for each of the dimensions when plotting. Default:None
+
+    Returns:
+        AxesImage: The axis object with the plot.
     """
     extent = np.c_[strat.lb, strat.ub].reshape(-1)
     if strat.model is not None:
