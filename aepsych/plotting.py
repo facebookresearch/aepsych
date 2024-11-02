@@ -291,9 +291,6 @@ def _plot_strat_2d(
         gridsize (int): The number of points to sample each dimension at. Default: 30.
         include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials.
                                  Default: True.
-
-    Returns:
-        plt.Axes: The axis object with the plot.
     """
 
     x, y = strat.x, strat.y
