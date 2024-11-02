@@ -32,7 +32,7 @@ class ProbitObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -45,7 +45,7 @@ class ProbitObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -61,11 +61,11 @@ class FloorLinkObjective(AEPsychObjective):
     """
 
     def __init__(self, floor: float=0.5) -> None:
-        """
-        Initialize the objective with a floor.
-        
+        """Initialize the objective with a floor value.
+
         Args:
-            floor (float): The floor value."""
+            floor (float): The floor value. Defaults to 0.5.
+        """
         self.floor = floor
         super().__init__()
 
@@ -74,7 +74,7 @@ class FloorLinkObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -87,7 +87,7 @@ class FloorLinkObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -96,13 +96,43 @@ class FloorLinkObjective(AEPsychObjective):
         return self.inverse_link((samples - self.floor) / (1 - self.floor))
 
     def link(self, samples: Tensor) -> Tensor:
+        """Evaluates the link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: outcome probability.
+            
+        Note:
+            This is an abstract method that should be implemented by subclasses.    
+        """
         raise NotImplementedError
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """Evaluates the inverse link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: outcome probability.
+            
+        Note:
+            This is an abstract method that should be implemented by subclasses.
+        """
         raise NotImplementedError
 
     @classmethod
     def from_config(cls, config: Config) -> FloorLinkObjective:
+        """Create a FloorLinkObjective from a configuration.
+        
+        Args:
+            config (Config): Configuration object containing the initialization parameters.
+
+        Returns:
+            FloorLinkObjective: The initialized objective.
+        """
         floor = config.getfloat(cls.__name__, "floor")
         return cls(floor=floor)
 
@@ -115,27 +145,26 @@ class FloorLogitObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
-        """
-        Generator that implements a logistic sigmoid function with a specified floor.
-
+        """Evaluates the link function for input x and floor f
+        
         Args:
-            samples (Tensor): GP samples to evaluate.
-
+            samples (Tensor): GP samples.
+            
         Returns:
-            Tensor: The output of the logistic sigmoid function, constrained to be between the specified floor and 1.0.
+            Tensor: The Expit function applied to the input samples.
         """
         return torch.special.expit(samples)
 
     def inverse_link(self, samples: Tensor) -> Tensor:
-        """
-        Evaluates the inverse of the floor-constrained logistic sigmoid function.
+        """Evaluates the inverse link function for input x and floor f
 
         Args:
-            samples (Tensor): GP samples to evaluate.
+            samples (Tensor): GP samples.
 
         Returns:
-            Tensor: The inverse of the logistic sigmoid function, adjusted for the floor constraint.
+            Tensor: The logarithm of the inverse link function applied to the input samples.
         """
+
         return torch.special.logit(samples)
 
 
@@ -149,28 +178,26 @@ class FloorGumbelObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
-        """
-        Generates the output of the Gumbel cumulative distribution function (CDF) with a specified floor.
-
+        """Evaluates the link function for input x and floor f
+        
         Args:
-            samples (Tensor): GP samples to evaluate.
-
+            samples (Tensor): GP samples.
+            
         Returns:
-            Tensor: The output of the Gumbel CDF, constrained to be between the specified floor and 1.0.
+            Tensor: Transformed tensor with the link function applied, where positive infinity values are replaced with 1.0 and negative infinity values are replaced with 0.0.
         """
         return torch.nan_to_num(
             -torch.special.expm1(-torch.exp(samples)), posinf=1.0, neginf=0.0
         )
 
     def inverse_link(self, samples: Tensor) -> Tensor:
-        """
-        Evaluates the inverse of the floor-constrained Gumbel CDF.
-
+        """Evaluates the inverse link function for input x and floor f
+        
         Args:
-            samples (Tensor): GP samples to evaluate.
-
+            samples (Tensor): GP samples.
+            
         Returns:
-            Tensor: The inverse of the Gumbel CDF, adjusted for the floor constraint.
+            Tensor: The logarithm of the inverse link function applied to the input samples.
         """
         return torch.log(-torch.special.log1p(-samples))
 
@@ -182,16 +209,23 @@ class FloorProbitObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
-        """
-        Generates the output of the probit function with a specified floor.
+        """Evaluates the link function for input x and floor f
 
         Args:
-            samples (Tensor): GP samples to evaluate.
+            samples (Tensor): GP samples.
 
         Returns:
-            Tensor: The output of the probit function, constrained between the specified floor and 1.0.
+            Tensor: the cumulative distribution function of the standard normal distribution of the input samples.
         """
         return Normal(0, 1).cdf(samples)
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """Evaluates the inverse link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: the inverse cumulative distribution function of the standard normal distribution of the input samples.
+        """
         return Normal(0, 1).icdf(samples)
