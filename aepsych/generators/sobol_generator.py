@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from typing import Dict, Optional, Union
+from typing import Optional
 
 import numpy as np
 import torch
@@ -65,7 +65,17 @@ class SobolGenerator(AEPsychGenerator):
         return grid.reshape(num_points, self.stimuli_per_trial, -1).swapaxes(-1, -2)
 
     @classmethod
-    def from_config(cls, config: Config) -> "SobolGenerator":
+    def from_config(cls, config: Config) -> 'SobolGenerator':
+        """
+        Creates an instance of SobolGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            SobolGenerator: A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.
+        """
+
         classname = cls.__name__
 
         lb = config.gettensor(classname, "lb")

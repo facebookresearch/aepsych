@@ -63,6 +63,17 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     def _get_acqf_options(
         cls, acqf: AcquisitionFunction, config: Config
     ) -> Dict[str, Any]:
+        """Get the extra arguments for the acquisition function from the config.
+        
+        Args:
+            acqf (AcquisitionFunction): The acquisition function to get arguments for.
+            config (Config): The configuration object.
+            
+        Returns:
+            Dict[str, Any]: The extra arguments for the acquisition function.
+        """
+
+        
         if acqf is not None:
             acqf_name = acqf.__name__
 

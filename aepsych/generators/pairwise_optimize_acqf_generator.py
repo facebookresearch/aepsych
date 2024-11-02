@@ -17,7 +17,17 @@ class PairwiseOptimizeAcqfGenerator(OptimizeAcqfGenerator):
     stimuli_per_trial = 2
 
     @classmethod
-    def from_config(cls, config: Config) -> "OptimizeAcqfGenerator":
+    def from_config(cls, config: Config) -> 'OptimizeAcqfGenerator':
+        """
+        Create an instance of PairwiseOptimizeAcqfGenerator from a configration object.
+        
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            
+        Returns:
+            OptimizeAcqfGenerator: A configured instance of OptimizeAcqfGenerator with specified acquisition function,
+            restart and sample parameters, maximum generation time, and stimuli per trial(two in this case).
+        """
         warnings.warn(
             "PairwiseOptimizeAcqfGenerator is deprecated. Use OptimizeAcqfGenerator instead.",
             DeprecationWarning,
