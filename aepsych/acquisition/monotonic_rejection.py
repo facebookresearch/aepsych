@@ -38,9 +38,9 @@ class MonotonicMCAcquisition(AcquisitionFunction):
 
         Args:
             model (Model): Model to use, usually a MonotonicRejectionGP.
-            num_samples (int, optional): Number of samples to keep from the rejection sampler. . Defaults to 32.
-            num_rejection_samples (int, optional): Number of rejection samples to draw. Defaults to 1024.
-            objective (Optional[MCAcquisitionObjective], optional): Objective transform of the GP output
+            num_samples (int): Number of samples to keep from the rejection sampler. . Defaults to 32.
+            num_rejection_samples (int): Number of rejection samples to draw. Defaults to 1024.
+            objective (MCAcquisitionObjective, optional): Objective transform of the GP output
                 before evaluating the acquisition. Defaults to identity transform.
         """
         super().__init__(model=model)
@@ -123,12 +123,12 @@ class MonotonicMCLSE(MonotonicMCAcquisition):
         Args:
             model (Model): Underlying model object, usually should be MonotonicRejectionGP.
             target (float): Level set value to target (after the objective).
-            num_samples (int, optional): Number of MC samples to draw in MC acquisition. Defaults to 32.
-            num_rejection_samples (int, optional): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.
-            beta (float, optional): Parameter of the LSE acquisition function that governs exploration vs
+            num_samples (int): Number of MC samples to draw in MC acquisition. Defaults to 32.
+            num_rejection_samples (int): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.
+            beta (float): Parameter of the LSE acquisition function that governs exploration vs
                 exploitation (similarly to the same parameter in UCB). Defaults to 3.84 (1.96 ** 2), which maps to the straddle
                 heuristic of Bryan et al. 2005.
-            objective (Optional[MCAcquisitionObjective], optional): Objective transform. Defaults to identity transform.
+            objective (MCAcquisitionObjective, optional): Objective transform. Defaults to identity transform.
         """
         self.beta = beta
         self.target = target

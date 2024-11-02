@@ -5,7 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-r""" """
 
 from __future__ import annotations
 
@@ -71,9 +70,9 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
 
         Args:
             model (Model): A fitted model.
-            objective (MCAcquisitionObjective, optional): An MCAcquisitionObjective representing the link function
+            objective (MCAcquisitionObjective): An MCAcquisitionObjective representing the link function
                 (e.g., logistic or probit)
-            sampler (Optional[MCSampler], optional): The sampler used for drawing MC samples.
+            sampler (MCSampler, optional): The sampler used for drawing MC samples.
         """
         if sampler is None:
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([1024]))
@@ -129,8 +128,8 @@ def construct_inputs_mi(
     Args:
         model (Model): The fitted model to use.
         training_data (None): Placeholder for compatibility; not used in this function.
-        objective (Optional[MCAcquisitionObjective], optional): Objective function for transforming samples (e.g., logit or probit).
-        sampler (Optional[MCSampler], optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logit or probit).
+        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
 
     Returns:
         Dict[str, Any]: Dictionary of constructed inputs for the BernoulliMCMutualInformation acquisition function.

@@ -50,10 +50,10 @@ class MCPosteriorVariance(MCAcquisitionFunction):
 
         Args:
             model (Model): A fitted model.
-            objective (Optional[MCAcquisitionObjective], optional): An MCAcquisitionObjective representing the link function
+            objective (MCAcquisitionObjective optional): An MCAcquisitionObjective representing the link function
                 (e.g., logistic or probit.) applied on the difference of (usually 1-d)
-                two samples. Can be implemented via GenericMCObjective.
-            sampler (Optional[MCSampler], optional): The sampler used for drawing MC samples.
+                two samples. Can be implemented via GenericMCObjective. Defaults tp ProbitObjective.
+            sampler (MCSampler, optional): The sampler used for drawing MC samples. Defaults to SobolQMCNormalSampler.
         """
         if sampler is None:
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([512]))
@@ -110,8 +110,8 @@ def construct_inputs(
     Args:
         model (Model): The fitted model to be used.
         training_data (None): Placeholder for compatibility; not used in this function.
-        objective (Optional[MCAcquisitionObjective], optional): Objective function for transforming samples (e.g., logistic or probit).
-        sampler (Optional[MCSampler], optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logistic or probit).
+        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
 
     Returns:
         Dict[str, Any]: Dictionary of constructed inputs for the MCPosteriorVariance acquisition function.

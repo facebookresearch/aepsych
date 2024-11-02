@@ -30,7 +30,7 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
         objective: Optional[MCAcquisitionObjective] = None,
         sampler: Optional[MCSampler] = None,
     ) -> None:
-        r"""Monte-carlo level set estimation.
+        """Monte-carlo level set estimation.
 
         Args:
             model: A fitted model.
@@ -103,10 +103,10 @@ def construct_inputs_lse(
     Args:
         model (Model): The fitted model to be used.
         training_data (None): Placeholder for compatibility; not used in this function.
-        objective (Optional[MCAcquisitionObjective], optional): Objective function for transforming samples (e.g., logistic or probit).
-        target (Union[float, Tensor], optional): Level set to be estimated, defaulting to 0.75.
-        beta (Union[float, Tensor], optional): Parameter controlling explore-exploit tradeoff, default is 3.84.
-        sampler (Optional[MCSampler], optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logistic or probit).
+        target (Union[float, Tensor]): Level set to be estimated, defaulting to 0.75.
+        beta (Union[float, Tensor]): Parameter controlling explore-exploit tradeoff, default is 3.84.
+        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
 
     Returns:
         Dict[str, Any]: Dictionary of constructed inputs for the MCLevelSetEstimation acquisition function.

@@ -134,7 +134,8 @@ def bvn_cdf(
         yu (torch.Tensor): Upper limits for cdf evaluation in y
         r (torch.Tensor): BVN correlation
 
-    Returns: Tensor of cdf evaluations of same size as xu, yu, and r.
+    Returns: 
+        Tensor of cdf evaluations of same size as xu, yu, and r.
     """
     p = 1 - _ndtr(-xu) - _ndtr(-yu) + _bvnu(xu, yu, r)
     return torch.clip(p, 0, 1)
