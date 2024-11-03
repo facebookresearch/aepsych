@@ -28,7 +28,7 @@ class Database:
         """Initialize the database object.
         
         Args:
-            db_path (Optional[str], optional): The path to the database. Defaults to None.
+            db_path (str, optional): The path to the database. Defaults to None.
         """
         if db_path is None:
             db_path = "./databases/default.db"
@@ -143,6 +143,9 @@ class Database:
         
         Args:
             experiment_id (int): The experiment id.
+
+        Returns:
+            tables.DBMasterTable or None: The master record or None if it doesn't exist.
         """
         records = (
             self._session.query(tables.DBMasterTable)
@@ -162,7 +165,8 @@ class Database:
             master_id (int): The master id.
             
         Returns:
-            Optional[List[tables.DbReplayTable]]: The replay records."""
+            List[tables.DbReplayTable] or None: The replay records or None if they don't exist.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None:
@@ -174,10 +178,11 @@ class Database:
         """Get the strat records for a specific master row.
         
         Args:
-            master_id (int, optional): The master id. Defaults to 0.
+            master_id (int): The master id. Defaults to 0.
             
         Returns:
-            Optional[List[Any]]: The strat records."""
+            List[Any] or None: The strat records or None if they don't exist.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None and len(master_record.children_strat) > 0:
@@ -190,10 +195,11 @@ class Database:
         
         Args:
             master_id (int): The master id.
-            strat_id (int, optional): The strat id. Defaults to -1.
+            strat_id (int): The strat id. Defaults to -1.
             
         Returns:
-            Optional[Any]: The strat record."""
+            Any: The strat record.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None and len(master_record.children_strat) > 0:
@@ -208,7 +214,7 @@ class Database:
             master_id (int): The master id.
             
         Returns:
-            Optional[Any]: The config records.
+            Any: The config records.
         """
         master_record = self.get_master_record(master_id)
 
@@ -223,7 +229,7 @@ class Database:
             master_id (int): The master id.
             
         Returns:
-            Optional[List[tables.DbRawTable]]: The raw data.
+            List[tables.DbRawTable] or None: The raw data or None if it doesn't exist.
         """
         master_record = self.get_master_record(master_id)
 
@@ -239,7 +245,7 @@ class Database:
             master_id (int): The master id.
             
         Returns:
-            Optional[List[tables.DbRawTable]]: The parameters.
+            List[tables.DbRawTable] or None: The parameters or None if they don't exist.
         """
         raw_record = self.get_raw_for(master_id)
         params = []
@@ -260,7 +266,7 @@ class Database:
             iteration_id (int): The iteration id.
             
         Returns:
-            Optional[List[tables.DbRawTable]]: The parameters.
+            List[tables.DbRawTable] or None: The parameters or None if they don't exist.
         """
         raw_record = self.get_raw_for(master_id)
 
@@ -278,7 +284,7 @@ class Database:
             master_id (int): The master id.
             
         Returns:
-            Optional[List[tables.DbRawTable]]: The outcomes.
+            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
         """
         raw_record = self.get_raw_for(master_id)
         outcomes = []
@@ -299,7 +305,7 @@ class Database:
             iteration_id (int): The iteration id.
             
         Returns:
-            Optional[List[tables.DbRawTable]]: The outcomes.
+            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
         """
         raw_record = self.get_raw_for(master_id)
 
@@ -324,10 +330,10 @@ class Database:
         Args:
             description (str): The description of the experiment.
             name (str): The name of the experiment.
-            extra_metadata (Optional[str], optional): Extra metadata. Defaults to None.
-            id (Optional[str], optional): The id of the experiment. Defaults to None.
-            request (Dict[str, Any], optional): The request. Defaults to None.
-            participant_id (Optional[int], optional): The participant id. Defaults to None.
+            extra_metadata (str, optional): Extra metadata. Defaults to None.
+            id (str, optional): The id of the experiment. Defaults to None.
+            request (Dict[str, Any]): The request. Defaults to None.
+            participant_id (int, optional): The participant id. Defaults to None.
 
         Returns:
             str: The experiment id.
@@ -402,7 +408,7 @@ class Database:
         Args:
             master_table (tables.DBMasterTable): The master table.
             model_data (Any): The model data.
-            timestamp (Optional[datetime.datetime], optional): The timestamp. Defaults to None.
+            timestamp (datetime.datetime, optional): The timestamp. Defaults to None.
             
         Returns:
             tables.DbRawTable: The raw entry.

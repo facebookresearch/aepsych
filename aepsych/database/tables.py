@@ -204,7 +204,8 @@ class DbReplayTable(Base):
             row (Dict[str, Any]): A row from the sqlite database.
             
         Returns:
-            DbReplayTable: A DbReplayTable object."""
+            DbReplayTable: A DbReplayTable object.
+        """
         this = DbReplayTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -370,7 +371,8 @@ class DbStratTable(Base):
             row (Dict[str, Any]): A row from the sqlite database.
             
         Returns:
-            DbStratTable: A DbStratTable object."""
+            DbStratTable: A DbStratTable object.
+        """
         this = DbStratTable()
         this.unique_id = row["unique_id"]
         this.timestamp = row["timestamp"]
@@ -605,7 +607,8 @@ class DbRawTable(Base):
             engine (Engine): The sqlalchemy engine.
             
         Returns:
-            bool: True if the raw table is empty and data already exists, False otherwise."""
+            bool: True if the raw table is empty and data already exists, False otherwise.
+        """
         n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
         n_tells = engine.execute(
             "SELECT COUNT (*) FROM replay_data \
@@ -676,6 +679,9 @@ class DbParamTable(Base):
         
         Args:
             engine (Engine): The sqlalchemy engine.
+
+        Returns:
+            bool: True if the param_data table schema requires an update, False otherwise.
         """
         return False
 
