@@ -23,7 +23,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
         """Initializes the linear bernoulli likelihood.
 
         Args:
-            objective (Optional[AEPsychObjective], optional): Link function to use (sigma in the notation above).
+            objective (AEPsychObjective, optional): Link function to use (sigma in the notation above).
                 Defaults to probit with no floor.
         """
         super().__init__()

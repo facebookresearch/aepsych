@@ -28,7 +28,7 @@ class OrdinalLikelihood(Likelihood):
         
         Args:
             n_levels (int): Number of levels in the ordinal scale.
-            link (Optional[Callable], optional): Link function. Defaults to None.
+            link (Callable, optional): Link function. Defaults to None.
         """
         super().__init__()
         self.n_levels = n_levels
