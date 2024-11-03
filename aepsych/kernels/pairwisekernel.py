@@ -21,7 +21,7 @@ class PairwiseKernel(Kernel):
         """
          Args:
             latent_kernel (Any): The underlying kernel used to compute the covariance for the GP.
-            is_partial_obs (bool, optional): If the kernel should handle partial observations. Defaults to False.
+            is_partial_obs (bool): If the kernel should handle partial observations. Defaults to False.
         """
         super(PairwiseKernel, self).__init__(**kwargs)
 
@@ -39,11 +39,11 @@ class PairwiseKernel(Kernel):
         Args:
             x1 (torch.Tensor): A `b x n x d` or `n x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
             x2 (torch.Tensor): A `b x m x d` or `m x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
-            diag (bool, optional): Should the Kernel compute the whole covariance matrix or just the diagonal? Defaults to False.
+            diag (bool): Should the Kernel compute the whole covariance matrix or just the diagonal? Defaults to False.
             
 
         Returns:
-            Optional[torch.Tensor] (or :class:`gpytorch.lazy.LazyTensor`) : A `b x n x m` or `n x m` tensor representing
+            torch.Tensor (or :class:`gpytorch.lazy.LazyTensor`) : A `b x n x m` or `n x m` tensor representing
             the covariance matrix between `x1` and `x2`. 
             The exact size depends on the kernel's evaluation mode:
             * `full_covar`: `n x m` or `b x n x m`
