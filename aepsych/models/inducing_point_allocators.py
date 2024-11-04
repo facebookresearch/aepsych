@@ -150,7 +150,7 @@ class AutoAllocator(InducingPointAllocator):
     
     def allocate_inducing_points(
         self,
-        inputs: torch.Tensor,
+        inputs: Optional[torch.Tensor],
         covar_module: Optional[torch.nn.Module] = None,
         num_inducing: int = 10,
         input_batch_shape: torch.Size = torch.Size([]),
@@ -168,6 +168,9 @@ class AutoAllocator(InducingPointAllocator):
         Returns:
             torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points.
         """
+        # Ensure inputs are not None
+        if inputs is None:
+            raise ValueError("Input data must be provided to allocate inducing points.")
         unique_inputs = torch.unique(inputs, dim=0)
         
         # If there are fewer unique points than required, return unique inputs directly
