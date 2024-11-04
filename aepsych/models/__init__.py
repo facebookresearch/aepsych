@@ -20,6 +20,7 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
+from .inducing_point_allocators import AutoAllocator, KMeansAllocator, SobolAllocator
 
 __all__ = [
     "GPClassificationModel",
@@ -34,6 +35,9 @@ __all__ = [
     "semi_p_posterior_transform",
     "GPBetaRegressionModel",
     "PairwiseProbitModel",
+    "AutoAllocator",
+    "KMeansAllocator",
+    "SobolAllocator",
 ]
 
 Config.register_module(sys.modules[__name__])

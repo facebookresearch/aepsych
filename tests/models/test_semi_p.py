@@ -30,6 +30,7 @@ from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transfo
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
+from aepsych.models.inducing_point_allocators import AutoAllocator
 
 
 def _hadamard_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObjective):
@@ -39,7 +40,7 @@ def _hadamard_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObj
         stim_dim=stim_dim,
         likelihood=BernoulliObjectiveLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method="auto",
+        inducing_point_method=AutoAllocator(),
         max_fit_time=0.5,
     )
 
@@ -51,7 +52,7 @@ def _semip_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObject
         stim_dim=stim_dim,
         likelihood=LinearBernoulliLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method="auto",
+        inducing_point_method=AutoAllocator(),
     )
 
 
@@ -97,7 +98,7 @@ class SemiPSmokeTests(unittest.TestCase):
             stim_dim=self.stim_dim,
             likelihood=LinearBernoulliLikelihood(),
             inducing_size=10,
-            inducing_point_method="auto",
+            inducing_point_method=AutoAllocator(),
         )
 
         generator = OptimizeAcqfGenerator(
@@ -303,7 +304,7 @@ class SemiPSmokeTests(unittest.TestCase):
                 likelihood=LinearBernoulliLikelihood(),
                 inducing_size=10,
                 slope_mean=slope_mean,
-                inducing_point_method="auto",
+                inducing_point_method=AutoAllocator(),
             )
             with self.subTest(model=model, slope_mean=slope_mean):
                 self.assertEqual(model.mean_module.constant[-1], slope_mean)
@@ -314,7 +315,7 @@ class SemiPSmokeTests(unittest.TestCase):
                 likelihood=BernoulliObjectiveLikelihood(objective=ProbitObjective()),
                 inducing_size=10,
                 slope_mean=slope_mean,
-                inducing_point_method="auto",
+                inducing_point_method=AutoAllocator(),
             )
             with self.subTest(model=model, slope_mean=slope_mean):
                 self.assertEqual(model.slope_mean_module.constant.item(), slope_mean)
