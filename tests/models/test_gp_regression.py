@@ -13,11 +13,11 @@ import numpy as np
 import numpy.testing as npt
 import torch
 from aepsych.server import AEPsychServer
-from gpytorch.likelihoods import GaussianLikelihood
 
 from aepsych.server.message_handlers.handle_ask import ask
-from aepsych.server.message_handlers.handle_tell import tell
 from aepsych.server.message_handlers.handle_setup import configure
+from aepsych.server.message_handlers.handle_tell import tell
+from gpytorch.likelihoods import GaussianLikelihood
 
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
@@ -71,6 +71,17 @@ class GPRegressionTest(unittest.TestCase):
 
     def tearDown(self):
         self.server.db.delete_db()
+
+    @unittest.skipUnless(torch.cuda.is_available(), "no gpu available")
+    def test_gpu_fit(self):
+        self.server._strats[0].strat_list[1].model_device = torch.device("cuda")
+
+        data = torch.tensor([0])
+        response = self.f(data)
+        self.server.strat.add_data(data, response)
+        self.server.strat.fit()
+
+        self.assertTrue(self.server.strat.model.device.type == "cuda")
 
     def test_extremum(self):
         tol = 0.2  # don't need to be super precise because it's small data
