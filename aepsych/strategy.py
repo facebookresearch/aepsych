@@ -10,7 +10,19 @@ from __future__ import annotations
 import time
 import warnings
 
-from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 import numpy as np
 import torch
@@ -26,7 +38,7 @@ from botorch.exceptions.errors import ModelFittingError
 logger = getLogger()
 
 
-def ensure_model_is_fresh(f:Callable) -> Callable:
+def ensure_model_is_fresh(f: Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
         if self.can_fit and not self._model_is_fresh:
             starttime = time.time()
@@ -61,6 +73,7 @@ class Strategy(object):
         min_total_tells: int = 0,
         min_asks: int = 0,
         model: Optional[AEPsychMixin] = None,
+        use_gpu_modeling: bool = False,
         refit_every: int = 1,
         min_total_outcome_occurrences: int = 1,
         max_asks: Optional[int] = None,
@@ -80,6 +93,7 @@ class Strategy(object):
             min_total_tells (int): The minimum number of total observations needed to complete this strategy.
             min_asks (int): The minimum number of points that should be generated from this strategy.
             model (ModelProtocol, optional): The AEPsych model of the data.
+            use_gpu_modeling (bool): Whether to move the model to GPU fitting/predictions, defaults to False.
             refit_every (int): How often to refit the model from scratch.
             min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.
                 Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).
@@ -122,6 +136,12 @@ class Strategy(object):
                 assert set(outcome_types) == set(
                     model.outcome_type
                 ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
+            if use_gpu_modeling:
+                assert (
+                    torch.cuda.is_available()
+                ), f"GPU requested for model {type(model).__name__} but GPU is not found!"
+
+            self.model_device = torch.device("cuda" if use_gpu_modeling else "cpu")
 
         self.run_indefinitely = run_indefinitely
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
@@ -221,25 +241,50 @@ class Strategy(object):
         return self.generator.gen(num_points, self.model)
 
     @ensure_model_is_fresh
-    def get_max(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
+    def get_max(
+        self,
+        constraints: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        max_time: Optional[float] = None,
+    ) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
-        assert self.model is not None, "model is None! Cannot get the max without a model!"
+        assert (
+            self.model is not None
+        ), "model is None! Cannot get the max without a model!"
+        self.model.to(self.model_device)
         return self.model.get_max(
             constraints, probability_space=probability_space, max_time=max_time
         )
 
     @ensure_model_is_fresh
-    def get_min(self, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
+    def get_min(
+        self,
+        constraints: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        max_time: Optional[float] = None,
+    ) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
-        assert self.model is not None, "model is None! Cannot get the min without a model!"
+        assert (
+            self.model is not None
+        ), "model is None! Cannot get the min without a model!"
+        self.model.to(self.model_device)
         return self.model.get_min(
             constraints, probability_space=probability_space, max_time=max_time
         )
 
     @ensure_model_is_fresh
-    def inv_query(self, y: int, constraints: Optional[Mapping[int, List[float]]]  = None, probability_space: bool = False, max_time: Optional[float] = None) -> Tuple[float, torch.Tensor]:
+    def inv_query(
+        self,
+        y: int,
+        constraints: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        max_time: Optional[float] = None,
+    ) -> Tuple[float, torch.Tensor]:
         constraints = constraints or {}
-        assert self.model is not None, "model is None! Cannot get the inv_query without a model!"
+        assert (
+            self.model is not None
+        ), "model is None! Cannot get the inv_query without a model!"
+        self.model.to(self.model_device)
         return self.model.inv_query(
             y, constraints, probability_space, max_time=max_time
         )
@@ -247,16 +292,25 @@ class Strategy(object):
     @ensure_model_is_fresh
     def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
         assert self.model is not None, "model is None! Cannot predict without a model!"
+        self.model.to(self.model_device)
         return self.model.predict(x=x, probability_space=probability_space)
 
     @ensure_model_is_fresh
-    def get_jnd(self, *args, **kwargs) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
-        assert self.model is not None, "model is None! Cannot get the get jnd without a model!"
+    def get_jnd(
+        self, *args, **kwargs
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+        assert (
+            self.model is not None
+        ), "model is None! Cannot get the get jnd without a model!"
+        self.model.to(self.model_device)
         return self.model.get_jnd(*args, **kwargs)
 
     @ensure_model_is_fresh
-    def sample(self, x: torch.Tensor, num_samples: Optional[int] = None) -> torch.Tensor:
+    def sample(
+        self, x: torch.Tensor, num_samples: Optional[int] = None
+    ) -> torch.Tensor:
         assert self.model is not None, "model is None! Cannot sample without a model!"
+        self.model.to(self.model_device)
         return self.model.sample(x, num_samples=num_samples)
 
     def finish(self) -> None:
@@ -290,9 +344,13 @@ class Strategy(object):
             sufficient_outcomes = True
 
         if self.min_post_range is not None:
-            assert self.model is not None, "model is None! Cannot predict without a model!"
+            assert (
+                self.model is not None
+            ), "model is None! Cannot predict without a model!"
             fmean, _ = self.model.predict(self.eval_grid, probability_space=True)
-            meets_post_range = ((fmean.max() - fmean.min()) >= self.min_post_range).item()
+            meets_post_range = (
+                (fmean.max() - fmean.min()) >= self.min_post_range
+            ).item()
         else:
             meets_post_range = True
         finished = (
@@ -337,12 +395,13 @@ class Strategy(object):
 
     def fit(self) -> None:
         if self.can_fit:
+            self.model.to(self.model_device)  # type: ignore
             if self.keep_most_recent is not None:
                 try:
-                    
-                    self.model.fit( # type: ignore
-                        self.x[-self.keep_most_recent :], # type: ignore
-                        self.y[-self.keep_most_recent :], # type: ignore
+
+                    self.model.fit(  # type: ignore
+                        self.x[-self.keep_most_recent :],  # type: ignore
+                        self.y[-self.keep_most_recent :],  # type: ignore
                     )
                 except ModelFittingError:
                     logger.warning(
@@ -350,7 +409,7 @@ class Strategy(object):
                     )
             else:
                 try:
-                    self.model.fit(self.x, self.y) # type: ignore
+                    self.model.fit(self.x, self.y)  # type: ignore
                 except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
@@ -359,13 +418,14 @@ class Strategy(object):
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     def update(self) -> None:
-        
+
         if self.can_fit:
+            self.model.to(self.model_device)  # type: ignore
             if self.keep_most_recent is not None:
-                try: 
-                    self.model.update( # type: ignore
-                        self.x[-self.keep_most_recent :], # type: ignore
-                        self.y[-self.keep_most_recent :], # type: ignore
+                try:
+                    self.model.update(  # type: ignore
+                        self.x[-self.keep_most_recent :],  # type: ignore
+                        self.y[-self.keep_most_recent :],  # type: ignore
                     )
                 except ModelFittingError:
                     logger.warning(
@@ -373,7 +433,7 @@ class Strategy(object):
                     )
             else:
                 try:
-                    self.model.update(self.x, self.y) # type: ignore
+                    self.model.update(self.x, self.y)  # type: ignore
                 except ModelFittingError:
                     logger.warning(
                         "Failed to fit model! Predictions may not be accurate!"
@@ -396,8 +456,15 @@ class Strategy(object):
         model_cls = config.getobj(name, "model", fallback=None)
         if model_cls is not None:
             model = model_cls.from_config(config)
+            use_gpu_modeling = config.getboolean(
+                model_cls.__name__, "use_gpu", fallback=False
+            )
+
+            if use_gpu_modeling:
+                model.cuda()
         else:
             model = None
+            use_gpu_modeling = False
 
         acqf_cls = config.getobj(name, "acqf", fallback=None)
         if acqf_cls is not None and hasattr(generator, "acqf"):
@@ -441,6 +508,7 @@ class Strategy(object):
             outcome_types=outcome_types,
             dim=dim,
             model=model,
+            use_gpu_modeling=use_gpu_modeling,
             generator=generator,
             min_asks=min_asks,
             refit_every=refit_every,
@@ -507,7 +575,9 @@ class SequentialStrategy(object):
     def finished(self) -> bool:
         return self._strat_idx == (len(self.strat_list) - 1) and self._strat.finished
 
-    def add_data(self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]) -> None:
+    def add_data(
+        self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
+    ) -> None:
         self._strat.add_data(x, y)
 
     @classmethod

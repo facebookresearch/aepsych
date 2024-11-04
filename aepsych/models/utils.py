@@ -13,8 +13,10 @@ from typing import List, Mapping, Optional, Tuple, Union
 import numpy as np
 import torch
 from botorch.acquisition import PosteriorMean
-from botorch.acquisition.objective import PosteriorTransform
-from botorch.acquisition.objective import ScalarizedPosteriorTransform
+from botorch.acquisition.objective import (
+    PosteriorTransform,
+    ScalarizedPosteriorTransform,
+)
 from botorch.models.model import Model
 from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
 from botorch.optim import optimize_acqf
@@ -69,9 +71,11 @@ def select_inducing_points(
 
         if method == "sobol":
             assert bounds is not None, "Must pass bounds for sobol inducing points!"
-            inducing_points = draw_sobol_samples(
-                bounds=bounds, n=inducing_size, q=1
-            ).squeeze()
+            inducing_points = (
+                draw_sobol_samples(bounds=bounds, n=inducing_size, q=1)
+                .squeeze()
+                .to(bounds)
+            )
             if len(inducing_points.shape) == 1:
                 inducing_points = inducing_points.reshape(-1, 1)
             return inducing_points
@@ -93,13 +97,13 @@ def select_inducing_points(
                 covar_module=covar_module,
                 num_inducing=inducing_size,
                 input_batch_shape=torch.Size([]),
-            )
+            ).to(X)
         elif method == "kmeans++":
             # initialize using kmeans
             inducing_points = torch.tensor(
-                kmeans2(unique_X.numpy(), inducing_size, minit="++")[0],
+                kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],
                 dtype=X.dtype,
-            )
+            ).to(X)
         return inducing_points
 
 
