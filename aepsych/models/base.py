@@ -117,6 +117,8 @@ class AEPsychMixin(GPyTorchModel):
 
     extremum_solver = "Nelder-Mead"
     outcome_types: List[str] = []
+    train_inputs: Optional[Tuple[torch.Tensor]]
+    train_targets: Optional[torch.Tensor]
 
     @property
     def bounds(self) -> torch.Tensor:
@@ -317,7 +319,12 @@ class AEPsychMixin(GPyTorchModel):
     ) -> torch.Tensor:
         return dim_grid(self.lb, self.ub, gridsize, slice_dims)
 
-    def set_train_data(self, inputs: Optional[torch.Tensor] = None, targets: Optional[torch.Tensor] = None, strict: bool = False):
+    def set_train_data(
+        self,
+        inputs: Optional[torch.Tensor] = None,
+        targets: Optional[torch.Tensor] = None,
+        strict: bool = False,
+    ):
         """
         :param torch.Tensor inputs: The new training inputs.
         :param torch.Tensor targets: The new training targets.
@@ -392,8 +399,8 @@ class AEPsychMixin(GPyTorchModel):
 
 
 class AEPsychModelDeviceMixin(AEPsychMixin):
-    _train_inputs: Tuple[torch.Tensor]
-    _train_targets: torch.Tensor
+    _train_inputs: Optional[Tuple[torch.Tensor]]
+    _train_targets: Optional[torch.Tensor]
 
     def set_train_data(self, inputs=None, targets=None, strict=False):
         """
@@ -417,7 +424,10 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
         return next(self.parameters()).device
 
     @property
-    def train_inputs(self) -> Tuple[torch.Tensor]:
+    def train_inputs(self) -> Optional[Tuple[torch.Tensor]]:
+        if self._train_inputs is None:
+            return None
+
         # makes sure the tensors are on the right device, move in place
         for input in self._train_inputs:
             input.to(self.device)
@@ -425,22 +435,32 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
         return self._train_inputs
 
     @train_inputs.setter
-    def train_inputs(self, train_inputs: Tuple[torch.Tensor]) -> None:
-        # setting device on copy to not change original
-        train_inputs = deepcopy(train_inputs)
-        for input in train_inputs:
-            input.to(self.device)
+    def train_inputs(self, train_inputs: Optional[Tuple[torch.Tensor]]) -> None:
+        if train_inputs is None:
+            self._train_inputs = None
+        else:
+            # setting device on copy to not change original
+            train_inputs = deepcopy(train_inputs)
+            for input in train_inputs:
+                input.to(self.device)
 
-        self._train_inputs = train_inputs
+            self._train_inputs = train_inputs
 
     @property
-    def train_targets(self) -> torch.Tensor:
+    def train_targets(self) -> Optional[torch.Tensor]:
+        if self._train_targets is None:
+            return None
+
         # make sure the tensors are on the right device
-        self.train_targets = self._train_targets.to(self.device)
+        self._train_targets = self._train_targets.to(self.device)
+
         return self._train_targets
 
     @train_targets.setter
-    def train_targets(self, train_targets: torch.Tensor) -> None:
-        # setting device on copy to not change original
-        train_targets = deepcopy(train_targets).to(self.device)
-        self._train_targets = train_targets
+    def train_targets(self, train_targets: Optional[torch.Tensor]) -> None:
+        if train_targets is None:
+            self._train_targets = None
+        else:
+            # setting device on copy to not change original
+            train_targets = deepcopy(train_targets).to(self.device)
+            self._train_targets = train_targets

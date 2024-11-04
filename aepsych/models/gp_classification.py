@@ -199,26 +199,27 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         self.likelihood.load_state_dict(self._fresh_likelihood_dict)
 
     def _reset_variational_strategy(self) -> None:
-        # remember original device
-        device = self.device
+        if self.train_inputs is not None:
+            # remember original device
+            device = self.device
 
-        inducing_points = select_inducing_points(
-            inducing_size=self.inducing_size,
-            covar_module=self.covar_module,
-            X=self.train_inputs[0],
-            bounds=self.bounds,
-            method=self.inducing_point_method,
-        ).to(device)
+            inducing_points = select_inducing_points(
+                inducing_size=self.inducing_size,
+                covar_module=self.covar_module,
+                X=self.train_inputs[0],
+                bounds=self.bounds,
+                method=self.inducing_point_method,
+            ).to(device)
 
-        variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        ).to(device)
-        self.variational_strategy = VariationalStrategy(
-            self,
-            inducing_points,
-            variational_distribution,
-            learn_inducing_locations=False,
-        ).to(device)
+            variational_distribution = CholeskyVariationalDistribution(
+                inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
+            ).to(device)
+            self.variational_strategy = VariationalStrategy(
+                self,
+                inducing_points,
+                variational_distribution,
+                learn_inducing_locations=False,
+            ).to(device)
 
     def fit(
         self,
