@@ -14,7 +14,7 @@ import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
@@ -23,7 +23,7 @@ from gpytorch.models import ExactGP
 logger = getLogger()
 
 
-class GPRegressionModel(AEPsychMixin, ExactGP):
+class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
     """GP Regression model for continuous outcomes, using exact inference."""
 
     _num_outputs = 1
@@ -61,7 +61,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
 
         super().__init__(None, None, likelihood)
 
-        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
+        lb, ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
 
         if mean_module is None or covar_module is None:
@@ -69,6 +69,10 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
                 dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
             )
 
+        # Tensors need to be directly registered, Modules themselves can be assigned as attr
+        self.register_buffer("lb", lb)
+        self.register_buffer("ub", ub)
+        self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
 
@@ -100,6 +104,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
             likelihood = None  # fall back to __init__ default
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
+
         return {
             "lb": lb,
             "ub": ub,
@@ -139,9 +144,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
         return self._fit_mll(mll, **kwargs)
 
-    def sample(
-        self, x: Union[torch.Tensor, np.ndarray], num_samples: int
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model.
 
         Args:
@@ -158,9 +161,7 @@ class GPRegressionModel(AEPsychMixin, ExactGP):
         """Perform a warm-start update of the model from previous fit."""
         return self.fit(train_x, train_y, **kwargs)
 
-    def predict(
-        self, x: Union[torch.Tensor, np.ndarray], **kwargs
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict(self, x: torch.Tensor, **kwargs) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance.
 
         Args:
