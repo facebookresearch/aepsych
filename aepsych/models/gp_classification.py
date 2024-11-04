@@ -6,6 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
+import warnings
+
 from copy import deepcopy
 from typing import Optional, Tuple, Union
 
@@ -14,7 +16,7 @@ import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
@@ -28,7 +30,7 @@ from torch.distributions import Normal
 logger = getLogger()
 
 
-class GPClassificationModel(AEPsychMixin, ApproximateGP):
+class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
     """Probit-GP model with variational inference.
 
     From a conventional ML perspective this is a GP Classification model,
@@ -78,7 +80,8 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
         """
-        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
+        lb, ub, self.dim = _process_bounds(lb, ub, dim)
+
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
 
@@ -98,12 +101,15 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
-            inducing_size=self.inducing_size, bounds=self.bounds, method="sobol"
+            inducing_size=self.inducing_size,
+            bounds=torch.stack((lb, ub)),
+            method="sobol",
         )
-        
+
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        )
+        ).to(inducing_points)
+
         variational_strategy = VariationalStrategy(
             self,
             inducing_points,
@@ -117,9 +123,12 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
             )
 
+        # Tensors need to be directly registered, Modules themselves can be assigned as attr
+        self.register_buffer("lb", lb)
+        self.register_buffer("ub", ub)
+        self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
-        self.likelihood = likelihood
 
         self._fresh_state_dict = deepcopy(self.state_dict())
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
@@ -190,23 +199,26 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         self.likelihood.load_state_dict(self._fresh_likelihood_dict)
 
     def _reset_variational_strategy(self) -> None:
+        # remember original device
+        device = self.device
+
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
             X=self.train_inputs[0],
             bounds=self.bounds,
             method=self.inducing_point_method,
-        )
-        
+        ).to(device)
+
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        )
+        ).to(device)
         self.variational_strategy = VariationalStrategy(
             self,
             inducing_points,
             variational_distribution,
             learn_inducing_locations=False,
-        )
+        ).to(device)
 
     def fit(
         self,
@@ -241,9 +253,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
 
         self._fit_mll(mll, **kwargs)
 
-    def sample(
-        self, x: torch.Tensor, num_samples: int
-    ) -> torch.Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model.
 
         Args:
@@ -254,6 +264,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
         """
+        x = x.to(self.device)
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
@@ -270,6 +281,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
+            x = x.to(self.device)
             post = self.posterior(x)
             fmean = post.mean.squeeze()
             fvar = post.variance.squeeze()
@@ -280,9 +292,11 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
                 a_star = fmean / torch.sqrt(1 + fvar)
                 pmean = Normal(0, 1).cdf(a_star)
                 t_term = torch.tensor(
-                    owens_t(a_star, 1 / torch.sqrt(1 + 2 * fvar)),
+                    owens_t(
+                        a_star.cpu().numpy(), 1 / np.sqrt(1 + 2 * fvar.cpu().numpy())
+                    ),
                     dtype=a_star.dtype,
-                )
+                ).to(self.device)
                 pvar = pmean - 2 * t_term - pmean.square()
                 return promote_0d(pmean), promote_0d(pvar)
             else:
@@ -297,9 +311,7 @@ class GPClassificationModel(AEPsychMixin, ApproximateGP):
         else:
             return promote_0d(fmean), promote_0d(fvar)
 
-    def predict_probability(
-        self, x: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(x, probability_space=True)
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
