@@ -36,6 +36,7 @@ from aepsych.transforms.ops import Log10Plus, NormalizeScale
 from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
+from aepsych.models.inducing_point_allocators import SobolAllocator
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -1031,6 +1032,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(model.dim == 2)
         self.assertTrue(model.inducing_size == 10)
         self.assertTrue(model.stim_dim == 1)
+<<<<<<< HEAD
 
         # Verify the allocator and bounds
         self.assertTrue(isinstance(model.inducing_point_method, SobolAllocator))
@@ -1039,6 +1041,9 @@ class ConfigTestCase(unittest.TestCase):
             torch.equal(model.inducing_point_method.bounds, expected_bounds)
         )
 
+=======
+        self.assertTrue(model.inducing_point_method == SobolAllocator)
+>>>>>>> 9157d6d5 (proposed changes to address the inducing point allocators issue)
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
 

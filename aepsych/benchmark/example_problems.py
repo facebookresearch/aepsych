@@ -11,6 +11,7 @@ from aepsych.benchmark.test_functions import (
     novel_discrimination_testfun,
 )
 from aepsych.models import GPClassificationModel
+from aepsych.benchmark.problem import LSEProblemWithEdgeLogging
 from aepsych.models.inducing_point_allocators import KMeansAllocator
 
 """The DiscrimLowDim, DiscrimHighDim, ContrastSensitivity6d, and Hartmann6Binary classes
