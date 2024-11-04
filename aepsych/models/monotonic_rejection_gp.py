@@ -30,6 +30,8 @@ from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 from scipy.stats import norm
 from torch import Tensor
+from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction, InducingPointAllocator
+from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
 
 
 class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
@@ -62,7 +64,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         num_induc: int = 25,
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
-        inducing_point_method: str = "auto",
+        inducing_point_method: Optional[InducingPointAllocator] = None,
     ) -> None:
         """Initialize MonotonicRejectionGP.
 
@@ -88,11 +90,14 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             likelihood = BernoulliLikelihood()
 
         self.inducing_size = num_induc
-        self.inducing_point_method = inducing_point_method
+        if inducing_point_method is None:
+            self.inducing_point_method = AutoAllocator()
+        else:
+            self.inducing_point_method = inducing_point_method
         inducing_points = select_inducing_points(
+            allocator=SobolAllocator(),
             inducing_size=self.inducing_size,
             bounds=self.bounds,
-            method="sobol",
         )
 
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
@@ -156,11 +161,11 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         self.set_train_data(train_x, train_y)
 
         self.inducing_points = select_inducing_points(
+            allocator=self.inducing_point_method,
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
             X=self.train_inputs[0],
             bounds=self.bounds,
-            method=self.inducing_point_method,
         )
         self._set_model(train_x, train_y)
 

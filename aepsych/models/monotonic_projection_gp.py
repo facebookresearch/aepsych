@@ -18,7 +18,8 @@ from aepsych.models.gp_classification import GPClassificationModel
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr
-
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 
 class MonotonicProjectionGP(GPClassificationModel):
     """A monotonic GP based on posterior projection
@@ -103,12 +104,14 @@ class MonotonicProjectionGP(GPClassificationModel):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: Optional[InducingPointAllocator] = None,
     ) -> None:
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
         self.min_f_val = min_f_val
+        if inducing_point_method is None:
+            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,
@@ -200,8 +203,8 @@ class MonotonicProjectionGP(GPClassificationModel):
         mean, covar = mean_covar_factory(config)
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+        inducing_point_method = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator()
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)

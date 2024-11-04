@@ -17,7 +17,8 @@ from botorch.acquisition.objective import (
     ScalarizedPosteriorTransform,
 )
 from botorch.models.model import Model
-from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
+from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction, InducingPointAllocator
+from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
 from botorch.utils.sampling import draw_sobol_samples
@@ -54,58 +55,55 @@ def compute_p_quantile(
 
 def select_inducing_points(
     inducing_size: int,
-    covar_module: Kernel = None,
+    allocator: Optional[InducingPointAllocator],
+    covar_module: Optional[torch.nn.Module] = None,
     X: Optional[torch.Tensor] = None,
-    bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
-    method: str = "auto",
+    bounds: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
-    with torch.no_grad():
-        assert (
-            method
-            in (
-                "pivoted_chol",
-                "kmeans++",
-                "auto",
-                "sobol",
-            )
-        ), f"Inducing point method should be one of pivoted_chol, kmeans++, sobol, or auto; got {method}"
+    """
+    Select inducing points using a specified allocator instance.
 
-        if method == "sobol":
-            assert bounds is not None, "Must pass bounds for sobol inducing points!"
-            inducing_points = (
-                draw_sobol_samples(bounds=bounds, n=inducing_size, q=1)
-                .squeeze()
-                .to(bounds)
-            )
-            if len(inducing_points.shape) == 1:
-                inducing_points = inducing_points.reshape(-1, 1)
-            return inducing_points
+    Args:
+        allocator (InducingPointAllocator): A pre-configured instance of an inducing point allocator.
+        inducing_size (int): Number of inducing points.
+        covar_module (torch.nn.Module, optional): Covariance module, required for some allocators.
+        X (torch.Tensor, optional): Input data tensor, required for most allocators.
+        bounds (torch.Tensor): Bounds for Sobol allocator.
 
-        assert X is not None, "Must pass X for non-sobol inducing point selection!"
-        # remove dupes from X, which is both wasteful for inducing points
-        # and would break kmeans++
-        unique_X = torch.unique(X, dim=0)
-        if method == "auto":
-            if unique_X.shape[0] <= inducing_size:
-                return unique_X
-            else:
-                method = "kmeans++"
+    Returns:
+        torch.Tensor: Selected inducing points.
+    """
+    # Ensure allocator is provided, otherwise use AutoAllocator
+    if allocator is None:
+        allocator = AutoAllocator()
+    
+    
+    # Ensure required inputs are provided for certain allocators
+    if isinstance(allocator, SobolAllocator):
+        assert bounds is not None, "Bounds must be provided for Sobol allocator!"
+    elif isinstance(allocator, (GreedyVarianceReduction, AutoAllocator)):
+        assert X is not None, "Must pass X for non-Sobol inducing point selection!"
 
-        if method == "pivoted_chol":
-            inducing_point_allocator = GreedyVarianceReduction()
-            inducing_points = inducing_point_allocator.allocate_inducing_points(
-                inputs=X,
-                covar_module=covar_module,
-                num_inducing=inducing_size,
-                input_batch_shape=torch.Size([]),
-            ).to(X)
-        elif method == "kmeans++":
-            # initialize using kmeans
-            inducing_points = torch.tensor(
-                kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],
-                dtype=X.dtype,
-            ).to(X)
-        return inducing_points
+    # Call allocate_inducing_points with or without bounds based on allocator type
+    if isinstance(allocator, SobolAllocator):
+        # Pass bounds explicitly for SobolAllocator
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=X,
+            covar_module=covar_module,
+            num_inducing=inducing_size,
+            input_batch_shape=torch.Size([]),
+            bounds=bounds,  # Required for Sobol
+        )
+    else:
+        # Call allocate_inducing_points without bounds for other allocators
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=X,
+            covar_module=covar_module,
+            num_inducing=inducing_size,
+            input_batch_shape=torch.Size([]),
+        )
+
+    return inducing_points
 
 
 def get_probability_space(

@@ -35,6 +35,7 @@ from aepsych.transforms.parameters import Log10Plus, NormalizeScale
 from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
+from aepsych.models.inducing_point_allocators import SobolAllocator
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -999,7 +1000,7 @@ class ConfigTestCase(unittest.TestCase):
             [HadamardSemiPModel]
             stim_dim = 1
             inducing_size = 10
-            inducing_point_method = sobol
+            inducing_point_method = SobolAllocator
             likelihood = BernoulliObjectiveLikelihood
 
             [BernoulliObjectiveLikelihood]
@@ -1026,7 +1027,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(model.dim == 2)
         self.assertTrue(model.inducing_size == 10)
         self.assertTrue(model.stim_dim == 1)
-        self.assertTrue(model.inducing_point_method == "sobol")
+        self.assertTrue(model.inducing_point_method == SobolAllocator)
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
 

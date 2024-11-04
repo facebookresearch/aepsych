@@ -25,6 +25,8 @@ from gpytorch.variational import CholeskyVariationalDistribution, VariationalStr
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch.distributions import Normal
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
+from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
 
 logger = getLogger()
 
@@ -56,7 +58,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: Optional[InducingPointAllocator] = None,
     ) -> None:
         """Initialize the GP Classification model
 
@@ -72,15 +74,11 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 Bernouli likelihood.
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
-                there is no limit to the fitting time.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
-                If "sobol", a number of Sobol points equal to inducing_size will be selected.
-                If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
-                If "kmeans++", selects points by performing kmeans++ clustering on the training data.
-                If "auto", tries to determine the best method automatically.
-        """
-        lb, ub, self.dim = _process_bounds(lb, ub, dim)
-
+                there is no limit to the fitting time.  
+            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
+                Defaults to AutoAllocator().
+            """
+        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
 
@@ -95,14 +93,14 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         if likelihood is None:
             likelihood = BernoulliLikelihood()
-
-        self.inducing_point_method = inducing_point_method
+        if inducing_point_method is None:
+            self.inducing_point_method = AutoAllocator()
+        else:
+            self.inducing_point_method = inducing_point_method
 
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
-            inducing_size=self.inducing_size,
-            bounds=torch.stack((lb, ub)),
-            method="sobol",
+            allocator = SobolAllocator(),inducing_size=self.inducing_size, bounds=self.bounds
         )
 
         variational_distribution = CholeskyVariationalDistribution(
@@ -160,8 +158,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         mean, covar = mean_covar_factory(config)
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+        inducing_point_method = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator()
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
@@ -201,18 +199,17 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         if self.train_inputs is not None:
             # remember original device
             device = self.device
-
             inducing_points = select_inducing_points(
+                allocator=self.inducing_point_method,
                 inducing_size=self.inducing_size,
                 covar_module=self.covar_module,
                 X=self.train_inputs[0],
                 bounds=self.bounds,
-                method=self.inducing_point_method,
-            ).to(device)
-
+            )
+            
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-            ).to(device)
+            )
             self.variational_strategy = VariationalStrategy(
                 self,
                 inducing_points,
@@ -334,10 +331,12 @@ class GPBetaRegressionModel(GPClassificationModel):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: Optional[InducingPointAllocator] = None,
     ) -> None:
         if likelihood is None:
             likelihood = BetaLikelihood()
+        if inducing_point_method is None:
+            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,

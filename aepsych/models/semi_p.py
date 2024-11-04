@@ -30,6 +30,9 @@ from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch import Tensor
 from torch.distributions import Normal
+from botorch.acquisition.objective import PosteriorTransform
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()
@@ -188,7 +191,7 @@ class SemiParametricGPModel(GPClassificationModel):
         slope_mean: float = 2,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: Optional[InducingPointAllocator] = None
     ) -> None:
         """
         Initialize SemiParametricGP.
@@ -241,6 +244,8 @@ class SemiParametricGPModel(GPClassificationModel):
         assert isinstance(
             likelihood, LinearBernoulliLikelihood
         ), "SemiP model only supports linear Bernoulli likelihoods!"
+        if inducing_point_method is None:
+            inducing_point_method = AutoAllocator()
 
         super().__init__(
             lb=lb,
@@ -277,8 +282,8 @@ class SemiParametricGPModel(GPClassificationModel):
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+        inducing_point_method = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator()
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
@@ -439,7 +444,7 @@ class HadamardSemiPModel(GPClassificationModel):
         slope_mean: float = 2,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: Optional[InducingPointAllocator] = None,
     ) -> None:
         """
         Initialize HadamardSemiPModel.
@@ -463,6 +468,8 @@ class HadamardSemiPModel(GPClassificationModel):
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
         """
+        if inducing_point_method is None:
+            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,
@@ -581,8 +588,8 @@ class HadamardSemiPModel(GPClassificationModel):
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+        inducing_point_method = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator()
         )
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
