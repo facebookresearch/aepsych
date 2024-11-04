@@ -10,6 +10,7 @@ import abc
 
 import time
 from collections.abc import Iterable
+from copy import deepcopy
 from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 
 import gpytorch
@@ -62,6 +63,10 @@ class ModelProtocol(Protocol):
 
     @property
     def dim(self) -> int:
+        pass
+
+    @property
+    def device(self) -> torch.device:
         pass
 
     def posterior(self, x: torch.Tensor) -> GPyTorchPosterior:
@@ -253,7 +258,7 @@ class AEPsychMixin(GPyTorchModel):
         """
         if grid is None:
             grid = self.dim_grid()
-        else:
+        elif isinstance(grid, np.ndarray):
             grid = torch.tensor(grid)
 
         # this is super awkward, back into intensity dim grid assuming a square grid
@@ -374,11 +379,68 @@ class AEPsychMixin(GPyTorchModel):
         )
         return res
 
-    def p_below_threshold(self, x: torch.Tensor, f_thresh: torch.Tensor) -> torch.Tensor: 
+    def p_below_threshold(
+        self, x, f_thresh
+    ) -> torch.Tensor:  # Return a tensor instead of NumPy array
         f, var = self.predict(x)
         f_thresh = f_thresh.reshape(-1, 1)
         f = f.reshape(1, -1)
         var = var.reshape(1, -1)
-        
+
         z = (f_thresh - f) / var.sqrt()
         return torch.distributions.Normal(0, 1).cdf(z)  # Use PyTorch's CDF equivalent
+
+
+class AEPsychModelDeviceMixin(AEPsychMixin):
+    _train_inputs: Tuple[torch.Tensor]
+    _train_targets: torch.Tensor
+
+    def set_train_data(self, inputs=None, targets=None, strict=False):
+        """
+        :param torch.Tensor inputs: The new training inputs.
+        :param torch.Tensor targets: The new training targets.
+        :param bool strict: (default False, ignored). Here for compatibility with
+        input transformers. TODO: actually use this arg or change input transforms
+        to not require it.
+        """
+        # Move to same device to ensure the right device
+        if inputs is not None:
+            self._train_inputs = (inputs.to(self.device),)
+
+        if targets is not None:
+            self._train_targets = targets.to(self.device)
+
+    @property
+    def device(self) -> torch.device:
+        # We assume all models have some parameters and all models will only use one device
+        # notice that this has no setting, don't let users set device, use .to().
+        return next(self.parameters()).device
+
+    @property
+    def train_inputs(self) -> Tuple[torch.Tensor]:
+        # makes sure the tensors are on the right device, move in place
+        for input in self._train_inputs:
+            input.to(self.device)
+
+        return self._train_inputs
+
+    @train_inputs.setter
+    def train_inputs(self, train_inputs: Tuple[torch.Tensor]) -> None:
+        # setting device on copy to not change original
+        train_inputs = deepcopy(train_inputs)
+        for input in train_inputs:
+            input.to(self.device)
+
+        self._train_inputs = train_inputs
+
+    @property
+    def train_targets(self) -> torch.Tensor:
+        # make sure the tensors are on the right device
+        self.train_targets = self._train_targets.to(self.device)
+        return self._train_targets
+
+    @train_targets.setter
+    def train_targets(self, train_targets: torch.Tensor) -> None:
+        # setting device on copy to not change original
+        train_targets = deepcopy(train_targets).to(self.device)
+        self._train_targets = train_targets
