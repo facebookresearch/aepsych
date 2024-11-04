@@ -36,6 +36,7 @@ from aepsych.transforms.ops import Log10Plus, NormalizeScale
 from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
+from aepsych.models.inducing_point_allocators import SobolAllocator
 
 
 class ConfigTestCase(unittest.TestCase):

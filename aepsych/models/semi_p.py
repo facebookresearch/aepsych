@@ -31,6 +31,9 @@ from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch.distributions import Normal
+from botorch.acquisition.objective import PosteriorTransform
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()
@@ -313,6 +316,8 @@ class SemiParametricGPModel(GPClassificationModel):
         assert isinstance(
             likelihood, LinearBernoulliLikelihood
         ), "SemiP model only supports linear Bernoulli likelihoods!"
+        if inducing_point_method is None:
+            inducing_point_method = AutoAllocator()
 
         super().__init__(
             lb=lb,
@@ -554,6 +559,8 @@ class HadamardSemiPModel(GPClassificationModel):
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
+        if inducing_point_method is None:
+            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,

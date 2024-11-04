@@ -31,6 +31,8 @@ from gpytorch.variational import CholeskyVariationalDistribution, VariationalStr
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch.distributions import Normal
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
+from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
 
 logger = getLogger()
 
@@ -84,8 +86,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 Defaults to AutoAllocator().
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
-        """
-        lb, ub, self.dim = _process_bounds(lb, ub, dim)
+            """
+        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
 
@@ -104,8 +106,10 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         if likelihood is None:
             likelihood = BernoulliLikelihood()
-
-        self.inducing_point_method = inducing_point_method
+        if inducing_point_method is None:
+            self.inducing_point_method = AutoAllocator()
+        else:
+            self.inducing_point_method = inducing_point_method
 
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
@@ -231,7 +235,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-            ).to(device)
+            )
             self.variational_strategy = VariationalStrategy(
                 self,
                 inducing_points,
@@ -394,6 +398,8 @@ class GPBetaRegressionModel(GPClassificationModel):
         """
         if likelihood is None:
             likelihood = BetaLikelihood()
+        if inducing_point_method is None:
+            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,
