@@ -78,7 +78,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 Defaults to AutoAllocator().
             """
-        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
+        lb, ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
 
@@ -100,7 +100,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
-            allocator = SobolAllocator(),inducing_size=self.inducing_size, bounds=self.bounds
+            allocator = SobolAllocator(),inducing_size=self.inducing_size, bounds=torch.stack((lb, ub))
         )
 
         variational_distribution = CholeskyVariationalDistribution(
@@ -205,11 +205,11 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 covar_module=self.covar_module,
                 X=self.train_inputs[0],
                 bounds=self.bounds,
-            )
+            ).to(device)
             
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-            )
+            ).to(device)
             self.variational_strategy = VariationalStrategy(
                 self,
                 inducing_points,
