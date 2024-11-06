@@ -51,8 +51,8 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
             acqf (AcquisitionFunction): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to no arguments.
-            samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer.
-            stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
+            samps (int, optional): Number of samples for quasi-random initialization of the acquisition function optimizer.
+            stimuli_per_trial (int, optional): Number of stimuli per trial. Defaults to 1.
         """
 
         if acqf_kwargs is None:

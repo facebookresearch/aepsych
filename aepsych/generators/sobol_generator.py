@@ -36,6 +36,7 @@ class SobolGenerator(AEPsychGenerator):
             ub torch.Tensor: Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             seed (int, optional): Random seed.
+            stimuli_per_trial (int, optional): Number of stimuli per trial. Defaults to 1.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.lb = self.lb.repeat(stimuli_per_trial)

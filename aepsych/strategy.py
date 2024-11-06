@@ -118,8 +118,8 @@ class Strategy(object):
             outcome_types (Sequence[Type[str]]): The types of outcomes that the strategy will generate.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
-            min_total_tells (int): The minimum number of total observations needed to complete this strategy.
-            min_asks (int): The minimum number of points that should be generated from this strategy.
+            min_total_tells (int, optional): The minimum number of total observations needed to complete this strategy.
+            min_asks (int, optional): The minimum number of points that should be generated from this strategy.
             model (ModelProtocol, optional): The AEPsych model of the data.
             use_gpu_modeling (bool): Whether to move the model to GPU fitting/predictions, defaults to False.
             use_gpu_generating (bool): Whether to use the GPU for generating points, defaults to False.
@@ -133,8 +133,8 @@ class Strategy(object):
                 as data collected from later trials. When None, the model is fitted on all data.
             min_post_range (float, optional): Experimental. The required difference between the posterior's minimum and maximum value in
                 probablity space before the strategy will finish. Ignored if None (default).
-            name (str): The name of the strategy. Defaults to the empty string.
-            run_indefinitely (bool): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will
+            name (str, optional): The name of the strategy. Defaults to the empty string.
+            run_indefinitely (bool, optional): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will
                 be ignored. Defaults to False.
             transforms (ReversibleInputTransform, optional): Transforms
                 to apply parameters. This is immediately applied to lb/ub, thus lb/ub
@@ -311,7 +311,7 @@ class Strategy(object):
         """Query next point(s) to run by optimizing the acquisition function.
 
         Args:
-            num_points (int): Number of points to query. Defaults to 1.
+            num_points (int, optional): Number of points to query. Defaults to 1.
             Other arguments are forwared to underlying model.
 
         Returns:
@@ -341,7 +341,7 @@ class Strategy(object):
         
         Args:
             constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
-            probability_space (bool): Whether to return the max in probability space. Defaults to False.
+            probability_space (bool, optional): Whether to return the max in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
             
         Returns:
@@ -367,7 +367,7 @@ class Strategy(object):
         
         Args:
             constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
-            probability_space (bool): Whether to return the min in probability space. Defaults to False.
+            probability_space (bool, optional): Whether to return the min in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
             
         Returns:
@@ -395,7 +395,7 @@ class Strategy(object):
         Args:
             y (int): The output value.
             constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
-            probability_space (bool): Whether to return the input in probability space. Defaults to False.
+            probability_space (bool, optional): Whether to return the input in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
         Returns:
@@ -416,7 +416,7 @@ class Strategy(object):
         
         Args:
             x (torch.Tensor): The input value(s).
-            probability_space (bool): Whether to return the output in probability space. Defaults to False.
+            probability_space (bool, optional): Whether to return the output in probability space. Defaults to False.
             
         Returns:
             torch.Tensor: The predicted output value(s).
@@ -764,7 +764,7 @@ class SequentialStrategy(object):
         """Generate the next set of points to evaluate.
         
         Args:
-            num_points (int): The number of points to generate. Defaults to 1.
+            num_points (int, optional): The number of points to generate. Defaults to 1.
             
         Returns:
             torch.Tensor: The next set of points to evaluate.

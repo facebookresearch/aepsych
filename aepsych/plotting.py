@@ -44,23 +44,23 @@ def plot_strat(
         ax (plt.Axes, optional): Matplotlib axis to plot on (if None, creates a new axis). Default: None.
         true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor
                     as input and produce the response probability at each sample as output. Default: None.
-        cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.
+        cred_level (float, optional): Percentage of posterior mass around the mean to be shaded. Default: 0.95.
         target_level (float, optional): Response probability to estimate the threshold of. Default: 0.75.
         xlabel (str, optional): Label of the x-axis. Default: "Context (abstract)".
         ylabel (str, optional): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or
                       "Intensity (Abstract)" for 2-d plots). Default: None.
-        yes_label (str): Label of trials with response of 1. Default: "Yes trial".
-        no_label (str): Label of trials with response of 0. Default: "No trial".
-        flipx (bool): Whether the values of the x-axis should be flipped such that the min becomes the max and vice
+        yes_label (str, optional): Label of trials with response of 1. Default: "Yes trial".
+        no_label (str, optional): Label of trials with response of 0. Default: "No trial".
+        flipx (bool, optional): Whether the values of the x-axis should be flipped such that the min becomes the max and vice
                       versa.
                (Only valid for 2-d plots.) Default: False.
-        logx (bool): Whether the x-axis should be log-transformed. (Only valid for 2-d plots.) Default: False.
-        gridsize (int): The number of points to sample each dimension at. Default: 30.
-        title (str): Title of the plot. Default: ''.
+        logx (bool, optional): Whether the x-axis should be log-transformed. (Only valid for 2-d plots.) Default: False.
+        gridsize (int, optional): The number of points to sample each dimension at. Default: 30.
+        title (str, optional): Title of the plot. Default: ''.
         save_path (str, optional): File name to save the plot to. Default: None.
-        show (bool): Whether the plot should be shown in an interactive window. Default: True.
-        include_legend (bool): Whether to include the legend in the figure. Default: True.
-        include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials.
+        show (bool, optional): Whether the plot should be shown in an interactive window. Default: True.
+        include_legend (bool, optional): Whether to include the legend in the figure. Default: True.
+        include_colorbar (bool, optional): Whether to include the colorbar indicating the probability of "Yes" trials.
                                  Default: True.
     """
 
@@ -401,15 +401,15 @@ def plot_strat_3d(
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
         parnames (List[str], optional): list of the parameter names
-        outcome_label (str): The label of the outcome variable
-        slice_dim (int): dimension to slice on. Default: 0.
-        slice_vals (Union[List[float], int]): values to take slices; OR number of values to take even slices from. Default: 5.
+        outcome_label (str, optional): The label of the outcome variable
+        slice_dim (int, optional): dimension to slice on. Default: 0.
+        slice_vals (Union[List[float], int], optional): values to take slices; OR number of values to take even slices from. Default: 5.
         contour_levels (Union[Iterable[float], bool], optional): List contour values to plot. Default: None. If true, all integer levels.
-        probability_space (bool): Whether to plot probability. Default: False
-        gridsize (int): The number of points to sample each dimension at. Default: 30.
+        probability_space (bool, optional): Whether to plot probability. Default: False
+        gridsize (int, optional): The number of points to sample each dimension at. Default: 30.
         extent_multiplier (List[float], optional): multipliers for each of the dimensions when plotting. Default:None
         save_path (str, optional): File name to save the plot to. Default: None.
-        show (bool): Whether the plot should be shown in an interactive window. Default: True.
+        show (bool, optional): Whether the plot should be shown in an interactive window. Default: True.
     """
     assert strat.model is not None, "Cannot plot without a model!"
 
@@ -503,9 +503,9 @@ def plot_slice(
         slice_val (int): value to take the slice along that dimension.
         vmin (float): global model minimum to use for plotting.
         vmax (float): global model maximum to use for plotting.
-        gridsize (int): The number of points to sample each dimension at. Default: 30.
-        contour_levels (Sized): Contours to plot. Default: None
-        lse (bool): Whether to plot probability. Default: False
+        gridsize (int, optional): The number of points to sample each dimension at. Default: 30.
+        contour_levels (Sized, optional): Contours to plot. Default: None
+        lse (bool, optional): Whether to plot probability. Default: False
         extent_multiplier (List, optional): multipliers for each of the dimensions when plotting. Default:None
 
     Returns:

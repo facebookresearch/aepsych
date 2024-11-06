@@ -12,12 +12,12 @@ import os
 logger = logging.getLogger()
 
 
-def getLogger(level=logging.INFO, log_path="logs") -> logging.Logger:
+def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
     """Get a logger with the specified level and log path.
     
     Args:
         level: logging level. Default is logging.INFO.
-        log_path: path to save the log file. Default is "logs".
+        log_path (str, optional): path to save the log file. Default is "logs".
 
     Returns:
         logger: a logger object.

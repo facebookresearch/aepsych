@@ -134,7 +134,7 @@ class Config(configparser.ConfigParser):
         """Convert the config into a dictionary.
         
         Args:
-            deduplicate (bool): Whether to deduplicate the 'common' section. Defaults to True.
+            deduplicate (bool, optional): Whether to deduplicate the 'common' section. Defaults to True.
             
         Returns:
             dict: Dictionary representation of the config.
@@ -278,8 +278,8 @@ class Config(configparser.ConfigParser):
 
         Args:
             v (str): String to convert.
-            fallback_type (_T): Type to fallback to if the object is not found. Defaults to str.
-            warn (bool): Whether to warn if the object is not found. Defaults to True.
+            fallback_type (_T, optional): Type to fallback to if the object is not found. Defaults to str.
+            warn (bool, optional): Whether to warn if the object is not found. Defaults to True.
 
         Returns:
             object: Object representation of the string.

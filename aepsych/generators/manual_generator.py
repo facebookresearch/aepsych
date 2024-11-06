@@ -57,7 +57,7 @@ class ManualGenerator(AEPsychGenerator):
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
-            num_points (int): Number of points to query. Defaults to 1.
+            num_points (int, optional): Number of points to query. Defaults to 1.
             model (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
