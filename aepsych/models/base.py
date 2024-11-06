@@ -430,12 +430,12 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
     _train_inputs: Optional[Tuple[torch.Tensor]]
     _train_targets: Optional[torch.Tensor]
 
-    def set_train_data(self, inputs: torch.Tensor = None, targets: torch.Tensor = None, strict: bool = False) -> None:
+    def set_train_data(self, inputs: Optional[torch.Tensor] = None, targets: Optional[torch.Tensor] = None, strict: bool = False) -> None:
         """Set the training data for the model.
 
         Args:
-            inputs (torch.Tensor): The new training inputs X.
-            targets (torch.Tensor): The new training targets Y.
+            inputs (torch.Tensor, optional): The new training inputs X.
+            targets (torch.Tensor, optional): The new training targets Y.
             strict (bool, optional): Whether to strictly enforce the device of the inputs and targets.
         
         input transformers. TODO: actually use this arg or change input transforms
