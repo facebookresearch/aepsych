@@ -51,4 +51,5 @@ jobs:
         pip install ".[dev]"
     - name: Test with unittest
       run: |
+        cd tests
         python -m unittest

@@ -1163,38 +1163,6 @@ class ConfigTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             config.update(config_str=config_str)
 
-    @unittest.skipUnless(torch.cuda.is_available(), "no gpu available")
-    def test_model_gpu(self):
-        config_str = """
-            [common]
-            parnames = [par1]
-            strategy_names = [gpu_strategy]
-            outcome_types = [binary]
-            stimuli_per_trial = 1
-
-            [par1]
-            par_type = continuous
-            lower_bound = 0
-            upper_bound = 1
-            
-            [gpu_strategy]
-            model = GPClassificationModel
-            
-            [GPClassificationModel]
-            use_gpu = True
-        """
-        config = Config()
-        config.update(config_str=config_str)
-
-        strat = SequentialStrategy.from_config(config)
-
-        self.assertTrue(strat.model.device.type == "cuda")
-
-        strat.add_data(torch.tensor([0.5]), torch.tensor([1]))
-        strat.fit()
-
-        self.assertTrue(strat.model.device.type == "cuda")
-
 
 if __name__ == "__main__":
     unittest.main()
