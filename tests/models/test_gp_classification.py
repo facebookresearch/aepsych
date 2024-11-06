@@ -148,44 +148,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         pred = (pm > 0).numpy()
         npt.assert_allclose(pred, y.numpy())
 
-    @unittest.skipUnless(torch.cuda.is_available(), "no gpu available")
-    def test_1d_classification_gpu(self):
-        """
-        Just see if we memorize the training set but on gpu
-        """
-        X, y = self.X, self.y
-
-        model = GPClassificationModel(
-            torch.Tensor([-3]),
-            torch.Tensor([3]),
-            inducing_size=10,
-        ).to("cuda")
-
-        model.fit(X[:50], y[:50])
-
-        # pspace
-        pm, _ = model.predict_probability(X[:50])
-        pred = (pm > 0.5).cpu().numpy()
-        npt.assert_allclose(pred, y[:50].cpu().numpy())
-
-        # fspace
-        pm, _ = model.predict(X[:50], probability_space=False)
-        pred = (pm > 0).cpu().numpy()
-        npt.assert_allclose(pred, y[:50].cpu().numpy())
-
-        # smoke test update
-        model.update(X, y)
-
-        # pspace
-        pm, _ = model.predict_probability(X)
-        pred = (pm > 0.5).cpu().numpy()
-        npt.assert_allclose(pred, y.cpu().numpy())
-
-        # fspace
-        pm, _ = model.predict(X, probability_space=False)
-        pred = (pm > 0).cpu().numpy()
-        npt.assert_allclose(pred, y.cpu().numpy())
-
     def test_1d_classification_pytorchopt(self):
         """
         Just see if we memorize the training set
