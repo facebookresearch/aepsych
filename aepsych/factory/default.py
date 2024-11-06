@@ -35,7 +35,7 @@ def default_mean_covar_factory(
             config details).
         dim (int, optional): Dimensionality of the parameter space. Must be provided
             if config is None.
-        stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
+        stimuli_per_trial (int, optional): Number of stimuli per trial. Defaults to 1.
 
     Returns:
         Tuple[gpytorch.means.Mean, gpytorch.kernels.Kernel]: Instantiated
