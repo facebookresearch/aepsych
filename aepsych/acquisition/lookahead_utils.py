@@ -19,21 +19,21 @@ from .bvn import bvn_cdf
 
 def posterior_at_xstar_xq(
     model: GP,
-    Xstar: Tensor,
-    Xq: Tensor,
+    Xstar: torch.Tensor,
+    Xq: torch.Tensor,
     posterior_transform: Optional[PosteriorTransform] = None,
-) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Evaluate the posteriors of f at single point Xstar and set of points Xq.
 
     Args:
         model (GP): The model to evaluate.
-        Xstar (Tensor): (b x 1 x d) observation point.
-        Xq (Tensor): (b x m x d) reference points.
+        Xstar (torch.Tensor): (b x 1 x d) observation point.
+        Xq (torch.Tensor): (b x m x d) reference points.
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.
 
     Returns:
-        Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]: Tuple of the following:
+        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:
            - Mu_s: (b x 1) mean at Xstar.
            - Sigma2_s: (b x 1) variance at Xstar.
            - Mu_q: (b x m) mean at Xq.
