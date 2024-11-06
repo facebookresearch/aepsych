@@ -197,7 +197,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     def _reset_variational_strategy(self) -> None:
         if self.train_inputs is not None:
-            # remember original device
+            # remember original device 
             device = self.device
             inducing_points = select_inducing_points(
                 allocator=self.inducing_point_method,
