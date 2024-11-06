@@ -25,6 +25,11 @@ logger = logging.getLogger()
 
 class Database:
     def __init__(self, db_path: Optional[str] = None) -> None:
+        """Initialize the database object.
+        
+        Args:
+            db_path (str, optional): The path to the database. Defaults to None.
+        """
         if db_path is None:
             db_path = "./databases/default.db"
 
@@ -40,6 +45,11 @@ class Database:
         self._engine = self.get_engine()
 
     def get_engine(self) -> sessionmaker:
+        """Get the engine for the database.
+        
+        Returns:
+            sessionmaker: The sessionmaker object for the database.
+        """
         if not hasattr(self, "_engine") or self._engine is None:
             self._full_db_path = Path(self._db_dir)
             self._full_db_path.mkdir(parents=True, exist_ok=True)
@@ -58,12 +68,18 @@ class Database:
         return self._engine
 
     def delete_db(self) -> None:
+        """Delete the database."""
         if self._engine is not None and self._full_db_path.exists():
             close_all_sessions()
             self._full_db_path.unlink()
             self._engine = None
 
     def is_update_required(self) -> bool:
+        """Check if an update is required on the database.
+
+        Returns:
+            bool: True if an update is required, False otherwise.
+        """
         return (
             tables.DBMasterTable.requires_update(self._engine)
             or tables.DbReplayTable.requires_update(self._engine)
@@ -101,17 +117,36 @@ class Database:
 
     # @retry(stop_max_attempt_number=8, wait_exponential_multiplier=1.8)
     def execute_sql_query(self, query: str, vals: Dict[str, str]) -> List[Any]:
-        """Execute an arbitrary query written in sql."""
+        """Execute an arbitrary query written in sql.
+        
+        Args:
+            query (str): The query to execute.
+            vals (Dict[str, str]): The values to use in the query.
+            
+        Returns:
+            List[Any]: The results of the query.
+        """
         with self.session_scope() as session:
             return session.execute(query, vals).fetchall()
 
     def get_master_records(self) -> List[tables.DBMasterTable]:
-        """Grab the list of master records."""
+        """Grab the list of master records.
+        
+        Returns:
+            List[tables.DBMasterTable]: The list of master records.
+        """
         records = self._session.query(tables.DBMasterTable).all()
         return records
 
     def get_master_record(self, experiment_id: int) -> Optional[tables.DBMasterTable]:
-        """Grab the list of master record for a specific experiment (master) id."""
+        """Grab the list of master record for a specific experiment (master) id.
+        
+        Args:
+            experiment_id (int): The experiment id.
+
+        Returns:
+            tables.DBMasterTable or None: The master record or None if it doesn't exist.
+        """
         records = (
             self._session.query(tables.DBMasterTable)
             .filter(tables.DBMasterTable.experiment_id == experiment_id)
@@ -124,7 +159,14 @@ class Database:
         return None
 
     def get_replay_for(self, master_id: int) -> Optional[List[tables.DbReplayTable]]:
-        """Get the replay records for a specific master row."""
+        """Get the replay records for a specific master row.
+        
+        Args:
+            master_id (int): The master id.
+            
+        Returns:
+            List[tables.DbReplayTable] or None: The replay records or None if they don't exist.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None:
@@ -133,7 +175,14 @@ class Database:
         return None
 
     def get_strats_for(self, master_id: int =0) -> Optional[List[Any]]:
-        """Get the strat records for a specific master row."""
+        """Get the strat records for a specific master row.
+        
+        Args:
+            master_id (int): The master id. Defaults to 0.
+            
+        Returns:
+            List[Any] or None: The strat records or None if they don't exist.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None and len(master_record.children_strat) > 0:
@@ -142,7 +191,15 @@ class Database:
         return None
 
     def get_strat_for(self, master_id: int, strat_id: int=-1) -> Optional[Any]:
-        """Get a specific strat record for a specific master row."""
+        """Get a specific strat record for a specific master row.
+        
+        Args:
+            master_id (int): The master id.
+            strat_id (int): The strat id. Defaults to -1.
+            
+        Returns:
+            Any: The strat record.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None and len(master_record.children_strat) > 0:
@@ -151,7 +208,14 @@ class Database:
         return None
 
     def get_config_for(self, master_id: int) -> Optional[Any]:
-        """Get the strat records for a specific master row."""
+        """Get the strat records for a specific master row.
+        
+        Args:
+            master_id (int): The master id.
+            
+        Returns:
+            Any: The config records.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None:
@@ -159,7 +223,14 @@ class Database:
         return None
 
     def get_raw_for(self, master_id: int)-> Optional[List[tables.DbRawTable]]:
-        """Get the raw data for a specific master row."""
+        """Get the raw data for a specific master row.
+        
+        Args:
+            master_id (int): The master id.
+            
+        Returns:
+            List[tables.DbRawTable] or None: The raw data or None if it doesn't exist.
+        """
         master_record = self.get_master_record(master_id)
 
         if master_record is not None:
@@ -168,7 +239,14 @@ class Database:
         return None
 
     def get_all_params_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
-        """Get the parameters for all the iterations of a specific experiment."""
+        """Get the parameters for all the iterations of a specific experiment.
+        
+        Args:
+            master_id (int): The master id.
+            
+        Returns:
+            List[tables.DbRawTable] or None: The parameters or None if they don't exist.
+        """
         raw_record = self.get_raw_for(master_id)
         params = []
 
@@ -181,7 +259,15 @@ class Database:
         return None
 
     def get_param_for(self, master_id: int, iteration_id: int) -> Optional[List[tables.DbRawTable]]:
-        """Get the parameters for a specific iteration of a specific experiment."""
+        """Get the parameters for a specific iteration of a specific experiment.
+        
+        Args:
+            master_id (int): The master id.
+            iteration_id (int): The iteration id.
+            
+        Returns:
+            List[tables.DbRawTable] or None: The parameters or None if they don't exist.
+        """
         raw_record = self.get_raw_for(master_id)
 
         if raw_record is not None:
@@ -192,7 +278,14 @@ class Database:
         return None
 
     def get_all_outcomes_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
-        """Get the outcomes for all the iterations of a specific experiment."""
+        """Get the outcomes for all the iterations of a specific experiment.
+        
+        Args:
+            master_id (int): The master id.
+            
+        Returns:
+            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
+        """
         raw_record = self.get_raw_for(master_id)
         outcomes = []
 
@@ -205,7 +298,15 @@ class Database:
         return None
 
     def get_outcome_for(self, master_id: int, iteration_id: int) -> Optional[List[tables.DbRawTable]]:
-        """Get the outcomes for a specific iteration of a specific experiment."""
+        """Get the outcomes for a specific iteration of a specific experiment.
+        
+        Args:
+            master_id (int): The master id.
+            iteration_id (int): The iteration id.
+            
+        Returns:
+            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
+        """
         raw_record = self.get_raw_for(master_id)
 
         if raw_record is not None:
@@ -224,6 +325,19 @@ class Database:
         request: Dict[str, Any] =None,
         participant_id: Optional[int] =None,
     ) -> str:
+        """Record the setup of an experiment.
+
+        Args:
+            description (str): The description of the experiment.
+            name (str): The name of the experiment.
+            extra_metadata (str, optional): Extra metadata. Defaults to None.
+            id (str, optional): The id of the experiment. Defaults to None.
+            request (Dict[str, Any]): The request. Defaults to None.
+            participant_id (int, optional): The participant id. Defaults to None.
+
+        Returns:
+            str: The experiment id.
+        """
         self.get_engine()
 
         if id is None:
@@ -267,6 +381,13 @@ class Database:
         return master_table
 
     def record_message(self, master_table: tables.DBMasterTable, type: str, request: Dict[str, Any]) -> None:
+        """Record a message in the database.
+        
+        Args:
+            master_table (tables.DBMasterTable): The master table.
+            type (str): The type of the message.
+            request (Dict[str, Any]): The request.
+        """
         # create a linked setup table
         record = tables.DbReplayTable()
         record.message_type = type
@@ -282,6 +403,16 @@ class Database:
         self._session.commit()
 
     def record_raw(self, master_table: tables.DBMasterTable, model_data: Any, timestamp: Optional[datetime.datetime] = None) -> tables.DbRawTable:
+        """Record raw data in the database.
+        
+        Args:
+            master_table (tables.DBMasterTable): The master table.
+            model_data (Any): The model data.
+            timestamp (datetime.datetime, optional): The timestamp. Defaults to None.
+            
+        Returns:
+            tables.DbRawTable: The raw entry.
+        """
         raw_entry = tables.DbRawTable()
         raw_entry.model_data = model_data
 
@@ -297,6 +428,13 @@ class Database:
         return raw_entry
 
     def record_param(self, raw_table: tables.DbRawTable, param_name: str, param_value: str) -> None:
+        """Record a parameter in the database.
+        
+        Args:
+            raw_table (tables.DbRawTable): The raw table.
+            param_name (str): The parameter name.
+            param_value (str): The parameter value.
+        """
         param_entry = tables.DbParamTable()
         param_entry.param_name = param_name
         param_entry.param_value = param_value
@@ -307,6 +445,13 @@ class Database:
         self._session.commit()
 
     def record_outcome(self, raw_table: tables.DbRawTable, outcome_name: str, outcome_value: float) -> None:
+        """Record an outcome in the database.
+        
+        Args:
+            raw_table (tables.DbRawTable): The raw table.
+            outcome_name (str): The outcome name.
+            outcome_value (float): The outcome value.
+        """
         outcome_entry = tables.DbOutcomeTable()
         outcome_entry.outcome_name = outcome_name
         outcome_entry.outcome_value = outcome_value
@@ -317,6 +462,12 @@ class Database:
         self._session.commit()
 
     def record_strat(self, master_table: tables.DBMasterTable, strat: Strategy) -> None:
+        """Record a strategy in the database.
+        
+        Args:
+            master_table (tables.DBMasterTable): The master table.
+            strat (Strategy): The strategy.
+        """
         strat_entry = tables.DbStratTable()
         strat_entry.strat = strat
         strat_entry.timestamp = datetime.datetime.now()
@@ -326,6 +477,12 @@ class Database:
         self._session.commit()
 
     def record_config(self, master_table: tables.DBMasterTable, config: Config) -> None:
+        """Record a config in the database.
+        
+        Args:
+            master_table (tables.DBMasterTable): The master table.
+            config (Config): The config.
+        """
         config_entry = tables.DbConfigTable()
         config_entry.config = config
         config_entry.timestamp = datetime.datetime.now()
@@ -335,6 +492,7 @@ class Database:
         self._session.commit()
 
     def list_master_records(self) -> None:
+        """List the master records."""
         master_records = self.get_master_records()
 
         print("Listing master records:")
