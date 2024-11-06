@@ -81,7 +81,7 @@ def select_inducing_points(
     # Ensure required inputs are provided for certain allocators
     if isinstance(allocator, SobolAllocator):
         assert bounds is not None, "Bounds must be provided for Sobol allocator!"
-    elif isinstance(allocator, (GreedyVarianceReduction, AutoAllocator)):
+    else:
         assert X is not None, "Must pass X for non-Sobol inducing point selection!"
 
     # Call allocate_inducing_points with or without bounds based on allocator type
@@ -92,7 +92,7 @@ def select_inducing_points(
             covar_module=covar_module,
             num_inducing=inducing_size,
             input_batch_shape=torch.Size([]),
-            bounds=bounds,  # Required for Sobol
+            bounds=bounds,  # type: ignore
         )
     else:
         # Call allocate_inducing_points without bounds for other allocators

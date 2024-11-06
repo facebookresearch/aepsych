@@ -17,20 +17,20 @@ from aepsych.config import Config
 class SobolAllocator(InducingPointAllocator):
     """An inducing point allocator that uses Sobol sequences to allocate inducing points."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the SobolAllocator without bounds."""
         super().__init__()
 
     
 
-    def _get_quality_function(self):
+    def _get_quality_function(self) -> None:
         """Sobol sampling does not require a quality function, so this returns None."""
         return None
    
 
     def allocate_inducing_points(
         self,
-        bounds: Optional[torch.Tensor],
+        bounds: torch.Tensor,
         inputs: Optional[torch.Tensor] = None,
         covar_module: Optional[torch.nn.Module] = None,
         num_inducing: int = 10,
@@ -41,12 +41,13 @@ class SobolAllocator(InducingPointAllocator):
         Generates `num_inducing` inducing points within the specified bounds using Sobol sampling.
 
         Args:
-            inputs (torch.Tensor, optional): Input tensor, not required for Sobol sampling.
-            covar_module (torch.nn.Module, optional): Kernel covariance module, not used here.
-            num_inducing (int): The number of inducing points to generate. Defaults to 10.
-            input_batch_shape (torch.Size): Batch shape, defaults to an empty size.
+            inputs (torch.Tensor): Input tensor, not required for Sobol sampling.
             bounds (torch.Tensor): A (2, d) tensor specifying lower and upper bounds
                 for each dimension.
+            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
+            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.
+            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
+            
 
         Returns:
             torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points within the specified bounds.
@@ -54,10 +55,7 @@ class SobolAllocator(InducingPointAllocator):
         Raises:
             ValueError: If `bounds` is not provided.
         """
-        # Ensure bounds are provided
-        if bounds is None:
-            raise ValueError("Bounds must be specified for SobolAllocator when allocating inducing points.")
-
+       
         # Validate bounds shape
         assert bounds.shape[0] == 2, "Bounds must have shape (2, d) for Sobol sampling."
 
@@ -79,11 +77,11 @@ class KMeansAllocator(InducingPointAllocator):
 
     """An inducing point allocator that uses k-means++ to allocate inducing points."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the KMeansAllocator."""
         super().__init__()
 
-    def _get_quality_function(self):
+    def _get_quality_function(self) -> None:
         """K-means++ does not require a quality function, so this returns None."""
         return None
     
@@ -101,9 +99,9 @@ class KMeansAllocator(InducingPointAllocator):
 
         Args:
             inputs (torch.Tensor): A tensor of shape (n, d) containing the input data.
-            covar_module (torch.nn.Module, optional): Kernel covariance module, not used here.
-            num_inducing (int): The number of inducing points to generate. Defaults to 10.
-            input_batch_shape (torch.Size): Batch shape, defaults to an empty size.
+            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
+            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.
+            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
 
         Returns:
             torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points selected via k-means++.
@@ -131,19 +129,19 @@ class AutoAllocator(InducingPointAllocator):
     """An inducing point allocator that dynamically chooses an allocation strategy
     based on the number of unique data points available."""
 
-    def __init__(self, fallback_allocator: InducingPointAllocator = KMeansAllocator()):
+    def __init__(self, fallback_allocator: InducingPointAllocator = KMeansAllocator()) -> None:
         """
         Initialize the AutoAllocator with a fallback allocator.
 
         Args:
-            fallback_allocator (KMeansAllocator): Allocator to use if there are 
+            fallback_allocator (InducingPointAllocator, optional): Allocator to use if there are 
                                                         more unique points than required.
         """
         super().__init__()
         self.fallback_allocator = fallback_allocator
         
 
-    def _get_quality_function(self):
+    def _get_quality_function(self) -> None:
         """AutoAllocator does not require a quality function, so this returns None."""
         return None
     
@@ -161,9 +159,9 @@ class AutoAllocator(InducingPointAllocator):
 
         Args:
             inputs (torch.Tensor): A tensor of shape (n, d) containing the input data.
-            covar_module (torch.nn.Module, optional): Kernel covariance module, passed to the fallback allocator.
-            num_inducing (int): The number of inducing points to generate.
-            input_batch_shape (torch.Size): Batch shape, defaults to an empty size.
+            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
+            num_inducing (int, optional): The number of inducing points to generate.
+            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
 
         Returns:
             torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points.
