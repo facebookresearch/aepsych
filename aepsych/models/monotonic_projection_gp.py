@@ -112,7 +112,7 @@ class MonotonicProjectionGP(GPClassificationModel):
             ub (torch.Tensor): Upper bounds of the parameters.
             monotonic_dims (List[int]): A list of the dimensions on which monotonicity should
                 be enforced.
-            monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.
+            monotonic_grid_size (int, optional): The size of the grid, s, in 1. above. Defaults to 20.
             min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub. Defaults to None.
@@ -152,7 +152,7 @@ class MonotonicProjectionGP(GPClassificationModel):
 
         Args:
             X (torch.Tensor): The input points at which to compute the posterior.
-            observation_noise (Union[bool, torch.Tensor]): Whether or not to include the observation noise in the
+            observation_noise (Union[bool, torch.Tensor], optional): Whether or not to include the observation noise in the
                 posterior. Defaults to False.
 
         Returns:

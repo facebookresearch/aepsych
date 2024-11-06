@@ -238,7 +238,7 @@ def inv_query(
         bounds (tensor): Lower and upper bounds of the search space.
         locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface. Defaults to None.
-        probability_space (bool): Is y (and therefore the
+        probability_space (bool, optional): Is y (and therefore the
             returned nearest_y) in probability space instead of latent
             function space? Defaults to False.
         n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.

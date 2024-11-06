@@ -46,8 +46,8 @@ class MultitaskGPRModel(GPRegressionModel):
         """Initialize multitask GPR model.
 
         Args:
-            num_outputs (int): Number of tasks (outputs). Defaults to 2.
-            rank (int): Rank of cross-task covariance. Lower rank is a simpler model.
+            num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.
+            rank (int, optional): Rank of cross-task covariance. Lower rank is a simpler model.
                 Should be less than or equal to num_outputs. Defaults to 1.
             mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.
             covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.
@@ -129,7 +129,7 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
         """Initialize independent multitask GPR model.
 
         Args:
-            num_outputs (int): Number of tasks (outputs). Defaults to 2.
+            num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.
             mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.
             covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.
                 Defaults to scaled RBF kernel.

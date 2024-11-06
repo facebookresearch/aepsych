@@ -10,7 +10,7 @@ import abc
 import time
 from collections.abc import Iterable
 from copy import deepcopy
-from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -135,9 +135,9 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface. Defaults to None.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
+            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples (int): number of coarse grid points to sample for optimization estimate.
+            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
         Returns:
@@ -165,9 +165,9 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
+            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples (int): number of coarse grid points to sample for optimization estimate.
+            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
         Returns:
@@ -201,9 +201,9 @@ class AEPsychMixin(GPyTorchModel):
             y (float): Points at which to find the inverse.
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
+            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
+            n_samples (int, optional): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
             weights (torch.Tensor, optional): Weights for the optimization. Defaults to None.
 
@@ -253,11 +253,11 @@ class AEPsychMixin(GPyTorchModel):
                 Defaults to a square grid of size as determined by aepsych.utils.dim_grid. 
             cred_level (float, optional): Credible level for computing an interval.
                 Defaults to None, computing no interval.
-            intensity_dim (int): Dimension over which to compute the JND.
+            intensity_dim (int, optional): Dimension over which to compute the JND.
                 Defaults to -1.
-            confsamps (int): Number of posterior samples to use for
+            confsamps (int, optional): Number of posterior samples to use for
                 computing the credible interval. Defaults to 500.
-            method (str): "taylor" or "step" method (see docstring).
+            method (str, optional): "taylor" or "step" method (see docstring).
                 Defaults to "step".
 
         Returns:
@@ -326,7 +326,7 @@ class AEPsychMixin(GPyTorchModel):
         """Generate a grid based on lower, upper, and dim.
         
         Args:
-            gridsize (int): Number of points in each dimension. Defaults to 30.
+            gridsize (int, optional): Number of points in each dimension. Defaults to 30.
             slice_dims (Mapping[int, float], optional): Dimensions to fix at a 
             certain value. Defaults to None.
         """
@@ -342,7 +342,7 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             inputs (torch.Tensor, optional):  The new training inputs.
             targets (torch.Tensor, optional): The new training targets.
-            strict (bool):  Default is False. Ignored, just for compatibility.
+            strict (bool, optional):  Default is False. Ignored, just for compatibility.
 
         input transformers. TODO: actually use this arg or change input transforms
         to not require it.
@@ -380,7 +380,7 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             mll (MarginalLogLikelihood): Marginal log likelihood object.
             optimizer_kwargs (Dict[str, Any], optional): Keyword arguments for the optimizer.
-            optimizer (Callable): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
+            optimizer (Callable, optional): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
         """
         self.train()
         train_x, train_y = mll.model.train_inputs[0], mll.model.train_targets
@@ -430,11 +430,14 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
     _train_inputs: Optional[Tuple[torch.Tensor]]
     _train_targets: Optional[torch.Tensor]
 
-    def set_train_data(self, inputs=None, targets=None, strict=False):
-        """
-        :param torch.Tensor inputs: The new training inputs.
-        :param torch.Tensor targets: The new training targets.
-        :param bool strict: (default False, ignored). Here for compatibility with
+    def set_train_data(self, inputs: torch.Tensor = None, targets: torch.Tensor = None, strict: bool = False) -> None:
+        """Set the training data for the model.
+
+        Args:
+            inputs (torch.Tensor): The new training inputs X.
+            targets (torch.Tensor): The new training targets Y.
+            strict (bool, optional): Whether to strictly enforce the device of the inputs and targets.
+        
         input transformers. TODO: actually use this arg or change input transforms
         to not require it.
         """
@@ -447,12 +450,22 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
 
     @property
     def device(self) -> torch.device:
+        """Get the device of the model.
+        
+        Returns:
+            torch.device: Device of the model.
+        """
         # We assume all models have some parameters and all models will only use one device
         # notice that this has no setting, don't let users set device, use .to().
         return next(self.parameters()).device
 
     @property
     def train_inputs(self) -> Optional[Tuple[torch.Tensor]]:
+        """Get the training inputs.
+        
+        Returns:
+            Optional[Tuple[torch.Tensor]]: Training inputs.
+        """
         if self._train_inputs is None:
             return None
 
@@ -464,6 +477,11 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
 
     @train_inputs.setter
     def train_inputs(self, train_inputs: Optional[Tuple[torch.Tensor]]) -> None:
+        """Set the training inputs.
+
+        Args:
+            train_inputs (Tuple[torch.Tensor], optional): Training inputs.
+        """
         if train_inputs is None:
             self._train_inputs = None
         else:
@@ -476,6 +494,11 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
 
     @property
     def train_targets(self) -> Optional[torch.Tensor]:
+        """Get the training targets.
+
+        Returns:
+            Optional[torch.Tensor]: Training targets.
+        """
         if self._train_targets is None:
             return None
 
@@ -486,6 +509,11 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
 
     @train_targets.setter
     def train_targets(self, train_targets: Optional[torch.Tensor]) -> None:
+        """Set the training targets.
+
+        Args:
+            train_targets (torch.Tensor, optional): Training targets.
+        """
         if train_targets is None:
             self._train_targets = None
         else:

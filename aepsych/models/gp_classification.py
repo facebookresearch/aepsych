@@ -234,9 +234,9 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         Args:
             train_x (torch.Tensor): Inputs.
             train_y (torch.LongTensor): Responses.
-            warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters (True) or fit from scratch
+            warmstart_hyperparams (bool, optional): Whether to reuse the previous hyperparameters (True) or fit from scratch
                 (False). Defaults to False.
-            warmstart_induc (bool): Whether to reuse the previous inducing points or fit from scratch (False).
+            warmstart_induc (bool, optional): Whether to reuse the previous inducing points or fit from scratch (False).
                 Defaults to False.
         """
         self.set_train_data(train_x, train_y)
@@ -275,7 +275,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool): Return outputs in units of
+            probability_space (bool, optional): Return outputs in units of
                 response probability instead of latent function value. Defaults to False.
 
         Returns:

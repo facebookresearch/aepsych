@@ -78,11 +78,11 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
                 'identity-gaussian'.
             fixed_prior_mean (float, optional): Fixed prior mean. If classification, should be the prior
             classification probability (not the latent function value). Defaults to None.
-            num_induc (int): Number of inducing points for variational GP.]. Defaults to 25.
-            num_samples (int): Number of samples for estimating posterior on preDict or
+            num_induc (int, optional): Number of inducing points for variational GP.]. Defaults to 25.
+            num_samples (int, optional): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
-            num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096. 
-            inducing_point_method (str): Method for selecting inducing points. Defaults to "auto".
+            num_rejection_samples (int, optional): Number of samples used for rejection sampling. Defaults to 4096. 
+            inducing_point_method (str, optional): Method for selecting inducing points. Defaults to "auto".
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
@@ -203,7 +203,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         Args:
             train_x (Tensor): Train X.
             train_y (Tensor): Train Y. Should be (n x 1).
-            warmstart (bool): If True, warm-start model fitting with current parameters. Defaults to True.
+            warmstart (bool, optional): If True, warm-start model fitting with current parameters. Defaults to True.
         """
         if warmstart:
             model_state_dict = self.state_dict()
@@ -273,7 +273,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): tensor of n points at which to predict.
-            probability_space (bool): whether to return in probability space. Defaults to False.
+            probability_space (bool, optional): whether to return in probability space. Defaults to False.
 
         Returns: tuple (f, var) where f is (n,) and var is (n,)
         """

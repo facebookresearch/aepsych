@@ -50,7 +50,7 @@ class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel)
                 is an observation of df/dx_i.
             train_y (torch.Tensor): Training y points
             inducing_points (torch.Tensor): Inducing points to use
-            scales (Union[torch.Tensor, float]): Typical scale of each dimension
+            scales (Union[torch.Tensor, float], optional): Typical scale of each dimension
                 of input space (this is used to set the lengthscale prior).
                 Defaults to 1.0.
             mean_module (Mean, optional): A mean class that supports derivative
