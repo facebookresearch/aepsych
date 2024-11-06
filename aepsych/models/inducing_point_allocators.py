@@ -135,7 +135,6 @@ class SobolAllocator(BaseAllocator):
         Raises:
             ValueError: If `bounds` is not provided.
         """
-
         # Validate bounds shape
         assert (
             self.bounds.shape[0] == 2
