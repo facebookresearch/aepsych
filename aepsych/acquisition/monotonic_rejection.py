@@ -13,7 +13,6 @@ import torch
 from botorch.acquisition.acquisition import AcquisitionFunction
 from botorch.acquisition.objective import IdentityMCObjective, MCAcquisitionObjective
 from botorch.models.model import Model
-from torch import Tensor
 
 from .rejection_sampler import RejectionSampler
 
@@ -38,8 +37,8 @@ class MonotonicMCAcquisition(AcquisitionFunction):
 
         Args:
             model (Model): Model to use, usually a MonotonicRejectionGP.
-            num_samples (int): Number of samples to keep from the rejection sampler. . Defaults to 32.
-            num_rejection_samples (int): Number of rejection samples to draw. Defaults to 1024.
+            num_samples (int, optional): Number of samples to keep from the rejection sampler. Defaults to 32.
+            num_rejection_samples (int, optional): Number of rejection samples to draw. Defaults to 1024.
             objective (MCAcquisitionObjective, optional): Objective transform of the GP output
                 before evaluating the acquisition. Defaults to identity transform.
         """
@@ -55,15 +54,15 @@ class MonotonicMCAcquisition(AcquisitionFunction):
             assert isinstance(objective, MCAcquisitionObjective)
         self.add_module("objective", objective)
 
-    def forward(self, X: Tensor) -> Tensor:
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
         """Evaluate the acquisition function at a set of points.
 
         Args:
-            X (Tensor): Points at which to evaluate the acquisition function.
+            X (torch.Tensor): Points at which to evaluate the acquisition function.
                 Should be (b) x q x d, and q should be 1.
 
         Returns:
-            Tensor: Acquisition function value at these points.
+            torch.Tensor: Acquisition function value at these points.
         """
         # This is currently doing joint samples over (b), and requiring q=1
         # TODO T68656582 support batches properly.
@@ -122,10 +121,11 @@ class MonotonicMCLSE(MonotonicMCAcquisition):
 
         Args:
             model (Model): Underlying model object, usually should be MonotonicRejectionGP.
+            deriv_constraint_points (torch.Tensor): Points at which the derivative should be constrained.
             target (float): Level set value to target (after the objective).
-            num_samples (int): Number of MC samples to draw in MC acquisition. Defaults to 32.
-            num_rejection_samples (int): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.
-            beta (float): Parameter of the LSE acquisition function that governs exploration vs
+            num_samples (int, optional): Number of MC samples to draw in MC acquisition. Defaults to 32.
+            num_rejection_samples (int, optional): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.
+            beta (float, optional): Parameter of the LSE acquisition function that governs exploration vs
                 exploitation (similarly to the same parameter in UCB). Defaults to 3.84 (1.96 ** 2), which maps to the straddle
                 heuristic of Bryan et al. 2005.
             objective (MCAcquisitionObjective, optional): Objective transform. Defaults to identity transform.

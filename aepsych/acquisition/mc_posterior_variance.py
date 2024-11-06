@@ -17,7 +17,6 @@ from botorch.models.model import Model
 from botorch.sampling.base import MCSampler
 from botorch.sampling.normal import SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
-from torch import Tensor
 
 
 def balv_acq(obj_samps: torch.Tensor) -> torch.Tensor:
@@ -63,14 +62,14 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         self.objective = objective
 
     @t_batch_mode_transform()
-    def forward(self, X: Tensor) -> Tensor:
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
         r"""Evaluate MCPosteriorVariance on the candidate set `X`.
 
         Args:
-            X (Tensor): A `batch_size x q x d`-dim Tensor
+            X (torch.Tensor): A `batch_size x q x d`-dim Tensor
 
         Returns:
-            Tensor: Posterior variance of link function at X that active learning
+            torch.Tensor: Posterior variance of link function at X that active learning
             hopes to maximize
         """
         # the output is of shape batch_shape x q x d_out

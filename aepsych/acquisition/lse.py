@@ -34,12 +34,12 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
 
         Args:
             model: A fitted model.
-            target: the level set (after objective transform) to be estimated
-            beta: a parameter that governs explore-exploit tradeoff
-            objective: An MCAcquisitionObjective representing the link function
+            target (Union[float, Tensor], optional): the level set (after objective transform) to be estimated. Defult to 0.75.
+            beta (Union[float, Tensor], optional): a parameter that governs explore-exploit tradeoff. Defult to 3.84.
+            objective (MCAcquisitionObjective, optional): An MCAcquisitionObjective representing the link function
                 (e.g., logistic or probit.) applied on the samples.
                 Can be implemented via GenericMCObjective.
-            sampler: The sampler used for drawing MC samples.
+            sampler (MCSampler, optional): The sampler used for drawing MC samples.
         """
         if sampler is None:
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([512]))
@@ -104,8 +104,8 @@ def construct_inputs_lse(
         model (Model): The fitted model to be used.
         training_data (None): Placeholder for compatibility; not used in this function.
         objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logistic or probit).
-        target (Union[float, Tensor]): Level set to be estimated, defaulting to 0.75.
-        beta (Union[float, Tensor]): Parameter controlling explore-exploit tradeoff, default is 3.84.
+        target (Union[float, Tensor], optional): Level set to be estimated, defaulting to 0.75.
+        beta (Union[float, Tensor], optional): Parameter controlling explore-exploit tradeoff, default is 3.84.
         sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
 
     Returns:
