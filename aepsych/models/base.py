@@ -135,9 +135,9 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface. Defaults to None.
-            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
+            n_samples (int): number of coarse grid points to sample for optimization estimate.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
         Returns:
@@ -165,9 +165,9 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples (int, optional): number of coarse grid points to sample for optimization estimate.
+            n_samples (int): number of coarse grid points to sample for optimization estimate.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
         Returns:
@@ -201,9 +201,9 @@ class AEPsychMixin(GPyTorchModel):
             y (float): Points at which to find the inverse.
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
-            probability_space (bool, optional): Is y (and therefore the returned nearest_y) in
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
-            n_samples (int, optional): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
+            n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
             weights (torch.Tensor, optional): Weights for the optimization. Defaults to None.
 
@@ -253,11 +253,11 @@ class AEPsychMixin(GPyTorchModel):
                 Defaults to a square grid of size as determined by aepsych.utils.dim_grid. 
             cred_level (float, optional): Credible level for computing an interval.
                 Defaults to None, computing no interval.
-            intensity_dim (int, optional): Dimension over which to compute the JND.
+            intensity_dim (int): Dimension over which to compute the JND.
                 Defaults to -1.
-            confsamps (int, optional): Number of posterior samples to use for
+            confsamps (int): Number of posterior samples to use for
                 computing the credible interval. Defaults to 500.
-            method (str, optional): "taylor" or "step" method (see docstring).
+            method (str): "taylor" or "step" method (see docstring).
                 Defaults to "step".
 
         Returns:
@@ -326,7 +326,7 @@ class AEPsychMixin(GPyTorchModel):
         """Generate a grid based on lower, upper, and dim.
         
         Args:
-            gridsize (int, optional): Number of points in each dimension. Defaults to 30.
+            gridsize (int): Number of points in each dimension. Defaults to 30.
             slice_dims (Mapping[int, float], optional): Dimensions to fix at a 
             certain value. Defaults to None.
         """
@@ -342,7 +342,7 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             inputs (torch.Tensor, optional):  The new training inputs.
             targets (torch.Tensor, optional): The new training targets.
-            strict (bool, optional):  Default is False. Ignored, just for compatibility.
+            strict (bool):  Default is False. Ignored, just for compatibility.
 
         input transformers. TODO: actually use this arg or change input transforms
         to not require it.
@@ -380,7 +380,7 @@ class AEPsychMixin(GPyTorchModel):
         Args:
             mll (MarginalLogLikelihood): Marginal log likelihood object.
             optimizer_kwargs (Dict[str, Any], optional): Keyword arguments for the optimizer.
-            optimizer (Callable, optional): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
+            optimizer (Callable): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.
         """
         self.train()
         train_x, train_y = mll.model.train_inputs[0], mll.model.train_targets
@@ -436,7 +436,7 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
         Args:
             inputs (torch.Tensor, optional): The new training inputs X.
             targets (torch.Tensor, optional): The new training targets Y.
-            strict (bool, optional): Whether to strictly enforce the device of the inputs and targets.
+            strict (bool): Whether to strictly enforce the device of the inputs and targets.
         
         input transformers. TODO: actually use this arg or change input transforms
         to not require it.
@@ -480,7 +480,7 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
         """Set the training inputs.
 
         Args:
-            train_inputs (Tuple[torch.Tensor], optional): Training inputs.
+            train_inputs (Tuple[torch.Tensor]): Training inputs.
         """
         if train_inputs is None:
             self._train_inputs = None

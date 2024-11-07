@@ -266,13 +266,13 @@ class SemiParametricGPModel(GPClassificationModel):
             ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub. Defaults to None.
-            stim_dim (int, optional): Index of the intensity (monotonic) dimension. Defaults to 0.
+            stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 linear-Bernouli likelihood with probit link.
-            slope_mean (float, optional): The mean of the slope. Defaults to 2.
+            slope_mean (float): The mean of the slope. Defaults to 2.
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
@@ -388,9 +388,9 @@ class SemiParametricGPModel(GPClassificationModel):
         Args:
             train_x (torch.Tensor): Inputs.
             train_y (torch.LongTensor): Responses.
-            warmstart_hyperparams (bool, optional): Whether to reuse the previous hyperparameters (True) or fit from scratch
+            warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters (True) or fit from scratch
                 (False). Defaults to False.
-            warmstart_induc (bool, optional): Whether to reuse the previous inducing points or fit from scratch (False).
+            warmstart_induc (bool): Whether to reuse the previous inducing points or fit from scratch (False).
                 Defaults to False.
             kwargs: Keyword arguments passed to `optimizer=fit_gpytorch_mll_scipy`.
         """
@@ -416,7 +416,7 @@ class SemiParametricGPModel(GPClassificationModel):
             
             x (torch.Tensor): `n x d` Points at which to sample.
             num_samples (int): Number of samples to return. Defaults to None.
-            probability_space (bool, optional): Whether to sample from the probability space (True) or the latent function. Defaults to False.
+            probability_space (bool): Whether to sample from the probability space (True) or the latent function. Defaults to False.
             kwargs are ignored
 
         Returns:
@@ -438,7 +438,7 @@ class SemiParametricGPModel(GPClassificationModel):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of
+            probability_space (bool): Return outputs in units of
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
@@ -534,7 +534,7 @@ class HadamardSemiPModel(GPClassificationModel):
             offset_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for offset.
             offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.
             likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5
-            slope_mean (float, optional): The mean of the slope. Defaults to 2.
+            slope_mean (float): The mean of the slope. Defaults to 2.
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
@@ -699,7 +699,7 @@ class HadamardSemiPModel(GPClassificationModel):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of
+            probability_space (bool): Return outputs in units of
                 response probability instead of latent function value. Defaults to False.
 
         Returns:

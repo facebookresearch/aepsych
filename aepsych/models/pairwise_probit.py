@@ -157,7 +157,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         Args:
             train_x (torch.Tensor): Train X.
             train_y (torch.Tensor): Train Y.
-            warmstart (bool, optional): If True, warm-start model fitting with current parameters. Defaults to True.
+            warmstart (bool): If True, warm-start model fitting with current parameters. Defaults to True.
         """
         self.fit(train_x, train_y)
 
@@ -172,9 +172,9 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of response probability instead of latent function value. Defaults to False.
-            num_samples (int, optional): Number of samples to return. Defaults to 1000.
-            rereference (str, optional): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
+            probability_space (bool): Return outputs in units of response probability instead of latent function value. Defaults to False.
+            num_samples (int): Number of samples to return. Defaults to 1000.
+            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
@@ -205,9 +205,9 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of response probability instead of latent function value. Defaults to False.
-            num_samples (int, optional): Number of samples to return. Defaults to 1000.
-            rereference (str, optional): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
+            probability_space (bool): Return outputs in units of response probability instead of latent function value. Defaults to False.
+            num_samples (int): Number of samples to return. Defaults to 1000.
+            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
             
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
@@ -224,7 +224,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         Args:
             x (torch.Tensor): Points at which to sample.
             num_samples (int): Number of samples to return.
-            rereference (str, optional): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
+            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".
 
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
