@@ -51,10 +51,10 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             acqf (AcquisitionFunction): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to no arguments. 
-            restarts (int, optional): Number of restarts for acquisition function optimization. Defaults to 10.
-            samps (int, optional): Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.
+            restarts (int): Number of restarts for acquisition function optimization. Defaults to 10.
+            samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.
             max_gen_time (float, optional): Maximum time (in seconds) to optimize the acquisition function. Defaults to None.
-            stimuli_per_trial (int, optional): Number of stimuli per trial. Defaults to 1.
+            stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
         """
 
         if acqf_kwargs is None:

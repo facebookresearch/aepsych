@@ -64,7 +64,7 @@ def dim_grid(
     Args:
         lower (int): lower bound.
         upper (int): upper bound.
-        gridsize (int, optional): size for grid. Defaults to 30.
+        gridsize (int): size for grid. Defaults to 30.
         slice_dims (Mapping[int, float], optional): values to use for slicing axes, as an {index:value} dict. Defaults to None.
 
     Returns:
@@ -180,11 +180,11 @@ def get_lse_interval(
         mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
         target_level (float): Target level.
         cred_level (float, optional): Credibility level. Defaults to None.
-        mono_dim (int, optional): Monotonic dimension. Defaults to -1.
-        n_samps (int, optional): Number of samples. Defaults to 500.
-        lb (float, optional): Lower bound. Defaults to -float("inf").
-        ub (float, optional): Upper bound. Defaults to float("inf").
-        gridsize (int, optional): Grid size. Defaults to 30.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        n_samps (int): Number of samples. Defaults to 500.
+        lb (float): Lower bound. Defaults to -float("inf").
+        ub (float): Upper bound. Defaults to float("inf").
+        gridsize (int): Grid size. Defaults to 30.
 
     Returns:
         Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]: Level set estimate interval.
@@ -240,9 +240,9 @@ def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.n
         post_mean (torch.Tensor): Posterior mean.
         mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
         level (float): Level.
-        mono_dim (int, optional): Monotonic dimension. Defaults to -1.
-        lb (float, optional): Lower bound. Defaults to -np.inf.
-        ub (float, optional): Upper bound. Defaults to np.inf.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        lb (float): Lower bound. Defaults to -np.inf.
+        ub (float): Upper bound. Defaults to np.inf.
         
     Returns:
         torch.Tensor: Level set estimate contour.
@@ -262,10 +262,10 @@ def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int = 1, mo
     Args:
         post_mean (torch.Tensor): Posterior mean.
         mono_grid (torch.Tensor): Monotonic grid.
-        df (int, optional): Degrees of freedom. Defaults to 1.
-        mono_dim (int, optional): Monotonic dimension. Defaults to -1.
-        lb (Union[torch.Tensor, float], optional): Lower bound. Defaults to -float("inf").
-        ub (Union[torch.Tensor, float], optional): Upper bound. Defaults to float("inf").
+        df (int): Degrees of freedom. Defaults to 1.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").
+        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").
 
     Returns:
         torch.Tensor: Just noticeable difference.
@@ -297,10 +297,10 @@ def get_jnd_multid(
     Args:
         post_mean (torch.Tensor): Posterior mean.
         mono_grid (torch.Tensor): Monotonic grid.
-        df (int, optional): Degrees of freedom. Defaults to 1.
-        mono_dim (int, optional): Monotonic dimension. Defaults to -1.
-        lb (Union[torch.Tensor, float], optional): Lower bound. Defaults to -float("inf").
-        ub (Union[torch.Tensor, float], optional): Upper bound. Defaults to float("inf").
+        df (int): Degrees of freedom. Defaults to 1.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").
+        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").
 
     Returns:
         torch.Tensor: Just noticeable difference.
