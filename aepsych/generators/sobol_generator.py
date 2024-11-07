@@ -55,23 +55,17 @@ class SobolGenerator(AEPsychGenerator):
         Args:
             num_points (int, optional): Number of points to query.
         Returns:
-            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.
         """
         grid = self.engine.draw(num_points)
         grid = self.lb + (self.ub - self.lb) * grid
         if self.stimuli_per_trial == 1:
             return grid
 
-        return torch.tensor(
-            np.moveaxis(
-                grid.reshape(num_points, self.stimuli_per_trial, -1).numpy(),
-                -1,
-                -self.stimuli_per_trial,
-            )
-        )
+        return grid.reshape(num_points, self.stimuli_per_trial, -1).swapaxes(-1, -2)
 
     @classmethod
-    def from_config(cls, config: Config) -> 'SobolGenerator':
+    def from_config(cls, config: Config) -> "SobolGenerator":
         classname = cls.__name__
 
         lb = config.gettensor(classname, "lb")
