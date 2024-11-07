@@ -98,9 +98,9 @@ class Config(configparser.ConfigParser):
             section (str): Section to get the option from.
             conv (_T): Converter to use.
             option (str): Option to get.
-            raw (bool, optional): Whether to return the raw value. Defaults to False.
+            raw (bool): Whether to return the raw value. Defaults to False.
             vars (Dict[str, Any], optional): Optional dictionary to use for interpolation. Defaults to None.
-            fallback (_T, optional): Value to return if the option is not found. Defaults to configparser._UNSET.
+            fallback (_T): Value to return if the option is not found. Defaults to configparser._UNSET.
 
         Returns:
             _T: Converted value of the option.
@@ -134,7 +134,7 @@ class Config(configparser.ConfigParser):
         """Convert the config into a dictionary.
         
         Args:
-            deduplicate (bool, optional): Whether to deduplicate the 'common' section. Defaults to True.
+            deduplicate (bool): Whether to deduplicate the 'common' section. Defaults to True.
             
         Returns:
             dict: Dictionary representation of the config.
@@ -169,12 +169,12 @@ class Config(configparser.ConfigParser):
         """Update this object with a new configuration.
 
         Args:
-            config_dict (Mapping[str, str], optional): Mapping to build configuration from.
+            config_dict (Mapping[str, str]): Mapping to build configuration from.
                 Keys are section names, values are dictionaries with keys and values that
                 should be present in the section. Defaults to None.
-            config_fnames (Sequence[str], optional): List of INI filenames to load
+            config_fnames (Sequence[str]): List of INI filenames to load
                 configuration from. Defaults to None.
-            config_str (str, optional): String formatted as an INI file to load configuration
+            config_str (str): String formatted as an INI file to load configuration
                 from. Defaults to None.
         """
         if config_dict is not None:
@@ -278,8 +278,8 @@ class Config(configparser.ConfigParser):
 
         Args:
             v (str): String to convert.
-            fallback_type (_T, optional): Type to fallback to if the object is not found. Defaults to str.
-            warn (bool, optional): Whether to warn if the object is not found. Defaults to True.
+            fallback_type (_T): Type to fallback to if the object is not found. Defaults to str.
+            warn (bool): Whether to warn if the object is not found. Defaults to True.
 
         Returns:
             object: Object representation of the string.
