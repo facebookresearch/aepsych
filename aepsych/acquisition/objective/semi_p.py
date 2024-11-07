@@ -30,7 +30,7 @@ class SemiPObjectiveBase(MCAcquisitionObjective):
         """Initialize the SemiPObjectiveBase.
         
         Args:
-            stim_dim (int, optional): The stimulus dimension. Defaults to 0.
+            stim_dim (int): The stimulus dimension. Defaults to 0.
         """
         super().__init__()
         self.stim_dim = stim_dim

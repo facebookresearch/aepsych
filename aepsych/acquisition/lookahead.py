@@ -123,7 +123,7 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
         Args:
             model (GPyTorchModel): The gpytorch model to use.
             target (float, optional): Threshold value to target in p-space.
-            lookahead_type (str, optional): The type of look-ahead to perform (default is "levelset").
+            lookahead_type (str): The type of look-ahead to perform (default is "levelset").
         """
         super().__init__(model=model)
         if lookahead_type == "levelset":
@@ -151,7 +151,7 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
 
         Args:
             model (GPyTorchModel): The gpytorch model to use.
-            lookahead_type (str, optional): The type of look-ahead to perform (default is "levelset").
+            lookahead_type (str): The type of look-ahead to perform (default is "levelset").
             target (float, optional): Threshold value to target in p-space.
             posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.
         """
@@ -208,7 +208,7 @@ def construct_inputs_local_lookahead(
     Args:
         model (GPyTorchModel): The gpytorch model to use.
         training_data (None): Placeholder for compatibility; not used in this function.
-        lookahead_type (str, optional): Type of look-ahead to perform. Default is "levelset".
+        lookahead_type (str): Type of look-ahead to perform. Default is "levelset".
         target (float, optional): Target threshold value in probability space. Default is None.
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default is None.
         
@@ -239,7 +239,7 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
 
         Args:
             model (GPyTorchModel): The gpytorch model to use.
-            lookahead_type (str, optional): The type of look-ahead to perform (default is "levelset").
+            lookahead_type (str): The type of look-ahead to perform (default is "levelset").
             target (float, optional): Threshold value to target in p-space.
             posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior.
             query_set_size (int, optional): Number of points in the query set.
@@ -320,7 +320,7 @@ class ApproxGlobalSUR(GlobalSUR):
         Args:
 
             model (GPyTorchModel): The gpytorch model to use.
-            lookahed_type (str, optional): The type of look-ahead to perform (default is "levelset").
+            lookahed_type (str): The type of look-ahead to perform (default is "levelset").
             target (float, optional): Threshold value to target in p-space.
             query_set_size (int, optional): Number of points in the query set.
             Xq (torch.Tensor, optional): (m x d) global reference set.
@@ -410,7 +410,7 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
     ) -> None:
         """
         model (GPyTorchModel): The gpytorch model to use.
-        lookahead_type (str, optional): The type of look-ahead to perform (default is "posterior").
+        lookahead_type (str): The type of look-ahead to perform (default is "posterior").
         target (float, optional): Threshold value to target in p-space. Default is None.
         query_set_size (int, optional): Number of points in the query set. Default is 256.
         Xq (torch.Tensor, optional): (m x d) global reference set. Default is None.
@@ -509,7 +509,7 @@ def construct_inputs_global_lookahead(
     Args:
         model (GPyTorchModel): The gpytorch model to use.
         training_data (None): Placeholder for compatibility; not used in this function.
-        lookahead_type (str, optional): Type of look-ahead to perform. Default is "levelset".
+        lookahead_type (str): Type of look-ahead to perform. Default is "levelset".
         target (float, optional): Target threshold value in probability space. Default is None.
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default is None.
         query_set_size (int, optional): Number of points in the query set. Default is 256.

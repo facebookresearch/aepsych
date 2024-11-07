@@ -69,7 +69,7 @@ def lookahead_levelset_at_xstar(
         Xstar (torch.Tensor): (b x 1 x d) observation point.
         Xq (torch.Tensor): (b x m x d) reference points.
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.
-        eps (float, optional): Small value to avoid division by zero. Default: 1e-8.
+        eps (float): Small value to avoid division by zero. Default: 1e-8.
 
 
     Returns:
