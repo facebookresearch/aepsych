@@ -28,7 +28,6 @@ from gpytorch.kernels import RBFKernel, ScaleKernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
-from torch import Tensor
 from torch.distributions import Normal
 
 # TODO: Implement a covar factory and analytic method for getting the lse
@@ -123,8 +122,8 @@ class SemiPPosterior(GPyTorchPosterior):
     def rsample_from_base_samples(
         self,
         sample_shape: torch.Size,
-        base_samples: Tensor,
-    ) -> Tensor:
+        base_samples: torch.Tensor,
+    ) -> torch.Tensor:
         """Sample from the posterior (with gradients) using base samples.
 
         This is intended to be used with a sampler that produces the corresponding base
@@ -132,7 +131,10 @@ class SemiPPosterior(GPyTorchPosterior):
 
         Args:
             sample_shape (torch.Size): The desired shape of the samples
-            base_samples (Tensor): The base samples
+            base_samples (torch.Tensor): The base samples
+
+        Returns:
+            torch.Tensor: The sampled values from the posterior distribution
         """
         return (
             super()

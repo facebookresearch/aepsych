@@ -327,8 +327,7 @@ class AEPsychMixin(GPyTorchModel):
         
         Args:
             gridsize (int): Number of points in each dimension. Defaults to 30.
-            slice_dims (Mapping[int, float], optional): Dimensions to fix at a 
-            certain value. Defaults to None.
+            slice_dims (Mapping[int, float], optional): Dimensions to fix at a certain value. Defaults to None.
         """
         return dim_grid(self.lb, self.ub, gridsize, slice_dims)
 
@@ -339,6 +338,8 @@ class AEPsychMixin(GPyTorchModel):
         strict: bool = False,
     ):
         """
+        Set the training data for the model.
+        
         Args:
             inputs (torch.Tensor, optional):  The new training inputs.
             targets (torch.Tensor, optional): The new training targets.

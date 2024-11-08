@@ -27,7 +27,6 @@ from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from scipy.cluster.vq import kmeans2
 from scipy.special import owens_t
 from scipy.stats import norm
-from torch import Tensor
 from torch.distributions import Normal
 
 
@@ -179,13 +178,13 @@ def get_extremum(
     """Return the extremum (min or max) of the modeled function
     Args:
         extremum_type (str): Type of extremum (currently 'min' or 'max'.
-        bounds (tensor): Lower and upper bounds of the search space.
+        bounds (torch.Tensor): Lower and upper bounds of the search space.
         locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface.
         n_samples (int): number of coarse grid points to sample for optimization estimate.
         posterior_transform (PosteriorTransform, optional): Posterior transform to apply to the model.
         max_time (float, optional): Maximum amount of time in seconds to spend optimizing.
-        weights (Tensor, optional): Weights to apply to the target value. Defaults to None.
+        weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
         Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
     """
@@ -235,7 +234,7 @@ def inv_query(
         value of f at that point.
     Args:
         y (Union[float, torch.Tensor]): Points at which to find the inverse.
-        bounds (tensor): Lower and upper bounds of the search space.
+        bounds (torch.Tensor): Lower and upper bounds of the search space.
         locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface. Defaults to None.
         probability_space (bool): Is y (and therefore the
@@ -243,7 +242,7 @@ def inv_query(
             function space? Defaults to False.
         n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
         max_time (float, optional): Maximum amount of time in seconds to spend optimizing. Defaults to None.
-        weights (Tensor, optional): Weights to apply to the target value. Defaults to None.
+        weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
         Tuple[float, torch.Tensor]: Tuple containing the value of f
             nearest to queried y and the x position of this value.
@@ -274,35 +273,35 @@ def inv_query(
 
 class TargetDistancePosteriorTransform(PosteriorTransform):
     def __init__(
-        self, target_value: Union[float, Tensor], weights: Optional[Tensor] = None
+        self, target_value: Union[float, torch.Tensor], weights: Optional[torch.Tensor] = None
     ) -> None:
         """Initialize the TargetDistancePosteriorTransform
         
         Args:
-            target_value (Union[float, Tensor]): The target value to transform the posterior to.
-            weights (Tensor, optional): Weights to apply to the target value. Defaults to None.
+            target_value (Union[float, torch.Tensor]): The target value to transform the posterior to.
+            weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
         """
         super().__init__()
         self.target_value = target_value
         self.weights = weights
 
-    def evaluate(self, Y: Tensor) -> Tensor:
+    def evaluate(self, Y: torch.Tensor) -> torch.Tensor:
         """Evaluate the squared distance from the target value.
         
         Args:
-            Y (Tensor): The tensor to evaluate.
+            Y (torch.Tensor): The tensor to evaluate.
             
         Returns:
-            Tensor: The squared distance from the target value.
+            torch.Tensor: The squared distance from the target value.
         """
         return (Y - self.target_value) ** 2
 
-    def _forward(self, mean: Tensor, var: Tensor) -> GPyTorchPosterior:
+    def _forward(self, mean: torch.Tensor, var: torch.Tensor) -> GPyTorchPosterior:
         """Transform the posterior mean and variance based on the target value.
         
         Args:
-            mean (Tensor): The posterior mean.
-            var (Tensor): The posterior variance.
+            mean (torch.Tensor): The posterior mean.
+            var (torch.Tensor): The posterior variance.
             
         Returns:
             GPyTorchPosterior: The transformed posterior.

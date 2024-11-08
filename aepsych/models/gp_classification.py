@@ -259,7 +259,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): Points at which to sample.
-            num_samples (int): Number of samples to return. Defaults to None.
+            num_samples (int): Number of samples to return.
             kwargs are ignored
 
         Returns:
