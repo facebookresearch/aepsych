@@ -6,14 +6,14 @@
 # LICENSE file in the root directory of this source tree.
 
 from .benchmark import Benchmark, DerivedValue
+from .example_problems import (
+    ContrastSensitivity6d,
+    DiscrimHighDim,
+    DiscrimLowDim,
+    Hartmann6Binary,
+)
 from .pathos_benchmark import PathosBenchmark, run_benchmarks_with_checkpoints
 from .problem import LSEProblem, LSEProblemWithEdgeLogging, Problem
-from .example_problems import (
-    DiscrimLowDim,
-    DiscrimHighDim,
-    Hartmann6Binary,
-    ContrastSensitivity6d,
-)
 from .test_functions import (
     discrim_highdim,
     make_songetal_testfun,

@@ -11,8 +11,8 @@ from typing import Callable, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.interpolate import CubicSpline, interp1d
 import torch
+from scipy.interpolate import CubicSpline, interp1d
 
 # manually scraped data from doi:10.1007/s10162-013-0396-x fig 2
 raw = """\
@@ -53,7 +53,9 @@ freq,thresh,phenotype
 dubno_data = pd.read_csv(io.StringIO(raw))
 
 
-def make_songetal_threshfun(x: torch.Tensor, y: torch.Tensor) -> Callable[[torch.Tensor], torch.Tensor]:
+def make_songetal_threshfun(
+    x: torch.Tensor, y: torch.Tensor
+) -> Callable[[torch.Tensor], torch.Tensor]:
     """Generate a synthetic threshold function by interpolation of real data.
 
     Real data is from Dubno et al. 2013, and procedure follows Song et al. 2017, 2018.
@@ -68,10 +70,10 @@ def make_songetal_threshfun(x: torch.Tensor, y: torch.Tensor) -> Callable[[torch
             frequencies and thresholds and returns threshold as a function
             of frequency.
     """
-    x_np = x.cpu().numpy()  
-    y_np = y.cpu().numpy()  
+    x_np = x.cpu().numpy()
+    y_np = y.cpu().numpy()
     # These are not directly implemented in pytorch, so we use scipy for now
-    f_interp = CubicSpline(x_np, y_np, extrapolate=False) 
+    f_interp = CubicSpline(x_np, y_np, extrapolate=False)
     f_extrap = interp1d(x_np, y_np, fill_value="extrapolate")
 
     def f_combo(x):
@@ -112,17 +114,21 @@ def make_songetal_testfun(
     """
     valid_phenotypes = ["Metabolic", "Sensory", "Metabolic+Sensory", "Older-normal"]
     assert phenotype in valid_phenotypes, f"Phenotype must be one of {valid_phenotypes}"
-    x = torch.tensor(dubno_data[dubno_data.phenotype == phenotype].freq.values, dtype=torch.float64)
-    y = torch.tensor(dubno_data[dubno_data.phenotype == phenotype].thresh.values, dtype=torch.float64)
+    x = torch.tensor(
+        dubno_data[dubno_data.phenotype == phenotype].freq.values, dtype=torch.float64
+    )
+    y = torch.tensor(
+        dubno_data[dubno_data.phenotype == phenotype].thresh.values, dtype=torch.float64
+    )
 
     # first, make the threshold fun
     threshfun = make_songetal_threshfun(x, y)
 
     # now make it into a test function
-    def song_testfun(x, cdf = False):
+    def song_testfun(x, cdf=False):
         logfreq = x[..., 0]
         intensity = x[..., 1]
-        thresh = threshfun(2 ** logfreq)
+        thresh = threshfun(2**logfreq)
         return (
             torch.distributions.Normal(0, 1).cdf((intensity - thresh) / beta)
             if cdf
@@ -130,7 +136,6 @@ def make_songetal_testfun(
         )
 
     return song_testfun
-
 
 
 def novel_discrimination_testfun(x: torch.Tensor) -> torch.Tensor:
@@ -203,26 +208,29 @@ def modified_hartmann6(X: torch.Tensor) -> torch.Tensor:
     The modified Hartmann6 function used in Lyu et al.
     """
     C = torch.tensor([0.2, 0.22, 0.28, 0.3], dtype=torch.float64)
-    a_t = torch.tensor([
-        [8, 3, 10, 3.5, 1.7, 6],
-        [0.5, 8, 10, 1.0, 6, 9],
-        [3, 3.5, 1.7, 8, 10, 6],
-        [10, 6, 0.5, 8, 1.0, 9]
-    ], dtype=torch.float64)
+    a_t = torch.tensor(
+        [
+            [8, 3, 10, 3.5, 1.7, 6],
+            [0.5, 8, 10, 1.0, 6, 9],
+            [3, 3.5, 1.7, 8, 10, 6],
+            [10, 6, 0.5, 8, 1.0, 9],
+        ],
+        dtype=torch.float64,
+    )
 
-    p_t = (
-        10 ** (-4)
-        * torch.tensor([
+    p_t = 10 ** (-4) * torch.tensor(
+        [
             [1312, 1696, 5569, 124, 8283, 5886],
             [2329, 4135, 8307, 3736, 1004, 9991],
             [2348, 1451, 3522, 2883, 3047, 6650],
-            [4047, 8828, 8732, 5743, 1091, 381]
-        ], dtype=torch.float64)
+            [4047, 8828, 8732, 5743, 1091, 381],
+        ],
+        dtype=torch.float64,
     )
 
     y = torch.tensor(0.0, dtype=torch.float64)
     for i, C_i in enumerate(C):
-        t = torch.tensor(0.0, dtype=torch.float64)  
+        t = torch.tensor(0.0, dtype=torch.float64)
         for j in range(6):
             t += a_t[i, j] * ((X[j] - p_t[i, j]) ** 2)
         y += C_i * torch.exp(-t)
@@ -243,7 +251,9 @@ def f_2d(x: torch.Tensor) -> torch.Tensor:
     return torch.exp(-torch.norm(x, dim=-1))
 
 
-def new_novel_det_params(freq: torch.Tensor, scale_factor: float = 1.0) -> Tuple[torch.Tensor, torch.Tensor]:
+def new_novel_det_params(
+    freq: torch.Tensor, scale_factor: float = 1.0
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """Get the loc and scale params for 2D synthetic novel_det(frequency) function
         Keyword arguments:
     freq -- 1D tensor of frequencies whose thresholds to return
@@ -255,7 +265,9 @@ def new_novel_det_params(freq: torch.Tensor, scale_factor: float = 1.0) -> Tuple
     return loc, scale
 
 
-def target_new_novel_det(freq: torch.Tensor, scale_factor: float = 1.0, target: float = 0.75) -> torch.Tensor:
+def target_new_novel_det(
+    freq: torch.Tensor, scale_factor: float = 1.0, target: float = 0.75
+) -> torch.Tensor:
     """Get the target (i.e. threshold) for 2D synthetic novel_det(frequency) function
         Keyword arguments:
     freq -- 1D tensor of frequencies whose thresholds to return
@@ -292,11 +304,11 @@ def cdf_new_novel_det(x: torch.Tensor, scale_factor: float = 1.0) -> torch.Tenso
 
 
 def new_novel_det_channels_params(
-        channel: torch.Tensor, 
-        scale_factor: float = 1.0, 
-        wave_freq: float = 1, 
-        target: float = 0.75
-        ) -> Tuple[torch.Tensor, torch.Tensor]:
+    channel: torch.Tensor,
+    scale_factor: float = 1.0,
+    wave_freq: float = 1,
+    target: float = 0.75,
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """Get the target parameters for 2D synthetic novel_det(channel) function
         Keyword arguments:
     channel -- 1D tensor of channel locations whose thresholds to return
@@ -306,12 +318,19 @@ def new_novel_det_channels_params(
     """
     locs = -0.3 * torch.sin(5 * wave_freq * (channel - 1 / 6) / torch.pi) ** 2 - 0.5
     scale = (
-        1 / (10 * scale_factor) * (0.75 + 0.25 * torch.cos(10 * (0.3 + channel) / torch.pi))
+        1
+        / (10 * scale_factor)
+        * (0.75 + 0.25 * torch.cos(10 * (0.3 + channel) / torch.pi))
     )
     return locs, scale
 
 
-def target_new_novel_det_channels(channel: torch.Tensor, scale_factor: float = 1.0, wave_freq: float = 1, target: float = 0.75) -> torch.Tensor:
+def target_new_novel_det_channels(
+    channel: torch.Tensor,
+    scale_factor: float = 1.0,
+    wave_freq: float = 1,
+    target: float = 0.75,
+) -> torch.Tensor:
     """Get the target (i.e. threshold) for 2D synthetic novel_det(channel) function
         Keyword arguments:
     channel -- 1D tensor of channel locations whose thresholds to return
@@ -319,12 +338,20 @@ def target_new_novel_det_channels(channel: torch.Tensor, scale_factor: float = 1
     wave_freq -- frequency of location waveform on [-1,1]
     target -- target threshold
     """
-    locs, scale = new_novel_det_channels_params(channel, scale_factor, wave_freq, target)
+    locs, scale = new_novel_det_channels_params(
+        channel, scale_factor, wave_freq, target
+    )
     normal_dist = torch.distributions.Normal(locs, scale)
     return normal_dist.icdf(torch.tensor(target))
 
 
-def new_novel_det_channels(x: torch.Tensor, channel: torch.Tensor, scale_factor: float = 1.0, wave_freq: float = 1, target: float = 0.75) -> torch.Tensor:
+def new_novel_det_channels(
+    x: torch.Tensor,
+    channel: torch.Tensor,
+    scale_factor: float = 1.0,
+    wave_freq: float = 1,
+    target: float = 0.75,
+) -> torch.Tensor:
     """Get the 2D synthetic novel_det(channel) function
         Keyword arguments:
     x -- tensor of shape (n,2) of locations to sample;
@@ -332,11 +359,19 @@ def new_novel_det_channels(x: torch.Tensor, channel: torch.Tensor, scale_factor:
     scale factor -- scale for the novel_det function, where higher is steeper/lower SD
     wave_freq -- frequency of location waveform on [-1,1]
     """
-    locs, scale = new_novel_det_channels_params(channel, scale_factor, wave_freq, target)
+    locs, scale = new_novel_det_channels_params(
+        channel, scale_factor, wave_freq, target
+    )
     return (x[..., 1] - locs) / scale
 
 
-def cdf_new_novel_det_channels(x: torch.Tensor, channel: torch.Tensor, scale_factor: float = 1.0, wave_freq: float = 1, target: float = 0.75) -> torch.Tensor:
+def cdf_new_novel_det_channels(
+    x: torch.Tensor,
+    channel: torch.Tensor,
+    scale_factor: float = 1.0,
+    wave_freq: float = 1,
+    target: float = 0.75,
+) -> torch.Tensor:
     """Get the cdf for 2D synthetic novel_det(channel) function
         Keyword arguments:
     x -- tensor of shape (n,2) of locations to sample;
@@ -348,7 +383,10 @@ def cdf_new_novel_det_channels(x: torch.Tensor, channel: torch.Tensor, scale_fac
     normal_dist = torch.distributions.Normal(0, 1)  # Standard normal distribution
     return normal_dist.cdf(z)
 
-def new_novel_det_3D_params(x: torch.Tensor, scale_factor: float = 1.0) -> Tuple[torch.Tensor, torch.Tensor]:
+
+def new_novel_det_3D_params(
+    x: torch.Tensor, scale_factor: float = 1.0
+) -> Tuple[torch.Tensor, torch.Tensor]:
     freq = x[..., 0]
     chan = x[..., 1]
     locs_freq = -0.32 + 2 * (0.66 * torch.pow(0.8 * freq * (0.2 * freq - 1), 2) + 0.05)
@@ -384,7 +422,9 @@ def cdf_new_novel_det_3D(x: torch.Tensor, scale_factor: float = 1.0) -> torch.Te
     return normal_dist.cdf(z)
 
 
-def target_new_novel_det_3D(x: torch.Tensor, scale_factor: float = 1.0, target: float = 0.75) -> torch.Tensor:
+def target_new_novel_det_3D(
+    x: torch.Tensor, scale_factor: float = 1.0, target: float = 0.75
+) -> torch.Tensor:
     """
     Get target for 3D synthetic novel_det function at location x
 
@@ -401,4 +441,6 @@ def target_new_novel_det_3D(x: torch.Tensor, scale_factor: float = 1.0, target: 
 
 def f_pairwise(f: Callable, x: torch.Tensor, noise_scale: float = 1) -> torch.Tensor:
     normal_dist = torch.distributions.Normal(0, 1)
-    return normal_dist.cdf((f(x[..., 1]) - f(x[..., 0])) / (noise_scale * torch.sqrt(torch.tensor(2.0))))
+    return normal_dist.cdf(
+        (f(x[..., 1]) - f(x[..., 0])) / (noise_scale * torch.sqrt(torch.tensor(2.0)))
+    )

@@ -8,7 +8,6 @@
 import sys
 
 import torch
-
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 
 from . import (

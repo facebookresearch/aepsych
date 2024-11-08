@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-
 from typing import Any, Dict
 
 import aepsych.utils_logging as utils_logging
@@ -54,9 +53,9 @@ def info(server) -> Dict[str, Any]:
         "all_strat_names": server.strat_names,
         "current_strat_index": server.strat_id,
         "current_strat_name": server.strat.name,
-        "current_strat_data_pts": server.strat.x.shape[0]
-        if server.strat.x is not None
-        else 0,
+        "current_strat_data_pts": (
+            server.strat.x.shape[0] if server.strat.x is not None else 0
+        ),
         "current_strat_model": current_strat_model,
         "current_strat_acqf": current_strat_acqf,
         "current_strat_finished": server.strat.finished,

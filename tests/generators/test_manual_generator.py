@@ -9,7 +9,6 @@ import unittest
 
 import numpy as np
 import numpy.testing as npt
-
 from aepsych.config import Config
 from aepsych.generators import ManualGenerator, SampleAroundPointsGenerator
 from aepsych.transforms import ParameterTransformedGenerator

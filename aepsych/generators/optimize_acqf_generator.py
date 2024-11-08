@@ -14,15 +14,15 @@ from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
-from botorch.optim import optimize_acqf
 from botorch.acquisition import (
     AcquisitionFunction,
-    NoisyExpectedImprovement,
-    qNoisyExpectedImprovement,
     LogNoisyExpectedImprovement,
+    NoisyExpectedImprovement,
     qLogNoisyExpectedImprovement,
+    qNoisyExpectedImprovement,
 )
+from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+from botorch.optim import optimize_acqf
 
 logger = getLogger()
 
@@ -120,7 +120,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         return new_candidate
 
     @classmethod
-    def from_config(cls, config: Config) -> 'OptimizeAcqfGenerator':
+    def from_config(cls, config: Config) -> "OptimizeAcqfGenerator":
         classname = cls.__name__
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)

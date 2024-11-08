@@ -27,7 +27,6 @@ from scipy.stats import multivariate_normal
 
 class BvNCDFTestCase(unittest.TestCase):
     def test_bvncdf(self):
-
         rhos = np.linspace(0.3, 0.9, 7)
         xus = [0.3, 0.5, 0.7]
         yus = [0.3, 0.5, 0.7]
@@ -68,7 +67,6 @@ class LookaheadPosteriorTestCase(unittest.TestCase):
         self.model, self.f, self.covar = model, f, covar
 
     def test_posterior_extraction(self):
-
         mu_s, s2_s, mu_q, s2_q, cov_q = posterior_at_xstar_xq(
             self.model, self.xstar, self.xq
         )

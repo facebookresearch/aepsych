@@ -18,11 +18,11 @@ from copy import copy
 from itertools import product
 
 from aepsych.benchmark import (
-    Problem,
-    LSEProblem,
     BenchmarkLogger,
-    PathosBenchmark,
     combine_benchmarks,
+    LSEProblem,
+    PathosBenchmark,
+    Problem,
 )
 from aepsych.benchmark.test_functions import (
     make_songetal_testfun,

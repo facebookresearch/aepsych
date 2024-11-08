@@ -24,9 +24,9 @@ from sqlalchemy import (
     PickleType,
     String,
 )
+from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.engine import Engine
 
 logger = logging.getLogger()
 
@@ -75,7 +75,7 @@ class DBMasterTable(Base):
     children_raw = relationship("DbRawTable", back_populates="parent")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> 'DBMasterTable':
+    def from_sqlite(cls, row: Dict[str, Any]) -> "DBMasterTable":
         """Create a DBMasterTable object from a row in the sqlite database.
 
         Args:
@@ -93,7 +93,7 @@ class DBMasterTable(Base):
 
     def __repr__(self) -> str:
         """Return a string representation of the DBMasterTable object.
-        
+
         Returns:
             str: A string representation of the DBMasterTable object.
         """
@@ -107,7 +107,7 @@ class DBMasterTable(Base):
     @staticmethod
     def update(engine: Engine) -> None:
         """Update the master table schema to include extra_metadata and participant_id columns.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -120,7 +120,7 @@ class DBMasterTable(Base):
     @staticmethod
     def requires_update(engine: Engine) -> bool:
         """Check if the master table schema requires an update.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -131,11 +131,11 @@ class DBMasterTable(Base):
     @staticmethod
     def _has_column(engine: Engine, column: str) -> bool:
         """Check if the master table has a column.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
             column (str): The column name.
-            
+
         Returns:
             bool: True if the column exists, False otherwise.
         """
@@ -151,7 +151,7 @@ class DBMasterTable(Base):
     @staticmethod
     def _add_column(engine: Engine, column: str) -> None:
         """Add a column to the master table.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
             column (str): The column name.
@@ -197,12 +197,12 @@ class DbReplayTable(Base):
     __mapper_args__ = {}
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbReplayTable':
+    def from_sqlite(cls, row: Dict[str, Any]) -> "DbReplayTable":
         """Create a DbReplayTable object from a row in the sqlite database.
-        
+
         Args:
             row (Dict[str, Any]): A row from the sqlite database.
-            
+
         Returns:
             DbReplayTable: A DbReplayTable object.
         """
@@ -223,7 +223,7 @@ class DbReplayTable(Base):
 
     def __repr__(self) -> str:
         """Return a string representation of the DbReplayTable object.
-        
+
         Returns:
             str: A string representation of the DbReplayTable object.
         """
@@ -237,10 +237,10 @@ class DbReplayTable(Base):
     @staticmethod
     def _has_extra_info(engine: Engine) -> bool:
         """Check if the replay_data table has an extra_info column.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
-            
+
         Returns:
             bool: True if the extra_info column exists, False otherwise.
         """
@@ -254,10 +254,10 @@ class DbReplayTable(Base):
     @staticmethod
     def _configs_require_conversion(engine: Engine) -> bool:
         """Check if the replay_data table has any old configs that need to be converted.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
-        
+
         Returns:
             bool: True if any old configs need to be converted, False otherwise.
         """
@@ -278,7 +278,7 @@ class DbReplayTable(Base):
     @staticmethod
     def update(engine: Engine) -> None:
         """Update the replay_data table schema to include an extra_info column and convert old configs.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -293,7 +293,7 @@ class DbReplayTable(Base):
     @staticmethod
     def requires_update(engine: Engine) -> bool:
         """Check if the replay_data table schema requires an update.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -304,7 +304,7 @@ class DbReplayTable(Base):
     @staticmethod
     def _add_extra_info(engine: Engine) -> None:
         """Add an extra_info column to the replay_data table.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -327,7 +327,7 @@ class DbReplayTable(Base):
     @staticmethod
     def _convert_configs(engine: Engine) -> None:
         """Convert old configs to the latest version.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -364,12 +364,12 @@ class DbStratTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_strat")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbStratTable':
+    def from_sqlite(cls, row: Dict[str, Any]) -> "DbStratTable":
         """Create a DbStratTable object from a row in the sqlite database.
-        
+
         Args:
             row (Dict[str, Any]): A row from the sqlite database.
-            
+
         Returns:
             DbStratTable: A DbStratTable object.
         """
@@ -383,7 +383,7 @@ class DbStratTable(Base):
 
     def __repr__(self) -> str:
         """Return a string representation of the DbStratTable object.
-        
+
         Returns:
             str: A string representation of the DbStratTable object.
         """
@@ -396,7 +396,7 @@ class DbStratTable(Base):
     @staticmethod
     def update(engine: Engine) -> None:
         """Update the strat_data table schema.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -405,7 +405,7 @@ class DbStratTable(Base):
     @staticmethod
     def requires_update(engine: Engine) -> bool:
         """Check if the strat_data table schema requires an update.(always False)
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -423,12 +423,12 @@ class DbConfigTable(Base):
     parent = relationship("DBMasterTable", back_populates="children_config")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbConfigTable':
+    def from_sqlite(cls, row: Dict[str, Any]) -> "DbConfigTable":
         """Create a DbConfigTable object from a row in the sqlite database.
-        
+
         Args:
             row (Dict[str, Any]): A row from the sqlite database.
-            
+
         Returns:
             DbConfigTable: A DbConfigTable object.
         """
@@ -442,7 +442,7 @@ class DbConfigTable(Base):
 
     def __repr__(self) -> str:
         """Return a string representation of the DbConfigTable object.
-        
+
         Returns:
             str: A string representation of the DbConfigTable object.
         """
@@ -455,7 +455,7 @@ class DbConfigTable(Base):
     @staticmethod
     def update(engine: Engine) -> None:
         """Update the config_data table schema.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -488,12 +488,12 @@ class DbRawTable(Base):
     children_outcome = relationship("DbOutcomeTable", back_populates="parent")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbRawTable':
+    def from_sqlite(cls, row: Dict[str, Any]) -> "DbRawTable":
         """Create a DbRawTable object from a row in the sqlite database.
-        
+
         Args:
             row (Dict[str, Any]): A row from the sqlite database.
-            
+
         Returns:
             DbRawTable: A DbRawTable object.
         """
@@ -507,7 +507,7 @@ class DbRawTable(Base):
 
     def __repr__(self) -> str:
         """Return a string representation of the DbRawTable object.
-        
+
         Returns:
             str: A string representation of the DbRawTable object.
         """
@@ -520,7 +520,7 @@ class DbRawTable(Base):
     @staticmethod
     def update(db: Any, engine: Engine) -> None:
         """Update the raw table with data from the replay table.
-        
+
         Args:
             db (Any): The database object.
             engine (Engine): The sqlalchemy engine.
@@ -529,7 +529,6 @@ class DbRawTable(Base):
 
         # Get every master table
         for master_table in db.get_master_records():
-
             # Get raw tab
             for message in master_table.children_replay:
                 if message.message_type != "tell":
@@ -602,10 +601,10 @@ class DbRawTable(Base):
     @staticmethod
     def requires_update(engine: Engine) -> bool:
         """Check if the raw table is empty, and data already exists.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
-            
+
         Returns:
             bool: True if the raw table is empty and data already exists, False otherwise.
         """
@@ -636,12 +635,12 @@ class DbParamTable(Base):
     parent = relationship("DbRawTable", back_populates="children_param")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbParamTable':
+    def from_sqlite(cls, row: Dict[str, Any]) -> "DbParamTable":
         """Create a DbParamTable object from a row in the sqlite database.
-        
+
         Args:
             row (Dict[str, Any]): A row from the sqlite database.
-            
+
         Returns:
             DbParamTable: A DbParamTable object.
         """
@@ -655,7 +654,7 @@ class DbParamTable(Base):
 
     def __repr__(self) -> str:
         """Return a string representation of the DbParamTable object.
-        
+
         Returns:
             str: A string representation of the DbParamTable object.
         """
@@ -667,7 +666,7 @@ class DbParamTable(Base):
     @staticmethod
     def update(engine: Engine) -> None:
         """Update the param_data table schema.
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
         """
@@ -676,7 +675,7 @@ class DbParamTable(Base):
     @staticmethod
     def requires_update(engine: Engine) -> bool:
         """Check if the param_data table schema requires an update.(always False)
-        
+
         Args:
             engine (Engine): The sqlalchemy engine.
 
@@ -702,12 +701,12 @@ class DbOutcomeTable(Base):
     parent = relationship("DbRawTable", back_populates="children_outcome")
 
     @classmethod
-    def from_sqlite(cls, row: Dict[str, Any]) -> 'DbOutcomeTable':
+    def from_sqlite(cls, row: Dict[str, Any]) -> "DbOutcomeTable":
         """Create a DbOutcomeTable object from a row in the sqlite database.
-        
+
         Args:
             row (Dict[str, Any]): A row from the sqlite database.
-            
+
         Returns:
             DbOutcomeTable: A DbOutcomeTable object.
         """
@@ -721,7 +720,7 @@ class DbOutcomeTable(Base):
 
     def __repr__(self) -> str:
         """Return a string representation of the DbOutcomeTable object.
-        
+
         Returns:
             str: A string representation of the DbOutcomeTable object.
         """

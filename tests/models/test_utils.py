@@ -9,10 +9,9 @@ import unittest
 
 import numpy as np
 import torch
-from sklearn.datasets import make_classification
-
 from aepsych.models import GPClassificationModel
 from aepsych.models.utils import select_inducing_points
+from sklearn.datasets import make_classification
 
 
 class UtilsTestCase(unittest.TestCase):

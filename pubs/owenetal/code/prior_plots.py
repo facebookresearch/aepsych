@@ -18,14 +18,15 @@ sns.set_theme()
 from aepsych.config import Config
 from aepsych.factory import (
     default_mean_covar_factory,
-    song_mean_covar_factory,
     monotonic_mean_covar_factory,
+    song_mean_covar_factory,
 )
 from aepsych.models import GPClassificationModel, MonotonicRejectionGP
 from aepsych.models.monotonic_rejection_gp import MixedDerivativeVariationalGP
 from aepsych.utils import _dim_grid
 
 global_seed = 3
+
 
 def plot_prior_samps_1d():
     config = Config(
@@ -230,6 +231,5 @@ def plot_prior_samps_2d():
 
 
 if __name__ == "__main__":
-
     prior_samps_1d = plot_prior_samps_1d()
     prior_samps_1d.savefig("./figs/prior_samps.pdf", dpi=200)

@@ -12,7 +12,6 @@ from typing import List, Optional, Tuple
 import gpytorch
 import torch
 from aepsych.config import Config
-
 from scipy.stats import norm
 
 from .utils import __default_invgamma_concentration, __default_invgamma_rate
@@ -94,7 +93,6 @@ def _get_default_cov_function(
     stimuli_per_trial: int,
     active_dims: Optional[List[int]] = None,
 ) -> gpytorch.kernels.Kernel:
-
     # default priors
     lengthscale_prior = "lognormal" if stimuli_per_trial == 1 else "gamma"
     ls_loc = torch.tensor(math.sqrt(2.0), dtype=torch.float64)

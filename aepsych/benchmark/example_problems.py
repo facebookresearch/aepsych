@@ -1,16 +1,16 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates. All rights reserved.
 import os
 from typing import List, Optional, Union
+
 import numpy as np
 import torch
-from aepsych.models import GPClassificationModel
+from aepsych.benchmark.problem import LSEProblemWithEdgeLogging
 from aepsych.benchmark.test_functions import (
-    modified_hartmann6,
     discrim_highdim,
+    modified_hartmann6,
     novel_discrimination_testfun,
 )
-from aepsych.benchmark.problem import LSEProblemWithEdgeLogging
-
+from aepsych.models import GPClassificationModel
 
 """The DiscrimLowDim, DiscrimHighDim, ContrastSensitivity6d, and Hartmann6Binary classes
 are copied from bernoulli_lse github repository (https://github.com/facebookresearch/bernoulli_lse)
@@ -21,7 +21,9 @@ class DiscrimLowDim(LSEProblemWithEdgeLogging):
     name = "discrim_lowdim"
     bounds = torch.tensor([[-1, 1], [-1, 1]], dtype=torch.double).T
 
-    def __init__(self, thresholds: Union[float, List, torch.Tensor, None] = None) -> None:
+    def __init__(
+        self, thresholds: Union[float, List, torch.Tensor, None] = None
+    ) -> None:
         thresholds = 0.75 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 
@@ -45,7 +47,9 @@ class DiscrimHighDim(LSEProblemWithEdgeLogging):
         dtype=torch.double,
     ).T
 
-    def __init__(self, thresholds: Union[float, List, torch.Tensor, None] = None) -> None:
+    def __init__(
+        self, thresholds: Union[float, List, torch.Tensor, None] = None
+    ) -> None:
         thresholds = 0.75 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 
@@ -62,7 +66,9 @@ class Hartmann6Binary(LSEProblemWithEdgeLogging):
         )
     )
 
-    def __init__(self, thresholds: Union[float, List, torch.Tensor, None] = None) -> None:
+    def __init__(
+        self, thresholds: Union[float, List, torch.Tensor, None] = None
+    ) -> None:
         thresholds = 0.5 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 
@@ -83,7 +89,9 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
         dtype=torch.double,
     ).T
 
-    def __init__(self, thresholds: Union[float, List, torch.Tensor, None] = None) -> None:
+    def __init__(
+        self, thresholds: Union[float, List, torch.Tensor, None] = None
+    ) -> None:
         thresholds = 0.75 if thresholds is None else thresholds
         super().__init__(thresholds=thresholds)
 

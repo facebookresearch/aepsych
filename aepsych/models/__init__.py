@@ -21,7 +21,6 @@ from .semi_p import (
     SemiParametricGPModel,
 )
 
-
 __all__ = [
     "GPClassificationModel",
     "MonotonicRejectionGP",

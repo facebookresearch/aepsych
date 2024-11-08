@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import abc
-
 import time
 from collections.abc import Iterable
 from copy import deepcopy
@@ -16,7 +15,6 @@ from typing import Any, Dict, List, Mapping, Optional, Protocol, Tuple, Union
 import gpytorch
 import numpy as np
 import torch
-
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.models.utils import get_extremum, inv_query
 from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol, promote_0d
@@ -27,7 +25,6 @@ from botorch.posteriors import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
 from scipy.stats import norm
-
 
 logger = getLogger()
 

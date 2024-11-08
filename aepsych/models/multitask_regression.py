@@ -9,11 +9,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from aepsych.config import Config
 import gpytorch
-
 import torch
-
+from aepsych.config import Config
 from aepsych.models import GPRegressionModel
 
 
@@ -78,7 +76,9 @@ class MultitaskGPRModel(GPRegressionModel):
             self.covar_module, num_tasks=num_outputs, rank=rank
         )
 
-    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultitaskMultivariateNormal:
+    def forward(
+        self, x: torch.Tensor
+    ) -> gpytorch.distributions.MultitaskMultivariateNormal:
         transformed_x = self.normalize_inputs(x)
         mean_x = self.mean_module(transformed_x)
         covar_x = self.covar_module(transformed_x)
@@ -150,7 +150,9 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
             **kwargs,
         )  # type: ignore # mypy issue 4335
 
-    def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultitaskMultivariateNormal:
+    def forward(
+        self, x: torch.Tensor
+    ) -> gpytorch.distributions.MultitaskMultivariateNormal:
         base_mvn = super().forward(x)  # do transforms
         return gpytorch.distributions.MultitaskMultivariateNormal.from_batch_mvn(
             base_mvn

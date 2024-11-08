@@ -97,7 +97,6 @@ def construct_inputs_lse(
     sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
-
     return {
         "model": model,
         "objective": objective,

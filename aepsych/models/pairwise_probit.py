@@ -28,7 +28,9 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
     stimuli_per_trial = 2
     outcome_type = "binary"
 
-    def _pairs_to_comparisons(self, x: torch.Tensor, y: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _pairs_to_comparisons(
+        self, x: torch.Tensor, y: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Takes x, y structured as pairs and judgments and
         returns pairs and comparisons as PairwiseGP requires
@@ -127,7 +129,11 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         self.fit(train_x, train_y)
 
     def predict(
-        self, x: torch.Tensor, probability_space: bool =False, num_samples: int =1000, rereference: str ="x_min"
+        self,
+        x: torch.Tensor,
+        probability_space: bool = False,
+        num_samples: int = 1000,
+        rereference: str = "x_min",
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         if rereference is not None:
             samps = self.sample(x, num_samples, rereference)
@@ -145,13 +151,19 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return fmean, fvar
 
     def predict_probability(
-        self, x: torch.Tensor, probability_space: bool = False, num_samples: int = 1000, rereference: str = "x_min"
+        self,
+        x: torch.Tensor,
+        probability_space: bool = False,
+        num_samples: int = 1000,
+        rereference: str = "x_min",
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.predict(
             x, probability_space=True, num_samples=num_samples, rereference=rereference
         )
 
-    def sample(self, x: torch.Tensor, num_samples: int, rereference: str = "x_min") -> torch.Tensor:
+    def sample(
+        self, x: torch.Tensor, num_samples: int, rereference: str = "x_min"
+    ) -> torch.Tensor:
         if len(x.shape) < 2:
             x = x.reshape(-1, 1)
         if rereference is None:
@@ -179,8 +191,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return -samps + samps_ref
 
     @classmethod
-    def from_config(cls, config: Config) -> 'PairwiseProbitModel':
-
+    def from_config(cls, config: Config) -> "PairwiseProbitModel":
         classname = cls.__name__
 
         mean_covar_factory = config.getobj(

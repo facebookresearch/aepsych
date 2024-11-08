@@ -5,14 +5,14 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 from functools import cached_property
-from typing import Any, Dict, Union, List
+from typing import Any, Dict, List, Union
 
 import aepsych
 import numpy as np
 import torch
-from scipy.stats import bernoulli
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.utils import make_scaled_sobol
+from scipy.stats import bernoulli
 
 
 class Problem:
@@ -64,8 +64,9 @@ class Problem:
         normal_dist = torch.distributions.Normal(0, 1)  # Standard normal distribution
         return normal_dist.cdf(self.f(x))  # Use PyTorch's CDF equivalent
 
-
-    def sample_y(self, x: torch.Tensor) -> np.ndarray: # TODO: This can be done with  torch.bernoulli(self.p(x)), but Strategy.add_data() expects a numpy array for now
+    def sample_y(
+        self, x: torch.Tensor
+    ) -> np.ndarray:  # TODO: This can be done with  torch.bernoulli(self.p(x)), but Strategy.add_data() expects a numpy array for now
         """Sample a response from test function.
 
         Args:
@@ -104,8 +105,8 @@ class Problem:
         Returns:
             torch.Tensor: Values of true response probability over evaluation grid.
         """
-        normal_dist = torch.distributions.Normal(0, 1) 
-        return normal_dist.cdf(self.f_true)  
+        normal_dist = torch.distributions.Normal(0, 1)
+        return normal_dist.cdf(self.f_true)
 
     def p_hat(self, model: aepsych.models.base.ModelProtocol) -> torch.Tensor:
         """Generate mean predictions from the model over the evaluation grid.
@@ -155,11 +156,15 @@ class Problem:
         mae_f = torch.mean(torch.abs(self.f_true - f_hat))
         mse_f = torch.mean((self.f_true - f_hat) ** 2)
         max_abs_err_f = torch.max(torch.abs(self.f_true - f_hat))
-        corr_f = torch.corrcoef(torch.stack((self.f_true.flatten(), f_hat.flatten())))[0, 1]
+        corr_f = torch.corrcoef(torch.stack((self.f_true.flatten(), f_hat.flatten())))[
+            0, 1
+        ]
         mae_p = torch.mean(torch.abs(self.p_true - p_hat))
         mse_p = torch.mean((self.p_true - p_hat) ** 2)
         max_abs_err_p = torch.max(torch.abs(self.p_true - p_hat))
-        corr_p = torch.corrcoef(torch.stack((self.p_true.flatten(), p_hat.flatten())))[0, 1]
+        corr_p = torch.corrcoef(torch.stack((self.p_true.flatten(), p_hat.flatten())))[
+            0, 1
+        ]
         brier = torch.mean(2 * torch.square(self.p_true - p_hat))
 
         # eval in samp-based expectation over posterior instead of just mean
@@ -167,12 +172,13 @@ class Problem:
         try:
             psamps = (
                 model.sample(self.eval_grid, num_samples=1000, probability_space=True)  # type: ignore
-                
             )
         except (
             TypeError
         ):  # vanilla models don't have proba_space samps, TODO maybe we should add them
-            normal_dist = torch.distributions.Normal(0, 1)  # Standard normal distribution
+            normal_dist = torch.distributions.Normal(
+                0, 1
+            )  # Standard normal distribution
             psamps = normal_dist.cdf(fsamps)
 
         ferrs = fsamps - self.f_true[None, :]
@@ -186,21 +192,21 @@ class Problem:
         expected_brier = torch.mean((2 * torch.square(self.p_true[None, :] - psamps)))
 
         metrics = {
-        "mean_abs_err_f": mae_f.item(),
-        "mean_integrated_abs_err_f": miae_f.item(),
-        "mean_square_err_f": mse_f.item(),
-        "mean_integrated_square_err_f": mise_f.item(),
-        "max_abs_err_f": max_abs_err_f.item(),
-        "pearson_corr_f": corr_f.item(),
-        "mean_abs_err_p": mae_p.item(),
-        "mean_integrated_abs_err_p": miae_p.item(),
-        "mean_square_err_p": mse_p.item(),
-        "mean_integrated_square_err_p": mise_p.item(),
-        "max_abs_err_p": max_abs_err_p.item(),
-        "pearson_corr_p": corr_p.item(),
-        "brier": brier.item(),
-        "expected_brier": expected_brier.item(),
-    }
+            "mean_abs_err_f": mae_f.item(),
+            "mean_integrated_abs_err_f": miae_f.item(),
+            "mean_square_err_f": mse_f.item(),
+            "mean_integrated_square_err_f": mise_f.item(),
+            "max_abs_err_f": max_abs_err_f.item(),
+            "pearson_corr_f": corr_f.item(),
+            "mean_abs_err_p": mae_p.item(),
+            "mean_integrated_abs_err_p": miae_p.item(),
+            "mean_square_err_p": mse_p.item(),
+            "mean_integrated_square_err_p": mise_p.item(),
+            "max_abs_err_p": max_abs_err_p.item(),
+            "pearson_corr_p": corr_p.item(),
+            "brier": brier.item(),
+            "expected_brier": expected_brier.item(),
+        }
 
         return metrics
 
@@ -237,15 +243,12 @@ class LSEProblem(Problem):
                 return inverse_torch(x)
 
         except AttributeError:
+
             def inverse_link(x):
-                normal_dist = torch.distributions.Normal(0, 1)  
+                normal_dist = torch.distributions.Normal(0, 1)
                 return normal_dist.icdf(x)
 
-        
         return inverse_link(self.thresholds).float()  # Return as float32 tensor
-
-
-
 
     @cached_property
     def true_below_threshold(self) -> torch.Tensor:
@@ -284,9 +287,7 @@ class LSEProblem(Problem):
         # define what "threshold" means in high-dim.
 
         # Brier score on level-set probabilities
-        p_l = model.p_below_threshold(
-            self.eval_grid, self.f_threshold(model)
-        )
+        p_l = model.p_below_threshold(self.eval_grid, self.f_threshold(model))
         true_p_l = self.true_below_threshold
         assert (
             p_l.ndim == 2
@@ -298,12 +299,16 @@ class LSEProblem(Problem):
         brier_p_below_thresh = torch.mean(2 * torch.square(true_p_l - p_l), dim=1)
         # Classification error
         misclass_on_thresh = torch.mean(
-        p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, dim=1
+            p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, dim=1
         )
 
         for i_threshold, threshold in enumerate(self.thresholds):
-            metrics[f"brier_p_below_{threshold}"] = brier_p_below_thresh.detach().cpu().numpy()[i_threshold]
-            metrics[f"misclass_on_thresh_{threshold}"] = misclass_on_thresh.detach().cpu().numpy()[i_threshold]
+            metrics[f"brier_p_below_{threshold}"] = (
+                brier_p_below_thresh.detach().cpu().numpy()[i_threshold]
+            )
+            metrics[f"misclass_on_thresh_{threshold}"] = (
+                misclass_on_thresh.detach().cpu().numpy()[i_threshold]
+            )
         return metrics
 
 

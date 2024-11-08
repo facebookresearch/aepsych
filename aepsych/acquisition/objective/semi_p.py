@@ -66,7 +66,6 @@ class SemiPProbabilityObjective(SemiPObjectiveBase):
 
     @classmethod
     def from_config(cls, config: Config) -> SemiPProbabilityObjective:
-
         classname = cls.__name__
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
@@ -87,7 +86,13 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
     that gives the threshold distribution.
     """
 
-    def __init__(self, target: float, likelihood: Optional[LinearBernoulliLikelihood] =None, *args, **kwargs):
+    def __init__(
+        self,
+        target: float,
+        likelihood: Optional[LinearBernoulliLikelihood] = None,
+        *args,
+        **kwargs,
+    ):
         """Evaluates the probability objective.
 
         Args:
@@ -116,7 +121,6 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
 
     @classmethod
     def from_config(cls, config: Config) -> SemiPThresholdObjective:
-
         classname = cls.__name__
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)

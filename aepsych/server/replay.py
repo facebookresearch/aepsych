@@ -10,7 +10,6 @@ import warnings
 
 import aepsych.utils_logging as utils_logging
 import pandas as pd
-
 from aepsych.server.message_handlers.handle_tell import flatten_tell_record
 
 logger = utils_logging.getLogger(logging.INFO)

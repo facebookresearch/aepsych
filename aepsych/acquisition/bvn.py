@@ -7,8 +7,8 @@
 
 from math import pi as _pi
 from typing import Tuple
-import torch
 
+import torch
 
 inv_2pi = 1 / (2 * _pi)
 _neg_inv_sqrt2 = -1 / (2**0.5)

@@ -6,4 +6,8 @@ build-backend = "setuptools.build_meta"
 first_party_detection = false
 
 [tool.black]
-target-version = ["py38"]
+target-version = ["py310"]
+
+[tool.ufmt]
+formatter = "ruff-api"
+sorter = "usort"

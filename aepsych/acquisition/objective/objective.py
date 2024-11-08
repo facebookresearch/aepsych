@@ -60,7 +60,7 @@ class FloorLinkObjective(AEPsychObjective):
     the probability is known not to go below it.
     """
 
-    def __init__(self, floor: float=0.5) -> None:
+    def __init__(self, floor: float = 0.5) -> None:
         self.floor = floor
         super().__init__()
 

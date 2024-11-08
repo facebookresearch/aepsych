@@ -9,7 +9,6 @@ from datetime import datetime
 
 import numpy as np
 
-
 constants = {
     "savefolder": "./databases/",
     "timestamp": datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),

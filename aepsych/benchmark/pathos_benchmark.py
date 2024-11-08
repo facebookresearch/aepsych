@@ -96,7 +96,6 @@ class PathosBenchmark(Benchmark):
         try:
             return super().run_experiment(problem, local_config, seed, rep)
         except Exception as e:
-
             logging.error(
                 f"Error on config {config_dict}: {e}!"
                 + f"Traceback follows:\n{traceback.format_exc()}"
@@ -229,7 +228,7 @@ def run_benchmarks_with_checkpoints(
         final_results = bench.pandas()
         final_results.to_csv(out_fname)
     else:
-        for chunk in range(start_idx, n_chunks+start_idx):
+        for chunk in range(start_idx, n_chunks + start_idx):
             out_fname = Path(f"{out_path}/{benchmark_name}_chunk{chunk}_out.csv")
 
             intermediate_fname = Path(

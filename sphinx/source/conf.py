@@ -12,7 +12,6 @@
 # LICENSE file in the scripts directory.
 
 
-
 # -- Path setup --------------------------------------------------------------
 
 import os

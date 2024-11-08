@@ -9,7 +9,6 @@ import numpy as np
 import pyglet
 from psychopy import core, event
 from psychopy.visual import Window
-
 from psychopy.visual.image import ImageStim
 
 pyglet.options["debug_gl"] = False
@@ -27,7 +26,7 @@ def cartesian_to_polar(x, y):
 
 
 class AnimatedGrating:
-    param_transforms = {"contrast": lambda x: 10 ** x, "pedestal": lambda x: 10 ** x}
+    param_transforms = {"contrast": lambda x: 10**x, "pedestal": lambda x: 10**x}
 
     def __init__(
         self,
@@ -184,15 +183,15 @@ class HalfGrating(AnimatedGrating):
         img = img.T  # transpose so our indexing tricks work
         flatimg = img.flatten()
         if noisy_half == "left":
-            noisy = flatimg[: (self.res ** 2) // 2]
+            noisy = flatimg[: (self.res**2) // 2]
             np.random.shuffle(noisy)
-            img = np.r_[noisy, flatimg[(self.res ** 2) // 2 :]].reshape(
+            img = np.r_[noisy, flatimg[(self.res**2) // 2 :]].reshape(
                 self.res, self.res
             )
         else:
-            noisy = flatimg[(self.res ** 2) // 2 :]
+            noisy = flatimg[(self.res**2) // 2 :]
             np.random.shuffle(noisy)
-            img = np.r_[flatimg[: (self.res ** 2) // 2], noisy].reshape(
+            img = np.r_[flatimg[: (self.res**2) // 2], noisy].reshape(
                 self.res, self.res
             )
         return img.T  # untranspose

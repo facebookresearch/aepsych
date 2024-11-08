@@ -260,7 +260,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         self.assertTrue(np.allclose(ls_before, ls_reset))
 
     def test_reset_variational_strategy(self):
-
         model = GPClassificationModel(lb=[-3], ub=[3], inducing_size=20)
 
         variational_params_before = [
@@ -315,7 +314,6 @@ class GPClassificationSmoketest(unittest.TestCase):
 
 class GPClassificationTest(unittest.TestCase):
     def test_1d_single_probit_new_interface(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -362,7 +360,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit_batched(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -408,7 +405,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -453,7 +449,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(x[np.argmax(zhat.detach().numpy())]) < 0.5)
 
     def test_1d_single_probit_pure_exploration(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -550,7 +545,6 @@ class GPClassificationTest(unittest.TestCase):
         )
 
     def test_1d_single_targeting(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -660,7 +654,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(est_jnd_taylor - 1.5) < 0.25)
 
     def test_1d_single_lse(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -710,7 +703,6 @@ class GPClassificationTest(unittest.TestCase):
         self.assertTrue(np.abs(est_max - norm.ppf(0.75)) < 0.5)
 
     def test_2d_single_probit(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
