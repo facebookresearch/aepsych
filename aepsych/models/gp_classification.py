@@ -118,6 +118,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         )
         self.last_inducing_points_method = "DummyAllocator"
 
+
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
         ).to(inducing_points)

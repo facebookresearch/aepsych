@@ -57,7 +57,6 @@ class TestInducingPointAllocators(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
         allocator = KMeansAllocator.from_config(config)
-
         # No specific configuration to check, just test instantiation
         self.assertTrue(isinstance(allocator, KMeansAllocator))
 

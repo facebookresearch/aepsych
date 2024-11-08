@@ -120,7 +120,6 @@ def select_inducing_points(
                 num_inducing=inducing_size,
                 input_batch_shape=torch.Size([]),
             ).to(X.device)
-
         elif allocator == "kmeans++":
             inducing_points = torch.tensor(
                 kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],
