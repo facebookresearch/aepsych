@@ -1012,6 +1012,10 @@ class ConfigTestCase(unittest.TestCase):
             [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
+
+            [SobolAllocator]
+            bounds = [[0.0, 1.0], [0.0, 1.0]]
+
             """
 
         config = Config()
@@ -1027,7 +1031,12 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(model.dim == 2)
         self.assertTrue(model.inducing_size == 10)
         self.assertTrue(model.stim_dim == 1)
-        self.assertTrue(model.inducing_point_method == SobolAllocator)
+        
+        # Verify the allocator and bounds
+        self.assertTrue(isinstance(model.inducing_point_method, SobolAllocator))
+        expected_bounds = torch.tensor([[0.0, 1.0], [0.0, 1.0]], dtype=torch.float64)
+        self.assertTrue(torch.equal(model.inducing_point_method.bounds, expected_bounds))
+
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
 
