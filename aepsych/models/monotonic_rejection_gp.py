@@ -54,8 +54,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     def __init__(
         self,
         monotonic_idxs: Sequence[int],
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         mean_module: Optional[Mean] = None,
         covar_module: Optional[Kernel] = None,
@@ -95,9 +95,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         else:
             self.inducing_point_method = inducing_point_method
         inducing_points = select_inducing_points(
-            allocator=SobolAllocator(),
-            inducing_size=self.inducing_size,
-            bounds=self.bounds,
+            allocator=SobolAllocator(bounds=torch.stack((self.lb, self.ub))),
+            inducing_size=self.inducing_size
         )
 
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)

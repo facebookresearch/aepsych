@@ -55,53 +55,76 @@ def compute_p_quantile(
 
 def select_inducing_points(
     inducing_size: int,
-    allocator: Optional[InducingPointAllocator],
+    allocator: Union[str, InducingPointAllocator],
     covar_module: Optional[torch.nn.Module] = None,
     X: Optional[torch.Tensor] = None,
     bounds: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     """
-    Select inducing points using a specified allocator instance.
+    Select inducing points using a specified allocator instance or legacy method.
 
     Args:
-        allocator (InducingPointAllocator): A pre-configured instance of an inducing point allocator.
         inducing_size (int): Number of inducing points.
+        allocator (Union[str, InducingPointAllocator]): An inducing point allocator or a legacy string indicating method.
         covar_module (torch.nn.Module, optional): Covariance module, required for some allocators.
         X (torch.Tensor, optional): Input data tensor, required for most allocators.
-        bounds (torch.Tensor): Bounds for Sobol allocator.
+        bounds (torch.Tensor, optional): Bounds for Sobol sampling in legacy mode.
 
     Returns:
         torch.Tensor: Selected inducing points.
     """
-    # Ensure allocator is provided, otherwise use AutoAllocator
-    if allocator is None:
-        allocator = AutoAllocator()
-    
-    
-    # Ensure required inputs are provided for certain allocators
-    if isinstance(allocator, SobolAllocator):
-        assert bounds is not None, "Bounds must be provided for Sobol allocator!"
-    else:
-        assert X is not None, "Must pass X for non-Sobol inducing point selection!"
+    # Handle legacy string methods with a deprecation warning
+    if isinstance(allocator, str):
+        warnings.warn(
+            f"Using string '{allocator}' for inducing point method is deprecated. "
+            "Please use an InducingPointAllocator class instead.",
+            DeprecationWarning
+        )
+        
+        if allocator == "sobol":
+            assert bounds is not None, "Bounds must be provided for Sobol inducing points!"
+            inducing_points = draw_sobol_samples(bounds=bounds, n=inducing_size, q=1).squeeze().to(bounds.device)
+            if inducing_points.ndim == 1:
+                inducing_points = inducing_points.view(-1, 1)
+            return inducing_points
 
-    # Call allocate_inducing_points with or without bounds based on allocator type
-    if isinstance(allocator, SobolAllocator):
-        # Pass bounds explicitly for SobolAllocator
-        inducing_points = allocator.allocate_inducing_points(
-            inputs=X,
-            covar_module=covar_module,
-            num_inducing=inducing_size,
-            input_batch_shape=torch.Size([]),
-            bounds=bounds,  # type: ignore
-        )
-    else:
-        # Call allocate_inducing_points without bounds for other allocators
-        inducing_points = allocator.allocate_inducing_points(
-            inputs=X,
-            covar_module=covar_module,
-            num_inducing=inducing_size,
-            input_batch_shape=torch.Size([]),
-        )
+        assert X is not None, "Must pass X for non-Sobol inducing point selection!"
+        
+        unique_X = torch.unique(X, dim=0)
+        if allocator == "auto":
+            if unique_X.shape[0] <= inducing_size:
+                return unique_X
+            else:
+                allocator = "kmeans++"
+
+        if allocator == "pivoted_chol":
+            inducing_point_allocator = GreedyVarianceReduction()
+            inducing_points = inducing_point_allocator.allocate_inducing_points(
+                inputs=X,
+                covar_module=covar_module,
+                num_inducing=inducing_size,
+                input_batch_shape=torch.Size([]),
+            ).to(X.device)
+        
+        elif allocator == "kmeans++":
+            inducing_points = torch.tensor(
+                kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],
+                dtype=X.dtype,
+            ).to(X.device)
+
+        return inducing_points
+
+    # Otherwise, handle allocator as an instance of InducingPointAllocator
+    if allocator is None:
+        allocator = AutoAllocator()  # Default to AutoAllocator if none specified
+
+    # Call allocate_inducing_points with allocator instance
+    inducing_points = allocator.allocate_inducing_points(
+        inputs=X,
+        covar_module=covar_module,
+        num_inducing=inducing_size,
+        input_batch_shape=torch.Size([]),
+    )
 
     return inducing_points
 

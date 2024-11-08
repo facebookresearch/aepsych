@@ -17,8 +17,9 @@ from aepsych.config import Config
 class SobolAllocator(InducingPointAllocator):
     """An inducing point allocator that uses Sobol sequences to allocate inducing points."""
 
-    def __init__(self) -> None:
+    def __init__(self, bounds) -> None:
         """Initialize the SobolAllocator without bounds."""
+        self.bounds = bounds
         super().__init__()
 
     
@@ -30,7 +31,6 @@ class SobolAllocator(InducingPointAllocator):
 
     def allocate_inducing_points(
         self,
-        bounds: torch.Tensor,
         inputs: Optional[torch.Tensor] = None,
         covar_module: Optional[torch.nn.Module] = None,
         num_inducing: int = 10,
@@ -42,8 +42,6 @@ class SobolAllocator(InducingPointAllocator):
 
         Args:
             inputs (torch.Tensor): Input tensor, not required for Sobol sampling.
-            bounds (torch.Tensor): A (2, d) tensor specifying lower and upper bounds
-                for each dimension.
             covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
             num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.
             input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
@@ -57,10 +55,10 @@ class SobolAllocator(InducingPointAllocator):
         """
        
         # Validate bounds shape
-        assert bounds.shape[0] == 2, "Bounds must have shape (2, d) for Sobol sampling."
+        assert self.bounds.shape[0] == 2, "Bounds must have shape (2, d) for Sobol sampling."
 
         # Generate Sobol samples within the unit cube [0,1]^d and rescale to [bounds[0], bounds[1]]
-        inducing_points = draw_sobol_samples(bounds=bounds, n=num_inducing, q=1).squeeze()
+        inducing_points = draw_sobol_samples(bounds=self.bounds, n=num_inducing, q=1).squeeze()
 
         # Ensure correct shape in case Sobol sampling returns a 1D tensor
         if inducing_points.ndim == 1:
@@ -69,9 +67,9 @@ class SobolAllocator(InducingPointAllocator):
         return inducing_points   
     
     @classmethod
-    def from_config(cls, config:Config) -> 'SobolAllocator':
-        """Create a SobolAllocator from a configuration object."""
-        return cls()
+    def from_config(cls, config: Config) -> 'SobolAllocator':
+        bounds = config.gettensor(cls.__name__, "bounds", fallback=None)
+        return cls(bounds=bounds)
 
 class KMeansAllocator(InducingPointAllocator):
 
@@ -184,8 +182,12 @@ class AutoAllocator(InducingPointAllocator):
             input_batch_shape=input_batch_shape,
         )
     @classmethod
-    def from_config(cls, config:Config) -> 'AutoAllocator':
+    def from_config(cls, config: Config) -> 'AutoAllocator':
         """Create an AutoAllocator from a configuration object."""
-        fallback_allocator = config.getobj(cls.__name__, "fallback_allocator", fallback=KMeansAllocator())
+        fallback_allocator_cls = config.getobj(cls.__name__, "fallback_allocator", fallback=KMeansAllocator)
+        if hasattr(fallback_allocator_cls, 'from_config'):
+            fallback_allocator = fallback_allocator_cls.from_config(config)
+        else:
+            fallback_allocator = fallback_allocator_cls()
         return cls(fallback_allocator=fallback_allocator)
 

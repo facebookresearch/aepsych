@@ -203,10 +203,14 @@ class MonotonicProjectionGP(GPClassificationModel):
         mean, covar = mean_covar_factory(config)
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.getobj(
-            classname, "inducing_point_method", fallback=AutoAllocator()
+        inducing_point_method_class = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator
         )
-
+        # Check if allocator class has a `from_config` method
+        if hasattr(inducing_point_method_class, 'from_config'):
+            inducing_point_method = inducing_point_method_class.from_config(config)
+        else:
+            inducing_point_method = inducing_point_method_class()
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
 
         if likelihood_cls is not None:

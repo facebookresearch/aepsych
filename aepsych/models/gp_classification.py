@@ -100,8 +100,10 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
-            allocator = SobolAllocator(),inducing_size=self.inducing_size, bounds=torch.stack((lb, ub))
+            allocator=SobolAllocator(bounds=torch.stack((lb, ub))),
+            inducing_size=self.inducing_size
         )
+
 
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -158,10 +160,15 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         mean, covar = mean_covar_factory(config)
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.getobj(
-            classname, "inducing_point_method", fallback=AutoAllocator()
+        inducing_point_method_class = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator
         )
-
+        # Check if allocator class has a `from_config` method
+        if hasattr(inducing_point_method_class, 'from_config'):
+            inducing_point_method = inducing_point_method_class.from_config(config)
+        else:
+            inducing_point_method = inducing_point_method_class()
+        
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
 
         if likelihood_cls is not None:
