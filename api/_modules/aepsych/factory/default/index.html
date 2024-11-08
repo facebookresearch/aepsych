@@ -30,7 +30,6 @@
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
-
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">__default_invgamma_concentration</span><span class="p">,</span> <span class="n">__default_invgamma_rate</span>
@@ -112,7 +111,6 @@
     <span class="n">stimuli_per_trial</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">active_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">:</span>
-
     <span class="c1"># default priors</span>
     <span class="n">lengthscale_prior</span> <span class="o">=</span> <span class="s2">"lognormal"</span> <span class="k">if</span> <span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">"gamma"</span>
     <span class="n">ls_loc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>

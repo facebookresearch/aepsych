@@ -54,7 +54,6 @@
 
 <div class="viewcode-block" id="PySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket">[docs]</a><span class="k">class</span> <span class="nc">PySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
-
         <span class="n">addr</span> <span class="o">=</span> <span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>  <span class="c1"># all interfaces</span>
         <span class="k">if</span> <span class="n">socket</span><span class="o">.</span><span class="n">has_dualstack_ipv6</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span>
@@ -90,7 +89,6 @@
                         <span class="k">raise</span> <span class="ne">Exception</span></div>
 
 <div class="viewcode-block" id="PySocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_exiting</span><span class="p">):</span>
-
         <span class="k">while</span> <span class="ow">not</span> <span class="n">server_exiting</span><span class="p">:</span>
             <span class="n">rlist</span><span class="p">,</span> <span class="n">wlist</span><span class="p">,</span> <span class="n">xlist</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span>

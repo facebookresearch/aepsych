@@ -114,7 +114,6 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run_experiment</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">local_config</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">rep</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-
             <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Error on config </span><span class="si">{</span><span class="n">config_dict</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">!"</span>
                 <span class="o">+</span> <span class="sa">f</span><span class="s2">"Traceback follows:</span><span class="se">\n</span><span class="si">{</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
@@ -247,7 +246,7 @@
         <span class="n">final_results</span> <span class="o">=</span> <span class="n">bench</span><span class="o">.</span><span class="n">pandas</span><span class="p">()</span>
         <span class="n">final_results</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out_fname</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">n_chunks</span><span class="o">+</span><span class="n">start_idx</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">n_chunks</span> <span class="o">+</span> <span class="n">start_idx</span><span class="p">):</span>
             <span class="n">out_fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">benchmark_name</span><span class="si">}</span><span class="s2">_chunk</span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">_out.csv"</span><span class="p">)</span>
 
             <span class="n">intermediate_fname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>

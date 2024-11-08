@@ -53,7 +53,6 @@
         <span class="n">model</span><span class="p">:</span> <span class="n">SemiParametricGPModel</span><span class="p">,</span>  <span class="c1"># type: ignore[override]</span>
         <span class="n">context_objective</span><span class="p">:</span> <span class="n">Type</span> <span class="o">=</span> <span class="n">SemiPThresholdObjective</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-
         <span class="n">fixed_features</span> <span class="o">=</span> <span class="p">{</span><span class="n">model</span><span class="o">.</span><span class="n">stim_dim</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
         <span class="n">next_x</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span>
             <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">fixed_features</span><span class="o">=</span><span class="n">fixed_features</span>

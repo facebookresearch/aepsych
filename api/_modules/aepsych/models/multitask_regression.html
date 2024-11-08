@@ -27,11 +27,9 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">import</span> <span class="nn">gpytorch</span>
-
 <span class="kn">import</span> <span class="nn">torch</span>
-
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.models</span> <span class="kn">import</span> <span class="n">GPRegressionModel</span>
 
 
@@ -96,7 +94,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">,</span> <span class="n">num_tasks</span><span class="o">=</span><span class="n">num_outputs</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">rank</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="MultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.MultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
+<div class="viewcode-block" id="MultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.MultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
         <span class="n">transformed_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_inputs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">mean_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
         <span class="n">covar_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
@@ -168,7 +168,9 @@
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>  <span class="c1"># type: ignore # mypy issue 4335</span>
 
-<div class="viewcode-block" id="IndependentMultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.IndependentMultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
+<div class="viewcode-block" id="IndependentMultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.IndependentMultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
         <span class="n">base_mvn</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># do transforms</span>
         <span class="k">return</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="o">.</span><span class="n">from_batch_mvn</span><span class="p">(</span>
             <span class="n">base_mvn</span>

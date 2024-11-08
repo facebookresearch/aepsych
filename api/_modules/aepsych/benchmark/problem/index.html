@@ -23,14 +23,14 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">aepsych</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">bernoulli</span>
 <span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">SequentialStrategy</span><span class="p">,</span> <span class="n">Strategy</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">make_scaled_sobol</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">bernoulli</span>
 
 
 <div class="viewcode-block" id="Problem"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem">[docs]</a><span class="k">class</span> <span class="nc">Problem</span><span class="p">:</span>
@@ -82,8 +82,9 @@
         <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Standard normal distribution</span>
         <span class="k">return</span> <span class="n">normal_dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>  <span class="c1"># Use PyTorch's CDF equivalent</span></div>
 
-
-<div class="viewcode-block" id="Problem.sample_y"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.sample_y">[docs]</a>    <span class="k">def</span> <span class="nf">sample_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="c1"># TODO: This can be done with  torch.bernoulli(self.p(x)), but Strategy.add_data() expects a numpy array for now</span>
+<div class="viewcode-block" id="Problem.sample_y"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.sample_y">[docs]</a>    <span class="k">def</span> <span class="nf">sample_y</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>  <span class="c1"># TODO: This can be done with  torch.bernoulli(self.p(x)), but Strategy.add_data() expects a numpy array for now</span>
 <span class="w">        </span><span class="sd">"""Sample a response from test function.</span>
 
 <span class="sd">        Args:</span>
@@ -122,8 +123,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Values of true response probability over evaluation grid.</span>
 <span class="sd">        """</span>
-        <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> 
-        <span class="k">return</span> <span class="n">normal_dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">)</span>  
+        <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normal_dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Problem.p_hat"><a class="viewcode-back" href="../../../benchmark.html#aepsych.benchmark.problem.Problem.p_hat">[docs]</a>    <span class="k">def</span> <span class="nf">p_hat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">aepsych</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Generate mean predictions from the model over the evaluation grid.</span>
@@ -173,11 +174,15 @@
         <span class="n">mae_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span> <span class="o">-</span> <span class="n">f_hat</span><span class="p">))</span>
         <span class="n">mse_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span> <span class="o">-</span> <span class="n">f_hat</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">max_abs_err_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span> <span class="o">-</span> <span class="n">f_hat</span><span class="p">))</span>
-        <span class="n">corr_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">f_hat</span><span class="o">.</span><span class="n">flatten</span><span class="p">())))[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">corr_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">f_hat</span><span class="o">.</span><span class="n">flatten</span><span class="p">())))[</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="p">]</span>
         <span class="n">mae_p</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">))</span>
         <span class="n">mse_p</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">max_abs_err_p</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">))</span>
-        <span class="n">corr_p</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">p_hat</span><span class="o">.</span><span class="n">flatten</span><span class="p">())))[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">corr_p</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">p_hat</span><span class="o">.</span><span class="n">flatten</span><span class="p">())))[</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="p">]</span>
         <span class="n">brier</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span> <span class="o">-</span> <span class="n">p_hat</span><span class="p">))</span>
 
         <span class="c1"># eval in samp-based expectation over posterior instead of just mean</span>
@@ -185,12 +190,13 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">psamps</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-                
             <span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span>
             <span class="ne">TypeError</span>
         <span class="p">):</span>  <span class="c1"># vanilla models don't have proba_space samps, TODO maybe we should add them</span>
-            <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Standard normal distribution</span>
+            <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+            <span class="p">)</span>  <span class="c1"># Standard normal distribution</span>
             <span class="n">psamps</span> <span class="o">=</span> <span class="n">normal_dist</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fsamps</span><span class="p">)</span>
 
         <span class="n">ferrs</span> <span class="o">=</span> <span class="n">fsamps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
@@ -204,21 +210,21 @@
         <span class="n">expected_brier</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_true</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">psamps</span><span class="p">)))</span>
 
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"mean_abs_err_f"</span><span class="p">:</span> <span class="n">mae_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"mean_integrated_abs_err_f"</span><span class="p">:</span> <span class="n">miae_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"mean_square_err_f"</span><span class="p">:</span> <span class="n">mse_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"mean_integrated_square_err_f"</span><span class="p">:</span> <span class="n">mise_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"max_abs_err_f"</span><span class="p">:</span> <span class="n">max_abs_err_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"pearson_corr_f"</span><span class="p">:</span> <span class="n">corr_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"mean_abs_err_p"</span><span class="p">:</span> <span class="n">mae_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"mean_integrated_abs_err_p"</span><span class="p">:</span> <span class="n">miae_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"mean_square_err_p"</span><span class="p">:</span> <span class="n">mse_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"mean_integrated_square_err_p"</span><span class="p">:</span> <span class="n">mise_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"max_abs_err_p"</span><span class="p">:</span> <span class="n">max_abs_err_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"pearson_corr_p"</span><span class="p">:</span> <span class="n">corr_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"brier"</span><span class="p">:</span> <span class="n">brier</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="s2">"expected_brier"</span><span class="p">:</span> <span class="n">expected_brier</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-    <span class="p">}</span>
+            <span class="s2">"mean_abs_err_f"</span><span class="p">:</span> <span class="n">mae_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"mean_integrated_abs_err_f"</span><span class="p">:</span> <span class="n">miae_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"mean_square_err_f"</span><span class="p">:</span> <span class="n">mse_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"mean_integrated_square_err_f"</span><span class="p">:</span> <span class="n">mise_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"max_abs_err_f"</span><span class="p">:</span> <span class="n">max_abs_err_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"pearson_corr_f"</span><span class="p">:</span> <span class="n">corr_f</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"mean_abs_err_p"</span><span class="p">:</span> <span class="n">mae_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"mean_integrated_abs_err_p"</span><span class="p">:</span> <span class="n">miae_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"mean_square_err_p"</span><span class="p">:</span> <span class="n">mse_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"mean_integrated_square_err_p"</span><span class="p">:</span> <span class="n">mise_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"max_abs_err_p"</span><span class="p">:</span> <span class="n">max_abs_err_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"pearson_corr_p"</span><span class="p">:</span> <span class="n">corr_p</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"brier"</span><span class="p">:</span> <span class="n">brier</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+            <span class="s2">"expected_brier"</span><span class="p">:</span> <span class="n">expected_brier</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">metrics</span></div></div>
 
@@ -255,15 +261,12 @@
                 <span class="k">return</span> <span class="n">inverse_torch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+
             <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-                <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  
+                <span class="n">normal_dist</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">normal_dist</span><span class="o">.</span><span class="n">icdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        
         <span class="k">return</span> <span class="n">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>  <span class="c1"># Return as float32 tensor</span></div>
-
-
-
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">true_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -302,9 +305,7 @@
         <span class="c1"># define what "threshold" means in high-dim.</span>
 
         <span class="c1"># Brier score on level-set probabilities</span>
-        <span class="n">p_l</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_below_threshold</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_threshold</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">p_l</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">p_below_threshold</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_threshold</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
         <span class="n">true_p_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_below_threshold</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">p_l</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span>
@@ -316,12 +317,16 @@
         <span class="n">brier_p_below_thresh</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">true_p_l</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Classification error</span>
         <span class="n">misclass_on_thresh</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
-        <span class="n">p_l</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">true_p_l</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">)</span> <span class="o">*</span> <span class="n">true_p_l</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+            <span class="n">p_l</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">true_p_l</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_l</span><span class="p">)</span> <span class="o">*</span> <span class="n">true_p_l</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i_threshold</span><span class="p">,</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">):</span>
-            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">"brier_p_below_</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">brier_p_below_thresh</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">i_threshold</span><span class="p">]</span>
-            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">"misclass_on_thresh_</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">misclass_on_thresh</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">i_threshold</span><span class="p">]</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">"brier_p_below_</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">brier_p_below_thresh</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">i_threshold</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="sa">f</span><span class="s2">"misclass_on_thresh_</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">misclass_on_thresh</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="n">i_threshold</span><span class="p">]</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">metrics</span></div></div>
 
 
