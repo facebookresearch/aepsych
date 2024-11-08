@@ -17,6 +17,7 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 import numpy as np
 from aepsych.config import Config
 from aepsych.models.monotonic_projection_gp import MonotonicProjectionGP
+from aepsych.transforms import ParameterTransformedModel
 from sklearn.datasets import make_classification
 
 
@@ -38,7 +39,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         X, y = self.X, self.y
         config_str = """
         [common]
-        parnames = [x, y]
+        parnames = [x, y, z]
         lb = [-4, -4, -4]
         ub = [4, 4, 4]
         stimuli_per_trial = 1
@@ -59,7 +60,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         fixed_kernel_amplitude = False
         """
         config = Config(config_str=config_str)
-        model = MonotonicProjectionGP.from_config(config)
+        model = ParameterTransformedModel.from_config(config, "init_strat")
         model.fit(X, y)
 
         # Check that it is monotonic in both dims
@@ -78,7 +79,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         # Check that min_f_val is respected
         config_str = """
         [common]
-        parnames = [x, y]
+        parnames = [x, y, z]
         lb = [-4, -4, -4]
         ub = [4, 4, 4]
         stimuli_per_trial = 1
@@ -100,7 +101,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         fixed_kernel_amplitude = False
         """
         config = Config(config_str=config_str)
-        model = MonotonicProjectionGP.from_config(config)
+        model = ParameterTransformedModel.from_config(config, "init_strat")
         post = model.posterior(Xtest)
         mu = post.mean.squeeze()
         self.assertTrue(mu.min().item() >= 4.9)

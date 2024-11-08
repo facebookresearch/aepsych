@@ -69,7 +69,7 @@ class ModelProtocol(Protocol):
     def device(self) -> torch.device:
         pass
 
-    def posterior(self, x: torch.Tensor) -> GPyTorchPosterior:
+    def posterior(self, X: torch.Tensor) -> GPyTorchPosterior:
         pass
 
     def predict(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
@@ -108,7 +108,9 @@ class ModelProtocol(Protocol):
     ) -> None:
         pass
 
-    def p_below_threshold(self, x, f_thresh) -> torch.Tensor:
+    def p_below_threshold(
+        self, x: torch.Tensor, f_thresh: torch.Tensor
+    ) -> torch.Tensor:
         pass
 
 

@@ -30,6 +30,7 @@ class ConfigTestCase(unittest.TestCase):
             
             [gpu_strategy]
             model = GPClassificationModel
+            generator = SobolGenerator
             
             [GPClassificationModel]
             use_gpu = True

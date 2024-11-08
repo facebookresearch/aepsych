@@ -12,6 +12,7 @@ import numpy.testing as npt
 
 from aepsych.config import Config
 from aepsych.generators import ManualGenerator, SampleAroundPointsGenerator
+from aepsych.transforms import ParameterTransformedGenerator
 
 
 class TestManualGenerator(unittest.TestCase):
@@ -35,12 +36,15 @@ class TestManualGenerator(unittest.TestCase):
         self.assertEqual(acq4.shape, (4, 3))
 
     def test_manual_generator(self):
-        points = [[0, 0], [0, 1], [1, 0], [1, 1]]
+        points = [[10, 10], [10, 11], [11, 10], [11, 11]]
         config_str = f"""
                 [common]
-                lb = [0, 0]
-                ub = [1, 1]
+                lb = [10, 10]
+                ub = [11, 11]
                 parnames = [par1, par2]
+
+                [init_strat]
+                generator = ManualGenerator
 
                 [ManualGenerator]
                 points = {points}
@@ -48,9 +52,10 @@ class TestManualGenerator(unittest.TestCase):
                 """
         config = Config()
         config.update(config_str=config_str)
-        gen = ManualGenerator.from_config(config)
-        npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
-        npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
+        # gen = ManualGenerator.from_config(config)
+        gen = ParameterTransformedGenerator.from_config(config, "init_strat")
+        npt.assert_equal(gen.lb.numpy(), np.array([10, 10]))
+        npt.assert_equal(gen.ub.numpy(), np.array([11, 11]))
         self.assertFalse(gen.finished)
 
         p1 = list(gen.gen()[0])

@@ -11,7 +11,16 @@ import torch
 
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 
-from . import acquisition, config, factory, generators, models, strategy, utils
+from . import (
+    acquisition,
+    config,
+    factory,
+    generators,
+    models,
+    strategy,
+    transforms,
+    utils,
+)
 from .config import Config
 from .likelihoods import BernoulliObjectiveLikelihood
 from .models import GPClassificationModel
@@ -26,6 +35,7 @@ __all__ = [
     "factory",
     "models",
     "strategy",
+    "transforms",
     "utils",
     "generators",
     # classes
