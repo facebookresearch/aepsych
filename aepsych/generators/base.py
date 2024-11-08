@@ -4,19 +4,19 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 import abc
-from inspect import signature
-from typing import Any, Dict, Generic, Protocol, runtime_checkable, TypeVar, Optional
 import re
+from inspect import signature
+from typing import Any, Dict, Generic, Optional, Protocol, runtime_checkable, TypeVar
 
 import torch
 from aepsych.config import Config
 from aepsych.models.base import AEPsychMixin
 from botorch.acquisition import (
     AcquisitionFunction,
-    NoisyExpectedImprovement,
-    qNoisyExpectedImprovement,
     LogNoisyExpectedImprovement,
+    NoisyExpectedImprovement,
     qLogNoisyExpectedImprovement,
+    qNoisyExpectedImprovement,
 )
 
 
@@ -43,6 +43,9 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     stimuli_per_trial = 1
     max_asks: Optional[int] = None
 
+    acqf: AcquisitionFunction
+    acqf_kwargs: Dict[str, Any]
+
     def __init__(
         self,
     ) -> None:
@@ -58,7 +61,9 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
         pass
 
     @classmethod
-    def _get_acqf_options(cls, acqf: AcquisitionFunction, config: Config) -> Dict[str, Any]:
+    def _get_acqf_options(
+        cls, acqf: AcquisitionFunction, config: Config
+    ) -> Dict[str, Any]:
         if acqf is not None:
             acqf_name = acqf.__name__
 
@@ -81,7 +86,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                         elif re.search(
                             r"^\[.*\]$", v, flags=re.DOTALL
                         ):  # use regex to check if the value is a list
-                            extra_acqf_args[k] = config._str_to_list(v) # type: ignore
+                            extra_acqf_args[k] = config._str_to_list(v)  # type: ignore
                         else:
                             # otherwise try a float
                             try:
