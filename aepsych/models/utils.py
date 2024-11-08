@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import warnings
-
 from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
@@ -24,13 +23,12 @@ from botorch.posteriors import GPyTorchPosterior
 from botorch.utils.sampling import draw_sobol_samples
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import Kernel
-from gpytorch.likelihoods import BernoulliLikelihood
+from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from scipy.cluster.vq import kmeans2
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch import Tensor
 from torch.distributions import Normal
-from gpytorch.likelihoods import Likelihood
 
 
 def compute_p_quantile(
@@ -62,11 +60,14 @@ def select_inducing_points(
     method: str = "auto",
 ) -> torch.Tensor:
     with torch.no_grad():
-        assert method in (
-            "pivoted_chol",
-            "kmeans++",
-            "auto",
-            "sobol",
+        assert (
+            method
+            in (
+                "pivoted_chol",
+                "kmeans++",
+                "auto",
+                "sobol",
+            )
         ), f"Inducing point method should be one of pivoted_chol, kmeans++, sobol, or auto; got {method}"
 
         if method == "sobol":
@@ -107,7 +108,9 @@ def select_inducing_points(
         return inducing_points
 
 
-def get_probability_space(likelihood: Likelihood, posterior: GPyTorchPosterior) -> Tuple[torch.Tensor, torch.Tensor]:
+def get_probability_space(
+    likelihood: Likelihood, posterior: GPyTorchPosterior
+) -> Tuple[torch.Tensor, torch.Tensor]:
     fmean = posterior.mean.squeeze()
     fvar = posterior.variance.squeeze()
     if isinstance(likelihood, BernoulliLikelihood):

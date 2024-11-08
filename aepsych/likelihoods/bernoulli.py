@@ -25,7 +25,9 @@ class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood):
         super().__init__()
         self.objective = objective
 
-    def forward(self, function_samples: torch.Tensor, **kwargs: Any) -> torch.distributions.Bernoulli:
+    def forward(
+        self, function_samples: torch.Tensor, **kwargs: Any
+    ) -> torch.distributions.Bernoulli:
         """Forward pass for BernoulliObjectiveLikelihood.
 
         Args:
@@ -38,7 +40,7 @@ class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood):
         return torch.distributions.Bernoulli(probs=output_probs)
 
     @classmethod
-    def from_config(cls, config: Config) -> 'BernoulliObjectiveLikelihood':
+    def from_config(cls, config: Config) -> "BernoulliObjectiveLikelihood":
         """Create an instance from a configuration object.
         
         Args:

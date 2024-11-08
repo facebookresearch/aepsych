@@ -12,10 +12,11 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
+from botorch.acquisition import AcquisitionFunction
 from botorch.logging import logger
 from botorch.optim.initializers import gen_batch_initial_conditions
 from botorch.optim.utils import columnwise_clamp, fix_features
-from botorch.acquisition import AcquisitionFunction
+
 
 def default_loss_constraint_fun(
     loss: torch.Tensor, candidates: torch.Tensor
@@ -63,7 +64,9 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.model_gen_options = model_gen_options
         self.explore_features = explore_features
 
-    def _instantiate_acquisition_fn(self, model: MonotonicRejectionGP) -> AcquisitionFunction:
+    def _instantiate_acquisition_fn(
+        self, model: MonotonicRejectionGP
+    ) -> AcquisitionFunction:
         return self.acqf(
             model=model,
             deriv_constraint_points=model._get_deriv_constraint_points(),
@@ -166,7 +169,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         return Xopt
 
     @classmethod
-    def from_config(cls, config: Config) -> 'MonotonicRejectionGenerator':
+    def from_config(cls, config: Config) -> "MonotonicRejectionGenerator":
         classname = cls.__name__
         acqf = config.getobj("common", "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
@@ -182,7 +185,9 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         options["nesterov"] = config.getboolean(classname, "nesterov", fallback=True)
         options["epochs"] = config.getint(classname, "epochs", fallback=50)
         options["milestones"] = config.getlist(
-            classname, "milestones", fallback=[25, 40]  # type: ignore
+            classname,
+            "milestones",
+            fallback=[25, 40],  # type: ignore
         )
         options["gamma"] = config.getfloat(classname, "gamma", fallback=0.1)  # type: ignore
         options["loss_constraint_fun"] = config.getobj(

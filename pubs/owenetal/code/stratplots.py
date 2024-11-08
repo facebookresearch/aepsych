@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from aepsych.benchmark import (
-    Problem,
-    LSEProblem,
-    BenchmarkLogger,
     Benchmark,
+    BenchmarkLogger,
     combine_benchmarks,
+    LSEProblem,
+    Problem,
 )
 from aepsych.benchmark.test_functions import (
     make_songetal_testfun,
@@ -151,7 +151,7 @@ def plot_audiometric_lse_grids(
             logx=True,
             show=False,
             include_legend=False,
-            include_colorbar=False
+            include_colorbar=False,
         )
         for ax_, strat_, title_ in zip(plotting_axes, strats, titles)
     ]
@@ -287,7 +287,7 @@ def plot_novel_lse_grids(sobol_trials, opt_trials, funtype="detection"):
             no_label=no_label,
             show=False,
             include_legend=False,
-            include_colorbar=False
+            include_colorbar=False,
         )
         for ax_, strat_, title_ in zip(plotting_axes, strats, titles)
     ]
@@ -384,7 +384,7 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
         true_testfun=true_testfun,
         target_level=target_level,
         show=False,
-        include_legend=False
+        include_legend=False,
     )
     samps = [
         norm.cdf(s.sample(torch.Tensor(g), num_samples=10000))
@@ -418,7 +418,13 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
 
     _ = [
         plot_strat(
-            strat=s, title=t, ax=a, true_testfun=true_testfun, target_level=target_level, show=False, include_legend=False
+            strat=s,
+            title=t,
+            ax=a,
+            true_testfun=true_testfun,
+            target_level=target_level,
+            show=False,
+            include_legend=False,
         )
         for a, s, t in zip(plotting_axes, strats, titles)
     ]
@@ -430,7 +436,6 @@ def plot_acquisition_examples(sobol_trials, opt_trials, target_level=0.75):
 
 
 if __name__ == "__main__":
-
     audio_lse_grids_fig = plot_audiometric_lse_grids(sobol_trials=5, opt_trials=45)
     audio_lse_grids_fig.savefig(fname=figdir + "audio_lse_grids_fig.pdf", dpi=200)
     novel_detection_lse_grids_fig = plot_novel_lse_grids(

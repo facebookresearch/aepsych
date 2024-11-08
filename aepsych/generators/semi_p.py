@@ -35,7 +35,6 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
         model: SemiParametricGPModel,  # type: ignore[override]
         context_objective: Type = SemiPThresholdObjective,
     ) -> torch.Tensor:
-
         fixed_features = {model.stim_dim: 0}
         next_x = super().gen(
             num_points=num_points, model=model, fixed_features=fixed_features

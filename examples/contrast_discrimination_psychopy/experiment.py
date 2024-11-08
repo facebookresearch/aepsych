@@ -15,7 +15,6 @@ from psychopy.tools.filetools import toFile
 
 
 def run_experiment():
-
     seed = experiment_config.constants["seed"]
     config_path = experiment_config.constants["config_path"]
     torch.manual_seed(seed)
@@ -108,7 +107,6 @@ def run_experiment():
         fixation_keys = ["space"]  ## for debugging
 
         if "space" in fixation_keys:
-
             screen_text.setText("+")
             screen_text.draw(win=win)
             win.flip()
@@ -152,5 +150,4 @@ def run_experiment():
 
 
 if __name__ == "__main__":
-
     run_experiment()

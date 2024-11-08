@@ -13,7 +13,6 @@ import numpy as np
 import numpy.testing as npt
 import torch
 from aepsych.server import AEPsychServer
-
 from aepsych.server.message_handlers.handle_ask import ask
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.server.message_handlers.handle_tell import tell

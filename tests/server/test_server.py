@@ -15,7 +15,6 @@ from unittest.mock import MagicMock
 
 import aepsych.server as server
 import aepsych.utils_logging as utils_logging
-
 from aepsych.server.sockets import BAD_REQUEST
 
 dummy_config = """

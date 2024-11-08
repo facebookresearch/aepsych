@@ -14,13 +14,13 @@ import gpytorch
 import numpy as np
 import torch
 from aepsych.acquisition.objective import FloorLogitObjective
-
 from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
+from botorch.acquisition.objective import PosteriorTransform
 from botorch.optim.fit import fit_gpytorch_mll_scipy
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.distributions import MultivariateNormal
@@ -30,13 +30,18 @@ from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch import Tensor
 from torch.distributions import Normal
-from botorch.acquisition.objective import PosteriorTransform
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()
 
 
-def _hadamard_mvn_approx(x_intensity: torch.Tensor, slope_mean: torch.Tensor, slope_cov: torch.Tensor, offset_mean: torch.Tensor, offset_cov: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+def _hadamard_mvn_approx(
+    x_intensity: torch.Tensor,
+    slope_mean: torch.Tensor,
+    slope_cov: torch.Tensor,
+    offset_mean: torch.Tensor,
+    offset_cov: torch.Tensor,
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
 
     MVN approximation to the hadamard product of GPs (from the SemiP paper, extending the
@@ -147,7 +152,6 @@ class SemiPPosterior(GPyTorchPosterior):
         sample_shape: Optional[torch.Size] = None,
         base_samples: Optional[torch.Tensor] = None,
     ) -> SemiPThresholdObjective:
-
         fsamps = self.rsample(sample_shape=sample_shape, base_samples=base_samples)
         return SemiPThresholdObjective(
             likelihood=self.likelihood, target=threshold_level
@@ -376,12 +380,16 @@ class SemiParametricGPModel(GPClassificationModel):
         m, v = samps.mean(0), samps.var(0)
         return promote_0d(m), promote_0d(v)
 
-    def posterior(self, X: torch.Tensor, posterior_transform: Optional[PosteriorTransform] = None) -> SemiPPosterior:
+    def posterior(
+        self, X: torch.Tensor, posterior_transform: Optional[PosteriorTransform] = None
+    ) -> SemiPPosterior:
         # Assume x is (b) x n x d
         if X.ndim > 3:
             raise ValueError
         # Add in the extra 2 batch for the 2 GPs in this model
-        Xnew = X.unsqueeze(-3).expand(
+        Xnew = X.unsqueeze(
+            -3
+        ).expand(
             X.shape[:-2]  # (b)
             + torch.Size([2])  # For the two GPs
             + X.shape[-2:]  # n x d

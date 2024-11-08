@@ -9,7 +9,6 @@ import logging
 
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
-
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
@@ -19,9 +18,7 @@ DEFAULT_NAME = "default name"
 
 
 def _configure(server, config):
-    server._pregen_asks = (
-        []
-    )  # TODO: Allow each strategy to have its own stack of pre-generated asks
+    server._pregen_asks = []  # TODO: Allow each strategy to have its own stack of pre-generated asks
 
     parnames = config.getlist("common", "parnames", element_type=str)
     server.parnames = parnames

@@ -3,7 +3,6 @@
 from typing import List, Tuple, Union
 
 import gpytorch
-
 from aepsych.config import Config
 from aepsych.factory.default import (
     _get_default_cov_function,

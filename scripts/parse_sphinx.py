@@ -11,7 +11,7 @@ import os
 
 from bs4 import BeautifulSoup
 
-#The base_url must match the base url in the /website/siteConfig.js
+# The base_url must match the base url in the /website/siteConfig.js
 # Note if it is not updated API doc searchbar will not be displayed
 # 1) update base_url below
 base_url = "/"

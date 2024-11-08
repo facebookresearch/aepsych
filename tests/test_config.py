@@ -28,7 +28,6 @@ from aepsych.models import (
     PairwiseProbitModel,
 )
 from aepsych.server import AEPsychServer
-
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransforms, transform_options
@@ -318,9 +317,7 @@ class ConfigTestCase(unittest.TestCase):
             mean_covar_factory = default_mean_covar_factory
             [OptimizeAcqfGenerator]
             restarts = 10
-            samps = 1000""".strip().replace(
-            " ", ""
-        )
+            samps = 1000""".strip().replace(" ", "")
 
         config = Config(config_str=in_str)
         out_str = str(config).strip().replace(" ", "")

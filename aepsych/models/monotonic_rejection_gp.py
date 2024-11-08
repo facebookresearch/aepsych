@@ -116,7 +116,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             mean_module.constant.copy_(torch.tensor(fixed_prior_mean))
 
         if covar_module is None:
-
             ls_prior = gpytorch.priors.GammaPrior(
                 concentration=4.6, rate=1.0, transform=lambda x: 1 / x
             )

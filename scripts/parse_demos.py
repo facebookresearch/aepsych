@@ -34,6 +34,7 @@ JS_SCRIPTS = """
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 """
 
+
 def validate_demo_links(repo_dir: str) -> None:
     """Checks that all .zip files that present are linked on the website, and vice
     versa, that any linked demos has an associated .zip file present.
@@ -104,9 +105,13 @@ def gen_demos(repo_dir: str) -> None:
             html_outfile.write(html_out)
 
         # generate JS file
-        has_mac_demo = os.path.exists(os.path.join(repo_dir, "demos", f"{d_id}_Mac.zip"))
-        has_win_demo = os.path.exists(os.path.join(repo_dir, "demos", f"{d_id}_Win.zip"))
-        script = TEMPLATE.format(d_id,has_win_demo,has_mac_demo)
+        has_mac_demo = os.path.exists(
+            os.path.join(repo_dir, "demos", f"{d_id}_Mac.zip")
+        )
+        has_win_demo = os.path.exists(
+            os.path.join(repo_dir, "demos", f"{d_id}_Win.zip")
+        )
+        script = TEMPLATE.format(d_id, has_win_demo, has_mac_demo)
         js_out_path = os.path.join(repo_dir, "website", "pages", "demos", f"{d_id}.js")
         with open(js_out_path, "w") as js_outfile:
             js_outfile.write(script)

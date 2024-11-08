@@ -15,10 +15,10 @@ import torch
 from aepsych.benchmark import (
     Benchmark,
     DerivedValue,
+    example_problems,
     LSEProblem,
     PathosBenchmark,
     Problem,
-    example_problems,
 )
 from aepsych.models import GPClassificationModel
 from scipy.stats import norm
@@ -88,7 +88,9 @@ class MultipleLSETestCase(unittest.TestCase):
 
     def unvectorized_true_below_threshold(self, threshold):
         """the original true_below_threshold method in the LSEProblem class"""
-        return (self.test_problem.p(self.test_problem.eval_grid) <= threshold).to(torch.float32)
+        return (self.test_problem.p(self.test_problem.eval_grid) <= threshold).to(
+            torch.float32
+        )
 
     def test_vectorized_score_calculation(self):
         f_thresholds = self.test_problem.f_threshold(self.model)
@@ -98,7 +100,7 @@ class MultipleLSETestCase(unittest.TestCase):
         brier_p_below_thresh = torch.mean(2 * torch.square(true_p_l - p_l), dim=1)
         # Classification error
         misclass_on_thresh = torch.mean(
-        p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, dim=1
+            p_l * (1 - true_p_l) + (1 - p_l) * true_p_l, dim=1
         )
         assert (
             p_l.ndim == 2
@@ -107,8 +109,10 @@ class MultipleLSETestCase(unittest.TestCase):
         )
 
         for i_threshold, single_threshold in enumerate(self.thresholds):
-            normal_dist = torch.distributions.Normal(0, 1)  
-            single_f_threshold = normal_dist.icdf(single_threshold).float()   # equivalent to norm.ppf
+            normal_dist = torch.distributions.Normal(0, 1)
+            single_f_threshold = normal_dist.icdf(
+                single_threshold
+            ).float()  # equivalent to norm.ppf
 
             assert torch.isclose(single_f_threshold, f_thresholds[i_threshold])
 
@@ -120,7 +124,9 @@ class MultipleLSETestCase(unittest.TestCase):
             unvectorized_true_p_l = self.unvectorized_true_below_threshold(
                 single_threshold
             )
-            assert torch.all(torch.isclose(unvectorized_true_p_l, true_p_l[i_threshold]))
+            assert torch.all(
+                torch.isclose(unvectorized_true_p_l, true_p_l[i_threshold])
+            )
 
             unvectorized_brier_score = torch.mean(
                 2 * torch.square(unvectorized_true_p_l - unvectorized_p_l)
@@ -140,7 +146,6 @@ class MultipleLSETestCase(unittest.TestCase):
 
 class BenchmarkTestCase(unittest.TestCase):
     def setUp(self):
-
         # run this single-threaded since we parallelize using pathos
         self.oldenv = os.environ.copy()
         os.environ["OMP_NUM_THREADS"] = "1"
@@ -206,7 +211,6 @@ class BenchmarkTestCase(unittest.TestCase):
         os.environ.update(self.oldenv)
 
     def test_bench_smoke(self):
-
         problem1 = TestProblem()
         problem2 = LSETestProblem()
 
@@ -271,7 +275,6 @@ class BenchmarkTestCase(unittest.TestCase):
         self.assertTrue(out[out["final"]]["seed"].is_unique)
 
     def test_bench_pathossmoke(self):
-
         problem1 = TestProblem()
         problem2 = LSETestProblem()
 
@@ -359,7 +362,6 @@ class BenchmarkTestCase(unittest.TestCase):
 
 class BenchProblemTestCase(unittest.TestCase):
     def setUp(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)

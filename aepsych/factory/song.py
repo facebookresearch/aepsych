@@ -11,7 +11,6 @@ from typing import Tuple
 import gpytorch
 import torch
 from aepsych.config import Config
-
 from scipy.stats import norm
 
 from .utils import __default_invgamma_concentration, __default_invgamma_rate

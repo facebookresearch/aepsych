@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import time
 import warnings
-
 from typing import (
     Any,
     Callable,
@@ -26,7 +25,6 @@ from typing import (
 
 import numpy as np
 import torch
-
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
@@ -144,13 +142,11 @@ class Strategy(object):
                     len(outcome_types) == 1 and outcome_types[0] == model.outcome_type
                 ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
             else:
-                assert set(outcome_types) == set(
-                    model.outcome_type
+                assert (
+                    set(outcome_types) == set(model.outcome_type)
                 ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
             if use_gpu_modeling:
-                assert (
-                    torch.cuda.is_available()
-                ), f"GPU requested for model {type(model).__name__} but GPU is not found!"
+                assert torch.cuda.is_available(), f"GPU requested for model {type(model).__name__} but GPU is not found!"
 
             self.model_device = torch.device("cuda" if use_gpu_modeling else "cpu")
 
@@ -420,7 +416,6 @@ class Strategy(object):
             self.model.to(self.model_device)  # type: ignore
             if self.keep_most_recent is not None:
                 try:
-
                     self.model.fit(  # type: ignore
                         self.x[-self.keep_most_recent :],  # type: ignore
                         self.y[-self.keep_most_recent :],  # type: ignore
@@ -440,7 +435,6 @@ class Strategy(object):
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     def update(self) -> None:
-
         if self.can_fit:
             self.model.to(self.model_device)  # type: ignore
             if self.keep_most_recent is not None:
