@@ -68,6 +68,16 @@ class Config(configparser.ConfigParser):
 
 class ConfigurableMixin(abc.ABC):
     @classmethod
-    def get_config_options(cls, config: Config, name: str) -> Dict[str, Any]: ...
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]: ...
     @classmethod
-    def from_config(cls, config: Config, name: Optional[str] = None): ...
+    def from_config(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ): ...
