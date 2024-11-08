@@ -99,9 +99,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         else:
             self.inducing_point_method = inducing_point_method
         inducing_points = select_inducing_points(
-            allocator=SobolAllocator(),
-            inducing_size=self.inducing_size,
-            bounds=self.bounds,
+            allocator=SobolAllocator(bounds=torch.stack((self.lb, self.ub))),
+            inducing_size=self.inducing_size
         )
 
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)

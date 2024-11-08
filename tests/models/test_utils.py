@@ -92,14 +92,18 @@ class UtilsTestCase(unittest.TestCase):
             20,
         )
 
-        with self.assertRaises(AttributeError):
-            select_inducing_points(
-                inducing_size=inducing_size,
-                allocator="auto",  
-                covar_module=model.covar_module,
-                X=model.train_inputs[0],
-                bounds=model.bounds,
+        self.assertTrue(
+            len(
+                select_inducing_points(
+                    allocator="auto",
+                    inducing_size=inducing_size,
+                    covar_module=model.covar_module,
+                    X=model.train_inputs[0],
+                    bounds=model.bounds,
+                )
             )
+            <= 20
+        )
 
 
 
