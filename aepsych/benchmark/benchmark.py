@@ -77,6 +77,7 @@ class Benchmark:
             List[dict[str, float]]: List of dictionaries, each of which can be passed
                 to aepsych.config.Config.
         """
+
         # This could be a generator but then we couldn't
         # know how many params we have, tqdm wouldn't work, etc,
         # so we materialize the full list.
@@ -154,6 +155,9 @@ class Benchmark:
         np.random.seed(seed)
         config_dict["common"]["lb"] = str(problem.lb.tolist())
         config_dict["common"]["ub"] = str(problem.ub.tolist())
+        config_dict["common"]["parnames"] = str(
+            [f"par{i}" for i in range(len(problem.ub.tolist()))]
+        )
         config_dict["problem"] = problem.metadata
         materialized_config = self.materialize_config(config_dict)
 

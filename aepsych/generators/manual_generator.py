@@ -10,12 +10,12 @@ from typing import Dict, Optional, Union
 
 import numpy as np
 import torch
-from torch.quasirandom import SobolEngine
 
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
 from aepsych.utils import _process_bounds
+from torch.quasirandom import SobolEngine
 
 
 class ManualGenerator(AEPsychGenerator):
@@ -70,7 +70,9 @@ class ManualGenerator(AEPsychGenerator):
         return points
 
     @classmethod
-    def from_config(cls, config: Config, name: Optional[str] = None) -> 'ManualGenerator':
+    def from_config(
+        cls, config: Config, name: Optional[str] = None
+    ) -> "ManualGenerator":
         return cls(**cls.get_config_options(config, name))
 
     @classmethod

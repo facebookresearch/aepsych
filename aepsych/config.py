@@ -23,7 +23,6 @@ from typing import (
     Sequence,
     TypeVar,
 )
-
 import botorch
 import gpytorch
 import numpy as np

@@ -7,10 +7,24 @@
 
 import abc
 import configparser
-from typing import Any, ClassVar, Dict, List, Mapping, Optional, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+    Mapping,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
 import torch
+from botorch.models.transforms.input import (
+    ChainedInputTransform,
+    ReversibleInputTransform,
+)
 
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
@@ -50,7 +64,7 @@ class Config(configparser.ConfigParser):
         raw: bool = ...,
         vars: Optional[Mapping[str, str]] = ...,
         fallback: _T = ...,
-        element_type: _ET = ...,
+        element_type: Callable[[_ET], _ET] = ...,
     ) -> Union[_T, List[_ET]]: ...
     def getarray(
         self,
@@ -61,10 +75,29 @@ class Config(configparser.ConfigParser):
         vars: Optional[Mapping[str, str]] = ...,
         fallback: _T = ...,
     ) -> Union[np.ndarray, _T]: ...
+    def getboolean(
+        self,
+        section: str,
+        option: str,
+        *,
+        raw: bool = ...,
+        vars: Mapping[str, str] | None = ...,
+        fallback: _T = ...,
+    ) -> bool | _T: ...
+    def getfloat(
+        self,
+        section: str,
+        option: str,
+        *,
+        raw: bool = ...,
+        vars: Mapping[str, str] | None = ...,
+        fallback: _T = ...,
+    ) -> float | _T: ...
     @classmethod
     def register_module(cls: _T, module): ...
     def jsonifyMetadata(self) -> str: ...
     def jsonifyAll(self) -> str: ...
+    def to_dict(self, deduplicate: bool = ...) -> Dict[str, Any]: ...
 
 class ConfigurableMixin(abc.ABC):
     @classmethod
@@ -76,8 +109,8 @@ class ConfigurableMixin(abc.ABC):
     ) -> Dict[str, Any]: ...
     @classmethod
     def from_config(
-        cls,
+        cls: type[_T],
         config: Config,
         name: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
-    ): ...
+    ) -> _T: ...
