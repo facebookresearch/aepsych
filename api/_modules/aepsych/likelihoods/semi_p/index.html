@@ -23,7 +23,7 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="n">AEPsychObjective</span><span class="p">,</span> <span class="n">FloorProbitObjective</span>
@@ -41,7 +41,7 @@
 <span class="w">        </span><span class="sd">"""Initializes the linear bernoulli likelihood.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            objective (Callable, optional): Link function to use (sigma in the notation above).</span>
+<span class="sd">            objective (AEPsychObjective, optional): Link function to use (sigma in the notation above).</span>
 <span class="sd">                Defaults to probit with no floor.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -114,10 +114,26 @@
 <div class="viewcode-block" id="LinearBernoulliLikelihood.expected_log_prob"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.expected_log_prob">[docs]</a>    <span class="k">def</span> <span class="nf">expected_log_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""This has to be overridden to fix a bug in gpytorch where the kwargs</span>
 <span class="sd">        aren't being passed along to self.forward.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            observations (torch.Tensor): Observations.</span>
+<span class="sd">            function_dist (torch.Tensor): Function distribution.</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Expected log probability.</span>
 <span class="sd">        """</span>
 
         <span class="c1"># modified, TODO fixme upstream (cc @bletham)</span>
-        <span class="k">def</span> <span class="nf">log_prob_lambda</span><span class="p">(</span><span class="n">function_samples</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">log_prob_lambda</span><span class="p">(</span><span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">"""Lambda function to compute the log probability.</span>
+<span class="sd">            </span>
+<span class="sd">            Args:</span>
+<span class="sd">                function_samples (torch.Tensor): Function samples.</span>
+<span class="sd">                </span>
+<span class="sd">            Returns:</span>
+<span class="sd">                torch.Tensor: Log probability.</span>
+<span class="sd">            """</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">function_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
 
         <span class="n">log_prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quadrature</span><span class="p">(</span><span class="n">log_prob_lambda</span><span class="p">,</span> <span class="n">function_dist</span><span class="p">)</span>
@@ -125,6 +141,14 @@
 
 <div class="viewcode-block" id="LinearBernoulliLikelihood.from_config"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.LinearBernoulliLikelihood.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'LinearBernoulliLikelihood'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create an instance from a configuration object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            LinearBernoulliLikelihood: LinearBernoulliLikelihood instance.</span>
+<span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="n">objective</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"objective"</span><span class="p">)</span>

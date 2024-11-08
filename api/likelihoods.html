@@ -25,42 +25,44 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_OneDimensionalLikelihood</span></code></p>
 <p>Bernoulli likelihood with a flexible link (objective) defined
 by a callable (which can be a botorch objective)</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialize BernoulliObjectiveLikelihood.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>objective</strong> (<em>Callable</em>) – </p>
+<dd class="field-odd"><p><strong>objective</strong> (<em>Callable</em>) – Objective function that maps function samples to probabilities.</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.likelihoods.BernoulliObjectiveLikelihood.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_samples</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods/bernoulli.html#BernoulliObjectiveLikelihood.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the conditional distribution <span class="math notranslate nohighlight">\(p(\mathbf y \mid
-\mathbf f, \ldots)\)</span> that defines the likelihood.</p>
+<dd><p>Forward pass for BernoulliObjectiveLikelihood.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>function_samples</strong> (<em>Tensor</em>) – Samples from the function (<span class="math notranslate nohighlight">\(\mathbf f\)</span>)</p></li>
-<li><p><strong>data</strong> – (Pyro integration only.) Additional variables that the likelihood needs to condition
-on. The keys of the dictionary will correspond to Pyro sample sites
-in the likelihood’s model/guide.</p></li>
-<li><p><strong>args</strong> – Additional args</p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – Additional kwargs</p></li>
+<li><p><strong>function_samples</strong> (<em>torch.Tensor</em>) – Function samples.</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Bernoulli</em></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Bernoulli distribution object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.distributions.Bernoulli</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.likelihoods.BernoulliObjectiveLikelihood.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods/bernoulli.html#BernoulliObjectiveLikelihood.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an instance from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood" title="aepsych.likelihoods.bernoulli.BernoulliObjectiveLikelihood"><em>BernoulliObjectiveLikelihood</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>BernoulliObjectiveLikelihood instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.likelihoods.BernoulliObjectiveLikelihood" title="aepsych.likelihoods.BernoulliObjectiveLikelihood">BernoulliObjectiveLikelihood</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -74,12 +76,12 @@ in the likelihood’s model/guide.</p></li>
 where <span class="math notranslate nohighlight">\(\sigma()\)</span> is the link function (equivalent to the perceptual noise
 distribution in psychophysics terms), <span class="math notranslate nohighlight">\(f(x)\)</span> is the latent GP evaluated at x,
 and <span class="math notranslate nohighlight">\(d_k\)</span> is a learned cutpoint parameter for each level.</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialize OrdinalLikelihood.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_levels</strong> (<em>int</em>) – </p></li>
-<li><p><strong>link</strong> (<em>Optional</em><em>[</em><em>Callable</em><em>]</em>) – </p></li>
+<li><p><strong>n_levels</strong> (<em>int</em>) – Number of levels in the ordinal scale.</p></li>
+<li><p><strong>link</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Link function. Defaults to None.</p></li>
 </ul>
 </dd>
 </dl>
@@ -90,33 +92,32 @@ and <span class="math notranslate nohighlight">\(d_k\)</span> is a learned cutpo
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.likelihoods.OrdinalLikelihood.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_samples</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods/ordinal.html#OrdinalLikelihood.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.OrdinalLikelihood.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the conditional distribution <span class="math notranslate nohighlight">\(p(\mathbf y \mid
-\mathbf f, \ldots)\)</span> that defines the likelihood.</p>
+<dd><p>Forward pass for Ordinal</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>function_samples</strong> (<em>Tensor</em>) – Samples from the function (<span class="math notranslate nohighlight">\(\mathbf f\)</span>)</p></li>
-<li><p><strong>data</strong> – (Pyro integration only.) Additional variables that the likelihood needs to condition
-on. The keys of the dictionary will correspond to Pyro sample sites
-in the likelihood’s model/guide.</p></li>
-<li><p><strong>args</strong> – Additional args</p></li>
-<li><p><strong>kwargs</strong> – Additional kwargs</p></li>
-</ul>
+<dd class="field-odd"><p><strong>function_samples</strong> (<em>torch.Tensor</em>) – Function samples.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Categorical</em></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Categorical distribution object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Categorical</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.likelihoods.OrdinalLikelihood.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods/ordinal.html#OrdinalLikelihood.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.OrdinalLikelihood.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance fron configuration object</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.likelihoods.OrdinalLikelihood" title="aepsych.likelihoods.ordinal.OrdinalLikelihood"><em>OrdinalLikelihood</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>OrdinalLikelihood instance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.likelihoods.OrdinalLikelihood" title="aepsych.likelihoods.OrdinalLikelihood">OrdinalLikelihood</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -130,7 +131,7 @@ GPs and sigma is a flexible link function.</p>
 <p>Initializes the linear bernoulli likelihood.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>objective</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Link function to use (sigma in the notation above).
+<dd class="field-odd"><p><strong>objective</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.objective.AEPsychObjective" title="aepsych.acquisition.objective.AEPsychObjective"><em>AEPsychObjective</em></a><em>, </em><em>optional</em>) – Link function to use (sigma in the notation above).
 Defaults to probit with no floor.</p>
 </dd>
 </dl>
@@ -199,24 +200,31 @@ aren’t being passed along to self.forward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>observations</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>function_dist</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>observations</strong> (<em>torch.Tensor</em>) – Observations.</p></li>
+<li><p><strong>function_dist</strong> (<em>torch.Tensor</em>) – Function distribution.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tensor</em></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Expected log probability.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.likelihoods.LinearBernoulliLikelihood.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/likelihoods/semi_p.html#LinearBernoulliLikelihood.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.likelihoods.LinearBernoulliLikelihood.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an instance from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.likelihoods.LinearBernoulliLikelihood" title="aepsych.likelihoods.semi_p.LinearBernoulliLikelihood"><em>LinearBernoulliLikelihood</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>LinearBernoulliLikelihood instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.likelihoods.LinearBernoulliLikelihood" title="aepsych.likelihoods.LinearBernoulliLikelihood">LinearBernoulliLikelihood</a></p>
 </dd>
 </dl>
 </dd></dl>

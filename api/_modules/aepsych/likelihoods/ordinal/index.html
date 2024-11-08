@@ -42,6 +42,12 @@
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_levels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize OrdinalLikelihood.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            n_levels (int): Number of levels in the ordinal scale.</span>
+<span class="sd">            link (Callable, optional): Link function. Defaults to None.</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span> <span class="o">=</span> <span class="n">n_levels</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_parameter</span><span class="p">(</span>
@@ -60,6 +66,14 @@
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">cutpoint_deltas</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="OrdinalLikelihood.forward"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Categorical</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Forward pass for Ordinal</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            function_samples (torch.Tensor): Function samples.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Categorical: Categorical distribution object.</span>
+<span class="sd">        """</span>
 
         <span class="c1"># this whole thing can probably be some clever batched thing, meh</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">*</span><span class="n">function_samples</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span>
@@ -76,6 +90,13 @@
 
 <div class="viewcode-block" id="OrdinalLikelihood.from_config"><a class="viewcode-back" href="../../../likelihoods.html#aepsych.likelihoods.OrdinalLikelihood.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'OrdinalLikelihood'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Creates an instance fron configuration object</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            OrdinalLikelihood: OrdinalLikelihood instance"""</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">n_levels</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"n_levels"</span><span class="p">)</span>
         <span class="n">link</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"link"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
