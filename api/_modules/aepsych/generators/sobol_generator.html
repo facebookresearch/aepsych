@@ -73,23 +73,17 @@
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int, optional): Number of points to query.</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
+<span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</span>
 <span class="sd">        """</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">num_points</span><span class="p">)</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">)</span> <span class="o">*</span> <span class="n">grid</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">grid</span>
 
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span>
-                <span class="n">grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
-                <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-                <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SobolGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.sobol_generator.SobolGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'SobolGenerator'</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"SobolGenerator"</span><span class="p">:</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>

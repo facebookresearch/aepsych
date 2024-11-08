@@ -569,7 +569,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 :type num_points: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>torch.Tensor</p>
@@ -865,7 +865,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 :type num_points: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>torch.Tensor</p>

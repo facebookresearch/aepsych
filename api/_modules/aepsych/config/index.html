@@ -24,12 +24,24 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">ast</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">configparser</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">ClassVar</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+<span class="p">)</span>
+
 <span class="kn">import</span> <span class="nn">botorch</span>
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -38,6 +50,7 @@
 <span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 
 <span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_T"</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../config.html#aepsych.config.Config">[docs]</a><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">):</span>
 
@@ -93,7 +106,6 @@
         <span class="n">fallback</span><span class="o">=</span><span class="n">configparser</span><span class="o">.</span><span class="n">_UNSET</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Override configparser to:</span>
 <span class="sd">        1. Return from common if a section doesn't exist. This comes</span>
@@ -125,8 +137,8 @@
             <span class="p">)</span>
 
     <span class="c1"># Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)</span>
-<div class="viewcode-block" id="Config.to_dict"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deduplicate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="n">_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<div class="viewcode-block" id="Config.to_dict"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deduplicate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">]:</span>
@@ -178,8 +190,10 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">"ub and lb have been defined in common section, ignoring parameter specific blocks, be very careful!"</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">"parnames"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span> <span class="c1"># it's possible to pass no parnames</span>
-            <span class="n">par_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span> <span class="o">=</span> <span class="p">[])</span>
+        <span class="k">elif</span> <span class="s2">"parnames"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>  <span class="c1"># it's possible to pass no parnames</span>
+            <span class="n">par_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+                <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[]</span>
+            <span class="p">)</span>
             <span class="n">lb</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">par_names</span><span class="p">)</span>
             <span class="n">ub</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">par_names</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">par_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">par_names</span><span class="p">):</span>
@@ -192,14 +206,15 @@
             <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"lb"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
             <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
 
-
         <span class="c1"># Deprecation warning for "experiment" section</span>
         <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
             <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">_str_to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element_type</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_str_to_list</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element_type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T</span><span class="p">],</span> <span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\n "</span><span class="p">,</span> <span class="s2">","</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(?&lt;!,)\s+"</span><span class="p">,</span> <span class="s2">","</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">",]"</span><span class="p">,</span> <span class="s2">"]"</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
@@ -241,18 +256,25 @@
 
         <span class="c1"># Checking if param_type is set</span>
         <span class="k">if</span> <span class="s2">"par_type"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the param_type setting."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the param_type setting."</span>
+            <span class="p">)</span>
 
         <span class="c1"># Each parameter type has a different set of required settings</span>
-        <span class="k">if</span> <span class="n">param_block</span><span class="p">[</span><span class="s1">'par_type'</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"continuous"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">param_block</span><span class="p">[</span><span class="s2">"par_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"continuous"</span><span class="p">:</span>
             <span class="c1"># Check if bounds exist</span>
             <span class="k">if</span> <span class="s2">"lower_bound"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the lower_bound setting."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the lower_bound setting."</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="s2">"upper_bound"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the upper_bound setting."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the upper_bound setting."</span>
+                <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> has an unsupported parameter type </span><span class="si">{</span><span class="n">param_block</span><span class="p">[</span><span class="s1">'par_type'</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
-
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> has an unsupported parameter type </span><span class="si">{</span><span class="n">param_block</span><span class="p">[</span><span class="s1">'par_type'</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"Config at </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
@@ -425,15 +447,55 @@
 
 
 <div class="viewcode-block" id="ConfigurableMixin"><a class="viewcode-back" href="../../config.html#aepsych.config.ConfigurableMixin">[docs]</a><span class="k">class</span> <span class="nc">ConfigurableMixin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-<div class="viewcode-block" id="ConfigurableMixin.get_config_options"><a class="viewcode-back" href="../../config.html#aepsych.config.ConfigurableMixin.get_config_options">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractclassmethod</span>
-    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="ConfigurableMixin.get_config_options"><a class="viewcode-back" href="../../config.html#aepsych.config.ConfigurableMixin.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return a dictionary of the relevant options to initialize this class from the</span>
+<span class="sd">        config, even if it is outside of the named section.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Config to look for options in.</span>
+<span class="sd">            name (str, optional): Primary section to look for options for this class and</span>
+<span class="sd">                the name to infer options from other sections in the config.</span>
+<span class="sd">            options (Dict[str, Any], optional): Options to override from the config,</span>
+<span class="sd">                defaults to None.</span>
+
+
+<span class="sd">        Return:</span>
+<span class="sd">            Dict[str, Any]: A dictionary of options to initialize this class.</span>
+<span class="sd">        """</span>
+
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"get_config_options hasn't been defined for </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">!"</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConfigurableMixin.from_config"><a class="viewcode-back" href="../../config.html#aepsych.config.ConfigurableMixin.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'ConfigurableMixin'</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div></div>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ConfigurableMixin"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return a initialized instance of this class using the config and the name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Config to use to initialize this class.</span>
+<span class="sd">            name (str, optional): Name of section to look in first for this class.</span>
+<span class="sd">            options (Dict[str, Any], optional): Options to override from the config,</span>
+<span class="sd">                defaults to None.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            ConfigurableMixin: Initialized class based on config and name.</span>
+<span class="sd">        """</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span></div></div>
 
 
 <span class="n">Config</span><span class="o">.</span><span class="n">register_module</span><span class="p">(</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">likelihoods</span><span class="p">)</span>
