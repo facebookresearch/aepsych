@@ -27,14 +27,12 @@ import botorch
 import gpytorch
 import numpy as np
 import torch
-
 from aepsych.version import __version__
 
 _T = TypeVar("_T")
 
 
 class Config(configparser.ConfigParser):
-
     # names in these packages can be referred to by string name
     registered_names: ClassVar[Dict[str, object]] = {}
 
@@ -215,7 +213,6 @@ class Config(configparser.ConfigParser):
         return torch.Tensor(self._str_to_array(v)).to(torch.float64)
 
     def _str_to_obj(self, v: str, fallback_type: _T = str, warn: bool = True) -> object:
-
         try:
             return self.registered_names[v]
         except KeyError:

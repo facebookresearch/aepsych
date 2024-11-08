@@ -8,6 +8,7 @@
 import sys
 
 from ..config import Config
+from .acqf_thompson_sampler_generator import AcqfThompsonSamplerGenerator
 from .epsilon_greedy_generator import EpsilonGreedyGenerator
 from .manual_generator import ManualGenerator, SampleAroundPointsGenerator
 from .monotonic_rejection_generator import MonotonicRejectionGenerator
@@ -18,7 +19,6 @@ from .pairwise_sobol_generator import PairwiseSobolGenerator
 from .random_generator import RandomGenerator
 from .semi_p import IntensityAwareSemiPGenerator
 from .sobol_generator import SobolGenerator
-from .acqf_thompson_sampler_generator import AcqfThompsonSamplerGenerator
 
 __all__ = [
     "OptimizeAcqfGenerator",

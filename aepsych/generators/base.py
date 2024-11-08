@@ -19,7 +19,6 @@ from botorch.acquisition import (
     qNoisyExpectedImprovement,
 )
 
-
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
 

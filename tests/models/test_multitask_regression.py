@@ -45,7 +45,6 @@ class MultitaskGPRegressionTest(unittest.TestCase):
 
     @parameterized.expand(models)
     def test_mtgpr_smoke(self, model):
-
         model.fit(self.x, self.f)
         ypred, _ = model.predict(self.xtest)
 

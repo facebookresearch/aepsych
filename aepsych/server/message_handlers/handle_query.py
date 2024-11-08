@@ -6,10 +6,10 @@
 # LICENSE file in the root directory of this source tree.
 
 import logging
-import torch
 
 import aepsych.utils_logging as utils_logging
 import numpy as np
+import torch
 
 logger = utils_logging.getLogger(logging.INFO)
 

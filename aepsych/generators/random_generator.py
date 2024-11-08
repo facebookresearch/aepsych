@@ -53,7 +53,7 @@ class RandomGenerator(AEPsychGenerator):
         return X
 
     @classmethod
-    def from_config(cls, config: Config) -> 'RandomGenerator':
+    def from_config(cls, config: Config) -> "RandomGenerator":
         classname = cls.__name__
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")

@@ -29,7 +29,6 @@ from scipy.stats import bernoulli, multivariate_normal, norm, pearsonr
 
 class SingleProbitMI(unittest.TestCase):
     def test_1d_monotonic_single_probit(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -76,9 +75,7 @@ class SingleProbitMI(unittest.TestCase):
         normal_dist = torch.distributions.Normal(0, 1)
         self.assertTrue((((normal_dist.cdf(est) - true) ** 2).mean()) < 0.25)
 
-
     def test_1d_single_probit(self):
-
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -127,7 +124,6 @@ class SingleProbitMI(unittest.TestCase):
         self.assertTrue((((normal_dist.cdf(est) - true) ** 2).mean()) < 0.25)
 
     def test_mi_acqf(self):
-
         mean = ConstantMean().initialize(constant=1.2)
         covar = LinearKernel().initialize(variance=1.0)
         model = GPClassificationModel(

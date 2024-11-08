@@ -36,7 +36,6 @@ class DummySocket(object):
 
 class PySocket(object):
     def __init__(self, port, ip=""):
-
         addr = (ip, port)  # all interfaces
         if socket.has_dualstack_ipv6():
             self.socket = socket.create_server(
@@ -72,7 +71,6 @@ class PySocket(object):
                         raise Exception
 
     def receive(self, server_exiting):
-
         while not server_exiting:
             rlist, wlist, xlist = select.select(
                 [self.conn], [], [], 0

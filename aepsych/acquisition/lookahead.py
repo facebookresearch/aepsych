@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Callable, Dict, Optional, Tuple, cast
+from typing import Any, Callable, cast, Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -185,7 +185,7 @@ class LocalSUR(LocalLookaheadAcquisitionFunction):
 def construct_inputs_local_lookahead(
     model: GPyTorchModel,
     training_data: None,
-    lookahead_type: str ="levelset",
+    lookahead_type: str = "levelset",
     target: Optional[float] = None,
     posterior_transform: Optional[PosteriorTransform] = None,
     **kwargs,
@@ -350,7 +350,6 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         Xq: Optional[Tensor] = None,
         k: Optional[float] = 20.0,
     ) -> None:
-
         super().__init__(
             model=model,
             target=target,

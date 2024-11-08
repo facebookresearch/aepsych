@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 import numpy as np
 import torch
 from aepsych.config import Config
-
 from botorch.models.gpytorch import GPyTorchModel
 from scipy.stats import norm
 from torch.quasirandom import SobolEngine
@@ -220,7 +219,6 @@ def get_jnd_multid(
     lb: Union[torch.Tensor, float] = -float("inf"),
     ub: Union[torch.Tensor, float] = float("inf"),
 ) -> torch.Tensor:
-
     # Move mono_dim to the last dimension if it isn't already
     if mono_dim != -1:
         post_mean = post_mean.transpose(mono_dim, -1)

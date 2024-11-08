@@ -10,7 +10,6 @@ from typing import Dict, Optional, Union
 
 import numpy as np
 import torch
-
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin

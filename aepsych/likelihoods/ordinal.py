@@ -7,9 +7,9 @@
 
 from typing import Callable, Optional
 
-from aepsych.config import Config
 import gpytorch
 import torch
+from aepsych.config import Config
 from gpytorch.likelihoods import Likelihood
 from torch.distributions import Categorical, Normal
 
@@ -25,7 +25,7 @@ class OrdinalLikelihood(Likelihood):
 
     def __init__(self, n_levels: int, link: Optional[Callable] = None) -> None:
         """Initialize OrdinalLikelihood.
-        
+
         Args:
             n_levels (int): Number of levels in the ordinal scale.
             link (Callable, optional): Link function. Defaults to None.
@@ -49,10 +49,10 @@ class OrdinalLikelihood(Likelihood):
 
     def forward(self, function_samples: torch.Tensor, *params, **kwargs) -> Categorical:
         """Forward pass for Ordinal
-        
+
         Args:
             function_samples (torch.Tensor): Function samples.
-            
+
         Returns:
             Categorical: Categorical distribution object.
         """
@@ -71,12 +71,12 @@ class OrdinalLikelihood(Likelihood):
         return res
 
     @classmethod
-    def from_config(cls, config: Config) -> 'OrdinalLikelihood':
+    def from_config(cls, config: Config) -> "OrdinalLikelihood":
         """Creates an instance fron configuration object
-        
+
         Args:
             config (Config): Configuration object.
-        
+
         Returns:
             OrdinalLikelihood: OrdinalLikelihood instance"""
         classname = cls.__name__

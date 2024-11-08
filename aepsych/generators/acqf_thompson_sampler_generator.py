@@ -10,21 +10,21 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 import torch
-from numpy.random import choice
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition.preference import  AnalyticExpectedUtilityOfBestOption
-from torch.quasirandom import SobolEngine
-from botorch.utils.sampling import draw_sobol_samples, manual_seed
 from botorch.acquisition import (
     AcquisitionFunction,
-    NoisyExpectedImprovement,
-    qNoisyExpectedImprovement,
     LogNoisyExpectedImprovement,
+    NoisyExpectedImprovement,
     qLogNoisyExpectedImprovement,
+    qNoisyExpectedImprovement,
 )
+from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+from botorch.utils.sampling import draw_sobol_samples, manual_seed
+from numpy.random import choice
+from torch.quasirandom import SobolEngine
 
 logger = getLogger()
 

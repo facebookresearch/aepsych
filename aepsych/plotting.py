@@ -9,12 +9,12 @@ import warnings
 from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
 import numpy as np
 
 import torch
 from aepsych.strategy import Strategy
 from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
+from matplotlib.axes import Axes
 from scipy.stats import norm
 
 
@@ -183,13 +183,9 @@ def _plot_strat_1d(
         ub = strat.transforms.untransform(strat.ub)[0]
 
         threshold_samps = [
-            interpolate_monotonic(
-                x=grid.squeeze(),
-                y=s,
-                z=target_level,
-                min_x=lb,
-                max_x=ub,
-            )
+            interpolate_monotonic(grid, s, target_level, strat.lb[0], strat.ub[0])
+            .cpu()
+            .numpy()
             for s in samps
         ]
         thresh_med = np.mean(threshold_samps)
@@ -335,8 +331,16 @@ def _plot_strat_2d(
 
         if true_testfun is not None:
             true_f = true_testfun(grid).reshape(gridsize, gridsize)
-            true_thresh = get_lse_contour(
-                true_f, mono_grid, level=target_level, lb=lb[-1], ub=ub[-1]
+            true_thresh = (
+                get_lse_contour(
+                    true_f,
+                    mono_grid,
+                    level=target_level,
+                    lb=strat.lb[-1],
+                    ub=strat.ub[-1],
+                )
+                .cpu()
+                .numpy()
             )
             ax.plot(context_grid, true_thresh, label="Ground truth threshold")
 
@@ -378,7 +382,6 @@ def plot_strat_3d(
     assert strat.model is not None, "Cannot plot without a model!"
 
     contour_levels_list: List[float] = []
-
 
     if parnames is None:
         parnames = ["x1", "x2", "x3"]
@@ -436,7 +439,7 @@ def plot_strat_3d(
         cbar.ax.set_ylabel(f"Probability of {outcome_label}")
     else:
         cbar.ax.set_ylabel(outcome_label)
-    for clevel in contour_levels_list: # type: ignore
+    for clevel in contour_levels_list:  # type: ignore
         cbar.ax.axhline(y=clevel, c="w")
 
     if save_path is not None:
@@ -455,7 +458,7 @@ def plot_slice(
     vmin: float,
     vmax: float,
     gridsize: int = 30,
-    contour_levels:Optional[Sized] = None,
+    contour_levels: Optional[Sized] = None,
     lse: bool = False,
     extent_multiplier: Optional[List] = None,
 ):
@@ -498,7 +501,12 @@ def plot_slice(
     plt_parnames = np.delete(parnames, slice_dim)
 
     img = ax.imshow(
-        fmean.T, extent=tuple(plt_extents), origin="lower", aspect="auto", vmin=vmin, vmax=vmax
+        fmean.T,
+        extent=tuple(plt_extents),
+        origin="lower",
+        aspect="auto",
+        vmin=vmin,
+        vmax=vmax,
     )
     ax.set_title(parnames[slice_dim] + "=" + str(dim_val_scaled))
     ax.set_xlabel(plt_parnames[0])
@@ -513,5 +521,5 @@ def plot_slice(
                 aspect="auto",
             )
     else:
-        raise(ValueError("Countour Levels should not be None!"))
+        raise (ValueError("Countour Levels should not be None!"))
     return img

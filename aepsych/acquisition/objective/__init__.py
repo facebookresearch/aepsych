@@ -17,7 +17,6 @@ from .objective import (
 )
 from .semi_p import SemiPProbabilityObjective, SemiPThresholdObjective
 
-
 __all__ = [
     "AEPsychObjective",
     "FloorGumbelObjective",

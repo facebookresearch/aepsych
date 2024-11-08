@@ -13,7 +13,6 @@ import torch
 from aepsych.config import Config
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
-
 from scipy.stats import norm
 
 from .utils import __default_invgamma_concentration, __default_invgamma_rate

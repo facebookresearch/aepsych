@@ -11,8 +11,8 @@ from ..config import Config
 from .default import default_mean_covar_factory
 from .monotonic import monotonic_mean_covar_factory
 from .ordinal import ordinal_mean_covar_factory
-from .song import song_mean_covar_factory
 from .pairwise import pairwise_mean_covar_factory
+from .song import song_mean_covar_factory
 
 """AEPsych factory functions.
 These functions generate a gpytorch Mean and Kernel objects from

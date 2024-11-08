@@ -9,7 +9,6 @@ import unittest
 
 import numpy as np
 import numpy.testing as npt
-
 import torch
 from aepsych.acquisition import MCPosteriorVariance
 from aepsych.acquisition.lookahead import GlobalMI
@@ -19,21 +18,19 @@ from aepsych.acquisition.objective import (
     FloorProbitObjective,
     ProbitObjective,
 )
-from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
-from aepsych.likelihoods import BernoulliObjectiveLikelihood
-from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.acquisition.objective.semi_p import (
     SemiPProbabilityObjective,
     SemiPThresholdObjective,
 )
+from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
+from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-from aepsych.models.semi_p import (
-    _hadamard_mvn_approx,
-    semi_p_posterior_transform,
-)
+from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
+from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
+
 
 def _hadamard_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObjective):
     return HadamardSemiPModel(
@@ -76,9 +73,7 @@ class SemiPSmokeTests(unittest.TestCase):
         xcontext = X[..., self.context_dim]
         xintensity = X[..., self.stim_dim]
         # polynomial context
-        slope = (
-            xcontext - 0.7 * xcontext**2 + 0.3 * xcontext**3 - 0.1 * xcontext**4
-        )
+        slope = xcontext - 0.7 * xcontext**2 + 0.3 * xcontext**3 - 0.1 * xcontext**4
         intercept = (
             xcontext + 0.03 * xcontext**5 - 0.2 * xcontext**3 - 0.7 * xcontext**4
         )
@@ -264,7 +259,6 @@ class SemiPSmokeTests(unittest.TestCase):
         ub = [3, 3]
         stim_dim = 0
         with self.subTest(model_constructor=model_constructor):
-
             model = model_constructor(lb=lb, ub=ub, stim_dim=stim_dim, floor=0)
             link = FloorLogitObjective(floor=0)
             y = torch.bernoulli(link(self.f))
@@ -301,7 +295,6 @@ class SemiPSmokeTests(unittest.TestCase):
                 self.assertFalse(np.allclose(after, reset))
 
     def test_slope_mean_setting(self):
-
         for slope_mean in (2, 4):
             model = SemiParametricGPModel(
                 lb=self.lb,
@@ -338,7 +331,6 @@ class HadamardSemiPtest(unittest.TestCase):
         self.y = torch.bernoulli(link(X[:, stim_dim]))
 
     def test_reset_hyperparams(self):
-
         model = HadamardSemiPModel(lb=[-3, -3], ub=[3, 3], inducing_size=20)
 
         slope_os_before = model.slope_covar_module.outputscale.clone().detach().numpy()
