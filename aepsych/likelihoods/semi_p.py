@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional
+from typing import Callable, Optional
 
 import torch
 from aepsych.acquisition.objective import AEPsychObjective, FloorProbitObjective
@@ -23,7 +23,7 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
         """Initializes the linear bernoulli likelihood.
 
         Args:
-            objective (Callable, optional): Link function to use (sigma in the notation above).
+            objective (AEPsychObjective, optional): Link function to use (sigma in the notation above).
                 Defaults to probit with no floor.
         """
         super().__init__()
@@ -96,10 +96,26 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
     def expected_log_prob(self, observations:torch.Tensor, function_dist: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         """This has to be overridden to fix a bug in gpytorch where the kwargs
         aren't being passed along to self.forward.
+
+        Args:
+            observations (torch.Tensor): Observations.
+            function_dist (torch.Tensor): Function distribution.
+
+
+        Returns:
+            torch.Tensor: Expected log probability.
         """
 
         # modified, TODO fixme upstream (cc @bletham)
-        def log_prob_lambda(function_samples):
+        def log_prob_lambda(function_samples: torch.Tensor) -> torch.Tensor:
+            """Lambda function to compute the log probability.
+            
+            Args:
+                function_samples (torch.Tensor): Function samples.
+                
+            Returns:
+                torch.Tensor: Log probability.
+            """
             return self.forward(function_samples, **kwargs).log_prob(observations)
 
         log_prob = self.quadrature(log_prob_lambda, function_dist)
@@ -107,6 +123,14 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
 
     @classmethod
     def from_config(cls, config: Config) -> 'LinearBernoulliLikelihood':
+        """Create an instance from a configuration object.
+
+        Args:
+            config (Config): Configuration object.
+
+        Returns:
+            LinearBernoulliLikelihood: LinearBernoulliLikelihood instance.
+        """
         classname = cls.__name__
 
         objective = config.getobj(classname, "objective")

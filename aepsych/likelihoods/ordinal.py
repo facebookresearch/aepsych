@@ -24,6 +24,12 @@ class OrdinalLikelihood(Likelihood):
     """
 
     def __init__(self, n_levels: int, link: Optional[Callable] = None) -> None:
+        """Initialize OrdinalLikelihood.
+        
+        Args:
+            n_levels (int): Number of levels in the ordinal scale.
+            link (Callable, optional): Link function. Defaults to None.
+        """
         super().__init__()
         self.n_levels = n_levels
         self.register_parameter(
@@ -42,6 +48,14 @@ class OrdinalLikelihood(Likelihood):
         return torch.cat((torch.tensor([0]), torch.cumsum(cutpoint_deltas, 0)))
 
     def forward(self, function_samples: torch.Tensor, *params, **kwargs) -> Categorical:
+        """Forward pass for Ordinal
+        
+        Args:
+            function_samples (torch.Tensor): Function samples.
+            
+        Returns:
+            Categorical: Categorical distribution object.
+        """
 
         # this whole thing can probably be some clever batched thing, meh
         probs = torch.zeros(*function_samples.size(), self.n_levels)
@@ -58,6 +72,13 @@ class OrdinalLikelihood(Likelihood):
 
     @classmethod
     def from_config(cls, config: Config) -> 'OrdinalLikelihood':
+        """Creates an instance fron configuration object
+        
+        Args:
+            config (Config): Configuration object.
+        
+        Returns:
+            OrdinalLikelihood: OrdinalLikelihood instance"""
         classname = cls.__name__
         n_levels = config.getint(classname, "n_levels")
         link = config.getobj(classname, "link", fallback=None)
