@@ -60,10 +60,10 @@
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.posterior">
-<span class="sig-name descname"><span class="pre">posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.posterior" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.posterior" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>Tensor</em>) – </p>
+<dd class="field-odd"><p><strong>X</strong> (<em>Tensor</em>) – </p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>botorch.posteriors.GPyTorchPosterior</p>
@@ -165,8 +165,14 @@
 <dt class="sig sig-object py" id="aepsych.models.base.ModelProtocol.p_below_threshold">
 <span class="sig-name descname"><span class="pre">p_below_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_thresh</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#ModelProtocol.p_below_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.ModelProtocol.p_below_threshold" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Tensor</em></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>f_thresh</strong> (<em>Tensor</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>

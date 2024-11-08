@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Advanced Parameter Configuration · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="This page provides an overview of additional controls for parameters, including"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Advanced Parameter Configuration · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="This page provides an overview of additional controls for parameters, including"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/demos/" target="_self">Demos</a></li><li class="siteNavGroupActive"><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Advanced topics</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">About</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/introduction">Introduction</a></li><li class="navListItem"><a class="navItem" href="/docs/papers">Papers related to AEPsych</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">General</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/getting_started">Getting Started with AEPsych</a></li><li class="navListItem"><a class="navItem" href="/docs/configs">Writing Config Files</a></li><li class="navListItem"><a class="navItem" href="/docs/clients">AEPsych clients</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Background materials</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/psychophysics_intro">A brief introduction to Psychophysics</a></li><li class="navListItem"><a class="navItem" href="/docs/gp_intro">A brief introduction to Gaussian Process active learning</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">For developers</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/api_overview">API Overview</a></li><li class="navListItem"><a class="navItem" href="/docs/db_overview">Database Overview</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Advanced topics</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/finish_criteria">Advanced Strategy Configuration</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/parameters">Advanced Parameter Configuration</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/parameters.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Advanced Parameter Configuration</h1></header><article><div><span><p>This page provides an overview of additional controls for parameters, including
+parameter transformations. Generally, parameters should be defined in the natural raw
+parameter space and AEPsych will handle transforming the parameters into a form usable
+by the models. This means that the server will always suggest parameters in response to
+an <code>ask</code> in raw parameter space and you should always <code>tell</code> the server the
+results of a trial also in the raw parameter space. This remains true no matter
+what parameter types are used and whatever transformations are used.</p>
+<p><h2>Parameter types</h2>
+Currently, we only support continuous parameters. More parameter types soon to come!</p>
+<p><h3>Continuous<h3></p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[parameter]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">0</span> <span class="hljs-comment"># any real number</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">1</span> <span class="hljs-comment"># any real number</span>
+</code></pre>
+<p>Continuous parameters requires a lower bound and an upper bound to be set. Continuous
+parameters can have any non-infinite ranges. This means that continuous parameters can
+include negative values (e.g., lower bound = -1, upper bound = 1) or have very large
+ranges (e.g., lower bound = 0, upper bound = 1,000,000).</p>
+<p><h2>Parameter Transformations</h2>
+Currently, we only support a log scale transformation to parameters. More parameter
+transformations to come! In general, you can define your parameters in the raw
+parameter space and AEPsych will handle the transformations for you seamlessly.</p>
+<p><h3>Log scale</h3>
+The log scale transformation can be applied to parameters as an extra option in a
+parameter-specific block.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[parameter]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">1</span> <span class="hljs-comment"># any real number</span>
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">100</span> <span class="hljs-comment"># any real number</span>
+<span class="hljs-attr">log_scale</span> = <span class="hljs-literal">True</span> <span class="hljs-comment"># turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive</span>
+</code></pre>
+<p>You can log scale a parameter by adding the <code>log_scale</code> option to a parameter-specific
+block and setting it to True (or true, yes, on). Log scaling is by default off. This
+will transform this parameter by applying a <code>Log10(x)</code> operation to it to get to the
+transformed space and apply a <code>10^x</code> operation to transformed parameters to get back to
+raw parameter space.</p>
+<p>If you use the log scale transformation on a parameter that includes values less than 1
+(e.g., lower bound = -1), we will add a constant to the parameter right before we
+apply the Log10 operation and subtract that constant when untransforming the parameter.
+For parameters with lower bounds that are positive but still less 1, we will always use
+a constant value of 1 (i.e., <code>Log10(x + 1)</code> and <code>10 ^ (x - 1)</code>). For parameters with
+lower bounds that are negative, we will use a constant value of the absolute value of
+the lower bound + 1 (i.e., <code>Log10(x + |lb| + 1)</code> and <code>10 ^ (x - |lb| - 1)</code>).</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/finish_criteria"><span class="arrow-prev">← </span><span>Advanced Strategy Configuration</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2024 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

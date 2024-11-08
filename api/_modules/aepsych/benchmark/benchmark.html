@@ -95,6 +95,7 @@
 <span class="sd">            List[dict[str, float]]: List of dictionaries, each of which can be passed</span>
 <span class="sd">                to aepsych.config.Config.</span>
 <span class="sd">        """</span>
+
         <span class="c1"># This could be a generator but then we couldn't</span>
         <span class="c1"># know how many params we have, tqdm wouldn't work, etc,</span>
         <span class="c1"># so we materialize the full list.</span>
@@ -172,6 +173,9 @@
         <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         <span class="n">config_dict</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"lb"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
         <span class="n">config_dict</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="n">config_dict</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"parnames"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">"par</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))]</span>
+        <span class="p">)</span>
         <span class="n">config_dict</span><span class="p">[</span><span class="s2">"problem"</span><span class="p">]</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">metadata</span>
         <span class="n">materialized_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">materialize_config</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
 

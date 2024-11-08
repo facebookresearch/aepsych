@@ -172,6 +172,9 @@
         <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">transforms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xgrid</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">untransform</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)</span>
+
     <span class="n">samps</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">n_samps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">samps</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">gridsize</span><span class="p">,)</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samps</span><span class="p">]</span>
 
