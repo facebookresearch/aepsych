@@ -111,10 +111,10 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
         # modified, TODO fixme upstream (cc @bletham)
         def log_prob_lambda(function_samples: torch.Tensor) -> torch.Tensor:
             """Lambda function to compute the log probability.
-            
+
             Args:
                 function_samples (torch.Tensor): Function samples.
-                
+
             Returns:
                 torch.Tensor: Log probability.
             """
