@@ -771,24 +771,14 @@ class Log10Plus(Log10, ConfigurableMixin):
             Dict[str, Any]: A diciontary of options to initialize this class with,
                 including the transformed bounds.
         """
-        if name is None:
-            raise ValueError(f"{name} must be set to initialize a transform.")
-
-        if options is None:
-            options = {}
-        else:
-            options = deepcopy(options)
-
-        # Figure out the index of this parameter
-        parnames = config.getlist("common", "parnames", element_type=str)
-        idx = parnames.index(name)
+        options = _get_parameter_options(config, name, options)
 
         # Make sure we have bounds ready
         if "bounds" not in options:
             options["bounds"] = get_bounds(config)
 
         if "constant" not in options:
-            lb = options["bounds"][0, idx]
+            lb = options["bounds"][0, options["indices"]]
             if lb < 0.0:
                 constant = np.abs(lb) + 1.0
             elif lb < 1.0:
@@ -797,9 +787,6 @@ class Log10Plus(Log10, ConfigurableMixin):
                 constant = 0.0
 
             options["constant"] = constant
-
-        if "indices" not in options:
-            options["indices"] = [idx]
 
         return options
 
@@ -872,3 +859,35 @@ def get_bounds(config: Config) -> torch.Tensor:
         bounds = torch.stack((_lb, _ub))
 
     return bounds
+
+
+def _get_parameter_options(
+    config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Return options for a parameter in a config.
+
+    Args:
+        config (Config): Config to search for parameter.
+        name (str): Name of parameter.
+        options (Dict[str, Any], optional): dictionary of options to overwrite config
+            options, defaults to an empty dictionary.
+
+    Returns:
+        Dict[str, Any]: Dictionary of options to initialize a transform from config.
+    """
+    if name is None:
+        raise ValueError(f"{name} must be set to initialize a transform.")
+
+    if options is None:
+        options = {}
+    else:
+        options = deepcopy(options)
+
+    # Figure out the index of this parameter
+    parnames = config.getlist("common", "parnames", element_type=str)
+    idx = parnames.index(name)
+
+    if "indices" not in options:
+        options["indices"] = [idx]
+
+    return options
