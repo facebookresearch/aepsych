@@ -341,11 +341,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             gpytorch.distributions.MultivariateNormal: Distribution object
                 holding mean and covariance at x.
         """
-
-        # final dim is deriv index, we only normalize the "real" dims
-        transformed_x = x.clone()
-        transformed_x[..., :-1] = self.normalize_inputs(transformed_x[..., :-1])
-        mean_x = self.mean_module(transformed_x)
-        covar_x = self.covar_module(transformed_x)
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
         latent_pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
         return latent_pred

@@ -529,18 +529,17 @@ class HadamardSemiPModel(GPClassificationModel):
         Returns:
             MVN object evaluated at samples
         """
-        transformed_x = self.normalize_inputs(x)
         # TODO: make slope prop to intensity width.
-        slope_mean = self.slope_mean_module(transformed_x)
+        slope_mean = self.slope_mean_module(x)
 
         # kc mvn
-        offset_mean = self.offset_mean_module(transformed_x)
+        offset_mean = self.offset_mean_module(x)
 
-        slope_cov = self.slope_covar_module(transformed_x)
-        offset_cov = self.offset_covar_module(transformed_x)
+        slope_cov = self.slope_covar_module(x)
+        offset_cov = self.offset_covar_module(x)
 
         mean_x, cov_x = _hadamard_mvn_approx(
-            x_intensity=transformed_x[..., self.stim_dim],
+            x_intensity=x[..., self.stim_dim],
             slope_mean=slope_mean,
             slope_cov=slope_cov,
             offset_mean=offset_mean,
