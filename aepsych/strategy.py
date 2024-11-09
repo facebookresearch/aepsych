@@ -468,11 +468,15 @@ class Strategy(object):
         stimuli_per_trial = config.getint(name, "stimuli_per_trial", fallback=1)
         outcome_types = config.getlist(name, "outcome_types", element_type=str)
 
-        generator = ParameterTransformedGenerator.from_config(config, name)
+        generator = ParameterTransformedGenerator.from_config(
+            config, name, options={"transforms": transforms}
+        )
 
         model_cls = config.getobj(name, "model", fallback=None)
         if model_cls is not None:
-            model = ParameterTransformedModel.from_config(config, name)
+            model = ParameterTransformedModel.from_config(
+                config, name, options={"transforms": transforms}
+            )
             use_gpu_modeling = config.getboolean(
                 model._base_obj.__class__.__name__, "use_gpu", fallback=False
             )
