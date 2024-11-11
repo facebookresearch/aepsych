@@ -61,8 +61,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         """Initialize the GP Classification model
 
         Args:
-            lb torch.Tensor: Lower bounds of the parameters.
-            ub torch.Tensor: Upper bounds of the parameters.
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
