@@ -5,8 +5,8 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from io import IOBase
 import unittest
+from io import IOBase
 
 import numpy as np
 import torch
@@ -22,8 +22,6 @@ from aepsych.models.inducing_point_allocators import (
 from aepsych.models.utils import select_inducing_points
 
 from sklearn.datasets import make_classification
-from aepsych.models.inducing_point_allocators import  AutoAllocator, KMeansAllocator
-from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction, InducingPointAllocator
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -151,7 +149,6 @@ class UtilsTestCase(unittest.TestCase):
             )
             <= 20
         )
-
 
 
 if __name__ == "__main__":

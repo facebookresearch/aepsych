@@ -31,8 +31,6 @@ from gpytorch.variational import CholeskyVariationalDistribution, VariationalStr
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch.distributions import Normal
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
 
 logger = getLogger()
 
@@ -82,7 +80,11 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
+<<<<<<< HEAD
             inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
+=======
+            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
+>>>>>>> bed739ae (reformat follwoing ufmt)
                 Defaults to AutoAllocator().
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
@@ -117,7 +119,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             inducing_size=self.inducing_size,
         )
         self.last_inducing_points_method = "DummyAllocator"
-
 
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -221,7 +222,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     def _reset_variational_strategy(self) -> None:
         if self.train_inputs is not None:
-            # remember original device 
+            # remember original device
             device = self.device
             inducing_points = select_inducing_points(
                 allocator=self.inducing_point_method,

@@ -31,9 +31,6 @@ from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch.distributions import Normal
-from botorch.acquisition.objective import PosteriorTransform
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import AutoAllocator
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()

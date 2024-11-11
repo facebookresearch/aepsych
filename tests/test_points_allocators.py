@@ -12,6 +12,13 @@ from aepsych.models.inducing_point_allocators import (
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
+from botorch.models import SingleTaskGP
+from botorch.models.utils.inducing_point_allocators import (
+    GreedyImprovementReduction,
+    GreedyVarianceReduction,
+    InducingPointAllocator,
+)
+from botorch.utils.sampling import draw_sobol_samples
 
 from aepsych.strategy import Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options

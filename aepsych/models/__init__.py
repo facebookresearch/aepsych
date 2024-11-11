@@ -28,7 +28,6 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
-from .inducing_point_allocators import AutoAllocator, KMeansAllocator, SobolAllocator
 
 __all__ = [
     "GPClassificationModel",
