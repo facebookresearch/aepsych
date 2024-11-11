@@ -21,8 +21,7 @@ from botorch.models.utils.inducing_point_allocators import InducingPointAllocato
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import AutoAllocator
+
 
 class MonotonicProjectionGP(GPClassificationModel):
     """A monotonic GP based on posterior projection

@@ -32,8 +32,6 @@ from gpytorch.variational import CholeskyVariationalDistribution, VariationalStr
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch.distributions import Normal
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
 
 logger = getLogger()
 

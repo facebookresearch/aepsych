@@ -79,6 +79,11 @@ class TestInducingPointAllocators(unittest.TestCase):
         # Check if fallback allocator is an instance of SobolAllocator with correct bounds
         self.assertTrue(isinstance(allocator.fallback_allocator, KMeansAllocator))
 
+        expected_bounds = torch.tensor([[0.0, 1.0], [0.0, 1.0]])
+        self.assertTrue(
+            torch.equal(allocator.fallback_allocator.bounds, expected_bounds)
+        )
+
     def test_sobol_allocator_allocate_inducing_points(self):
         bounds = torch.tensor([[0.0], [1.0]])
         allocator = SobolAllocator(bounds=bounds)

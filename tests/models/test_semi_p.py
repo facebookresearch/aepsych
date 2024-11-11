@@ -31,7 +31,6 @@ from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transfo
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
-from aepsych.models.inducing_point_allocators import AutoAllocator
 
 
 def _hadamard_model_constructor(
