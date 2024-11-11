@@ -233,6 +233,7 @@ class KMeansAllocator(BaseAllocator):
         )
 
         return inducing_points
+<<<<<<< HEAD
 
     @classmethod
     def get_config_options(
@@ -241,6 +242,23 @@ class KMeansAllocator(BaseAllocator):
         name: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+=======
+    @classmethod
+    def from_config(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> "KMeansAllocator":
+        """Initialize a KMeansAllocator from a configuration object.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            KMeansAllocator: A KMeansAllocator instance."""
+        return cls(**cls.get_config_options(config, name, options))
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+>>>>>>> bd71587b (rebasing with updates & initialized all points allocators with the new ConfigurableMixin class)
         """Get configuration options for the KMeansAllocator.
 
         Args:
@@ -253,6 +271,7 @@ class KMeansAllocator(BaseAllocator):
         """
         if name is None:
             name = cls.__name__
+<<<<<<< HEAD
         lb = config.gettensor("common", "lb")
         ub = config.gettensor("common", "ub")
         bounds = torch.stack((lb, ub))
@@ -319,6 +338,11 @@ class DummyAllocator(BaseAllocator):
 
 
 class AutoAllocator(BaseAllocator):
+=======
+        return {}
+
+class AutoAllocator(InducingPointAllocator, ConfigurableMixin):
+>>>>>>> bd71587b (rebasing with updates & initialized all points allocators with the new ConfigurableMixin class)
     """An inducing point allocator that dynamically chooses an allocation strategy
     based on the number of unique data points available."""
 
@@ -386,6 +410,7 @@ class AutoAllocator(BaseAllocator):
             return unique_inputs
 
         # Otherwise, fall back to the provided allocator (e.g., KMeansAllocator)
+<<<<<<< HEAD
         if inputs.shape[0] <= num_inducing:
             return inputs
         else:
@@ -395,6 +420,46 @@ class AutoAllocator(BaseAllocator):
                 num_inducing=num_inducing,
                 input_batch_shape=input_batch_shape,
             )
+=======
+        
+        return self.fallback_allocator.allocate_inducing_points(
+            inputs=inputs,
+            covar_module=covar_module,
+            num_inducing=num_inducing,
+            input_batch_shape=input_batch_shape,
+        )
+    @classmethod
+    def from_config(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> "AutoAllocator":
+        """Initialize an AutoAllocator from a configuration object.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            AutoAllocator: An AutoAllocator instance.
+        """
+        return cls(**cls.get_config_options(config, name, options))
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Get configuration options for the AutoAllocator.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            Dict[str, Any]: Configuration options for the AutoAllocator.
+        """
+        if name is None:
+            name = cls.__name__
+        fallback_allocator_cls = config.getobj(name, "fallback_allocator", fallback=KMeansAllocator)
+        fallback_allocator = fallback_allocator_cls.from_config(config) if hasattr(fallback_allocator_cls, 'from_config') else fallback_allocator_cls()
+        return {"fallback_allocator": fallback_allocator}
+>>>>>>> bd71587b (rebasing with updates & initialized all points allocators with the new ConfigurableMixin class)
 
     @classmethod
     def get_config_options(
