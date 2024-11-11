@@ -9,12 +9,12 @@ from botorch.models.utils.inducing_point_allocators import InducingPointAllocato
 from botorch.utils.sampling import draw_sobol_samples
 from scipy.cluster.vq import kmeans2
 import torch
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 import numpy as np
 
-from aepsych.config import Config
+from aepsych.config import Config, ConfigurableMixin
 
-class SobolAllocator(InducingPointAllocator):
+class SobolAllocator(InducingPointAllocator, ConfigurableMixin):
     """An inducing point allocator that uses Sobol sequences to allocate inducing points."""
 
     def __init__(self, bounds) -> None:
@@ -67,11 +67,37 @@ class SobolAllocator(InducingPointAllocator):
         return inducing_points   
     
     @classmethod
-    def from_config(cls, config: Config) -> 'SobolAllocator':
-        bounds = config.gettensor(cls.__name__, "bounds", fallback=None)
-        return cls(bounds=bounds)
+    def from_config(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> "SobolAllocator":
+        """Initialize a SobolAllocator from a configuration object.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            SobolAllocator: A SobolAllocator instance.
+        """
+        return cls(**cls.get_config_options(config, name, options))
 
-class KMeansAllocator(InducingPointAllocator):
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Get configuration options for the SobolAllocator.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            Dict[str, Any]: Configuration options for the SobolAllocator.
+        """
+        if name is None:
+            name = cls.__name__
+        bounds = config.gettensor(name, "bounds")
+        return {"bounds": bounds}
+
+class KMeansAllocator(InducingPointAllocator, ConfigurableMixin):
 
     """An inducing point allocator that uses k-means++ to allocate inducing points."""
 
@@ -119,11 +145,35 @@ class KMeansAllocator(InducingPointAllocator):
 
         return inducing_points
     @classmethod
-    def from_config(cls, config:Config) -> 'KMeansAllocator':
-        """Create a KMeansAllocator from a configuration object."""
-        return cls()
+    def from_config(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> "KMeansAllocator":
+        """Initialize a KMeansAllocator from a configuration object.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            KMeansAllocator: A KMeansAllocator instance."""
+        return cls(**cls.get_config_options(config, name, options))
 
-class AutoAllocator(InducingPointAllocator):
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Get configuration options for the KMeansAllocator.
+
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+
+        Returns:
+            Dict[str, Any]: Configuration options for the KMeansAllocator.
+        """
+        if name is None:
+            name = cls.__name__
+        return {}
+
+class AutoAllocator(InducingPointAllocator, ConfigurableMixin):
     """An inducing point allocator that dynamically chooses an allocation strategy
     based on the number of unique data points available."""
 
@@ -182,12 +232,34 @@ class AutoAllocator(InducingPointAllocator):
             input_batch_shape=input_batch_shape,
         )
     @classmethod
-    def from_config(cls, config: Config) -> 'AutoAllocator':
-        """Create an AutoAllocator from a configuration object."""
-        fallback_allocator_cls = config.getobj(cls.__name__, "fallback_allocator", fallback=KMeansAllocator)
-        if hasattr(fallback_allocator_cls, 'from_config'):
-            fallback_allocator = fallback_allocator_cls.from_config(config)
-        else:
-            fallback_allocator = fallback_allocator_cls()
-        return cls(fallback_allocator=fallback_allocator)
+    def from_config(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> "AutoAllocator":
+        """Initialize an AutoAllocator from a configuration object.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            AutoAllocator: An AutoAllocator instance.
+        """
+        return cls(**cls.get_config_options(config, name, options))
+
+    @classmethod
+    def get_config_options(cls, config: Config, name: Optional[str] = None, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Get configuration options for the AutoAllocator.
+        
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+            
+        Returns:
+            Dict[str, Any]: Configuration options for the AutoAllocator.
+        """
+        if name is None:
+            name = cls.__name__
+        fallback_allocator_cls = config.getobj(name, "fallback_allocator", fallback=KMeansAllocator)
+        fallback_allocator = fallback_allocator_cls.from_config(config) if hasattr(fallback_allocator_cls, 'from_config') else fallback_allocator_cls()
+        return {"fallback_allocator": fallback_allocator}
 
