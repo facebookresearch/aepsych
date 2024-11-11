@@ -10,6 +10,7 @@ import sys
 from ..config import Config
 from .gp_classification import GPBetaRegressionModel, GPClassificationModel
 from .gp_regression import GPRegressionModel
+from .inducing_point_allocators import AutoAllocator, KMeansAllocator, SobolAllocator
 from .monotonic_projection_gp import MonotonicProjectionGP
 from .monotonic_rejection_gp import MonotonicRejectionGP
 from .multitask_regression import IndependentMultitaskGPRModel, MultitaskGPRModel
@@ -20,7 +21,6 @@ from .semi_p import (
     semi_p_posterior_transform,
     SemiParametricGPModel,
 )
-from .inducing_point_allocators import AutoAllocator, KMeansAllocator, SobolAllocator
 
 __all__ = [
     "GPClassificationModel",

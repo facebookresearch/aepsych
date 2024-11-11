@@ -27,6 +27,7 @@ from aepsych.models import (
     MonotonicRejectionGP,
     PairwiseProbitModel,
 )
+from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.server import AEPsychServer
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -35,7 +36,6 @@ from aepsych.transforms.parameters import Log10Plus, NormalizeScale
 from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
-from aepsych.models.inducing_point_allocators import SobolAllocator
 
 
 class ConfigTestCase(unittest.TestCase):
@@ -1031,11 +1031,13 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(model.dim == 2)
         self.assertTrue(model.inducing_size == 10)
         self.assertTrue(model.stim_dim == 1)
-        
+
         # Verify the allocator and bounds
         self.assertTrue(isinstance(model.inducing_point_method, SobolAllocator))
         expected_bounds = torch.tensor([[0.0, 1.0], [0.0, 1.0]], dtype=torch.float64)
-        self.assertTrue(torch.equal(model.inducing_point_method.bounds, expected_bounds))
+        self.assertTrue(
+            torch.equal(model.inducing_point_method.bounds, expected_bounds)
+        )
 
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))

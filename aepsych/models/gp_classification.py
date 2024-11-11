@@ -16,17 +16,17 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch.distributions import Normal
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
 
 logger = getLogger()
 
@@ -74,10 +74,10 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 Bernouli likelihood.
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
-                there is no limit to the fitting time.  
+                there is no limit to the fitting time.
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 Defaults to AutoAllocator().
-            """
+        """
         lb, ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
@@ -101,9 +101,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
             allocator=SobolAllocator(bounds=torch.stack((lb, ub))),
-            inducing_size=self.inducing_size
+            inducing_size=self.inducing_size,
         )
-
 
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -164,11 +163,11 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             classname, "inducing_point_method", fallback=AutoAllocator
         )
         # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, 'from_config'):
+        if hasattr(inducing_point_method_class, "from_config"):
             inducing_point_method = inducing_point_method_class.from_config(config)
         else:
             inducing_point_method = inducing_point_method_class()
-        
+
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
 
         if likelihood_cls is not None:
@@ -204,7 +203,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     def _reset_variational_strategy(self) -> None:
         if self.train_inputs is not None:
-            # remember original device 
+            # remember original device
             device = self.device
             inducing_points = select_inducing_points(
                 allocator=self.inducing_point_method,
@@ -213,7 +212,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 X=self.train_inputs[0],
                 bounds=self.bounds,
             ).to(device)
-            
+
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
             ).to(device)

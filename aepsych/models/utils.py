@@ -11,14 +11,17 @@ from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,
     ScalarizedPosteriorTransform,
 )
 from botorch.models.model import Model
-from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction, InducingPointAllocator
-from aepsych.models.inducing_point_allocators import SobolAllocator, AutoAllocator
+from botorch.models.utils.inducing_point_allocators import (
+    GreedyVarianceReduction,
+    InducingPointAllocator,
+)
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
 from botorch.utils.sampling import draw_sobol_samples
@@ -78,18 +81,24 @@ def select_inducing_points(
         warnings.warn(
             f"Using string '{allocator}' for inducing point method is deprecated. "
             "Please use an InducingPointAllocator class instead.",
-            DeprecationWarning
+            DeprecationWarning,
         )
-        
+
         if allocator == "sobol":
-            assert bounds is not None, "Bounds must be provided for Sobol inducing points!"
-            inducing_points = draw_sobol_samples(bounds=bounds, n=inducing_size, q=1).squeeze().to(bounds.device)
+            assert (
+                bounds is not None
+            ), "Bounds must be provided for Sobol inducing points!"
+            inducing_points = (
+                draw_sobol_samples(bounds=bounds, n=inducing_size, q=1)
+                .squeeze()
+                .to(bounds.device)
+            )
             if inducing_points.ndim == 1:
                 inducing_points = inducing_points.view(-1, 1)
             return inducing_points
 
         assert X is not None, "Must pass X for non-Sobol inducing point selection!"
-        
+
         unique_X = torch.unique(X, dim=0)
         if allocator == "auto":
             if unique_X.shape[0] <= inducing_size:
@@ -105,7 +114,7 @@ def select_inducing_points(
                 num_inducing=inducing_size,
                 input_batch_shape=torch.Size([]),
             ).to(X.device)
-        
+
         elif allocator == "kmeans++":
             inducing_points = torch.tensor(
                 kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],

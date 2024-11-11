@@ -15,11 +15,12 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.models.inducing_point_allocators import AutoAllocator
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import AutoAllocator
+
 
 class MonotonicProjectionGP(GPClassificationModel):
     """A monotonic GP based on posterior projection
@@ -207,7 +208,7 @@ class MonotonicProjectionGP(GPClassificationModel):
             classname, "inducing_point_method", fallback=AutoAllocator
         )
         # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, 'from_config'):
+        if hasattr(inducing_point_method_class, "from_config"):
             inducing_point_method = inducing_point_method_class.from_config(config)
         else:
             inducing_point_method = inducing_point_method_class()

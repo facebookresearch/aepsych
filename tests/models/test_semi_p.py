@@ -26,11 +26,11 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
-from aepsych.models.inducing_point_allocators import AutoAllocator
 
 
 def _hadamard_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObjective):
