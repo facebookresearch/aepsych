@@ -18,9 +18,11 @@ from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.utils import _process_bounds, promote_0d, get_optimizer_options
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.optim.fit import fit_gpytorch_mll_scipy
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.distributions import MultivariateNormal
@@ -29,9 +31,6 @@ from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch.distributions import Normal
-from botorch.acquisition.objective import PosteriorTransform
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import AutoAllocator
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()
@@ -357,7 +356,7 @@ class SemiParametricGPModel(GPClassificationModel):
             classname, "inducing_point_method", fallback=AutoAllocator
         )
         # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, 'from_config'):
+        if hasattr(inducing_point_method_class, "from_config"):
             inducing_point_method = inducing_point_method_class.from_config(config)
         else:
             inducing_point_method = inducing_point_method_class()
@@ -686,7 +685,7 @@ class HadamardSemiPModel(GPClassificationModel):
             classname, "inducing_point_method", fallback=AutoAllocator
         )
         # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, 'from_config'):
+        if hasattr(inducing_point_method_class, "from_config"):
             inducing_point_method = inducing_point_method_class.from_config(config)
         else:
             inducing_point_method = inducing_point_method_class()
