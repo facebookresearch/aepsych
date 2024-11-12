@@ -17,7 +17,7 @@ from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin, ModelProtocol
 from botorch.acquisition import AcquisitionFunction
-from botorch.models.transforms.input import ChainedInputTransform, Log10
+from botorch.models.transforms.input import ChainedInputTransform, Log10, Normalize
 from botorch.models.transforms.utils import subset_transform
 from botorch.posteriors import Posterior
 from torch import Tensor
@@ -128,15 +128,33 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
         parnames = config.getlist("common", "parnames", element_type=str)
 
         # This is the "options" dictionary, transform options is only for maintaining the right transforms
-        transform_dict = {}
+        transform_dict: Dict[str, ChainedInputTransform] = {}
         for par in parnames:
             # This is the order that transforms are potentially applied, order matters
 
             # Log scale
             if config.getboolean(par, "log_scale", fallback=False):
-                transform_dict[f"{par}_Log10Plus"] = Log10Plus.from_config(
+                log10 = Log10Plus.from_config(
                     config=config, name=par, options=transform_options
                 )
+
+                # Transform bounds
+                transform_options["bounds"] = log10.transform(
+                    transform_options["bounds"]
+                )
+                transform_dict[f"{par}_Log10Plus"] = log10
+
+            # Normalize scale (defaults true)
+            if config.getboolean(par, "normalize_scale", fallback=True):
+                normalize = NormalizeScale.from_config(
+                    config=config, name=par, options=transform_options
+                )
+
+                # Transform bounds
+                transform_options["bounds"] = normalize.transform(
+                    transform_options["bounds"]
+                )
+                transform_dict[f"{par}_NormalizeScale"] = normalize
 
         return transform_dict
 
@@ -202,9 +220,9 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
         # Figure out what we need to do with generator
         if isinstance(generator, type):
             if "lb" in kwargs:
-                kwargs["lb"] = transforms.transform(kwargs["lb"].float())
+                kwargs["lb"] = transforms.transform(kwargs["lb"].to(torch.float64))
             if "ub" in kwargs:
-                kwargs["ub"] = transforms.transform(kwargs["ub"].float())
+                kwargs["ub"] = transforms.transform(kwargs["ub"].to(torch.float64))
             _base_obj = generator(**kwargs)
         else:
             _base_obj = generator
@@ -349,9 +367,9 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         # Alternative instantiation method for analysis (and not live)
         if isinstance(model, type):
             if "lb" in kwargs:
-                kwargs["lb"] = transforms.transform(kwargs["lb"].float())
+                kwargs["lb"] = transforms.transform(kwargs["lb"].to(torch.float64))
             if "ub" in kwargs:
-                kwargs["ub"] = transforms.transform(kwargs["ub"].float())
+                kwargs["ub"] = transforms.transform(kwargs["ub"].to(torch.float64))
             _base_obj = model(**kwargs)
         else:
             _base_obj = model
@@ -801,6 +819,97 @@ class Log10Plus(Log10, ConfigurableMixin):
                 constant = 0.0
 
             options["constant"] = constant
+
+        return options
+
+
+class NormalizeScale(Normalize, ConfigurableMixin):
+    def __init__(
+        self,
+        d: int,
+        indices: Optional[Union[list[int], Tensor]] = None,
+        bounds: Optional[Tensor] = None,
+        batch_shape: torch.Size = torch.Size(),
+        transform_on_train: bool = True,
+        transform_on_eval: bool = True,
+        transform_on_fantasize: bool = True,
+        reverse: bool = False,
+        min_range: float = 1e-8,
+        learn_bounds: Optional[bool] = None,
+        almost_zero: float = 1e-12,
+        **kwargs,
+    ) -> None:
+        r"""Normalizes the scale of the parameters.
+
+        Args:
+            d: Total number of parameters (dimensions).
+            indices: The indices of the inputs to normalize. If omitted,
+                take all dimensions of the inputs into account.
+            bounds: If provided, use these bounds to normalize the parameters. If
+                omitted, learn the bounds in train mode.
+            batch_shape: The batch shape of the inputs (assuming input tensors
+                of shape `batch_shape x n x d`). If provided, perform individual
+                normalization per batch, otherwise uses a single normalization.
+            transform_on_train: A boolean indicating whether to apply the
+                transforms in train() mode. Default: True.
+            transform_on_eval: A boolean indicating whether to apply the
+                transform in eval() mode. Default: True.
+            transform_on_fantasize: A boolean indicating whether to apply the
+                transform when called from within a `fantasize` call. Default: True.
+            reverse: A boolean indicating whether the forward pass should untransform
+                the parameters.
+            min_range: If the range of a parameter is smaller than `min_range`,
+                that parameter will not be normalized. This is equivalent to
+                using bounds of `[0, 1]` for this dimension, and helps avoid division
+                by zero errors and related numerical issues. See the example below.
+                NOTE: This only applies if `learn_bounds=True`.
+            learn_bounds: Whether to learn the bounds in train mode. Defaults
+                to False if bounds are provided, otherwise defaults to True.
+            **kwargs: Accepted to conform to API.
+        """
+        super().__init__(
+            d=d,
+            indices=indices,
+            bounds=bounds,
+            batch_shape=batch_shape,
+            transform_on_train=transform_on_train,
+            transform_on_eval=transform_on_eval,
+            transform_on_fantasize=transform_on_fantasize,
+            reverse=reverse,
+            min_range=min_range,
+            learn_bounds=learn_bounds,
+            almost_zero=almost_zero,
+        )
+
+    @classmethod
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Return a dictionary of the relevant options to initialize a NormalizeScale
+        transform for the named parameter within the config.
+
+        Args:
+            config (Config): Config to look for options in.
+            name (str): Parameter to find options for.
+            options (Dict[str, Any]): Options to override from the config.
+
+        Return:
+            Dict[str, Any]: A diciontary of options to initialize this class with,
+                including the transformed bounds.
+        """
+        options = _get_parameter_options(config, name, options)
+
+        # Make sure we have bounds ready
+        if "bounds" not in options:
+            options["bounds"] = get_bounds(config)
+
+        if "d" not in options:
+            parnames = config.getlist("common", "parnames", element_type=str)
+            options["d"] = len(parnames)
 
         return options
 

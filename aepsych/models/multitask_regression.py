@@ -79,9 +79,8 @@ class MultitaskGPRModel(GPRegressionModel):
     def forward(
         self, x: torch.Tensor
     ) -> gpytorch.distributions.MultitaskMultivariateNormal:
-        transformed_x = self.normalize_inputs(x)
-        mean_x = self.mean_module(transformed_x)
-        covar_x = self.covar_module(transformed_x)
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
         return gpytorch.distributions.MultitaskMultivariateNormal(mean_x, covar_x)
 
     @classmethod

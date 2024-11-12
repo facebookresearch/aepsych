@@ -15,6 +15,12 @@ from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.transforms import (
+    ParameterTransformedGenerator,
+    ParameterTransformedModel,
+    ParameterTransforms,
+)
+from aepsych.transforms.parameters import Normalize
 
 
 class TestSequenceGenerators(unittest.TestCase):
@@ -22,20 +28,29 @@ class TestSequenceGenerators(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        lb = [-1, -1]
-        ub = [1, 1]
+        lb = torch.tensor([-1, -1])
+        ub = torch.tensor([1, 1])
 
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
 
+        transforms = ParameterTransforms(
+            normalize=Normalize(d=2, bounds=torch.stack([lb, ub]))
+        )
+
         self.strat = Strategy(
-            model=MonotonicRejectionGP(
+            model=ParameterTransformedModel(
+                MonotonicRejectionGP,
+                transforms=transforms,
+                dim=2,
                 lb=lb,
                 ub=ub,
-                dim=2,
                 monotonic_idxs=[1],
             ),
-            generator=MonotonicRejectionGenerator(
-                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
+            generator=ParameterTransformedGenerator(
+                MonotonicRejectionGenerator,
+                transforms=transforms,
+                acqf=MonotonicMCLSE,
+                acqf_kwargs=extra_acqf_args,
             ),
             min_asks=50,
             lb=lb,

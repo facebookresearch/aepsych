@@ -51,10 +51,9 @@ class TestManualGenerator(unittest.TestCase):
                 """
         config = Config()
         config.update(config_str=config_str)
-        # gen = ManualGenerator.from_config(config)
         gen = ParameterTransformedGenerator.from_config(config, "init_strat")
-        npt.assert_equal(gen.lb.numpy(), np.array([10, 10]))
-        npt.assert_equal(gen.ub.numpy(), np.array([11, 11]))
+        npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
+        npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
         self.assertFalse(gen.finished)
 
         p1 = list(gen.gen()[0])

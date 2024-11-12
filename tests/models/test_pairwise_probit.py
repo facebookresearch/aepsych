@@ -22,6 +22,12 @@ from aepsych.server.message_handlers.handle_ask import ask
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.server.message_handlers.handle_tell import tell
 from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.transforms import (
+    ParameterTransformedGenerator,
+    ParameterTransformedModel,
+    ParameterTransforms,
+)
+from aepsych.transforms.parameters import Normalize
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 from scipy.stats import bernoulli, norm, pearsonr
@@ -192,30 +198,49 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         np.random.seed(seed)
         n_init = 50
         n_opt = 1
-        lb = -4.0
-        ub = 4.0
+        lb = torch.tensor([-4.0])
+        ub = torch.tensor([4.0])
         extra_acqf_args = {"beta": 3.84}
+        transforms = ParameterTransforms(
+            normalize=Normalize(d=1, bounds=torch.stack([lb, ub]))
+        )
+        sobol_gen = ParameterTransformedGenerator(
+            generator=SobolGenerator,
+            lb=lb,
+            ub=ub,
+            seed=seed,
+            stimuli_per_trial=2,
+            transforms=transforms,
+        )
+        acqf_gen = ParameterTransformedGenerator(
+            generator=OptimizeAcqfGenerator,
+            acqf=qUpperConfidenceBound,
+            acqf_kwargs=extra_acqf_args,
+            stimuli_per_trial=2,
+            transforms=transforms,
+        )
+        probit_model = ParameterTransformedModel(
+            model=PairwiseProbitModel, lb=lb, ub=ub, transforms=transforms
+        )
         model_list = [
             Strategy(
                 lb=lb,
                 ub=ub,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed, stimuli_per_trial=2),
+                generator=sobol_gen,
                 min_asks=n_init,
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
+                transforms=transforms,
             ),
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=PairwiseProbitModel(lb=lb, ub=ub),
-                generator=OptimizeAcqfGenerator(
-                    acqf=qUpperConfidenceBound,
-                    acqf_kwargs=extra_acqf_args,
-                    stimuli_per_trial=2,
-                ),
+                model=probit_model,
+                generator=acqf_gen,
                 min_asks=n_opt,
                 stimuli_per_trial=2,
                 outcome_types=["binary"],
+                transforms=transforms,
             ),
         ]
 
