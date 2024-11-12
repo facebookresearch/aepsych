@@ -134,7 +134,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     @classmethod
     def from_config(cls, config: Config) -> GPClassificationModel:
-        """Alternate constructor for GPClassification model.
+        """Alternate constructor for GPClassification model from a configuration.
 
         This is used when we recursively build a full sampling strategy
         from a configuration. TODO: document how this works in some tutorial.
