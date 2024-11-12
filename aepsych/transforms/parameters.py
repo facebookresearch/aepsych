@@ -183,6 +183,8 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
         being set in init (e.g., `Wrapper(Type, lb=lb, ub=ub)`, `lb` and `ub`
         should be in the raw parameter space.
 
+        The object's name will be ParameterTransformed<Generator.__name__>.
+
         Args:
             model (Type | AEPsychGenerator): Generator to wrap, this could either be a
                 completely initialized generator or just the generator class. An
@@ -277,16 +279,21 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
         """
         if options is None:
             options = {}
+            options["transforms"] = ParameterTransforms.from_config(config)
         else:
+            # Check if there's a transform already if so save it to it persists over copying
+            if "transforms" in options:
+                transforms = options["transforms"]
+            else:
+                transforms = ParameterTransforms.from_config(config)
+
             options = deepcopy(options)
+            options["transforms"] = transforms
 
         if name is None:
             raise ValueError("name of strategy must be set to initialize a generator")
         else:
             gen_cls = config.getobj(name, "generator")
-
-        if "transforms" not in options:
-            options["transforms"] = ParameterTransforms.from_config(config)
 
         # Transform config
         transformed_config = transform_options(config, options["transforms"])
@@ -322,6 +329,8 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         correctly transformed and in a correctly shaped Tensor. If the bounds are
         being set in init (e.g., `Wrapper(Type, lb=lb, ub=ub)`, `lb` and `ub`
         should be in the raw parameter space.
+
+        The object's name will be ParameterTransformed<Model.__name__>.
 
         Args:
             model (Type | ModelProtocol): Model to wrap, this could either be a
@@ -669,16 +678,21 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         """
         if options is None:
             options = {}
+            options["transforms"] = ParameterTransforms.from_config(config)
         else:
+            # Check if there's a transform already if so save it to it persists over copying
+            if "transforms" in options:
+                transforms = options["transforms"]
+            else:
+                transforms = ParameterTransforms.from_config(config)
+
             options = deepcopy(options)
+            options["transforms"] = transforms
 
         if name is None:
             raise ValueError("name of strategy must be set to initialize a model")
         else:
             model_cls = config.getobj(name, "model")
-
-        if "transforms" not in options:
-            options["transforms"] = ParameterTransforms.from_config(config)
 
         # Transform config
         transformed_config = transform_options(config, options["transforms"])

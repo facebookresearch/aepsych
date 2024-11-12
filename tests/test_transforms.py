@@ -105,6 +105,14 @@ class TransformsConfigTest(unittest.TestCase):
 
     def test_transforms_in_strategy(self):
         for _strat in self.strat.strat_list:
+            # Check if the same transform is passed around everywhere
+            self.assertTrue(id(_strat.transforms) == id(_strat.generator.transforms))
+            if _strat.model is not None:
+                self.assertTrue(
+                    id(_strat.generator.transforms) == id(_strat.model.transforms)
+                )
+
+            # Check all the transform bits are the same
             for strat_transform, gen_transform in zip(
                 _strat.transforms.items(), _strat.generator.transforms.items()
             ):
