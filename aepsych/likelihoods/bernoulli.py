@@ -19,7 +19,7 @@ class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood):
 
     def __init__(self, objective: Callable) -> None:
         """Initialize BernoulliObjectiveLikelihood.
-        
+
         Args:
             objective (Callable): Objective function that maps function samples to probabilities."""
         super().__init__()
@@ -42,10 +42,10 @@ class BernoulliObjectiveLikelihood(_OneDimensionalLikelihood):
     @classmethod
     def from_config(cls, config: Config) -> "BernoulliObjectiveLikelihood":
         """Create an instance from a configuration object.
-        
+
         Args:
             config (Config): Configuration object.
-            
+
         Returns:
             BernoulliObjectiveLikelihood: BernoulliObjectiveLikelihood instance.
         """
