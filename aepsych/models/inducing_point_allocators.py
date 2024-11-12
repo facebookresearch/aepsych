@@ -149,7 +149,7 @@ class KMeansAllocator(InducingPointAllocator, ConfigurableMixin):
 
         # Run k-means++ on the unique inputs to select inducing points
         inducing_points = torch.tensor(
-            kmeans2(unique_inputs.numpy(), num_inducing, minit="++")[0],
+            kmeans2(unique_inputs.cpu().numpy(), num_inducing, minit="++")[0],
             dtype=inputs.dtype,
         )
 
