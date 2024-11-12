@@ -111,6 +111,38 @@ class TransformsConfigTest(unittest.TestCase):
                 self.assertTrue(strat_transform[0] == gen_transform[0])
                 self.assertTrue(type(strat_transform[1]) is type(gen_transform[1]))
 
+    def test_options_override(self):
+        config_str = """
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+            log_scale = false
+
+            [signal2]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+            log_scale = True
+            """
+        config = Config()
+        config.update(config_str=config_str)
+
+        override = {
+            "indices": [0],
+            "constant": 5,
+        }
+        transform = Log10Plus.from_config(config, "signal2", override)
+
+        self.assertTrue(transform.constant == 5)
+        self.assertTrue(transform.indices[0] == 0)
+
 
 class TransformsLog10Test(unittest.TestCase):
     def test_transform_reshape(self):
