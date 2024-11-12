@@ -31,7 +31,7 @@ from aepsych.server import AEPsychServer
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransforms, transform_options
-from aepsych.transforms.parameters import Log10Plus
+from aepsych.transforms.parameters import Log10Plus, NormalizeScale
 from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
@@ -50,12 +50,12 @@ class ConfigTestCase(unittest.TestCase):
 
         [par1]
         par_type = continuous
-        lower_bound = 0
-        upper_bound = 1
+        lower_bound = 1
+        upper_bound = 10
 
         [par2]
         par_type = continuous
-        lower_bound = 0
+        lower_bound = -1
         upper_bound = 1
 
         [init_strat]
@@ -123,9 +123,19 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(
+            torch.all(
+                strat.transforms.untransform(strat.strat_list[1].model.lb)
+                == torch.Tensor([1, -1])
+            )
+        )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(
+            torch.all(
+                strat.transforms.untransform(strat.strat_list[1].model.ub)
+                == torch.Tensor([10, 1])
+            )
+        )
 
         self.assertEqual(strat.strat_list[0].min_total_outcome_occurrences, 5)
         self.assertEqual(strat.strat_list[0].min_post_range, None)
@@ -1038,6 +1048,7 @@ class ConfigTestCase(unittest.TestCase):
             par_type = continuous
             lower_bound = -10
             upper_bound = 10
+            normalize_scale = False
 
             [init_strat]
             min_total_tells = 10
@@ -1061,7 +1072,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(model.lb == torch.Tensor([0, -10])))
         self.assertTrue(torch.all(model.ub == torch.Tensor([1, 10])))
 
-    def test_ignore_specific_bounds(self):
+    def test_ignore_common_bounds(self):
         config_str = """
             [common]
             parnames = [par1, par2]
@@ -1081,6 +1092,51 @@ class ConfigTestCase(unittest.TestCase):
             par_type = continuous
             lower_bound = -5
             upper_bound = 1
+            normalize_scale = False
+
+            [init_strat]
+            min_total_tells = 10
+            generator = SobolGenerator
+
+            [opt_strat]
+            min_total_tells = 20
+            refit_every = 5
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+        """
+
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+        opt_strat = strat.strat_list[1]
+        model = opt_strat.model
+
+        self.assertTrue(torch.all(model.lb == torch.Tensor([0, -5])))
+        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 1])))
+
+    def test_common_fallback_bounds(self):
+        config_str = """
+            [common]
+            parnames = [par1, par2]
+            lb = [0, 0]
+            ub = [1, 100]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+            strategy_names = [init_strat, opt_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [par2]
+            par_type = continuous
+            # lower_bound = -5
+            # upper_bound = 1
+            normalize_scale = False
 
             [init_strat]
             min_total_tells = 10
@@ -1102,7 +1158,7 @@ class ConfigTestCase(unittest.TestCase):
         model = opt_strat.model
 
         self.assertTrue(torch.all(model.lb == torch.Tensor([0, 0])))
-        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 100])))
 
     def test_parameter_setting_block_validation(self):
         config_str = """
@@ -1213,8 +1269,8 @@ class ConfigTestCase(unittest.TestCase):
         self.assertFalse(torch.all(config_points == xformed_points))
         self.assertFalse(torch.all(config_window == xformed_window))
 
-        self.assertTrue(torch.allclose(xformed_lb, torch.tensor([0.0, 1.0])))
-        self.assertTrue(torch.allclose(xformed_ub, torch.tensor([1.0, 2.0])))
+        self.assertTrue(torch.allclose(xformed_lb, torch.tensor([0.0, 0.0])))
+        self.assertTrue(torch.allclose(xformed_ub, torch.tensor([1.0, 1.0])))
 
         transforms = ParameterTransforms.from_config(config)
         reversed_points = transforms.untransform(xformed_points)
@@ -1245,11 +1301,20 @@ class ConfigTestCase(unittest.TestCase):
 
         transforms = ParameterTransforms.from_config(config)
 
-        self.assertTrue(len(transforms.values()) == 1)
+        self.assertTrue(len(transforms.values()) == 3)
 
         tf = list(transforms.items())[0]
-        self.assertTrue(tf[0] == "signal2_Log10Plus")
-        self.assertTrue(isinstance(tf[1], Log10Plus))
+        expected_names = [
+            "signal1_NormalizeScale",
+            "signal2_Log10Plus",
+            "signal2_NormalizeScale",
+        ]
+        expected_transforms = [NormalizeScale, Log10Plus, NormalizeScale]
+        for tf, name, transform in zip(
+            transforms.items(), expected_names, expected_transforms
+        ):
+            self.assertTrue(tf[0] == name)
+            self.assertTrue(isinstance(tf[1], transform))
 
 
 if __name__ == "__main__":

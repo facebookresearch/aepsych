@@ -337,10 +337,6 @@ class AEPsychMixin(GPyTorchModel):
         if targets is not None:
             self.train_targets = targets
 
-    def normalize_inputs(self, x: torch.Tensor) -> torch.Tensor:
-        scale = self.ub - self.lb
-        return (x - self.lb) / scale
-
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
         """Evaluate GP
 
@@ -351,9 +347,8 @@ class AEPsychMixin(GPyTorchModel):
             gpytorch.distributions.MultivariateNormal: Distribution object
                 holding mean and covariance at x.
         """
-        transformed_x = self.normalize_inputs(x)
-        mean_x = self.mean_module(transformed_x)
-        covar_x = self.covar_module(transformed_x)
+        mean_x = self.mean_module(x)
+        covar_x = self.covar_module(x)
         pred = gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
         return pred
 

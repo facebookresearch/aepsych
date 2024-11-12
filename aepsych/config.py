@@ -8,6 +8,7 @@ import abc
 import ast
 import configparser
 import json
+import logging
 import re
 import warnings
 from types import ModuleType
@@ -166,24 +167,36 @@ class Config(configparser.ConfigParser):
 
         # Warn if ub/lb is defined in common section
         if "ub" in self["common"] and "lb" in self["common"]:
-            warnings.warn(
-                "ub and lb have been defined in common section, ignoring parameter specific blocks, be very careful!"
+            logging.warning(
+                "ub and lb have been defined in common section, parameter-specific bounds take precendence over these."
             )
-        elif "parnames" in self["common"]:  # it's possible to pass no parnames
-            par_names = self.getlist(
-                "common", "parnames", element_type=str, fallback=[]
-            )
-            lb = [None] * len(par_names)
-            ub = [None] * len(par_names)
-            for i, par_name in enumerate(par_names):
-                # Validate the parameter-specific block
-                self._check_param_settings(par_name)
 
-                lb[i] = self[par_name]["lower_bound"]
-                ub[i] = self[par_name]["upper_bound"]
+        if "parnames" in self["common"]:  # it's possible to pass no parnames
+            try:
+                par_names = self.getlist(
+                    "common", "parnames", element_type=str, fallback=[]
+                )
+                lb = [None] * len(par_names)
+                ub = [None] * len(par_names)
+                for i, par_name in enumerate(par_names):
+                    # Validate the parameter-specific block
+                    self._check_param_settings(par_name)
 
-            self["common"]["lb"] = f"[{', '.join(lb)}]"
-            self["common"]["ub"] = f"[{', '.join(ub)}]"
+                    lb[i] = self[par_name]["lower_bound"]
+                    ub[i] = self[par_name]["upper_bound"]
+
+                self["common"]["lb"] = f"[{', '.join(lb)}]"
+                self["common"]["ub"] = f"[{', '.join(ub)}]"
+            except ValueError:
+                # Check if ub/lb exists in common
+                if "ub" in self["common"] and "lb" in self["common"]:
+                    logging.warning(
+                        "Parameter-specific bounds are incomplete, falling back to ub/lb in [common]"
+                    )
+                else:
+                    raise ValueError(
+                        "Missing ub or lb in [common] with incomplete parameter-specific bounds, cannot fallback!"
+                    )
 
         # Deprecation warning for "experiment" section
         if "experiment" in self:

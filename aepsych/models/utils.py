@@ -179,6 +179,9 @@ def get_extremum(
         timeout_sec=max_time,
     )
 
+    if hasattr(model, "transforms"):
+        best_point = model.transforms.untransform(best_point)
+
     # PosteriorMean flips the sign on minimize, we flip it back
     if extremum_type == "min":
         best_val = -best_val

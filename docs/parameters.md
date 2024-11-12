@@ -15,7 +15,6 @@ what parameter types are used and whatever transformations are used.
 Currently, we only support continuous parameters. More parameter types soon to come!
 
 <h3>Continuous<h3>
-
 ```ini
 [parameter]
 par_type = continuous
@@ -58,3 +57,31 @@ For parameters with lower bounds that are positive but still less 1, we will alw
 a constant value of 1 (i.e., `Log10(x + 1)` and `10 ^ (x - 1)`). For parameters with
 lower bounds that are negative, we will use a constant value of the absolute value of
 the lower bound + 1 (i.e., `Log10(x + |lb| + 1)` and `10 ^ (x - |lb| - 1)`).
+
+<h3>Normalize scale</h3>
+By default, all parameters will have their scale min-max normalized to the range of 
+[0, 1]. This prevents any particular parameter with a large scale to completely dominate
+the other parameters. Very rarely, this behavior may not be desired and can be turned 
+off for specific parameters.
+
+```ini
+[parameter]
+par_type = continuous
+lower_bound = 1 
+upper_bound = 100
+normalize_scale = False # turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive
+```
+
+By setting the `normalize_scale` option to False, this parameter will not be scaled 
+before being given to the model and therefore maintain its original magnitude. This is
+very rarely necessary and should be used with caution. 
+
+<h2>Order of operations</h2>
+Parameter types and parameter-specific transforms are all handled by the 
+`ParameterTransform` API. Transforms built from config files will have a specific order
+of operation, regardless of how the options were set in the config file. Each parameter
+is transformed entirely separately. 
+
+Currently, the order is as follows:
+* Log scale
+* Normalize scale

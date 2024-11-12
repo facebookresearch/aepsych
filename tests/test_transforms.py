@@ -17,7 +17,7 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.parameters import Log10Plus
+from aepsych.transforms.parameters import Log10Plus, NormalizeScale
 
 
 class TransformsConfigTest(unittest.TestCase):
@@ -45,7 +45,7 @@ class TransformsConfigTest(unittest.TestCase):
             [init_strat]
             min_total_tells = 10
             generator = SobolGenerator
-            
+
             [SobolGenerator]
             seed = 12345
 
@@ -153,10 +153,15 @@ class TransformsConfigTest(unittest.TestCase):
 
 
 class TransformsLog10Test(unittest.TestCase):
-    def test_transform_reshape(self):
-        x = torch.rand(4, 3, 2) + 1.0
+    def test_transform_reshape3D(self):
+        lb = torch.tensor([-1, 0, 10])
+        ub = torch.tensor([-1e-6, 9, 99])
+        x = SobolGenerator(lb=lb, ub=ub, stimuli_per_trial=2).gen(4)
 
-        transforms = ParameterTransforms(Log10Plus=Log10Plus(indices=[0, 1, 2]))
+        transforms = ParameterTransforms(
+            log10=Log10Plus(indices=[0, 1, 2], constant=2),
+            normalize=NormalizeScale(d=3, bounds=torch.stack([lb, ub])),
+        )
 
         transformed_x = transforms.transform(x)
         untransformed_x = transforms.untransform(transformed_x)
@@ -175,12 +180,14 @@ class TransformsLog10Test(unittest.TestCase):
             lower_bound = -10
             upper_bound = 10
             log_scale = false
+            normalize_scale = no
 
             [signal2]
             par_type = continuous
             lower_bound = 1
             upper_bound = 100
             log_scale = true
+            normalize_scale = off
         """
         config = Config()
         config.update(config_str=config_str)
@@ -271,3 +278,35 @@ class TransformsLog10Test(unittest.TestCase):
         est_max = x[np.argmin((zhat - target) ** 2)]
         diff = np.abs(est_max / 100 - target)
         self.assertTrue(diff < 0.15, f"Diff = {diff}")
+
+
+class TransformsNormalize(unittest.TestCase):
+    def test_normalize_scale(self):
+        config_str = """
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = -10
+            upper_bound = 10
+            normalize_scale = false
+
+            [signal2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 100
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        transforms = ParameterTransforms.from_config(config)
+
+        values = torch.tensor([[-5.0, 20.0], [20.0, 1.0]])
+        expected = torch.tensor([[-5.0, 0.2], [20.0, 0.01]])
+        transformed = transforms.transform(values)
+
+        self.assertTrue(torch.allclose(transformed, expected))
+        self.assertTrue(torch.allclose(transforms.untransform(transformed), values))
