@@ -104,4 +104,28 @@ For parameters with lower bounds that are positive but still less 1, we will alw
 a constant value of 1 (i.e., <code>Log10(x + 1)</code> and <code>10 ^ (x - 1)</code>). For parameters with
 lower bounds that are negative, we will use a constant value of the absolute value of
 the lower bound + 1 (i.e., <code>Log10(x + |lb| + 1)</code> and <code>10 ^ (x - |lb| - 1)</code>).</p>
+<p><h3>Normalize scale</h3>
+By default, all parameters will have their scale min-max normalized to the range of
+[0, 1]. This prevents any particular parameter with a large scale to completely dominate
+the other parameters. Very rarely, this behavior may not be desired and can be turned
+off for specific parameters.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[parameter]</span>
+<span class="hljs-attr">par_type</span> = continuous
+<span class="hljs-attr">lower_bound</span> = <span class="hljs-number">1</span> 
+<span class="hljs-attr">upper_bound</span> = <span class="hljs-number">100</span>
+<span class="hljs-attr">normalize_scale</span> = <span class="hljs-literal">False</span> <span class="hljs-comment"># turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive</span>
+</code></pre>
+<p>By setting the <code>normalize_scale</code> option to False, this parameter will not be scaled
+before being given to the model and therefore maintain its original magnitude. This is
+very rarely necessary and should be used with caution.</p>
+<p><h2>Order of operations</h2>
+Parameter types and parameter-specific transforms are all handled by the
+<code>ParameterTransform</code> API. Transforms built from config files will have a specific order
+of operation, regardless of how the options were set in the config file. Each parameter
+is transformed entirely separately.</p>
+<p>Currently, the order is as follows:</p>
+<ul>
+<li>Log scale</li>
+<li>Normalize scale</li>
+</ul>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/finish_criteria"><span class="arrow-prev">← </span><span>Advanced Strategy Configuration</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2024 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

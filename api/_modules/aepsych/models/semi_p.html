@@ -547,18 +547,17 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            MVN object evaluated at samples</span>
 <span class="sd">        """</span>
-        <span class="n">transformed_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_inputs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="c1"># TODO: make slope prop to intensity width.</span>
-        <span class="n">slope_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope_mean_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+        <span class="n">slope_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope_mean_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
         <span class="c1"># kc mvn</span>
-        <span class="n">offset_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_mean_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+        <span class="n">offset_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_mean_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        <span class="n">slope_cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope_covar_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
-        <span class="n">offset_cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_covar_module</span><span class="p">(</span><span class="n">transformed_x</span><span class="p">)</span>
+        <span class="n">slope_cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope_covar_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">offset_cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_covar_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
         <span class="n">mean_x</span><span class="p">,</span> <span class="n">cov_x</span> <span class="o">=</span> <span class="n">_hadamard_mvn_approx</span><span class="p">(</span>
-            <span class="n">x_intensity</span><span class="o">=</span><span class="n">transformed_x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span><span class="p">],</span>
+            <span class="n">x_intensity</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span><span class="p">],</span>
             <span class="n">slope_mean</span><span class="o">=</span><span class="n">slope_mean</span><span class="p">,</span>
             <span class="n">slope_cov</span><span class="o">=</span><span class="n">slope_cov</span><span class="p">,</span>
             <span class="n">offset_mean</span><span class="o">=</span><span class="n">offset_mean</span><span class="p">,</span>

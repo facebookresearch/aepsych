@@ -26,6 +26,7 @@
 <span class="kn">import</span> <span class="nn">ast</span>
 <span class="kn">import</span> <span class="nn">configparser</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">ModuleType</span>
@@ -184,24 +185,36 @@
 
         <span class="c1"># Warn if ub/lb is defined in common section</span>
         <span class="k">if</span> <span class="s2">"ub"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">"lb"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">"ub and lb have been defined in common section, ignoring parameter specific blocks, be very careful!"</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"ub and lb have been defined in common section, parameter-specific bounds take precendence over these."</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">"parnames"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>  <span class="c1"># it's possible to pass no parnames</span>
-            <span class="n">par_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-                <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[]</span>
-            <span class="p">)</span>
-            <span class="n">lb</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">par_names</span><span class="p">)</span>
-            <span class="n">ub</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">par_names</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">par_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">par_names</span><span class="p">):</span>
-                <span class="c1"># Validate the parameter-specific block</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_check_param_settings</span><span class="p">(</span><span class="n">par_name</span><span class="p">)</span>
 
-                <span class="n">lb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">][</span><span class="s2">"lower_bound"</span><span class="p">]</span>
-                <span class="n">ub</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">][</span><span class="s2">"upper_bound"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"parnames"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>  <span class="c1"># it's possible to pass no parnames</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">par_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+                    <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[]</span>
+                <span class="p">)</span>
+                <span class="n">lb</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">par_names</span><span class="p">)</span>
+                <span class="n">ub</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">par_names</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">par_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">par_names</span><span class="p">):</span>
+                    <span class="c1"># Validate the parameter-specific block</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_check_param_settings</span><span class="p">(</span><span class="n">par_name</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"lb"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
+                    <span class="n">lb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">][</span><span class="s2">"lower_bound"</span><span class="p">]</span>
+                    <span class="n">ub</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">][</span><span class="s2">"upper_bound"</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"lb"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
+                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="c1"># Check if ub/lb exists in common</span>
+                <span class="k">if</span> <span class="s2">"ub"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">"lb"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">"Parameter-specific bounds are incomplete, falling back to ub/lb in [common]"</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">"Missing ub or lb in [common] with incomplete parameter-specific bounds, cannot fallback!"</span>
+                    <span class="p">)</span>
 
         <span class="c1"># Deprecation warning for "experiment" section</span>
         <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
