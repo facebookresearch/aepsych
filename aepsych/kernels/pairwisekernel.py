@@ -16,11 +16,11 @@ class PairwiseKernel(Kernel):
     """
 
     def __init__(
-          self, latent_kernel: Any, is_partial_obs: bool=False, **kwargs
+          self, latent_kernel: Kernel, is_partial_obs: bool=False, **kwargs
     ) -> None:
         """
          Args:
-            latent_kernel (Any): The underlying kernel used to compute the covariance for the GP.
+            latent_kernel (Kernel): The underlying kernel used to compute the covariance for the GP.
             is_partial_obs (bool): If the kernel should handle partial observations. Defaults to False.
         """
         super(PairwiseKernel, self).__init__(**kwargs)

@@ -35,7 +35,7 @@ class RBFKernelPartialObsGrad(RBFKernelGrad):
         Args:
             x1 (torch.Tensor): A `b x n x d` or `n x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
             x2 (torch.Tensor): A `b x m x d` or `m x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
-            diag (bool): Should the Kernel compute the whole covariance matrix or just the diagonal? Defaults to False.
+            diag (bool): Should the Kernel compute the whole covariance matrix (False) or just the diagonal (True)? Defaults to False.
 
         
         
