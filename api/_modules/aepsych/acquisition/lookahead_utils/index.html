@@ -162,7 +162,7 @@
     <span class="n">pstar_marginal_0</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">pstar_marginal_1</span>
     <span class="n">pq_marginal_1</span> <span class="o">=</span> <span class="n">probit</span><span class="p">(</span><span class="n">Mu_q</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Sigma2_q</span><span class="p">))</span>
 
-    <span class="n">quad</span> <span class="o">=</span> <span class="n">GaussHermiteQuadrature1D</span><span class="p">()</span>
+    <span class="n">quad</span> <span class="o">=</span> <span class="n">GaussHermiteQuadrature1D</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">Mu_q</span><span class="p">)</span>
     <span class="n">fq_mvn</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">Mu_q</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Sigma2_q</span><span class="p">))</span>
     <span class="n">joint_ystar1_yq1</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">lookahead_inner</span><span class="p">,</span> <span class="n">fq_mvn</span><span class="p">)</span>
     <span class="n">joint_ystar0_yq1</span> <span class="o">=</span> <span class="n">pq_marginal_1</span> <span class="o">-</span> <span class="n">joint_ystar1_yq1</span>
