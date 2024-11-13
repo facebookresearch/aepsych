@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Active Learning Speedups · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="This page provides documentations and our recommendations for speeding up AEPsych during"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Active Learning Speedups · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="This page provides documentations and our recommendations for speeding up AEPsych during"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/demos/" target="_self">Demos</a></li><li class="siteNavGroupActive"><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Advanced topics</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">About</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/introduction">Introduction</a></li><li class="navListItem"><a class="navItem" href="/docs/papers">Papers related to AEPsych</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">General</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/getting_started">Getting Started with AEPsych</a></li><li class="navListItem"><a class="navItem" href="/docs/configs">Writing Config Files</a></li><li class="navListItem"><a class="navItem" href="/docs/clients">AEPsych clients</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Background materials</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/psychophysics_intro">A brief introduction to Psychophysics</a></li><li class="navListItem"><a class="navItem" href="/docs/gp_intro">A brief introduction to Gaussian Process active learning</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">For developers</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/api_overview">API Overview</a></li><li class="navListItem"><a class="navItem" href="/docs/db_overview">Database Overview</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Advanced topics</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/finish_criteria">Advanced Strategy Configuration</a></li><li class="navListItem"><a class="navItem" href="/docs/parameters">Advanced Parameter Configuration</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/speed">Active Learning Speedups</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/speed.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Active Learning Speedups</h1></header><article><div><span><p>This page provides documentations and our recommendations for speeding up AEPsych during
+active learning. We detail features built into AEPsych intended to allow AEPsych's
+server to respond faster during an experiment as well as our recommendations on config
+settings that affect active learning speed that may change results.</p>
+<p>Psychophysics experiments may have participants responding to a trial in less than a
+second after the trial onset. When using AEPsych, if it takes the server too long to
+respond, the time it takes to complete an experiment can be very long and ultimately be more
+costly. Further, longer experiments may cause participants to become fatigued, yielding
+worse results. Thus, speeding up an experiment can yield significant benefits.</p>
+<p><h2>Speed-up Features</h2></p>
+<p>We implemented multiple features to allow speeding up AEPsych's server in response to
+messages. These features can be used together and have different
+effects on the effectiveness of the AEPsych response speed.</p>
+<p><h3>GPU support<h3></p>
+<p>The <code>GPClassification</code> and <code>GPRegressionModel</code> both have support to run on the GPU. Models
+that subclass these models should also have GPU support. To get a model running on the
+GPU, the <code>use_gpu</code> option for the model should be set. By default, the models will not
+use a GPU (even if a GPU is available).</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+
+<span class="hljs-section">[GPClassificationModel]</span>
+<span class="hljs-attr">use_gpu</span> = <span class="hljs-literal">True</span> <span class="hljs-comment"># turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive</span>
+</code></pre>
+<p>This will cause the model fitting during active learning to use the GPU. <strong>With the
+amount of data that will typically be in a live experiment, using a GPU to fit the model
+will not result in a speed up and may incur a slowdown instead</strong>.</p>
+<p>However, there may be cases (e.g., high dimensionality, many parameters, many trials,
+or pos-hoc analysis with a lot of data)
+where using the GPU for model fitting will make it faster. This is also hardware
+dependent. If speed is a concern, it is worth testing to see if using a GPU will speed
+up model fitting. The log will provide timing to help decide whether using a GPU for
+model fitting is worth it.</p>
+<p>Generators can also use the GPU. This is usually the most time-consuming part of
+responding to an ask message to the server. Using a GPU here will typically provide at
+least a modest speedup (if not 2-5x faster).</p>
+<p>Currently, the <code>OptimizeAcqfGenerator</code> and any available acquisition function will
+support using the GPU. As in the models, the <code>use_gpu</code> option in the config should be
+set for the generator. By default, the generators will not use a GPU (even if a GPU is
+available).</p>
+<p>If the server cannot find a GPU even though GPUs were requested for either models or
+generators, it is likely that PyTorch cannot access the GPUs. Reinstalling PyTorch
+with GPU support should fix this.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">acqf</span> = MCLevelSetEstimation
+
+<span class="hljs-section">[OptimizeAcqfGenerator]</span>
+<span class="hljs-attr">use_gpu</span> = <span class="hljs-literal">True</span> <span class="hljs-comment"># turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive</span>
+</code></pre>
+<p>The time it takes to generate a point is dependent on the acquisition function. For the
+most common use-case of threshold estimation, the MCLevelSetEstimation acquisition
+function is often the default choice as it is typically very fast. However, it is not
+the state-of-the-art in terms of active learning efficacy. <code>EAVC</code> and <code>GlobalMI</code> are
+often more efficient at identifying thresholds for complex or high-dimensional problems
+as they are less likely to sample at the edges of the space, but they are also slower
+at trial generation. If the generator is run on the GPU, both <code>EAVC</code> and <code>GlobalMI</code> yield
+comparable speeds as <code>MCLevelSetEstimation</code>, while suggesting better points to test for
+active learning.</p>
+<p>On a workstation with an AMD Ryzen Threadripped PRO 3795WX 32-Cores CPU and a NVIDIA
+GeForce RTX 3080 GPU, these are the speed benchmarks on a simple GPClassificationModel
+fit on 3-dimensional Sobol points.</p>
+<table>
+<thead>
+<tr><th>Fitting</th><th style="text-align:center">n=10</th><th style="text-align:center">n=50</th><th style="text-align:center">n=100</th></tr>
+</thead>
+<tbody>
+<tr><td>CPU</td><td style="text-align:center">0.12s</td><td style="text-align:center">0.46s</td><td style="text-align:center">0.77s</td></tr>
+<tr><td>GPU</td><td style="text-align:center">0.27s (2.13x)</td><td style="text-align:center">0.93s (2.02x)</td><td style="text-align:center">1.33s (1.73x)</td></tr>
+</tbody>
+</table>
+<p>Fitting simple models with the magnitude of data within an active learning experiment
+shows slowdowns with the GPU.</p>
+<p>However, generating points with different acquisition functions can be faster.</p>
+<table>
+<thead>
+<tr><th>MCLSE</th><th style="text-align:center">n=10</th><th style="text-align:center">n=50</th><th style="text-align:center">n=100</th></tr>
+</thead>
+<tbody>
+<tr><td>CPU</td><td style="text-align:center">0.16s</td><td style="text-align:center">0.64s</td><td style="text-align:center">1.06s</td></tr>
+<tr><td>GPU</td><td style="text-align:center">0.35s (2.24x)</td><td style="text-align:center">0.91s (1.43x)</td><td style="text-align:center">1.64s (1.54x)</td></tr>
+</tbody>
+</table>
+<p>The MCLevelSetEstimation acquisition function is typically the fastest and using the
+GPU with it causes some slowdown.</p>
+<table>
+<thead>
+<tr><th>EAVC</th><th style="text-align:center">n=10</th><th style="text-align:center">n=50</th><th style="text-align:center">n=100</th></tr>
+</thead>
+<tbody>
+<tr><td>CPU</td><td style="text-align:center">1.44s</td><td style="text-align:center">2.74s</td><td style="text-align:center">3.26s</td></tr>
+<tr><td>GPU</td><td style="text-align:center">0.41s (0.28x)</td><td style="text-align:center">1.50s (0.55x)</td><td style="text-align:center">1.78s (0.48x)</td></tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr><th>GlobalMI</th><th style="text-align:center">n=10</th><th style="text-align:center">n=50</th><th style="text-align:center">n=100</th></tr>
+</thead>
+<tbody>
+<tr><td>CPU</td><td style="text-align:center">1.59s</td><td style="text-align:center">2.78s</td><td style="text-align:center">3.60s</td></tr>
+<tr><td>GPU</td><td style="text-align:center">0.63S (0.40x)</td><td style="text-align:center">1.72s (0.78x)</td><td style="text-align:center">1.82s (0.56x)</td></tr>
+</tbody>
+</table>
+<p>Both EAVC and GlobalMI are usually better acquisition functions, allowing for more
+efficient active learning demonstrates significant speedups allowing them to be
+comparable to MCLevelSetEstimation. Keep in mind these results are with a machine
+that has a very powerful CPU and a typical GPU. It is likely that the differences
+between a modestly powerful CPU and a typical GPU will be favor GPUs more often.</p>
+<p>If possible, we recommend using the GPU only for the generator and the better
+acquisition functions for active learning. It should be possible to confidently estimate
+thresholds with fewer trials using better acquisition functions, therefore allowing
+shorter experiments with little-to-no loss in modeling effectiveness. Again, it is worth
+piloting experiments using the GPU and without the GPU for the generator with the experiment
+hardware to double-check the effectiveness.</p>
+<p><h3>Refit Intermittently<h3></p>
+<p>By default, the model will be refit hyperparameters after every tell. While the fitting time
+may not be the most time-consuming part, it is possible to shorten the AEPsych server response time
+to asks by only refitting the hyperparameters model once every few asks. This does necessarily mean
+that the model could be used to generate points without the entirety of the available
+data during an experiment. This feature can be enabled by using the <code>refit_every</code> option
+in a strategy's section. Regardless of what is set for this option, the model continues to be
+conditioned on the data as it comes in.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">acqf</span> = EAVC
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">refit_every</span> = <span class="hljs-number">2</span> <span class="hljs-comment"># A strictly positive integer</span>
+</code></pre>
+<p>The <code>refit_every</code> will have the model only refit hyperparameters to the data every <code>n</code> data points. In
+the above example, the model will only be refit every other tell, which halves the
+overall fitting time across the whole experiment at the cost of the model not being completely optimized to the latest data.
+two data points behind.</p>
+<p>Refitting intermittently may be useful, especially in experiments with
+many Sobol or manual trials before active learning, such that single trials are unlikely
+to widely change the model fit. However, fitting intermittently may be bad for
+exploration experiments where there may be relatively few trials for regions of the
+parameter space.</p>
+<p><h3>Max Fit and Generating Time</h3></p>
+<p>It is possible to limit the time it takes to fit the model or generate points. While
+this may result in suboptimal fits or suggested points, setting max times caps out how
+long a participant may be waiting for a new trial to be generated.</p>
+<p>Limiting max fitting time can be enabled with the <code>max_fit_time</code> option for a model.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[GPClassificationModel]</span>
+<span class="hljs-attr">max_fit_time</span> = <span class="hljs-number">2.5</span> <span class="hljs-comment"># Float in seconds</span>
+</code></pre>
+<p>When <code>max_fit_time</code> is set, the AEPsych server calculates how many times the model can
+be evaluated within the given time and limits the number of times the model can be
+evaluated during the fit. This number is reported in the log as <code>maxfun</code>.</p>
+<p>Limiting max point generation time can be enabled with <code>max_gen_time</code> option for a
+generator.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[OptimizeAcqfGenerator]</span>
+<span class="hljs-attr">max_gen_time</span> = <span class="hljs-number">2.5</span> <span class="hljs-comment"># Float in seconds</span>
+</code></pre>
+<p>When <code>max_gen_time</code> is set, the generation process has a timeout where if a point is
+not chosen by the timeout, the best point at that time will be returned.</p>
+<p>Both of these settings are soft constraints and may not be strictly respected.</p>
+<p>Both of these maximum time settings may harm the active
+learning loop, especially if either are set too low. Be careful when using these options
+and examine the data after piloting to ensure that these times are not set too low.</p>
+<p><h2>Active Learning Tuning</h2></p>
+<p>There are many options that affect the time it takes for the AEPsych server to respond
+to a message. These options can be tuned with speed-performance trade-offs. While using
+the best options for each of these will likely produce better data, it may slow down the
+active learning process sufficiently such that it is impractical in a real experiment. It is
+worth piloting and analyzing the data to tune these options to best align with the
+experiment's goals.</p>
+<p><h3>Inducing Points</h3></p>
+<p>When fitting approximate GP models (like the GPClassificationModel), using the entirety
+of the data can be too costly. Instead, we distill the data down to inducing points for
+variational inference. The number of inducing points ultimately determines how long a
+model takes to fit. The more inducing points used the better the model will be but the
+fitting time will also increase. Similarly, different inducing point selection
+algorithms will result in different number of inducing points with varying levels of
+how well the inducing points approximate the data.</p>
+<p>By default, we set the maximum inducing points to 100 and use a Greedy Variance
+Reduction algorithm implemented by BoTorch to select inducing points. This typically
+results in far fewer than that 100 inducing points even with more than 100 data points,
+thus yielding fast model fits. On very specific hardware when the number of data points
+reaches a certain point (about 100), model fitting can slow down precipitously (x5-10
+slower), if this does happen, please raise an issue on Github and we can look into it. This is a
+very rare bug that only happens on specific hardware with specific array acceleration
+libraries.</p>
+<p>These settings can be modified in the model settings.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[GPClassificationModel]</span>
+<span class="hljs-attr">inducing_size</span> = <span class="hljs-number">50</span> <span class="hljs-comment"># This controls the maximum number of inducing points</span>
+<span class="hljs-attr">inducing_point_method</span> = kmeans++ <span class="hljs-comment"># This controls the algorithm, can be pivoted_chol (for the default Greedy Variance Reduction), kmeans++, or all (just use all the data)</span>
+</code></pre>
+<p>For even faster fits, the number of inducing points can be reduced. For better (but
+slower) fits, the number of inducing points can be increased or other inducing point
+selection algorithms can be used (e.g., <code>kmeans++</code>). Inducing point selection algorithms
+other than Greedy Variance Reduction may result in better fits but will increase model
+fitting time (especially with more data points/higher number of inducing points).</p>
+<p>The rough heuristic for the number of inducing points to select is 50 for each
+dimension, but this is a very rough heuristic that may be too high for simple parameter
+spaces or too low for complex parameter spaces.</p>
+<p><h3>Acquisition Functions</h3></p>
+<p>Generating points is typically the most time-consuming portion of AEPsych generating a
+response. By changing the acquisition function of the <code>OptimizeAcqfGenerator</code>, it is
+possible to tune the performance of active learning.</p>
+<p>The acquisition functions can be set in the generator options. There may also be
+additional acquisition function settings to change the speed and effectiveness of the
+acquisition function.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[OptimizeAcqfGenerator]</span>
+<span class="hljs-attr">acqf</span> = GlobalMI
+</code></pre>
+<p>In general, global lookahead functions (e.g. <code>GlobalMI</code>) yield the best results but take
+more time (see above for using the GPU to accelerate these acquisition functions). Local
+variants (e.g., <code>LocalMI</code>) can be faster but yield worse results. The commonly-used
+MCLevelSetEstimation is very fast for threshold estimation but may yield less
+informative points (which may require more trials to be run costing more time overall).</p>
+<p><h3>Fit to Recent Data</h3></p>
+<p>By default, models will be fit to all available data. It is possible to fit
+on only some of the data, starting from the most recent. This is useful if the
+responses are expected to change over time where the most recent data is more
+informative but it can also limit the number of data points are used for fitting
+(e.g., in very long experiments).</p>
+<p>Given that this is only fitting to a subset of the data, this could yield worse active
+learning results, but it could decrease fitting times significantly if many trials are
+expected (e.g., starting with many Sobol generator or manual generator points). This
+option can be set using the <code>keep_most_recent</code> option in a strategy.</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">acqf</span> = EAVC
+<span class="hljs-attr">keep_most_recent</span> = <span class="hljs-number">50</span> <span class="hljs-comment"># A strictly positive integer, keeping the 50 most recent points</span>
+</code></pre>
+<p>In general, lowering the amount of data the model can fit on will weaken active learning
+performance unless there's significant change in responses over time. However, with very
+long experiments targeting a specific and reliable response probability, it may be worth it to only
+use the most recent bit of data. As usual, it is worth piloting and tuning this option
+if it is being used to test whether it significantly improves the server response time
+while not harming (or improving) fits by the end.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/parameters"><span class="arrow-prev">← </span><span>Advanced Parameter Configuration</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2024 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
