@@ -247,9 +247,7 @@ class Config(configparser.ConfigParser):
 
         # Checking if param_type is set
         if "par_type" not in param_block:
-            raise ValueError(
-                f"Parameter {param_name} is missing the param_type setting."
-            )
+            raise ValueError(f"Parameter {param_name} is missing the par_type setting.")
 
         # Each parameter type has a different set of required settings
         if param_block["par_type"] == "continuous":

@@ -164,7 +164,8 @@ class Strategy(object):
             if use_gpu_modeling:
                 if not torch.cuda.is_available():
                     warnings.warn(
-                        "GPU requested for model {type(model).__name__}, but no GPU found! Using CPU instead.", UserWarning
+                        f"GPU requested for model {type(model).__name__}, but no GPU found! Using CPU instead.",
+                        UserWarning,
                     )
                     self.model_device = torch.device("cpu")
                 else:
@@ -182,12 +183,14 @@ class Strategy(object):
             else:
                 if hasattr(generator, "acqf") and generator.acqf in self.no_gpu_acqfs:
                     warnings.warn(
-                        f"GPU requested for acquistion function {type(generator.acqf).__name__}, but this acquisiton function does not support GPU! Using CPU instead.", UserWarning
+                        f"GPU requested for acquistion function {type(generator.acqf).__name__}, but this acquisiton function does not support GPU! Using CPU instead.",
+                        UserWarning,
                     )
                     self.generator_device = torch.device("cpu")
                 elif not torch.cuda.is_available():
                     warnings.warn(
-                        "GPU requested for generator {type(generator).__name__}, but no GPU found! Using CPU instead.", UserWarning
+                        f"GPU requested for generator {type(generator).__name__}, but no GPU found! Using CPU instead.",
+                        UserWarning,
                     )
                     self.generator_device = torch.device("cpu")
                 else:
