@@ -10,8 +10,13 @@ from unittest.mock import MagicMock
 
 import numpy as np
 import torch
+from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.generators import MonotonicRejectionGenerator, SobolGenerator
+from aepsych.generators import (
+    MonotonicRejectionGenerator,
+    OptimizeAcqfGenerator,
+    SobolGenerator,
+)
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -347,6 +352,38 @@ class TestSequenceGenerators(unittest.TestCase):
             )
         except AssertionError:
             self.fail("Strategy raised unexpected AssertionError on __init__!")
+
+
+class TestStrategyGPU(unittest.TestCase):
+    @unittest.skipIf(
+        torch.cuda.is_available(), "gpu is available, can't test no gpu warning"
+    )
+    def test_no_gpu_model_warn(self):
+        with self.assertWarns(UserWarning):
+            Strategy(
+                lb=[0],
+                ub=[1],
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
+                model=GPClassificationModel(lb=[0], ub=[1]),
+                generator=SobolGenerator(lb=[0], ub=[1]),
+                use_gpu_modeling=True,
+            )
+
+    @unittest.skipIf(
+        torch.cuda.is_available(), "gpu is available, can't test no gpu warning"
+    )
+    def test_no_gpu_generator_warn(self):
+        with self.assertWarns(UserWarning):
+            Strategy(
+                lb=[0],
+                ub=[1],
+                stimuli_per_trial=1,
+                outcome_types=["binary"],
+                model=GPClassificationModel(lb=[0], ub=[1]),
+                generator=OptimizeAcqfGenerator(acqf=MCLevelSetEstimation),
+                use_gpu_generating=True,
+            )
 
 
 if __name__ == "__main__":

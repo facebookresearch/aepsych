@@ -25,6 +25,12 @@ from typing import (
 
 import numpy as np
 import torch
+from aepsych.acquisition import (
+    MonotonicBernoulliMCMutualInformation,
+    MonotonicMCLSE,
+    MonotonicMCPosteriorVariance,
+)
+from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
@@ -65,6 +71,13 @@ class Strategy(object):
 
     _n_eval_points: int = 1000
 
+    no_gpu_acqfs = (
+        MonotonicMCAcquisition,
+        MonotonicBernoulliMCMutualInformation,
+        MonotonicMCPosteriorVariance,
+        MonotonicMCLSE,
+    )
+
     def __init__(
         self,
         generator: Union[AEPsychGenerator, ParameterTransformedGenerator],
@@ -77,6 +90,7 @@ class Strategy(object):
         min_asks: int = 0,
         model: Optional[AEPsychMixin] = None,
         use_gpu_modeling: bool = False,
+        use_gpu_generating: bool = False,
         refit_every: int = 1,
         min_total_outcome_occurrences: int = 1,
         max_asks: Optional[int] = None,
@@ -98,6 +112,7 @@ class Strategy(object):
             min_asks (int): The minimum number of points that should be generated from this strategy.
             model (ModelProtocol, optional): The AEPsych model of the data.
             use_gpu_modeling (bool): Whether to move the model to GPU fitting/predictions, defaults to False.
+            use_gpu_generating (bool): Whether to use the GPU for generating points, defaults to False.
             refit_every (int): How often to refit the model from scratch.
             min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.
                 Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).
@@ -145,10 +160,40 @@ class Strategy(object):
                 assert (
                     set(outcome_types) == set(model.outcome_type)
                 ), f"Strategy outcome types is {outcome_types} but model outcome type is {model.outcome_type}!"
-            if use_gpu_modeling:
-                assert torch.cuda.is_available(), f"GPU requested for model {type(model).__name__} but GPU is not found!"
 
-            self.model_device = torch.device("cuda" if use_gpu_modeling else "cpu")
+            if use_gpu_modeling:
+                if not torch.cuda.is_available():
+                    warnings.warn(
+                        "GPU requested for model {type(model).__name__}, but no GPU found! Using CPU instead.", UserWarning
+                    )
+                    self.model_device = torch.device("cpu")
+                else:
+                    self.model_device = torch.device("cuda")
+            else:
+                self.model_device = torch.device("cpu")
+
+        if use_gpu_generating:
+            if model is None:
+                warnings.warn(
+                    f"GPU requested for generator {type(generator).__name__} but this generator has no model to move to GPU. Using CPU instead.",
+                    UserWarning,
+                )
+                self.generator_device = torch.device("cpu")
+            else:
+                if hasattr(generator, "acqf") and generator.acqf in self.no_gpu_acqfs:
+                    warnings.warn(
+                        f"GPU requested for acquistion function {type(generator.acqf).__name__}, but this acquisiton function does not support GPU! Using CPU instead.", UserWarning
+                    )
+                    self.generator_device = torch.device("cpu")
+                elif not torch.cuda.is_available():
+                    warnings.warn(
+                        "GPU requested for generator {type(generator).__name__}, but no GPU found! Using CPU instead.", UserWarning
+                    )
+                    self.generator_device = torch.device("cpu")
+                else:
+                    self.generator_device = torch.device("cuda")
+        else:
+            self.generator_device = torch.device("cpu")
 
         self.run_indefinitely = run_indefinitely
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
@@ -255,8 +300,18 @@ class Strategy(object):
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
+        original_device = None
+        if self.model is not None and self.generator_device.type == "cuda":
+            original_device = self.model.device
+            self.model.to(self.generator_device)  # type: ignore
+
         self._count = self._count + num_points
-        return self.generator.gen(num_points, self.model)
+        points = self.generator.gen(num_points, self.model)
+
+        if original_device is not None:
+            self.model.to(original_device)  # type: ignore
+
+        return points
 
     @ensure_model_is_fresh
     def get_max(
@@ -471,6 +526,9 @@ class Strategy(object):
         generator = ParameterTransformedGenerator.from_config(
             config, name, options={"transforms": transforms}
         )
+        use_gpu_generating = config.getboolean(
+            generator._base_obj.__class__.__name__, "use_gpu", fallback=False
+        )
 
         model_cls = config.getobj(name, "model", fallback=None)
         if model_cls is not None:
@@ -531,6 +589,7 @@ class Strategy(object):
             transforms=transforms,
             model=model,  # type: ignore
             use_gpu_modeling=use_gpu_modeling,
+            use_gpu_generating=use_gpu_generating,
             generator=generator,
             min_asks=min_asks,
             refit_every=refit_every,

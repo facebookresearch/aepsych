@@ -34,7 +34,7 @@ def Hb(p: Tensor) -> Tensor:
 
     Returns: Binary entropy for each probability.
     """
-    epsilon = torch.tensor(np.finfo(float).eps)
+    epsilon = torch.tensor(np.finfo(float).eps).to(p)
     p = torch.clamp(p, min=epsilon, max=1 - epsilon)
     return -torch.nan_to_num(p * torch.log2(p) + (1 - p) * torch.log2(1 - p))
 
@@ -78,6 +78,8 @@ def SUR_fn(Px: Tensor, P1: Tensor, P0: Tensor, py1: Tensor) -> Tensor:
 
     Returns: (b) tensor of SUR values.
     """
+    P1 = P1.to(Px)
+    py1 = py1.to(Px)
     sur = ClassErr(Px) - py1 * ClassErr(P1) - (1 - py1) * ClassErr(P0)
     return sur.sum(dim=-1)
 

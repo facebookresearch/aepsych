@@ -144,7 +144,7 @@ def lookahead_p_at_xstar(
     pstar_marginal_0 = 1 - pstar_marginal_1
     pq_marginal_1 = probit(Mu_q / torch.sqrt(1 + Sigma2_q))
 
-    quad = GaussHermiteQuadrature1D()
+    quad = GaussHermiteQuadrature1D().to(Mu_q)
     fq_mvn = Normal(Mu_q, torch.sqrt(Sigma2_q))
     joint_ystar1_yq1 = quad(lookahead_inner, fq_mvn)
     joint_ystar0_yq1 = pq_marginal_1 - joint_ystar1_yq1
