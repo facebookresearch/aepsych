@@ -17,13 +17,13 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
-    Dict,
     List,
     Mapping,
     Optional,
     Sequence,
     TypeVar,
 )
+
 import botorch
 import gpytorch
 import numpy as np

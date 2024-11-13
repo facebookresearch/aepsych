@@ -10,8 +10,6 @@ from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-
-import torch
 from aepsych.strategy import Strategy
 from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
 from matplotlib.axes import Axes

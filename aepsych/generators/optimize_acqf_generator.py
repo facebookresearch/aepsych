@@ -100,7 +100,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
     ) -> torch.Tensor:
         # eval should be inherited from superclass
         model.eval()  # type: ignore
-        train_x = model.train_inputs[0]
         acqf = self._instantiate_acquisition_fn(model)
 
         logger.info("Starting gen...")
@@ -108,7 +107,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
         new_candidate, _ = optimize_acqf(
             acq_function=acqf,
-            bounds=torch.tensor(np.c_[model.lb, model.ub]).T.to(train_x),
+            bounds=torch.stack([model.lb, model.ub]),
             q=num_points,
             num_restarts=self.restarts,
             raw_samples=self.samps,

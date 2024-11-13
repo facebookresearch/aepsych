@@ -72,6 +72,7 @@ def _bvnu(
     hk = h * k
 
     x, w = _gauss_legendre20(dtype=dh.dtype)
+    x, w = x.to(dh), w.to(dh)
 
     asr = 0.5 * torch.asin(r)
     sn = torch.sin(asr[..., None] * x)

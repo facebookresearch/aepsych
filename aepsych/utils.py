@@ -21,7 +21,7 @@ def make_scaled_sobol(
     lb: torch.Tensor, ub: torch.Tensor, size: int, seed: Optional[int] = None
 ) -> torch.Tensor:
     lb, ub, ndim = _process_bounds(lb, ub, None)
-    grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size)
+    grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size).to(lb)
 
     # rescale from [0,1] to [lb, ub]
     grid = lb + (ub - lb) * grid
@@ -126,7 +126,6 @@ def interpolate_monotonic(x, y, z, min_x=-np.inf, max_x=np.inf):
     y1 = y[idx]
 
     x_star = x0 + (x1 - x0) * (z - y0) / (y1 - y0)
-
     return x_star
 
 
