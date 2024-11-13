@@ -170,6 +170,7 @@ class Strategy(object):
                     self.model_device = torch.device("cpu")
                 else:
                     self.model_device = torch.device("cuda")
+                    logger.info(f"Using GPU for modeling with {type(model).__name__}")
             else:
                 self.model_device = torch.device("cpu")
 
@@ -195,6 +196,9 @@ class Strategy(object):
                     self.generator_device = torch.device("cpu")
                 else:
                     self.generator_device = torch.device("cuda")
+                    logger.info(
+                        f"Using GPU for generating with {type(generator).__name__}"
+                    )
         else:
             self.generator_device = torch.device("cpu")
 
