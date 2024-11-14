@@ -62,7 +62,9 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         short = end - start
 
         # very loose test because fit time is only approximately computed
-        self.assertTrue(long > short)
+        # on very fast machines, short sometimes actually wins, but hopefully not by
+        # much
+        self.assertTrue(long - short > -0.05, f"Long time: {long}, short time: {short}")
 
     def test_instantiate_eubo(self):
         config = """
