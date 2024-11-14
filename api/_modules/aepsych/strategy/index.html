@@ -182,11 +182,13 @@
             <span class="k">if</span> <span class="n">use_gpu_modeling</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="s2">"GPU requested for model {type(model).__name__}, but no GPU found! Using CPU instead."</span><span class="p">,</span> <span class="ne">UserWarning</span>
+                        <span class="sa">f</span><span class="s2">"GPU requested for model </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but no GPU found! Using CPU instead."</span><span class="p">,</span>
+                        <span class="ne">UserWarning</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">model_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">model_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using GPU for modeling with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">model_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
 
@@ -200,16 +202,21 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">generator</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_gpu_acqfs</span><span class="p">:</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"GPU requested for acquistion function </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">acqf</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but this acquisiton function does not support GPU! Using CPU instead."</span><span class="p">,</span> <span class="ne">UserWarning</span>
+                        <span class="sa">f</span><span class="s2">"GPU requested for acquistion function </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">acqf</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but this acquisiton function does not support GPU! Using CPU instead."</span><span class="p">,</span>
+                        <span class="ne">UserWarning</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="s2">"GPU requested for generator {type(generator).__name__}, but no GPU found! Using CPU instead."</span><span class="p">,</span> <span class="ne">UserWarning</span>
+                        <span class="sa">f</span><span class="s2">"GPU requested for generator </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but no GPU found! Using CPU instead."</span><span class="p">,</span>
+                        <span class="ne">UserWarning</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"Using GPU for generating with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
 

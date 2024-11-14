@@ -265,9 +265,7 @@
 
         <span class="c1"># Checking if param_type is set</span>
         <span class="k">if</span> <span class="s2">"par_type"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the param_type setting."</span>
-            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the par_type setting."</span><span class="p">)</span>
 
         <span class="c1"># Each parameter type has a different set of required settings</span>
         <span class="k">if</span> <span class="n">param_block</span><span class="p">[</span><span class="s2">"par_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"continuous"</span><span class="p">:</span>
