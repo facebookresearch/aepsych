@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Callable, cast, Dict, Optional, Tuple
+from typing import Any, Callable, Literal, cast, Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -115,7 +115,7 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
         self,
         model: GPyTorchModel,
         target: Optional[float],
-        lookahead_type: str = "levelset",
+        lookahead_type: Literal["levelset", "posterior"] = "levelset",
     ) -> None:
         """
         A localized look-ahead acquisition function.
@@ -123,7 +123,9 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
         Args:
             model (GPyTorchModel): The gpytorch model to use.
             target (float, optional): Threshold value to target in p-space.
-            lookahead_type (str): The type of look-ahead to perform (default is "levelset").
+            lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").
+                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set. 
+                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.
         """
         super().__init__(model=model)
         if lookahead_type == "levelset":
@@ -142,7 +144,7 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
     def __init__(
         self,
         model: GPyTorchModel,
-        lookahead_type: str = "levelset",
+        lookahead_type: Literal["levelset", "posterior"] = "levelset",
         target: Optional[float] = None,
         posterior_transform: Optional[PosteriorTransform] = None,
     ) -> None:
@@ -151,7 +153,9 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
 
         Args:
             model (GPyTorchModel): The gpytorch model to use.
-            lookahead_type (str): The type of look-ahead to perform (default is "levelset").
+            lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").
+                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.
+                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.
             target (float, optional): Threshold value to target in p-space.
             posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.
         """
@@ -198,7 +202,7 @@ class LocalSUR(LocalLookaheadAcquisitionFunction):
 def construct_inputs_local_lookahead(
     model: GPyTorchModel,
     training_data: None,
-    lookahead_type: str = "levelset",
+    lookahead_type: Literal["levelset", "posterior"] = "levelset",
     target: Optional[float] = None,
     posterior_transform: Optional[PosteriorTransform] = None,
     **kwargs,
@@ -208,7 +212,9 @@ def construct_inputs_local_lookahead(
     Args:
         model (GPyTorchModel): The gpytorch model to use.
         training_data (None): Placeholder for compatibility; not used in this function.
-        lookahead_type (str): Type of look-ahead to perform. Default is "levelset".
+        lookahead_type (Literal["levelset", "posterior"]): Type of look-ahead to perform. Default is "levelset".
+            - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.
+            - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.
         target (float, optional): Target threshold value in probability space. Default is None.
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default is None.
         
@@ -228,7 +234,7 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
     def __init__(
         self,
         model: GPyTorchModel,
-        lookahead_type: str = "levelset",
+        lookahead_type: Literal["levelset", "posterior"] = "levelset",
         target: Optional[float] = None,
         posterior_transform: Optional[PosteriorTransform] = None,
         query_set_size: Optional[int] = 256,
@@ -239,7 +245,9 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
 
         Args:
             model (GPyTorchModel): The gpytorch model to use.
-            lookahead_type (str): The type of look-ahead to perform (default is "levelset").
+            lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").
+                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.
+                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.
             target (float, optional): Threshold value to target in p-space.
             posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior.
             query_set_size (int, optional): Number of points in the query set.
