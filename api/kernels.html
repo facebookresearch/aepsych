@@ -51,33 +51,24 @@ if it is of df/dxi.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance between <span class="math notranslate nohighlight">\(\mathbf x_1\)</span> and <span class="math notranslate nohighlight">\(\mathbf x_2\)</span>.
-This method should be implemented by all Kernel subclasses.</p>
+<dd><p>Computes the covariance matrix between x1 and x2 based on the RBF</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x1</strong> (<em>Tensor</em>) – First set of data (… x N x D).</p></li>
-<li><p><strong>x2</strong> (<em>Tensor</em>) – Second set of data (… x M x D).</p></li>
-<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?
-If True, it must be the case that <cite>x1 == x2</cite>. (Default: False.)</p></li>
-<li><p><strong>last_dim_is_batch</strong> – If True, treat the last dimension
-of <cite>x1</cite> and <cite>x2</cite> as another batch dimension.
-(Useful for additive structure over the dimensions). (Default: False.)</p></li>
+<li><p><strong>x1</strong> (<em>torch.Tensor</em>) – A <cite>b x n x d</cite> or <cite>n x d</cite> tensor, where <cite>d = 2k</cite> and <cite>k</cite> is the dimension of the latent space.</p></li>
+<li><p><strong>x2</strong> (<em>torch.Tensor</em>) – A <cite>b x m x d</cite> or <cite>m x d</cite> tensor, where <cite>d = 2k</cite> and <cite>k</cite> is the dimension of the latent space.</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole covariance matrix (False) or just the diagonal (True)? Defaults to False.</p></li>
 <li><p><strong>params</strong> (<em>Any</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>The kernel matrix or vector. The shape depends on the kernel’s evaluation mode:</p>
-<ul class="simple">
-<li><p><cite>full_covar</cite>: <cite>… x N x M</cite></p></li>
-<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>… x K x N x M</cite></p></li>
-<li><p><cite>diag</cite>: <cite>… x N</cite></p></li>
-<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>… x K x N</cite></p></li>
-</ul>
-</p>
+<dd class="field-even"><p>A <cite>b x n x m</cite> or <cite>n x m</cite> tensor representing the covariance matrix between <cite>x1</cite> and <cite>x2</cite>.
+The exact size depends on the kernel’s evaluation mode:
+* <cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite>
+* <cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Tensor</em></p>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -117,12 +108,11 @@ will be <cite>… x (N * num_outputs_per_input) x (M * num_outputs_per_input)</c
 functions of the form g(a, b) = f(a) - f(b), where f ~ GP(mu, K).</p>
 <p>Since g is a linear combination of Gaussians, it follows that g ~ GP(0, K’)
 where K’((a,b), (c,d)) = K(a,c) - K(a, d) - K(b, c) + K(b, d).</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>latent_kernel</strong> (<em>Any</em>) – </p></li>
-<li><p><strong>is_partial_obs</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>latent_kernel</strong> (<em>Kernel</em>) – The underlying kernel used to compute the covariance for the GP.</p></li>
+<li><p><strong>is_partial_obs</strong> (<em>bool</em>) – If the kernel should handle partial observations. Defaults to False.</p></li>
 </ul>
 </dd>
 </dl>
@@ -130,34 +120,24 @@ where K’((a,b), (c,d)) = K(a,c) - K(a, d) - K(b, c) + K(b, d).</p>
 <dt class="sig sig-object py" id="aepsych.kernels.PairwiseKernel.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/pairwisekernel.html#PairwiseKernel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.PairwiseKernel.forward" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO: make last_batch_dim work properly</p>
-<p>d must be 2*k for integer k, k is the dimension of the latent space
-:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">x1</span></code>: First set of data
-:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">x1</span></code>: Tensor <cite>n x d</cite> or <cite>b x n x d</cite>
-:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">x2</span></code>: Second set of data
-:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">x2</span></code>: Tensor <cite>m x d</cite> or <cite>b x m x d</cite>
-:param <code class="xref py py-attr docutils literal notranslate"><span class="pre">diag</span></code>: Should the Kernel compute the whole kernel, or just the diag?
-:type <code class="xref py py-attr docutils literal notranslate"><span class="pre">diag</span></code>: bool</p>
+<p>d must be 2*k for integer k, k is the dimension of the latent space</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>.</dt><dd><p>The exact size depends on the kernel’s evaluation mode:</p>
-<ul class="simple">
-<li><p><cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite></p></li>
-<li><p><cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p></li>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (<em>torch.Tensor</em>) – A <cite>b x n x d</cite> or <cite>n x d</cite> tensor, where <cite>d = 2k</cite> and <cite>k</cite> is the dimension of the latent space.</p></li>
+<li><p><strong>x2</strong> (<em>torch.Tensor</em>) – A <cite>b x m x d</cite> or <cite>m x d</cite> tensor, where <cite>d = 2k</cite> and <cite>k</cite> is the dimension of the latent space.</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole covariance matrix or just the diagonal? Defaults to False.</p></li>
 </ul>
 </dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>x1</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>x2</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>diag</strong> (<em>bool</em>) – </p></li>
-</ul>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <cite>b x n x m</cite> or <cite>n x m</cite> tensor representing
+the covariance matrix between <cite>x1</cite> and <cite>x2</cite>.
+The exact size depends on the kernel’s evaluation mode:
+* <cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite>
+* <cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Optional</em>[<em>Tensor</em>]</p>
+<dd class="field-odd"><p>torch.Tensor (or <code class="xref py py-class docutils literal notranslate"><span class="pre">gpytorch.lazy.LazyTensor</span></code>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -191,33 +171,24 @@ if it is of df/dxi.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.kernels.RBFKernelPartialObsGrad.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/kernels/rbf_partial_grad.html#RBFKernelPartialObsGrad.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.kernels.RBFKernelPartialObsGrad.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the covariance between <span class="math notranslate nohighlight">\(\mathbf x_1\)</span> and <span class="math notranslate nohighlight">\(\mathbf x_2\)</span>.
-This method should be implemented by all Kernel subclasses.</p>
+<dd><p>Computes the covariance matrix between x1 and x2 based on the RBF</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x1</strong> (<em>Tensor</em>) – First set of data (… x N x D).</p></li>
-<li><p><strong>x2</strong> (<em>Tensor</em>) – Second set of data (… x M x D).</p></li>
-<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole kernel, or just the diag?
-If True, it must be the case that <cite>x1 == x2</cite>. (Default: False.)</p></li>
-<li><p><strong>last_dim_is_batch</strong> – If True, treat the last dimension
-of <cite>x1</cite> and <cite>x2</cite> as another batch dimension.
-(Useful for additive structure over the dimensions). (Default: False.)</p></li>
+<li><p><strong>x1</strong> (<em>torch.Tensor</em>) – A <cite>b x n x d</cite> or <cite>n x d</cite> tensor, where <cite>d = 2k</cite> and <cite>k</cite> is the dimension of the latent space.</p></li>
+<li><p><strong>x2</strong> (<em>torch.Tensor</em>) – A <cite>b x m x d</cite> or <cite>m x d</cite> tensor, where <cite>d = 2k</cite> and <cite>k</cite> is the dimension of the latent space.</p></li>
+<li><p><strong>diag</strong> (<em>bool</em>) – Should the Kernel compute the whole covariance matrix (False) or just the diagonal (True)? Defaults to False.</p></li>
 <li><p><strong>params</strong> (<em>Any</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>The kernel matrix or vector. The shape depends on the kernel’s evaluation mode:</p>
-<ul class="simple">
-<li><p><cite>full_covar</cite>: <cite>… x N x M</cite></p></li>
-<li><p><cite>full_covar</cite> with <cite>last_dim_is_batch=True</cite>: <cite>… x K x N x M</cite></p></li>
-<li><p><cite>diag</cite>: <cite>… x N</cite></p></li>
-<li><p><cite>diag</cite> with <cite>last_dim_is_batch=True</cite>: <cite>… x K x N</cite></p></li>
-</ul>
-</p>
+<dd class="field-even"><p>A <cite>b x n x m</cite> or <cite>n x m</cite> tensor representing the covariance matrix between <cite>x1</cite> and <cite>x2</cite>.
+The exact size depends on the kernel’s evaluation mode:
+* <cite>full_covar</cite>: <cite>n x m</cite> or <cite>b x n x m</cite>
+* <cite>diag</cite>: <cite>n</cite> or <cite>b x n</cite></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Tensor</em></p>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>

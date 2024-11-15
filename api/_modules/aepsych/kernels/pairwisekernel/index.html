@@ -34,8 +34,13 @@
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">latent_kernel</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">is_partial_obs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+          <span class="bp">self</span><span class="p">,</span> <span class="n">latent_kernel</span><span class="p">:</span> <span class="n">Kernel</span><span class="p">,</span> <span class="n">is_partial_obs</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">         Args:</span>
+<span class="sd">            latent_kernel (Kernel): The underlying kernel used to compute the covariance for the GP.</span>
+<span class="sd">            is_partial_obs (bool): If the kernel should handle partial observations. Defaults to False.</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">PairwiseKernel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">latent_kernel</span> <span class="o">=</span> <span class="n">latent_kernel</span>
@@ -48,20 +53,20 @@
 <span class="sd">        TODO: make last_batch_dim work properly</span>
 
 <span class="sd">        d must be 2*k for integer k, k is the dimension of the latent space</span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            :attr:`x1` (Tensor `n x d` or `b x n x d`):</span>
-<span class="sd">                First set of data</span>
-<span class="sd">            :attr:`x2` (Tensor `m x d` or `b x m x d`):</span>
-<span class="sd">                Second set of data</span>
-<span class="sd">            :attr:`diag` (bool):</span>
-<span class="sd">                Should the Kernel compute the whole kernel, or just the diag?</span>
+<span class="sd">            x1 (torch.Tensor): A `b x n x d` or `n x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.</span>
+<span class="sd">            x2 (torch.Tensor): A `b x m x d` or `m x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.</span>
+<span class="sd">            diag (bool): Should the Kernel compute the whole covariance matrix or just the diagonal? Defaults to False.</span>
+<span class="sd">            </span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            :class:`Tensor` or :class:`gpytorch.lazy.LazyTensor`.</span>
-<span class="sd">                The exact size depends on the kernel's evaluation mode:</span>
+<span class="sd">            torch.Tensor (or :class:`gpytorch.lazy.LazyTensor`) : A `b x n x m` or `n x m` tensor representing</span>
+<span class="sd">            the covariance matrix between `x1` and `x2`. </span>
+<span class="sd">            The exact size depends on the kernel's evaluation mode:</span>
+<span class="sd">            * `full_covar`: `n x m` or `b x n x m`</span>
+<span class="sd">            * `diag`: `n` or `b x n`</span>
 
-<span class="sd">                * `full_covar`: `n x m` or `b x n x m`</span>
-<span class="sd">                * `diag`: `n` or `b x n`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_partial_obs</span><span class="p">:</span>
             <span class="n">d</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
