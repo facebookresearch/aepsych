@@ -219,7 +219,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
     def sample(
         self, x: torch.Tensor, num_samples: int, rereference: str = "x_min"
     ) -> torch.Tensor:
-        """Sample from the model.
+        """Sample from the model model posterior.
 
         Args:
             x (torch.Tensor): Points at which to sample.
