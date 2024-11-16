@@ -14,7 +14,7 @@ from aepsych.config import Config, ConfigurableMixin
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.utils.sampling import draw_sobol_samples
 from scipy.cluster.vq import kmeans2
-
+from aepsych.utils import get_bounds
 
 class SobolAllocator(InducingPointAllocator, ConfigurableMixin):
     """An inducing point allocator that uses Sobol sequences to allocate inducing points."""
@@ -106,7 +106,7 @@ class SobolAllocator(InducingPointAllocator, ConfigurableMixin):
         """
         if name is None:
             name = cls.__name__
-        bounds = config.gettensor(name, "bounds")
+        bounds = get_bounds(config)
         return {"bounds": bounds}
 
 

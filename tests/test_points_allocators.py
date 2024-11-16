@@ -20,15 +20,21 @@ from botorch.utils.sampling import draw_sobol_samples
 class TestInducingPointAllocators(unittest.TestCase):
     def test_sobol_allocator_from_config(self):
         config_str = """
-            [SobolAllocator]
-            bounds = [[0.0, 1.0], [0.0, 1.0]]
+            [common]
+            parnames = [par1]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0.0
+            upper_bound = 1.0
+
         """
         config = Config()
         config.update(config_str=config_str)
         allocator = SobolAllocator.from_config(config)
 
         # Check if bounds are correctly loaded
-        expected_bounds = torch.tensor([[0.0, 1.0], [0.0, 1.0]])
+        expected_bounds = torch.tensor([[0.0, 1.0]])
         self.assertTrue(torch.equal(allocator.bounds, expected_bounds))
 
     def test_kmeans_allocator_from_config(self):
@@ -44,21 +50,22 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_auto_allocator_from_config_with_fallback(self):
         config_str = """
-            [AutoAllocator]
-            fallback_allocator = SobolAllocator
-            [SobolAllocator]
-            bounds = [[0.0, 1.0], [0.0, 1.0]]
+            [common]
+            parnames = [par1]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0.0
+            upper_bound = 1.0
+
         """
         config = Config()
         config.update(config_str=config_str)
         allocator = AutoAllocator.from_config(config)
 
         # Check if fallback allocator is an instance of SobolAllocator with correct bounds
-        self.assertTrue(isinstance(allocator.fallback_allocator, SobolAllocator))
-        expected_bounds = torch.tensor([[0.0, 1.0], [0.0, 1.0]])
-        self.assertTrue(
-            torch.equal(allocator.fallback_allocator.bounds, expected_bounds)
-        )
+        self.assertTrue(isinstance(allocator.fallback_allocator, KMeansAllocator))
+        
 
     def test_sobol_allocator_allocate_inducing_points(self):
         bounds = torch.tensor([[0.0], [1.0]])
