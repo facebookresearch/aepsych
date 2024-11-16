@@ -11,10 +11,11 @@ import numpy as np
 import torch
 
 from aepsych.config import Config, ConfigurableMixin
+from aepsych.utils import get_bounds
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.utils.sampling import draw_sobol_samples
 from scipy.cluster.vq import kmeans2
-from aepsych.utils import get_bounds
+
 
 class SobolAllocator(InducingPointAllocator, ConfigurableMixin):
     """An inducing point allocator that uses Sobol sequences to allocate inducing points."""
