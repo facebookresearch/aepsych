@@ -23,6 +23,8 @@ from botorch.acquisition.objective import IdentityMCObjective
 from botorch.utils.testing import BotorchTestCase
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 from scipy.stats import norm
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 
 class MonotonicRejectionGPLSETest(BotorchTestCase):
@@ -32,13 +34,16 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
         lb = torch.tensor([0, 0])
         ub = torch.tensor([4, 4])
+        inducing_size = 10
+        bounds = torch.stack([lb, ub])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+
         m = MonotonicRejectionGP(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             likelihood=GaussianLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],
-            num_induc=2,
+            num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
         )
@@ -84,13 +89,16 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
         lb = torch.tensor([0, 0])
         ub = torch.tensor([4, 4])
+        inducing_size = 10
+        bounds = torch.stack([lb, ub])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+
         m = MonotonicRejectionGP(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             likelihood=BernoulliLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],
-            num_induc=2,
+            num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
         )

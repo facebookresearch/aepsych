@@ -94,9 +94,8 @@ class MonotonicProjectionGP(GPClassificationModel):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
         monotonic_dims: List[int],
+        inducing_points: Optional[torch.Tensor] = None,
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,
         dim: Optional[int] = None,
@@ -114,8 +113,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         if inducing_point_method is None:
             inducing_point_method = AutoAllocator()
         super().__init__(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             dim=dim,
             mean_module=mean_module,
             covar_module=covar_module,
@@ -193,8 +191,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
+        inducing_points = config.getobj(classname, "inducing_points", fallback=None)
         dim = config.getint(classname, "dim", fallback=None)
 
         mean_covar_factory = config.getobj(
@@ -231,8 +228,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         min_f_val = config.getfloat(classname, "min_f_val", fallback=None)
 
         return cls(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             dim=dim,
             inducing_size=inducing_size,
             mean_module=mean,

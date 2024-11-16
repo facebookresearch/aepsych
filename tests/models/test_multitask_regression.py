@@ -13,15 +13,17 @@ import torch
 from aepsych.generators import SobolGenerator
 from aepsych.models import IndependentMultitaskGPRModel, MultitaskGPRModel
 from parameterized import parameterized
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
 models = [
-    (MultitaskGPRModel(num_outputs=2, rank=2, lb=[-1], ub=[3]),),
-    (IndependentMultitaskGPRModel(num_outputs=2, lb=[-1], ub=[3]),),
-]
+    (MultitaskGPRModel(num_outputs=2, rank=2,inducing_points=select_inducing_points(inducing_size=10, allocator=SobolAllocator(bounds=torch.stack([torch.tensor(-1.0), torch.tensor(3.0)]))))),
+    (IndependentMultitaskGPRModel(num_outputs=2,inducing_points=select_inducing_points(inducing_size=10, allocator=SobolAllocator(bounds=torch.stack([torch.tensor(-1.0), torch.tensor(3.0)]))))),
+    ]
 
 
 class MultitaskGPRegressionTest(unittest.TestCase):

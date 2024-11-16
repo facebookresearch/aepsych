@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import Dict, Optional, Tuple, Union
+import warnings
 
 import gpytorch
 import numpy as np
@@ -19,6 +20,8 @@ from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ExactGP
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 
 logger = getLogger()
 
@@ -33,21 +36,20 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        inducing_points: Optional[torch.Tensor] = None,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         max_fit_time: Optional[float] = None,
+        inducing_point_method: Optional[InducingPointAllocator] = None,
     ) -> None:
         """Initialize the GP regression model
 
         Args:
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub.
+           inducing_points (torch.Tensor, optional): Inducing points for sparse GP. Defaults to None.
+           dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+                of inducing_points.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
@@ -55,13 +57,41 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
                 Gaussian likelihood.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
+            inducing_point_method (InducingPointAllocator, optional): The method to use for allocating inducing points.
+                If None, defaults to AutoAllocator. 
         """
         if likelihood is None:
             likelihood = GaussianLikelihood()
 
         super().__init__(None, None, likelihood)
+        
+        self.inducing_point_method: Optional[InducingPointAllocator]
+        if inducing_points is not None and inducing_point_method is SobolAllocator:
+            warnings.warn(
+                "Both inducing_points and SobolAllocator are provided. "
+                "The initial inducing_points will be overwritten by the allocator."
+            )
+            self.inducing_point_method = inducing_point_method
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+        
+        elif inducing_points is None and inducing_point_method is None:
+            # Log or mark that we won’t be using the allocator, only inducing_points
+            self.inducing_points = torch.zeros(self.inducing_size)
+            self.inducing_point_method = AutoAllocator()
 
-        lb, ub, self.dim = _process_bounds(lb, ub, dim)
+        elif inducing_points is not None and inducing_point_method is None:
+            self.inducing_points = inducing_points
+            self.inducing_point_method = AutoAllocator()
+
+        elif inducing_points is None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
+            self.inducing_points = torch.zeros(self.inducing_size)
+            self.inducing_point_method = inducing_point_method
+
+        elif inducing_points is not None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
+            self.inducing_points = inducing_points
+            self.inducing_point_method = inducing_point_method
+        
+        self.dim = dim or self.inducing_points.size(-1)
         self.max_fit_time = max_fit_time
 
         if mean_module is None or covar_module is None:
@@ -70,8 +100,6 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
             )
 
         # Tensors need to be directly registered, Modules themselves can be assigned as attr
-        self.register_buffer("lb", lb)
-        self.register_buffer("ub", ub)
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
@@ -83,8 +111,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
     def construct_inputs(cls, config: Config) -> Dict:
         classname = cls.__name__
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
+        inducing_points = config.getobj(classname, "inducing_points", fallback=None)
         dim = config.getint(classname, "dim", fallback=None)
 
         mean_covar_factory = config.getobj(
@@ -106,8 +133,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         return {
-            "lb": lb,
-            "ub": ub,
+            "inducing_points": inducing_points,
             "dim": dim,
             "mean_module": mean,
             "covar_module": covar,

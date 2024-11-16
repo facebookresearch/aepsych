@@ -50,8 +50,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
+        inducing_points: Optional[torch.Tensor] = None,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -63,10 +62,9 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         """Initialize the GP Classification model
 
         Args:
-            lb torch.Tensor: Lower bounds of the parameters.
-            ub torch.Tensor: Upper bounds of the parameters.
+            inducing_points (torch.Tensor, optional): Inducing points for the model. Defaults to None.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub.
+                of inducing_points.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
@@ -78,7 +76,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 Defaults to AutoAllocator().
         """
-        lb, ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
 
@@ -93,37 +90,56 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         if likelihood is None:
             likelihood = BernoulliLikelihood()
-        if inducing_point_method is None:
-            self.inducing_point_method = AutoAllocator()
-        else:
-            self.inducing_point_method = inducing_point_method
 
-        # initialize to sobol before we have data
-        inducing_points = select_inducing_points(
-            allocator=SobolAllocator(bounds=torch.stack((lb, ub))),
-            inducing_size=self.inducing_size,
-        )
+        self.inducing_point_method: Optional[InducingPointAllocator]
+        if inducing_points is not None and inducing_point_method is SobolAllocator:
+            warnings.warn(
+                "Both inducing_points and SobolAllocator are provided. "
+                "The initial inducing_points will be overwritten by the allocator."
+            )
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+
+        elif inducing_points is None and inducing_point_method is SobolAllocator:
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+
+        elif inducing_points is None:
+            # No allocator or unsupported allocator: create a dummy tensor
+            warnings.warn(
+                "No inducing points provided and allocation is not supported by the method. "
+                "Using a zero tensor as a placeholder."
+            )
+            self.inducing_points = torch.zeros((self.inducing_size))
+
+        else:
+            # Use provided inducing points
+            self.inducing_points = inducing_points
+
+        # Always assign the inducing point method
+        self.inducing_point_method = inducing_point_method or AutoAllocator()
+
+        
+        self.dim = dim or self.inducing_points.size(-1)
+        
+        if mean_module is None or covar_module is None:
+            default_mean, default_covar = default_mean_covar_factory(
+                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
+            )
+        
 
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        ).to(inducing_points)
+            self.inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
+        ).to(self.inducing_points)
 
         variational_strategy = VariationalStrategy(
             self,
-            inducing_points,
+            self.inducing_points,
             variational_distribution,
             learn_inducing_locations=False,
         )
         super().__init__(variational_strategy)
 
-        if mean_module is None or covar_module is None:
-            default_mean, default_covar = default_mean_covar_factory(
-                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
-            )
+        
 
-        # Tensors need to be directly registered, Modules themselves can be assigned as attr
-        self.register_buffer("lb", lb)
-        self.register_buffer("ub", ub)
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
@@ -148,8 +164,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
+        inducing_points = config.gettensor(classname, "inducing_points", fallback=None)
         dim = config.getint(classname, "dim", fallback=None)
 
         mean_covar_factory = config.getobj(
@@ -179,8 +194,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             likelihood = None  # fall back to __init__ default
 
         return cls(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             dim=dim,
             inducing_size=inducing_size,
             mean_module=mean,
@@ -209,8 +223,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 allocator=self.inducing_point_method,
                 inducing_size=self.inducing_size,
                 covar_module=self.covar_module,
-                X=self.train_inputs[0],
-                bounds=self.bounds,
+                X=self.train_inputs[0]
             ).to(device)
 
             variational_distribution = CholeskyVariationalDistribution(
@@ -329,8 +342,7 @@ class GPBetaRegressionModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
+        inducing_points: Optional[torch.Tensor] = None,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -344,8 +356,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         if inducing_point_method is None:
             inducing_point_method = AutoAllocator()
         super().__init__(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             dim=dim,
             mean_module=mean_module,
             covar_module=covar_module,

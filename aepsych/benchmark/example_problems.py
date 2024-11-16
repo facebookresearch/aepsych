@@ -11,7 +11,8 @@ from aepsych.benchmark.test_functions import (
     novel_discrimination_testfun,
 )
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import KMeansAllocator
+from aepsych.models.inducing_point_allocators import KMeansAllocator, SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 """The DiscrimLowDim, DiscrimHighDim, ContrastSensitivity6d, and Hartmann6Binary classes
 are copied from bernoulli_lse github repository (https://github.com/facebookresearch/bernoulli_lse)
@@ -104,12 +105,13 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
         )
         y = torch.LongTensor(self.data[:, 0])
         x = torch.Tensor(self.data[:, 1:])
+        inducing_size=100
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=self.bounds))
 
         # Fit a model, with a large number of inducing points
         self.m = GPClassificationModel(
-            lb=self.bounds[0],
-            ub=self.bounds[1],
-            inducing_size=100,
+            inducing_points=inducing_points,
+            inducing_size=inducing_size,
             inducing_point_method=KMeansAllocator(),
         )
 

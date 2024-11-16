@@ -57,8 +57,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     def __init__(
         self,
         monotonic_idxs: Sequence[int],
-        lb: torch.Tensor,
-        ub: torch.Tensor,
+        inducing_points: Optional[Tensor] = None,
         dim: Optional[int] = None,
         mean_module: Optional[Mean] = None,
         covar_module: Optional[Kernel] = None,
@@ -88,21 +87,50 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
             extra_acqf_args (Optional[Dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
         """
-        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
         self.inducing_size = num_induc
-        if inducing_point_method is None:
-            self.inducing_point_method = AutoAllocator()
-        else:
-            self.inducing_point_method = inducing_point_method
-        inducing_points = select_inducing_points(
-            allocator=SobolAllocator(bounds=torch.stack((self.lb, self.ub))),
-            inducing_size=self.inducing_size,
-        )
 
-        inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
+        self.mean_module = mean_module
+        self.covar_module = covar_module
+        self.likelihood = likelihood
+
+        self.num_induc = num_induc
+        self.monotonic_idxs = monotonic_idxs
+        self.num_samples = num_samples
+        self.num_rejection_samples = num_rejection_samples
+        self.fixed_prior_mean = fixed_prior_mean
+
+        self.inducing_point_method: Optional[InducingPointAllocator]
+        if inducing_points is not None and inducing_point_method is SobolAllocator:
+            warnings.warn(
+                "Both inducing_points and SobolAllocator are provided. "
+                "The initial inducing_points will be overwritten by the allocator."
+            )
+            self.inducing_point_method = inducing_point_method
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+        
+        elif inducing_points is None and inducing_point_method is None:
+            # Log or mark that we won’t be using the allocator, only inducing_points
+            self.inducing_points = torch.zeros(self.inducing_size)
+            self.inducing_point_method = AutoAllocator()
+
+        elif inducing_points is not None and inducing_point_method is None:
+            self.inducing_points = inducing_points
+            self.inducing_point_method = AutoAllocator()
+
+        elif inducing_points is None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
+            self.inducing_points = torch.zeros(self.inducing_size)
+            self.inducing_point_method = inducing_point_method
+
+        elif inducing_points is not None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
+            self.inducing_points = inducing_points
+            self.inducing_point_method = inducing_point_method
+        
+        self.dim = dim or self.inducing_points.size(-1)
+
+        inducing_points_aug = self._augment_with_deriv_index(self.inducing_points, 0)
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points_aug.size(0)
         )
@@ -141,17 +169,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         super().__init__(variational_strategy)
 
-        self.bounds_ = torch.stack([self.lb, self.ub])
-        self.mean_module = mean_module
-        self.covar_module = covar_module
-        self.likelihood = likelihood
-
-        self.num_induc = num_induc
-        self.monotonic_idxs = monotonic_idxs
-        self.num_samples = num_samples
-        self.num_rejection_samples = num_rejection_samples
-        self.fixed_prior_mean = fixed_prior_mean
-        self.inducing_points = inducing_points
+        # self.bounds_ = torch.stack([self.lb, self.ub])
+        
 
     def fit(self, train_x: Tensor, train_y: Tensor, **kwargs) -> None:
         """Fit the model
@@ -166,8 +185,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             allocator=self.inducing_point_method,
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
-            X=self.train_inputs[0],
-            bounds=self.bounds,
+            X=self.train_inputs[0]
         )
         self._set_model(train_x, train_y)
 

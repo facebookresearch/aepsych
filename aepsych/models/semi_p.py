@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import Any, Optional, Tuple, Union
+import warnings
 
 import gpytorch
 import numpy as np
@@ -18,7 +19,7 @@ from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
@@ -180,8 +181,7 @@ class SemiParametricGPModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        inducing_points: Optional[torch.Tensor] = None,
         dim: Optional[int] = None,
         stim_dim: int = 0,
         mean_module: Optional[gpytorch.means.Mean] = None,
@@ -196,10 +196,9 @@ class SemiParametricGPModel(GPClassificationModel):
         Initialize SemiParametricGP.
         Args:
         Args:
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            inducing_points (torch.Tensor, optional): Inducing points for sparse GP. Defaults to None.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub.
+                of inducing_points.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
@@ -215,10 +214,38 @@ class SemiParametricGPModel(GPClassificationModel):
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
         """
+        
+        self.inducing_point_method: Optional[InducingPointAllocator]
+        if inducing_points is not None and inducing_point_method is SobolAllocator:
+            warnings.warn(
+                "Both inducing_points and SobolAllocator are provided. "
+                "The initial inducing_points will be overwritten by the allocator."
+            )
+            self.inducing_point_method = inducing_point_method
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+        
+        elif inducing_points is None and inducing_point_method is None:
+            # Log or mark that we won’t be using the allocator, only inducing_points
+            self.inducing_points = torch.zeros(self.inducing_size)
+            self.inducing_point_method = AutoAllocator()
 
-        lb, ub, dim = _process_bounds(lb, ub, dim)
+        elif inducing_points is not None and inducing_point_method is None:
+            self.inducing_points = inducing_points
+            self.inducing_point_method = AutoAllocator()
+
+        elif inducing_points is None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
+            self.inducing_points = torch.zeros(self.inducing_size)
+            self.inducing_point_method = inducing_point_method
+
+        elif inducing_points is not None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
+            self.inducing_points = inducing_points
+            self.inducing_point_method = inducing_point_method
+        
+        dim = dim or self.inducing_points.size(-1)
+        self.dim = dim
+
         self.stim_dim = stim_dim
-        self.context_dims = list(range(dim))
+        self.context_dims = list(range(self.dim ))
         self.context_dims.pop(stim_dim)
 
         if mean_module is None:
@@ -231,7 +258,7 @@ class SemiParametricGPModel(GPClassificationModel):
         if covar_module is None:
             covar_module = ScaleKernel(
                 RBFKernel(
-                    ard_num_dims=dim - 1,
+                    ard_num_dims=self.dim  - 1,
                     lengthscale_prior=GammaPrior(3, 6),
                     active_dims=self.context_dims,  # Operate only on x_s
                     batch_shape=torch.Size([2]),
@@ -247,8 +274,7 @@ class SemiParametricGPModel(GPClassificationModel):
             inducing_point_method = AutoAllocator()
 
         super().__init__(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             dim=dim,
             mean_module=mean_module,
             covar_module=covar_module,
@@ -275,8 +301,7 @@ class SemiParametricGPModel(GPClassificationModel):
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
+        inducing_points = config.gettensor(classname, "inducing_points", fallback=None)
         dim = config.getint(classname, "dim", fallback=None)
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
@@ -303,8 +328,7 @@ class SemiParametricGPModel(GPClassificationModel):
         slope_mean = config.getfloat(classname, "slope_mean", fallback=2)
 
         return cls(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             stim_dim=stim_dim,
             dim=dim,
             likelihood=likelihood,
@@ -435,8 +459,7 @@ class HadamardSemiPModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
+        inducing_points: Optional[torch.Tensor] = None,
         dim: Optional[int] = None,
         stim_dim: int = 0,
         slope_mean_module: Optional[gpytorch.means.Mean] = None,
@@ -452,10 +475,9 @@ class HadamardSemiPModel(GPClassificationModel):
         """
         Initialize HadamardSemiPModel.
         Args:
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            inducing_points (torch.Tensor, optional): Inducing points for sparse GP. Defaults to None.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub.
+                of inducing_points.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             slope_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for slope.
             slope_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for slope.
@@ -471,11 +493,24 @@ class HadamardSemiPModel(GPClassificationModel):
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
         """
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
+        self.inducing_point_method: Optional[InducingPointAllocator]
+        if inducing_points is not None and inducing_point_method is SobolAllocator:
+            warnings.warn(
+                "Both inducing_points and SobolAllocator are provided. "
+                "The initial inducing_points will be overwritten by the allocator."
+            )
+            self.inducing_point_method = inducing_point_method
+            self.inducing_points = inducing_point_method.allocate_inducing_points(covar_module=self.covar_module, num_inducing=self.inducing_size)
+        
+        elif inducing_point_method is None:
+            # Log or mark that we won’t be using the allocator, only inducing_points
+            self.inducing_points = inducing_points
+            self.inducing_point_method = AutoAllocator()        
+        
+        self.dim = dim or self.inducing_points.size(-1)
+        
         super().__init__(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             dim=dim,
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
@@ -574,8 +609,7 @@ class HadamardSemiPModel(GPClassificationModel):
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
+        inducing_points = config.gettensor(classname, "inducing_points", fallback=None)
         dim = config.getint(classname, "dim", fallback=None)
 
         slope_mean_module = config.getobj(classname, "slope_mean_module", fallback=None)
@@ -610,8 +644,7 @@ class HadamardSemiPModel(GPClassificationModel):
         stim_dim = config.getint(classname, "stim_dim", fallback=0)
 
         return cls(
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             stim_dim=stim_dim,
             dim=dim,
             slope_mean_module=slope_mean_module,

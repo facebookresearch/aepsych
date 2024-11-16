@@ -13,6 +13,8 @@ import torch
 from aepsych.config import Config
 from aepsych.models import GPClassificationModel
 from aepsych.utils import _process_bounds, get_dim, get_parameters, make_scaled_sobol
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -33,7 +35,11 @@ class UtilsTestCase(unittest.TestCase):
         ub = 4.0
         dim = 1
         gridsize = 10
-        mb = GPClassificationModel(lb=lb, ub=ub, dim=dim)
+        inducing_size = 20
+        bounds = torch.stack([torch.tensor(lb), torch.tensor(ub)])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        
+        mb = GPClassificationModel(inducing_points=inducing_points, dim=dim)
         grid = GPClassificationModel.dim_grid(mb, gridsize=gridsize)
         self.assertEqual(grid.shape, torch.Size([10, 1]))
 
