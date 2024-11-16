@@ -37,10 +37,7 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
-<<<<<<< HEAD
             log_scale = true
-=======
->>>>>>> 5118e86a (update from_config to use the new get_bounds function)
 
         """
         config = Config()
@@ -48,11 +45,7 @@ class TestInducingPointAllocators(unittest.TestCase):
         allocator = SobolAllocator.from_config(config)
 
         # Check if bounds are correctly loaded
-<<<<<<< HEAD
         expected_bounds = torch.tensor([[0.0], [1.0]])
-=======
-        expected_bounds = torch.tensor([[0.0, 1.0]])
->>>>>>> 5118e86a (update from_config to use the new get_bounds function)
         self.assertTrue(torch.equal(allocator.bounds, expected_bounds))
 
     def test_kmeans_allocator_from_config(self):
@@ -83,10 +76,7 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
-<<<<<<< HEAD
             log_scale = true
-=======
->>>>>>> 5118e86a (update from_config to use the new get_bounds function)
 
         """
         config = Config()
@@ -95,10 +85,7 @@ class TestInducingPointAllocators(unittest.TestCase):
 
         # Check if fallback allocator is an instance of SobolAllocator with correct bounds
         self.assertTrue(isinstance(allocator.fallback_allocator, KMeansAllocator))
-<<<<<<< HEAD
-=======
-        
->>>>>>> 5118e86a (update from_config to use the new get_bounds function)
+
 
     def test_sobol_allocator_allocate_inducing_points(self):
         bounds = torch.tensor([[0.0], [1.0]])

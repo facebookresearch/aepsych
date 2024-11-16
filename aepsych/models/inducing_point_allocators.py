@@ -19,7 +19,7 @@ from botorch.models.utils.inducing_point_allocators import (
 )
 from botorch.utils.sampling import draw_sobol_samples
 from scipy.cluster.vq import kmeans2
-from aepsych.utils import get_bounds
+
 
 class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
     """Base class for inducing point allocators."""
