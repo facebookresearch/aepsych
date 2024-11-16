@@ -113,18 +113,19 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         self.inducing_points = inducing_points
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        ).to(inducing_points)
+            self.inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
+        ).to(self.inducing_points)
 
         variational_strategy = VariationalStrategy(
             self,
-            inducing_points,
+            self.inducing_points,
             variational_distribution,
             learn_inducing_locations=False,
         )
         super().__init__(variational_strategy)
 
-        # Tensors need to be directly registered, Modules themselves can be assigned as attr
+        
+
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
@@ -207,8 +208,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 allocator=self.inducing_point_method,
                 inducing_size=self.inducing_size,
                 covar_module=self.covar_module,
-                X=self.train_inputs[0],
-                bounds=self.bounds,
+                X=self.train_inputs[0]
             ).to(device)
             self.last_inducing_points_method = self.inducing_point_method.allocator_used
             variational_distribution = CholeskyVariationalDistribution(

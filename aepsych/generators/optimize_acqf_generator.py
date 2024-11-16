@@ -39,6 +39,8 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
     def __init__(
         self,
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         acqf: AcquisitionFunction,
         acqf_kwargs: Optional[Dict[str, Any]] = None,
         restarts: int = 10,
@@ -48,6 +50,8 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
     ) -> None:
         """Initialize OptimizeAcqfGenerator.
         Args:
+            lb (torch.Tensor): Lower bounds for the optimization.
+            ub (torch.Tensor): Upper bounds for the optimization.
             acqf (AcquisitionFunction): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to no arguments.
@@ -65,6 +69,9 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.samps = samps
         self.max_gen_time = max_gen_time
         self.stimuli_per_trial = stimuli_per_trial
+        self.lb = lb
+        self.ub = ub
+
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
         """
@@ -129,7 +136,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
         new_candidate, _ = optimize_acqf(
             acq_function=acqf,
-            bounds=torch.stack([model.lb, model.ub]),
+            bounds=torch.stack([self.lb, self.ub]),
             q=num_points,
             num_restarts=self.restarts,
             raw_samples=self.samps,
@@ -153,6 +160,8 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             restart and sample parameters, maximum generation time, and stimuli per trial.
         """
         classname = cls.__name__
+        lb = config.gettensor(classname, "lb")
+        ub = config.gettensor(classname, "ub")
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
         stimuli_per_trial = config.getint(classname, "stimuli_per_trial")
@@ -161,6 +170,8 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         max_gen_time = config.getfloat(classname, "max_gen_time", fallback=None)
 
         return cls(
+            lb=lb,
+            ub=ub,
             acqf=acqf,
             acqf_kwargs=extra_acqf_args,
             restarts=restarts,

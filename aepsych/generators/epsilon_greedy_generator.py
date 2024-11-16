@@ -24,6 +24,8 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         """
         self.subgenerator = subgenerator
         self.epsilon = epsilon
+        self.lb = lb
+        self.ub = ub
 
     @classmethod
     def from_config(cls, config: Config) -> "EpsilonGreedyGenerator":
@@ -36,12 +38,14 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
             EpsilonGreedyGenerator: The generator.
         """
         classname = cls.__name__
+        lb = torch.tensor(config.getlist(classname, "lb"))
+        ub = torch.tensor(config.getlist(classname, "ub"))
         subgen_cls = config.getobj(
             classname, "subgenerator", fallback=OptimizeAcqfGenerator
         )
         subgen = subgen_cls.from_config(config)
         epsilon = config.getfloat(classname, "epsilon", fallback=0.1)
-        return cls(subgenerator=subgen, epsilon=epsilon)
+        return cls(lb=lb, ub=ub,subgenerator=subgen, epsilon=epsilon)
 
     def gen(self, num_points: int, model: ModelProtocol) -> torch.Tensor:
         """Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.
@@ -53,7 +57,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         if num_points > 1:
             raise NotImplementedError("Epsilon-greedy batched gen is not implemented!")
         if np.random.uniform() < self.epsilon:
-            sample = np.random.uniform(low=model.lb, high=model.ub)
+            sample = np.random.uniform(low=self.lb, high=self.ub)
             return torch.tensor(sample).reshape(1, -1)
         else:
             return self.subgenerator.gen(num_points, model)

@@ -97,6 +97,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         self,
         inducing_point_method: InducingPointAllocator,
         monotonic_dims: List[int],
+        inducing_points: Optional[torch.Tensor] = None,
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
