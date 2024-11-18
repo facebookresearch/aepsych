@@ -26,6 +26,6 @@ class ConstantMeanPartialObsGrad(ConstantMean):
         idx = input[..., -1].to(dtype=torch.long) > 0
         mean_fit = super(ConstantMeanPartialObsGrad, self).forward(input[..., ~idx, :])
         sz = mean_fit.shape[:-1] + torch.Size([input.shape[-2]])
-        mean = torch.zeros(sz)
+        mean = torch.zeros(sz).to(input)
         mean[~idx] = mean_fit
         return mean
