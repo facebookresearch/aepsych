@@ -13,6 +13,7 @@ import gpytorch
 import torch
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
+from aepsych.models.base import AEPsychModelDeviceMixin
 from botorch.models.gpytorch import GPyTorchModel
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.kernels import Kernel
@@ -22,7 +23,9 @@ from gpytorch.priors.torch_priors import GammaPrior
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 
 
-class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel):
+class MixedDerivativeVariationalGP(
+    gpytorch.models.ApproximateGP, AEPsychModelDeviceMixin, GPyTorchModel
+):
     """A variational GP with mixed derivative observations.
 
     For more on GPs with derivative observations, see e.g. Riihimaki & Vehtari 2010.
@@ -99,6 +102,7 @@ class MixedDerivativeVariationalGP(gpytorch.models.ApproximateGP, GPyTorchModel)
         self._num_outputs = 1
         self.train_inputs = (train_x,)
         self.train_targets = train_y
+        self.to(self.device)  # Needed to prep for below
         self(train_x)  # Necessary for CholeskyVariationalDistribution
 
     def forward(self, x: torch.Tensor) -> MultivariateNormal:
