@@ -116,7 +116,7 @@ class AEPsychMixin(GPyTorchModel):
 
     extremum_solver = "Nelder-Mead"
     outcome_types: List[str] = []
-    train_inputs: Optional[Tuple[torch.Tensor]]
+    train_inputs: Optional[Tuple[torch.Tensor, ...]]
     train_targets: Optional[torch.Tensor]
 
     @property
@@ -393,7 +393,7 @@ class AEPsychMixin(GPyTorchModel):
 
 
 class AEPsychModelDeviceMixin(AEPsychMixin):
-    _train_inputs: Optional[Tuple[torch.Tensor]]
+    _train_inputs: Optional[Tuple[torch.Tensor, ...]]
     _train_targets: Optional[torch.Tensor]
 
     def set_train_data(self, inputs=None, targets=None, strict=False):
@@ -423,13 +423,17 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
             return torch.device("cpu")
 
     @property
-    def train_inputs(self) -> Optional[Tuple[torch.Tensor]]:
+    def train_inputs(self) -> Optional[Tuple[torch.Tensor, ...]]:
         if self._train_inputs is None:
             return None
 
         # makes sure the tensors are on the right device, move in place
+        _train_inputs = []
         for input in self._train_inputs:
-            input.to(self.device)
+            _train_inputs.append(input.to(self.device))
+
+        _tuple_inputs: Tuple[torch.Tensor, ...] = tuple(_train_inputs)
+        self._train_inputs = _tuple_inputs
 
         return self._train_inputs
 
