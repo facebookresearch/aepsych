@@ -26,19 +26,6 @@ class TestStrategyGPU(unittest.TestCase):
                 use_gpu_generating=True,
             )
 
-    def test_no_gpu_acqf(self):
-        with self.assertWarns(UserWarning):
-            Strategy(
-                lb=[0],
-                ub=[1],
-                stimuli_per_trial=1,
-                outcome_types=["binary"],
-                min_asks=1,
-                model=GPClassificationModel(lb=[0], ub=[1]),
-                generator=OptimizeAcqfGenerator(acqf=MonotonicMCLSE),
-                use_gpu_generating=True,
-            )
-
 
 if __name__ == "__main__":
     unittest.main()

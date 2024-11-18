@@ -18,7 +18,7 @@ from aepsych.config import Config
 from aepsych.factory.monotonic import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, promote_0d
 from botorch.fit import fit_gpytorch_mll
@@ -32,7 +32,7 @@ from scipy.stats import norm
 from torch import Tensor
 
 
-class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
+class MonotonicRejectionGP(AEPsychModelDeviceMixin, ApproximateGP):
     """A monotonic GP using rejection sampling.
 
     This takes the same insight as in e.g. Riihimäki & Vehtari 2010 (that the derivative of a GP
@@ -83,7 +83,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
             extra_acqf_args (Optional[Dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
         """
-        self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
+        lb, ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
@@ -91,7 +91,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         self.inducing_point_method = inducing_point_method
         inducing_points = select_inducing_points(
             inducing_size=self.inducing_size,
-            bounds=self.bounds,
+            bounds=torch.stack((lb, ub)),
             method="sobol",
         )
 
@@ -134,7 +134,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         super().__init__(variational_strategy)
 
-        self.bounds_ = torch.stack([self.lb, self.ub])
+        self.register_buffer("lb", lb)
+        self.register_buffer("ub", ub)
+        self.register_buffer("bounds_", torch.stack([self.lb, self.ub]))
         self.mean_module = mean_module
         self.covar_module = covar_module
         self.likelihood = likelihood
@@ -144,7 +146,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         self.num_samples = num_samples
         self.num_rejection_samples = num_rejection_samples
         self.fixed_prior_mean = fixed_prior_mean
-        self.inducing_points = inducing_points
+        self.register_buffer("inducing_points", inducing_points)
 
     def fit(self, train_x: Tensor, train_y: Tensor, **kwargs) -> None:
         """Fit the model
@@ -161,7 +163,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             X=self.train_inputs[0],
             bounds=self.bounds,
             method=self.inducing_point_method,
-        )
+        ).to(self.device)
         self._set_model(train_x, train_y)
 
     def _set_model(
@@ -284,13 +286,14 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         return self.predict(x, probability_space=True)
 
     def _augment_with_deriv_index(self, x: Tensor, indx) -> Tensor:
+        x = x.to(self.device)
         return torch.cat(
-            (x, indx * torch.ones(x.shape[0], 1)),
+            (x, indx * torch.ones(x.shape[0], 1).to(self.device)),
             dim=1,
         )
 
     def _get_deriv_constraint_points(self) -> Tensor:
-        deriv_cp = torch.tensor([])
+        deriv_cp = torch.tensor([]).to(self.device)
         for i in self.monotonic_idxs:
             induc_i = self._augment_with_deriv_index(self.inducing_points, i + 1)
             deriv_cp = torch.cat((deriv_cp, induc_i), dim=0)
@@ -299,8 +302,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
     @classmethod
     def from_config(cls, config: Config) -> MonotonicRejectionGP:
         classname = cls.__name__
-        num_induc = config.gettensor(classname, "num_induc", fallback=25)
-        num_samples = config.gettensor(classname, "num_samples", fallback=250)
+        num_induc = config.getint(classname, "num_induc", fallback=25)
+        num_samples = config.getint(classname, "num_samples", fallback=250)
         num_rejection_samples = config.getint(
             classname, "num_rejection_samples", fallback=5000
         )

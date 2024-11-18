@@ -71,13 +71,6 @@ class Strategy(object):
 
     _n_eval_points: int = 1000
 
-    no_gpu_acqfs = (
-        MonotonicMCAcquisition,
-        MonotonicBernoulliMCMutualInformation,
-        MonotonicMCPosteriorVariance,
-        MonotonicMCLSE,
-    )
-
     def __init__(
         self,
         generator: Union[AEPsychGenerator, ParameterTransformedGenerator],
@@ -182,13 +175,7 @@ class Strategy(object):
                 )
                 self.generator_device = torch.device("cpu")
             else:
-                if hasattr(generator, "acqf") and generator.acqf in self.no_gpu_acqfs:
-                    warnings.warn(
-                        f"GPU requested for acquistion function {type(generator.acqf).__name__}, but this acquisiton function does not support GPU! Using CPU instead.",
-                        UserWarning,
-                    )
-                    self.generator_device = torch.device("cpu")
-                elif not torch.cuda.is_available():
+                if not torch.cuda.is_available():
                     warnings.warn(
                         f"GPU requested for generator {type(generator).__name__}, but no GPU found! Using CPU instead.",
                         UserWarning,
@@ -283,9 +270,11 @@ class Strategy(object):
             x = x[None, :]
 
         if self.x is not None:
+            x = x.to(self.x)
             x = torch.cat((self.x, x), dim=0)
 
         if self.y is not None:
+            y = y.to(self.y)
             y = torch.cat((self.y, y), dim=0)
 
         # Ensure the correct dtype
