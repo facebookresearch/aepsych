@@ -415,7 +415,12 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
     def device(self) -> torch.device:
         # We assume all models have some parameters and all models will only use one device
         # notice that this has no setting, don't let users set device, use .to().
-        return next(self.parameters()).device
+        try:
+            return next(self.parameters()).device
+        except (
+            AttributeError
+        ):  # Fallback for cases where we need device before we have params
+            return torch.device("cpu")
 
     @property
     def train_inputs(self) -> Optional[Tuple[torch.Tensor]]:

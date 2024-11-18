@@ -101,7 +101,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         )
 
         # Augment bounds with deriv indicator
-        bounds = torch.cat((model.bounds_, torch.zeros(2, 1)), dim=1)
+        bounds = torch.cat((model.bounds_, torch.zeros(2, 1).to(model.device)), dim=1)
         # Fix deriv indicator to 0 during optimization
         fixed_features = {(bounds.shape[1] - 1): 0.0}
         # Fix explore features to random values
