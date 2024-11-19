@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -20,7 +20,7 @@ from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, promote_0d
+from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
@@ -63,6 +63,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
         inducing_point_method: str = "auto",
+        optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize MonotonicRejectionGP.
 
@@ -82,6 +83,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             acqf (MonotonicMCAcquisition, optional): Acquisition function to use for querying points. Defaults to MonotonicMCLSE.
             objective (Optional[MCAcquisitionObjective], optional): Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.
             extra_acqf_args (Optional[Dict[str, object]], optional): Additional arguments to pass into the acquisition function. Defaults to None.
+            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+                fitting. Assumes we are using L-BFGS-B.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         if likelihood is None:
@@ -145,6 +148,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         self.num_rejection_samples = num_rejection_samples
         self.fixed_prior_mean = fixed_prior_mean
         self.inducing_points = inducing_points
+        self.optimizer_options = (
+            {"options": optimizer_options} if optimizer_options else {"options": {}}
+        )
 
     def fit(self, train_x: Tensor, train_y: Tensor, **kwargs) -> None:
         """Fit the model
@@ -183,7 +189,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         mll = VariationalELBO(
             likelihood=self.likelihood, model=self, num_data=train_y.numel()
         )
-        mll = fit_gpytorch_mll(mll)
+        mll = fit_gpytorch_mll(mll, optimizer_kwargs=self.optimizer_options)
 
     def update(self, train_x: Tensor, train_y: Tensor, warmstart: bool = True) -> None:
         """
@@ -319,6 +325,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             classname, "monotonic_idxs", fallback=[-1]
         )
 
+        optimizer_options = get_optimizer_options(config, classname)
+
         return cls(
             monotonic_idxs=monotonic_idxs,
             lb=lb,
@@ -329,6 +337,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             num_rejection_samples=num_rejection_samples,
             mean_module=mean,
             covar_module=covar,
+            optimizer_options=optimizer_options,
         )
 
     def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
