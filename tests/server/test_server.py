@@ -41,6 +41,7 @@ min_total_outcome_occurrences = 0
 [GPClassificationModel]
 inducing_size = 10
 mean_covar_factory = default_mean_covar_factory
+dim = 1
 
 [SobolGenerator]
 n_points = 2

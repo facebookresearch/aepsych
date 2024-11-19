@@ -33,8 +33,12 @@ class UtilsTestCase(unittest.TestCase):
         dim = 1
         gridsize = 10
         mb = GPClassificationModel(
+<<<<<<< HEAD
             dim=dim,
             inducing_point_method=AutoAllocator(
+=======
+            inducing_point_method=SobolAllocator(
+>>>>>>> 31063351 (update all test cases to work with the new structure)
                 bounds=torch.stack([torch.tensor([lb]), torch.tensor([ub])])
             ),
         )

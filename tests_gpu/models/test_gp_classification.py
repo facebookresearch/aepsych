@@ -21,7 +21,8 @@ import numpy.testing as npt
 from aepsych.models import GPClassificationModel
 from scipy.stats import norm
 from sklearn.datasets import make_classification
-
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 def f_1d(x, mu=0):
     """
@@ -107,10 +108,11 @@ class GPClassificationSmoketest(unittest.TestCase):
         Just see if we memorize the training set but on gpu
         """
         X, y = self.X, self.y
+        inducing_size = 10
+        bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
         model = GPClassificationModel(
-            torch.Tensor([-3]),
-            torch.Tensor([3]),
             inducing_size=10,
             inducing_point_method=SobolAllocator(
                 bounds=torch.stack([torch.tensor([-3]), torch.tensor([3])])

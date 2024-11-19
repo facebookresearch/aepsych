@@ -21,6 +21,7 @@ from aepsych.models.inducing_point_allocators import (
 from aepsych.models.utils import select_inducing_points
 
 from sklearn.datasets import make_classification
+from aepsych.models.inducing_point_allocators import SobolAllocator
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -37,10 +38,12 @@ class UtilsTestCase(unittest.TestCase):
         )
         X, y = torch.Tensor(X), torch.Tensor(y)
         inducing_size = 20
+        lb = torch.Tensor([-3])
+        ub = torch.Tensor([3])
+        bounds = torch.stack([lb, ub])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
         model = GPClassificationModel(
-            torch.Tensor([-3]),
-            torch.Tensor([3]),
             inducing_size=inducing_size,
             inducing_point_method=AutoAllocator(
                 bounds=torch.stack((torch.Tensor([-3]), torch.Tensor([3])))
@@ -56,7 +59,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 ),
                 X[:10].sort(0).values,
             )
@@ -71,7 +73,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 )
             )
             <= 20
@@ -96,7 +97,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 )
             ),
             20,
@@ -108,7 +108,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 )
             )
             <= 20
