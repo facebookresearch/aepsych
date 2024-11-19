@@ -5,6 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
+import inspect
 import time
 from typing import Any, Dict, Optional
 
@@ -83,14 +84,22 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Returns:
             AcquisitionFunction: Configured acquisition function.
         """
+        if "lb" in inspect.signature(self.acqf).parameters and "ub" in inspect.signature(self.acqf).parameters:
+            if self.acqf == AnalyticExpectedUtilityOfBestOption:
+                return self.acqf(pref_model=model, lb=self.lb, ub=self.ub)
+
+            if self.acqf in self.baseline_requiring_acqfs:
+                return self.acqf(model, model.train_inputs[0], lb=self.lb, ub=self.ub, **self.acqf_kwargs)
+
+            return self.acqf(model=model, lb=self.lb, ub=self.ub, **self.acqf_kwargs)
 
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 
         if self.acqf in self.baseline_requiring_acqfs:
             return self.acqf(model, model.train_inputs[0], **self.acqf_kwargs)
-        else:
-            return self.acqf(model=model, **self.acqf_kwargs)
+
+        return self.acqf(model=model, **self.acqf_kwargs)
 
     def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.

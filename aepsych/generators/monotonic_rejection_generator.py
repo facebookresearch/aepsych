@@ -43,13 +43,17 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
     def __init__(
         self,
         acqf: MonotonicMCAcquisition,
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         acqf_kwargs: Optional[Dict[str, Any]] = None,
         model_gen_options: Optional[Dict[str, Any]] = None,
         explore_features: Optional[Sequence[int]] = None,
     ) -> None:
         """Initialize MonotonicRejectionGenerator.
         Args:
-            acqf (MonotonicMCAcquisition): Acquisition function to use.
+            acqf (AcquisitionFunction): Acquisition function to use.
+            lb (torch.Tensor): Lower bounds for the optimization.
+            ub (torch.Tensor): Upper bounds for the optimization.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to None.
             model_gen_options (Dict[str, Any], optional): Dictionary with options for generating candidate, such as
@@ -63,6 +67,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.acqf_kwargs = acqf_kwargs
         self.model_gen_options = model_gen_options
         self.explore_features = explore_features
+        self.bounds = torch.stack((lb, ub))
 
     def _instantiate_acquisition_fn(
         self, model: MonotonicRejectionGP
@@ -110,7 +115,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         )
 
         # Augment bounds with deriv indicator
-        bounds = torch.cat((model.bounds_, torch.zeros(2, 1)), dim=1)
+        bounds = torch.cat((self.bounds, torch.zeros(2, 1)), dim=1)
         # Fix deriv indicator to 0 during optimization
         fixed_features = {(bounds.shape[1] - 1): 0.0}
         # Fix explore features to random values
@@ -192,6 +197,9 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         classname = cls.__name__
         acqf = config.getobj("common", "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
+        lb = torch.tensor(config.getlist(classname, "lb"))
+        ub = torch.tensor(config.getlist(classname, "ub"))
+        
 
         options = {}
         options["num_restarts"] = config.getint(classname, "restarts", fallback=10)
@@ -217,6 +225,8 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
 
         return cls(
             acqf=acqf,
+            lb=lb,
+            ub=ub,
             acqf_kwargs=extra_acqf_args,
             model_gen_options=options,
             explore_features=explore_features,

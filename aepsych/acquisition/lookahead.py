@@ -22,6 +22,7 @@ from .lookahead_utils import (
     lookahead_levelset_at_xstar,
     lookahead_p_at_xstar,
 )
+from torch import Tensor
 
 
 def Hb(p: torch.Tensor) -> torch.Tensor:
@@ -245,6 +246,8 @@ def construct_inputs_local_lookahead(
 class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
     def __init__(
         self,
+        lb: Tensor,
+        ub: Tensor,
         model: GPyTorchModel,
         lookahead_type: Literal["levelset", "posterior"] = "levelset",
         target: Optional[float] = None,
@@ -256,14 +259,14 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         A global look-ahead acquisition function.
 
         Args:
-            model (GPyTorchModel): The gpytorch model to use.
-            lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").
-                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.
-                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.
+            lb (Tensor): Lower bounds of the input space.
+            ub (Tensor): Upper bounds of the input space.
+            model (GPyTorchModel): The gpytorch model.
+            lookahead_type (str, optional): Type of lookahead to use. Defaults to "levelset".
             target (float, optional): Threshold value to target in p-space.
-            posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior.
-            query_set_size (int, optional): Number of points in the query set.
-            Xq (torch.Tensor, optional): (m x d) global reference set.
+            posterior_transform (PosteriorTransform, optional): Posterior transform to use. Defaults to None.
+            query_set_size (int, optional): Size of the query set. Defaults to 256.
+            Xq (Tensor, optional): (m x d) global reference set. Defaults to None.
         """
         super().__init__(model=model, target=target, lookahead_type=lookahead_type)
         self.posterior_transform = posterior_transform
@@ -282,7 +285,7 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
             assert int(query_set_size) == query_set_size  # make sure casting is safe
             # if the asserts above pass and Xq is None, query_set_size is not None so this is safe
             query_set_size = int(query_set_size)  # cast
-            Xq = make_scaled_sobol(model.lb, model.ub, query_set_size)
+            Xq = make_scaled_sobol(lb, ub, query_set_size)
         self.register_buffer("Xq", Xq)
 
     @t_batch_mode_transform(expected_q=1)
@@ -335,6 +338,8 @@ class GlobalSUR(GlobalLookaheadAcquisitionFunction):
 class ApproxGlobalSUR(GlobalSUR):
     def __init__(
         self,
+        lb: Tensor,
+        ub: Tensor,
         model: GPyTorchModel,
         lookahead_type="levelset",
         target: Optional[float] = None,
@@ -355,6 +360,8 @@ class ApproxGlobalSUR(GlobalSUR):
             lookahead_type == "levelset"
         ), f"ApproxGlobalSUR only supports lookahead on level set, got {lookahead_type}!"
         super().__init__(
+            lb=lb,
+            ub=ub,
             model=model,
             target=target,
             lookahead_type=lookahead_type,
@@ -431,6 +438,8 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
 
     def __init__(
         self,
+        lb: Tensor,
+        ub: Tensor,
         model: GPyTorchModel,
         lookahead_type="posterior",
         target: Optional[float] = None,
@@ -448,6 +457,8 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         """
 
         super().__init__(
+            lb=lb,
+            ub=ub,
             model=model,
             target=target,
             lookahead_type=lookahead_type,

@@ -33,16 +33,17 @@ from aepsych.acquisition import (
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychMixin, ModelProtocol
 from aepsych.transforms import (
     ParameterTransformedGenerator,
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.utils import _process_bounds, make_scaled_sobol
+from aepsych.utils import _process_bounds, dim_grid, get_jnd_multid, make_scaled_sobol
 from aepsych.utils_logging import getLogger
 from botorch.exceptions.errors import ModelFittingError
 from botorch.models.transforms.input import ChainedInputTransform
+from aepsych.models.utils import get_extremum, inv_query
 
 logger = getLogger()
 
@@ -60,10 +61,11 @@ def ensure_model_is_fresh(f: Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
         if self.can_fit and not self._model_is_fresh:
             starttime = time.time()
-            if self._count % self.refit_every == 0 or self.refit_every == 1:
+            if self._is_first_fit or self._count % self.refit_every == 0 or self.refit_every == 1:
                 logger.info("Starting fitting (no warm start)...")
                 # don't warm start
                 self.fit()
+                self._is_first_fit = False
             else:
                 logger.info("Starting fitting (warm start)...")
                 # warm start
@@ -144,6 +146,7 @@ class Strategy(object):
                 it will be returned in transformed space.
         """
         self.is_finished = False
+        self._is_first_fit = True
 
         if run_indefinitely:
             warnings.warn(
@@ -267,6 +270,7 @@ class Strategy(object):
             )
 
         self.name = name
+        self.bounds = torch.stack([self.lb, self.ub])
 
     def normalize_inputs(
         self, x: torch.Tensor, y: torch.Tensor
@@ -353,9 +357,38 @@ class Strategy(object):
             self.model is not None
         ), "model is None! Cannot get the max without a model!"
         self.model.to(self.model_device)
-        return self.model.get_max(
-            constraints, probability_space=probability_space, max_time=max_time
+        return self.get_max_(
+            self.model, constraints, probability_space=probability_space, max_time=max_time
         )
+
+    def get_max_(
+        self,
+        model: ModelProtocol,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        n_samples: int = 1000,
+        max_time: Optional[float] = None,
+    ) -> Tuple[float, torch.Tensor]:
+        """Return the maximum of the modeled function, subject to constraints
+        Args:
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
+                probability space instead of latent function space? Defaults to False.
+            n_samples int: number of coarse grid points to sample for optimization estimate.
+        Returns:
+            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).
+        """
+        locked_dims = locked_dims or {}
+        _, _arg = get_extremum(
+            model, "max", self.bounds, locked_dims, n_samples, max_time=max_time
+        )
+        arg = torch.tensor(_arg.reshape(1, model.dim))
+        if probability_space:
+            val, _ = model.predict_probability(arg)
+        else:
+            val, _ = model.predict(arg)
+        return float(val.item()), arg
 
     @ensure_model_is_fresh
     def get_min(
@@ -379,9 +412,40 @@ class Strategy(object):
             self.model is not None
         ), "model is None! Cannot get the min without a model!"
         self.model.to(self.model_device)
-        return self.model.get_min(
-            constraints, probability_space=probability_space, max_time=max_time
+        return self.get_min_(
+            self.model, constraints, probability_space=probability_space, max_time=max_time
         )
+    
+    def get_min_(
+        self,
+        model: ModelProtocol,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        n_samples: int = 1000,
+        max_time: Optional[float] = None,
+    ) -> Tuple[float, torch.Tensor]:
+        """Return the minimum of the modeled function, subject to constraints
+        Args:
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
+                probability space instead of latent function space? Defaults to False.
+            n_samples int: number of coarse grid points to sample for optimization estimate.
+        Returns:
+            Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
+        """
+        locked_dims = locked_dims or {}
+        _, _arg = get_extremum(
+            model, "min", self.bounds, locked_dims, n_samples, max_time=max_time
+        )
+        arg = torch.tensor(_arg.reshape(1, model.dim))
+        if probability_space:
+            val, _ = model.predict_probability(arg)
+        else:
+            val, _ = model.predict(arg)
+        return float(val.item()), arg
+
+
 
     @ensure_model_is_fresh
     def inv_query(
@@ -407,9 +471,50 @@ class Strategy(object):
             self.model is not None
         ), "model is None! Cannot get the inv_query without a model!"
         self.model.to(self.model_device)
-        return self.model.inv_query(
-            y, constraints, probability_space, max_time=max_time
+        return self.inv_query_(
+            self.model, y, constraints, probability_space, max_time=max_time
         )
+    
+    def inv_query_(
+        self,
+        model: ModelProtocol,
+        y: float,
+        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        n_samples: int = 1000,
+        max_time: Optional[float] = None,
+        weights: Optional[torch.Tensor] = None,
+    ) -> Tuple[float, torch.Tensor]:
+        """Query the model inverse.
+        Return nearest x such that f(x) = queried y, and also return the
+            value of f at that point.
+        Args:
+            y (float): Points at which to find the inverse.
+            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+                inverse is along a slice of the full surface.
+            probability_space (bool): Is y (and therefore the returned nearest_y) in
+                probability space instead of latent function space? Defaults to False.
+        Returns:
+            Tuple[float, torch.Tensor]: Tuple containing the value of f
+                nearest to queried y and the x position of this value.
+        """
+        _, _arg = inv_query(
+            model=model,
+            y=y,
+            bounds=self.bounds,
+            locked_dims=locked_dims,
+            probability_space=probability_space,
+            n_samples=n_samples,
+            max_time=max_time,
+            weights=weights,
+        )
+        arg = torch.tensor(_arg.reshape(1, model.dim))
+        if probability_space:
+            val, _ = model.predict_probability(arg.reshape(1, model.dim))
+        else:
+            val, _ = model.predict(arg.reshape(1, self.dim))
+        return float(val.item()), arg
+
 
     @ensure_model_is_fresh
     def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
@@ -439,7 +544,102 @@ class Strategy(object):
             self.model is not None
         ), "model is None! Cannot get the get jnd without a model!"
         self.model.to(self.model_device)
-        return self.model.get_jnd(*args, **kwargs)
+        return self.get_jnd_(self.model, *args, **kwargs)
+    
+    def get_jnd_(
+        self,
+        model: ModelProtocol,
+        grid: Optional[Union[np.ndarray, torch.Tensor]] = None,
+        cred_level: Optional[float] = None,
+        intensity_dim: int = -1,
+        confsamps: int = 500,
+        method: str = "step",
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+        """Calculate the JND.
+
+        Note that JND can have multiple plausible definitions
+        outside of the linear case, so we provide options for how to compute it.
+        For method="step", we report how far one needs to go over in stimulus
+        space to move 1 unit up in latent space (this is a lot of people's
+        conventional understanding of the JND).
+        For method="taylor", we report the local derivative, which also maps to a
+        1st-order Taylor expansion of the latent function. This is a formal
+        generalization of JND as defined in Weber's law.
+        Both definitions are equivalent for linear psychometric functions.
+
+        Args:
+            grid (Optional[np.ndarray], optional): Mesh grid over which to find the JND.
+                Defaults to a square grid of size as determined by aepsych.utils.dim_grid
+            cred_level (float, optional): Credible level for computing an interval.
+                Defaults to None, computing no interval.
+            intensity_dim (int, optional): Dimension over which to compute the JND.
+                Defaults to -1.
+            confsamps (int, optional): Number of posterior samples to use for
+                computing the credible interval. Defaults to 500.
+            method (str, optional): "taylor" or "step" method (see docstring).
+                Defaults to "step".
+
+        Raises:
+            RuntimeError: for passing an unknown method.
+
+        Returns:
+            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: either the
+                mean JND, or a median, lower, upper tuple of the JND posterior.
+        """
+        if grid is None:
+            grid = dim_grid(lower=self.lb, upper=self.ub, gridsize=30, slice_dims=None)
+        elif isinstance(grid, np.ndarray):
+            grid = torch.tensor(grid)
+
+        # this is super awkward, back into intensity dim grid assuming a square grid
+        gridsize = int(grid.shape[0] ** (1 / grid.shape[1]))
+        coords = torch.linspace(
+            self.lb[intensity_dim].item(), self.ub[intensity_dim].item(), gridsize
+        )
+
+        if cred_level is None:
+            fmean, _ = model.predict(grid)
+            fmean = fmean.reshape(*[gridsize for i in range(model.dim)])
+
+            if method == "taylor":
+                return torch.tensor(1 / np.gradient(fmean, coords, axis=intensity_dim))
+            elif method == "step":
+                return torch.clip(
+                    get_jnd_multid(
+                        fmean,
+                        coords,
+                        mono_dim=intensity_dim,
+                    ),
+                    0,
+                    np.inf,
+                )
+
+        alpha = 1 - cred_level  # type: ignore
+        qlower = alpha / 2
+        qupper = 1 - alpha / 2
+
+        fsamps = model.sample(grid, confsamps)
+        if method == "taylor":
+            jnds = torch.tensor(
+                1
+                / np.gradient(
+                    fsamps.reshape(confsamps, *[gridsize for i in range(model.dim)]),
+                    coords,
+                    axis=intensity_dim,
+                )
+            )
+        elif method == "step":
+            samps = [s.reshape((gridsize,) * model.dim) for s in fsamps]
+            jnds = torch.stack(
+                [get_jnd_multid(s, coords, mono_dim=intensity_dim) for s in samps]
+            )
+        else:
+            raise RuntimeError(f"Unknown method {method}!")
+        upper = torch.clip(torch.quantile(jnds, qupper, axis=0), 0, np.inf)  # type: ignore
+        lower = torch.clip(torch.quantile(jnds, qlower, axis=0), 0, np.inf)  # type: ignore
+        median = torch.clip(torch.quantile(jnds, 0.5, axis=0), 0, np.inf)  # type: ignore
+        return median, lower, upper
+
 
     @ensure_model_is_fresh
     def sample(
