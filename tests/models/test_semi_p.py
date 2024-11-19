@@ -33,6 +33,7 @@ from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
 from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.models.utils import select_inducing_points
+from aepsych.utils import make_scaled_sobol
 
 def _hadamard_model_constructor(inducing_points, stim_dim, floor, objective=FloorLogitObjective):
     return HadamardSemiPModel(
@@ -81,11 +82,11 @@ class SemiPSmokeTests(unittest.TestCase):
         self.f = torch.Tensor(slope * (intercept + xintensity)).unsqueeze(-1)
         X[:, 0] = X[:, 0] * 100
         X[:, 1] = X[:, 1] / 100
-        self.lb = [-100, -0.01]
-        self.ub = [100, 0.01]
+        self.lb = torch.tensor([-100.0, -0.01])
+        self.ub = torch.tensor([100.0, 0.01])
         self.X = torch.Tensor(X)
         self.inducing_size = 10
-        bounds = torch.stack([torch.tensor(self.lb), torch.tensor(self.ub)])
+        bounds = torch.stack([self.lb, self.ub])
         self.inducing_points = select_inducing_points(inducing_size=self.inducing_size, allocator=SobolAllocator(bounds=bounds))
 
 
@@ -107,6 +108,8 @@ class SemiPSmokeTests(unittest.TestCase):
             acqf=MCPosteriorVariance,
             acqf_kwargs={"objective": objective},
             max_gen_time=0.1,
+            lb=self.lb,
+            ub=self.ub,
         )
 
         y = torch.bernoulli(model.likelihood.objective(self.f))
@@ -131,15 +134,18 @@ class SemiPSmokeTests(unittest.TestCase):
             floor=floor,
             objective=objective,
         )
-
+        
         generator = OptimizeAcqfGenerator(
             acqf=GlobalMI,
             acqf_kwargs={
                 "posterior_transform": semi_p_posterior_transform,
                 "target": 0.75,
                 "query_set_size": 100,
+                "Xq": make_scaled_sobol(self.lb, self.ub, 100),
             },
             max_gen_time=0.2,
+            lb=self.lb,
+            ub=self.ub,
         )
         link = objective(floor=floor)
         y = torch.bernoulli(link(self.f))
@@ -195,10 +201,10 @@ class SemiPSmokeTests(unittest.TestCase):
     @parameterized.expand([(_semip_model_constructor,), (_hadamard_model_constructor,)])
     def test_prediction_shapes(self, model_constructor):
         n_opt = 1
-        lb = [-1, -1]
-        ub = [1, 1]
+        lb = torch.tensor([-1.0, -1.0])
+        ub = torch.tensor([1.0, 1.0])
         inducing_size = 10
-        bounds = torch.stack([torch.tensor(lb), torch.tensor(ub)])
+        bounds = torch.stack([lb,ub])
         inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
 
@@ -260,10 +266,10 @@ class SemiPSmokeTests(unittest.TestCase):
 
     @parameterized.expand([(_semip_model_constructor,), (_hadamard_model_constructor,)])
     def test_reset_variational_strategy(self, model_constructor):
-        lb = [-3, -3]
-        ub = [3, 3]
+        lb = torch.tensor([-3.0, -3.0])
+        ub =torch.tensor([3.0, 3.0])
         inducing_size = 10
-        bounds = torch.stack([torch.tensor(lb), torch.tensor(ub)])
+        bounds = torch.stack([lb, ub])
         inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
         stim_dim = 0

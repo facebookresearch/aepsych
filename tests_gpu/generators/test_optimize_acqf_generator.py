@@ -23,6 +23,8 @@ from aepsych.acquisition.mutual_information import BernoulliMCMutualInformation
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import Strategy
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 from parameterized import parameterized
 
 acqf_kwargs_target = {"target": 0.75}
@@ -48,13 +50,18 @@ acqfs = [
 class TestOptimizeAcqfGenerator(unittest.TestCase):
     @parameterized.expand(acqfs)
     def test_gpu_smoketest(self, acqf, acqf_kwargs):
-        lb = torch.tensor([0])
-        ub = torch.tensor([1])
+        self.device = torch.device("cuda")
+        lb = torch.tensor([0.0], device=self.device)
+        ub = torch.tensor([1.0], device=self.device)
+        bounds = torch.stack([lb, ub])
+        inducing_size = 10
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)).to(self.device)
         model = GPClassificationModel(
-            lb=lb, ub=ub, inducing_size=10, inducing_point_method="pivoted_chol"
+            inducing_points=inducing_points, inducing_size=inducing_size, inducing_point_method=SobolAllocator(bounds=bounds)
         )
 
-        generator = OptimizeAcqfGenerator(acqf=acqf, acqf_kwargs=acqf_kwargs)
+        generator = OptimizeAcqfGenerator(acqf=acqf, acqf_kwargs=acqf_kwargs, lb=lb, ub=ub)
 
         strat = Strategy(
             lb=torch.tensor([0]),

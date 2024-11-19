@@ -25,6 +25,8 @@ from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean
 from scipy.stats import bernoulli, multivariate_normal, norm, pearsonr
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 
 class SingleProbitMI(unittest.TestCase):
@@ -34,8 +36,12 @@ class SingleProbitMI(unittest.TestCase):
         np.random.seed(seed)
         n_init = 15
         n_opt = 1
-        lb = -4.0
-        ub = 4.0
+        lb = torch.tensor([-4.0])
+        ub = torch.tensor([4.0])
+        inducing_size = 10
+        bounds = torch.stack([lb, ub])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+
         acqf = MonotonicBernoulliMCMutualInformation
         acqf_kwargs = {"objective": ProbitObjective()}
         model_list = [
@@ -51,8 +57,8 @@ class SingleProbitMI(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 min_asks=n_opt,
-                model=MonotonicRejectionGP(lb=lb, ub=ub, dim=1, monotonic_idxs=[0]),
-                generator=MonotonicRejectionGenerator(acqf, acqf_kwargs),
+                model=MonotonicRejectionGP(inducing_points=inducing_points, dim=1, monotonic_idxs=[0]),
+                generator=MonotonicRejectionGenerator(acqf=acqf, acqf_kwargs=acqf_kwargs, lb=lb, ub=ub),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -81,8 +87,13 @@ class SingleProbitMI(unittest.TestCase):
         np.random.seed(seed)
         n_init = 15
         n_opt = 20
-        lb = -4.0
-        ub = 4.0
+        lb = torch.tensor([-4.0])
+        ub = torch.tensor([4.0])
+        inducing_size = 10
+        bounds = torch.stack([lb, ub])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+
+
         acqf = BernoulliMCMutualInformation
         extra_acqf_args = {"objective": ProbitObjective()}
 
@@ -98,8 +109,8 @@ class SingleProbitMI(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, dim=1, inducing_size=10),
-                generator=OptimizeAcqfGenerator(acqf, extra_acqf_args),
+                model=GPClassificationModel(inducing_points=inducing_points, dim=1, inducing_size=10),
+                generator=OptimizeAcqfGenerator(acqf=acqf, lb=lb, ub=ub, acqf_kwargs=extra_acqf_args),
                 min_asks=n_opt,
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
@@ -126,10 +137,15 @@ class SingleProbitMI(unittest.TestCase):
     def test_mi_acqf(self):
         mean = ConstantMean().initialize(constant=1.2)
         covar = LinearKernel().initialize(variance=1.0)
+        lb = torch.tensor([0.0])
+        ub = torch.tensor([1.0])
+        inducing_size = 10
+        bounds = torch.stack([lb, ub])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+
         model = GPClassificationModel(
-            lb=torch.Tensor([0]),
-            ub=torch.Tensor([1]),
-            inducing_size=10,
+            inducing_points=inducing_points,
+            inducing_size=inducing_size,
             mean_module=mean,
             covar_module=covar,
         )

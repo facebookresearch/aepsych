@@ -16,7 +16,8 @@ from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel, PairwiseProbitModel
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
-
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 class TestOptimizeAcqfGenerator(unittest.TestCase):
     def test_time_limits(self):
@@ -33,17 +34,21 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
             n_clusters_per_class=4,
         )
         X, y = torch.Tensor(X), torch.Tensor(y)
+        lb = -3 * torch.ones(8)
+        ub = 3 * torch.ones(8)
+        inducing_size = 10
+        bounds = torch.stack([lb, ub])
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
         model = GPClassificationModel(
-            lb=-3 * torch.ones(8),
-            ub=3 * torch.ones(8),
+            inducing_points=inducing_points,
             max_fit_time=0.5,
-            inducing_size=10,
+            inducing_size=inducing_size,
         )
 
         model.fit(X, y)
         generator = OptimizeAcqfGenerator(
-            acqf=MCLevelSetEstimation, acqf_kwargs={"beta": 1.96, "target": 0.5}
+            acqf=MCLevelSetEstimation, acqf_kwargs={"beta": 1.96, "target": 0.5}, lb=lb, ub=ub,
         )
 
         start = time.time()
@@ -54,6 +59,8 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
             acqf=MCLevelSetEstimation,
             acqf_kwargs={"beta": 1.96, "target": 0.5},
             max_gen_time=0.1,
+            lb=lb,
+            ub=ub,
         )
 
         start = time.time()
@@ -68,6 +75,10 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
 
     def test_instantiate_eubo(self):
         config = """
+        [common]
+        lb = [-1]
+        ub = [1]
+
         [OptimizeAcqfGenerator]
         acqf = AnalyticExpectedUtilityOfBestOption
         stimuli_per_trial = 2

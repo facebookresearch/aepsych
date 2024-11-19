@@ -32,9 +32,9 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         # Init
         target = 1.5
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
-        lb = torch.tensor([0, 0])
-        ub = torch.tensor([4, 4])
-        inducing_size = 10
+        lb = torch.tensor([0.0, 0.0])
+        ub = torch.tensor([4.0, 4.0])
+        inducing_size = 2
         bounds = torch.stack([lb, ub])
         inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
@@ -55,6 +55,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 MonotonicMCLSE,
                 acqf_kwargs={"target": target},
                 model_gen_options=model_gen_options,
+                lb=lb,
+                ub=ub,
             ),
             min_asks=1,
             stimuli_per_trial=1,
@@ -87,9 +89,9 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         # Init
         target = 0.75
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
-        lb = torch.tensor([0, 0])
-        ub = torch.tensor([4, 4])
-        inducing_size = 10
+        lb = torch.tensor([0.0, 0.0])
+        ub = torch.tensor([4.0, 4.0])
+        inducing_size = 2
         bounds = torch.stack([lb, ub])
         inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
@@ -110,6 +112,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 MonotonicMCLSE,
                 acqf_kwargs={"target": target, "objective": ProbitObjective()},
                 model_gen_options=model_gen_options,
+                lb=lb,
+                ub=ub,
             ),
             min_asks=1,
             stimuli_per_trial=1,

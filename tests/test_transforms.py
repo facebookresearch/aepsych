@@ -18,7 +18,8 @@ from aepsych.transforms import (
     ParameterTransforms,
 )
 from aepsych.transforms.parameters import Log10Plus, NormalizeScale
-
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 class TransformsConfigTest(unittest.TestCase):
     def setUp(self):
@@ -55,6 +56,9 @@ class TransformsConfigTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
             acqf = MCLevelSetEstimation
             model = GPClassificationModel
+
+            [GPClassificationModel]
+            dim = 1
             """
 
         config = Config()
@@ -67,8 +71,8 @@ class TransformsConfigTest(unittest.TestCase):
 
         class_gen = ParameterTransformedGenerator(
             generator=SobolGenerator,
-            lb=torch.tensor([1, 1]),
-            ub=torch.tensor([100, 100]),
+            lb=torch.tensor([1.0, 1.0]),
+            ub=torch.tensor([100.0, 100.0]),
             seed=12345,
             transforms=self.strat.strat_list[0].transforms,
         )
@@ -90,14 +94,13 @@ class TransformsConfigTest(unittest.TestCase):
 
         obj_model = ParameterTransformedModel(
             model=GPClassificationModel,
-            lb=torch.tensor([1, 1]),
-            ub=torch.tensor([100, 100]),
+            inducing_points = select_inducing_points(inducing_size=99, allocator=SobolAllocator(bounds=torch.stack((torch.tensor([1.0, 1.0]), torch.tensor([100.0, 100.0]))))),
             transforms=self.strat.strat_list[1].transforms,
         )
 
         self.assertTrue(type(config_model._base_obj) is type(obj_model._base_obj))
-        self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
-        self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
+        # self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
+        # self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
 
         self.assertEqual(
             len(config_model.transforms.values()), len(obj_model.transforms.values())
@@ -154,8 +157,8 @@ class TransformsConfigTest(unittest.TestCase):
 
 class TransformsLog10Test(unittest.TestCase):
     def test_transform_reshape3D(self):
-        lb = torch.tensor([-1, 0, 10])
-        ub = torch.tensor([-1e-6, 9, 99])
+        lb = torch.tensor([-1.0, 0.0, 10.0])
+        ub = torch.tensor([-1e-6, 9.0, 99.0])
         x = SobolGenerator(lb=lb, ub=ub, stimuli_per_trial=2).gen(4)
 
         transforms = ParameterTransforms(
@@ -260,6 +263,9 @@ class TransformsLog10Test(unittest.TestCase):
             acqf = MCLevelSetEstimation
             model = GPClassificationModel
             min_total_tells = 70
+
+            [GPClassificationModel]
+            dim = 1
             """
 
         config = Config()

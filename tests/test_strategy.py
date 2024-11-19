@@ -26,29 +26,33 @@ from aepsych.transforms import (
     ParameterTransforms,
 )
 from aepsych.transforms.parameters import Normalize
-
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 
 class TestSequenceGenerators(unittest.TestCase):
     def setUp(self):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        lb = torch.tensor([-1, -1])
-        ub = torch.tensor([1, 1])
+        lb = torch.tensor([-1.0, -1.0])
+        ub = torch.tensor([1.0, 1.0])
 
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
 
         transforms = ParameterTransforms(
             normalize=Normalize(d=2, bounds=torch.stack([lb, ub]))
         )
+        inducing_size = 99
+        bounds = torch.stack((lb, ub))
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+
 
         self.strat = Strategy(
             model=ParameterTransformedModel(
                 MonotonicRejectionGP,
                 transforms=transforms,
                 dim=2,
-                lb=lb,
-                ub=ub,
+                inducing_points=inducing_points,
                 monotonic_idxs=[1],
             ),
             generator=ParameterTransformedGenerator(
@@ -56,6 +60,8 @@ class TestSequenceGenerators(unittest.TestCase):
                 transforms=transforms,
                 acqf=MonotonicMCLSE,
                 acqf_kwargs=extra_acqf_args,
+                lb=lb,
+                ub=ub,
             ),
             min_asks=50,
             lb=lb,
@@ -109,9 +115,9 @@ class TestSequenceGenerators(unittest.TestCase):
             self.strat.add_data(np.r_[1.0, 1.0], [1])
 
         self.assertEqual(
-            self.strat.model.fit.call_count, 4
+            self.strat.model.fit.call_count, 5
         )  # first fit gets skipped because there is no data
-        self.assertEqual(self.strat.model.update.call_count, 45)
+        self.assertEqual(self.strat.model.update.call_count, 44)
 
     def test_no_warmstart(self):
         for _ in range(50):
@@ -159,13 +165,15 @@ class TestSequenceGenerators(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        lb = [-1, -1]
-        ub = [1, 1]
+        lb = torch.tensor([-1.0, -1.0])
+        ub = torch.tensor([1.0, 1.0])
+        inducing_size = 99
+        bounds = torch.stack((lb, ub))
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
 
         self.strat = Strategy(
             model=GPClassificationModel(
-                lb=lb,
-                ub=ub,
+                inducing_points=inducing_points,
             ),
             generator=SobolGenerator(lb=lb, ub=ub),
             min_asks=50,
@@ -187,14 +195,17 @@ class TestSequenceGenerators(unittest.TestCase):
             )
 
     def test_run_indefinitely(self):
-        lb = [-1, -1]
-        ub = [1, 1]
+        lb = torch.tensor([-1.0, -1.0])
+        ub = torch.tensor([1.0, 1.0])
+        inducing_size = 99
+        bounds = torch.stack((lb, ub))
+        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+
 
         with self.assertWarns(UserWarning):
             self.strat = Strategy(
                 model=GPClassificationModel(
-                    lb=lb,
-                    ub=ub,
+                    inducing_points=inducing_points,
                 ),
                 generator=SobolGenerator(lb=lb, ub=ub),
                 lb=lb,

@@ -57,6 +57,7 @@ class GPRegressionTest(unittest.TestCase):
             [GPRegressionModel]
             likelihood = GaussianLikelihood
             max_fit_time = 1
+            dim = 1
         """
         self.server = AEPsychServer(database_path=dbname)
         configure(self.server, config_str=config)
