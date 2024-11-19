@@ -20,8 +20,7 @@ from aepsych.transforms import (
 )
 from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
 from aepsych.transforms.parameters import Log10Plus, NormalizeScale
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
+
 
 class TransformsConfigTest(unittest.TestCase):
     def setUp(self):

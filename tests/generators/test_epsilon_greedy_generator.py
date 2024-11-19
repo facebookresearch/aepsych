@@ -31,8 +31,8 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
                     acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args, lb=lb, ub=ub
                 ),
                 epsilon=epsilon,
-                lb=lb, 
-                ub=ub
+                lb=lb,
+                ub=ub,
             )
             model = MagicMock()
             gen.subgenerator.gen = MagicMock()

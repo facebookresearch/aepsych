@@ -15,12 +15,20 @@ from .optimize_acqf_generator import OptimizeAcqfGenerator
 
 
 class EpsilonGreedyGenerator(AEPsychGenerator):
-    def __init__(self, subgenerator: AEPsychGenerator, epsilon: float = 0.1) -> None:
+    def __init__(
+        self,
+        lb: torch.Tensor,
+        ub: torch.Tensor,
+        subgenerator: AEPsychGenerator,
+        epsilon: float = 0.1,
+    ) -> None:
         """Initialize EpsilonGreedyGenerator.
 
-        Args:
-            subgenerator (AEPsychGenerator): The generator to use when not exploiting.
-            epsilon (float): The probability of exploration. Defaults to 0.1.
+            Args:
+                lb (torch.Tensor): Lower bounds for the optimization.
+                ub (torch.Tensor): Upper bounds for the optimization.
+                subgenerator (AEPsychGenerator): The generator to use when not exploiting.
+                epsilon (float): The probability of exploration. Defaults to 0.1.
         """
         self.subgenerator = subgenerator
         self.epsilon = epsilon
@@ -45,7 +53,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         )
         subgen = subgen_cls.from_config(config)
         epsilon = config.getfloat(classname, "epsilon", fallback=0.1)
-        return cls(lb=lb, ub=ub,subgenerator=subgen, epsilon=epsilon)
+        return cls(lb=lb, ub=ub, subgenerator=subgen, epsilon=epsilon)
 
     def gen(self, num_points: int, model: ModelProtocol) -> torch.Tensor:
         """Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.

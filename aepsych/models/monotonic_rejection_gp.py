@@ -104,18 +104,20 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             inducing_size=self.inducing_size,
         )
 
-        
-
         self.inducing_point_method: Optional[InducingPointAllocator]
         if inducing_points is not None and inducing_point_method is SobolAllocator:
             warnings.warn(
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and inducing_point_method is SobolAllocator:
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and dim is not None:
             # No allocator or unsupported allocator: create a dummy tensor
@@ -204,7 +206,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             allocator=self.inducing_point_method,
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
-            X=self.train_inputs[0]
+            X=self.train_inputs[0],
         )
         self._set_model(train_x, train_y)
 

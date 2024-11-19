@@ -27,8 +27,6 @@ from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean
 from scipy.stats import bernoulli, multivariate_normal, norm, pearsonr
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
 
 
 class SingleProbitMI(unittest.TestCase):
@@ -42,7 +40,9 @@ class SingleProbitMI(unittest.TestCase):
         ub = torch.tensor([4.0])
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         acqf = MonotonicBernoulliMCMutualInformation
         acqf_kwargs = {"objective": ProbitObjective()}
@@ -98,8 +98,9 @@ class SingleProbitMI(unittest.TestCase):
         ub = torch.tensor([4.0])
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
-
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         acqf = BernoulliMCMutualInformation
         extra_acqf_args = {"objective": ProbitObjective()}
@@ -153,15 +154,14 @@ class SingleProbitMI(unittest.TestCase):
         ub = torch.tensor([1.0])
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        
 
         model = GPClassificationModel(
-            inducing_points=inducing_points,
             inducing_size=inducing_size,
             mean_module=mean,
             covar_module=covar,
             inducing_point_method=AutoAllocator(
-                bounds=torch.stack((torch.Tensor([0]), torch.Tensor([1])))
+                bounds=bounds
             ),
         )
         x = torch.rand(size=(10, 1))

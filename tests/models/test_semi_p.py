@@ -26,14 +26,13 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
+from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.utils import make_scaled_sobol
 from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
-from aepsych.utils import make_scaled_sobol
 
 
 def _hadamard_model_constructor(
@@ -140,7 +139,7 @@ class SemiPSmokeTests(unittest.TestCase):
                 bounds=torch.stack((torch.tensor(self.lb), torch.tensor(self.ub)))
             ),
         )
-        
+
         generator = OptimizeAcqfGenerator(
             acqf=GlobalMI,
             acqf_kwargs={
@@ -273,10 +272,10 @@ class SemiPSmokeTests(unittest.TestCase):
     @parameterized.expand([(_semip_model_constructor,), (_hadamard_model_constructor,)])
     def test_reset_variational_strategy(self, model_constructor):
         lb = torch.tensor([-3.0, -3.0])
-        ub =torch.tensor([3.0, 3.0])
+        ub = torch.tensor([3.0, 3.0])
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        
 
         stim_dim = 0
         with self.subTest(model_constructor=model_constructor):
@@ -284,7 +283,7 @@ class SemiPSmokeTests(unittest.TestCase):
                 stim_dim=stim_dim,
                 floor=0,
                 inducing_point_method=AutoAllocator(
-                    bounds=torch.stack((torch.tensor(lb), torch.tensor(ub)))
+                    bounds=bounds
                 ),
             )
             link = FloorLogitObjective(floor=0)

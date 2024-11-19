@@ -73,7 +73,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.lb = lb
         self.ub = ub
 
-
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
         """
         Instantiates the acquisition function with the specified model and additional arguments.
@@ -89,7 +88,13 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
                 return self.acqf(pref_model=model, lb=self.lb, ub=self.ub)
 
             if self.acqf in self.baseline_requiring_acqfs:
-                return self.acqf(model, model.train_inputs[0], lb=self.lb, ub=self.ub, **self.acqf_kwargs)
+                return self.acqf(
+                    model,
+                    model.train_inputs[0],
+                    lb=self.lb,
+                    ub=self.ub,
+                    **self.acqf_kwargs,
+                )
 
             return self.acqf(model=model, lb=self.lb, ub=self.ub, **self.acqf_kwargs)
 

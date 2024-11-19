@@ -172,7 +172,8 @@ class ConfigTestCase(unittest.TestCase):
         )
         self.assertTrue(strat.strat_list[1].generator.acqf is EAVC)
         self.assertTrue(
-            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"lb", "ub", "target"}
+            set(strat.strat_list[1].generator.acqf_kwargs.keys())
+            == {"lb", "ub", "target"}
         )
         self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)

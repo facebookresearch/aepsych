@@ -13,8 +13,6 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.strategy import Strategy
-from aepsych.models.utils import select_inducing_points
-from aepsych.models.inducing_point_allocators import SobolAllocator
 
 
 class TestStrategyGPU(unittest.TestCase):

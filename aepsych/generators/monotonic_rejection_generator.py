@@ -199,7 +199,6 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         extra_acqf_args = cls._get_acqf_options(acqf, config)
         lb = torch.tensor(config.getlist(classname, "lb"))
         ub = torch.tensor(config.getlist(classname, "ub"))
-        
 
         options = {}
         options["num_restarts"] = config.getint(classname, "restarts", fallback=10)
