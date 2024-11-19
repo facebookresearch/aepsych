@@ -34,6 +34,7 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin, ModelProtocol
+from aepsych.models.utils import get_extremum, inv_query
 from aepsych.transforms import (
     ParameterTransformedGenerator,
     ParameterTransformedModel,
@@ -43,7 +44,6 @@ from aepsych.utils import _process_bounds, dim_grid, get_jnd_multid, make_scaled
 from aepsych.utils_logging import getLogger
 from botorch.exceptions.errors import ModelFittingError
 from botorch.models.transforms.input import ChainedInputTransform
-from aepsych.models.utils import get_extremum, inv_query
 
 logger = getLogger()
 
@@ -52,7 +52,11 @@ def ensure_model_is_fresh(f: Callable) -> Callable:
     def wrapper(self, *args, **kwargs):
         if self.can_fit and not self._model_is_fresh:
             starttime = time.time()
-            if self._is_first_fit or self._count % self.refit_every == 0 or self.refit_every == 1:
+            if (
+                self._is_first_fit
+                or self._count % self.refit_every == 0
+                or self.refit_every == 1
+            ):
                 logger.info("Starting fitting (no warm start)...")
                 # don't warm start
                 self.fit()
@@ -337,7 +341,10 @@ class Strategy(object):
         ), "model is None! Cannot get the max without a model!"
         self.model.to(self.model_device)
         return self.get_max_(
-            self.model, constraints, probability_space=probability_space, max_time=max_time
+            self.model,
+            constraints,
+            probability_space=probability_space,
+            max_time=max_time,
         )
 
     def get_max_(
@@ -382,9 +389,12 @@ class Strategy(object):
         ), "model is None! Cannot get the min without a model!"
         self.model.to(self.model_device)
         return self.get_min_(
-            self.model, constraints, probability_space=probability_space, max_time=max_time
+            self.model,
+            constraints,
+            probability_space=probability_space,
+            max_time=max_time,
         )
-    
+
     def get_min_(
         self,
         model: ModelProtocol,
@@ -414,8 +424,6 @@ class Strategy(object):
             val, _ = model.predict(arg)
         return float(val.item()), arg
 
-
-
     @ensure_model_is_fresh
     def inv_query(
         self,
@@ -432,7 +440,7 @@ class Strategy(object):
         return self.inv_query_(
             self.model, y, constraints, probability_space, max_time=max_time
         )
-    
+
     def inv_query_(
         self,
         model: ModelProtocol,
@@ -473,7 +481,6 @@ class Strategy(object):
             val, _ = model.predict(arg.reshape(1, self.dim))
         return float(val.item()), arg
 
-
     @ensure_model_is_fresh
     def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
         assert self.model is not None, "model is None! Cannot predict without a model!"
@@ -489,7 +496,7 @@ class Strategy(object):
         ), "model is None! Cannot get the get jnd without a model!"
         self.model.to(self.model_device)
         return self.get_jnd_(self.model, *args, **kwargs)
-    
+
     def get_jnd_(
         self,
         model: ModelProtocol,
@@ -583,7 +590,6 @@ class Strategy(object):
         lower = torch.clip(torch.quantile(jnds, qlower, axis=0), 0, np.inf)  # type: ignore
         median = torch.clip(torch.quantile(jnds, 0.5, axis=0), 0, np.inf)  # type: ignore
         return median, lower, upper
-
 
     @ensure_model_is_fresh
     def sample(

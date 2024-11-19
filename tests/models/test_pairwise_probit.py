@@ -288,7 +288,11 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
-                    acqf=acqf, acqf_kwargs=extra_acqf_args, stimuli_per_trial=2, lb=lb, ub=ub
+                    acqf=acqf,
+                    acqf_kwargs=extra_acqf_args,
+                    stimuli_per_trial=2,
+                    lb=lb,
+                    ub=ub,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -402,7 +406,11 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
-                    acqf=acqf, acqf_kwargs=extra_acqf_args, stimuli_per_trial=2, lb=lb, ub=ub
+                    acqf=acqf,
+                    acqf_kwargs=extra_acqf_args,
+                    stimuli_per_trial=2,
+                    lb=lb,
+                    ub=ub,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,

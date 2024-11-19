@@ -11,14 +11,17 @@ from io import IOBase
 import numpy as np
 import torch
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator, KMeansAllocator
+from aepsych.models.inducing_point_allocators import (
+    AutoAllocator,
+    KMeansAllocator,
+    SobolAllocator,
+)
 from aepsych.models.utils import select_inducing_points
 from botorch.models.utils.inducing_point_allocators import (
     GreedyVarianceReduction,
     InducingPointAllocator,
 )
 from sklearn.datasets import make_classification
-from aepsych.models.inducing_point_allocators import SobolAllocator
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -38,7 +41,9 @@ class UtilsTestCase(unittest.TestCase):
         lb = torch.Tensor([-3])
         ub = torch.Tensor([3])
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         model = GPClassificationModel(
             inducing_points=inducing_points, inducing_size=inducing_size

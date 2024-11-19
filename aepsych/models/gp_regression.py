@@ -6,9 +6,10 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
+import warnings
+
 from copy import deepcopy
 from typing import Dict, Optional, Tuple, Union
-import warnings
 
 import gpytorch
 import numpy as np
@@ -16,12 +17,12 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.utils import _process_bounds, promote_0d
 from aepsych.utils_logging import getLogger
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ExactGP
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 
 logger = getLogger()
 
@@ -59,26 +60,30 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             inducing_point_method (InducingPointAllocator, optional): The method to use for allocating inducing points.
-                If None, defaults to AutoAllocator. 
+                If None, defaults to AutoAllocator.
             inducing_size (int, optional): The number of inducing points to use. If None, defaults to 99.
-                
+
         """
         if likelihood is None:
             likelihood = GaussianLikelihood()
         self.inducing_size = inducing_size or 99
 
         super().__init__(None, None, likelihood)
-        
+
         self.inducing_point_method: Optional[InducingPointAllocator]
         if inducing_points is not None and inducing_point_method is SobolAllocator:
             warnings.warn(
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and inducing_point_method is SobolAllocator:
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and dim is not None:
             # No allocator or unsupported allocator: create a dummy tensor
@@ -97,7 +102,6 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         # Always assign the inducing point method
         self.inducing_point_method = inducing_point_method or AutoAllocator()
 
-        
         self.dim = dim or self.inducing_points.size(-1)
         self.max_fit_time = max_fit_time
 

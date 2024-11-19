@@ -7,9 +7,10 @@
 
 from __future__ import annotations
 
+import warnings
+
 from copy import deepcopy
 from typing import Any, Optional, Tuple, Union
-import warnings
 
 import gpytorch
 import numpy as np
@@ -214,17 +215,21 @@ class SemiParametricGPModel(GPClassificationModel):
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
         """
-        
+
         self.inducing_point_method: Optional[InducingPointAllocator]
         if inducing_points is not None and inducing_point_method is SobolAllocator:
             warnings.warn(
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and inducing_point_method is SobolAllocator:
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and dim is not None:
             # No allocator or unsupported allocator: create a dummy tensor
@@ -243,12 +248,11 @@ class SemiParametricGPModel(GPClassificationModel):
         # Always assign the inducing point method
         self.inducing_point_method = inducing_point_method or AutoAllocator()
 
-        
         self.dim = dim or self.inducing_points.size(-1)
         dim = self.dim
 
         self.stim_dim = stim_dim
-        self.context_dims = list(range(self.dim ))
+        self.context_dims = list(range(self.dim))
         self.context_dims.pop(stim_dim)
 
         if mean_module is None:
@@ -261,7 +265,7 @@ class SemiParametricGPModel(GPClassificationModel):
         if covar_module is None:
             covar_module = ScaleKernel(
                 RBFKernel(
-                    ard_num_dims=self.dim  - 1,
+                    ard_num_dims=self.dim - 1,
                     lengthscale_prior=GammaPrior(3, 6),
                     active_dims=self.context_dims,  # Operate only on x_s
                     batch_shape=torch.Size([2]),
@@ -474,7 +478,6 @@ class HadamardSemiPModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: Optional[InducingPointAllocator] = None,
-        
     ) -> None:
         """
         Initialize HadamardSemiPModel.
@@ -507,17 +510,21 @@ class HadamardSemiPModel(GPClassificationModel):
                     "at >=100 inducing points is especially slow."
                 )
             )
-            
+
         self.inducing_point_method: Optional[InducingPointAllocator]
         if inducing_points is not None and inducing_point_method is SobolAllocator:
             warnings.warn(
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and inducing_point_method is SobolAllocator:
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and dim is not None:
             # No allocator or unsupported allocator: create a dummy tensor
@@ -536,9 +543,8 @@ class HadamardSemiPModel(GPClassificationModel):
         # Always assign the inducing point method
         self.inducing_point_method = inducing_point_method or AutoAllocator()
 
-        
         self.dim = dim or self.inducing_points.size(-1)
-        
+
         super().__init__(
             inducing_points=inducing_points,
             dim=dim,

@@ -14,10 +14,11 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel, PairwiseProbitModel
-from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
-from sklearn.datasets import make_classification
 from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.models.utils import select_inducing_points
+from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+from sklearn.datasets import make_classification
+
 
 class TestOptimizeAcqfGenerator(unittest.TestCase):
     def test_time_limits(self):
@@ -38,7 +39,9 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         ub = 3 * torch.ones(8)
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         model = GPClassificationModel(
             inducing_points=inducing_points,
@@ -48,7 +51,10 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
 
         model.fit(X, y)
         generator = OptimizeAcqfGenerator(
-            acqf=MCLevelSetEstimation, acqf_kwargs={"beta": 1.96, "target": 0.5}, lb=lb, ub=ub,
+            acqf=MCLevelSetEstimation,
+            acqf_kwargs={"beta": 1.96, "target": 0.5},
+            lb=lb,
+            ub=ub,
         )
 
         start = time.time()

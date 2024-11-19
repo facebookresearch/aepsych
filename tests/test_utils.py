@@ -12,10 +12,16 @@ import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.models import GPClassificationModel
-from aepsych.utils import _process_bounds, get_dim, get_parameters, make_scaled_sobol
 from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import dim_grid
+from aepsych.utils import (
+    _process_bounds,
+    dim_grid,
+    get_dim,
+    get_parameters,
+    make_scaled_sobol,
+)
+
 
 class UtilsTestCase(unittest.TestCase):
     def test_scaled_sobol_asserts(self):
@@ -29,7 +35,6 @@ class UtilsTestCase(unittest.TestCase):
         ub = np.r_[1, 30]
         grid = make_scaled_sobol(lb, ub, 100)
         self.assertEqual(grid.shape, (100, 2))
-
 
     def test_process_bounds(self):
         lb, ub, dim = _process_bounds(np.r_[0, 1], np.r_[2, 3], None)

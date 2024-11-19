@@ -18,13 +18,13 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.generators import MonotonicRejectionGenerator
 from aepsych.models import MonotonicRejectionGP
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import Strategy
 from botorch.acquisition.objective import IdentityMCObjective
 from botorch.utils.testing import BotorchTestCase
 from gpytorch.likelihoods import BernoulliLikelihood, GaussianLikelihood
 from scipy.stats import norm
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
 
 
 class MonotonicRejectionGPLSETest(BotorchTestCase):
@@ -36,7 +36,9 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         ub = torch.tensor([4.0, 4.0])
         inducing_size = 2
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         m = MonotonicRejectionGP(
             inducing_points=inducing_points,
@@ -93,7 +95,9 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         ub = torch.tensor([4.0, 4.0])
         inducing_size = 2
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         m = MonotonicRejectionGP(
             inducing_points=inducing_points,

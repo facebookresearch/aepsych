@@ -11,6 +11,8 @@ import torch
 from aepsych.config import Config
 from aepsych.generators import SobolGenerator
 from aepsych.models import GPClassificationModel
+from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import SequentialStrategy
 from aepsych.transforms import (
     ParameterTransformedGenerator,
@@ -18,8 +20,7 @@ from aepsych.transforms import (
     ParameterTransforms,
 )
 from aepsych.transforms.parameters import Log10Plus, NormalizeScale
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
+
 
 class TransformsConfigTest(unittest.TestCase):
     def setUp(self):
@@ -94,7 +95,14 @@ class TransformsConfigTest(unittest.TestCase):
 
         obj_model = ParameterTransformedModel(
             model=GPClassificationModel,
-            inducing_points = select_inducing_points(inducing_size=99, allocator=SobolAllocator(bounds=torch.stack((torch.tensor([1.0, 1.0]), torch.tensor([100.0, 100.0]))))),
+            inducing_points=select_inducing_points(
+                inducing_size=99,
+                allocator=SobolAllocator(
+                    bounds=torch.stack(
+                        (torch.tensor([1.0, 1.0]), torch.tensor([100.0, 100.0]))
+                    )
+                ),
+            ),
             transforms=self.strat.strat_list[1].transforms,
         )
 

@@ -97,10 +97,14 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and inducing_point_method is SobolAllocator:
-            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+            self.inducing_points = inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size
+            )
 
         elif inducing_points is None and dim is not None:
             # No allocator or unsupported allocator: create a dummy tensor
@@ -119,14 +123,12 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         # Always assign the inducing point method
         self.inducing_point_method = inducing_point_method or AutoAllocator()
 
-        
         self.dim = dim or self.inducing_points.size(-1)
-        
+
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
                 dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
             )
-        
 
         variational_distribution = CholeskyVariationalDistribution(
             self.inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -139,8 +141,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             learn_inducing_locations=False,
         )
         super().__init__(variational_strategy)
-
-        
 
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
@@ -225,7 +225,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 allocator=self.inducing_point_method,
                 inducing_size=self.inducing_size,
                 covar_module=self.covar_module,
-                X=self.train_inputs[0]
+                X=self.train_inputs[0],
             ).to(device)
 
             variational_distribution = CholeskyVariationalDistribution(

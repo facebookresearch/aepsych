@@ -15,7 +15,13 @@ from .optimize_acqf_generator import OptimizeAcqfGenerator
 
 
 class EpsilonGreedyGenerator(AEPsychGenerator):
-    def __init__(self, lb:torch.Tensor, ub:torch.Tensor,subgenerator: AEPsychGenerator, epsilon: float = 0.1) -> None:
+    def __init__(
+        self,
+        lb: torch.Tensor,
+        ub: torch.Tensor,
+        subgenerator: AEPsychGenerator,
+        epsilon: float = 0.1,
+    ) -> None:
         self.subgenerator = subgenerator
         self.epsilon = epsilon
         self.lb = lb
@@ -31,7 +37,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         )
         subgen = subgen_cls.from_config(config)
         epsilon = config.getfloat(classname, "epsilon", fallback=0.1)
-        return cls(lb=lb, ub=ub,subgenerator=subgen, epsilon=epsilon)
+        return cls(lb=lb, ub=ub, subgenerator=subgen, epsilon=epsilon)
 
     def gen(self, num_points: int, model: ModelProtocol) -> torch.Tensor:
         if num_points > 1:

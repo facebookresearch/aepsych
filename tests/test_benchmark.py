@@ -21,9 +21,10 @@ from aepsych.benchmark import (
     Problem,
 )
 from aepsych.models import GPClassificationModel
-from scipy.stats import norm
 from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.models.utils import select_inducing_points
+from scipy.stats import norm
+
 torch.set_num_threads(1)
 torch.set_num_interop_threads(1)
 
@@ -75,11 +76,11 @@ class MultipleLSETestCase(unittest.TestCase):
         self.test_problem = example_problems.DiscrimLowDim(thresholds=self.thresholds)
         inducing_size = 99
         bounds = torch.stack([self.test_problem.lb, self.test_problem.ub])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
-
-        self.model = GPClassificationModel(
-            inducing_points=inducing_points
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
         )
+
+        self.model = GPClassificationModel(inducing_points=inducing_points)
 
     def unvectorized_p_below_threshold(self, x, f_thresh) -> torch.Tensor:
         """this is the original p_below_threshold method in the AEPsychMixin that calculates model prediction

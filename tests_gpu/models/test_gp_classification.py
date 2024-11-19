@@ -17,10 +17,11 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 import numpy as np
 import numpy.testing as npt
 from aepsych.models import GPClassificationModel
-from scipy.stats import norm
-from sklearn.datasets import make_classification
 from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.models.utils import select_inducing_points
+from scipy.stats import norm
+from sklearn.datasets import make_classification
+
 
 def f_1d(x, mu=0):
     """
@@ -108,7 +109,9 @@ class GPClassificationSmoketest(unittest.TestCase):
         X, y = self.X, self.y
         inducing_size = 10
         bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         model = GPClassificationModel(
             inducing_points=inducing_points,

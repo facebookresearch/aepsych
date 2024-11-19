@@ -72,14 +72,22 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.lb = lb
         self.ub = ub
 
-
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
-        if "lb" in inspect.signature(self.acqf).parameters and "ub" in inspect.signature(self.acqf).parameters:
+        if (
+            "lb" in inspect.signature(self.acqf).parameters
+            and "ub" in inspect.signature(self.acqf).parameters
+        ):
             if self.acqf == AnalyticExpectedUtilityOfBestOption:
                 return self.acqf(pref_model=model, lb=self.lb, ub=self.ub)
 
             if self.acqf in self.baseline_requiring_acqfs:
-                return self.acqf(model, model.train_inputs[0], lb=self.lb, ub=self.ub, **self.acqf_kwargs)
+                return self.acqf(
+                    model,
+                    model.train_inputs[0],
+                    lb=self.lb,
+                    ub=self.ub,
+                    **self.acqf_kwargs,
+                )
 
             return self.acqf(model=model, lb=self.lb, ub=self.ub, **self.acqf_kwargs)
 

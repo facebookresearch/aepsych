@@ -18,7 +18,9 @@ from aepsych.generators import (
     SobolGenerator,
 )
 from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
+from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import (
     ParameterTransformedGenerator,
@@ -26,8 +28,7 @@ from aepsych.transforms import (
     ParameterTransforms,
 )
 from aepsych.transforms.parameters import Normalize
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
+
 
 class TestSequenceGenerators(unittest.TestCase):
     def setUp(self):
@@ -44,8 +45,9 @@ class TestSequenceGenerators(unittest.TestCase):
         )
         inducing_size = 99
         bounds = torch.stack((lb, ub))
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
-
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         self.strat = Strategy(
             model=ParameterTransformedModel(
@@ -169,7 +171,9 @@ class TestSequenceGenerators(unittest.TestCase):
         ub = torch.tensor([1.0, 1.0])
         inducing_size = 99
         bounds = torch.stack((lb, ub))
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         self.strat = Strategy(
             model=GPClassificationModel(
@@ -199,8 +203,9 @@ class TestSequenceGenerators(unittest.TestCase):
         ub = torch.tensor([1.0, 1.0])
         inducing_size = 99
         bounds = torch.stack((lb, ub))
-        inducing_points = select_inducing_points(inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds))
-
+        inducing_points = select_inducing_points(
+            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
+        )
 
         with self.assertWarns(UserWarning):
             self.strat = Strategy(
