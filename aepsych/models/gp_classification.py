@@ -102,13 +102,15 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         elif inducing_points is None and inducing_point_method is SobolAllocator:
             self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
 
-        elif inducing_points is None:
+        elif inducing_points is None and dim is not None:
             # No allocator or unsupported allocator: create a dummy tensor
             warnings.warn(
                 "No inducing points provided and allocation is not supported by the method. "
                 "Using a zero tensor as a placeholder."
             )
-            self.inducing_points = torch.zeros((self.inducing_size))
+            self.inducing_points = torch.zeros((self.inducing_size, dim))
+        elif inducing_points is None and dim is None:
+            raise ValueError("No inducing points provided and dim is not provided.")
 
         else:
             # Use provided inducing points

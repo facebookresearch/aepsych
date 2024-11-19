@@ -221,28 +221,31 @@ class SemiParametricGPModel(GPClassificationModel):
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_point_method = inducing_point_method
             self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
-        
-        elif inducing_points is None and inducing_point_method is None:
-            # Log or mark that we won’t be using the allocator, only inducing_points
-            self.inducing_points = torch.zeros(self.inducing_size)
-            self.inducing_point_method = AutoAllocator()
 
-        elif inducing_points is not None and inducing_point_method is None:
+        elif inducing_points is None and inducing_point_method is SobolAllocator:
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+
+        elif inducing_points is None and dim is not None:
+            # No allocator or unsupported allocator: create a dummy tensor
+            warnings.warn(
+                "No inducing points provided and allocation is not supported by the method. "
+                "Using a zero tensor as a placeholder."
+            )
+            self.inducing_points = torch.zeros((self.inducing_size, dim))
+        elif inducing_points is None and dim is None:
+            raise ValueError("No inducing points provided and dim is not provided.")
+
+        else:
+            # Use provided inducing points
             self.inducing_points = inducing_points
-            self.inducing_point_method = AutoAllocator()
 
-        elif inducing_points is None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
-            self.inducing_points = torch.zeros(self.inducing_size)
-            self.inducing_point_method = inducing_point_method
+        # Always assign the inducing point method
+        self.inducing_point_method = inducing_point_method or AutoAllocator()
 
-        elif inducing_points is not None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
-            self.inducing_points = inducing_points
-            self.inducing_point_method = inducing_point_method
         
-        dim = dim or self.inducing_points.size(-1)
-        self.dim = dim
+        self.dim = dim or self.inducing_points.size(-1)
+        dim = self.dim
 
         self.stim_dim = stim_dim
         self.context_dims = list(range(self.dim ))
@@ -471,6 +474,7 @@ class HadamardSemiPModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: Optional[InducingPointAllocator] = None,
+        
     ) -> None:
         """
         Initialize HadamardSemiPModel.
@@ -493,19 +497,45 @@ class HadamardSemiPModel(GPClassificationModel):
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
         """
+        self.inducing_size = inducing_size or 99
+
+        if self.inducing_size >= 100:
+            logger.warning(
+                (
+                    "inducing_size in GPClassificationModel is >=100, more inducing points "
+                    "can lead to better fits but slower performance in general. Performance "
+                    "at >=100 inducing points is especially slow."
+                )
+            )
+            
         self.inducing_point_method: Optional[InducingPointAllocator]
         if inducing_points is not None and inducing_point_method is SobolAllocator:
             warnings.warn(
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_point_method = inducing_point_method
-            self.inducing_points = inducing_point_method.allocate_inducing_points(covar_module=self.covar_module, num_inducing=self.inducing_size)
-        
-        elif inducing_point_method is None:
-            # Log or mark that we won’t be using the allocator, only inducing_points
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+
+        elif inducing_points is None and inducing_point_method is SobolAllocator:
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+
+        elif inducing_points is None and dim is not None:
+            # No allocator or unsupported allocator: create a dummy tensor
+            warnings.warn(
+                "No inducing points provided and allocation is not supported by the method. "
+                "Using a zero tensor as a placeholder."
+            )
+            self.inducing_points = torch.zeros((self.inducing_size, dim))
+        elif inducing_points is None and dim is None:
+            raise ValueError("No inducing points provided and dim is not provided.")
+
+        else:
+            # Use provided inducing points
             self.inducing_points = inducing_points
-            self.inducing_point_method = AutoAllocator()        
+
+        # Always assign the inducing point method
+        self.inducing_point_method = inducing_point_method or AutoAllocator()
+
         
         self.dim = dim or self.inducing_points.size(-1)
         

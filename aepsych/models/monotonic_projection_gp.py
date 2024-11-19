@@ -138,7 +138,7 @@ class MonotonicProjectionGP(GPClassificationModel):
             # using numpy because torch doesn't support vectorized linspace,
             # pytorch/issues/61292
             grid: Union[np.ndarray, torch.Tensor] = np.linspace(
-                self.lb[dim],
+                self.inducing_points.min(dim=0).values,
                 X[:, dim].numpy(),
                 s + 1,
             )  # (s+1 x n)

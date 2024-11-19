@@ -92,15 +92,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         self.inducing_size = num_induc
 
-        self.mean_module = mean_module
-        self.covar_module = covar_module
-        self.likelihood = likelihood
-
-        self.num_induc = num_induc
-        self.monotonic_idxs = monotonic_idxs
-        self.num_samples = num_samples
-        self.num_rejection_samples = num_rejection_samples
-        self.fixed_prior_mean = fixed_prior_mean
+        
 
         self.inducing_point_method: Optional[InducingPointAllocator]
         if inducing_points is not None and inducing_point_method is SobolAllocator:
@@ -108,25 +100,28 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
                 "Both inducing_points and SobolAllocator are provided. "
                 "The initial inducing_points will be overwritten by the allocator."
             )
-            self.inducing_point_method = inducing_point_method
             self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
-        
-        elif inducing_points is None and inducing_point_method is None:
-            # Log or mark that we won’t be using the allocator, only inducing_points
-            self.inducing_points = torch.zeros(self.inducing_size)
-            self.inducing_point_method = AutoAllocator()
 
-        elif inducing_points is not None and inducing_point_method is None:
+        elif inducing_points is None and inducing_point_method is SobolAllocator:
+            self.inducing_points = inducing_point_method.allocate_inducing_points(num_inducing=self.inducing_size)
+
+        elif inducing_points is None and dim is not None:
+            # No allocator or unsupported allocator: create a dummy tensor
+            warnings.warn(
+                "No inducing points provided and allocation is not supported by the method. "
+                "Using a zero tensor as a placeholder."
+            )
+            self.inducing_points = torch.zeros((self.inducing_size, dim))
+        elif inducing_points is None and dim is None:
+            raise ValueError("No inducing points provided and dim is not provided.")
+
+        else:
+            # Use provided inducing points
             self.inducing_points = inducing_points
-            self.inducing_point_method = AutoAllocator()
 
-        elif inducing_points is None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
-            self.inducing_points = torch.zeros(self.inducing_size)
-            self.inducing_point_method = inducing_point_method
+        # Always assign the inducing point method
+        self.inducing_point_method = inducing_point_method or AutoAllocator()
 
-        elif inducing_points is not None and inducing_point_method is not None and inducing_point_method is not SobolAllocator:
-            self.inducing_points = inducing_points
-            self.inducing_point_method = inducing_point_method
         
         self.dim = dim or self.inducing_points.size(-1)
 
@@ -169,8 +164,15 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         super().__init__(variational_strategy)
 
-        # self.bounds_ = torch.stack([self.lb, self.ub])
-        
+        self.mean_module = mean_module
+        self.covar_module = covar_module
+        self.likelihood = likelihood
+
+        self.num_induc = num_induc
+        self.monotonic_idxs = monotonic_idxs
+        self.num_samples = num_samples
+        self.num_rejection_samples = num_rejection_samples
+        self.fixed_prior_mean = fixed_prior_mean
 
     def fit(self, train_x: Tensor, train_y: Tensor, **kwargs) -> None:
         """Fit the model
@@ -330,8 +332,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             classname, "num_rejection_samples", fallback=5000
         )
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
+        inducing_points = config.gettensor(classname, "inducing_points", fallback=None)
         dim = config.getint(classname, "dim", fallback=None)
 
         mean_covar_factory = config.getobj(
@@ -346,8 +347,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         return cls(
             monotonic_idxs=monotonic_idxs,
-            lb=lb,
-            ub=ub,
+            inducing_points=inducing_points,
             dim=dim,
             num_induc=num_induc,
             num_samples=num_samples,
