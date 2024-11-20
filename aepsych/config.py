@@ -260,6 +260,7 @@ class Config(configparser.ConfigParser):
                 raise ValueError(
                     f"Parameter {param_name} is missing the upper_bound setting."
                 )
+
         elif param_block["par_type"] == "integer":
             # Check if bounds exist and actaully integers
             if "lower_bound" not in param_block:
@@ -271,18 +272,27 @@ class Config(configparser.ConfigParser):
                     f"Parameter {param_name} is missing the upper_bound setting."
                 )
 
-            if not (
-                self.getint(param_name, "lower_bound") % 1 == 0
-                and self.getint(param_name, "upper_bound") % 1 == 0
-            ):
-                raise ValueError(f"Parameter {param_name} has non-integer bounds.")
+            try:
+                if not (
+                    self.getint(param_name, "lower_bound") % 1 == 0
+                    and self.getint(param_name, "upper_bound") % 1 == 0
+                ):
+                    raise ParameterConfigError(
+                        f"Parameter {param_name} has non-integer bounds."
+                    )
+            except ValueError:
+                raise ParameterConfigError(
+                    f"Parameter {param_name} has non-discrete bounds."
+                )
+
         elif param_block["par_type"] == "binary":
             if "lower_bound" in param_block or "upper_bound" in param_block:
-                raise ValueError(
+                raise ParameterConfigError(
                     f"Parameter {param_name} is binary and shouldn't have bounds."
                 )
+
         else:
-            raise ValueError(
+            raise ParameterConfigError(
                 f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}."
             )
 
@@ -513,3 +523,7 @@ Config.register_module(gpytorch.kernels)
 Config.register_module(botorch.acquisition)
 Config.register_module(botorch.acquisition.multi_objective)
 Config.registered_names["None"] = None
+
+
+class ParameterConfigError(Exception):
+    pass

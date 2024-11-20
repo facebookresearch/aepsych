@@ -14,7 +14,7 @@ import torch
 from aepsych.acquisition import EAVC, MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import FloorGumbelObjective, ProbitObjective
-from aepsych.config import Config
+from aepsych.config import Config, ParameterConfigError
 from aepsych.generators import (
     MonotonicRejectionGenerator,
     OptimizeAcqfGenerator,
@@ -1179,7 +1179,7 @@ class ConfigTestCase(unittest.TestCase):
             par_type = invalid_type
         """
         config = Config()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterConfigError):
             config.update(config_str=config_str)
 
     def test_continuous_parameter_lb_validation(self):
