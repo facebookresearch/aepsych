@@ -9,7 +9,18 @@ import warnings
 from abc import ABC
 from configparser import NoOptionError
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 import numpy as np
 import torch
@@ -17,7 +28,12 @@ from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin, ModelProtocol
 from botorch.acquisition import AcquisitionFunction
-from botorch.models.transforms.input import ChainedInputTransform, Log10, Normalize
+from botorch.models.transforms.input import (
+    ChainedInputTransform,
+    Log10,
+    Normalize,
+    ReversibleInputTransform,
+)
 from botorch.models.transforms.utils import subset_transform
 from botorch.posteriors import Posterior
 from torch import Tensor
@@ -42,7 +58,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
     def _temporary_reshape(func: Callable) -> Callable:
         # Decorator to reshape tensors to the expected 2D shape, even if the input was
         # 1D or 3D and after the transform reshape it back to the original.
-        def wrapper(self, X: Tensor) -> Tensor:
+        def wrapper(self, X: Tensor, **kwargs) -> Tensor:
             squeeze = False
             if len(X.shape) == 1:  # For 1D inputs, primarily for transforming arguments
                 X = X.unsqueeze(0)
@@ -54,7 +70,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
                 X = X.swapaxes(-2, -1).reshape(-1, dim)
                 reshape = True
 
-            X = func(self, X)
+            X = func(self, X, **kwargs)
 
             if reshape:
                 X = X.reshape(batch, stim, -1).swapaxes(-1, -2)
@@ -79,6 +95,38 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
             A tensor of transformed inputs with the same shape as the input.
         """
         return super().transform(X)
+
+    @_temporary_reshape
+    def transform_bounds(
+        self, X: Tensor, bound: Optional[Literal["lb", "ub"]] = None
+    ) -> Tensor:
+        r"""Transform bounds of a parameter.
+
+        Individual transforms are applied in sequence. Then an adjustment is applied to
+        ensure the bounds are correct.
+
+        Args:
+            X: A tensor of inputs. Either `[dim]`, `[batch, dim]`, or `[batch, dim, stimuli]`.
+
+        Returns:
+            A tensor of transformed inputs with the same shape as the input.
+        """
+        for tf in self.values():
+            # This is the entire reason this method exists to help handle the
+            # continuous relaxation necessary for discrete parameters. But this is
+            # super awkward.
+            if isinstance(tf, Round):
+                if bound == "lb":
+                    X[0, tf.indices] -= torch.tensor([0.5] * len(tf.indices))
+                elif bound == "ub":
+                    X[0, tf.indices] += torch.tensor([0.5 - 1e-6] * len(tf.indices))
+                else:  # Both bounds
+                    X[0, tf.indices] -= torch.tensor([0.5] * len(tf.indices))
+                    X[1, tf.indices] += torch.tensor([0.5 - 1e-6] * len(tf.indices))
+            else:
+                X = tf.forward(X)
+
+        return X
 
     @_temporary_reshape
     def untransform(self, X: Tensor) -> Tensor:
@@ -131,6 +179,22 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
         transform_dict: Dict[str, ChainedInputTransform] = {}
         for par in parnames:
             # This is the order that transforms are potentially applied, order matters
+
+            try:
+                par_type = config[par]["par_type"]
+            except KeyError:  # Probably because par doesn't have its own section
+                par_type = "continuous"
+
+            # Integer variable
+            if par_type == "integer":
+                round = Round.from_config(
+                    config=config, name=par, options=transform_options
+                )
+
+                # Nudge bounds
+                transform_options["bounds"][0, round.indices] -= 0.5
+                transform_options["bounds"][1, round.indices] += 0.5 - 1e-6
+                transform_dict[f"{par}_Round"] = round
 
             # Log scale
             if config.getboolean(par, "log_scale", fallback=False):
@@ -914,6 +978,88 @@ class NormalizeScale(Normalize, ConfigurableMixin):
         return options
 
 
+class Round(ReversibleInputTransform, torch.nn.Module, ConfigurableMixin):
+    def __init__(
+        self,
+        indices: list[int],
+        transform_on_train: bool = True,
+        transform_on_eval: bool = True,
+        transform_on_fantasize: bool = True,
+        reverse: bool = False,
+        **kwargs,
+    ) -> None:
+        """Initialize a round transform. This operation rounds the inputs at the indices
+        in both direction.
+
+        Args:
+            indices: The indices of the inputs to round.
+            transform_on_train: A boolean indicating whether to apply the
+                transforms in train() mode. Default: True.
+            transform_on_eval: A boolean indicating whether to apply the
+                transform in eval() mode. Default: True.
+            transform_on_fantasize: Currently will not do anything, here to conform to
+                API.
+            reverse: Whether to round in forward or backward passes.
+            **kwargs: Accepted to conform to API.
+        """
+        super().__init__()
+        self.register_buffer("indices", torch.tensor(indices, dtype=torch.long))
+        self.transform_on_train = transform_on_train
+        self.transform_on_eval = transform_on_eval
+        self.transform_on_fantasize = transform_on_fantasize
+        self.reverse = reverse
+
+    @subset_transform
+    def _transform(self, X: torch.Tensor) -> torch.Tensor:
+        r"""Round the inputs to a model to be discrete. This rounding is the same both
+        in the forward and the backward pass.
+
+        Args:
+            X (torch.Tensor): A `batch_shape x n x d`-dim tensor of inputs.
+
+        Returns:
+            torch.Tensor: The input tensor with values rounded.
+        """
+        return X.round()
+
+    @subset_transform
+    def _untransform(self, X: Tensor) -> Tensor:
+        r"""Round the inputs to a model to be discrete. This rounding is the same both
+        in the forward and the backward pass.
+
+        Args:
+            X (torch.Tensor): A `batch_shape x n x d`-dim tensor of transformed inputs.
+
+        Returns:
+            torch.Tensor: The input tensor with values rounded.
+        """
+        return X.round()
+
+    @classmethod
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Return a dictionary of the relevant options to initialize the Round transform
+        from the config for the named transform.
+
+        Args:
+            config (Config): Config to look for options in.
+            name (str, optional): The parameter to find options for.
+            options (Dict[str, Any], optional): Options to override from the config,
+                defaults to None.
+
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize this class.
+        """
+        options = _get_parameter_options(config, name, options)
+
+        return options
+
+
 def transform_options(
     config: Config, transforms: Optional[ChainedInputTransform] = None
 ) -> Config:
@@ -938,7 +1084,10 @@ def transform_options(
                 value = np.array(value, dtype=float)
                 value = torch.tensor(value).to(torch.float64)
 
-                value = transforms.transform(value)
+                if option in ["ub", "lb"]:
+                    value = transforms.transform_bounds(value, bound=option)
+                else:
+                    value = transforms.transform(value)
 
                 def _arr_to_list(iter):
                     if hasattr(iter, "__iter__"):
