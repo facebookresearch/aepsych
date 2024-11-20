@@ -4,20 +4,26 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+import logging
 import unittest
+import uuid
 
 import numpy as np
 import torch
+from aepsych import server, utils_logging
 from aepsych.config import Config
 from aepsych.generators import SobolGenerator
 from aepsych.models import GPClassificationModel
+from aepsych.server.message_handlers.handle_ask import ask
+from aepsych.server.message_handlers.handle_setup import configure
+from aepsych.server.message_handlers.handle_tell import tell
 from aepsych.strategy import SequentialStrategy
 from aepsych.transforms import (
     ParameterTransformedGenerator,
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.parameters import Log10Plus, NormalizeScale
+from aepsych.transforms.parameters import Categorical, Log10Plus, NormalizeScale
 
 
 class TransformsConfigTest(unittest.TestCase):
@@ -310,3 +316,285 @@ class TransformsNormalize(unittest.TestCase):
 
         self.assertTrue(torch.allclose(transformed, expected))
         self.assertTrue(torch.allclose(transforms.untransform(transformed), values))
+
+
+class TransformInteger(unittest.TestCase):
+    def test_integer_bounds(self):
+        config_str = """
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [signal2]
+            par_type = integer
+            lower_bound = 1
+            upper_bound = 5
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+        points = strat.gen()[0]
+
+        self.assertTrue((points[0] % 1).item() != 0.0)
+        self.assertTrue((points[1] % 1).item() == 0.0)
+        self.assertTrue(torch.all(strat._strat.generator.lb == 0))
+        self.assertTrue(torch.all(strat._strat.generator.ub == 1))
+
+    def test_integer_model(self):
+        np.random.seed(1)
+        torch.manual_seed(1)
+
+        lower_bound = 1
+        upper_bound = 100
+        target = 0.75
+
+        config_str = f"""
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = {target}
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = integer
+            lower_bound = {lower_bound}
+            upper_bound = {upper_bound}
+
+            [init_strat]
+            generator = SobolGenerator
+            min_total_tells = 50
+
+            [SobolGenerator]
+            seed = 1
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+            min_total_tells = 1
+        """
+
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        while not strat.finished:
+            next_x = strat.gen()
+            self.assertTrue((next_x % 1).item() == 0.0)
+            response = int(np.random.rand() < (next_x / 100))
+            strat.add_data(next_x, [response])
+
+        x = torch.linspace(lower_bound, upper_bound, 100)
+
+        zhat, _ = strat.predict(x)
+        est_max = x[np.argmin((zhat - target) ** 2)]
+        diff = np.abs(est_max / 100 - target)
+        self.assertTrue(diff < 0.15, f"Diff = {diff}")
+
+
+class TransformCategorical(unittest.TestCase):
+    def test_categorical_model(self):
+        np.random.seed(1)
+        torch.manual_seed(1)
+
+        n_init = 50
+        n_opt = 1
+        target = 0.75
+        config_str = f"""
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat, opt_strat]
+            target = {target}
+
+            [signal1]
+            par_type = categorical
+            choices = [red, green, blue]
+
+            [signal2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = {n_init}
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+            min_asks = {n_opt}
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+        transforms = strat.transforms
+        while not strat.finished:
+            points = strat.gen()
+            points = transforms.indices_to_str(points)
+
+            if points[0][0] == "blue":
+                response = int(np.random.rand() < points[0][1])
+            else:
+                response = 0
+
+            strat.add_data(transforms.str_to_indices(points), response)
+
+        _, loc = strat.model.get_max()
+        loc = transforms.indices_to_str(loc)[0]
+
+        self.assertTrue(loc[0] == "blue")
+        self.assertTrue(loc[1] - target < 0.15)
+
+    def test_standalone_transform(self):
+        categorical_map = {1: ["red", "green", "blue"], 3: ["big", "small"]}
+        input = torch.tensor([[0.2, 2, 4, 0, 1], [0.5, 0, 3, 0, 1], [0.9, 1, 0, 1, 0]])
+        input_cats = np.array(
+            [
+                [0.2, "blue", 4, "big", "right"],
+                [0.5, "red", 3, "big", "right"],
+                [0.9, "green", 0, "small", "left"],
+            ],
+            dtype="O",
+        )
+
+        transforms = ParameterTransforms(
+            categorical1=Categorical([1, 3], categorical_map=categorical_map),
+            categorical2=Categorical([4], categorical_map={4: ["left", "right"]}),
+        )
+
+        self.assertTrue("_CombinedCategorical" in list(transforms.keys()))
+        self.assertTrue("categorical1" not in list(transforms.keys()))
+
+        transformed = transforms.transform(input)
+        untransformed = transforms.untransform(transformed)
+
+        self.assertTrue(torch.equal(input, untransformed))
+
+        strings = transforms.indices_to_str(input)
+        self.assertTrue(np.all(input_cats == strings))
+
+        indices = transforms.str_to_indices(input_cats)
+        self.assertTrue(torch.all(indices == input))
+
+
+class TransformServer(unittest.TestCase):
+    def setUp(self):
+        # setup logger
+        server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
+        # random datebase path name without dashes
+        database_path = "./{}.db".format(str(uuid.uuid4().hex))
+        self.s = server.AEPsychServer(database_path=database_path)
+
+    def tearDown(self):
+        self.s.cleanup()
+
+        # cleanup the db
+        if self.s.db is not None:
+            self.s.db.delete_db()
+
+    def test_categorical_smoketest(self):
+        server = self.s
+        config_str = f"""
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat, opt_strat]
+            target = 0.75
+
+            [signal1]
+            par_type = categorical
+            choices = [red, green, blue]
+
+            [signal2]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+            min_asks = 1
+        """
+        configure(
+            server,
+            config_str=config_str,
+        )
+
+        for _ in range(2):
+            next_config = ask(server)
+
+            self.assertTrue(isinstance(next_config["signal1"][0], str))
+
+            tell(server, config=next_config, outcome=0)
+
+    def test_pairwise_categorical(self):
+        server = self.s
+        config_str = """
+            [common]
+            stimuli_per_trial=2
+            outcome_types=[binary]
+            parnames = [x, y, z]
+            strategy_names = [init_strat, opt_strat]
+            
+            [x]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 4
+            normalize_scale = False
+
+            [y]
+            par_type = categorical
+            choices = [red, green, blue]
+
+            [z]
+            par_type = discrete
+            lower_bound = 1
+            upper_bound = 1000
+            log_scale = True
+
+            [init_strat]
+            min_asks = 1
+            generator = SobolGenerator
+
+            [opt_strat]
+            model = PairwiseProbitModel
+            min_asks = 1
+            generator = OptimizeAcqfGenerator
+            acqf = PairwiseMCPosteriorVariance
+
+            [PairwiseProbitModel]
+            mean_covar_factory = default_mean_covar_factory
+
+            [PairwiseMCPosteriorVariance]
+            objective = ProbitObjective
+        """
+        configure(server, config_str=config_str)
+
+        for _ in range(2):
+            next_config = ask(server)
+            self.assertTrue(all([isinstance(val, str) for val in next_config["y"]]))
+            tell(server, config=next_config, outcome=0)

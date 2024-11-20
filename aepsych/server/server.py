@@ -276,22 +276,31 @@ class AEPsychServer(object):
         return self.strat is not None and self.enable_pregen
 
     def _tensor_to_config(self, next_x):
+        next_x = self.strat.transforms.indices_to_str(next_x.unsqueeze(0))[0]
         config = {}
         for name, val in zip(self.parnames, next_x):
-            if val.dim() == 0:
+            if isinstance(val, str):
+                config[name] = [val]
+            elif isinstance(val, (int, float)):
                 config[name] = [float(val)]
+            elif isinstance(val[0], str):
+                config[name] = val
             else:
-                config[name] = np.array(val)
+                config[name] = np.array(val, dtype="float64")
         return config
 
     def _config_to_tensor(self, config):
         unpacked = [config[name] for name in self.parnames]
-
-        # handle config elements being either scalars or length-1 lists
         if isinstance(unpacked[0], list):
-            x = torch.tensor(np.stack(unpacked, axis=0)).squeeze(-1)
+            x = np.stack(unpacked, axis=0, dtype="O").squeeze(-1)
         else:
-            x = torch.tensor(np.stack(unpacked))
+            x = np.stack(unpacked, dtype="O")
+
+        # Unsqueeze batch dimension
+        x = np.expand_dims(x, 0)
+
+        x = self.strat.transforms.str_to_indices(x)[0]
+
         return x
 
     def __getstate__(self):
