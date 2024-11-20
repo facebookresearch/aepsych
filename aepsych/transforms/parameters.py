@@ -7,7 +7,6 @@
 import ast
 import warnings
 from abc import ABC
-from configparser import NoOptionError
 from copy import deepcopy
 from typing import (
     Any,
@@ -27,16 +26,11 @@ import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin, ModelProtocol
+from aepsych.transforms.ops import Log10Plus, NormalizeScale, Round
+from aepsych.utils import get_bounds
 from botorch.acquisition import AcquisitionFunction
-from botorch.models.transforms.input import (
-    ChainedInputTransform,
-    Log10,
-    Normalize,
-    ReversibleInputTransform,
-)
-from botorch.models.transforms.utils import subset_transform
+from botorch.models.transforms.input import ChainedInputTransform
 from botorch.posteriors import Posterior
-from torch import Tensor
 
 _TRANSFORMABLE = [
     "lb",
@@ -58,7 +52,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
     def _temporary_reshape(func: Callable) -> Callable:
         # Decorator to reshape tensors to the expected 2D shape, even if the input was
         # 1D or 3D and after the transform reshape it back to the original.
-        def wrapper(self, X: Tensor, **kwargs) -> Tensor:
+        def wrapper(self, X: torch.Tensor, **kwargs) -> torch.Tensor:
             squeeze = False
             if len(X.shape) == 1:  # For 1D inputs, primarily for transforming arguments
                 X = X.unsqueeze(0)
@@ -83,52 +77,57 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
         return wrapper
 
     @_temporary_reshape
-    def transform(self, X: Tensor) -> Tensor:
+    def transform(self, X: torch.Tensor) -> torch.Tensor:
         r"""Transform the inputs to a model.
 
         Individual transforms are applied in sequence.
 
         Args:
-            X: A tensor of inputs. Either `[dim]`, `[batch, dim]`, or `[batch, dim, stimuli]`.
+            X (torch.Tensor): A tensor of inputs. Either `[dim]`, `[batch, dim]`, or
+            `[batch, dim, stimuli]`.
 
         Returns:
-            A tensor of transformed inputs with the same shape as the input.
+            torch.Tensor: A tensor of transformed inputs with the same shape as the
+                input.
         """
         return super().transform(X)
 
     @_temporary_reshape
+    def untransform(self, X: torch.Tensor) -> torch.Tensor:
+        r"""Un-transform the inputs to a model.
+
+        Un-transforms of the individual transforms are applied in reverse sequence.
+
+        Args:
+            X (torch.Tensor): A tensor of inputs. Either `[dim]`, `[batch, dim]`, or
+                `[batch, dim, stimuli]`.
+
+        Returns:
+            torch.Tensor: A `batch_shape x n x d`-dim tensor of un-transformed inputs.
+        """
+        return super().untransform(X)
+
+    @_temporary_reshape
     def transform_bounds(
-        self, X: Tensor, bound: Optional[Literal["lb", "ub"]] = None
-    ) -> Tensor:
+        self, X: torch.Tensor, bound: Optional[Literal["lb", "ub"]] = None
+    ) -> torch.Tensor:
         r"""Transform bounds of a parameter.
 
         Individual transforms are applied in sequence. Then an adjustment is applied to
         ensure the bounds are correct.
 
         Args:
-            X: A tensor of inputs. Either `[dim]`, `[batch, dim]`, or `[batch, dim, stimuli]`.
+            X (torch.Tensor): A tensor of inputs. Either `[dim]` or `[2, dim]`.
+            bound: (Literal["lb", "ub"], optional): Which bound this is when
+                transforming. If not set, assumes both bounds are given at once
 
         Returns:
-            A tensor of transformed inputs with the same shape as the input.
+            torch.Tensor: Tensor of the same shape as the input transformed.
         """
         for tf in self.values():
             X = tf.transform_bounds(X, bound=bound)
 
         return X
-
-    @_temporary_reshape
-    def untransform(self, X: Tensor) -> Tensor:
-        r"""Un-transform the inputs to a model.
-
-        Un-transforms of the individual transforms are applied in reverse sequence.
-
-        Args:
-            X: A tensor of inputs. Either `[dim]`, `[batch, dim]`, or `[batch, dim, stimuli]`.
-
-        Returns:
-            A `batch_shape x n x d`-dim tensor of un-transformed inputs.
-        """
-        return super().untransform(X)
 
     @classmethod
     def get_config_options(
@@ -137,8 +136,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
         name: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """
-        Return a dictionary of transforms in the order that they should be in, this
+        """Return a dictionary of transforms in the order that they should be in, this
         dictionary can be used to initialize a ParameterTransforms.
 
         Args:
@@ -237,7 +235,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
 
     def __init__(
         self,
-        generator: Type | AEPsychGenerator,
+        generator: Union[Type, AEPsychGenerator],
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
         **kwargs: Any,
     ) -> None:
@@ -296,11 +294,13 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
         self.stimuli_per_trial = self._base_obj.stimuli_per_trial
         self.max_asks = self._base_obj.max_asks
 
-    def gen(self, num_points: int = 1, model: Optional[AEPsychMixin] = None) -> Tensor:
+    def gen(
+        self, num_points: int = 1, model: Optional[AEPsychMixin] = None
+    ) -> torch.Tensor:
         r"""Query next point(s) to run from the generator and return them untransformed.
 
         Args:
-            num_points (int, optional): Number of points to query, defaults to 1.
+            num_points (int): Number of points to query, defaults to 1.
             model (AEPsychMixin, optional): The model to use to generate points, can be
                 None if no model is needed.
         Returns:
@@ -342,8 +342,8 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
 
         Args:
             config (Config): Config to look for options in.
-            name (str): Strategy to look for the Generator and find options for.
-            options (Dict[str, Any]): Options to override from the config.
+            name (str, optional): Strategy to look for the Generator and find options for.
+            options (Dict[str, Any], optional): Options to override from the config.
 
         Returns:
             Dict[str, Any]: A diciontary of options to initialize this class with.
@@ -385,7 +385,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
     def __init__(
         self,
-        model: Type | ModelProtocol,
+        model: Union[Type, ModelProtocol],
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
         **kwargs: Any,
     ) -> None:
@@ -404,7 +404,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         The object's name will be ParameterTransformed<Model.__name__>.
 
         Args:
-            model (Type | ModelProtocol): Model to wrap, this could either be a
+            model (Union[Type, ModelProtocol]): Model to wrap, this could either be a
                 completely initialized model or just the model class. An initialized
                 model is expected to have been initialized in the transformed
                 parameter space (i.e., bounds are transformed). If a model class is
@@ -441,7 +441,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
     def _promote_1d(func: Callable) -> Callable:
         # Decorator to reshape model Xs into 2d if they're 1d. Assumes that the Tensor
         # is the first argument
-        def wrapper(self, *args, **kwargs) -> Tensor:
+        def wrapper(self, *args, **kwargs) -> torch.Tensor:
             if len(args) > 0 and isinstance(args[0], torch.Tensor):
                 x = args[0]
                 if len(x.shape) == 1:
@@ -458,7 +458,9 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         return wrapper
 
     @_promote_1d
-    def predict(self, x: Tensor, **kwargs: Any) -> Tensor | Tuple[Tensor]:
+    def predict(
+        self, x: torch.Tensor, **kwargs
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor]]:
         """Query the model on its posterior given transformed x.
 
         Args:
@@ -467,13 +469,15 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             **kwargs: Keyword arguments to pass to the model.predict() call.
 
         Returns:
-            Tensor | Tuple[Tensor]: At least one Tensor will be returned.
+            Union[Tensor, Tuple[Tensor]]: At least one Tensor will be returned.
         """
         x = self.transforms.transform(x)
         return self._base_obj.predict(x, **kwargs)
 
     @_promote_1d
-    def predict_probability(self, x: Tensor, **kwargs: Any) -> Tensor:
+    def predict_probability(
+        self, x: torch.Tensor, **kwargs
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor]]:
         """Query the model on its posterior given transformed x and return units in
         response probability space.
 
@@ -483,13 +487,13 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             **kwargs: Keyword arguments to pass to the model.predict() call.
 
         Returns:
-            Tensor | Tuple[Tensor]: At least one Tensor will be returned.
+            Union[Tensor, Tuple[Tensor]]: At least one Tensor will be returned.
         """
         x = self.transforms.transform(x)
         return self._base_obj.predict_probability(x, **kwargs)
 
     @_promote_1d
-    def sample(self, x: Tensor, num_samples: int) -> Tensor:
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model given transformed x.
 
         Args:
@@ -502,7 +506,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         x = self.transforms.transform(x)
         return self._base_obj.sample(x, num_samples)
 
-    def posterior(self, X: Tensor, **kwargs: Any) -> Posterior:
+    def posterior(self, X: torch.Tensor, **kwargs) -> Posterior:
         """Return the model's posterior given a transformed X. Notice that this specific
         method requires transformed inputs.
 
@@ -516,14 +520,14 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         """
         # This ensures X is a tensor with the right shape and dtype (this seemingly
         # does nothing, but it somehow solves test errors).
-        X = Tensor(X)
+        X = torch.Tensor(X)
         return self._base_obj.posterior(X=X, **kwargs)
 
-    def dim_grid(self, gridsize: int = 30) -> Tensor:
+    def dim_grid(self, gridsize: int = 30) -> torch.Tensor:
         """Returns an untransformed grid based on the model's bounds and dimensionality.
 
         Args:
-            gridsize (int, optional): How many points to form the grid with, defaults to
+            gridsize (int): How many points to form the grid with, defaults to
             30.
 
         Returns:
@@ -534,12 +538,12 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         return self.transforms.untransform(grid)
 
     @_promote_1d
-    def fit(self, train_x: Tensor, train_y: Tensor, **kwargs: Any) -> None:
+    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs) -> None:
         """Fit underlying model.
 
         Args:
             train_x (torch.Tensor): Inputs to fit on.
-            train_y (torch.LongTensor): Responses to fit on.
+            train_y (torch.Tensor): Responses to fit on.
             warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters
                 (True) or fit from scratch (False). Defaults to False.
             warmstart_induc (bool): Whether to reuse the previous inducing points or fit
@@ -550,12 +554,12 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         self._base_obj.fit(train_x, train_y, **kwargs)
 
     @_promote_1d
-    def update(self, train_x: Tensor, train_y: Tensor, **kwargs: Any) -> None:
+    def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs) -> None:
         """Perform a warm-start update of the model from previous fit.
 
         Args:
             train_x (torch.Tensor): Inputs to fit on.
-            train_y (torch.LongTensor): Responses to fit on.
+            train_y (torch.Tensor): Responses to fit on.
             **kwargs: Keyword arguments to pass to the underlying model's fit method.
         """
         train_x = self.transforms.transform(train_x)
@@ -576,6 +580,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
             n_samples (int): number of coarse grid points to sample for optimization estimate.
+                Defaults to 1000.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
         Returns:
@@ -607,6 +612,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
             n_samples (int): number of coarse grid points to sample for optimization estimate.
+                Defaults to 1000.
             max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
 
         Returns:
@@ -715,7 +721,9 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
         return jnds
 
-    def p_below_threshold(self, x: Tensor, f_thresh: torch.Tensor) -> torch.Tensor:
+    def p_below_threshold(
+        self, x: torch.Tensor, f_thresh: torch.Tensor
+    ) -> torch.Tensor:
         """Compute the probability that the latent function is below a threshold.
 
         Args:
@@ -741,8 +749,8 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
         Args:
             config (Config): Config to look for options in.
-            name (str): Strategy to find options for.
-            options (Dict[str, Any]): Options to override from the config.
+            name (str, optional): Strategy to find options for.
+            options (Dict[str, Any], optional): Options to override from the config.
 
         Returns:
             Dict[str, Any]: A diciontary of options to initialize this class with.
@@ -771,368 +779,6 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         options["model"] = model_cls.from_config(transformed_config)
 
         return options
-
-
-class Transform(ReversibleInputTransform, ConfigurableMixin, ABC):
-    """Base class for individual transforms. These transforms are intended to be stacked
-    together using the ParameterTransforms class.
-    """
-
-    def transform_bounds(
-        self, X: torch.Tensor, bound: Optional[Literal["lb", "ub"]] = None, **kwargs
-    ) -> torch.Tensor:
-        r"""Return the bounds X transformed.
-
-        Args:
-            X (torch.Tensor): Either a `[1, dim]` or `[2, dim]` tensor of parameter
-                bounds.
-            bound (Literal["lb", "ub"], optional): Which bound this is to transform, if
-                None, it's the `[2, dim]` form with both bounds stacked.
-            **kwargs: Keyword arguments for specific transforms, they should have
-                default values.
-
-        Returns:
-            torch.Tensor: A transformed set of parameter bounds.
-        """
-        return self.transform(X)
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Return a dictionary of the relevant options to initialize a Log10Plus
-        transform for the named parameter within the config.
-
-        Args:
-            config (Config): Config to look for options in.
-            name (str): Parameter to find options for.
-            options (Dict[str, Any]): Options to override from the config.
-
-        Returns:
-            Dict[str, Any]: A diciontary of options to initialize this class with,
-                including the transformed bounds.
-        """
-        if name is None:
-            raise ValueError(f"{name} must be set to initialize a transform.")
-
-        if options is None:
-            options = {}
-        else:
-            options = deepcopy(options)
-
-        # Figure out the index of this parameter
-        parnames = config.getlist("common", "parnames", element_type=str)
-        idx = parnames.index(name)
-
-        if "indices" not in options:
-            options["indices"] = [idx]
-
-        return options
-
-
-class Log10Plus(Log10, Transform):
-    """Base-10 log transform that we add a constant to the values"""
-
-    def __init__(
-        self,
-        indices: list[int],
-        constant: float = 0.0,
-        transform_on_train: bool = True,
-        transform_on_eval: bool = True,
-        transform_on_fantasize: bool = True,
-        reverse: bool = False,
-        **kwargs,
-    ) -> None:
-        """Initalize transform
-
-        Args:
-            indices: The indices of the parameters to log transform.
-            constant: The constant to add to inputs before log transforming. Defaults to
-                0.0.
-            transform_on_train: A boolean indicating whether to apply the
-                transforms in train() mode. Default: True.
-            transform_on_eval: A boolean indicating whether to apply the
-                transform in eval() mode. Default: True.
-            transform_on_fantasize: A boolean indicating whether to apply the
-                transform when called from within a `fantasize` call. Default: True.
-            reverse: A boolean indicating whether the forward pass should untransform
-                the inputs.
-            **kwargs: Accepted to conform to API.
-        """
-        super().__init__(
-            indices=indices,
-            transform_on_train=transform_on_train,
-            transform_on_eval=transform_on_eval,
-            transform_on_fantasize=transform_on_fantasize,
-            reverse=reverse,
-        )
-        self.register_buffer("constant", torch.tensor(constant, dtype=torch.long))
-
-    @subset_transform
-    def _transform(self, X: Tensor) -> Tensor:
-        r"""Add the constant then log transform the inputs.
-
-        Args:
-            X: A `batch_shape x n x d`-dim tensor of inputs.
-
-        Returns:
-            A `batch_shape x n x d`-dim tensor of transformed inputs.
-        """
-        X = X + (torch.ones_like(X) * self.constant)
-        return X.log10()
-
-    @subset_transform
-    def _untransform(self, X: Tensor) -> Tensor:
-        r"""Reverse the log transformation then subtract the constant.
-
-        Args:
-            X: A `batch_shape x n x d`-dim tensor of transformed inputs.
-
-        Returns:
-            A `batch_shape x n x d`-dim tensor of untransformed inputs.
-        """
-        X = 10.0**X
-        return X - (torch.ones_like(X) * self.constant)
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Return a dictionary of the relevant options to initialize a Log10Plus
-        transform for the named parameter within the config.
-
-        Args:
-            config (Config): Config to look for options in.
-            name (str): Parameter to find options for.
-            options (Dict[str, Any]): Options to override from the config.
-
-        Returns:
-            Dict[str, Any]: A diciontary of options to initialize this class with,
-                including the transformed bounds.
-        """
-        options = super().get_config_options(config=config, name=name, options=options)
-
-        # Make sure we have bounds ready
-        if "bounds" not in options:
-            options["bounds"] = get_bounds(config)
-
-        if "constant" not in options:
-            lb = options["bounds"][0, options["indices"]]
-            if lb < 0.0:
-                constant = np.abs(lb) + 1.0
-            elif lb < 1.0:
-                constant = 1.0
-            else:
-                constant = 0.0
-
-            options["constant"] = constant
-
-        return options
-
-
-class NormalizeScale(Normalize, Transform):
-    def __init__(
-        self,
-        d: int,
-        indices: Optional[Union[list[int], Tensor]] = None,
-        bounds: Optional[Tensor] = None,
-        batch_shape: torch.Size = torch.Size(),
-        transform_on_train: bool = True,
-        transform_on_eval: bool = True,
-        transform_on_fantasize: bool = True,
-        reverse: bool = False,
-        min_range: float = 1e-8,
-        learn_bounds: Optional[bool] = None,
-        almost_zero: float = 1e-12,
-        **kwargs,
-    ) -> None:
-        r"""Normalizes the scale of the parameters.
-
-        Args:
-            d: Total number of parameters (dimensions).
-            indices: The indices of the inputs to normalize. If omitted,
-                take all dimensions of the inputs into account.
-            bounds: If provided, use these bounds to normalize the parameters. If
-                omitted, learn the bounds in train mode.
-            batch_shape: The batch shape of the inputs (assuming input tensors
-                of shape `batch_shape x n x d`). If provided, perform individual
-                normalization per batch, otherwise uses a single normalization.
-            transform_on_train: A boolean indicating whether to apply the
-                transforms in train() mode. Default: True.
-            transform_on_eval: A boolean indicating whether to apply the
-                transform in eval() mode. Default: True.
-            transform_on_fantasize: A boolean indicating whether to apply the
-                transform when called from within a `fantasize` call. Default: True.
-            reverse: A boolean indicating whether the forward pass should untransform
-                the parameters.
-            min_range: If the range of a parameter is smaller than `min_range`,
-                that parameter will not be normalized. This is equivalent to
-                using bounds of `[0, 1]` for this dimension, and helps avoid division
-                by zero errors and related numerical issues. See the example below.
-                NOTE: This only applies if `learn_bounds=True`.
-            learn_bounds: Whether to learn the bounds in train mode. Defaults
-                to False if bounds are provided, otherwise defaults to True.
-            **kwargs: Accepted to conform to API.
-        """
-        super().__init__(
-            d=d,
-            indices=indices,
-            bounds=bounds,
-            batch_shape=batch_shape,
-            transform_on_train=transform_on_train,
-            transform_on_eval=transform_on_eval,
-            transform_on_fantasize=transform_on_fantasize,
-            reverse=reverse,
-            min_range=min_range,
-            learn_bounds=learn_bounds,
-            almost_zero=almost_zero,
-        )
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """
-        Return a dictionary of the relevant options to initialize a NormalizeScale
-        transform for the named parameter within the config.
-
-        Args:
-            config (Config): Config to look for options in.
-            name (str): Parameter to find options for.
-            options (Dict[str, Any]): Options to override from the config.
-
-        Return:
-            Dict[str, Any]: A diciontary of options to initialize this class with,
-                including the transformed bounds.
-        """
-        options = super().get_config_options(config=config, name=name, options=options)
-
-        # Make sure we have bounds ready
-        if "bounds" not in options:
-            options["bounds"] = get_bounds(config)
-
-        if "d" not in options:
-            options["d"] = options["bounds"].shape[1]
-
-        return options
-
-
-class Round(Transform, torch.nn.Module):
-    def __init__(
-        self,
-        indices: list[int],
-        transform_on_train: bool = True,
-        transform_on_eval: bool = True,
-        transform_on_fantasize: bool = True,
-        reverse: bool = False,
-        **kwargs,
-    ) -> None:
-        """Initialize a round transform. This operation rounds the inputs at the indices
-        in both direction.
-
-        Args:
-            indices: The indices of the inputs to round.
-            transform_on_train: A boolean indicating whether to apply the
-                transforms in train() mode. Default: True.
-            transform_on_eval: A boolean indicating whether to apply the
-                transform in eval() mode. Default: True.
-            transform_on_fantasize: Currently will not do anything, here to conform to
-                API.
-            reverse: Whether to round in forward or backward passes.
-            **kwargs: Accepted to conform to API.
-        """
-        super().__init__()
-        self.register_buffer("indices", torch.tensor(indices, dtype=torch.long))
-        self.transform_on_train = transform_on_train
-        self.transform_on_eval = transform_on_eval
-        self.transform_on_fantasize = transform_on_fantasize
-        self.reverse = reverse
-
-    @subset_transform
-    def _transform(self, X: torch.Tensor) -> torch.Tensor:
-        r"""Round the inputs to a model to be discrete. This rounding is the same both
-        in the forward and the backward pass.
-
-        Args:
-            X (torch.Tensor): A `batch_shape x n x d`-dim tensor of inputs.
-
-        Returns:
-            torch.Tensor: The input tensor with values rounded.
-        """
-        return X.round()
-
-    @subset_transform
-    def _untransform(self, X: Tensor) -> Tensor:
-        r"""Round the inputs to a model to be discrete. This rounding is the same both
-        in the forward and the backward pass.
-
-        Args:
-            X (torch.Tensor): A `batch_shape x n x d`-dim tensor of transformed inputs.
-
-        Returns:
-            torch.Tensor: The input tensor with values rounded.
-        """
-        return X.round()
-
-    def transform_bounds(
-        self, X: torch.Tensor, bound: Optional[Literal["lb", "ub"]] = None, **kwargs
-    ) -> torch.Tensor:
-        r"""Return the bounds X transformed.
-
-        Args:
-            X (torch.Tensor): Either a `[1, dim]` or `[2, dim]` tensor of parameter
-                bounds.
-            bound (Literal["lb", "ub"], optional): The bound that this is, if None, we
-                will assume the input is both bounds with a `[2, dim]` X.
-            **kwargs: passed to _transform_bounds
-                epsilon: will modify the offset for the rounding to ensure each discrete
-                    value has equal space in the parameter space.
-
-        Returns:
-            torch.Tensor: A transformed set of parameter bounds.
-        """
-        epsilon = kwargs.get("epsilon", 1e-6)
-        return self._transform_bounds(X, bound=bound, epsilon=epsilon)
-
-    def _transform_bounds(
-        self,
-        X: torch.Tensor,
-        bound: Optional[Literal["lb", "ub"]] = None,
-        epsilon: float = 1e-6,
-    ) -> torch.Tensor:
-        r"""Return the bounds X transformed.
-
-        Args:
-            X (torch.Tensor): Either a `[1, dim]` or `[2, dim]` tensor of parameter
-                bounds.
-            bound (Literal["lb", "ub"], optional): The bound that this is, if None, we
-                will assume the input is both bounds with a `[2, dim]` X.
-            epsilon:
-            **kwargs: other kwargs
-
-        Returns:
-            torch.Tensor: A transformed set of parameter bounds.
-        """
-        X = X.clone()
-
-        if bound == "lb":
-            X[0, self.indices] -= torch.tensor([0.5] * len(self.indices))
-        elif bound == "ub":
-            X[0, self.indices] += torch.tensor([0.5 - epsilon] * len(self.indices))
-        else:  # Both bounds
-            X[0, self.indices] -= torch.tensor([0.5] * len(self.indices))
-            X[1, self.indices] += torch.tensor([0.5 - epsilon] * len(self.indices))
-
-        return X
 
 
 def transform_options(
@@ -1175,34 +821,3 @@ def transform_options(
                 configClone[section][option] = str(_arr_to_list(value.numpy()))
 
     return configClone
-
-
-def get_bounds(config: Config) -> torch.Tensor:
-    r"""Return the bounds for all parameters in config.
-
-    Args:
-        config (Config): The config to find the bounds from.
-
-    Returns:
-        torch.Tensor: A `[2, d]` tensor with the lower and upper bounds for each
-            parameter.
-    """
-    parnames = config.getlist("common", "parnames", element_type=str)
-
-    # Try to build a full array of bounds based on parameter-specific bounds
-    try:
-        _lower_bounds = torch.tensor(
-            [config.getfloat(par, "lower_bound") for par in parnames]
-        )
-        _upper_bounds = torch.tensor(
-            [config.getfloat(par, "upper_bound") for par in parnames]
-        )
-
-        bounds = torch.stack((_lower_bounds, _upper_bounds))
-
-    except NoOptionError:  # Look for general lb/ub array
-        _lb = config.gettensor("common", "lb")
-        _ub = config.gettensor("common", "ub")
-        bounds = torch.stack((_lb, _ub))
-
-    return bounds
