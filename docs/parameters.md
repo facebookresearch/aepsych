@@ -15,6 +15,7 @@ what parameter types are used and whatever transformations are used.
 Currently, we only support continuous parameters. More parameter types soon to come!
 
 <h3>Continuous<h3>
+
 ```ini
 [parameter]
 par_type = continuous
@@ -28,6 +29,7 @@ include negative values (e.g., lower bound = -1, upper bound = 1) or have very l
 ranges (e.g., lower bound = 0, upper bound = 1,000,000).
 
 <h3>Integer<h3>
+
 ```ini
 [parameter]
 par_type = integer
@@ -38,7 +40,28 @@ upper_bound = 5
 Integer parameters are similar to continuous parameters insofar as its possible range
 and necessity of bounds. However, integer parameters will use continuous relaxation to
 allow the models and generators to handle integer input/outputs. For example, this could
-represent the number of lights are on for a detection threshold experiment. 
+represent the number of lights are on for a detection threshold experiment.
+
+<h3>Binary</h3>
+
+```ini
+[parameter]
+par_type = binary
+```
+
+Binary parameters are useful for modeling any parameters that can take two distinct values,
+such as whether or not a distractor is present or whether a visual task is done with one
+eye or two, whether a haptics task is done with the left hand or the right hand, or whether
+an auditory task is done with background noise or not. Binary parameters are implemented as
+a special case of a integer parameter. No bounds should be set. It will be treated as a integer
+parameter that will either be 0 or 1. Binary parameters are equivalent to this:
+
+```ini
+[parameter]
+par_type = discrete
+lower_bound = 0
+upper_bound = 1
+```
 
 <h2>Parameter Transformations</h2>
 Currently, we only support a log scale transformation to parameters. More parameter
@@ -72,28 +95,28 @@ lower bounds that are negative, we will use a constant value of the absolute val
 the lower bound + 1 (i.e., `Log10(x + |lb| + 1)` and `10 ^ (x - |lb| - 1)`).
 
 <h3>Normalize scale</h3>
-By default, all parameters will have their scale min-max normalized to the range of 
+By default, all parameters will have their scale min-max normalized to the range of
 [0, 1]. This prevents any particular parameter with a large scale to completely dominate
-the other parameters. Very rarely, this behavior may not be desired and can be turned 
+the other parameters. Very rarely, this behavior may not be desired and can be turned
 off for specific parameters.
 
 ```ini
 [parameter]
 par_type = continuous
-lower_bound = 1 
+lower_bound = 1
 upper_bound = 100
 normalize_scale = False # turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive
 ```
 
-By setting the `normalize_scale` option to False, this parameter will not be scaled 
+By setting the `normalize_scale` option to False, this parameter will not be scaled
 before being given to the model and therefore maintain its original magnitude. This is
-very rarely necessary and should be used with caution. 
+very rarely necessary and should be used with caution.
 
 <h2>Order of operations</h2>
-Parameter types and parameter-specific transforms are all handled by the 
+Parameter types and parameter-specific transforms are all handled by the
 `ParameterTransform` API. Transforms built from config files will have a specific order
 of operation, regardless of how the options were set in the config file. Each parameter
-is transformed entirely separately. 
+is transformed entirely separately.
 
 Currently, the order is as follows:
 * Rounding for integer parameters (rounding is applied in both directions)
