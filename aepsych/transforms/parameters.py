@@ -26,7 +26,8 @@ import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin, ModelProtocol
-from aepsych.transforms.ops import Log10Plus, NormalizeScale, Round
+from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
+from aepsych.transforms.ops.base import Transform
 from aepsych.utils import get_bounds
 from botorch.acquisition import AcquisitionFunction
 from botorch.models.transforms.input import ChainedInputTransform
@@ -48,6 +49,27 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
     transform values into transformed space and also untransform values from transformed
     space back into raw space.
     """
+
+    def __init__(
+        self,
+        **transforms: Transform,
+    ) -> None:
+        fixed_values = []
+        fixed_indices = []
+        transform_keys = list(transforms.keys())
+        for key in transform_keys:
+            if isinstance(transforms[key], Fixed):
+                transform = transforms.pop(key)
+                fixed_values += transform.values.tolist()
+                fixed_indices += transform.indices.tolist()
+
+        if len(fixed_values) > 0:
+            # Combine Fixed parameters
+            transforms["_CombinedFixed"] = Fixed(
+                indices=fixed_indices, values=fixed_values
+            )
+
+        super().__init__(**transforms)
 
     def _temporary_reshape(func: Callable) -> Callable:
         # Decorator to reshape tensors to the expected 2D shape, even if the input was
@@ -183,6 +205,14 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
                 )
                 transform_dict[f"{par}_Round"] = round
 
+            if par_type == "fixed":
+                fixed = Fixed.from_config(
+                    config=config, name=par, options=transform_options
+                )
+
+                # We don't mess with bounds since we don't want to modify indices
+                transform_dict[f"{par}_Fixed"] = fixed
+
             # Log scale
             if config.getboolean(par, "log_scale", fallback=False):
                 log10 = Log10Plus.from_config(
@@ -198,7 +228,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
             # Normalize scale (defaults true)
             if config.getboolean(
                 par, "normalize_scale", fallback=True
-            ) and par_type not in ["discrete", "binary"]:
+            ) and par_type not in ["binary", "fixed"]:
                 normalize = NormalizeScale.from_config(
                     config=config, name=par, options=transform_options
                 )
@@ -391,7 +421,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         transforms: ChainedInputTransform = ChainedInputTransform(**{}),
         **kwargs: Any,
     ) -> None:
-        f"""Wraps a Model with parameter transforms. This will transform any relevant
+        """Wraps a Model with parameter transforms. This will transform any relevant
         model arguments (e.g., bounds) and model data (e.g., training data, x) to be
         transformed into the transformed space. The wrapper surfaces the API of the
         raw model such that the wrapper can be used like a raw model.

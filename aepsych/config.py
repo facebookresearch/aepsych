@@ -291,6 +291,12 @@ class Config(configparser.ConfigParser):
                     f"Parameter {param_name} is binary and shouldn't have bounds."
                 )
 
+        elif param_block["par_type"] == "fixed":
+            if "value" not in param_block:
+                raise ParameterConfigError(
+                    f"Parameter {param_name} is fixed and needs to have value set."
+                )
+
         else:
             raise ParameterConfigError(
                 f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}."

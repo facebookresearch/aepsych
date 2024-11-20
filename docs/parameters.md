@@ -63,6 +63,19 @@ lower_bound = 0
 upper_bound = 1
 ```
 
+<h3>Fixed</h3>
+
+```ini
+[parameter]
+par_type = fixed
+value = 4.5
+```
+
+Fixed parameters always take the same specified value, and thus are not actually modeled, but they are still included in ask and tell messages. This is useful when you would like to make changes to your experiment without having to change client code. For example, you could run the same experiment multiple times with a different fixed value for one parameter just by changing the value in the config.
+and added to tells and asks, respectively. Fixed parameters when running multiple
+conditions with certain parameters fixed; instead of removing the parameter entirely,
+a parameter can be set to fixed at a certain value in certain configs.
+
 <h2>Parameter Transformations</h2>
 Currently, we only support a log scale transformation to parameters. More parameter
 transformations to come! In general, you can define your parameters in the raw
@@ -122,3 +135,4 @@ Currently, the order is as follows:
 * Rounding for integer parameters (rounding is applied in both directions)
 * Log scale
 * Normalize scale
+* Fixed parameters are removed
