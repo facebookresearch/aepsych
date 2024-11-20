@@ -27,6 +27,19 @@ parameters can have any non-infinite ranges. This means that continuous paramete
 include negative values (e.g., lower bound = -1, upper bound = 1) or have very large
 ranges (e.g., lower bound = 0, upper bound = 1,000,000).
 
+<h3>Integer<h3>
+```ini
+[parameter]
+par_type = integer
+lower_bound = -5
+upper_bound = 5
+```
+
+Integer parameters are similar to continuous parameters insofar as its possible range
+and necessity of bounds. However, integer parameters will use continuous relaxation to
+allow the models and generators to handle integer input/outputs. For example, this could
+represent the number of lights are on for a detection threshold experiment. 
+
 <h2>Parameter Transformations</h2>
 Currently, we only support a log scale transformation to parameters. More parameter
 transformations to come! In general, you can define your parameters in the raw
@@ -83,5 +96,6 @@ of operation, regardless of how the options were set in the config file. Each pa
 is transformed entirely separately. 
 
 Currently, the order is as follows:
+* Rounding for integer parameters (rounding is applied in both directions)
 * Log scale
 * Normalize scale

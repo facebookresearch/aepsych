@@ -310,3 +310,91 @@ class TransformsNormalize(unittest.TestCase):
 
         self.assertTrue(torch.allclose(transformed, expected))
         self.assertTrue(torch.allclose(transforms.untransform(transformed), values))
+
+
+class TransformInteger(unittest.TestCase):
+    def test_integer_bounds(self):
+        config_str = """
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [signal2]
+            par_type = integer
+            lower_bound = 1
+            upper_bound = 5
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+        points = strat.gen()[0]
+
+        self.assertTrue((points[0] % 1).item() != 0.0)
+        self.assertTrue((points[1] % 1).item() == 0.0)
+        self.assertTrue(torch.all(strat._strat.generator.lb == 0))
+        self.assertTrue(torch.all(strat._strat.generator.ub == 1))
+
+    def test_integer_model(self):
+        np.random.seed(1)
+        torch.manual_seed(1)
+
+        lower_bound = 1
+        upper_bound = 100
+        target = 0.75
+
+        config_str = f"""
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = {target}
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = integer
+            lower_bound = {lower_bound}
+            upper_bound = {upper_bound}
+
+            [init_strat]
+            generator = SobolGenerator
+            min_total_tells = 50
+
+            [SobolGenerator]
+            seed = 1
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+            min_total_tells = 1
+        """
+
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        while not strat.finished:
+            next_x = strat.gen()
+            self.assertTrue((next_x % 1).item() == 0.0)
+            response = int(np.random.rand() < (next_x / 100))
+            strat.add_data(next_x, [response])
+
+        x = torch.linspace(lower_bound, upper_bound, 100)
+
+        zhat, _ = strat.predict(x)
+        est_max = x[np.argmin((zhat - target) ** 2)]
+        diff = np.abs(est_max / 100 - target)
+        self.assertTrue(diff < 0.15, f"Diff = {diff}")
