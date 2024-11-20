@@ -5,8 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional, Union
-
 import gpytorch
 import torch
 from aepsych.likelihoods import OrdinalLikelihood
@@ -27,6 +25,12 @@ class OrdinalGPModel(GPClassificationModel):
     outcome_type = "ordinal"
 
     def __init__(self, likelihood=None, *args, **kwargs):
+        """Initialize the OrdinalGPModel
+        
+        Args:
+            likelihood (Likelihood): The likelihood function to use. If None defaults to
+                Ordinal likelihood.
+        """
         covar_module = kwargs.pop("covar_module", None)
         dim = kwargs.get("dim")
         if covar_module is None:
@@ -52,11 +56,28 @@ class OrdinalGPModel(GPClassificationModel):
             **kwargs,
         )
 
-    def predict_probs(self, xgrid: torch.Tensor) -> torch.Tensor:
+    def predict_probs(self, xgrid:torch.Tensor) -> torch.Tensor:
+        """Predict probabilities of each ordinal level at xgrid
+
+        Args:
+            xgrid (torch.Tensor): Tensor of input points to predict at
+
+        Returns:
+            torch.Tensor: Tensor of probabilities of each ordinal level at xgrid
+        """
         fmean, fvar = self.predict(xgrid)
         return self.calculate_probs(fmean, fvar)
 
     def calculate_probs(self, fmean: torch.Tensor, fvar: torch.Tensor) -> torch.Tensor:
+        """Calculate probabilities of each ordinal level given a mean and variance
+
+        Args:
+            fmean (torch.Tensor): Mean of the latent function
+            fvar (torch.Tensor): Variance of the latent function
+
+        Returns:
+            torch.Tensor: Tensor of probabilities of each ordinal level
+        """
         fsd = torch.sqrt(1 + fvar)
         probs = torch.zeros(*fmean.size(), self.likelihood.n_levels)
 

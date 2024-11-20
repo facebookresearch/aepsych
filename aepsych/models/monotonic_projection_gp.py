@@ -107,6 +107,27 @@ class MonotonicProjectionGP(GPClassificationModel):
         inducing_point_method: str = "auto",
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize the MonotonicProjectionGP model.
+        
+        Args:
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
+            monotonic_dims (List[int]): A list of the dimensions on which monotonicity should
+                be enforced.
+            monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.
+            min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+                of lb and ub. Defaults to None.
+            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
+            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
+                gamma prior. Defaults to None.
+            likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
+                Gaussian likelihood. Defaults to None.
+            inducing_size (int, optional): The number of inducing points to use. Defaults to None.
+            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
+                there is no limit to the fitting time. Defaults to None.
+            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
+        """
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
@@ -130,6 +151,16 @@ class MonotonicProjectionGP(GPClassificationModel):
         observation_noise: Union[bool, torch.Tensor] = False,
         **kwargs: Any,
     ) -> GPyTorchPosterior:
+        """Compute the posterior at X, projecting to enforce monotonicity.
+
+        Args:
+            X (torch.Tensor): The input points at which to compute the posterior.
+            observation_noise (Union[bool, torch.Tensor]): Whether or not to include the observation noise in the
+                posterior. Defaults to False.
+
+        Returns:
+            GPyTorchPosterior: The posterior at X.
+        """
         # Augment X with monotonicity grid points, for each monotonic dim
         n, d = X.shape  # Require no batch dimensions
         m = len(self.monotonic_dims)
@@ -170,6 +201,15 @@ class MonotonicProjectionGP(GPClassificationModel):
         return GPyTorchPosterior(mvn_proj)
 
     def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
+        """Sample from the model.
+
+        Args:
+            x (torch.Tensor): The input points at which to sample.
+            num_samples (int): The number of samples to draw.
+
+        Returns:
+            torch.Tensor: The samples at x.
+        """
         samps = super().sample(x=x, num_samples=num_samples)
         if self.min_f_val is not None:
             samps = samps.clamp(min=self.min_f_val)
