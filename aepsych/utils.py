@@ -40,11 +40,14 @@ def make_scaled_sobol(
     return grid
 
 
-def promote_0d(x: Union[torch.Tensor, np.ndarray]):
+def promote_0d(x: Union[torch.Tensor, np.ndarray]) -> Union[Iterable[np.ndarray], torch.Tensor]:
     """Promote a 0d tensor to a 1d tensor
     
     Args:
         x (Union[torch.Tensor, np.ndarray]): Input tensor
+
+    Returns:
+        List[Union[torch.Tensor, np.ndarray]]: Promoted tensor.
     """
     if not isinstance(x, Iterable):
         return [x]
@@ -86,15 +89,15 @@ def dim_grid(
 
 
 def _process_bounds(
-    lb: Union[torch.Tensor, np.ndarray],
-    ub: Union[torch.Tensor, np.ndarray],
+    lb: Union[Iterable[np.ndarray], torch.Tensor],
+    ub: Union[Iterable[np.ndarray], torch.Tensor],
     dim: Optional[int],
 ) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type.
     
     Args:
-        lb (Union[torch.Tensor, np.ndarray]): Lower bounds.
-        ub (Union[torch.Tensor, np.ndarray]): Upper bounds.
+        lb (Union[torch.Tensor, np.ndarray, List[Union[torch.Tensor, np.ndarray]]]): Lower bounds.
+        ub (Union[torch.Tensor, np.ndarray, List[Union[torch.Tensor, np.ndarray]]]): Upper bounds.
         dim (int, optional): Dimension of the bounds.
         
     Returns:

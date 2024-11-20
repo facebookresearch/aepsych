@@ -31,7 +31,7 @@ import torch
 from aepsych.version import __version__
 
 _T = TypeVar("_T")
-
+_ET = TypeVar("_ET")
 
 class Config(configparser.ConfigParser):
     # names in these packages can be referred to by string name
@@ -150,26 +150,34 @@ class Config(configparser.ConfigParser):
 
     # Turn the metadata section into JSON.
     def jsonifyMetadata(self) -> str:
-        """Turn the metadata section into JSON."""
+        """Turn the metadata section into JSON.
+        
+        Returns:
+            str: JSON representation of the metadata section.
+        """
         configdict = self.to_dict()
         return json.dumps(configdict["metadata"])
 
     # Turn the entire config into JSON format.
     def jsonifyAll(self) -> str:
-        """Turn the entire config into JSON format."""
+        """Turn the entire config into JSON format.
+        
+        Returns:
+            str: JSON representation of the entire config.
+        """
         configdict = self.to_dict()
         return json.dumps(configdict)
 
     def update(
         self,
-        config_dict: Mapping[str, str] = None,
+        config_dict: Optional[Mapping[str, str]] = None,
         config_fnames: Sequence[str] = None,
         config_str: str = None,
     ) -> None:
         """Update this object with a new configuration.
 
         Args:
-            config_dict (Mapping[str, str]): Mapping to build configuration from.
+            config_dict (Mapping[str, str], optional): Mapping to build configuration from.
                 Keys are section names, values are dictionaries with keys and values that
                 should be present in the section. Defaults to None.
             config_fnames (Sequence[str]): List of INI filenames to load
@@ -228,13 +236,13 @@ class Config(configparser.ConfigParser):
             del self["experiment"]
 
     def _str_to_list(
-        self, v: str, element_type: _T = float
+        self, v: str, element_type: Callable[[_ET], _ET] = float
     ) -> List[_T]:
         """Convert a string to a list.
         
         Args:
             v (str): String to convert.
-            element_type (_T): Type of the elements in the list. Defaults to float.
+            element_type (Callable[[_ET], _ET]): Type of the elements in the list. Defaults to float.
             
         Returns:
             List[_T]: List of elements of type _T.
@@ -427,7 +435,7 @@ class Config(configparser.ConfigParser):
         return _str
 
     def convert_to_latest(self):
-        """Converts the config to the latest version."""
+        """Converts the config to the latest version in place."""
         self.convert(self.version, __version__)
 
     def convert(self, from_version: str, to_version: str) -> None:

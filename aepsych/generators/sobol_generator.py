@@ -32,8 +32,8 @@ class SobolGenerator(AEPsychGenerator):
     ) -> None:
         """Iniatialize SobolGenerator.
         Args:
-            lb torch.Tensor: Lower bounds of each parameter.
-            ub torch.Tensor: Upper bounds of each parameter.
+            lb (torch.Tensor): Lower bounds of each parameter.
+            ub (torch.Tensor): Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             seed (int, optional): Random seed.
             stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
@@ -54,7 +54,7 @@ class SobolGenerator(AEPsychGenerator):
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
-            num_points (int): Number of points to query.
+            num_points (int): Number of points to query. Defaults to 1.
             moodel (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.

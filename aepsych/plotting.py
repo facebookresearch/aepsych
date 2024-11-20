@@ -400,14 +400,14 @@ def plot_strat_3d(
     """Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.
-        parnames (List[str], optional): list of the parameter names
+        parnames (List[str], optional): list of the parameter names. If None, defaults to ["x1", "x2", "x3"].
         outcome_label (str): The label of the outcome variable
         slice_dim (int): dimension to slice on. Default: 0.
         slice_vals (Union[List[float], int]): values to take slices; OR number of values to take even slices from. Default: 5.
         contour_levels (Union[Iterable[float], bool], optional): List contour values to plot. Default: None. If true, all integer levels.
         probability_space (bool): Whether to plot probability. Default: False
         gridsize (int): The number of points to sample each dimension at. Default: 30.
-        extent_multiplier (List[float], optional): multipliers for each of the dimensions when plotting. Default:None
+        extent_multiplier (List[float], optional): multipliers for each of the dimensions when plotting. If None, defaults to [1, 1, 1].
         save_path (str, optional): File name to save the plot to. Default: None.
         show (bool): Whether the plot should be shown in an interactive window. Default: True.
     """

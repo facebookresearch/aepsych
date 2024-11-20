@@ -54,12 +54,12 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
     def gen(
         self,
         num_points: int,  # Current implementation only generates 1 point at a time
-        model: AEPsychMixin,
+        model: MonotonicRejectionGP,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query. current implementation only generates 1 point at a time.
-            model (AEPsychMixin): Fitted model of the data.
+            model (MonotonicRejectionGP): Fitted model of the data.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """

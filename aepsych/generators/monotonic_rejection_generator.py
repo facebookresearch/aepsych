@@ -49,7 +49,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
     ) -> None:
         """Initialize MonotonicRejectionGenerator.
         Args:
-            acqf (AcquisitionFunction): Acquisition function to use.
+            acqf (MonotonicMCAcquisition): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to None.
             model_gen_options (Dict[str, Any], optional): Dictionary with options for generating candidate, such as
