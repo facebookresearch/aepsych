@@ -27,7 +27,7 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.parameters import Normalize
+from aepsych.transforms.ops import NormalizeScale
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 from scipy.stats import bernoulli, norm, pearsonr
@@ -202,7 +202,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         ub = torch.tensor([4.0])
         extra_acqf_args = {"beta": 3.84}
         transforms = ParameterTransforms(
-            normalize=Normalize(d=1, bounds=torch.stack([lb, ub]))
+            normalize=NormalizeScale(d=1, bounds=torch.stack([lb, ub]))
         )
         sobol_gen = ParameterTransformedGenerator(
             generator=SobolGenerator,

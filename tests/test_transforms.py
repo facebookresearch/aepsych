@@ -17,7 +17,7 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.parameters import Log10Plus, NormalizeScale
+from aepsych.transforms.ops import Log10Plus, NormalizeScale
 
 
 class TransformsConfigTest(unittest.TestCase):
