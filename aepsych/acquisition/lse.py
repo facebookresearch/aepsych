@@ -30,16 +30,16 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
         objective: Optional[MCAcquisitionObjective] = None,
         sampler: Optional[MCSampler] = None,
     ) -> None:
-        r"""Monte-carlo level set estimation.
+        """Monte-carlo level set estimation.
 
         Args:
             model: A fitted model.
-            target: the level set (after objective transform) to be estimated
-            beta: a parameter that governs explore-exploit tradeoff
-            objective: An MCAcquisitionObjective representing the link function
+            target (Union[float, Tensor]): the level set (after objective transform) to be estimated. Defult to 0.75.
+            beta (Union[float, Tensor]): a parameter that governs explore-exploit tradeoff. Defult to 3.84.
+            objective (MCAcquisitionObjective, optional): An MCAcquisitionObjective representing the link function
                 (e.g., logistic or probit.) applied on the samples.
                 Can be implemented via GenericMCObjective.
-            sampler: The sampler used for drawing MC samples.
+            sampler (MCSampler, optional): The sampler used for drawing MC samples.
         """
         if sampler is None:
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([512]))
@@ -97,6 +97,22 @@ def construct_inputs_lse(
     sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
+    """
+    Constructs the input dictionary for initializing the MCLevelSetEstimation acquisition function.
+
+    Args:
+        model (Model): The fitted model to be used.
+        training_data (None): Placeholder for compatibility; not used in this function.
+        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logistic or probit).
+        target (Union[float, Tensor]): Level set to be estimated, defaulting to 0.75.
+        beta (Union[float, Tensor]): Parameter controlling explore-exploit tradeoff, default is 3.84.
+        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+
+    Returns:
+        Dict[str, Any]: Dictionary of constructed inputs for the MCLevelSetEstimation acquisition function.
+    """
+
+
     return {
         "model": model,
         "objective": objective,

@@ -5,7 +5,6 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-r""" """
 
 from __future__ import annotations
 
@@ -88,7 +87,7 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
         r"""Evaluate mutual information on the candidate set `X`.
 
         Args:
-            X: A `batch_size x q x d`-dim Tensor.
+            X (Tensor): A `batch_size x q x d`-dim Tensor.
         Returns:
             Tensor of shape `batch_size x q` representing the mutual
             information of a hypothetical trial at X that active
@@ -123,6 +122,19 @@ def construct_inputs_mi(
     sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
+    """
+    Constructs the input dictionary for initializing the BernoulliMCMutualInformation acquisition function.
+
+    Args:
+        model (Model): The fitted model to use.
+        training_data (None): Placeholder for compatibility; not used in this function.
+        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logit or probit).
+        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+
+    Returns:
+        Dict[str, Any]: Dictionary of constructed inputs for the BernoulliMCMutualInformation acquisition function.
+    """
+
     return {
         "model": model,
         "objective": objective,

@@ -27,6 +27,11 @@ class SemiPObjectiveBase(MCAcquisitionObjective):
     _verify_output_shape: bool = False
 
     def __init__(self, stim_dim: int = 0) -> None:
+        """Initialize the SemiPObjectiveBase.
+        
+        Args:
+            stim_dim (int): The stimulus dimension. Defaults to 0.
+        """
         super().__init__()
         self.stim_dim = stim_dim
 
@@ -66,6 +71,15 @@ class SemiPProbabilityObjective(SemiPObjectiveBase):
 
     @classmethod
     def from_config(cls, config: Config) -> SemiPProbabilityObjective:
+        """Create a SemiPProbabilityObjective from a config object.
+
+        Args:
+            config (Config): Configuration object containing the initialization parameters.
+
+        Returns:
+            SemiPProbabilityObjective: A SemiPProbabilityObjective object.
+        """
+
         classname = cls.__name__
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
@@ -97,7 +111,8 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
 
         Args:
             target (float): the threshold to evaluate.
-            likelihood (Likelihood): Underlying SemiP likelihood (which we use for its inverse link)
+            likelihood (LinearBernoulliLikelihood, optional): Underlying SemiP likelihood (which we use for its inverse link). Defaults to None.
+            
             other arguments are passed to the base class (notably, stim_dim).
         """
         super().__init__(*args, **kwargs)
@@ -121,6 +136,14 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
 
     @classmethod
     def from_config(cls, config: Config) -> SemiPThresholdObjective:
+        """Create a SemiPThresholdObjective from a config object.
+        
+        Args:
+            config (Config): Configuration object containing the initialization parameters.
+            
+        Returns:
+            SemiPThresholdObjective: A SemiPThresholdObjective object.
+        """
         classname = cls.__name__
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
