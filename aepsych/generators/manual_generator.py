@@ -6,9 +6,8 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
-import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
@@ -26,7 +25,7 @@ class ManualGenerator(AEPsychGenerator):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
-        points: Union[np.ndarray, torch.Tensor],
+        points: torch.Tensor,
         dim: Optional[int] = None,
         shuffle: bool = True,
         seed: Optional[int] = None,
@@ -35,16 +34,18 @@ class ManualGenerator(AEPsychGenerator):
         Args:
             lb torch.Tensor: Lower bounds of each parameter.
             ub torch.Tensor: Upper bounds of each parameter.
-            points (Union[np.ndarray, torch.Tensor]): The points that will be generated.
+            points torch.Tensor: The points that will be generated.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             shuffle (bool): Whether or not to shuffle the order of the points. True by default.
         """
         self.seed = seed
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
+        self.points = points
         if shuffle:
-            np.random.seed(self.seed)
-            np.random.shuffle(points)
-        self.points = torch.tensor(points)
+            if seed is not None:
+                torch.manual_seed(seed)
+            self.points = points[torch.randperm(len(points))]
+
         self.max_asks = len(self.points)
         self._idx = 0
 
@@ -82,9 +83,13 @@ class ManualGenerator(AEPsychGenerator):
         lb = config.gettensor(name, "lb")
         ub = config.gettensor(name, "ub")
         dim = config.getint(name, "dim", fallback=None)
-        points = config.getarray(name, "points")
+        points = config.gettensor(name, "points")
         shuffle = config.getboolean(name, "shuffle", fallback=True)
         seed = config.getint(name, "seed", fallback=None)
+
+        if len(points.shape) == 3:
+            # Configs have a reasonable natural input method that produces incorrect tensors
+            points = points.swapaxes(-1, -2)
 
         options = {
             "lb": lb,
@@ -107,10 +112,10 @@ class SampleAroundPointsGenerator(ManualGenerator):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
-        window: Union[np.ndarray, torch.Tensor],
-        points: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
+        window: torch.Tensor,
+        points: torch.Tensor,
         samples_per_point: int,
         dim: Optional[int] = None,
         shuffle: bool = True,
@@ -120,7 +125,10 @@ class SampleAroundPointsGenerator(ManualGenerator):
         Args:
             lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
             ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
-            window (Union[np.ndarray, torch.Tensor]): How far away to sample from the reference point along each dimension.
+            window (Union[np.ndarray, torch.Tensor]): How far away to sample from the
+                reference point along each dimension. If the parameters are transformed,
+                the proportion of the range (based on ub/lb given) covered by the window
+                will be preserved (and not the absolute distance from the reference points).
             points (Union[np.ndarray, torch.Tensor]): The points that will be generated.
             samples_per_point (int): How many samples around each point to take.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
@@ -128,16 +136,27 @@ class SampleAroundPointsGenerator(ManualGenerator):
             seed (int, optional): Random seed.
         """
         lb, ub, dim = _process_bounds(lb, ub, dim)
-        points = torch.Tensor(points)
         self.engine = SobolEngine(dimension=dim, scramble=True, seed=seed)
-        generated = []
+        gen_points = []
+        if len(points.shape) > 2:
+            # We need to determine how many stimuli there are per trial to maintain the proper tensor shape
+            n_draws = points.shape[-1]
+        else:
+            n_draws = 1
         for point in points:
+            if len(points.shape) > 2:
+                point = point.T
             p_lb = torch.max(point - window, lb)
             p_ub = torch.min(point + window, ub)
-            grid = self.engine.draw(samples_per_point)
-            grid = p_lb + (p_ub - p_lb) * grid
-            generated.append(grid)
-        generated = torch.Tensor(np.vstack(generated))  # type: ignore
+            for _ in range(samples_per_point):
+                grid = self.engine.draw(n_draws)
+                grid = p_lb + (p_ub - p_lb) * grid
+                gen_points.append(grid)
+        if len(points.shape) > 2:
+            generated = torch.stack(gen_points)
+            generated = generated.swapaxes(-2, -1)
+        else:
+            generated = torch.vstack(gen_points)
 
         super().__init__(lb, ub, generated, dim, shuffle, seed)  # type: ignore
 

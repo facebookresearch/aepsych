@@ -151,6 +151,56 @@ class TransformsConfigTest(unittest.TestCase):
         self.assertTrue(transform.constant == 5)
         self.assertTrue(transform.indices[0] == 0)
 
+    def test_transform_manual_generator(self):
+        base_points = [
+            [[-1.5, 1], [-1, 1.25], [-2, 1.75]],
+            [[-1.25, 1.25], [-1.75, 1.5], [-1.0, 2]],
+        ]
+        window = [0.25, 0.1]
+        samples_per_point = 2
+        lb = [-3, 1]
+        ub = [-1, 3]
+        config_str = f"""
+            [common]
+            parnames = [par1, par2]
+            stimuli_per_trial = 3
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = {lb[0]}
+            upper_bound = {ub[0]}
+
+            [par2]
+            par_type = continuous
+            lower_bound = {lb[1]}
+            upper_bound = {ub[1]}
+
+            [init_strat]
+            generator = SampleAroundPointsGenerator
+
+            [SampleAroundPointsGenerator]
+            points = {base_points}
+            window = {window}
+            samples_per_point = {samples_per_point}
+            seed = 123
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        nPoints = 0
+        while not strat.finished:
+            points = strat.gen()
+            strat.add_data(points, torch.tensor(1.0))
+            self.assertTrue(torch.all(points[0, 0, :] < 0))
+            self.assertTrue(torch.all(points[0, 1, :] > 0))
+            nPoints += 1
+
+        self.assertTrue(nPoints == len(base_points) * samples_per_point)
+
 
 class TransformsLog10Test(unittest.TestCase):
     def test_transform_reshape3D(self):
