@@ -15,6 +15,14 @@ from aepsych.kernels.pairwisekernel import PairwiseKernel
 def pairwise_mean_covar_factory(
     config: Config,
 ) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
+    """ Creates a mean and covariance function for pairwise GPs.
+    
+    Args:
+        config (Config): Config object containing bounds.
+        
+    Returns:
+        Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing
+        the mean function (ConstantMean) and the covariance function (ScaleKernel)."""
     lb = config.gettensor("common", "lb")
     ub = config.gettensor("common", "ub")
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
