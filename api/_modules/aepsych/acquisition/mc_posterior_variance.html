@@ -35,7 +35,6 @@
 <span class="kn">from</span> <span class="nn">botorch.sampling.base</span> <span class="kn">import</span> <span class="n">MCSampler</span>
 <span class="kn">from</span> <span class="nn">botorch.sampling.normal</span> <span class="kn">import</span> <span class="n">SobolQMCNormalSampler</span>
 <span class="kn">from</span> <span class="nn">botorch.utils.transforms</span> <span class="kn">import</span> <span class="n">t_batch_mode_transform</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 
 <div class="viewcode-block" id="balv_acq"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.balv_acq">[docs]</a><span class="k">def</span> <span class="nf">balv_acq</span><span class="p">(</span><span class="n">obj_samps</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -67,11 +66,11 @@
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""Posterior Variance of Link Function</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model: A fitted model.</span>
-<span class="sd">            objective: An MCAcquisitionObjective representing the link function</span>
+<span class="sd">            model (Model): A fitted model.</span>
+<span class="sd">            objective (MCAcquisitionObjective optional): An MCAcquisitionObjective representing the link function</span>
 <span class="sd">                (e.g., logistic or probit.) applied on the difference of (usually 1-d)</span>
-<span class="sd">                two samples. Can be implemented via GenericMCObjective.</span>
-<span class="sd">            sampler: The sampler used for drawing MC samples.</span>
+<span class="sd">                two samples. Can be implemented via GenericMCObjective. Defaults tp ProbitObjective.</span>
+<span class="sd">            sampler (MCSampler, optional): The sampler used for drawing MC samples. Defaults to SobolQMCNormalSampler.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sampler</span> <span class="o">=</span> <span class="n">SobolQMCNormalSampler</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">512</span><span class="p">]))</span>
@@ -81,14 +80,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
 
     <span class="nd">@t_batch_mode_transform</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""Evaluate MCPosteriorVariance on the candidate set `X`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            X: A `batch_size x q x d`-dim Tensor</span>
+<span class="sd">            X (torch.Tensor): A `batch_size x q x d`-dim Tensor</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Posterior variance of link function at X that active learning</span>
+<span class="sd">            torch.Tensor: Posterior variance of link function at X that active learning</span>
 <span class="sd">            hopes to maximize</span>
 <span class="sd">        """</span>
         <span class="c1"># the output is of shape batch_shape x q x d_out</span>
@@ -98,6 +97,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span>
 
 <div class="viewcode-block" id="MCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Evaluate the acquisition based on objective samples.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.</span>
+<span class="sd">                Should be samples x batch_shape.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Acquisition function at the sampled values.</span>
+<span class="sd">        """</span>
         <span class="c1"># RejectionSampler drops the final dim so we reaugment it</span>
         <span class="c1"># here for compatibility with non-Monotonic MCAcquisition</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -113,6 +121,18 @@
     <span class="n">sampler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MCSampler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Constructs the input dictionary for initializing the MCPosteriorVariance acquisition function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (Model): The fitted model to be used.</span>
+<span class="sd">        training_data (None): Placeholder for compatibility; not used in this function.</span>
+<span class="sd">        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logistic or probit).</span>
+<span class="sd">        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Any]: Dictionary of constructed inputs for the MCPosteriorVariance acquisition function.</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
         <span class="s2">"objective"</span><span class="p">:</span> <span class="n">objective</span><span class="p">,</span>
@@ -122,6 +142,18 @@
 
 <div class="viewcode-block" id="MonotonicMCPosteriorVariance"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance">[docs]</a><span class="k">class</span> <span class="nc">MonotonicMCPosteriorVariance</span><span class="p">(</span><span class="n">MonotonicMCAcquisition</span><span class="p">):</span>
 <div class="viewcode-block" id="MonotonicMCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Evaluates the acquisition function value for monotonic posterior variance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.</span>
+<span class="sd">                Should have shape samples x batch_shape.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: The BALV acquisition function value, representing the posterior variance</span>
+<span class="sd">            calculated over the sample dimension.</span>
+<span class="sd">        """</span>
+
         <span class="k">return</span> <span class="n">balv_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">)</span></div></div>
 </pre></div>
 </div>

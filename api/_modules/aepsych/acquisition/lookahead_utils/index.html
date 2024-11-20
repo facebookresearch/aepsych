@@ -30,7 +30,6 @@
 <span class="kn">from</span> <span class="nn">botorch.acquisition.objective</span> <span class="kn">import</span> <span class="n">PosteriorTransform</span>
 <span class="kn">from</span> <span class="nn">gpytorch.models</span> <span class="kn">import</span> <span class="n">GP</span>
 <span class="kn">from</span> <span class="nn">gpytorch.utils.quadrature</span> <span class="kn">import</span> <span class="n">GaussHermiteQuadrature1D</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Normal</span>
 
 <span class="kn">from</span> <span class="nn">.bvn</span> <span class="kn">import</span> <span class="n">bvn_cdf</span>
@@ -38,24 +37,26 @@
 
 <div class="viewcode-block" id="posterior_at_xstar_xq"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.posterior_at_xstar_xq">[docs]</a><span class="k">def</span> <span class="nf">posterior_at_xstar_xq</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span>
-    <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xstar</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xq</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">posterior_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PosteriorTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Evaluate the posteriors of f at single point Xstar and set of points Xq.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: The model to evaluate.</span>
-<span class="sd">        Xstar: (b x 1 x d) tensor.</span>
-<span class="sd">        Xq: (b x m x d) tensor.</span>
+<span class="sd">        model (GP): The model to evaluate.</span>
+<span class="sd">        Xstar (torch.Tensor): (b x 1 x d) observation point.</span>
+<span class="sd">        Xq (torch.Tensor): (b x m x d) reference points.</span>
+<span class="sd">        posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Mu_s: (b x 1) mean at Xstar.</span>
-<span class="sd">        Sigma2_s: (b x 1) variance at Xstar.</span>
-<span class="sd">        Mu_q: (b x m) mean at Xq.</span>
-<span class="sd">        Sigma2_q: (b x m) variance at Xq.</span>
-<span class="sd">        Sigma_sq: (b x m) covariance between Xstar and each point in Xq.</span>
+<span class="sd">        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:</span>
+<span class="sd">           - Mu_s: (b x 1) mean at Xstar.</span>
+<span class="sd">           - Sigma2_s: (b x 1) variance at Xstar.</span>
+<span class="sd">           - Mu_q: (b x m) mean at Xq.</span>
+<span class="sd">           - Sigma2_q: (b x m) variance at Xq.</span>
+<span class="sd">           - Sigma_sq: (b x m) covariance between Xstar and each point in Xq.</span>
 <span class="sd">    """</span>
     <span class="c1"># Evaluate posterior and extract needed components</span>
     <span class="n">Xext</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">Xstar</span><span class="p">,</span> <span class="n">Xq</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
@@ -72,26 +73,29 @@
 
 <div class="viewcode-block" id="lookahead_levelset_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.lookahead_levelset_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">lookahead_levelset_at_xstar</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span>
-    <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xstar</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xq</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">posterior_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PosteriorTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Evaluate the look-ahead level-set posterior at Xq given observation at xstar.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: The model to evaluate.</span>
-<span class="sd">        Xstar: (b x 1 x d) observation point.</span>
-<span class="sd">        Xq: (b x m x d) reference points.</span>
-<span class="sd">        gamma: Threshold in f-space.</span>
+<span class="sd">        model (GP): The model to evaluate.</span>
+<span class="sd">        Xstar (torch.Tensor): (b x 1 x d) observation point.</span>
+<span class="sd">        Xq (torch.Tensor): (b x m x d) reference points.</span>
+<span class="sd">        posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.</span>
+<span class="sd">        eps (float): Small value to avoid division by zero. Default: 1e-8.</span>
+
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Px: (b x m) Level-set posterior at Xq, before observation at xstar.</span>
-<span class="sd">        P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.</span>
-<span class="sd">        P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.</span>
-<span class="sd">        py1: (b x 1) Probability of observing 1 at xstar.</span>
+<span class="sd">        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:</span>
+<span class="sd">            Px: (b x m) Level-set posterior at Xq, before observation at xstar.</span>
+<span class="sd">            P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.</span>
+<span class="sd">            P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.</span>
+<span class="sd">            py1: (b x 1) Probability of observing 1 at xstar.</span>
 <span class="sd">    """</span>
     <span class="n">Mu_s</span><span class="p">,</span> <span class="n">Sigma2_s</span><span class="p">,</span> <span class="n">Mu_q</span><span class="p">,</span> <span class="n">Sigma2_q</span><span class="p">,</span> <span class="n">Sigma_sq</span> <span class="o">=</span> <span class="n">posterior_at_xstar_xq</span><span class="p">(</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">Xstar</span><span class="o">=</span><span class="n">Xstar</span><span class="p">,</span> <span class="n">Xq</span><span class="o">=</span><span class="n">Xq</span><span class="p">,</span> <span class="n">posterior_transform</span><span class="o">=</span><span class="n">posterior_transform</span>
@@ -122,11 +126,11 @@
 
 <div class="viewcode-block" id="lookahead_p_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.lookahead_p_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">lookahead_p_at_xstar</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span>
-    <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xstar</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xq</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">posterior_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PosteriorTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Evaluate the look-ahead response probability posterior at Xq given observation at xstar.</span>
 
@@ -136,16 +140,18 @@
 
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: The model to evaluate.</span>
-<span class="sd">        Xstar: (b x 1 x d) observation point.</span>
-<span class="sd">        Xq: (b x m x d) reference points.</span>
+<span class="sd">        model (GP): The model to evaluate.</span>
+<span class="sd">        Xstar (torch.Tensor): (b x 1 x d) observation point.</span>
+<span class="sd">        Xq (torch.Tensor): (b x m x d) reference points.</span>
+<span class="sd">        posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.</span>
 <span class="sd">        kwargs: ignored (here for compatibility with other kinds of lookahead)</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Px: (b x m) Response posterior at Xq, before observation at xstar.</span>
-<span class="sd">        P1: (b x m) Response posterior at Xq, given observation of 1 at xstar.</span>
-<span class="sd">        P0: (b x m) Response posterior at Xq, given observation of 0 at xstar.</span>
-<span class="sd">        py1: (b x 1) Probability of observing 1 at xstar.</span>
+<span class="sd">        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:</span>
+<span class="sd">           - Px: (b x m) Response posterior at Xq, before observation at xstar.</span>
+<span class="sd">           - P1: (b x m) Response posterior at Xq, given observation of 1 at xstar.</span>
+<span class="sd">           - P0: (b x m) Response posterior at Xq, given observation of 0 at xstar.</span>
+<span class="sd">           - py1: (b x 1) Probability of observing 1 at xstar.</span>
 <span class="sd">    """</span>
     <span class="n">Mu_s</span><span class="p">,</span> <span class="n">Sigma2_s</span><span class="p">,</span> <span class="n">Mu_q</span><span class="p">,</span> <span class="n">Sigma2_q</span><span class="p">,</span> <span class="n">Sigma_sq</span> <span class="o">=</span> <span class="n">posterior_at_xstar_xq</span><span class="p">(</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">Xstar</span><span class="o">=</span><span class="n">Xstar</span><span class="p">,</span> <span class="n">Xq</span><span class="o">=</span><span class="n">Xq</span><span class="p">,</span> <span class="n">posterior_transform</span><span class="o">=</span><span class="n">posterior_transform</span>
@@ -153,7 +159,7 @@
 
     <span class="n">probit</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span>
 
-    <span class="k">def</span> <span class="nf">lookahead_inner</span><span class="p">(</span><span class="n">f_q</span><span class="p">:</span> <span class="n">Normal</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">lookahead_inner</span><span class="p">(</span><span class="n">f_q</span><span class="p">:</span> <span class="n">Normal</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="n">mu_tilde_star</span> <span class="o">=</span> <span class="n">Mu_s</span> <span class="o">+</span> <span class="p">(</span><span class="n">f_q</span> <span class="o">-</span> <span class="n">Mu_q</span><span class="p">)</span> <span class="o">*</span> <span class="n">Sigma_sq</span> <span class="o">/</span> <span class="n">Sigma2_q</span>
         <span class="n">sigma_tilde_star</span> <span class="o">=</span> <span class="n">Sigma2_s</span> <span class="o">-</span> <span class="p">(</span><span class="n">Sigma_sq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">Sigma2_q</span>
         <span class="k">return</span> <span class="n">probit</span><span class="p">(</span><span class="n">mu_tilde_star</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_tilde_star</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">probit</span><span class="p">(</span><span class="n">f_q</span><span class="p">)</span>
@@ -175,25 +181,28 @@
 
 <div class="viewcode-block" id="approximate_lookahead_levelset_at_xstar"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead_utils.approximate_lookahead_levelset_at_xstar">[docs]</a><span class="k">def</span> <span class="nf">approximate_lookahead_levelset_at_xstar</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GP</span><span class="p">,</span>
-    <span class="n">Xstar</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
-    <span class="n">Xq</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xstar</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">Xq</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">posterior_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PosteriorTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The look-ahead posterior approximation of Lyu et al.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: The model to evaluate.</span>
-<span class="sd">        Xstar: (b x 1 x d) observation point.</span>
-<span class="sd">        Xq: (b x m x d) reference points.</span>
-<span class="sd">        gamma: Threshold in f-space.</span>
+<span class="sd">        model (GP): The model to evaluate.</span>
+<span class="sd">        Xstar (torch.Tensor): (b x 1 x d) observation point.</span>
+<span class="sd">        Xq (torch.Tensor): (b x m x d) reference points.</span>
+<span class="sd">        gamma (float): The threshold value.</span>
+<span class="sd">        posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default: None.</span>
+
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Px: (b x m) Level-set posterior at Xq, before observation at xstar.</span>
-<span class="sd">        P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.</span>
-<span class="sd">        P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.</span>
-<span class="sd">        py1: (b x 1) Probability of observing 1 at xstar.</span>
+<span class="sd">        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: Tuple of the following:</span>
+<span class="sd">           - Px: (b x m) Level-set posterior at Xq, before observation at xstar.</span>
+<span class="sd">           - P1: (b x m) Level-set posterior at Xq, given observation of 1 at xstar.</span>
+<span class="sd">           - P0: (b x m) Level-set posterior at Xq, given observation of 0 at xstar.</span>
+<span class="sd">           - py1: (b x 1) Probability of observing 1 at xstar.</span>
 <span class="sd">    """</span>
     <span class="n">Mu_s</span><span class="p">,</span> <span class="n">Sigma2_s</span><span class="p">,</span> <span class="n">Mu_q</span><span class="p">,</span> <span class="n">Sigma2_q</span><span class="p">,</span> <span class="n">Sigma_sq</span> <span class="o">=</span> <span class="n">posterior_at_xstar_xq</span><span class="p">(</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">Xstar</span><span class="o">=</span><span class="n">Xstar</span><span class="p">,</span> <span class="n">Xq</span><span class="o">=</span><span class="n">Xq</span><span class="p">,</span> <span class="n">posterior_transform</span><span class="o">=</span><span class="n">posterior_transform</span>

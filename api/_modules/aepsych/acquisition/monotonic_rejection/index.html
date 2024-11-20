@@ -31,7 +31,6 @@
 <span class="kn">from</span> <span class="nn">botorch.acquisition.acquisition</span> <span class="kn">import</span> <span class="n">AcquisitionFunction</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.objective</span> <span class="kn">import</span> <span class="n">IdentityMCObjective</span><span class="p">,</span> <span class="n">MCAcquisitionObjective</span>
 <span class="kn">from</span> <span class="nn">botorch.models.model</span> <span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">.rejection_sampler</span> <span class="kn">import</span> <span class="n">RejectionSampler</span>
 
@@ -56,9 +55,9 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            model (Model): Model to use, usually a MonotonicRejectionGP.</span>
-<span class="sd">            num_samples (int, optional): Number of samples to keep from the rejection sampler. . Defaults to 32.</span>
-<span class="sd">            num_rejection_samples (int, optional): Number of rejection samples to draw. Defaults to 1024.</span>
-<span class="sd">            objective (Optional[MCAcquisitionObjective], optional): Objective transform of the GP output</span>
+<span class="sd">            num_samples (int): Number of samples to keep from the rejection sampler. Defaults to 32.</span>
+<span class="sd">            num_rejection_samples (int): Number of rejection samples to draw. Defaults to 1024.</span>
+<span class="sd">            objective (MCAcquisitionObjective, optional): Objective transform of the GP output</span>
 <span class="sd">                before evaluating the acquisition. Defaults to identity transform.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
@@ -73,15 +72,15 @@
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">MCAcquisitionObjective</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="s2">"objective"</span><span class="p">,</span> <span class="n">objective</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MonotonicMCAcquisition.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="MonotonicMCAcquisition.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluate the acquisition function at a set of points.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            X (Tensor): Points at which to evaluate the acquisition function.</span>
+<span class="sd">            X (torch.Tensor): Points at which to evaluate the acquisition function.</span>
 <span class="sd">                Should be (b) x q x d, and q should be 1.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor: Acquisition function value at these points.</span>
+<span class="sd">            torch.Tensor: Acquisition function value at these points.</span>
 <span class="sd">        """</span>
         <span class="c1"># This is currently doing joint samples over (b), and requiring q=1</span>
         <span class="c1"># TODO T68656582 support batches properly.</span>
@@ -105,6 +104,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acquisition</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_set_sampler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xshape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Sets up the rejection sampler for generating samples with derivative constraints.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            Xshape (torch.Size): The shape of the input points `X` for which the sampler is set up.</span>
+
+<span class="sd">        """</span>
         <span class="n">sampler</span> <span class="o">=</span> <span class="n">RejectionSampler</span><span class="p">(</span>
             <span class="n">num_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span>
             <span class="n">num_rejection_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_rejection_samples</span><span class="p">,</span>
@@ -133,13 +139,14 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            model (Model): Underlying model object, usually should be MonotonicRejectionGP.</span>
+<span class="sd">            deriv_constraint_points (torch.Tensor): Points at which the derivative should be constrained.</span>
 <span class="sd">            target (float): Level set value to target (after the objective).</span>
-<span class="sd">            num_samples (int, optional): Number of MC samples to draw in MC acquisition. Defaults to 32.</span>
-<span class="sd">            num_rejection_samples (int, optional): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.</span>
-<span class="sd">            beta (float, optional): Parameter of the LSE acquisition function that governs exploration vs</span>
+<span class="sd">            num_samples (int): Number of MC samples to draw in MC acquisition. Defaults to 32.</span>
+<span class="sd">            num_rejection_samples (int): Number of rejection samples from which to subsample monotonic ones. Defaults to 1024.</span>
+<span class="sd">            beta (float): Parameter of the LSE acquisition function that governs exploration vs</span>
 <span class="sd">                exploitation (similarly to the same parameter in UCB). Defaults to 3.84 (1.96 ** 2), which maps to the straddle</span>
 <span class="sd">                heuristic of Bryan et al. 2005.</span>
-<span class="sd">            objective (Optional[MCAcquisitionObjective], optional): Objective transform. Defaults to identity transform.</span>
+<span class="sd">            objective (MCAcquisitionObjective, optional): Objective transform. Defaults to identity transform.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
@@ -152,6 +159,17 @@
         <span class="p">)</span>
 
 <div class="viewcode-block" id="MonotonicMCLSE.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCLSE.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Computes the acquisition function value for level set estimation in monotonic models.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj_samples (torch.Tensor): Tensor of samples from the model, transformed by the objective.</span>
+<span class="sd">                Expected shape is samples x batch_shape.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: The acquisition function value, calculated as the difference between an exploration-exploitation term</span>
+<span class="sd">            (based on the variance and `beta` parameter) and the absolute difference between the mean and the target level set.</span>
+<span class="sd">        """</span>
         <span class="n">mean</span> <span class="o">=</span> <span class="n">obj_samples</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">variance</span> <span class="o">=</span> <span class="n">obj_samples</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="c1"># prevent numerical issues if probit makes all the values 1 or 0</span>

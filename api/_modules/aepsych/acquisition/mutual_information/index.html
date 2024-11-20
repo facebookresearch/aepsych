@@ -23,7 +23,6 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="sa">r</span><span class="sd">""" """</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
@@ -106,7 +105,7 @@
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""Evaluate mutual information on the candidate set `X`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            X: A `batch_size x q x d`-dim Tensor.</span>
+<span class="sd">            X (Tensor): A `batch_size x q x d`-dim Tensor.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor of shape `batch_size x q` representing the mutual</span>
 <span class="sd">            information of a hypothetical trial at X that active</span>
@@ -141,6 +140,19 @@
     <span class="n">sampler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MCSampler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Constructs the input dictionary for initializing the BernoulliMCMutualInformation acquisition function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (Model): The fitted model to use.</span>
+<span class="sd">        training_data (None): Placeholder for compatibility; not used in this function.</span>
+<span class="sd">        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logit or probit).</span>
+<span class="sd">        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Any]: Dictionary of constructed inputs for the BernoulliMCMutualInformation acquisition function.</span>
+<span class="sd">    """</span>
+
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
         <span class="s2">"objective"</span><span class="p">:</span> <span class="n">objective</span><span class="p">,</span>

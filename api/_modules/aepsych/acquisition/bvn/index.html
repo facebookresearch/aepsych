@@ -33,6 +33,16 @@
 
 
 <span class="k">def</span> <span class="nf">_gauss_legendre20</span><span class="p">(</span><span class="n">dtype</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Computes the abscissae and weights for the Gauss-Legendre quadrature of order 20.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dtype (torch.dtype): The desired data type of the output tensors.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[torch.Tensor, torch.Tensor]:</span>
+<span class="sd">            - abscissae: The quadrature points.</span>
+<span class="sd">            - weights: The corresponding weights for each quadrature point.</span>
+<span class="sd">    """</span>
     <span class="n">_abscissae</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="mf">0.9931285991850949</span><span class="p">,</span>
@@ -72,6 +82,12 @@
 <span class="k">def</span> <span class="nf">_ndtr</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Standard normal CDF. Called &lt;phid&gt; in Genz's original code.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (torch.Tensor): Input tensor of values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor: CDF values for each element in the input tensor.</span>
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">erfc</span><span class="p">(</span><span class="n">_neg_inv_sqrt2</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
 
@@ -83,6 +99,14 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Primary subroutine for bvnu()</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dh (torch.Tensor): Input tensor representing the first variable values.</span>
+<span class="sd">        dk (torch.Tensor): Input tensor representing the second variable values.</span>
+<span class="sd">        r (torch.Tensor): Input tensor for the correlation coefficient.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor: Approximated bivariate normal CDF values.</span>
 <span class="sd">    """</span>
     <span class="c1"># Precompute some terms</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">dh</span>
@@ -124,11 +148,12 @@
 <span class="sd">    Journal of Statist. Comput. Simul. 35, pp. 101-107.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        xu: Upper limits for cdf evaluation in x</span>
-<span class="sd">        yu: Upper limits for cdf evaluation in y</span>
-<span class="sd">        r: BVN correlation</span>
+<span class="sd">        xu (torch.Tensor): Upper limits for cdf evaluation in x</span>
+<span class="sd">        yu (torch.Tensor): Upper limits for cdf evaluation in y</span>
+<span class="sd">        r (torch.Tensor): BVN correlation</span>
 
-<span class="sd">    Returns: Tensor of cdf evaluations of same size as xu, yu, and r.</span>
+<span class="sd">    Returns: </span>
+<span class="sd">        Tensor of cdf evaluations of same size as xu, yu, and r.</span>
 <span class="sd">    """</span>
     <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">_ndtr</span><span class="p">(</span><span class="o">-</span><span class="n">xu</span><span class="p">)</span> <span class="o">-</span> <span class="n">_ndtr</span><span class="p">(</span><span class="o">-</span><span class="n">yu</span><span class="p">)</span> <span class="o">+</span> <span class="n">_bvnu</span><span class="p">(</span><span class="n">xu</span><span class="p">,</span> <span class="n">yu</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>

@@ -28,7 +28,6 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">botorch.posteriors</span> <span class="kn">import</span> <span class="n">Posterior</span>
 <span class="kn">from</span> <span class="nn">botorch.sampling.base</span> <span class="kn">import</span> <span class="n">MCSampler</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 
 <div class="viewcode-block" id="RejectionSampler"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.rejection_sampler.RejectionSampler">[docs]</a><span class="k">class</span> <span class="nc">RejectionSampler</span><span class="p">(</span><span class="n">MCSampler</span><span class="p">):</span>
@@ -41,7 +40,7 @@
 <span class="sd">    """</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_rejection_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">constrained_idx</span><span class="p">:</span> <span class="n">Tensor</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_rejection_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">constrained_idx</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Initialize RejectionSampler</span>
 
@@ -50,7 +49,7 @@
 <span class="sd">                than this number are positive in the required dimension, the remaining</span>
 <span class="sd">                samples returned will be the "least violating", i.e. closest to 0.</span>
 <span class="sd">            num_rejection_samples (int): Number of samples to draw before rejecting.</span>
-<span class="sd">            constrained_idx (Tensor): Indices of input dimensions that should be</span>
+<span class="sd">            constrained_idx (torch.Tensor): Indices of input dimensions that should be</span>
 <span class="sd">                constrained positive.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
@@ -58,7 +57,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">constrained_idx</span> <span class="o">=</span> <span class="n">constrained_idx</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="n">num_samples</span><span class="p">]))</span>
 
-<div class="viewcode-block" id="RejectionSampler.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.rejection_sampler.RejectionSampler.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posterior</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="RejectionSampler.forward"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.rejection_sampler.RejectionSampler.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posterior</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Run the rejection sampler.</span>
 
 <span class="sd">        Args:</span>
@@ -66,7 +65,7 @@
 <span class="sd">                to perform rejection samples on.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tensor: Kept samples.</span>
+<span class="sd">            torch.Tensor: Kept samples.</span>
 <span class="sd">        """</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="n">posterior</span><span class="o">.</span><span class="n">rsample</span><span class="p">(</span>
             <span class="n">sample_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">num_rejection_samples</span><span class="p">])</span>

@@ -48,16 +48,16 @@
         <span class="n">objective</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MCAcquisitionObjective</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sampler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MCSampler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">"""Monte-carlo level set estimation.</span>
+<span class="w">        </span><span class="sd">"""Monte-carlo level set estimation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model: A fitted model.</span>
-<span class="sd">            target: the level set (after objective transform) to be estimated</span>
-<span class="sd">            beta: a parameter that governs explore-exploit tradeoff</span>
-<span class="sd">            objective: An MCAcquisitionObjective representing the link function</span>
+<span class="sd">            target (Union[float, Tensor]): the level set (after objective transform) to be estimated. Defult to 0.75.</span>
+<span class="sd">            beta (Union[float, Tensor]): a parameter that governs explore-exploit tradeoff. Defult to 3.84.</span>
+<span class="sd">            objective (MCAcquisitionObjective, optional): An MCAcquisitionObjective representing the link function</span>
 <span class="sd">                (e.g., logistic or probit.) applied on the samples.</span>
 <span class="sd">                Can be implemented via GenericMCObjective.</span>
-<span class="sd">            sampler: The sampler used for drawing MC samples.</span>
+<span class="sd">            sampler (MCSampler, optional): The sampler used for drawing MC samples.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sampler</span> <span class="o">=</span> <span class="n">SobolQMCNormalSampler</span><span class="p">(</span><span class="n">sample_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">512</span><span class="p">]))</span>
@@ -115,6 +115,22 @@
     <span class="n">sampler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MCSampler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Constructs the input dictionary for initializing the MCLevelSetEstimation acquisition function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (Model): The fitted model to be used.</span>
+<span class="sd">        training_data (None): Placeholder for compatibility; not used in this function.</span>
+<span class="sd">        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logistic or probit).</span>
+<span class="sd">        target (Union[float, Tensor]): Level set to be estimated, defaulting to 0.75.</span>
+<span class="sd">        beta (Union[float, Tensor]): Parameter controlling explore-exploit tradeoff, default is 3.84.</span>
+<span class="sd">        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Any]: Dictionary of constructed inputs for the MCLevelSetEstimation acquisition function.</span>
+<span class="sd">    """</span>
+
+
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
         <span class="s2">"objective"</span><span class="p">:</span> <span class="n">objective</span><span class="p">,</span>
