@@ -24,7 +24,7 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransformedModel, ParameterTransforms
-from aepsych.transforms.parameters import Normalize
+from aepsych.transforms.ops import NormalizeScale
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.optim.fit import fit_gpytorch_mll_torch
 from botorch.optim.stopping import ExpMAStoppingCriterion
@@ -217,7 +217,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         ub = torch.tensor([3000, 0.003])
 
         transforms = ParameterTransforms(
-            normalize=Normalize(2, bounds=torch.stack((lb, ub)))
+            normalize=NormalizeScale(2, bounds=torch.stack((lb, ub)))
         )
         model = ParameterTransformedModel(
             model=GPClassificationModel,

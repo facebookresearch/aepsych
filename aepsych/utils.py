@@ -7,7 +7,7 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -232,120 +232,35 @@ def get_jnd_multid(
     return result
 
 
-def _get_ax_parameters(
-    config: Config,
-) -> Tuple[list[Dict[str, Any]], list[Dict[str, Any]], list[Dict[str, Any]]]:
-    range_parnames = config.getlist("common", "parnames", element_type=str, fallback=[])
-    lb = config.getlist("common", "lb", element_type=float, fallback=[])
-    ub = config.getlist("common", "ub", element_type=float, fallback=[])
-
-    assert (
-        len(range_parnames) == len(lb) == len(ub)
-    ), f"Length of parnames ({range_parnames}), lb ({lb}), and ub ({ub}) don't match!"
-
-    range_params = [
-        {
-            "name": parname,
-            "type": "range",
-            "value_type": config.get(str(parname), "value_type", fallback="float"),
-            "log_scale": config.getboolean(str(parname), "log_scale", fallback=False),
-            "bounds": [l, u],
-        }
-        for parname, l, u in zip(range_parnames, lb, ub)
-    ]
-
-    choice_parnames = config.getlist(
-        "common", "choice_parnames", element_type=str, fallback=[]
-    )
-    choices = [
-        config.getlist(
-            str(parname), "choices", element_type=str, fallback=["True", "False"]
-        )
-        for parname in choice_parnames
-    ]
-    choice_params = [
-        {
-            "name": parname,
-            "type": "choice",
-            "value_type": config.get(str(parname), "value_type", fallback="str"),
-            "is_ordered": config.getboolean(str(parname), "is_ordered", fallback=False),
-            "values": choice,
-        }
-        for parname, choice in zip(choice_parnames, choices)
-    ]
-
-    fixed_parnames = config.getlist(
-        "common", "fixed_parnames", element_type=str, fallback=[]
-    )
-    values = []
-    for parname in fixed_parnames:
-        try:
-            try:
-                value: Union[float, str] = config.getfloat(str(parname), "value")
-            except ValueError:
-                value = config.get(str(parname), "value")
-
-            values.append(value)
-        except NoOptionError:
-            raise RuntimeError(f"Missing value for fixed parameter {parname}!")
-    fixed_params = [
-        {
-            "name": parname,
-            "type": "fixed",
-            "value": value,
-        }
-        for parname, value in zip(fixed_parnames, values)
-    ]
-
-    return range_params, choice_params, fixed_params
-
-
-def get_parameters(config: Config) -> List[Dict]:
-    range_params, choice_params, fixed_params = _get_ax_parameters(config)
-    return range_params + choice_params + fixed_params
-
-
 def get_bounds(config: Config) -> torch.Tensor:
-    range_params, choice_params, _ = _get_ax_parameters(config)
-    # Need to sum dimensions added by both range and choice parameters
-    bounds = [parm["bounds"] for parm in range_params]
-    for par in choice_params:
-        n_vals = len(par["values"])
-        if par["is_ordered"]:
-            bounds.append(
-                [0, 1]
-            )  # Ordered choice params are encoded like continuous parameters
-        elif n_vals > 2:
-            for _ in range(n_vals):
-                bounds.append(
-                    [0, 1]
-                )  # Choice parameter is one-hot encoded such that they add 1 dim for every choice
-        else:
-            for _ in range(n_vals - 1):
-                bounds.append(
-                    [0, 1]
-                )  # Choice parameters with n_choices <= 2 add n_choices - 1 dims
+    r"""Return the bounds for all parameters in config.
 
-    return torch.tensor(bounds)
+    Args:
+        config (Config): The config to find the bounds from.
 
+    Returns:
+        torch.Tensor: A `[2, d]` tensor with the lower and upper bounds for each
+            parameter.
+    """
+    parnames = config.getlist("common", "parnames", element_type=str)
 
-def get_dim(config: Config) -> int:
-    range_params, choice_params, _ = _get_ax_parameters(config)
-    # Need to sum dimensions added by both range and choice parameters
-    dim = len(range_params)  # 1 dim per range parameter
-    for par in choice_params:
-        if par["is_ordered"]:
-            dim += 1  # Ordered choice params are encoded like continuous parameters
-        elif len(par["values"]) > 2:
-            dim += len(
-                par["values"]
-            )  # Choice parameter is one-hot encoded such that they add 1 dim for every choice
-        else:
-            dim += (
-                len(par["values"]) - 1
-            )  # Choice parameters with n_choices < 3 add n_choices - 1 dims
+    # Try to build a full array of bounds based on parameter-specific bounds
+    try:
+        _lower_bounds = torch.tensor(
+            [config.getfloat(par, "lower_bound") for par in parnames]
+        )
+        _upper_bounds = torch.tensor(
+            [config.getfloat(par, "upper_bound") for par in parnames]
+        )
 
-    return dim
+        bounds = torch.stack((_lower_bounds, _upper_bounds))
+
+    except NoOptionError:  # Look for general lb/ub array
+        _lb = config.gettensor("common", "lb")
+        _ub = config.gettensor("common", "ub")
+        bounds = torch.stack((_lb, _ub))
+
+    return bounds
 
 
 def get_optimizer_options(config: Config, name: str) -> Dict[str, Any]:

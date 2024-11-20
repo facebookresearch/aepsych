@@ -25,7 +25,7 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.parameters import Normalize
+from aepsych.transforms.ops import NormalizeScale
 
 
 class TestSequenceGenerators(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestSequenceGenerators(unittest.TestCase):
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
 
         transforms = ParameterTransforms(
-            normalize=Normalize(d=2, bounds=torch.stack([lb, ub]))
+            normalize=NormalizeScale(d=2, bounds=torch.stack([lb, ub]))
         )
 
         self.strat = Strategy(
