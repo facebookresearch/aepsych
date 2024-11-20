@@ -1316,6 +1316,52 @@ class ConfigTestCase(unittest.TestCase):
             self.assertTrue(tf[0] == name)
             self.assertTrue(isinstance(tf[1], transform))
 
+    def test_optimizer_options_smoketest(self):
+        config_str = """
+            [common]
+            parnames = [signal1]
+            outcome_types = [binary]
+            stimuli_per_trial = 1
+            strategy_names = [opt_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [opt_strat]
+            model = GPClassificationModel
+            generator = SobolGenerator
+            min_asks = 1
+
+            [GPClassificationModel]
+            maxcor = 1
+            maxfun = 0
+            maxls = 3
+            gtol = 4
+            ftol = 5
+            maxiter = 6
+            max_fit_time = 100
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = Strategy.from_config(config, "opt_strat")
+
+        strat.add_data(torch.tensor([0.80]), torch.tensor([1]))
+        strat.fit()
+
+        options = strat.model.optimizer_options["options"]
+        self.assertTrue(options["maxcor"] == 1)
+        self.assertTrue(options["ftol"] == 5.0)
+        self.assertTrue(options["gtol"] == 4.0)
+        self.assertTrue(options["maxiter"] == 6)
+        self.assertTrue(options["maxls"] == 3)
+
+        self.assertTrue(
+            options["maxfun"] != 0, "maxfun should be overridden by max_fit_time"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

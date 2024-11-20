@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import warnings
 from copy import deepcopy
-from typing import Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
 import numpy as np
@@ -17,7 +17,7 @@ from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, promote_0d
+from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
@@ -57,6 +57,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the GP Classification model
 
@@ -78,11 +79,16 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+                fitting. Assumes we are using L-BFGS-B.
         """
         lb, ub, self.dim = _process_bounds(lb, ub, dim)
-
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
+
+        self.optimizer_options = (
+            {"options": optimizer_options} if optimizer_options else {"options": {}}
+        )
 
         if self.inducing_size >= 100:
             logger.warning(
@@ -174,6 +180,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         else:
             likelihood = None  # fall back to __init__ default
 
+        optimizer_options = get_optimizer_options(config, classname)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -184,6 +192,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
             likelihood=likelihood,
+            optimizer_options=optimizer_options,
         )
 
     def _reset_hyperparameters(self) -> None:
@@ -251,7 +260,10 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         n = train_y.shape[0]
         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
 
-        self._fit_mll(mll, **kwargs)
+        if "optimizer_kwargs" in kwargs:
+            self._fit_mll(mll, **kwargs)
+        else:
+            self._fit_mll(mll, optimizer_kwargs=self.optimizer_options, **kwargs)
 
     def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model.
@@ -335,6 +347,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         if likelihood is None:
             likelihood = BetaLikelihood()
@@ -348,4 +361,5 @@ class GPBetaRegressionModel(GPClassificationModel):
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            optimizer_options=optimizer_options,
         )

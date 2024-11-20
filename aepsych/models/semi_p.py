@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -18,7 +18,7 @@ from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
-from aepsych.utils import _process_bounds, promote_0d
+from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
 from botorch.optim.fit import fit_gpytorch_mll_scipy
@@ -189,6 +189,7 @@ class SemiParametricGPModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Initialize SemiParametricGP.
@@ -212,6 +213,8 @@ class SemiParametricGPModel(GPClassificationModel):
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+                fitting. Assumes we are using L-BFGS-B.
         """
 
         lb, ub, dim = _process_bounds(lb, ub, dim)
@@ -252,6 +255,7 @@ class SemiParametricGPModel(GPClassificationModel):
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            optimizer_options=optimizer_options,
         )
 
     @classmethod
@@ -294,6 +298,8 @@ class SemiParametricGPModel(GPClassificationModel):
 
         slope_mean = config.getfloat(classname, "slope_mean", fallback=2)
 
+        optimizer_options = get_optimizer_options(config, classname)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -304,6 +310,7 @@ class SemiParametricGPModel(GPClassificationModel):
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            optimizer_options=optimizer_options,
         )
 
     def fit(
@@ -440,6 +447,7 @@ class HadamardSemiPModel(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Initialize HadamardSemiPModel.
@@ -462,6 +470,8 @@ class HadamardSemiPModel(GPClassificationModel):
                 If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
                 If "kmeans++", selects points by performing kmeans++ clustering on the training data.
                 If "auto", tries to determine the best method automatically.
+            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+                fitting. Assumes we are using L-BFGS-B.
         """
         super().__init__(
             lb=lb,
@@ -470,6 +480,7 @@ class HadamardSemiPModel(GPClassificationModel):
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            optimizer_options=optimizer_options,
         )
 
         self.stim_dim = stim_dim
@@ -595,6 +606,8 @@ class HadamardSemiPModel(GPClassificationModel):
 
         stim_dim = config.getint(classname, "stim_dim", fallback=0)
 
+        optimizer_options = get_optimizer_options(config, classname)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -609,6 +622,7 @@ class HadamardSemiPModel(GPClassificationModel):
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            optimizer_options=optimizer_options,
         )
 
     def predict(

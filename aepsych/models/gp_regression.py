@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -15,7 +15,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
-from aepsych.utils import _process_bounds, promote_0d
+from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ExactGP
@@ -40,6 +40,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         max_fit_time: Optional[float] = None,
+        optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the GP regression model
 
@@ -55,6 +56,8 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
                 Gaussian likelihood.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
+            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
+                fitting. Assumes we are using L-BFGS-B.
         """
         if likelihood is None:
             likelihood = GaussianLikelihood()
@@ -63,6 +66,10 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
         lb, ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
+
+        self.optimizer_options = (
+            {"options": optimizer_options} if optimizer_options else {"options": {}}
+        )
 
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
@@ -105,6 +112,8 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
+        optimizer_options = get_optimizer_options(config, classname)
+
         return {
             "lb": lb,
             "ub": ub,
@@ -113,6 +122,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
             "covar_module": covar,
             "likelihood": likelihood,
             "max_fit_time": max_fit_time,
+            "optimizer_options": optimizer_options,
         }
 
     @classmethod
@@ -142,7 +152,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         """
         self.set_train_data(train_x, train_y)
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
-        return self._fit_mll(mll, **kwargs)
+        return self._fit_mll(mll, self.optimizer_options, **kwargs)
 
     def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         """Sample from underlying model.
