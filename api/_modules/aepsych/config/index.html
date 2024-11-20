@@ -200,8 +200,8 @@
                     <span class="c1"># Validate the parameter-specific block</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_check_param_settings</span><span class="p">(</span><span class="n">par_name</span><span class="p">)</span>
 
-                    <span class="n">lb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">][</span><span class="s2">"lower_bound"</span><span class="p">]</span>
-                    <span class="n">ub</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">][</span><span class="s2">"upper_bound"</span><span class="p">]</span>
+                    <span class="n">lb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"lower_bound"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"0"</span><span class="p">)</span>
+                    <span class="n">ub</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">par_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"upper_bound"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"1"</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"lb"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lb</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
                 <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ub</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span>
@@ -278,8 +278,45 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the upper_bound setting."</span>
                 <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">param_block</span><span class="p">[</span><span class="s2">"par_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"integer"</span><span class="p">:</span>
+            <span class="c1"># Check if bounds exist and actaully integers</span>
+            <span class="k">if</span> <span class="s2">"lower_bound"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the lower_bound setting."</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"upper_bound"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is missing the upper_bound setting."</span>
+                <span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="s2">"lower_bound"</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="s2">"upper_bound"</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ParameterConfigError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> has non-integer bounds."</span>
+                    <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParameterConfigError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> has non-discrete bounds."</span>
+                <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">param_block</span><span class="p">[</span><span class="s2">"par_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"binary"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"lower_bound"</span> <span class="ow">in</span> <span class="n">param_block</span> <span class="ow">or</span> <span class="s2">"upper_bound"</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParameterConfigError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is binary and shouldn't have bounds."</span>
+                <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">param_block</span><span class="p">[</span><span class="s2">"par_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"fixed"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"value"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">param_block</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParameterConfigError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> is fixed and needs to have value set."</span>
+                <span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">ParameterConfigError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Parameter </span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2"> has an unsupported parameter type </span><span class="si">{</span><span class="n">param_block</span><span class="p">[</span><span class="s1">'par_type'</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
@@ -510,6 +547,10 @@
 <span class="n">Config</span><span class="o">.</span><span class="n">register_module</span><span class="p">(</span><span class="n">botorch</span><span class="o">.</span><span class="n">acquisition</span><span class="p">)</span>
 <span class="n">Config</span><span class="o">.</span><span class="n">register_module</span><span class="p">(</span><span class="n">botorch</span><span class="o">.</span><span class="n">acquisition</span><span class="o">.</span><span class="n">multi_objective</span><span class="p">)</span>
 <span class="n">Config</span><span class="o">.</span><span class="n">registered_names</span><span class="p">[</span><span class="s2">"None"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="ParameterConfigError"><a class="viewcode-back" href="../../config.html#aepsych.config.ParameterConfigError">[docs]</a><span class="k">class</span> <span class="nc">ParameterConfigError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
 </pre></div>
 </div>
 </div>

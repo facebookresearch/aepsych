@@ -148,8 +148,7 @@
 <p>Iniatialize ManualGenerator.
 :param lb torch.Tensor: Lower bounds of each parameter.
 :param ub torch.Tensor: Upper bounds of each parameter.
-:param points: The points that will be generated.
-:type points: Union[np.ndarray, torch.Tensor]
+:param points torch.Tensor: The points that will be generated.
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param shuffle: Whether or not to shuffle the order of the points. True by default.
@@ -159,7 +158,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
@@ -232,29 +231,23 @@
 :type lb: Union[np.ndarray, torch.Tensor]
 :param ub: Upper bounds of each parameter.
 :type ub: Union[np.ndarray, torch.Tensor]
-:param window: How far away to sample from the reference point along each dimension.
-:type window: Union[np.ndarray, torch.Tensor]
-:param points: The points that will be generated.
-:type points: Union[np.ndarray, torch.Tensor]
-:param samples_per_point: How many samples around each point to take.
-:type samples_per_point: int
-:param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
-:type dim: int, optional
-:param shuffle: Whether or not to shuffle the order of the points. True by default.
-:type shuffle: bool
-:param seed: Random seed.
-:type seed: int, optional</p>
+:param window: How far away to sample from the</p>
+<blockquote>
+<div><p>reference point along each dimension. If the parameters are transformed,
+the proportion of the range (based on ub/lb given) covered by the window
+will be preserved (and not the absolute distance from the reference points).</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>window</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>samples_per_point</strong> (<em>int</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
-<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – The points that will be generated.</p></li>
+<li><p><strong>samples_per_point</strong> (<em>int</em>) – How many samples around each point to take.</p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the parameter space. If None, it is inferred from lb and ub.</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether or not to shuffle the order of the points. True by default.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>window</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -955,8 +948,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <p>Iniatialize ManualGenerator.
 :param lb torch.Tensor: Lower bounds of each parameter.
 :param ub torch.Tensor: Upper bounds of each parameter.
-:param points: The points that will be generated.
-:type points: Union[np.ndarray, torch.Tensor]
+:param points torch.Tensor: The points that will be generated.
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param shuffle: Whether or not to shuffle the order of the points. True by default.
@@ -966,7 +958,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
@@ -1039,29 +1031,23 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 :type lb: Union[np.ndarray, torch.Tensor]
 :param ub: Upper bounds of each parameter.
 :type ub: Union[np.ndarray, torch.Tensor]
-:param window: How far away to sample from the reference point along each dimension.
-:type window: Union[np.ndarray, torch.Tensor]
-:param points: The points that will be generated.
-:type points: Union[np.ndarray, torch.Tensor]
-:param samples_per_point: How many samples around each point to take.
-:type samples_per_point: int
-:param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
-:type dim: int, optional
-:param shuffle: Whether or not to shuffle the order of the points. True by default.
-:type shuffle: bool
-:param seed: Random seed.
-:type seed: int, optional</p>
+:param window: How far away to sample from the</p>
+<blockquote>
+<div><p>reference point along each dimension. If the parameters are transformed,
+the proportion of the range (based on ub/lb given) covered by the window
+will be preserved (and not the absolute distance from the reference points).</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>window</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>ndarray</em><em>, </em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>samples_per_point</strong> (<em>int</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
-<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – The points that will be generated.</p></li>
+<li><p><strong>samples_per_point</strong> (<em>int</em>) – How many samples around each point to take.</p></li>
+<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the parameter space. If None, it is inferred from lb and ub.</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether or not to shuffle the order of the points. True by default.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>window</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
