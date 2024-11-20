@@ -182,8 +182,8 @@ class Config(configparser.ConfigParser):
                     # Validate the parameter-specific block
                     self._check_param_settings(par_name)
 
-                    lb[i] = self[par_name]["lower_bound"]
-                    ub[i] = self[par_name]["upper_bound"]
+                    lb[i] = self[par_name].get("lower_bound", fallback="0")
+                    ub[i] = self[par_name].get("upper_bound", fallback="1")
 
                 self["common"]["lb"] = f"[{', '.join(lb)}]"
                 self["common"]["ub"] = f"[{', '.join(ub)}]"
@@ -276,6 +276,11 @@ class Config(configparser.ConfigParser):
                 and self.getint(param_name, "upper_bound") % 1 == 0
             ):
                 raise ValueError(f"Parameter {param_name} has non-integer bounds.")
+        elif param_block["par_type"] == "binary":
+            if "lower_bound" in param_block or "upper_bound" in param_block:
+                raise ValueError(
+                    f"Parameter {param_name} is binary and shouldn't have bounds."
+                )
         else:
             raise ValueError(
                 f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}."
