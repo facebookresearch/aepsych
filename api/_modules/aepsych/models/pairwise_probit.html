@@ -48,9 +48,18 @@
     <span class="k">def</span> <span class="nf">_pairs_to_comparisons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Takes x, y structured as pairs and judgments and</span>
-<span class="sd">        returns pairs and comparisons as PairwiseGP requires</span>
+<span class="w">        </span><span class="sd">"""Convert pairs of points and their judgements to comparisons.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Tensor of shape (n, d, 2) where n is the number of pairs and d is the dimensionality of the</span>
+<span class="sd">                parameter space.</span>
+<span class="sd">            y (torch.Tensor): Tensor of shape (n,) where n is the number of pairs. Each element is 0 if the first point</span>
+<span class="sd">                in the pair is preferred, and 1 if the second point is preferred.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: A tuple of tensors. The first tensor is of shape (n, d) and contains the</span>
+<span class="sd">                unique points in the pairs. The second tensor is of shape (n, 2) and contains the indices of the unique</span>
+<span class="sd">                points in the first tensor that correspond to the points in the pairs.</span>
 <span class="sd">        """</span>
         <span class="c1"># This needs to take a unique over the feature dim by flattening</span>
         <span class="c1"># over pairs but not instances/batches. This is actually tensor</span>
@@ -83,6 +92,17 @@
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the PairwiseProbitModel</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
+<span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
+<span class="sd">                of lb and ub. Defaults to None.</span>
+<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a</span>
+<span class="sd">                gamma prior. Defaults to None.</span>
+<span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. Defaults to None.</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">max_fit_time</span>
@@ -122,12 +142,20 @@
         <span class="n">optimizer_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Fit the model to the training data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_x (torch.Tensor): Trainin x points.</span>
+<span class="sd">            train_y (torch.Tensor): Training y points.</span>
+<span class="sd">            optimizer_kwargs (Dict[str, Any], optional): Keyword arguments to pass to the optimizer. Defaults to None.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">optimizer_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="s2">"optimizer_kwargs"</span> <span class="ow">in</span> <span class="n">optimizer_kwargs</span><span class="p">:</span>
                 <span class="n">optimizer_kwargs</span> <span class="o">=</span> <span class="n">optimizer_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">optimizer_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">optimizer_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"options"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer_options</span><span class="p">}</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
         <span class="n">mll</span> <span class="o">=</span> <span class="n">PairwiseLaplaceMarginalLogLikelihood</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="n">datapoints</span><span class="p">,</span> <span class="n">comparisons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pairs_to_comparisons</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
@@ -156,7 +184,13 @@
 <div class="viewcode-block" id="PairwiseProbitModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">warmstart</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit."""</span>
+<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_x (torch.Tensor): Train X.</span>
+<span class="sd">            train_y (torch.Tensor): Train Y.</span>
+<span class="sd">            warmstart (bool): If True, warm-start model fitting with current parameters. Defaults to True.</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PairwiseProbitModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
@@ -166,6 +200,17 @@
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">rereference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"x_min"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
+<span class="sd">            probability_space (bool): Return outputs in units of response probability instead of latent function value. Defaults to False.</span>
+<span class="sd">            num_samples (int): Number of samples to return. Defaults to 1000.</span>
+<span class="sd">            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">rereference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">samps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">rereference</span><span class="p">)</span>
             <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="n">samps</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">samps</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
@@ -188,6 +233,17 @@
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">rereference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"x_min"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance in probability space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
+<span class="sd">            probability_space (bool): Return outputs in units of response probability instead of latent function value. Defaults to False.</span>
+<span class="sd">            num_samples (int): Number of samples to return. Defaults to 1000.</span>
+<span class="sd">            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">rereference</span><span class="o">=</span><span class="n">rereference</span>
         <span class="p">)</span></div>
@@ -195,6 +251,16 @@
 <div class="viewcode-block" id="PairwiseProbitModel.sample"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">rereference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"x_min"</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Sample from the model model posterior.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to sample.</span>
+<span class="sd">            num_samples (int): Number of samples to return.</span>
+<span class="sd">            rereference (str): How to sample. Options are "x_min", "x_max", "f_min", "f_max". Defaults to "x_min".</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Posterior samples [num_samples x dim]</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rereference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -222,7 +288,15 @@
             <span class="k">return</span> <span class="o">-</span><span class="n">samps</span> <span class="o">+</span> <span class="n">samps_ref</span></div>
 
 <div class="viewcode-block" id="PairwiseProbitModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PairwiseProbitModel"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'PairwiseProbitModel'</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the model from a config object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): a configuration containing keys/values matching this class</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PairwiseProbitModel: Configured class instance.</span>
+<span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="n">mean_covar_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>

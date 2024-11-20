@@ -80,8 +80,8 @@
 <span class="w">        </span><span class="sd">"""Initialize the GP Classification model</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            lb torch.Tensor: Lower bounds of the parameters.</span>
-<span class="sd">            ub torch.Tensor: Upper bounds of the parameters.</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
 <span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
 <span class="sd">                of lb and ub.</span>
 <span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.</span>
@@ -158,7 +158,7 @@
 
 <div class="viewcode-block" id="GPClassificationModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.gp_classification.GPClassificationModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GPClassificationModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Alternate constructor for GPClassification model.</span>
+<span class="w">        </span><span class="sd">"""Alternate constructor for GPClassification model from a configuration.</span>
 
 <span class="sd">        This is used when we recursively build a full sampling strategy</span>
 <span class="sd">        from a configuration. TODO: document how this works in some tutorial.</span>
@@ -214,6 +214,7 @@
         <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_reset_hyperparameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Reset hyperparameters to their initial values."""</span>
         <span class="c1"># warmstart_hyperparams affects hyperparams but not the variational strat,</span>
         <span class="c1"># so we keep the old variational strat (which is only refreshed</span>
         <span class="c1"># if warmstart_induc=False).</span>
@@ -288,7 +289,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Points at which to sample.</span>
-<span class="sd">            num_samples (int, optional): Number of samples to return. Defaults to None.</span>
+<span class="sd">            num_samples (int): Number of samples to return.</span>
 <span class="sd">            kwargs are ignored</span>
 
 <span class="sd">        Returns:</span>
@@ -304,7 +305,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
-<span class="sd">            probability_space (bool, optional): Return outputs in units of</span>
+<span class="sd">            probability_space (bool): Return outputs in units of</span>
 <span class="sd">                response probability instead of latent function value. Defaults to False.</span>
 
 <span class="sd">        Returns:</span>
@@ -342,10 +343,23 @@
             <span class="k">return</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">fmean</span><span class="p">),</span> <span class="n">promote_0d</span><span class="p">(</span><span class="n">fvar</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GPClassificationModel.predict_probability"><a class="viewcode-back" href="../../../models.html#aepsych.models.gp_classification.GPClassificationModel.predict_probability">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Query the model for posterior mean and variance in probability space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to predict from the model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GPClassificationModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.gp_classification.GPClassificationModel.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit."""</span>
+<span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_x (torch.Tensor): Inputs.</span>
+<span class="sd">            train_y (torch.Tensor): Responses.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
             <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">,</span> <span class="n">warmstart_hyperparams</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">warmstart_induc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span></div></div>
@@ -367,6 +381,23 @@
         <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the GP Beta Regression model</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
+<span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
+<span class="sd">                of lb and ub. Defaults to None.</span>
+<span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.</span>
+<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a</span>
+<span class="sd">                gamma prior.</span>
+<span class="sd">            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to</span>
+<span class="sd">                Beta likelihood.</span>
+<span class="sd">            inducing_size (int, optional): Number of inducing points. Defaults to 100.</span>
+<span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
+<span class="sd">                there is no limit to the fitting time. Defaults to None.</span>
+<span class="sd">            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">likelihood</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">likelihood</span> <span class="o">=</span> <span class="n">BetaLikelihood</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>

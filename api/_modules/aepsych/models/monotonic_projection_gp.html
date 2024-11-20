@@ -125,6 +125,27 @@
         <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the MonotonicProjectionGP model.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
+<span class="sd">            monotonic_dims (List[int]): A list of the dimensions on which monotonicity should</span>
+<span class="sd">                be enforced.</span>
+<span class="sd">            monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.</span>
+<span class="sd">            min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.</span>
+<span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
+<span class="sd">                of lb and ub. Defaults to None.</span>
+<span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.</span>
+<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a</span>
+<span class="sd">                gamma prior. Defaults to None.</span>
+<span class="sd">            likelihood (Likelihood, optional): The likelihood function to use. If None defaults to</span>
+<span class="sd">                Gaussian likelihood. Defaults to None.</span>
+<span class="sd">            inducing_size (int, optional): The number of inducing points to use. Defaults to None.</span>
+<span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
+<span class="sd">                there is no limit to the fitting time. Defaults to None.</span>
+<span class="sd">            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">monotonic_dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">monotonic_dims</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">monotonic_dims</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mon_grid_size</span> <span class="o">=</span> <span class="n">monotonic_grid_size</span>
@@ -148,6 +169,16 @@
         <span class="n">observation_noise</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GPyTorchPosterior</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Compute the posterior at X, projecting to enforce monotonicity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X (torch.Tensor): The input points at which to compute the posterior.</span>
+<span class="sd">            observation_noise (Union[bool, torch.Tensor]): Whether or not to include the observation noise in the</span>
+<span class="sd">                posterior. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            GPyTorchPosterior: The posterior at X.</span>
+<span class="sd">        """</span>
         <span class="c1"># Augment X with monotonicity grid points, for each monotonic dim</span>
         <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># Require no batch dimensions</span>
         <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">monotonic_dims</span><span class="p">)</span>
@@ -188,6 +219,15 @@
         <span class="k">return</span> <span class="n">GPyTorchPosterior</span><span class="p">(</span><span class="n">mvn_proj</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MonotonicProjectionGP.sample"><a class="viewcode-back" href="../../../models.html#aepsych.models.MonotonicProjectionGP.sample">[docs]</a>    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Sample from the model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): The input points at which to sample.</span>
+<span class="sd">            num_samples (int): The number of samples to draw.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: The samples at x.</span>
+<span class="sd">        """</span>
         <span class="n">samps</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_f_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">samps</span> <span class="o">=</span> <span class="n">samps</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_f_val</span><span class="p">)</span>

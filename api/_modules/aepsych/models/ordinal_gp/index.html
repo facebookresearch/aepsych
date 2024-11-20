@@ -23,8 +23,6 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
-
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.likelihoods</span> <span class="kn">import</span> <span class="n">OrdinalLikelihood</span>
@@ -45,6 +43,12 @@
     <span class="n">outcome_type</span> <span class="o">=</span> <span class="s2">"ordinal"</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">likelihood</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Initialize the OrdinalGPModel</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            likelihood (Likelihood): The likelihood function to use. If None defaults to</span>
+<span class="sd">                Ordinal likelihood.</span>
+<span class="sd">        """</span>
         <span class="n">covar_module</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"covar_module"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dim"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -70,11 +74,28 @@
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="OrdinalGPModel.predict_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.predict_probs">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="OrdinalGPModel.predict_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.predict_probs">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">:</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Predict probabilities of each ordinal level at xgrid</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xgrid (torch.Tensor): Tensor of input points to predict at</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Tensor of probabilities of each ordinal level at xgrid</span>
+<span class="sd">        """</span>
         <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_probs</span><span class="p">(</span><span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OrdinalGPModel.calculate_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.calculate_probs">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmean</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">fvar</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Calculate probabilities of each ordinal level given a mean and variance</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fmean (torch.Tensor): Mean of the latent function</span>
+<span class="sd">            fvar (torch.Tensor): Variance of the latent function</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Tensor of probabilities of each ordinal level</span>
+<span class="sd">        """</span>
         <span class="n">fsd</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">fvar</span><span class="p">)</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="o">*</span><span class="n">fmean</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span>
 

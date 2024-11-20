@@ -28,7 +28,7 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">gpytorch</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -109,7 +109,7 @@
         <span class="n">extremum_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
         <span class="n">n_samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="ModelProtocol.dim_grid"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.ModelProtocol.dim_grid">[docs]</a>    <span class="k">def</span> <span class="nf">dim_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -149,14 +149,17 @@
         <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return the maximum of the modeled function, subject to constraints</span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the</span>
-<span class="sd">                inverse is along a slice of the full surface.</span>
+<span class="sd">            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the</span>
+<span class="sd">                inverse is along a slice of the full surface. Defaults to None.</span>
 <span class="sd">            probability_space (bool): Is y (and therefore the returned nearest_y) in</span>
 <span class="sd">                probability space instead of latent function space? Defaults to False.</span>
-<span class="sd">            n_samples int: number of coarse grid points to sample for optimization estimate.</span>
+<span class="sd">            n_samples (int): number of coarse grid points to sample for optimization estimate.</span>
+<span class="sd">            max_time (float, optional): Maximum time to spend optimizing. Defaults to None.</span>
+
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[float, np.ndarray]: Tuple containing the max and its location (argmax).</span>
+<span class="sd">            Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).</span>
 <span class="sd">        """</span>
         <span class="n">locked_dims</span> <span class="o">=</span> <span class="n">locked_dims</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_arg</span> <span class="o">=</span> <span class="n">get_extremum</span><span class="p">(</span>
@@ -178,11 +181,13 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return the minimum of the modeled function, subject to constraints</span>
 <span class="sd">        Args:</span>
-<span class="sd">            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the</span>
+<span class="sd">            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the</span>
 <span class="sd">                inverse is along a slice of the full surface.</span>
 <span class="sd">            probability_space (bool): Is y (and therefore the returned nearest_y) in</span>
 <span class="sd">                probability space instead of latent function space? Defaults to False.</span>
-<span class="sd">            n_samples int: number of coarse grid points to sample for optimization estimate.</span>
+<span class="sd">            n_samples (int): number of coarse grid points to sample for optimization estimate.</span>
+<span class="sd">            max_time (float, optional): Maximum time to spend optimizing. Defaults to None.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).</span>
 <span class="sd">        """</span>
@@ -209,12 +214,17 @@
 <span class="w">        </span><span class="sd">"""Query the model inverse.</span>
 <span class="sd">        Return nearest x such that f(x) = queried y, and also return the</span>
 <span class="sd">            value of f at that point.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            y (float): Points at which to find the inverse.</span>
-<span class="sd">            locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the</span>
+<span class="sd">            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the</span>
 <span class="sd">                inverse is along a slice of the full surface.</span>
 <span class="sd">            probability_space (bool): Is y (and therefore the returned nearest_y) in</span>
 <span class="sd">                probability space instead of latent function space? Defaults to False.</span>
+<span class="sd">            n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.</span>
+<span class="sd">            max_time (float, optional): Maximum time to spend optimizing. Defaults to None.</span>
+<span class="sd">            weights (torch.Tensor, optional): Weights for the optimization. Defaults to None.</span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[float, torch.Tensor]: Tuple containing the value of f</span>
 <span class="sd">                nearest to queried y and the x position of this value.</span>
@@ -238,7 +248,7 @@
 
 <div class="viewcode-block" id="AEPsychMixin.get_jnd"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.get_jnd">[docs]</a>    <span class="k">def</span> <span class="nf">get_jnd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
-        <span class="n">grid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">grid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cred_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">intensity_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">confsamps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
@@ -257,19 +267,16 @@
 <span class="sd">        Both definitions are equivalent for linear psychometric functions.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            grid (Optional[np.ndarray], optional): Mesh grid over which to find the JND.</span>
-<span class="sd">                Defaults to a square grid of size as determined by aepsych.utils.dim_grid</span>
+<span class="sd">            grid (torch.Tensor, optional): Mesh grid over which to find the JND.</span>
+<span class="sd">                Defaults to a square grid of size as determined by aepsych.utils.dim_grid. </span>
 <span class="sd">            cred_level (float, optional): Credible level for computing an interval.</span>
 <span class="sd">                Defaults to None, computing no interval.</span>
-<span class="sd">            intensity_dim (int, optional): Dimension over which to compute the JND.</span>
+<span class="sd">            intensity_dim (int): Dimension over which to compute the JND.</span>
 <span class="sd">                Defaults to -1.</span>
-<span class="sd">            confsamps (int, optional): Number of posterior samples to use for</span>
+<span class="sd">            confsamps (int): Number of posterior samples to use for</span>
 <span class="sd">                computing the credible interval. Defaults to 500.</span>
-<span class="sd">            method (str, optional): "taylor" or "step" method (see docstring).</span>
+<span class="sd">            method (str): "taylor" or "step" method (see docstring).</span>
 <span class="sd">                Defaults to "step".</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            RuntimeError: for passing an unknown method.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: either the</span>
@@ -334,6 +341,12 @@
         <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">slice_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Generate a grid based on lower, upper, and dim.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            gridsize (int): Number of points in each dimension. Defaults to 30.</span>
+<span class="sd">            slice_dims (Mapping[int, float], optional): Dimensions to fix at a certain value. Defaults to None.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">dim_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">gridsize</span><span class="p">,</span> <span class="n">slice_dims</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AEPsychMixin.set_train_data"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.set_train_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_train_data</span><span class="p">(</span>
@@ -343,9 +356,13 @@
         <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        :param torch.Tensor inputs: The new training inputs.</span>
-<span class="sd">        :param torch.Tensor targets: The new training targets.</span>
-<span class="sd">        :param bool strict: (default False, ignored). Here for compatibility with</span>
+<span class="sd">        Set the training data for the model.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor, optional):  The new training inputs.</span>
+<span class="sd">            targets (torch.Tensor, optional): The new training targets.</span>
+<span class="sd">            strict (bool):  Default is False. Ignored, just for compatibility.</span>
+
 <span class="sd">        input transformers. TODO: actually use this arg or change input transforms</span>
 <span class="sd">        to not require it.</span>
 <span class="sd">        """</span>
@@ -374,9 +391,16 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">mll</span><span class="p">:</span> <span class="n">MarginalLogLikelihood</span><span class="p">,</span>
         <span class="n">optimizer_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">optimizer</span><span class="o">=</span><span class="n">fit_gpytorch_mll_scipy</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">fit_gpytorch_mll_scipy</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Fits the model by maximizing the marginal log likelihood.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            mll (MarginalLogLikelihood): Marginal log likelihood object.</span>
+<span class="sd">            optimizer_kwargs (Dict[str, Any], optional): Keyword arguments for the optimizer.</span>
+<span class="sd">            optimizer (Callable): Optimizer to use. Defaults to fit_gpytorch_mll_scipy.</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
         <span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span> <span class="o">=</span> <span class="n">mll</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mll</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">train_targets</span>
         <span class="n">optimizer_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">optimizer_kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">optimizer_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -403,8 +427,19 @@
         <span class="k">return</span> <span class="n">res</span>
 
 <div class="viewcode-block" id="AEPsychMixin.p_below_threshold"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.p_below_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">p_below_threshold</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">f_thresh</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>  <span class="c1"># Return a tensor instead of NumPy array</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">f_thresh</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span> 
+<span class="w">        </span><span class="sd">"""Compute the probability that the latent function is below a threshold.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Points at which to evaluate the probability.</span>
+<span class="sd">            f_thresh (torch.Tensor): Threshold value.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Probability that the latent function is below the threshold.</span>
+<span class="sd">        """</span>
         <span class="n">f</span><span class="p">,</span> <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">f_thresh</span> <span class="o">=</span> <span class="n">f_thresh</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -418,11 +453,14 @@
     <span class="n">_train_inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span>
     <span class="n">_train_targets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
 
-<div class="viewcode-block" id="AEPsychModelDeviceMixin.set_train_data"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModelDeviceMixin.set_train_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_train_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        :param torch.Tensor inputs: The new training inputs.</span>
-<span class="sd">        :param torch.Tensor targets: The new training targets.</span>
-<span class="sd">        :param bool strict: (default False, ignored). Here for compatibility with</span>
+<div class="viewcode-block" id="AEPsychModelDeviceMixin.set_train_data"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychModelDeviceMixin.set_train_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_train_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Set the training data for the model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor, optional): The new training inputs X.</span>
+<span class="sd">            targets (torch.Tensor, optional): The new training targets Y.</span>
+<span class="sd">            strict (bool): Whether to strictly enforce the device of the inputs and targets.</span>
+<span class="sd">        </span>
 <span class="sd">        input transformers. TODO: actually use this arg or change input transforms</span>
 <span class="sd">        to not require it.</span>
 <span class="sd">        """</span>
@@ -435,12 +473,22 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get the device of the model.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.device: Device of the model.</span>
+<span class="sd">        """</span>
         <span class="c1"># We assume all models have some parameters and all models will only use one device</span>
         <span class="c1"># notice that this has no setting, don't let users set device, use .to().</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Get the training inputs.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[Tuple[torch.Tensor]]: Training inputs.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -452,6 +500,11 @@
 
     <span class="nd">@train_inputs</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">train_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Set the training inputs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_inputs (Tuple[torch.Tensor]): Training inputs.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">train_inputs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_train_inputs</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
@@ -464,6 +517,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">train_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get the training targets.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[torch.Tensor]: Training targets.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
@@ -474,6 +532,11 @@
 
     <span class="nd">@train_targets</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">train_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_targets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Set the training targets.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_targets (torch.Tensor, optional): Training targets.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">train_targets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_train_targets</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>

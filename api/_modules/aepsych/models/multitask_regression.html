@@ -64,13 +64,13 @@
 <span class="w">        </span><span class="sd">"""Initialize multitask GPR model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.</span>
-<span class="sd">            rank (int, optional): Rank of cross-task covariance. Lower rank is a simpler model.</span>
+<span class="sd">            num_outputs (int): Number of tasks (outputs). Defaults to 2.</span>
+<span class="sd">            rank (int): Rank of cross-task covariance. Lower rank is a simpler model.</span>
 <span class="sd">                Should be less than or equal to num_outputs. Defaults to 1.</span>
-<span class="sd">            mean_module (Optional[gpytorch.means.Mean], optional): GP mean. Defaults to a constant mean.</span>
-<span class="sd">            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP kernel module.</span>
+<span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.</span>
+<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.</span>
 <span class="sd">                Defaults to scaled RBF kernel.</span>
-<span class="sd">            likelihood (Optional[gpytorch.likelihoods.Likelihood], optional): Likelihood</span>
+<span class="sd">            likelihood (gpytorch.likelihoods.Likelihood, optional): Likelihood</span>
 <span class="sd">                (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_outputs</span> <span class="o">=</span> <span class="n">num_outputs</span>
@@ -97,12 +97,25 @@
 <div class="viewcode-block" id="MultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.MultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">""" Evaluate GP.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Tensor of points at which GP should be evaluated.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            gpytorch.distributions.MultitaskMultivariateNormal: Distribution object</span>
+<span class="sd">                holding the mean and covariance at x."""</span>
         <span class="n">mean_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">covar_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">(</span><span class="n">mean_x</span><span class="p">,</span> <span class="n">covar_x</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MultitaskGPRModel.construct_inputs"><a class="viewcode-back" href="../../../models.html#aepsych.models.MultitaskGPRModel.construct_inputs">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Construct inputs for the Multitask GPR model from configuration.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): A configuration containing keys/values matching this class.</span>
+<span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">args</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">construct_inputs</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">args</span><span class="p">[</span><span class="s2">"num_outputs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"num_outputs"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -115,7 +128,6 @@
 <span class="sd">    fitting a batch of independent GPRegression models. It wraps the GPyTorch tutorial here</span>
 <span class="sd">    https://docs.gpytorch.ai/en/stable/examples/03_Multitask_Exact_GPs/Batch_Independent_Multioutput_GP.html</span>
 <span class="sd">    with AEPsych API and convenience fitting / prediction methods.</span>
-
 <span class="sd">    """</span>
 
     <span class="n">_num_outputs</span> <span class="o">=</span> <span class="mi">1</span>
@@ -135,11 +147,11 @@
 <span class="w">        </span><span class="sd">"""Initialize independent multitask GPR model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.</span>
-<span class="sd">            mean_module (Optional[gpytorch.means.Mean], optional): GP mean. Defaults to a constant mean.</span>
-<span class="sd">            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP kernel module.</span>
+<span class="sd">            num_outputs (int): Number of tasks (outputs). Defaults to 2.</span>
+<span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.</span>
+<span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.</span>
 <span class="sd">                Defaults to scaled RBF kernel.</span>
-<span class="sd">            likelihood (Optional[gpytorch.likelihoods.Likelihood], optional): Likelihood</span>
+<span class="sd">            likelihood (gpytorch.likelihoods.Likelihood, optional): Likelihood</span>
 <span class="sd">                (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.</span>
 <span class="sd">        """</span>
 
@@ -170,6 +182,15 @@
 <div class="viewcode-block" id="IndependentMultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.IndependentMultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">""" Evaluate GP.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor): Tensor of points at which GP should be evaluated.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            gpytorch.distributions.MultitaskMultivariateNormal: Distribution object</span>
+<span class="sd">                holding the mean and covariance at x.</span>
+<span class="sd">        """</span>
         <span class="n">base_mvn</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># do transforms</span>
         <span class="k">return</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="o">.</span><span class="n">from_batch_mvn</span><span class="p">(</span>
             <span class="n">base_mvn</span>
@@ -177,6 +198,14 @@
 
 <div class="viewcode-block" id="IndependentMultitaskGPRModel.get_config_args"><a class="viewcode-back" href="../../../models.html#aepsych.models.IndependentMultitaskGPRModel.get_config_args">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_config_args</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration arguments for the model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): A configuration containing keys/values matching this class.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Dictionary of configuration arguments.</span>
+<span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">args</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_args</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">args</span><span class="p">[</span><span class="s2">"num_outputs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"num_outputs"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
