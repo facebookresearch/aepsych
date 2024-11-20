@@ -8,7 +8,7 @@ import unittest
 
 import numpy as np
 import torch
-from aepsych.config import Config
+from aepsych.config import Config, ParameterConfigError
 from aepsych.generators import SobolGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy
@@ -396,6 +396,31 @@ class TransformInteger(unittest.TestCase):
         self.assertTrue(torch.all(strat._strat.generator.lb == 0))
         self.assertTrue(torch.all(strat._strat.generator.ub == 1))
 
+        bad_config_str = """
+            [common]
+            parnames = [signal1, signal2]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [signal2]
+            par_type = discrete
+            lower_bound = 1
+            upper_bound = 4.5
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+        """
+        config = Config()
+        with self.assertRaises(ParameterConfigError):
+            config.update(config_str=bad_config_str)
+
     def test_integer_model(self):
         np.random.seed(1)
         torch.manual_seed(1)
@@ -498,5 +523,5 @@ class TransformInteger(unittest.TestCase):
         """
         config = Config()
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterConfigError):
             config.update(config_str=bad_config_str)
