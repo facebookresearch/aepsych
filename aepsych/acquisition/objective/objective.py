@@ -32,7 +32,7 @@ class ProbitObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -45,7 +45,7 @@ class ProbitObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -60,7 +60,12 @@ class FloorLinkObjective(AEPsychObjective):
     the probability is known not to go below it.
     """
 
-    def __init__(self, floor: float = 0.5) -> None:
+    def __init__(self, floor: float=0.5) -> None:
+        """Initialize the objective with a floor value.
+
+        Args:
+            floor (float): The floor value. Defaults to 0.5.
+        """
         self.floor = floor
         super().__init__()
 
@@ -69,7 +74,7 @@ class FloorLinkObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -82,7 +87,7 @@ class FloorLinkObjective(AEPsychObjective):
 
         Args:
             samples (Tensor): GP samples.
-            X (Optional[Tensor], optional): ignored, here for compatibility
+            X (Tensor, optional): ignored, here for compatibility
                 with MCAcquisitionObjective.
 
         Returns:
@@ -91,13 +96,43 @@ class FloorLinkObjective(AEPsychObjective):
         return self.inverse_link((samples - self.floor) / (1 - self.floor))
 
     def link(self, samples: Tensor) -> Tensor:
+        """Evaluates the link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: outcome probability.
+            
+        Note:
+            This is an abstract method that should be implemented by subclasses.    
+        """
         raise NotImplementedError
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """Evaluates the inverse link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: outcome probability.
+            
+        Note:
+            This is an abstract method that should be implemented by subclasses.
+        """
         raise NotImplementedError
 
     @classmethod
     def from_config(cls, config: Config) -> FloorLinkObjective:
+        """Create a FloorLinkObjective from a configuration.
+        
+        Args:
+            config (Config): Configuration object containing the initialization parameters.
+
+        Returns:
+            FloorLinkObjective: The initialized objective.
+        """
         floor = config.getfloat(cls.__name__, "floor")
         return cls(floor=floor)
 
@@ -110,9 +145,26 @@ class FloorLogitObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
+        """Evaluates the link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: The Expit function applied to the input samples.
+        """
         return torch.special.expit(samples)
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """Evaluates the inverse link function for input x and floor f
+
+        Args:
+            samples (Tensor): GP samples.
+
+        Returns:
+            Tensor: The logarithm of the inverse link function applied to the input samples.
+        """
+
         return torch.special.logit(samples)
 
 
@@ -126,11 +178,27 @@ class FloorGumbelObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
+        """Evaluates the link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: Transformed tensor with the link function applied, where positive infinity values are replaced with 1.0 and negative infinity values are replaced with 0.0.
+        """
         return torch.nan_to_num(
             -torch.special.expm1(-torch.exp(samples)), posinf=1.0, neginf=0.0
         )
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """Evaluates the inverse link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: The logarithm of the inverse link function applied to the input samples.
+        """
         return torch.log(-torch.special.log1p(-samples))
 
 
@@ -141,7 +209,23 @@ class FloorProbitObjective(FloorLinkObjective):
     """
 
     def link(self, samples: Tensor) -> Tensor:
+        """Evaluates the link function for input x and floor f
+
+        Args:
+            samples (Tensor): GP samples.
+
+        Returns:
+            Tensor: the cumulative distribution function of the standard normal distribution of the input samples.
+        """
         return Normal(0, 1).cdf(samples)
 
     def inverse_link(self, samples: Tensor) -> Tensor:
+        """Evaluates the inverse link function for input x and floor f
+        
+        Args:
+            samples (Tensor): GP samples.
+            
+        Returns:
+            Tensor: the inverse cumulative distribution function of the standard normal distribution of the input samples.
+        """
         return Normal(0, 1).icdf(samples)

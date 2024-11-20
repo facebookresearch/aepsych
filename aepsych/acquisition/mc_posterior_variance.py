@@ -17,7 +17,6 @@ from botorch.models.model import Model
 from botorch.sampling.base import MCSampler
 from botorch.sampling.normal import SobolQMCNormalSampler
 from botorch.utils.transforms import t_batch_mode_transform
-from torch import Tensor
 
 
 def balv_acq(obj_samps: torch.Tensor) -> torch.Tensor:
@@ -49,11 +48,11 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         r"""Posterior Variance of Link Function
 
         Args:
-            model: A fitted model.
-            objective: An MCAcquisitionObjective representing the link function
+            model (Model): A fitted model.
+            objective (MCAcquisitionObjective optional): An MCAcquisitionObjective representing the link function
                 (e.g., logistic or probit.) applied on the difference of (usually 1-d)
-                two samples. Can be implemented via GenericMCObjective.
-            sampler: The sampler used for drawing MC samples.
+                two samples. Can be implemented via GenericMCObjective. Defaults tp ProbitObjective.
+            sampler (MCSampler, optional): The sampler used for drawing MC samples. Defaults to SobolQMCNormalSampler.
         """
         if sampler is None:
             sampler = SobolQMCNormalSampler(sample_shape=torch.Size([512]))
@@ -63,14 +62,14 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         self.objective = objective
 
     @t_batch_mode_transform()
-    def forward(self, X: Tensor) -> Tensor:
+    def forward(self, X: torch.Tensor) -> torch.Tensor:
         r"""Evaluate MCPosteriorVariance on the candidate set `X`.
 
         Args:
-            X: A `batch_size x q x d`-dim Tensor
+            X (torch.Tensor): A `batch_size x q x d`-dim Tensor
 
         Returns:
-            Posterior variance of link function at X that active learning
+            torch.Tensor: Posterior variance of link function at X that active learning
             hopes to maximize
         """
         # the output is of shape batch_shape x q x d_out
@@ -80,6 +79,15 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         return self.acquisition(self.objective(samples, X))
 
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
+        """Evaluate the acquisition based on objective samples.
+        
+        Args:
+            obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.
+                Should be samples x batch_shape.
+        
+        Returns:
+            torch.Tensor: Acquisition function at the sampled values.
+        """
         # RejectionSampler drops the final dim so we reaugment it
         # here for compatibility with non-Monotonic MCAcquisition
         if len(obj_samples.shape) == 2:
@@ -95,6 +103,18 @@ def construct_inputs(
     sampler: Optional[MCSampler] = None,
     **kwargs,
 ) -> Dict[str, Any]:
+    """
+    Constructs the input dictionary for initializing the MCPosteriorVariance acquisition function.
+
+    Args:
+        model (Model): The fitted model to be used.
+        training_data (None): Placeholder for compatibility; not used in this function.
+        objective (MCAcquisitionObjective, optional): Objective function for transforming samples (e.g., logistic or probit).
+        sampler (MCSampler, optional): Sampler for Monte Carlo sampling; defaults to SobolQMCNormalSampler if not provided.
+
+    Returns:
+        Dict[str, Any]: Dictionary of constructed inputs for the MCPosteriorVariance acquisition function.
+    """
     return {
         "model": model,
         "objective": objective,
@@ -104,4 +124,16 @@ def construct_inputs(
 
 class MonotonicMCPosteriorVariance(MonotonicMCAcquisition):
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
+        """
+        Evaluates the acquisition function value for monotonic posterior variance.
+
+        Args:
+            obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.
+                Should have shape samples x batch_shape.
+
+        Returns:
+            torch.Tensor: The BALV acquisition function value, representing the posterior variance
+            calculated over the sample dimension.
+        """
+
         return balv_acq(obj_samples)

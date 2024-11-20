@@ -10,7 +10,6 @@ from __future__ import annotations
 import torch
 from botorch.posteriors import Posterior
 from botorch.sampling.base import MCSampler
-from torch import Tensor
 
 
 class RejectionSampler(MCSampler):
@@ -23,7 +22,7 @@ class RejectionSampler(MCSampler):
     """
 
     def __init__(
-        self, num_samples: int, num_rejection_samples: int, constrained_idx: Tensor
+        self, num_samples: int, num_rejection_samples: int, constrained_idx: torch.Tensor
     ):
         """Initialize RejectionSampler
 
@@ -32,7 +31,7 @@ class RejectionSampler(MCSampler):
                 than this number are positive in the required dimension, the remaining
                 samples returned will be the "least violating", i.e. closest to 0.
             num_rejection_samples (int): Number of samples to draw before rejecting.
-            constrained_idx (Tensor): Indices of input dimensions that should be
+            constrained_idx (torch.Tensor): Indices of input dimensions that should be
                 constrained positive.
         """
         self.num_samples = num_samples
@@ -40,7 +39,7 @@ class RejectionSampler(MCSampler):
         self.constrained_idx = constrained_idx
         super().__init__(sample_shape=torch.Size([num_samples]))
 
-    def forward(self, posterior: Posterior) -> Tensor:
+    def forward(self, posterior: Posterior) -> torch.Tensor:
         """Run the rejection sampler.
 
         Args:
@@ -48,7 +47,7 @@ class RejectionSampler(MCSampler):
                 to perform rejection samples on.
 
         Returns:
-            Tensor: Kept samples.
+            torch.Tensor: Kept samples.
         """
         samples = posterior.rsample(
             sample_shape=torch.Size([self.num_rejection_samples])
