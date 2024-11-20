@@ -364,6 +364,9 @@ class AEPsychMixin(GPyTorchModel):
         optimizer_kwargs = {} if optimizer_kwargs is None else optimizer_kwargs.copy()
         max_fit_time = kwargs.pop("max_fit_time", self.max_fit_time)
         if max_fit_time is not None:
+            if "options" not in optimizer_kwargs:
+                optimizer_kwargs["options"] = {}
+
             # figure out how long evaluating a single samp
             starttime = time.time()
             _ = mll(self(train_x), train_y)
@@ -371,7 +374,8 @@ class AEPsychMixin(GPyTorchModel):
                 time.time() - starttime + 1e-6
             )  # add an epsilon to avoid divide by zero
             n_eval = int(max_fit_time / single_eval_time)
-            optimizer_kwargs["options"] = {"maxfun": n_eval}
+
+            optimizer_kwargs["options"]["maxfun"] = n_eval
             logger.info(f"fit maxfun is {n_eval}")
 
         starttime = time.time()

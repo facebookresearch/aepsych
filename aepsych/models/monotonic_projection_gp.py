@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import gpytorch
 import numpy as np
@@ -15,6 +15,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.utils import get_optimizer_options
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr
@@ -104,6 +105,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         inducing_point_method: str = "auto",
+        optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
@@ -119,6 +121,7 @@ class MonotonicProjectionGP(GPClassificationModel):
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
             inducing_point_method=inducing_point_method,
+            optimizer_options=optimizer_options,
         )
 
     def posterior(
@@ -222,6 +225,8 @@ class MonotonicProjectionGP(GPClassificationModel):
         )
         min_f_val = config.getfloat(classname, "min_f_val", fallback=None)
 
+        optimizer_options = get_optimizer_options(config, classname)
+
         return cls(
             lb=lb,
             ub=ub,
@@ -235,4 +240,5 @@ class MonotonicProjectionGP(GPClassificationModel):
             monotonic_dims=monotonic_dims,
             monotonic_grid_size=monotonic_grid_size,
             min_f_val=min_f_val,
+            optimizer_options=optimizer_options,
         )

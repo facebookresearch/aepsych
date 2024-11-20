@@ -346,3 +346,31 @@ def get_dim(config: Config) -> int:
             )  # Choice parameters with n_choices < 3 add n_choices - 1 dims
 
     return dim
+
+
+def get_optimizer_options(config: Config, name: str) -> Dict[str, Any]:
+    """Return the optimizer options for the model to pass to the SciPy L-BFGS-B
+    optimizer. Only the somewhat useful ones for AEPsych are searched for: maxcor,
+    ftol, gtol, maxfun, maxiter, maxls. See docs for details:
+    https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb
+
+    Args:
+        config (Config): Config to search for options.
+        name (str): Model name to look for options for.
+
+    Return:
+        Dict[str, Any]: Dictionary of options to pass to SciPy's minimize, assuming the
+            method is L-BFGS-B.
+    """
+    options: Dict[str, Optional[Union[float, int]]] = {}
+
+    options["maxcor"] = config.getint(name, "maxcor", fallback=None)
+    options["ftol"] = config.getfloat(name, "ftol", fallback=None)
+    options["gtol"] = config.getfloat(name, "gtol", fallback=None)
+    options["maxfun"] = config.getint(name, "maxfun", fallback=None)
+    options["maxiter"] = config.getint(name, "maxiter", fallback=None)
+    options["maxls"] = config.getint(name, "maxls", fallback=None)
+
+    # Filter all the nones out, which could just come back as an empty dict
+    options = {key: value for key, value in options.items() if value is not None}
+    return options
