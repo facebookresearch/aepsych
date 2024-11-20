@@ -69,24 +69,7 @@ class SobolAllocator(InducingPointAllocator, ConfigurableMixin):
 
         return inducing_points
 
-    @classmethod
-    def from_config(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> "SobolAllocator":
-        """Initialize a SobolAllocator from a configuration object.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the allocator, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            SobolAllocator: A SobolAllocator instance.
-        """
-        return cls(**cls.get_config_options(config, name, options))
+    
 
     @classmethod
     def get_config_options(
@@ -155,24 +138,6 @@ class KMeansAllocator(InducingPointAllocator, ConfigurableMixin):
         )
 
         return inducing_points
-
-    @classmethod
-    def from_config(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> "KMeansAllocator":
-        """Initialize a KMeansAllocator from a configuration object.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the allocator, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            KMeansAllocator: A KMeansAllocator instance."""
-        return cls(**cls.get_config_options(config, name, options))
 
     @classmethod
     def get_config_options(
@@ -255,24 +220,6 @@ class AutoAllocator(InducingPointAllocator, ConfigurableMixin):
             input_batch_shape=input_batch_shape,
         )
 
-    @classmethod
-    def from_config(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> "AutoAllocator":
-        """Initialize an AutoAllocator from a configuration object.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the allocator, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            AutoAllocator: An AutoAllocator instance.
-        """
-        return cls(**cls.get_config_options(config, name, options))
 
     @classmethod
     def get_config_options(

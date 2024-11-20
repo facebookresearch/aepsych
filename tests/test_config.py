@@ -1013,9 +1013,6 @@ class ConfigTestCase(unittest.TestCase):
             restarts = 10
             samps = 1000
 
-            [SobolAllocator]
-            bounds = [[0.0, 1.0], [0.0, 1.0]]
-
             """
 
         config = Config()
