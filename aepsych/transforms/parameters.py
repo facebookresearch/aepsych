@@ -171,8 +171,8 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
             except KeyError:  # Probably because par doesn't have its own section
                 par_type = "continuous"
 
-            # Integer variable
-            if par_type == "integer":
+            # Integer or binary variable
+            if par_type in ["integer", "binary"]:
                 round = Round.from_config(
                     config=config, name=par, options=transform_options
                 )
@@ -196,7 +196,9 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
                 transform_dict[f"{par}_Log10Plus"] = log10
 
             # Normalize scale (defaults true)
-            if config.getboolean(par, "normalize_scale", fallback=True):
+            if config.getboolean(
+                par, "normalize_scale", fallback=True
+            ) and par_type not in ["discrete", "binary"]:
                 normalize = NormalizeScale.from_config(
                     config=config, name=par, options=transform_options
                 )

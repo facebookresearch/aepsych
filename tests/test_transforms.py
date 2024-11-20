@@ -17,7 +17,7 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.ops import Log10Plus, NormalizeScale
+from aepsych.transforms.ops import Log10Plus, NormalizeScale, Round
 
 
 class TransformsConfigTest(unittest.TestCase):
@@ -448,3 +448,55 @@ class TransformInteger(unittest.TestCase):
         est_max = x[np.argmin((zhat - target) ** 2)]
         diff = np.abs(est_max / 100 - target)
         self.assertTrue(diff < 0.15, f"Diff = {diff}")
+
+    def test_binary(self):
+        config_str = """
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+
+            [signal1]
+            par_type = binary
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        transforms = strat.transforms
+
+        self.assertTrue(len(transforms) == 1)
+        self.assertTrue(isinstance(list(transforms.values())[0], Round))
+        self.assertTrue(
+            torch.all(config.gettensor("common", "lb") == torch.tensor([0]))
+        )
+        self.assertTrue(
+            torch.all(config.gettensor("common", "ub") == torch.tensor([1]))
+        )
+
+        bad_config_str = """
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+
+            [signal1]
+            par_type = binary
+            lower_bound = 0
+            upper_bound = 1
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+        """
+        config = Config()
+
+        with self.assertRaises(ValueError):
+            config.update(config_str=bad_config_str)
