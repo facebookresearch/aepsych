@@ -364,6 +364,34 @@
             <span class="p">)</span>  <span class="c1"># Choice parameters with n_choices &lt; 3 add n_choices - 1 dims</span>
 
     <span class="k">return</span> <span class="n">dim</span></div>
+
+
+<div class="viewcode-block" id="get_optimizer_options"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_optimizer_options">[docs]</a><span class="k">def</span> <span class="nf">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the optimizer options for the model to pass to the SciPy L-BFGS-B</span>
+<span class="sd">    optimizer. Only the somewhat useful ones for AEPsych are searched for: maxcor,</span>
+<span class="sd">    ftol, gtol, maxfun, maxiter, maxls. See docs for details:</span>
+<span class="sd">    https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (Config): Config to search for options.</span>
+<span class="sd">        name (str): Model name to look for options for.</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        Dict[str, Any]: Dictionary of options to pass to SciPy's minimize, assuming the</span>
+<span class="sd">            method is L-BFGS-B.</span>
+<span class="sd">    """</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">options</span><span class="p">[</span><span class="s2">"maxcor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"maxcor"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">[</span><span class="s2">"ftol"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ftol"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">[</span><span class="s2">"gtol"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"gtol"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">[</span><span class="s2">"maxfun"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"maxfun"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">[</span><span class="s2">"maxiter"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"maxiter"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">[</span><span class="s2">"maxls"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"maxls"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Filter all the nones out, which could just come back as an empty dict</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">options</span></div>
 </pre></div>
 </div>
 </div>

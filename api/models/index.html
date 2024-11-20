@@ -542,6 +542,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
@@ -684,6 +686,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
@@ -730,6 +734,8 @@ by rejection sampling.</p>
 <li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a><em>, </em><em>optional</em>) – Acquisition function to use for querying points. Defaults to MonotonicMCLSE.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.</p></li>
 <li><p><strong>extra_acqf_args</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional arguments to pass into the acquisition function. Defaults to None.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
@@ -894,6 +900,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
@@ -1052,6 +1060,8 @@ by rejection sampling.</p>
 <li><p><strong>acqf</strong> (<a class="reference internal" href="acquisition.html#aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition" title="aepsych.acquisition.monotonic_rejection.MonotonicMCAcquisition"><em>MonotonicMCAcquisition</em></a><em>, </em><em>optional</em>) – Acquisition function to use for querying points. Defaults to MonotonicMCLSE.</p></li>
 <li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Transformation of GP to apply before computing acquisition function. Defaults to identity transform for gaussian likelihood, probit transform for probit-bernoulli.</p></li>
 <li><p><strong>extra_acqf_args</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Additional arguments to pass into the acquisition function. Defaults to None.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
@@ -1217,6 +1227,8 @@ gamma prior.</p></li>
 Gaussian likelihood.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1359,6 +1371,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1464,6 +1478,7 @@ be enforced.</p></li>
 <li><p><strong>inducing_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 <li><p><strong>inducing_point_method</strong> (<em>str</em>) – </p></li>
+<li><p><strong>optimizer_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1488,6 +1503,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>monotonic_dims</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – </p></li>
@@ -1717,6 +1734,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
@@ -1830,6 +1849,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
@@ -1977,6 +1998,8 @@ If “sobol”, a number of Sobol points equal to inducing_size will be selected
 If “pivoted_chol”, selects points based on the pivoted Cholesky heuristic.
 If “kmeans++”, selects points by performing kmeans++ clustering on the training data.
 If “auto”, tries to determine the best method automatically.</p></li>
+<li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
+fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 </ul>
@@ -2007,6 +2030,7 @@ If “auto”, tries to determine the best method automatically.</p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>Kernel</em><em>]</em>) – </p></li>
 <li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>optimizer_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
