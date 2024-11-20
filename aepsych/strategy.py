@@ -238,7 +238,7 @@ class Strategy(object):
         if self.stimuli_per_trial == 1:
             self.event_shape: Tuple[int, ...] = (self.dim,)
 
-        if self.stimuli_per_trial == 2:
+        if self.stimuli_per_trial > 1:
             self.event_shape = (self.dim, self.stimuli_per_trial)
 
         self.model = model

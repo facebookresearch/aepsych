@@ -807,6 +807,24 @@ def transform_options(
 
                 if option in ["ub", "lb"]:
                     value = transforms.transform_bounds(value, bound=option)
+                elif option == "points" and len(value.shape) == 3:
+                    value = value.swapaxes(-2, -1)
+                    value = transforms.transform(value)
+                    value = value.swapaxes(-1, -2)
+                elif option == "window":
+                    # Get proportion of range covered in raw space
+                    raw_lb = config.gettensor("common", "lb")
+                    raw_ub = config.gettensor("common", "ub")
+                    raw_range = raw_ub - raw_lb
+                    window_prop = (value * 2) / raw_range
+
+                    # Calculate transformed range
+                    transformed_lb = transforms.transform_bounds(raw_lb, bound="lb")
+                    transformed_ub = transforms.transform_bounds(raw_ub, bound="ub")
+                    transformed_range = transformed_ub - transformed_lb
+
+                    # Transformed window covers the same proportion of range
+                    value = window_prop * transformed_range / 2
                 else:
                     value = transforms.transform(value)
 

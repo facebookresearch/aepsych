@@ -1274,10 +1274,8 @@ class ConfigTestCase(unittest.TestCase):
 
         transforms = ParameterTransforms.from_config(config)
         reversed_points = transforms.untransform(xformed_points)
-        reversed_window = transforms.untransform(xformed_window)
 
         self.assertTrue(torch.allclose(reversed_points, torch.tensor(points)))
-        self.assertTrue(torch.allclose(reversed_window, torch.tensor(window)))
 
     def test_build_transform(self):
         config_str = """
