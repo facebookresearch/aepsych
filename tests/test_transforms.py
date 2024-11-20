@@ -17,7 +17,7 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.ops import Log10Plus, NormalizeScale, Round
+from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
 
 
 class TransformsConfigTest(unittest.TestCase):
@@ -362,7 +362,7 @@ class TransformsNormalize(unittest.TestCase):
         self.assertTrue(torch.allclose(transforms.untransform(transformed), values))
 
 
-class TransformInteger(unittest.TestCase):
+class TransformsInteger(unittest.TestCase):
     def test_integer_bounds(self):
         config_str = """
             [common]
@@ -525,3 +525,114 @@ class TransformInteger(unittest.TestCase):
 
         with self.assertRaises(ParameterConfigError):
             config.update(config_str=bad_config_str)
+
+
+class TransformsFixed(unittest.TestCase):
+    def test_fixed_from_config(self):
+        np.random.seed(1)
+        torch.manual_seed(1)
+
+        config_str = """
+            [common]
+            parnames = [signal1, signal2, signal3]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = binary
+
+            [signal2]
+            par_type = fixed
+            value = 4.5
+
+            [signal3]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+            log_scale = True
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+            min_asks = 1
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        while not strat.finished:
+            points = strat.gen()
+            self.assertTrue(points[0][1].item() == 4.5)
+            strat.add_data(points, int(np.random.rand() > 0.5))
+
+        self.assertTrue(len(strat.strat_list[0].generator.lb) == 2)
+        self.assertTrue(len(strat.strat_list[0].generator.ub) == 2)
+
+        bad_config_str = """
+            [common]
+            parnames = [signal1, signal2, signal3]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = binary
+
+            [signal2]
+            par_type = fixed
+
+            [signal3]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+            log_scale = True
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 1
+
+            [opt_strat]
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+            min_asks = 1
+        """
+        config = Config()
+        with self.assertRaises(ParameterConfigError):
+            config.update(config_str=bad_config_str)
+
+    def test_fixed_standalone(self):
+        fixed1 = Fixed([3], values=[0.3])
+        fixed2 = Fixed([1, 2], values=[0.1, 0.2])
+
+        transforms = ParameterTransforms(fixed1=fixed1, fixed2=fixed2)
+
+        self.assertTrue(len(transforms) == 1)
+        self.assertTrue(
+            torch.all(transforms["_CombinedFixed"].indices == torch.tensor([1, 2, 3]))
+        )
+        self.assertTrue(
+            torch.all(
+                transforms["_CombinedFixed"].values == torch.tensor([0.1, 0.2, 0.3])
+            )
+        )
+
+        input = torch.tensor([[1, 100, 100, 100, 1], [2, 100, 100, 100, 2]])
+        transformed = transforms.transform(input)
+        untransformed = transforms.untransform(transformed)
+
+        self.assertTrue(transformed.shape[0] == 2)
+        self.assertTrue(torch.all(transformed[:, 0] == torch.tensor([1, 2])))
+        self.assertTrue(
+            torch.all(torch.tensor([1, 0.1, 0.2, 0.3, 1]) == untransformed[0])
+        )
+        self.assertTrue(
+            torch.all(torch.tensor([2, 0.1, 0.2, 0.3, 2]) == untransformed[1])
+        )
