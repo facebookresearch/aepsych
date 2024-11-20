@@ -31,7 +31,7 @@ from aepsych.server import AEPsychServer
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransforms, transform_options
-from aepsych.transforms.parameters import Log10Plus, NormalizeScale
+from aepsych.transforms.ops import Log10Plus, NormalizeScale
 from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
