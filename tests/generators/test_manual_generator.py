@@ -102,6 +102,49 @@ class TestSampleAroundPointsGenerator(unittest.TestCase):
 
         self.assertTrue(gen.finished)
 
+    def test_sample_around_points_generator_high_dim(self):
+        points = [
+            [[-1.5, 1], [-1, 1.25], [-2, 1.75]],
+            [[-1.25, 1.25], [-1.75, 1.5], [-1.0, 2]],
+        ]
+        window = [0.25, 0.1]
+        samples_per_point = 2
+        lb = [-2, 1]
+        ub = [-1, 2]
+        config_str = f"""
+                [common]
+                lb = {lb}
+                ub = {ub}
+                parnames = [par1, par2]
+                stimuli_per_trial = 3
+
+                [SampleAroundPointsGenerator]
+                points = {points}
+                window = {window}
+                samples_per_point = {samples_per_point}
+                seed = 123
+        """
+        config = Config()
+        config.update(config_str=config_str)
+        gen = SampleAroundPointsGenerator.from_config(config)
+        npt.assert_equal(gen.lb.numpy(), np.array(lb))
+        npt.assert_equal(gen.ub.numpy(), np.array(ub))
+        self.assertEqual(gen.max_asks, len(points * samples_per_point))
+        self.assertEqual(gen.seed, 123)
+        self.assertFalse(gen.finished)
+
+        points = gen.gen(gen.max_asks)
+        for i in range(len(window)):
+            npt.assert_array_less(points[:, i, :], points[:, i, :] + window[i])
+            npt.assert_array_less(
+                np.ones(points[:, i, :].shape) * lb[i], points[:, i, :]
+            )
+            npt.assert_array_less(
+                points[:, i, :], np.ones(points[:, i, :].shape) * ub[i]
+            )
+
+        self.assertTrue(gen.finished)
+
 
 if __name__ == "__main__":
     unittest.main()
