@@ -260,6 +260,22 @@ class Config(configparser.ConfigParser):
                 raise ValueError(
                     f"Parameter {param_name} is missing the upper_bound setting."
                 )
+        elif param_block["par_type"] == "integer":
+            # Check if bounds exist and actaully integers
+            if "lower_bound" not in param_block:
+                raise ValueError(
+                    f"Parameter {param_name} is missing the lower_bound setting."
+                )
+            if "upper_bound" not in param_block:
+                raise ValueError(
+                    f"Parameter {param_name} is missing the upper_bound setting."
+                )
+
+            if not (
+                self.getint(param_name, "lower_bound") % 1 == 0
+                and self.getint(param_name, "upper_bound") % 1 == 0
+            ):
+                raise ValueError(f"Parameter {param_name} has non-integer bounds.")
         else:
             raise ValueError(
                 f"Parameter {param_name} has an unsupported parameter type {param_block['par_type']}."
