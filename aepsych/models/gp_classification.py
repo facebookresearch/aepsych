@@ -62,8 +62,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         """Initialize the GP Classification model
 
         Args:
-            lb torch.Tensor: Lower bounds of the parameters.
-            ub torch.Tensor: Upper bounds of the parameters.
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
@@ -140,7 +140,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     @classmethod
     def from_config(cls, config: Config) -> GPClassificationModel:
-        """Alternate constructor for GPClassification model.
+        """Alternate constructor for GPClassification model from a configuration.
 
         This is used when we recursively build a full sampling strategy
         from a configuration. TODO: document how this works in some tutorial.
@@ -196,6 +196,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         )
 
     def _reset_hyperparameters(self) -> None:
+        """Reset hyperparameters to their initial values."""
         # warmstart_hyperparams affects hyperparams but not the variational strat,
         # so we keep the old variational strat (which is only refreshed
         # if warmstart_induc=False).
@@ -270,7 +271,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): Points at which to sample.
-            num_samples (int, optional): Number of samples to return. Defaults to None.
+            num_samples (int): Number of samples to return.
             kwargs are ignored
 
         Returns:
@@ -286,7 +287,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of
+            probability_space (bool): Return outputs in units of
                 response probability instead of latent function value. Defaults to False.
 
         Returns:
@@ -324,10 +325,23 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             return promote_0d(fmean), promote_0d(fvar)
 
     def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance in probability space.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+        """
         return self.predict(x, probability_space=True)
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
-        """Perform a warm-start update of the model from previous fit."""
+        """Perform a warm-start update of the model from previous fit.
+
+        Args:
+            train_x (torch.Tensor): Inputs.
+            train_y (torch.Tensor): Responses.
+        """
         return self.fit(
             train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True, **kwargs
         )
@@ -349,6 +363,23 @@ class GPBetaRegressionModel(GPClassificationModel):
         inducing_point_method: str = "auto",
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize the GP Beta Regression model
+
+        Args:
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
+            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
+                of lb and ub. Defaults to None.
+            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
+            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
+                gamma prior.
+            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
+                Beta likelihood.
+            inducing_size (int, optional): Number of inducing points. Defaults to 100.
+            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
+                there is no limit to the fitting time. Defaults to None.
+            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
+        """
         if likelihood is None:
             likelihood = BetaLikelihood()
         super().__init__(

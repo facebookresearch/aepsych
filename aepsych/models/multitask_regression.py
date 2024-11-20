@@ -46,13 +46,13 @@ class MultitaskGPRModel(GPRegressionModel):
         """Initialize multitask GPR model.
 
         Args:
-            num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.
-            rank (int, optional): Rank of cross-task covariance. Lower rank is a simpler model.
+            num_outputs (int): Number of tasks (outputs). Defaults to 2.
+            rank (int): Rank of cross-task covariance. Lower rank is a simpler model.
                 Should be less than or equal to num_outputs. Defaults to 1.
-            mean_module (Optional[gpytorch.means.Mean], optional): GP mean. Defaults to a constant mean.
-            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP kernel module.
+            mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.
+            covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.
                 Defaults to scaled RBF kernel.
-            likelihood (Optional[gpytorch.likelihoods.Likelihood], optional): Likelihood
+            likelihood (gpytorch.likelihoods.Likelihood, optional): Likelihood
                 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.
         """
         self._num_outputs = num_outputs
@@ -79,12 +79,25 @@ class MultitaskGPRModel(GPRegressionModel):
     def forward(
         self, x: torch.Tensor
     ) -> gpytorch.distributions.MultitaskMultivariateNormal:
+        """ Evaluate GP.
+        
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+            
+        Returns:
+            gpytorch.distributions.MultitaskMultivariateNormal: Distribution object
+                holding the mean and covariance at x."""
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultitaskMultivariateNormal(mean_x, covar_x)
 
     @classmethod
     def construct_inputs(cls, config: Config):
+        """Construct inputs for the Multitask GPR model from configuration.
+        
+        Args:
+            config (Config): A configuration containing keys/values matching this class.
+        """
         classname = cls.__name__
         args = super().construct_inputs(config)
         args["num_outputs"] = config.getint(classname, "num_outputs", fallback=2)
@@ -97,7 +110,6 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
     fitting a batch of independent GPRegression models. It wraps the GPyTorch tutorial here
     https://docs.gpytorch.ai/en/stable/examples/03_Multitask_Exact_GPs/Batch_Independent_Multioutput_GP.html
     with AEPsych API and convenience fitting / prediction methods.
-
     """
 
     _num_outputs = 1
@@ -117,11 +129,11 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
         """Initialize independent multitask GPR model.
 
         Args:
-            num_outputs (int, optional): Number of tasks (outputs). Defaults to 2.
-            mean_module (Optional[gpytorch.means.Mean], optional): GP mean. Defaults to a constant mean.
-            covar_module (Optional[gpytorch.kernels.Kernel], optional): GP kernel module.
+            num_outputs (int): Number of tasks (outputs). Defaults to 2.
+            mean_module (gpytorch.means.Mean, optional): GP mean. Defaults to a constant mean.
+            covar_module (gpytorch.kernels.Kernel, optional): GP kernel module.
                 Defaults to scaled RBF kernel.
-            likelihood (Optional[gpytorch.likelihoods.Likelihood], optional): Likelihood
+            likelihood (gpytorch.likelihoods.Likelihood, optional): Likelihood
                 (should be a multitask-compatible likelihood). Defaults to multitask Gaussian likelihood.
         """
 
@@ -152,6 +164,15 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
     def forward(
         self, x: torch.Tensor
     ) -> gpytorch.distributions.MultitaskMultivariateNormal:
+        """ Evaluate GP.
+
+        Args:
+            x (torch.Tensor): Tensor of points at which GP should be evaluated.
+
+        Returns:
+            gpytorch.distributions.MultitaskMultivariateNormal: Distribution object
+                holding the mean and covariance at x.
+        """
         base_mvn = super().forward(x)  # do transforms
         return gpytorch.distributions.MultitaskMultivariateNormal.from_batch_mvn(
             base_mvn
@@ -159,6 +180,14 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
 
     @classmethod
     def get_config_args(cls, config: Config) -> Dict[str, Any]:
+        """Get configuration arguments for the model.
+
+        Args:
+            config (Config): A configuration containing keys/values matching this class.
+
+        Returns:
+            Dict[str, Any]: Dictionary of configuration arguments.
+        """
         classname = cls.__name__
         args = super().get_config_args(config)
         args["num_outputs"] = config.getint(classname, "num_outputs", fallback=2)

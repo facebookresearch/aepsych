@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
 import numpy as np
@@ -33,8 +33,8 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
     def __init__(
         self,
-        lb: Union[np.ndarray, torch.Tensor],
-        ub: Union[np.ndarray, torch.Tensor],
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -45,8 +45,8 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         """Initialize the GP regression model
 
         Args:
-            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.
-            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.
+            lb (torch.Tensor): Lower bounds of the parameters.
+            ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
@@ -88,6 +88,14 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
     @classmethod
     def construct_inputs(cls, config: Config) -> Dict:
+        """Construct inputs for the GP regression model from configuration.
+        
+        Args:
+            config (Config): A configuration containing keys/values matching this class.
+            
+        Returns:
+            Dict: Dictionary of inputs for the GP regression model.
+        """
         classname = cls.__name__
 
         lb = config.gettensor(classname, "lb")
@@ -133,7 +141,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         from a configuration. TODO: document how this works in some tutorial.
 
         Args:
-            config (Config): A configuration containing keys/values matching this class
+            config (Config): A configuration containing keys/values matching this class.
 
         Returns:
             GPRegressionModel: Configured class instance.
@@ -159,8 +167,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
         Args:
             x (torch.Tensor): Points at which to sample.
-            num_samples (int, optional): Number of samples to return. Defaults to None.
-            kwargs are ignored
+            num_samples (int): Number of samples to return.
 
         Returns:
             torch.Tensor: Posterior samples [num_samples x dim]
@@ -168,7 +175,12 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
-        """Perform a warm-start update of the model from previous fit."""
+        """Perform a warm-start update of the model from previous fit.
+        
+        Args:
+            train_x (torch.Tensor): Inputs.
+            train_y (torch.Tensor): Responses.
+        """
         return self.fit(train_x, train_y, **kwargs)
 
     def predict(self, x: torch.Tensor, **kwargs) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -176,11 +188,9 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
         Args:
             x (torch.Tensor): Points at which to predict from the model.
-            probability_space (bool, optional): Return outputs in units of
-                response probability instead of latent function value. Defaults to False.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: Posterior mean and variance at queries points.
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         with torch.no_grad():
             post = self.posterior(x)

@@ -27,7 +27,6 @@ from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from scipy.cluster.vq import kmeans2
 from scipy.special import owens_t
 from scipy.stats import norm
-from torch import Tensor
 from torch.distributions import Normal
 
 
@@ -46,6 +45,14 @@ def compute_p_quantile(
     A 95% CI for p can be computed as
     p_l = compute_p_quantile(f_mean, f_std, 0.025)
     p_u = compute_p_quantile(f_mean, f_std, 0.975)
+
+    Args:
+        f_mean (torch.Tensor): The mean of the latent function.
+        f_std (torch.Tensor): The standard deviation of the latent function.
+        alpha (Union[torch.Tensor, float]): The quantile to compute.
+
+    Returns:
+        torch.Tensor: The quantile of p.
     """
     norm = torch.distributions.Normal(0, 1)
     alpha = torch.tensor(alpha, dtype=f_mean.dtype)
@@ -56,9 +63,22 @@ def select_inducing_points(
     inducing_size: int,
     covar_module: Kernel = None,
     X: Optional[torch.Tensor] = None,
-    bounds: Optional[Union[torch.Tensor, np.ndarray]] = None,
+    bounds: Optional[torch.Tensor] = None,
     method: str = "auto",
 ) -> torch.Tensor:
+    """Select inducing points for GP model
+
+    Args:
+        inducing_size (int): Number of inducing points to select.
+        covar_module (Kernel): The kernel module to use for inducing point selection.
+        X (torch.Tensor, optional): The training data.
+        bounds (torch.Tensor, optional): The bounds of the input space.
+        method (str): The method to use for inducing point selection. One of
+            "pivoted_chol", "kmeans++", "auto", or "sobol".
+        
+    Returns:
+        torch.Tensor: The selected inducing points.
+    """
     with torch.no_grad():
         assert (
             method
@@ -111,6 +131,15 @@ def select_inducing_points(
 def get_probability_space(
     likelihood: Likelihood, posterior: GPyTorchPosterior
 ) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Get the mean and variance of the probability space for a given posterior
+
+    Args:
+        likelihood (Likelihood): The likelihood function.
+        posterior (GPyTorchPosterior): The posterior to transform.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: The mean and variance of the probability space.
+    """
     fmean = posterior.mean.squeeze()
     fvar = posterior.variance.squeeze()
     if isinstance(likelihood, BernoulliLikelihood):
@@ -149,13 +178,15 @@ def get_extremum(
     """Return the extremum (min or max) of the modeled function
     Args:
         extremum_type (str): Type of extremum (currently 'min' or 'max'.
-        bounds (tensor): Lower and upper bounds of the search space.
-        locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
+        bounds (torch.Tensor): Lower and upper bounds of the search space.
+        locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface.
         n_samples (int): number of coarse grid points to sample for optimization estimate.
-        max_time (float): Maximum amount of time in seconds to spend optimizing.
+        posterior_transform (PosteriorTransform, optional): Posterior transform to apply to the model.
+        max_time (float, optional): Maximum amount of time in seconds to spend optimizing.
+        weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
-        Tuple[float, np.ndarray]: Tuple containing the min and its location (argmin).
+        Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
     """
     locked_dims = locked_dims or {}
 
@@ -202,17 +233,18 @@ def inv_query(
     Return nearest x such that f(x) = queried y, and also return the
         value of f at that point.
     Args:
-        y (float): Points at which to find the inverse.
-        bounds (tensor): Lower and upper bounds of the search space.
-        locked_dims (Mapping[int, List[float]]): Dimensions to fix, so that the
-            inverse is along a slice of the full surface.
+        y (Union[float, torch.Tensor]): Points at which to find the inverse.
+        bounds (torch.Tensor): Lower and upper bounds of the search space.
+        locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
+            inverse is along a slice of the full surface. Defaults to None.
         probability_space (bool): Is y (and therefore the
             returned nearest_y) in probability space instead of latent
             function space? Defaults to False.
-        n_samples (int): number of coarse grid points to sample for optimization estimate.
-        max_time float: Maximum amount of time in seconds to spend optimizing.
+        n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
+        max_time (float, optional): Maximum amount of time in seconds to spend optimizing. Defaults to None.
+        weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
     Returns:
-        Tuple[float, np.ndarray]: Tuple containing the value of f
+        Tuple[float, torch.Tensor]: Tuple containing the value of f
             nearest to queried y and the x position of this value.
     """
     locked_dims = locked_dims or {}
@@ -241,16 +273,39 @@ def inv_query(
 
 class TargetDistancePosteriorTransform(PosteriorTransform):
     def __init__(
-        self, target_value: Union[float, Tensor], weights: Optional[Tensor] = None
+        self, target_value: Union[float, torch.Tensor], weights: Optional[torch.Tensor] = None
     ) -> None:
+        """Initialize the TargetDistancePosteriorTransform
+        
+        Args:
+            target_value (Union[float, torch.Tensor]): The target value to transform the posterior to.
+            weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
+        """
         super().__init__()
         self.target_value = target_value
         self.weights = weights
 
-    def evaluate(self, Y: Tensor) -> Tensor:
+    def evaluate(self, Y: torch.Tensor) -> torch.Tensor:
+        """Evaluate the squared distance from the target value.
+        
+        Args:
+            Y (torch.Tensor): The tensor to evaluate.
+            
+        Returns:
+            torch.Tensor: The squared distance from the target value.
+        """
         return (Y - self.target_value) ** 2
 
-    def _forward(self, mean: Tensor, var: Tensor) -> GPyTorchPosterior:
+    def _forward(self, mean: torch.Tensor, var: torch.Tensor) -> GPyTorchPosterior:
+        """Transform the posterior mean and variance based on the target value.
+        
+        Args:
+            mean (torch.Tensor): The posterior mean.
+            var (torch.Tensor): The posterior variance.
+            
+        Returns:
+            GPyTorchPosterior: The transformed posterior.
+        """
         q, _ = mean.shape[-2:]
         batch_shape = mean.shape[:-2]
 
@@ -265,6 +320,14 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
         return GPyTorchPosterior(mvn)
 
     def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
+        """Transform the given posterior distribution to reflect the target distance.
+        
+        Args:
+            posterior (GPyTorchPosterior): The posterior to transform.
+            
+        Returns:
+            GPyTorchPosterior: The transformed posterior.
+        """
         mean = posterior.mean
         var = posterior.variance
         return self._forward(mean, var)
@@ -273,6 +336,14 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
 # Requires botorch approximate model to accept posterior transforms
 class TargetProbabilityDistancePosteriorTransform(TargetDistancePosteriorTransform):
     def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
+        """Transform the given posterior distribution to reflect the target probability distance.
+        
+        Args:
+            posterior (GPyTorchPosterior): The posterior to transform.
+            
+        Returns:
+            GPyTorchPosterior: The transformed posterior distribution reflecting the target probability distance.
+        """
         pmean, pvar = get_probability_space(BernoulliLikelihood(), posterior)
         pmean = pmean.unsqueeze(-1).unsqueeze(-1)
         pvar = pvar.unsqueeze(-1).unsqueeze(-1)
