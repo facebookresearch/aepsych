@@ -36,7 +36,7 @@
 config details).</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the parameter space. Must be provided
 if config is None.</p></li>
-<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -54,12 +54,17 @@ if config is None.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.factory.ordinal_mean_covar_factory">
 <span class="sig-prename descclassname"><span class="pre">aepsych.factory.</span></span><span class="sig-name descname"><span class="pre">ordinal_mean_covar_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/factory/ordinal.html#ordinal_mean_covar_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.factory.ordinal_mean_covar_factory" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create a mean and covariance function for ordinal GPs.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config object containing bounds.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tuple</em>[<em>ConstantMean</em>, <em>ScaleKernel</em>]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing
+the mean function (ConstantMean) and the covariance function (ScaleKernel).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -109,12 +114,17 @@ LSE target.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.factory.pairwise_mean_covar_factory">
 <span class="sig-prename descclassname"><span class="pre">aepsych.factory.</span></span><span class="sig-name descname"><span class="pre">pairwise_mean_covar_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/factory/pairwise.html#pairwise_mean_covar_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.factory.pairwise_mean_covar_factory" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates a mean and covariance function for pairwise GPs.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config object containing bounds.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Tuple</em>[<em>ConstantMean</em>, <em>ScaleKernel</em>]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing
+the mean function (ConstantMean) and the covariance function (ScaleKernel).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]</p>
 </dd>
 </dl>
 </dd></dl>
