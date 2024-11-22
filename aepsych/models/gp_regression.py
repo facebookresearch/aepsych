@@ -89,10 +89,10 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
     @classmethod
     def construct_inputs(cls, config: Config) -> Dict:
         """Construct inputs for the GP regression model from configuration.
-        
+
         Args:
             config (Config): A configuration containing keys/values matching this class.
-            
+
         Returns:
             Dict: Dictionary of inputs for the GP regression model.
         """
@@ -176,7 +176,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit.
-        
+
         Args:
             train_x (torch.Tensor): Inputs.
             train_y (torch.Tensor): Responses.

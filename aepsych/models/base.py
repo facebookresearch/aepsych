@@ -250,7 +250,7 @@ class AEPsychMixin(GPyTorchModel):
 
         Args:
             grid (torch.Tensor, optional): Mesh grid over which to find the JND.
-                Defaults to a square grid of size as determined by aepsych.utils.dim_grid. 
+                Defaults to a square grid of size as determined by aepsych.utils.dim_grid.
             cred_level (float, optional): Credible level for computing an interval.
                 Defaults to None, computing no interval.
             intensity_dim (int): Dimension over which to compute the JND.
@@ -324,7 +324,7 @@ class AEPsychMixin(GPyTorchModel):
         slice_dims: Optional[Mapping[int, float]] = None,
     ) -> torch.Tensor:
         """Generate a grid based on lower, upper, and dim.
-        
+
         Args:
             gridsize (int): Number of points in each dimension. Defaults to 30.
             slice_dims (Mapping[int, float], optional): Dimensions to fix at a certain value. Defaults to None.
@@ -339,7 +339,7 @@ class AEPsychMixin(GPyTorchModel):
     ):
         """
         Set the training data for the model.
-        
+
         Args:
             inputs (torch.Tensor, optional):  The new training inputs.
             targets (torch.Tensor, optional): The new training targets.
@@ -377,7 +377,7 @@ class AEPsychMixin(GPyTorchModel):
         **kwargs,
     ) -> None:
         """Fits the model by maximizing the marginal log likelihood.
-        
+
         Args:
             mll (MarginalLogLikelihood): Marginal log likelihood object.
             optimizer_kwargs (Dict[str, Any], optional): Keyword arguments for the optimizer.
@@ -409,16 +409,14 @@ class AEPsychMixin(GPyTorchModel):
         return res
 
     def p_below_threshold(
-        self,
-        x: torch.Tensor,
-        f_thresh: torch.Tensor
-        ) -> torch.Tensor: 
+        self, x: torch.Tensor, f_thresh: torch.Tensor
+    ) -> torch.Tensor:
         """Compute the probability that the latent function is below a threshold.
-        
+
         Args:
             x (torch.Tensor): Points at which to evaluate the probability.
             f_thresh (torch.Tensor): Threshold value.
-            
+
         Returns:
             torch.Tensor: Probability that the latent function is below the threshold.
         """
@@ -435,14 +433,19 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
     _train_inputs: Optional[Tuple[torch.Tensor]]
     _train_targets: Optional[torch.Tensor]
 
-    def set_train_data(self, inputs: Optional[torch.Tensor] = None, targets: Optional[torch.Tensor] = None, strict: bool = False) -> None:
+    def set_train_data(
+        self,
+        inputs: Optional[torch.Tensor] = None,
+        targets: Optional[torch.Tensor] = None,
+        strict: bool = False,
+    ) -> None:
         """Set the training data for the model.
 
         Args:
             inputs (torch.Tensor, optional): The new training inputs X.
             targets (torch.Tensor, optional): The new training targets Y.
             strict (bool): Whether to strictly enforce the device of the inputs and targets.
-        
+
         input transformers. TODO: actually use this arg or change input transforms
         to not require it.
         """
@@ -456,7 +459,7 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
     @property
     def device(self) -> torch.device:
         """Get the device of the model.
-        
+
         Returns:
             torch.device: Device of the model.
         """
@@ -467,7 +470,7 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
     @property
     def train_inputs(self) -> Optional[Tuple[torch.Tensor]]:
         """Get the training inputs.
-        
+
         Returns:
             Optional[Tuple[torch.Tensor]]: Training inputs.
         """

@@ -112,7 +112,6 @@ def construct_inputs_lse(
         Dict[str, Any]: Dictionary of constructed inputs for the MCLevelSetEstimation acquisition function.
     """
 
-
     return {
         "model": model,
         "objective": objective,

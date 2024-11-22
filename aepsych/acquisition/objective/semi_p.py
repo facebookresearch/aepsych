@@ -28,7 +28,7 @@ class SemiPObjectiveBase(MCAcquisitionObjective):
 
     def __init__(self, stim_dim: int = 0) -> None:
         """Initialize the SemiPObjectiveBase.
-        
+
         Args:
             stim_dim (int): The stimulus dimension. Defaults to 0.
         """
@@ -112,7 +112,7 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
         Args:
             target (float): the threshold to evaluate.
             likelihood (LinearBernoulliLikelihood, optional): Underlying SemiP likelihood (which we use for its inverse link). Defaults to None.
-            
+
             other arguments are passed to the base class (notably, stim_dim).
         """
         super().__init__(*args, **kwargs)
@@ -137,10 +137,10 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
     @classmethod
     def from_config(cls, config: Config) -> SemiPThresholdObjective:
         """Create a SemiPThresholdObjective from a config object.
-        
+
         Args:
             config (Config): Configuration object containing the initialization parameters.
-            
+
         Returns:
             SemiPThresholdObjective: A SemiPThresholdObjective object.
         """

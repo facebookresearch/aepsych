@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Callable, Literal, cast, Dict, Optional, Tuple
+from typing import Any, Callable, cast, Dict, Literal, Optional, Tuple
 
 import numpy as np
 import torch
@@ -38,7 +38,9 @@ def Hb(p: torch.Tensor) -> torch.Tensor:
     return -torch.nan_to_num(p * torch.log2(p) + (1 - p) * torch.log2(1 - p))
 
 
-def MI_fn(Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+def MI_fn(
+    Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+) -> torch.Tensor:
     """
     Average mutual information.
     H(p) - E_y*[H(p | y*)]
@@ -68,7 +70,9 @@ def ClassErr(p: torch.Tensor) -> torch.Tensor:
     return torch.min(p, 1 - p)
 
 
-def SUR_fn(Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+def SUR_fn(
+    Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+) -> torch.Tensor:
     """
     Stepwise uncertainty reduction.
 
@@ -90,7 +94,9 @@ def SUR_fn(Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tens
     return sur.sum(dim=-1)
 
 
-def EAVC_fn(Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+def EAVC_fn(
+    Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+) -> torch.Tensor:
     """
     Expected absolute value change.
 
@@ -124,7 +130,7 @@ class LookaheadAcquisitionFunction(AcquisitionFunction):
             model (GPyTorchModel): The gpytorch model to use.
             target (float, optional): Threshold value to target in p-space.
             lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").
-                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set. 
+                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.
                 - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.
         """
         super().__init__(model=model)
@@ -184,17 +190,23 @@ class LocalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         )  # Return shape here has m=1.
         return self._compute_acqf(Px, P1, P0, py1)
 
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         raise NotImplementedError
 
 
 class LocalMI(LocalLookaheadAcquisitionFunction):
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         return MI_fn(Px, P1, P0, py1)
 
 
 class LocalSUR(LocalLookaheadAcquisitionFunction):
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         return SUR_fn(Px, P1, P0, py1)
 
 
@@ -208,7 +220,7 @@ def construct_inputs_local_lookahead(
     **kwargs,
 ) -> Dict[str, Any]:
     """Constructs the input dictionary for initializing local lookahead acquisition functions.
-    
+
     Args:
         model (GPyTorchModel): The gpytorch model to use.
         training_data (None): Placeholder for compatibility; not used in this function.
@@ -217,7 +229,7 @@ def construct_inputs_local_lookahead(
             - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.
         target (float, optional): Target threshold value in probability space. Default is None.
         posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default is None.
-        
+
     Returns:
         Dict[str, Any]: Dictionary of constructed inputs for local lookahead acquisition functions.
     """
@@ -300,17 +312,23 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
             posterior_transform=self.posterior_transform,
         )
 
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         raise NotImplementedError
 
 
 class GlobalMI(GlobalLookaheadAcquisitionFunction):
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         return MI_fn(Px, P1, P0, py1)
 
 
 class GlobalSUR(GlobalLookaheadAcquisitionFunction):
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         return SUR_fn(Px, P1, P0, py1)
 
 
@@ -318,7 +336,7 @@ class ApproxGlobalSUR(GlobalSUR):
     def __init__(
         self,
         model: GPyTorchModel,
-        lookahead_type = "levelset",
+        lookahead_type="levelset",
         target: Optional[float] = None,
         query_set_size: Optional[int] = 256,
         Xq: Optional[torch.Tensor] = None,
@@ -366,7 +384,9 @@ class ApproxGlobalSUR(GlobalSUR):
 
 
 class EAVC(GlobalLookaheadAcquisitionFunction):
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         return EAVC_fn(Px, P1, P0, py1)
 
 
@@ -378,7 +398,9 @@ class MOCU(GlobalLookaheadAcquisitionFunction):
         International Conference on Learning Representations (ICLR) 2021.
     """
 
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         """
         Computes the MOCU (Measure of Class Uncertainty) acquisition function.
 
@@ -434,7 +456,9 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         )
         self.k = k
 
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         """
         Computes the SMOCU acquisition function.
 
@@ -478,7 +502,9 @@ class BEMPS(GlobalLookaheadAcquisitionFunction):
         super().__init__(*args, **kwargs)
         self.scorefun = scorefun
 
-    def _compute_acqf(self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor) -> torch.Tensor:
+    def _compute_acqf(
+        self, Px: torch.Tensor, P1: torch.Tensor, P0: torch.Tensor, py1: torch.Tensor
+    ) -> torch.Tensor:
         """
         Computes the BEMPS acquisition function.
 
@@ -526,7 +552,7 @@ def construct_inputs_global_lookahead(
     Returns:
         Dict[str, Any]: Dictionary of constructed inputs for global lookahead acquisition functions.
     """
-     
+
     lb = torch.tensor([bounds[0] for bounds in kwargs["bounds"]])
     ub = torch.tensor([bounds[1] for bounds in kwargs["bounds"]])
     if Xq is None and query_set_size is None:

@@ -103,13 +103,13 @@ def _get_default_cov_function(
     active_dims: Optional[List[int]] = None,
 ) -> gpytorch.kernels.Kernel:
     """Creates a default covariance function for Gaussian Processes.
-    
+
     Args:
         config (Config, optional): Configuration object.
         dim (int): Dimensionality of the parameter space.
         stimuli_per_trial (int): Number of stimuli per trial.
         active_dims (List[int], optional): List of dimensions to use in the covariance function. Defaults to None.
-        
+
     Returns:
         gpytorch.kernels.Kernel: An instantiated kernel with appropriate priors based on the configuration.
     """

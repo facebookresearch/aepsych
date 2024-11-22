@@ -75,10 +75,10 @@ def _hadamard_mvn_approx(
 
 def semi_p_posterior_transform(posterior: GPyTorchPosterior) -> GPyTorchPosterior:
     """Transform a posterior from a SemiP model to a Hadamard model.
-    
+
     Args:
         posterior (GPyTorchPosterior): The posterior to transform
-        
+
     Returns:
         GPyTorchPosterior: The transformed posterior.
     """
@@ -108,13 +108,13 @@ class SemiPPosterior(GPyTorchPosterior):
         Xi: torch.Tensor,
     ) -> None:
         """Initialize a SemiPPosterior object.
-        
+
         Args:
             mvn (MultivariateNormal): The MVN object to use
             likelihood (LinearBernoulliLikelihood): The likelihood object
             Xi (torch.Tensor): The intensity dimension
         """
-        
+
         super().__init__(distribution=mvn)
         self.likelihood = likelihood
         self.Xi = Xi
@@ -150,11 +150,11 @@ class SemiPPosterior(GPyTorchPosterior):
         base_samples: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Sample from the posterior distribution using the reparameterization trick
-        
+
         Args:
             sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
             base_samples (torch.Tensor, optional): The base samples. Defaults to None.
-            
+
         Returns:
             torch.Tensor: The sampled values from the posterior distribution.
         """
@@ -177,11 +177,11 @@ class SemiPPosterior(GPyTorchPosterior):
         base_samples: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Sample from the likelihood distribution of the modeled function.
-        
+
         Args:
             sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
             base_samples (torch.Tensor, optional): The base samples. Defaults to None.
-            
+
         Returns:
             torch.Tensor: The sampled values from the likelihood distribution.
         """
@@ -194,15 +194,15 @@ class SemiPPosterior(GPyTorchPosterior):
         base_samples: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Sample from the function values of the modeled distribution.
-        
+
         Args:
             sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
             base_samples (torch.Tensor, optional): The base samples. Defaults to None.
-            
+
         Returns:
             torch.Tensor: The sampled function values from the likelihood.
         """
-        
+
         kcsamps = self.rsample(sample_shape=sample_shape, base_samples=base_samples)
         return self.likelihood.f(function_samples=kcsamps, Xi=self.Xi).squeeze(-1)
 
@@ -213,7 +213,7 @@ class SemiPPosterior(GPyTorchPosterior):
         base_samples: Optional[torch.Tensor] = None,
     ) -> SemiPThresholdObjective:
         """Sample the thresholds based on the given threshold level.
-        
+
         Args:
         threshold_level (float): The target threshold level for sampling.
         sample_shape (torch.Size, optional): The desired shape of the samples. Defaults to None.
@@ -422,7 +422,7 @@ class SemiParametricGPModel(GPClassificationModel):
         """Sample from underlying model.
 
         Args:
-            
+
             x (torch.Tensor): `n x d` Points at which to sample.
             num_samples (int): Number of samples to return. Defaults to None.
             probability_space (bool): Whether to sample from the probability space (True) or the latent function. Defaults to False.
