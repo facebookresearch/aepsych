@@ -63,15 +63,11 @@ def dim_grid(
 
     for i in range(dim):
         if i in slice_dims.keys():
-            mesh_vals.append(
-                torch.tensor([slice_dims[i] - 1e-10, slice_dims[i] + 1e-10])
-            )
+            mesh_vals.append(slice(slice_dims[i] - 1e-10, slice_dims[i] + 1e-10, 1))
         else:
-            mesh_vals.append(torch.linspace(lower[i].item(), upper[i].item(), gridsize))
+            mesh_vals.append(slice(lower[i].item(), upper[i].item(), gridsize * 1j))
 
-    return torch.stack(torch.meshgrid(*mesh_vals, indexing="ij"), dim=-1).reshape(
-        -1, dim
-    )
+    return torch.Tensor(np.mgrid[mesh_vals].reshape(dim, -1).T)
 
 
 def _process_bounds(
