@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 import torch
 from aepsych.models import GPClassificationModel
-from aepsych.utils import _process_bounds, make_scaled_sobol
+from aepsych.utils import _process_bounds, dim_grid, make_scaled_sobol
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -34,6 +34,13 @@ class UtilsTestCase(unittest.TestCase):
         mb = GPClassificationModel(lb=lb, ub=ub, dim=dim)
         grid = GPClassificationModel.dim_grid(mb, gridsize=gridsize)
         self.assertEqual(grid.shape, torch.Size([10, 1]))
+
+    def test_dim_grid_slice(self):
+        lb = torch.tensor([0, 0, 0])
+        ub = torch.tensor([1, 1, 1])
+        grid = dim_grid(lb, ub, slice_dims={1: 0.5})
+
+        self.assertTrue(np.all(grid.shape == (900, 3)))
 
     def test_process_bounds(self):
         lb, ub, dim = _process_bounds(np.r_[0, 1], np.r_[2, 3], None)
