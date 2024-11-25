@@ -44,7 +44,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">likelihood</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Initialize the OrdinalGPModel</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            likelihood (Likelihood): The likelihood function to use. If None defaults to</span>
 <span class="sd">                Ordinal likelihood.</span>
@@ -74,7 +74,7 @@
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="OrdinalGPModel.predict_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.predict_probs">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">:</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="OrdinalGPModel.predict_probs"><a class="viewcode-back" href="../../../models.html#aepsych.models.OrdinalGPModel.predict_probs">[docs]</a>    <span class="k">def</span> <span class="nf">predict_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Predict probabilities of each ordinal level at xgrid</span>
 
 <span class="sd">        Args:</span>

@@ -97,11 +97,11 @@
 <div class="viewcode-block" id="MultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.MultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">""" Evaluate GP.</span>
-<span class="sd">        </span>
+<span class="w">        </span><span class="sd">"""Evaluate GP.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Tensor of points at which GP should be evaluated.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            gpytorch.distributions.MultitaskMultivariateNormal: Distribution object</span>
 <span class="sd">                holding the mean and covariance at x."""</span>
@@ -112,7 +112,7 @@
 <div class="viewcode-block" id="MultitaskGPRModel.construct_inputs"><a class="viewcode-back" href="../../../models.html#aepsych.models.MultitaskGPRModel.construct_inputs">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Construct inputs for the Multitask GPR model from configuration.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            config (Config): A configuration containing keys/values matching this class.</span>
 <span class="sd">        """</span>
@@ -182,7 +182,7 @@
 <div class="viewcode-block" id="IndependentMultitaskGPRModel.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.IndependentMultitaskGPRModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">distributions</span><span class="o">.</span><span class="n">MultitaskMultivariateNormal</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">""" Evaluate GP.</span>
+<span class="w">        </span><span class="sd">"""Evaluate GP.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x (torch.Tensor): Tensor of points at which GP should be evaluated.</span>

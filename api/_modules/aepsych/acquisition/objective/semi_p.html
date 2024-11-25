@@ -46,7 +46,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stim_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize the SemiPObjectiveBase.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            stim_dim (int): The stimulus dimension. Defaults to 0.</span>
 <span class="sd">        """</span>
@@ -130,7 +130,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            target (float): the threshold to evaluate.</span>
 <span class="sd">            likelihood (LinearBernoulliLikelihood, optional): Underlying SemiP likelihood (which we use for its inverse link). Defaults to None.</span>
-<span class="sd">            </span>
+
 <span class="sd">            other arguments are passed to the base class (notably, stim_dim).</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -155,10 +155,10 @@
 <div class="viewcode-block" id="SemiPThresholdObjective.from_config"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.SemiPThresholdObjective.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SemiPThresholdObjective</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Create a SemiPThresholdObjective from a config object.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            config (Config): Configuration object containing the initialization parameters.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            SemiPThresholdObjective: A SemiPThresholdObjective object.</span>
 <span class="sd">        """</span>

@@ -121,13 +121,13 @@
     <span class="n">active_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Creates a default covariance function for Gaussian Processes.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        config (Config, optional): Configuration object.</span>
 <span class="sd">        dim (int): Dimensionality of the parameter space.</span>
 <span class="sd">        stimuli_per_trial (int): Number of stimuli per trial.</span>
 <span class="sd">        active_dims (List[int], optional): List of dimensions to use in the covariance function. Defaults to None.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        gpytorch.kernels.Kernel: An instantiated kernel with appropriate priors based on the configuration.</span>
 <span class="sd">    """</span>

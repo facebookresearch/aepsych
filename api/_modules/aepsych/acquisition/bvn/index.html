@@ -152,7 +152,7 @@
 <span class="sd">        yu (torch.Tensor): Upper limits for cdf evaluation in y</span>
 <span class="sd">        r (torch.Tensor): BVN correlation</span>
 
-<span class="sd">    Returns: </span>
+<span class="sd">    Returns:</span>
 <span class="sd">        Tensor of cdf evaluations of same size as xu, yu, and r.</span>
 <span class="sd">    """</span>
     <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">_ndtr</span><span class="p">(</span><span class="o">-</span><span class="n">xu</span><span class="p">)</span> <span class="o">-</span> <span class="n">_ndtr</span><span class="p">(</span><span class="o">-</span><span class="n">yu</span><span class="p">)</span> <span class="o">+</span> <span class="n">_bvnu</span><span class="p">(</span><span class="n">xu</span><span class="p">,</span> <span class="n">yu</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>

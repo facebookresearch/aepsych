@@ -98,11 +98,11 @@
 
 <div class="viewcode-block" id="MCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span> <span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluate the acquisition based on objective samples.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.</span>
 <span class="sd">                Should be samples x batch_shape.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Acquisition function at the sampled values.</span>
 <span class="sd">        """</span>

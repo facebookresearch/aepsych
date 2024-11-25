@@ -33,11 +33,11 @@
 <div class="viewcode-block" id="pairwise_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.pairwise_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">pairwise_mean_covar_factory</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">""" Creates a mean and covariance function for pairwise GPs.</span>
-<span class="sd">    </span>
+<span class="w">    </span><span class="sd">"""Creates a mean and covariance function for pairwise GPs.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        config (Config): Config object containing bounds.</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing</span>
 <span class="sd">        the mean function (ConstantMean) and the covariance function (ScaleKernel)."""</span>

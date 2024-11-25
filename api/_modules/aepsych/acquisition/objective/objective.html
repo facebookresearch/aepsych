@@ -78,7 +78,7 @@
 <span class="sd">    the probability is known not to go below it.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floor</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize the objective with a floor value.</span>
 
 <span class="sd">        Args:</span>
@@ -115,27 +115,27 @@
 
     <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluates the link function for input x and floor f</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            samples (Tensor): GP samples.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: outcome probability.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Note:</span>
-<span class="sd">            This is an abstract method that should be implemented by subclasses.    </span>
+<span class="sd">            This is an abstract method that should be implemented by subclasses.</span>
 <span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluates the inverse link function for input x and floor f</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            samples (Tensor): GP samples.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: outcome probability.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Note:</span>
 <span class="sd">            This is an abstract method that should be implemented by subclasses.</span>
 <span class="sd">        """</span>
@@ -144,7 +144,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloorLinkObjective</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Create a FloorLinkObjective from a configuration.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            config (Config): Configuration object containing the initialization parameters.</span>
 
@@ -164,10 +164,10 @@
 
 <div class="viewcode-block" id="FloorLogitObjective.link"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.FloorLogitObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluates the link function for input x and floor f</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            samples (Tensor): GP samples.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: The Expit function applied to the input samples.</span>
 <span class="sd">        """</span>
@@ -197,10 +197,10 @@
 
 <div class="viewcode-block" id="FloorGumbelObjective.link"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluates the link function for input x and floor f</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            samples (Tensor): GP samples.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: Transformed tensor with the link function applied, where positive infinity values are replaced with 1.0 and negative infinity values are replaced with 0.0.</span>
 <span class="sd">        """</span>
@@ -210,10 +210,10 @@
 
 <div class="viewcode-block" id="FloorGumbelObjective.inverse_link"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.FloorGumbelObjective.inverse_link">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluates the inverse link function for input x and floor f</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            samples (Tensor): GP samples.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: The logarithm of the inverse link function applied to the input samples.</span>
 <span class="sd">        """</span>
@@ -239,10 +239,10 @@
 
 <div class="viewcode-block" id="FloorProbitObjective.inverse_link"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.FloorProbitObjective.inverse_link">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluates the inverse link function for input x and floor f</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            samples (Tensor): GP samples.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Tensor: the inverse cumulative distribution function of the standard normal distribution of the input samples.</span>
 <span class="sd">        """</span>

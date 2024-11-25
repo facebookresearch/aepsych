@@ -107,10 +107,10 @@
 <div class="viewcode-block" id="GPRegressionModel.construct_inputs"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.construct_inputs">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">construct_inputs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Construct inputs for the GP regression model from configuration.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            config (Config): A configuration containing keys/values matching this class.</span>
-<span class="sd">            </span>
+
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict: Dictionary of inputs for the GP regression model.</span>
 <span class="sd">        """</span>
@@ -194,7 +194,7 @@
 
 <div class="viewcode-block" id="GPRegressionModel.update"><a class="viewcode-back" href="../../../models.html#aepsych.models.GPRegressionModel.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Perform a warm-start update of the model from previous fit.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            train_x (torch.Tensor): Inputs.</span>
 <span class="sd">            train_y (torch.Tensor): Responses.</span>
