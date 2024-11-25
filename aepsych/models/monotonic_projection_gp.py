@@ -108,7 +108,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the MonotonicProjectionGP model.
-        
+
         Args:
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.

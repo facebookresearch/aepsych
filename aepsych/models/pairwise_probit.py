@@ -270,7 +270,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return -samps + samps_ref
 
     @classmethod
-    def from_config(cls, config: Config) -> 'PairwiseProbitModel':
+    def from_config(cls, config: Config) -> "PairwiseProbitModel":
         """Initialize the model from a config object.
 
         Args:

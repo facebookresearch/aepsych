@@ -32,7 +32,7 @@ jobs:
           mypy --config-file mypy.ini
       - uses: omnilib/ufmt@action-v1
         with:
-          path: aespych tests tests_gpu
+          path: aepsych tests tests_gpu
           requirements: requirements-fmt.txt
           python-version: "3.10"
 

@@ -17,11 +17,11 @@ from .default import default_mean_covar_factory
 def ordinal_mean_covar_factory(
     config: Config,
 ) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
-    """ Create a mean and covariance function for ordinal GPs.
-    
+    """Create a mean and covariance function for ordinal GPs.
+
     Args:
         config (Config): Config object containing bounds.
-        
+
     Returns:
         Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing
         the mean function (ConstantMean) and the covariance function (ScaleKernel).

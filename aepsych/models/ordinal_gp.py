@@ -26,7 +26,7 @@ class OrdinalGPModel(GPClassificationModel):
 
     def __init__(self, likelihood=None, *args, **kwargs):
         """Initialize the OrdinalGPModel
-        
+
         Args:
             likelihood (Likelihood): The likelihood function to use. If None defaults to
                 Ordinal likelihood.
@@ -56,7 +56,7 @@ class OrdinalGPModel(GPClassificationModel):
             **kwargs,
         )
 
-    def predict_probs(self, xgrid:torch.Tensor) -> torch.Tensor:
+    def predict_probs(self, xgrid: torch.Tensor) -> torch.Tensor:
         """Predict probabilities of each ordinal level at xgrid
 
         Args:

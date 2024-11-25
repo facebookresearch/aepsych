@@ -31,14 +31,14 @@ class RBFKernelPartialObsGrad(RBFKernelGrad):
         self, x1: torch.Tensor, x2: torch.Tensor, diag: bool = False, **params: Any
     ) -> torch.Tensor:
         """Computes the covariance matrix between x1 and x2 based on the RBF
-        
+
         Args:
             x1 (torch.Tensor): A `b x n x d` or `n x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
             x2 (torch.Tensor): A `b x m x d` or `m x d` tensor, where `d = 2k` and `k` is the dimension of the latent space.
             diag (bool): Should the Kernel compute the whole covariance matrix (False) or just the diagonal (True)? Defaults to False.
 
-        
-        
+
+
         Returns:
             torch.Tensor: A `b x n x m` or `n x m` tensor representing the covariance matrix between `x1` and `x2`.
             The exact size depends on the kernel's evaluation mode:

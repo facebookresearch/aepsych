@@ -79,11 +79,11 @@ class MultitaskGPRModel(GPRegressionModel):
     def forward(
         self, x: torch.Tensor
     ) -> gpytorch.distributions.MultitaskMultivariateNormal:
-        """ Evaluate GP.
-        
+        """Evaluate GP.
+
         Args:
             x (torch.Tensor): Tensor of points at which GP should be evaluated.
-            
+
         Returns:
             gpytorch.distributions.MultitaskMultivariateNormal: Distribution object
                 holding the mean and covariance at x."""
@@ -94,7 +94,7 @@ class MultitaskGPRModel(GPRegressionModel):
     @classmethod
     def construct_inputs(cls, config: Config):
         """Construct inputs for the Multitask GPR model from configuration.
-        
+
         Args:
             config (Config): A configuration containing keys/values matching this class.
         """
@@ -164,7 +164,7 @@ class IndependentMultitaskGPRModel(GPRegressionModel):
     def forward(
         self, x: torch.Tensor
     ) -> gpytorch.distributions.MultitaskMultivariateNormal:
-        """ Evaluate GP.
+        """Evaluate GP.
 
         Args:
             x (torch.Tensor): Tensor of points at which GP should be evaluated.
