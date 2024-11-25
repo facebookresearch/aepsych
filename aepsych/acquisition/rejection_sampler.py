@@ -22,7 +22,10 @@ class RejectionSampler(MCSampler):
     """
 
     def __init__(
-        self, num_samples: int, num_rejection_samples: int, constrained_idx: torch.Tensor
+        self,
+        num_samples: int,
+        num_rejection_samples: int,
+        constrained_idx: torch.Tensor,
     ):
         """Initialize RejectionSampler
 

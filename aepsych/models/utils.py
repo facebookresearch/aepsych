@@ -75,7 +75,7 @@ def select_inducing_points(
         bounds (torch.Tensor, optional): The bounds of the input space.
         method (str): The method to use for inducing point selection. One of
             "pivoted_chol", "kmeans++", "auto", or "sobol".
-        
+
     Returns:
         torch.Tensor: The selected inducing points.
     """
@@ -273,10 +273,12 @@ def inv_query(
 
 class TargetDistancePosteriorTransform(PosteriorTransform):
     def __init__(
-        self, target_value: Union[float, torch.Tensor], weights: Optional[torch.Tensor] = None
+        self,
+        target_value: Union[float, torch.Tensor],
+        weights: Optional[torch.Tensor] = None,
     ) -> None:
         """Initialize the TargetDistancePosteriorTransform
-        
+
         Args:
             target_value (Union[float, torch.Tensor]): The target value to transform the posterior to.
             weights (torch.Tensor, optional): Weights to apply to the target value. Defaults to None.
@@ -287,10 +289,10 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
 
     def evaluate(self, Y: torch.Tensor) -> torch.Tensor:
         """Evaluate the squared distance from the target value.
-        
+
         Args:
             Y (torch.Tensor): The tensor to evaluate.
-            
+
         Returns:
             torch.Tensor: The squared distance from the target value.
         """
@@ -298,11 +300,11 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
 
     def _forward(self, mean: torch.Tensor, var: torch.Tensor) -> GPyTorchPosterior:
         """Transform the posterior mean and variance based on the target value.
-        
+
         Args:
             mean (torch.Tensor): The posterior mean.
             var (torch.Tensor): The posterior variance.
-            
+
         Returns:
             GPyTorchPosterior: The transformed posterior.
         """
@@ -321,10 +323,10 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
 
     def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
         """Transform the given posterior distribution to reflect the target distance.
-        
+
         Args:
             posterior (GPyTorchPosterior): The posterior to transform.
-            
+
         Returns:
             GPyTorchPosterior: The transformed posterior.
         """
@@ -337,10 +339,10 @@ class TargetDistancePosteriorTransform(PosteriorTransform):
 class TargetProbabilityDistancePosteriorTransform(TargetDistancePosteriorTransform):
     def forward(self, posterior: GPyTorchPosterior) -> GPyTorchPosterior:
         """Transform the given posterior distribution to reflect the target probability distance.
-        
+
         Args:
             posterior (GPyTorchPosterior): The posterior to transform.
-            
+
         Returns:
             GPyTorchPosterior: The transformed posterior distribution reflecting the target probability distance.
         """

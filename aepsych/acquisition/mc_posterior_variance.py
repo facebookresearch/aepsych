@@ -80,11 +80,11 @@ class MCPosteriorVariance(MCAcquisitionFunction):
 
     def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
         """Evaluate the acquisition based on objective samples.
-        
+
         Args:
             obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.
                 Should be samples x batch_shape.
-        
+
         Returns:
             torch.Tensor: Acquisition function at the sampled values.
         """

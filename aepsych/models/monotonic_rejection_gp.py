@@ -81,7 +81,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             num_induc (int): Number of inducing points for variational GP.]. Defaults to 25.
             num_samples (int): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
-            num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096. 
+            num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096.
             inducing_point_method (str): Method for selecting inducing points. Defaults to "auto".
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
@@ -178,7 +178,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         likelihood_state_dict: Optional[Dict[str, torch.Tensor]] = None,
     ) -> None:
         """Sets the model with the given data and state dicts.
-        
+
         Args:
             train_x (torch.Tensor): Training x points
             train_y (torch.Tensor): Training y points. Should be (n x 1).
@@ -199,7 +199,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         )
         mll = fit_gpytorch_mll(mll, optimizer_kwargs=self.optimizer_options)
 
-    def update(self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True) -> None:
+    def update(
+        self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
+    ) -> None:
         """
         Update the model with new data.
 
@@ -280,7 +282,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             x (torch.Tensor): tensor of n points at which to predict.
             probability_space (bool): whether to return in probability space. Defaults to False.
 
-        Returns: 
+        Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
         samples_f = self.sample(x)
@@ -295,14 +297,12 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         return mean, variance
 
-    def predict_probability(
-        self, x: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """Predict in probability space
 
         Args:
             x (torch.Tensor): Points at which to predict.
-        
+
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at query points.
         """
@@ -314,7 +314,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         Args:
             x (torch.Tensor): Input tensor
             indx (int): Derivative index
-        
+
         Returns:
             torch.Tensor: Augmented tensor
         """
@@ -333,11 +333,11 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
     @classmethod
     def from_config(cls, config: Config) -> MonotonicRejectionGP:
-        """ Alternate constructor for MonotonicRejectionGP
-        
+        """Alternate constructor for MonotonicRejectionGP
+
         Args:
             config (Config): a configuration containing keys/values matching this class
-            
+
         Returns:
             MonotonicRejectionGP: configured class instance
         """
