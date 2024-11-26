@@ -182,8 +182,6 @@ def _plot_strat_1d(
 
         threshold_samps = [
             interpolate_monotonic(grid, s, target_level, strat.lb[0], strat.ub[0])
-            .cpu()
-            .numpy()
             for s in samps
         ]
         thresh_med = np.mean(threshold_samps)
@@ -203,16 +201,12 @@ def _plot_strat_1d(
         true_f = true_testfun(grid)
         ax.plot(grid, true_f.squeeze(), label="True function")
         if target_level is not None:
-            true_thresh = (
-                interpolate_monotonic(
-                    grid,
-                    true_f.squeeze(),
-                    target_level,
-                    strat.lb[0],
-                    strat.ub[0],
-                )
-                .cpu()
-                .numpy()
+            true_thresh = interpolate_monotonic(
+                grid,
+                true_f.squeeze(),
+                target_level,
+                strat.lb[0],
+                strat.ub[0],
             )
 
             ax.plot(
