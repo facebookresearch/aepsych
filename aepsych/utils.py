@@ -122,7 +122,7 @@ def interpolate_monotonic(x, y, z, min_x=-np.inf, max_x=np.inf):
     y1 = y[idx]
 
     x_star = x0 + (x1 - x0) * (z - y0) / (y1 - y0)
-    return x_star
+    return x_star.cpu().item()
 
 
 def get_lse_interval(
