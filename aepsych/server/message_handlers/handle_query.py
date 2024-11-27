@@ -63,7 +63,7 @@ def query(
                 server._config_to_tensor(x).unsqueeze(axis=0)
             )
         response["x"] = x
-        response["y"] = np.array(mean)  # mean.item()
+        response["y"] = np.array(mean.item())  # mean.item()
 
     elif query_type == "inverse":
         # expect constraints to be a dictionary; values are float arrays size 1 (exact) or 2 (upper/lower bnd)
