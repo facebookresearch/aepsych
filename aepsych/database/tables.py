@@ -32,27 +32,6 @@ logger = logging.getLogger()
 
 Base = declarative_base()
 
-"""
-Original Schema
-CREATE TABLE master (
-unique_id INTEGER NOT NULL,
-experiment_name VARCHAR(256),
-experiment_description VARCHAR(2048),
-experiment_id VARCHAR(10),
-PRIMARY KEY (unique_id),
-UNIQUE (experiment_id)
-);
-CREATE TABLE replay_data (
-unique_id INTEGER NOT NULL,
-timestamp DATETIME,
-message_type VARCHAR(64),
-message_contents BLOB,
-master_table_id INTEGER,
-PRIMARY KEY (unique_id),
-FOREIGN KEY(master_table_id) REFERENCES master (unique_id)
-);
-"""
-
 
 class DBMasterTable(Base):
     """
@@ -62,10 +41,10 @@ class DBMasterTable(Base):
     __tablename__ = "master"
 
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
-    experiment_name = Column(String(256))
-    experiment_description = Column(String(2048))
-    experiment_id = Column(String(10), unique=True)
-    participant_id = Column(String(50), unique=True)
+    experiment_name = Column(String(256), nullable=True)
+    experiment_description = Column(String(2048), nullable=True)
+    experiment_id = Column(String(10))
+    participant_id = Column(String(50))
 
     extra_metadata = Column(String(4096))  # JSON-formatted metadata
 
@@ -175,6 +154,19 @@ class DBMasterTable(Base):
                 engine.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
+
+    @staticmethod
+    def _update_column(engine: Engine, column: str, spec: str) -> None:
+        """Update column with a new spec.
+
+        Args:
+            engine (Engine): The sqlalchemy engine.
+            column (str): The column name.
+            spec (str): The new column spec.
+        """
+        logger.debug(f"Altering the master table column: {column} to this spec {spec}")
+        engine.execute(f"ALTER TABLE master MODIFY {column} {spec}")
+        engine.commit()
 
 
 class DbReplayTable(Base):
