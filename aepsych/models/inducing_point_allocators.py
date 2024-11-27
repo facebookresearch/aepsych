@@ -27,7 +27,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
     def __init__(self, bounds: Optional[torch.Tensor] = None) -> None:
         """
         Initialize the allocator with optional bounds.
-
+        
         Args:
             bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).
         """
@@ -261,6 +261,10 @@ class KMeansAllocator(BaseAllocator):
         bounds = torch.stack((lb, ub))
         return {"bounds": bounds}
 
+class DummyAllocator(BaseAllocator):
+    def __init__(self, bounds: torch.Tensor) -> None:
+        super().__init__()
+        self.bounds = bounds
 
 class DummyAllocator(BaseAllocator):
     def __init__(self, bounds: torch.Tensor) -> None:
@@ -434,7 +438,9 @@ class AutoAllocator(BaseAllocator):
             if hasattr(fallback_allocator_cls, "from_config")
             else fallback_allocator_cls()
         )
-
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack([lb, ub], dim=0)
         return {"fallback_allocator": fallback_allocator, "bounds": bounds}
 
 

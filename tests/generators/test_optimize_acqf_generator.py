@@ -17,6 +17,8 @@ from aepsych.models import GPClassificationModel, PairwiseProbitModel
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 
+from aepsych.models.inducing_point_allocators import AutoAllocator
+
 
 class TestOptimizeAcqfGenerator(unittest.TestCase):
     def test_time_limits(self):
@@ -39,6 +41,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
             ub=3 * torch.ones(8),
             max_fit_time=0.5,
             inducing_size=10,
+            inducing_point_method=AutoAllocator(bounds=torch.stack((-3 * torch.ones(8), 3 * torch.ones(8)))),
         )
 
         model.fit(X, y)

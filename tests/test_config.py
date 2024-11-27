@@ -262,6 +262,8 @@ class ConfigTestCase(unittest.TestCase):
         min_asks = 1
         model = MonotonicRejectionGP
         acqf = MonotonicMCLSE
+        inducing_point_method=AutoAllocator
+
         """
 
         config = Config()

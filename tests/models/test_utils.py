@@ -39,7 +39,10 @@ class UtilsTestCase(unittest.TestCase):
         inducing_size = 20
 
         model = GPClassificationModel(
-            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=inducing_size
+            torch.Tensor([-3]),
+            torch.Tensor([3]), 
+            inducing_size=inducing_size, 
+            inducing_point_method=AutoAllocator(bounds=torch.stack((torch.Tensor([-3]), torch.Tensor([3])))),
         )
         model.set_train_data(X[:10, ...], y[:10])
 

@@ -24,7 +24,7 @@ from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import Strategy
 from parameterized import parameterized
-
+from aepsych.models.inducing_point_allocators import GreedyVarianceReduction
 acqf_kwargs_target = {"target": 0.75}
 acqf_kwargs_lookahead = {"target": 0.75, "lookahead_type": "posterior"}
 
@@ -51,7 +51,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         lb = torch.tensor([0])
         ub = torch.tensor([1])
         model = GPClassificationModel(
-            lb=lb, ub=ub, inducing_size=10, inducing_point_method="pivoted_chol"
+            lb=lb, ub=ub, inducing_size=10, inducing_point_method=GreedyVarianceReduction(bounds=torch.stack([lb, ub]))
         )
 
         generator = OptimizeAcqfGenerator(acqf=acqf, acqf_kwargs=acqf_kwargs)

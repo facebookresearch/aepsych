@@ -25,8 +25,9 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-from aepsych.transforms.ops import NormalizeScale
 
+from aepsych.transforms.ops import NormalizeScale
+from aepsych.models.inducing_point_allocators import SobolAllocator
 
 class TestSequenceGenerators(unittest.TestCase):
     def setUp(self):
@@ -49,6 +50,7 @@ class TestSequenceGenerators(unittest.TestCase):
                 dim=2,
                 lb=lb,
                 ub=ub,
+                inducing_point_method=SobolAllocator(bounds=torch.stack((lb, ub))),
                 monotonic_idxs=[1],
             ),
             generator=ParameterTransformedGenerator(
@@ -159,13 +161,14 @@ class TestSequenceGenerators(unittest.TestCase):
         seed = 1
         torch.manual_seed(seed)
         np.random.seed(seed)
-        lb = [-1, -1]
-        ub = [1, 1]
+        lb = [-1.0, -1.0]
+        ub = [1.0, 1.0]
 
         self.strat = Strategy(
             model=GPClassificationModel(
                 lb=lb,
                 ub=ub,
+                inducing_point_method=SobolAllocator(bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])),
             ),
             generator=SobolGenerator(lb=lb, ub=ub),
             min_asks=50,
@@ -187,14 +190,15 @@ class TestSequenceGenerators(unittest.TestCase):
             )
 
     def test_run_indefinitely(self):
-        lb = [-1, -1]
-        ub = [1, 1]
+        lb = [-1.0, -1.0]
+        ub = [1.0, 1.0]
 
         with self.assertWarns(UserWarning):
             self.strat = Strategy(
                 model=GPClassificationModel(
                     lb=lb,
                     ub=ub,
+                    inducing_point_method=SobolAllocator(bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])),
                 ),
                 generator=SobolGenerator(lb=lb, ub=ub),
                 lb=lb,

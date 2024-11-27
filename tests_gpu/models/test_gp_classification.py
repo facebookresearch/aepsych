@@ -10,6 +10,8 @@ import unittest
 
 import torch
 
+from aepsych.models.inducing_point_allocators import SobolAllocator
+
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
@@ -110,6 +112,7 @@ class GPClassificationSmoketest(unittest.TestCase):
             torch.Tensor([-3]),
             torch.Tensor([3]),
             inducing_size=10,
+            inducing_point_method=SobolAllocator(bounds=torch.stack([torch.tensor([-3]), torch.tensor([3])])),
         ).to("cuda")
 
         model.fit(X[:50], y[:50])
