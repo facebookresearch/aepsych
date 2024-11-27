@@ -20,7 +20,7 @@ We implemented multiple features to allow speeding up AEPsych's server in respon
 messages. These features can be used together and have different
 effects on the effectiveness of the AEPsych response speed.
 
-<h3>GPU support<h3>
+<h3>GPU support</h3>
 
 The `GPClassification` and `GPRegressionModel` both have support to run on the GPU. Models
 that subclass these models should also have GPU support. To get a model running on the
@@ -126,7 +126,7 @@ shorter experiments with little-to-no loss in modeling effectiveness. Again, it 
 piloting experiments using the GPU and without the GPU for the generator with the experiment
 hardware to double-check the effectiveness.
 
-<h3>Refit Intermittently<h3>
+<h3>Refit Intermittently</h3>
 
 By default, the model will be refit hyperparameters after every tell. While the fitting time
 may not be the most time-consuming part, it is possible to shorten the AEPsych server response time

@@ -14,7 +14,7 @@ what parameter types are used and whatever transformations are used.
 <h2>Parameter types</h2>
 Currently, we only support continuous parameters. More parameter types soon to come!
 
-<h3>Continuous<h3>
+<h3>Continuous</h3>
 
 ```ini
 [parameter]
@@ -28,7 +28,7 @@ parameters can have any non-infinite ranges. This means that continuous paramete
 include negative values (e.g., lower bound = -1, upper bound = 1) or have very large
 ranges (e.g., lower bound = 0, upper bound = 1,000,000).
 
-<h3>Integer<h3>
+<h3>Integer</h3>
 
 ```ini
 [parameter]
