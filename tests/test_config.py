@@ -1031,7 +1031,7 @@ class ConfigTestCase(unittest.TestCase):
 
         # Verify the allocator and bounds
         self.assertTrue(isinstance(model.inducing_point_method, SobolAllocator))
-        expected_bounds = torch.tensor([[0.0, 1.0], [0.0, 1.0]], dtype=torch.float64)
+        expected_bounds = torch.tensor([[0.0, 0.0], [1.0, 1.0]], dtype=torch.float64)
         self.assertTrue(
             torch.equal(model.inducing_point_method.bounds, expected_bounds)
         )

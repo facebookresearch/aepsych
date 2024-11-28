@@ -69,8 +69,6 @@ class SobolAllocator(InducingPointAllocator, ConfigurableMixin):
 
         return inducing_points
 
-    
-
     @classmethod
     def get_config_options(
         cls,
@@ -219,7 +217,6 @@ class AutoAllocator(InducingPointAllocator, ConfigurableMixin):
             num_inducing=num_inducing,
             input_batch_shape=input_batch_shape,
         )
-
 
     @classmethod
     def get_config_options(

@@ -34,7 +34,7 @@ class TestInducingPointAllocators(unittest.TestCase):
         allocator = SobolAllocator.from_config(config)
 
         # Check if bounds are correctly loaded
-        expected_bounds = torch.tensor([[0.0, 1.0]])
+        expected_bounds = torch.tensor([[0.0], [1.0]])
         self.assertTrue(torch.equal(allocator.bounds, expected_bounds))
 
     def test_kmeans_allocator_from_config(self):
