@@ -18,9 +18,6 @@ from botorch.models.utils.inducing_point_allocators import (
     InducingPointAllocator,
 )
 from botorch.utils.sampling import draw_sobol_samples
-from botorch.models.utils.inducing_point_allocators import (
-    GreedyVarianceReduction as BaseGreedyVarianceReduction,
-)
 from scipy.cluster.vq import kmeans2
 
 
