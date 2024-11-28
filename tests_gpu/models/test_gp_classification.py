@@ -20,7 +20,6 @@ import numpy as np
 import numpy.testing as npt
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
 from scipy.stats import norm
 from sklearn.datasets import make_classification
 
@@ -111,14 +110,12 @@ class GPClassificationSmoketest(unittest.TestCase):
         X, y = self.X, self.y
         inducing_size = 10
         bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
-        inducing_points = select_inducing_points(
-            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
-        )
+        
 
         model = GPClassificationModel(
-            inducing_size=10,
+            inducing_size=inducing_size,
             inducing_point_method=SobolAllocator(
-                bounds=torch.stack([torch.tensor([-3]), torch.tensor([3])])
+                bounds=bounds
             ),
         ).to("cuda")
 

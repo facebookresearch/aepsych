@@ -19,7 +19,6 @@ from aepsych.models.inducing_point_allocators import AutoAllocator
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 
@@ -43,17 +42,15 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         ub = 3 * torch.ones(8)
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(
-            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
-        )
+        
 
         model = GPClassificationModel(
-            inducing_points=inducing_points,
             max_fit_time=0.5,
             inducing_size=10,
             inducing_point_method=AutoAllocator(
-                bounds=torch.stack((-3 * torch.ones(8), 3 * torch.ones(8)))
+                bounds=bounds
             ),
+            inducing_size=inducing_size,
         )
 
         model.fit(X, y)

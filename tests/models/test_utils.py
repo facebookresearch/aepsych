@@ -40,14 +40,12 @@ class UtilsTestCase(unittest.TestCase):
         lb = torch.Tensor([-3])
         ub = torch.Tensor([3])
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(
-            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
-        )
+        
 
         model = GPClassificationModel(
             inducing_size=inducing_size,
             inducing_point_method=AutoAllocator(
-                bounds=torch.stack((torch.Tensor([-3]), torch.Tensor([3])))
+                bounds=bounds
             ),
         )
         model.set_train_data(X[:10, ...], y[:10])
@@ -56,7 +54,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             np.allclose(
                 select_inducing_points(
-                    allocator=AutoAllocator(),
+                    allocator=AutoAllocator(bounds=bounds),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
@@ -70,7 +68,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             len(
                 select_inducing_points(
-                    allocator=AutoAllocator(),
+                    allocator=AutoAllocator(bounds=bounds),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
@@ -94,7 +92,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(
             len(
                 select_inducing_points(
-                    allocator=KMeansAllocator(),
+                    allocator=KMeansAllocator(bounds=bounds),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],

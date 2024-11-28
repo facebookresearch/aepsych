@@ -24,8 +24,6 @@ from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_point_allocators import GreedyVarianceReduction
 from aepsych.strategy import Strategy
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import Strategy
 from parameterized import parameterized
 
@@ -57,12 +55,10 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         ub = torch.tensor([1.0], device=self.device)
         bounds = torch.stack([lb, ub])
         inducing_size = 10
-        inducing_points = select_inducing_points(
-            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
-        ).to(self.device)
+        
         model = GPClassificationModel(
-            inducing_size=10,
-            inducing_point_method=GreedyVarianceReduction(bounds=torch.stack([lb, ub])),
+            inducing_size=inducing_size,
+            inducing_point_method=GreedyVarianceReduction(bounds=bounds),
         )
 
         generator = OptimizeAcqfGenerator(
