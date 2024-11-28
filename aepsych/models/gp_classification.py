@@ -88,7 +88,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 Defaults to AutoAllocator().
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
-            """
+        """
         lb, ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
         self.inducing_size = inducing_size or 99
