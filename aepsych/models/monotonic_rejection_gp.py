@@ -88,7 +88,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             num_induc (int): Number of inducing points for variational GP.]. Defaults to 25.
             num_samples (int): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
-            num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096. 
+            num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """

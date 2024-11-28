@@ -21,9 +21,9 @@ from aepsych.benchmark import (
     Problem,
 )
 from aepsych.models import GPClassificationModel
-from scipy.stats import norm
 
 from aepsych.models.inducing_point_allocators import SobolAllocator
+from scipy.stats import norm
 
 torch.set_num_threads(1)
 torch.set_num_interop_threads(1)
@@ -75,7 +75,9 @@ class MultipleLSETestCase(unittest.TestCase):
         self.thresholds = torch.linspace(0.55, 0.95, self.n_thresholds)
         self.test_problem = example_problems.DiscrimLowDim(thresholds=self.thresholds)
         self.model = GPClassificationModel(
-            lb=self.test_problem.lb, ub=self.test_problem.ub, inducing_point_method=SobolAllocator(bounds=self.test_problem.bounds)
+            lb=self.test_problem.lb,
+            ub=self.test_problem.ub,
+            inducing_point_method=SobolAllocator(bounds=self.test_problem.bounds),
         )
 
     def unvectorized_p_below_threshold(self, x, f_thresh) -> torch.Tensor:

@@ -18,6 +18,9 @@ from botorch.models.utils.inducing_point_allocators import (
     InducingPointAllocator,
 )
 from botorch.utils.sampling import draw_sobol_samples
+from botroch.models.utils.inducing_point_allocators import (
+    GreedyVarianceReduction as BaseGreedyVarianceReduction,
+)
 from scipy.cluster.vq import kmeans2
 
 
@@ -27,7 +30,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
     def __init__(self, bounds: Optional[torch.Tensor] = None) -> None:
         """
         Initialize the allocator with optional bounds.
-        
+
         Args:
             bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).
         """
@@ -261,10 +264,11 @@ class KMeansAllocator(BaseAllocator):
         bounds = torch.stack((lb, ub))
         return {"bounds": bounds}
 
+
 class DummyAllocator(BaseAllocator):
     def __init__(self, bounds: torch.Tensor) -> None:
         super().__init__()
-        self.bounds = bounds
+        self.bounds: torch.Tensor = bounds
 
 class DummyAllocator(BaseAllocator):
     def __init__(self, bounds: torch.Tensor) -> None:

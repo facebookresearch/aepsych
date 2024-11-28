@@ -18,6 +18,7 @@ from aepsych.generators import (
     SobolGenerator,
 )
 from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import (
@@ -27,7 +28,7 @@ from aepsych.transforms import (
 )
 
 from aepsych.transforms.ops import NormalizeScale
-from aepsych.models.inducing_point_allocators import SobolAllocator
+
 
 class TestSequenceGenerators(unittest.TestCase):
     def setUp(self):
@@ -168,7 +169,9 @@ class TestSequenceGenerators(unittest.TestCase):
             model=GPClassificationModel(
                 lb=lb,
                 ub=ub,
-                inducing_point_method=SobolAllocator(bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])),
+                inducing_point_method=SobolAllocator(
+                    bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])
+                ),
             ),
             generator=SobolGenerator(lb=lb, ub=ub),
             min_asks=50,
@@ -198,7 +201,9 @@ class TestSequenceGenerators(unittest.TestCase):
                 model=GPClassificationModel(
                     lb=lb,
                     ub=ub,
-                    inducing_point_method=SobolAllocator(bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])),
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])
+                    ),
                 ),
                 generator=SobolGenerator(lb=lb, ub=ub),
                 lb=lb,

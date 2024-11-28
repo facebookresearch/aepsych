@@ -112,7 +112,9 @@ class GPClassificationSmoketest(unittest.TestCase):
             torch.Tensor([-3]),
             torch.Tensor([3]),
             inducing_size=10,
-            inducing_point_method=SobolAllocator(bounds=torch.stack([torch.tensor([-3]), torch.tensor([3])])),
+            inducing_point_method=SobolAllocator(
+                bounds=torch.stack([torch.tensor([-3]), torch.tensor([3])])
+            ),
         ).to("cuda")
 
         model.fit(X[:50], y[:50])

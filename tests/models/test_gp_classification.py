@@ -125,7 +125,9 @@ class GPClassificationSmoketest(unittest.TestCase):
             torch.Tensor([-3]),
             torch.Tensor([3]),
             inducing_size=10,
-            inducing_point_method=AutoAllocator(bounds=torch.stack((torch.tensor(-3), torch.tensor(3)))),
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack((torch.tensor(-3), torch.tensor(3)))
+            ),
         )
 
         model.fit(X[:50], y[:50])
@@ -159,7 +161,12 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         X, y = self.X, self.y
         model = GPClassificationModel(
-            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-3]), torch.tensor([3]))))
+            torch.Tensor([-3]),
+            torch.Tensor([3]),
+            inducing_size=10,
+            inducing_point_method=SobolAllocator(
+                bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
+            ),
         )
 
         model.fit(
@@ -256,7 +263,14 @@ class GPClassificationSmoketest(unittest.TestCase):
         npt.assert_allclose(pred, y)
 
     def test_reset_hyperparams(self):
-        model = GPClassificationModel(lb=[-3], ub=[3], inducing_size=20, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))))
+        model = GPClassificationModel(
+            lb=[-3],
+            ub=[3],
+            inducing_size=20,
+            inducing_point_method=SobolAllocator(
+                bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
+            ),
+        )
 
         ls_before = model.covar_module.lengthscale.clone().detach().numpy()
         model.fit(torch.Tensor(self.X), torch.Tensor(self.y))
@@ -274,7 +288,14 @@ class GPClassificationSmoketest(unittest.TestCase):
         self.assertTrue(np.allclose(ls_before, ls_reset))
 
     def test_reset_variational_strategy(self):
-        model = GPClassificationModel(lb=[-3], ub=[3], inducing_size=20, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))))
+        model = GPClassificationModel(
+            lb=[-3],
+            ub=[3],
+            inducing_size=20,
+            inducing_point_method=SobolAllocator(
+                bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
+            ),
+        )
 
         variational_params_before = [
             v.clone().detach().numpy() for v in model.variational_parameters()
@@ -311,7 +332,12 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         X, y = self.X, self.y
         model = GPClassificationModel(
-            torch.Tensor([-3]), torch.Tensor([3]), inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-3]), torch.tensor([3]))))
+            torch.Tensor([-3]),
+            torch.Tensor([3]),
+            inducing_size=10,
+            inducing_point_method=SobolAllocator(
+                bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
+            ),
         )
         model.fit(X, y)
 
@@ -348,7 +374,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -394,7 +427,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -439,7 +479,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -483,7 +530,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -532,7 +586,16 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-1, -1]), torch.tensor([1, 1])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack(
+                            (torch.tensor([-1, -1]), torch.tensor([1, 1]))
+                        )
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -584,7 +647,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -635,7 +705,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -692,7 +769,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 min_asks=n_opt,
                 generator=OptimizeAcqfGenerator(
                     MCLevelSetEstimation, acqf_kwargs=extra_acqf_args
@@ -737,7 +821,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=20, inducing_point_method=AutoAllocator(bounds=torch.stack((torch.tensor([-1]), torch.tensor([1])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=20,
+                    inducing_point_method=AutoAllocator(
+                        bounds=torch.stack((torch.tensor([-1]), torch.tensor([1])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -780,7 +871,14 @@ class GPClassificationTest(unittest.TestCase):
             Strategy(
                 lb=lb,
                 ub=ub,
-                model=GPClassificationModel(lb=lb, ub=ub, inducing_size=10, inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))),),
+                model=GPClassificationModel(
+                    lb=lb,
+                    ub=ub,
+                    inducing_size=10,
+                    inducing_point_method=SobolAllocator(
+                        bounds=torch.stack((torch.tensor([-4]), torch.tensor([4])))
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(
                     qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}
                 ),
@@ -803,21 +901,24 @@ class GPClassificationTest(unittest.TestCase):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams
 
         m1 = GPClassificationModel(
-            lb=[1, 2], 
-            ub=[3, 4], 
-            inducing_point_method=SobolAllocator(bounds=torch.stack((torch.tensor([1, 2]), torch.tensor([3, 4])))),
-                )
-            
+            lb=[1, 2],
+            ub=[3, 4],
+            inducing_point_method=SobolAllocator(
+                bounds=torch.stack((torch.tensor([1, 2]), torch.tensor([3, 4])))
+            ),
+        )
 
-        config = Config(config_dict={
-        "common": {
-            "parnames": ["par1", "par2"],
-            "lb": "[1, 2]",
-            "ub": "[3, 4]"
-        },
-        "par1": {"value_type": "float"},
-        "par2": {"value_type": "float"}
-        })
+        config = Config(
+            config_dict={
+                "common": {
+                    "parnames": ["par1", "par2"],
+                    "lb": "[1, 2]",
+                    "ub": "[3, 4]",
+                },
+                "par1": {"value_type": "float"},
+                "par2": {"value_type": "float"},
+            }
+        )
         m2 = GPClassificationModel.from_config(config=config)
         self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))
         self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))
