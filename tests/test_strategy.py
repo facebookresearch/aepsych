@@ -374,7 +374,13 @@ class TestStrategyGPU(unittest.TestCase):
                 ub=[1],
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
-                model=GPClassificationModel(lb=[0], ub=[1], inducing_point_method=AutoAllocator(bounds=torch.stack([torch.tensor([0]), torch.tensor([1])]))),
+                model=GPClassificationModel(
+                    lb=[0],
+                    ub=[1],
+                    inducing_point_method=AutoAllocator(
+                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+                    ),
+                ),
                 generator=SobolGenerator(lb=[0], ub=[1]),
                 use_gpu_modeling=True,
             )
@@ -389,7 +395,13 @@ class TestStrategyGPU(unittest.TestCase):
                 ub=[1],
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
-                model=GPClassificationModel(lb=[0], ub=[1], inducing_point_method=AutoAllocator(bounds=torch.stack([torch.tensor([0]), torch.tensor([1])]))),
+                model=GPClassificationModel(
+                    lb=[0],
+                    ub=[1],
+                    inducing_point_method=AutoAllocator(
+                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(acqf=MCLevelSetEstimation),
                 use_gpu_generating=True,
             )
