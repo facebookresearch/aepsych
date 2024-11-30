@@ -22,13 +22,13 @@ from aepsych.generators import (
 )
 from aepsych.models import GPClassificationModel, MonotonicRejectionGP
 
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean
 from scipy.stats import bernoulli, multivariate_normal, norm, pearsonr
-from aepsych.models.utils import select_inducing_points
-from aepsych.models.inducing_point_allocators import SobolAllocator
+
 
 class SingleProbitMI(unittest.TestCase):
     def test_1d_monotonic_single_probit(self):
@@ -41,7 +41,6 @@ class SingleProbitMI(unittest.TestCase):
         ub = torch.tensor([4.0])
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        
 
         acqf = MonotonicBernoulliMCMutualInformation
         acqf_kwargs = {"objective": ProbitObjective()}
@@ -60,11 +59,11 @@ class SingleProbitMI(unittest.TestCase):
                 min_asks=n_opt,
                 model=MonotonicRejectionGP(
                     monotonic_idxs=[0],
-                    inducing_point_method=AutoAllocator(
-                        bounds=bounds
-                    ),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
-                generator=MonotonicRejectionGenerator(lb=lb, ub=ub, acqf=acqf, acqf_kwargs=acqf_kwargs),
+                generator=MonotonicRejectionGenerator(
+                    lb=lb, ub=ub, acqf=acqf, acqf_kwargs=acqf_kwargs
+                ),
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
             ),
@@ -122,7 +121,9 @@ class SingleProbitMI(unittest.TestCase):
                         bounds=torch.stack((torch.Tensor([lb]), torch.Tensor([ub])))
                     ),
                 ),
-                generator=OptimizeAcqfGenerator(lb=lb, ub=ub, acqf=acqf, acqf_kwargs=extra_acqf_args),
+                generator=OptimizeAcqfGenerator(
+                    lb=lb, ub=ub, acqf=acqf, acqf_kwargs=extra_acqf_args
+                ),
                 min_asks=n_opt,
                 stimuli_per_trial=1,
                 outcome_types=["binary"],

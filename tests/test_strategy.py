@@ -43,7 +43,6 @@ class TestSequenceGenerators(unittest.TestCase):
         transforms = ParameterTransforms(
             normalize=NormalizeScale(d=2, bounds=torch.stack([lb, ub]))
         )
-        
 
         self.strat = Strategy(
             model=ParameterTransformedModel(
@@ -144,15 +143,19 @@ class TestSequenceGenerators(unittest.TestCase):
         for _ in range(50):
             self.strat.gen()
             self.strat.add_data(np.r_[0.0, 0.0], [0])
-        print(f'is_finished: {self.strat.is_finished}')
-        print(f'run_indefinitely: {self.strat.run_indefinitely}')
-        print(f'y: {self.strat.y}')
-        print(f'max_asks: {self.strat.max_asks} and _count: {self.strat._count}')
+        print(f"is_finished: {self.strat.is_finished}")
+        print(f"run_indefinitely: {self.strat.run_indefinitely}")
+        print(f"y: {self.strat.y}")
+        print(f"max_asks: {self.strat.max_asks} and _count: {self.strat._count}")
         print(f'generator finished: {hasattr(self.strat.generator, "finished")}')
-        print(f'is min_post_range None?: {self.strat.min_post_range is None}')
-        fmean, _ = self.strat.model.predict(self.strat.eval_grid, probability_space=True)
-        print(f'max fmean: {torch.max(fmean)} while min fmean: {torch.min(fmean)}')
-        print(f'their difference: {torch.max(fmean) - torch.min(fmean)} and should be greater than {self.strat.min_post_range}')
+        print(f"is min_post_range None?: {self.strat.min_post_range is None}")
+        fmean, _ = self.strat.model.predict(
+            self.strat.eval_grid, probability_space=True
+        )
+        print(f"max fmean: {torch.max(fmean)} while min fmean: {torch.min(fmean)}")
+        print(
+            f"their difference: {torch.max(fmean) - torch.min(fmean)} and should be greater than {self.strat.min_post_range}"
+        )
         self.assertTrue(self.strat.finished)
 
     def test_max_asks(self):

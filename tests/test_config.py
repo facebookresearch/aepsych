@@ -1054,7 +1054,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             torch.equal(model.inducing_point_method.bounds, expected_bounds)
         )
-        
+
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
 

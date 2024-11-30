@@ -25,13 +25,17 @@ models = [
         MultitaskGPRModel(
             num_outputs=2,
             rank=2,
-            inducing_point_method=AutoAllocator(bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])]))
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])])
+            ),
         )
     ),
     (
         IndependentMultitaskGPRModel(
             num_outputs=2,
-            inducing_point_method=AutoAllocator(bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])]))
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])])
+            ),
         )
     ),
 ]

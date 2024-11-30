@@ -92,6 +92,7 @@ class SemiPSmokeTests(unittest.TestCase):
         self.inducing_size = 10
         bounds = torch.stack([torch.tensor(self.lb), torch.tensor(self.ub)])
         self.inducing_point_method = AutoAllocator(bounds=bounds)
+
     @parameterized.expand(
         [(SemiPThresholdObjective(target=0.75),), (SemiPProbabilityObjective(),)]
     )

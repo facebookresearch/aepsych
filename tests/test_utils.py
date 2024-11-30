@@ -42,7 +42,9 @@ class UtilsTestCase(unittest.TestCase):
                 bounds=torch.stack([torch.tensor([lb]), torch.tensor([ub])])
             ),
         )
-        grid = dim_grid(lower=torch.tensor([lb]), upper=torch.tensor([ub]), gridsize=gridsize)
+        grid = dim_grid(
+            lower=torch.tensor([lb]), upper=torch.tensor([ub]), gridsize=gridsize
+        )
         self.assertEqual(grid.shape, torch.Size([10, 1]))
 
     def test_dim_grid_slice(self):

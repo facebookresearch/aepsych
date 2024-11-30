@@ -12,11 +12,11 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
+from aepsych.utils import _process_bounds
 from botorch.acquisition import AcquisitionFunction
 from botorch.logging import logger
 from botorch.optim.initializers import gen_batch_initial_conditions
 from botorch.optim.utils import columnwise_clamp, fix_features
-from aepsych.utils import _process_bounds
 
 
 def default_loss_constraint_fun(

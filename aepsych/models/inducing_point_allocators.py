@@ -552,7 +552,7 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
                 ), f"Lower bound {l} is not less than or equal to upper bound {u} on dimension {i}!"
             return self.bounds.shape[1]
         return None
-    
+
     def allocate_inducing_points(
         self,
         inputs: Optional[torch.Tensor] = None,
