@@ -392,7 +392,9 @@ class TestStrategyGPU(unittest.TestCase):
                         bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
                     ),
                 ),
-                generator=OptimizeAcqfGenerator(lb=[0], ub=[1],acqf=MCLevelSetEstimation),
+                generator=OptimizeAcqfGenerator(
+                    lb=[0], ub=[1], acqf=MCLevelSetEstimation
+                ),
                 use_gpu_generating=True,
             )
 

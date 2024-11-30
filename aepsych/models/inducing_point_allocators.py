@@ -100,6 +100,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
         raise NotImplementedError("This method should be implemented by subclasses.")
 
 
+
 class SobolAllocator(BaseAllocator):
     """An inducing point allocator that uses Sobol sequences to allocate inducing points."""
 
