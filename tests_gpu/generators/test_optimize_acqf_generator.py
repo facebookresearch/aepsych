@@ -24,7 +24,6 @@ from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_point_allocators import GreedyVarianceReduction
 from aepsych.strategy import Strategy
-from aepsych.strategy import Strategy
 from parameterized import parameterized
 
 acqf_kwargs_target = {"target": 0.75}
@@ -55,7 +54,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         ub = torch.tensor([1.0], device=self.device)
         bounds = torch.stack([lb, ub])
         inducing_size = 10
-        
+
         model = GPClassificationModel(
             inducing_size=inducing_size,
             inducing_point_method=GreedyVarianceReduction(bounds=bounds),

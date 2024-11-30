@@ -72,12 +72,10 @@ class MultipleLSETestCase(unittest.TestCase):
         self.n_thresholds = 5
         self.thresholds = torch.linspace(0.55, 0.95, self.n_thresholds)
         self.test_problem = example_problems.DiscrimLowDim(thresholds=self.thresholds)
-        
 
         self.model = GPClassificationModel(
             inducing_point_method=AutoAllocator(bounds=self.test_problem.bounds),
         )
-
 
     def unvectorized_p_below_threshold(self, x, f_thresh) -> torch.Tensor:
         """this is the original p_below_threshold method in the AEPsychMixin that calculates model prediction

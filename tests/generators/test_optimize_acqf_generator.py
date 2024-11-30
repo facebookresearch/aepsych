@@ -46,7 +46,6 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
 
         model = GPClassificationModel(
             max_fit_time=0.5,
-            inducing_size=10,
             inducing_point_method=AutoAllocator(
                 bounds=bounds
             ),

@@ -542,6 +542,17 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
             return self.bounds.shape[1]
         return None
 
+    def _initialize_dim(self) -> Optional[int]:
+        if self.bounds is not None:
+            assert self.bounds.shape[0] == 2, "Bounds must have shape (2, d)!"
+            lb, ub = self.bounds[0], self.bounds[1]
+            for i, (l, u) in enumerate(zip(lb, ub)):
+                assert (
+                    l <= u
+                ), f"Lower bound {l} is not less than or equal to upper bound {u} on dimension {i}!"
+            return self.bounds.shape[1]
+        return None
+    
     def allocate_inducing_points(
         self,
         inputs: Optional[torch.Tensor] = None,

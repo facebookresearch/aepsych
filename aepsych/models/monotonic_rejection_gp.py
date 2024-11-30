@@ -21,7 +21,7 @@ from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import  get_optimizer_options, promote_0d
+from aepsych.utils import get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.kernels import Kernel
@@ -101,42 +101,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             inducing_size=self.inducing_size,
         )
 
-        self.inducing_point_method: Optional[InducingPointAllocator]
-        if inducing_points is not None and inducing_point_method is SobolAllocator:
-            warnings.warn(
-                "Both inducing_points and SobolAllocator are provided. "
-                "The initial inducing_points will be overwritten by the allocator."
-            )
-            self.inducing_points = inducing_point_method.allocate_inducing_points(
-                num_inducing=self.inducing_size
-            )
-
-        elif inducing_points is None and inducing_point_method is SobolAllocator:
-            self.inducing_points = inducing_point_method.allocate_inducing_points(
-                num_inducing=self.inducing_size
-            )
-
-        elif inducing_points is None and dim is not None:
-            # No allocator or unsupported allocator: create a dummy tensor
-            warnings.warn(
-                "No inducing points provided and allocation is not supported by the method. "
-                "Using a zero tensor as a placeholder."
-            )
-            self.inducing_points = torch.zeros((self.inducing_size, dim))
-        elif inducing_points is None and dim is None:
-            raise ValueError("No inducing points provided and dim is not provided.")
-
-        else:
-            # Use provided inducing points
-            self.inducing_points = inducing_points
-
-        # Always assign the inducing point method
-        self.inducing_point_method = inducing_point_method or AutoAllocator()
-
-        
-        self.dim = dim or self.inducing_points.size(-1) #?????
-
-        inducing_points_aug = self._augment_with_deriv_index(self.inducing_points, 0)
+        inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points_aug.size(0)
         )
@@ -155,7 +120,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
                 fixed_prior_mean = norm.ppf(fixed_prior_mean)
             mean_module.constant.requires_grad_(False)
             mean_module.constant.copy_(torch.tensor(fixed_prior_mean))
-
         if covar_module is None:
             ls_prior = gpytorch.priors.GammaPrior(
                 concentration=4.6, rate=1.0, transform=lambda x: 1 / x

@@ -23,7 +23,7 @@ from aepsych.models.inducing_point_allocators import (
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.utils import _process_bounds, get_bounds, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
@@ -80,7 +80,9 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 fitting. Assumes we are using L-BFGS-B.
         """
         self.max_fit_time = max_fit_time
-        self.inducing_size = inducing_size or 99
+        if inducing_size is None:
+            inducing_size = 99
+        self.inducing_size = inducing_size
 
         self.optimizer_options = (
             {"options": optimizer_options} if optimizer_options else {"options": {}}
@@ -100,8 +102,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
-                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
-            ) #??????
+                dim=inducing_point_method.dim, stimuli_per_trial=self.stimuli_per_trial
+            )
 
         self.inducing_point_method = inducing_point_method
         inducing_points = select_inducing_points(

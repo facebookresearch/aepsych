@@ -16,13 +16,13 @@ from botorch.acquisition.objective import PosteriorTransform
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.utils.transforms import t_batch_mode_transform
 from scipy.stats import norm
+from torch import Tensor
 
 from .lookahead_utils import (
     approximate_lookahead_levelset_at_xstar,
     lookahead_levelset_at_xstar,
     lookahead_p_at_xstar,
 )
-from torch import Tensor
 
 
 def Hb(p: torch.Tensor) -> torch.Tensor:

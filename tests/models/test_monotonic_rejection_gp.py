@@ -38,7 +38,6 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         ub = torch.tensor([4.0, 4.0])
         inducing_size = 2
         bounds = torch.stack([lb, ub])
-        
 
         m = MonotonicRejectionGP(
             likelihood=GaussianLikelihood(),
@@ -95,7 +94,6 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         ub = torch.tensor([4.0, 4.0])
         inducing_size = 2
         bounds = torch.stack([lb, ub])
-        
 
         m = MonotonicRejectionGP(
             likelihood=BernoulliLikelihood(),

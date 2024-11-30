@@ -58,6 +58,7 @@ class GPRegressionTest(unittest.TestCase):
             likelihood = GaussianLikelihood
             max_fit_time = 1
             dim = 1
+            inducing_point_method = SobolAllocator
         """
         self.server = AEPsychServer(database_path=dbname)
         configure(self.server, config_str=config)

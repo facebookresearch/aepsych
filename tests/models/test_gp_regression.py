@@ -60,6 +60,7 @@ class GPRegressionTest(unittest.TestCase):
             likelihood = GaussianLikelihood
             max_fit_time = 1
             dim = 1
+            inducing_point_method = AutoAllocator
         """
         self.server = AEPsychServer(database_path=dbname)
         configure(self.server, config_str=config)
@@ -91,7 +92,7 @@ class GPRegressionTest(unittest.TestCase):
         model = self.server.strat.model
         # npt.assert_allclose(model.transforms.untransform(model.lb), [-1.0])
         # npt.assert_allclose(model.transforms.untransform(model.ub), [3.0])
-        self.assertEqual(model.dim, 1)
+        self.assertEqual(model.inducing_point_method.dim, 1)
         self.assertIsInstance(model.likelihood, GaussianLikelihood)
         self.assertEqual(model.max_fit_time, 1)
 

@@ -40,13 +40,10 @@ class UtilsTestCase(unittest.TestCase):
         lb = torch.Tensor([-3])
         ub = torch.Tensor([3])
         bounds = torch.stack([lb, ub])
-        
 
         model = GPClassificationModel(
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(
-                bounds=bounds
-            ),
+            inducing_point_method=AutoAllocator(bounds=bounds),
         )
         model.set_train_data(X[:10, ...], y[:10])
 

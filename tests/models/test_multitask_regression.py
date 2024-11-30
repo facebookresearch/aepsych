@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from aepsych.generators import SobolGenerator
 from aepsych.models import IndependentMultitaskGPRModel, MultitaskGPRModel
-from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.models.utils import select_inducing_points
 from parameterized import parameterized
 
@@ -25,12 +25,13 @@ models = [
         MultitaskGPRModel(
             num_outputs=2,
             rank=2,
+            inducing_point_method=AutoAllocator(bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])]))
         )
     ),
     (
         IndependentMultitaskGPRModel(
             num_outputs=2,
-            
+            inducing_point_method=AutoAllocator(bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])]))
         )
     ),
 ]

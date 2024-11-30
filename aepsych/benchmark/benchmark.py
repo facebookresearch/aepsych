@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
+
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.strategy import ensure_model_is_fresh, SequentialStrategy
 from tqdm.contrib.itertools import product as tproduct
 

@@ -32,7 +32,7 @@ class OrdinalGPModel(GPClassificationModel):
                 Ordinal likelihood.
         """
         covar_module = kwargs.pop("covar_module", None)
-        dim = kwargs.get("dim")
+        inducing_point_method = kwargs.get("inducing_point_method")
         if covar_module is None:
             ls_prior = gpytorch.priors.GammaPrior(concentration=1.5, rate=3.0)
             ls_prior_mode = (ls_prior.concentration - 1) / ls_prior.rate
@@ -44,7 +44,7 @@ class OrdinalGPModel(GPClassificationModel):
             covar_module = gpytorch.kernels.RBFKernel(
                 lengthscale_prior=ls_prior,
                 lengthscale_constraint=ls_constraint,
-                ard_num_dims=dim,
+                ard_num_dims=inducing_point_method.dim,
             )
 
         if likelihood is None:

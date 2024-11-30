@@ -390,7 +390,7 @@ class Strategy(object):
         _, _arg = get_extremum(
             model, "max", self.bounds, locked_dims, n_samples, max_time=max_time
         )
-        arg = torch.tensor(_arg.reshape(1, model.dim))
+        arg = torch.tensor(_arg.reshape(1, self.dim))
         if probability_space:
             val, _ = model.predict_probability(arg)
         else:
@@ -448,7 +448,7 @@ class Strategy(object):
         _, _arg = get_extremum(
             model, "min", self.bounds, locked_dims, n_samples, max_time=max_time
         )
-        arg = torch.tensor(_arg.reshape(1, model.dim))
+        arg = torch.tensor(_arg.reshape(1, self.dim))
         if probability_space:
             val, _ = model.predict_probability(arg)
         else:
@@ -516,9 +516,9 @@ class Strategy(object):
             max_time=max_time,
             weights=weights,
         )
-        arg = torch.tensor(_arg.reshape(1, model.dim))
+        arg = torch.tensor(_arg.reshape(1, self.dim))
         if probability_space:
-            val, _ = model.predict_probability(arg.reshape(1, model.dim))
+            val, _ = model.predict_probability(arg.reshape(1, self.dim))
         else:
             val, _ = model.predict(arg.reshape(1, self.dim))
         return float(val.item()), arg
@@ -606,7 +606,7 @@ class Strategy(object):
 
         if cred_level is None:
             fmean, _ = model.predict(grid)
-            fmean = fmean.reshape(*[gridsize for i in range(model.dim)])
+            fmean = fmean.reshape(*[gridsize for i in range(self.dim)])
 
             if method == "taylor":
                 return torch.tensor(1 / np.gradient(fmean, coords, axis=intensity_dim))
@@ -630,13 +630,13 @@ class Strategy(object):
             jnds = torch.tensor(
                 1
                 / np.gradient(
-                    fsamps.reshape(confsamps, *[gridsize for i in range(model.dim)]),
+                    fsamps.reshape(confsamps, *[gridsize for i in range(self.dim)]),
                     coords,
                     axis=intensity_dim,
                 )
             )
         elif method == "step":
-            samps = [s.reshape((gridsize,) * model.dim) for s in fsamps]
+            samps = [s.reshape((gridsize,) * self.dim) for s in fsamps]
             jnds = torch.stack(
                 [get_jnd_multid(s, coords, mono_dim=intensity_dim) for s in samps]
             )

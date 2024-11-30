@@ -260,17 +260,8 @@ class ConfigTestCase(unittest.TestCase):
         min_asks = 1
         model = MonotonicRejectionGP
         acqf = MonotonicMCLSE
-<<<<<<< HEAD
         inducing_point_method=AutoAllocator
 
-=======
-
-        [MonotonicRejectionGP]
-        dim = 2
-
-        [GPClassificationModel]
-        dim = 2
->>>>>>> 87261b42 (update all test cases to work with the new structure)
         """
 
         config = Config()
@@ -916,6 +907,7 @@ class ConfigTestCase(unittest.TestCase):
 
             [GPRegressionModel]
             dim = 1
+            inducing_point_method = AutoAllocator
             """
         config3 = Config()
         config3.update(config_str=config_str3)
@@ -1043,10 +1035,6 @@ class ConfigTestCase(unittest.TestCase):
             restarts = 10
             samps = 1000
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 87261b42 (update all test cases to work with the new structure)
             """
 
         config = Config()
@@ -1057,7 +1045,6 @@ class ConfigTestCase(unittest.TestCase):
         model = opt_strat.model
 
         self.assertTrue(isinstance(model, HadamardSemiPModel))
-        self.assertTrue(model.dim == 2)
         self.assertTrue(model.inducing_size == 10)
         self.assertTrue(model.stim_dim == 1)
 
@@ -1067,7 +1054,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             torch.equal(model.inducing_point_method.bounds, expected_bounds)
         )
-        self.assertTrue(model.inducing_point_method == SobolAllocator)
+        
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
 

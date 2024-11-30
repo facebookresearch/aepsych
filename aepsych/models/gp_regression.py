@@ -15,10 +15,13 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
+from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ExactGP
+from aepsych.models.inducing_point_allocators import AutoAllocator
 
 logger = getLogger()
 
@@ -33,6 +36,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
     def __init__(
         self,
+        inducing_point_method: InducingPointAllocator,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
@@ -62,11 +66,18 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         self.optimizer_options = (
             {"options": optimizer_options} if optimizer_options else {"options": {}}
         )
+        self.inducing_point_method = inducing_point_method
+        inducing_points = select_inducing_points(
+            allocator=self.inducing_point_method,
+            inducing_size=99,
+        )
+        self.inducing_points = inducing_points
 
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
-                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
-            ) #??????
+                dim=self.inducing_point_method.dim,
+                stimuli_per_trial=self.stimuli_per_trial,
+            )
 
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
@@ -87,7 +98,6 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         """
         classname = cls.__name__
 
-
         mean_covar_factory = config.getobj(
             classname, "mean_covar_factory", fallback=default_mean_covar_factory
         )
@@ -107,8 +117,17 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         optimizer_options = get_optimizer_options(config, classname)
+        inducing_point_method_class = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator
+        )
+        # Check if allocator class has a `from_config` method
+        if hasattr(inducing_point_method_class, "from_config"):
+            inducing_point_method = inducing_point_method_class.from_config(config)
+        else:
+            inducing_point_method = inducing_point_method_class()
 
         return {
+            "inducing_point_method": inducing_point_method,
             "mean_module": mean,
             "covar_module": covar,
             "likelihood": likelihood,

@@ -10,7 +10,7 @@ from __future__ import annotations
 import warnings
 
 from copy import deepcopy
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import gpytorch
 import numpy as np
@@ -21,6 +21,8 @@ from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+
+from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
@@ -280,44 +282,18 @@ class SemiParametricGPModel(GPClassificationModel):
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
+        if inducing_size is None:
+            inducing_size = 99
+        self.inducing_size = inducing_size
 
-        self.inducing_point_method: Optional[InducingPointAllocator]
-        if inducing_points is not None and inducing_point_method is SobolAllocator:
-            warnings.warn(
-                "Both inducing_points and SobolAllocator are provided. "
-                "The initial inducing_points will be overwritten by the allocator."
-            )
-            self.inducing_points = inducing_point_method.allocate_inducing_points(
-                num_inducing=self.inducing_size
-            )
-
-        elif inducing_points is None and inducing_point_method is SobolAllocator:
-            self.inducing_points = inducing_point_method.allocate_inducing_points(
-                num_inducing=self.inducing_size
-            )
-
-        elif inducing_points is None and dim is not None:
-            # No allocator or unsupported allocator: create a dummy tensor
-            warnings.warn(
-                "No inducing points provided and allocation is not supported by the method. "
-                "Using a zero tensor as a placeholder."
-            )
-            self.inducing_points = torch.zeros((self.inducing_size, dim))
-        elif inducing_points is None and dim is None:
-            raise ValueError("No inducing points provided and dim is not provided.")
-
-        else:
-            # Use provided inducing points
-            self.inducing_points = inducing_points
-
-        # Always assign the inducing point method
-        self.inducing_point_method = inducing_point_method or AutoAllocator()
-
-        self.dim = dim or self.inducing_points.size(-1)
-        dim = self.dim
+        self.inducing_point_method = inducing_point_method
+        inducing_points = select_inducing_points(
+            allocator=self.inducing_point_method, inducing_size=self.inducing_size
+        )
+        self.inducing_points = inducing_points
 
         self.stim_dim = stim_dim
-        self.context_dims = list(range(dim)) #????????
+        self.context_dims = list(range(self.inducing_point_method.dim))
         self.context_dims.pop(stim_dim)
 
         if mean_module is None:
@@ -330,7 +306,7 @@ class SemiParametricGPModel(GPClassificationModel):
         if covar_module is None:
             covar_module = ScaleKernel(
                 RBFKernel(
-                    ard_num_dims=self.dim - 1,
+                    ard_num_dims=self.inducing_point_method.dim - 1,
                     lengthscale_prior=GammaPrior(3, 6),
                     active_dims=self.context_dims,  # Operate only on x_s
                     batch_shape=torch.Size([2]),
@@ -370,7 +346,6 @@ class SemiParametricGPModel(GPClassificationModel):
 
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
-
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
@@ -594,12 +569,12 @@ class HadamardSemiPModel(GPClassificationModel):
 
         self.offset_mean_module = offset_mean_module or ZeroMean()
 
-        context_dims = list(range(self.dim))
+        context_dims = list(range(self.inducing_point_method.dim))
         context_dims.pop(stim_dim)
 
         self.slope_covar_module = slope_covar_module or ScaleKernel(
             RBFKernel(
-                ard_num_dims=self.dim - 1,
+                ard_num_dims=self.inducing_point_method.dim - 1,
                 lengthscale_prior=GammaPrior(3, 6),
                 active_dims=context_dims,  # Operate only on x_s
             ),
@@ -608,7 +583,7 @@ class HadamardSemiPModel(GPClassificationModel):
 
         self.offset_covar_module = offset_covar_module or ScaleKernel(
             RBFKernel(
-                ard_num_dims=self.dim - 1,
+                ard_num_dims=self.inducing_point_method.dim - 1,
                 lengthscale_prior=GammaPrior(3, 6),
                 active_dims=context_dims,  # Operate only on x_s
             ),
@@ -667,7 +642,6 @@ class HadamardSemiPModel(GPClassificationModel):
 
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
-
 
         slope_mean_module = config.getobj(classname, "slope_mean_module", fallback=None)
         slope_covar_module = config.getobj(

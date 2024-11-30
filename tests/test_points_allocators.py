@@ -50,7 +50,10 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
+<<<<<<< HEAD
             log_scale = true
+=======
+>>>>>>> c9593a1d (fixing all erros and ensuring all test function properly)
 
             [KMeansAllocator]
         """
@@ -76,10 +79,10 @@ class TestInducingPointAllocators(unittest.TestCase):
         config.update(config_str=config_str)
         allocator = AutoAllocator.from_config(config)
 
-        # Check if fallback allocator is an instance of SobolAllocator with correct bounds
+        # Check if fallback allocator is an instance of KMeansAllocator with correct bounds
         self.assertTrue(isinstance(allocator.fallback_allocator, KMeansAllocator))
 
-        expected_bounds = torch.tensor([[0.0, 1.0], [0.0, 1.0]])
+        expected_bounds = torch.tensor([[0.0], [1.0]])
         self.assertTrue(
             torch.equal(allocator.fallback_allocator.bounds, expected_bounds)
         )

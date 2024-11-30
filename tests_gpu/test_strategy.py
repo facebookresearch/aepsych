@@ -41,7 +41,7 @@ class TestStrategyGPU(unittest.TestCase):
                         bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
                     ),
                 ),
-                generator=OptimizeAcqfGenerator(acqf=MonotonicMCLSE),
+                generator=OptimizeAcqfGenerator(acqf=MonotonicMCLSE, lb=[0], ub=[1]),
                 use_gpu_generating=True,
             )
 
