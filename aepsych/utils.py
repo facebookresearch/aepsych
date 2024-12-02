@@ -7,7 +7,7 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Any, Dict, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
