@@ -67,7 +67,7 @@ class SobolGenerator(AEPsychGenerator):
         return grid.reshape(num_points, self.stimuli_per_trial, -1).swapaxes(-1, -2)
 
     @classmethod
-    def from_config(cls, config: Config) -> 'SobolGenerator':
+    def from_config(cls, config: Config) -> "SobolGenerator":
         """
         Creates an instance of SobolGenerator from a configuration object.
 

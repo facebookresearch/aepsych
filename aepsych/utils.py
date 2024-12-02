@@ -42,7 +42,7 @@ def make_scaled_sobol(
 
 def promote_0d(x: Union[torch.Tensor, np.ndarray, List]) -> torch.Tensor:
     """Promote a 0d tensor to a 1d tensor
-    
+
     Args:
         x (Union[torch.Tensor, np.ndarray]): Input tensor
 
@@ -95,12 +95,12 @@ def _process_bounds(
     dim: Optional[int],
 ) -> Tuple[torch.Tensor, torch.Tensor, int]:
     """Helper function for ensuring bounds are correct shape and type.
-    
+
     Args:
         lb (Union[np.ndarray, torch.Tensor, List]): Lower bounds.
         ub (Union[np.ndarray, torch.Tensor, List]): Upper bounds.
         dim (int, optional): Dimension of the bounds.
-        
+
     Returns:
         Tuple[torch.Tensor, torch.Tensor, int]: Tuple of lower bounds, upper bounds, and dimension.
     """
@@ -134,16 +134,22 @@ def _process_bounds(
     return lb, ub, dim
 
 
-def interpolate_monotonic(x: Union[torch.Tensor, np.ndarray], y: Union[torch.Tensor, np.ndarray], z: Union[torch.Tensor, np.ndarray, float], min_x: Union[torch.Tensor, np.ndarray, float] = -np.inf, max_x: Union[torch.Tensor, np.ndarray, float] = np.inf) -> Any:
+def interpolate_monotonic(
+    x: Union[torch.Tensor, np.ndarray],
+    y: Union[torch.Tensor, np.ndarray],
+    z: Union[torch.Tensor, np.ndarray, float],
+    min_x: Union[torch.Tensor, np.ndarray, float] = -np.inf,
+    max_x: Union[torch.Tensor, np.ndarray, float] = np.inf,
+) -> Any:
     """Interpolate a monotonic function
-    
+
     Args:
         x (Union[torch.Tensor, np.ndarray]): x values.
         y (Union[torch.Tensor, np.ndarray]): y values.
         z (Union[torch.Tensor, np.ndarray, float]): z values.
         min_x (Union[torch.Tensor, np.ndarray, float]): Minimum x value. Defaults to -np.inf.
         max_x (Union[torch.Tensor, np.ndarray, float]): Maximum x value. Defaults to np.inf.
-        
+
     Returns:
         Any: Interpolated value.
     """
@@ -237,9 +243,16 @@ def get_lse_interval(
         return median, lower, upper
 
 
-def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.ndarray], level: float, mono_dim: int = -1, lb: Union[torch.Tensor, float] = -np.inf, ub: Union[torch.Tensor, float] = np.inf) -> torch.Tensor:
+def get_lse_contour(
+    post_mean: torch.Tensor,
+    mono_grid: Union[torch.Tensor, np.ndarray],
+    level: float,
+    mono_dim: int = -1,
+    lb: Union[torch.Tensor, float] = -np.inf,
+    ub: Union[torch.Tensor, float] = np.inf,
+) -> torch.Tensor:
     """Get the level set estimate contour
-    
+
     Args:
         post_mean (torch.Tensor): Posterior mean.
         mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
@@ -247,7 +260,7 @@ def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.n
         mono_dim (int): Monotonic dimension. Defaults to -1.
         lb (float): Lower bound. Defaults to -np.inf.
         ub (float): Upper bound. Defaults to np.inf.
-        
+
     Returns:
         torch.Tensor: Level set estimate contour.
     """
@@ -260,7 +273,14 @@ def get_lse_contour(post_mean: torch.Tensor, mono_grid: Union[torch.Tensor, np.n
     )
 
 
-def get_jnd_1d(post_mean: torch.Tensor, mono_grid: torch.Tensor, df: int = 1, mono_dim: int = -1, lb: Union[torch.Tensor, float] = -float("inf"), ub: Union[torch.Tensor, float] = float("inf")) -> torch.Tensor:
+def get_jnd_1d(
+    post_mean: torch.Tensor,
+    mono_grid: torch.Tensor,
+    df: int = 1,
+    mono_dim: int = -1,
+    lb: Union[torch.Tensor, float] = -float("inf"),
+    ub: Union[torch.Tensor, float] = float("inf"),
+) -> torch.Tensor:
     """Get the just noticeable difference for a 1D function
 
     Args:
@@ -297,7 +317,7 @@ def get_jnd_multid(
     ub: Union[torch.Tensor, float] = float("inf"),
 ) -> torch.Tensor:
     """Get the just noticeable difference for a multidimensional function
-    
+
     Args:
         post_mean (torch.Tensor): Posterior mean.
         mono_grid (torch.Tensor): Monotonic grid.

@@ -53,13 +53,13 @@ class RandomGenerator(AEPsychGenerator):
         return X
 
     @classmethod
-    def from_config(cls, config: Config) -> 'RandomGenerator':
+    def from_config(cls, config: Config) -> "RandomGenerator":
         """
         Create an instance of RandomGenerator from a configuration object.
-        
+
         Args:
             config (Config): Configuration object containing initialization parameters.
-            
+
         Returns:
             RandomGenerator: A configured instance of the generator with specified bounds and dimensionality.
         """

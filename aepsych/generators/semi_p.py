@@ -46,7 +46,6 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
 
-
         fixed_features = {model.stim_dim: 0}
         next_x = super().gen(
             num_points=num_points, model=model, fixed_features=fixed_features

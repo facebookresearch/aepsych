@@ -178,7 +178,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         return Xopt
 
     @classmethod
-    def from_config(cls, config: Config) -> 'MonotonicRejectionGenerator':
+    def from_config(cls, config: Config) -> "MonotonicRejectionGenerator":
         """
         Creates an instance of MonotonicRejectionGenerator from a configuration object.
 

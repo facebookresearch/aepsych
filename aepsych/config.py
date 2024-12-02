@@ -33,6 +33,7 @@ from aepsych.version import __version__
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
 
+
 class Config(configparser.ConfigParser):
     # names in these packages can be referred to by string name
     registered_names: ClassVar[Dict[str, object]] = {}
@@ -132,10 +133,10 @@ class Config(configparser.ConfigParser):
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
     def to_dict(self, deduplicate: bool = True) -> Dict[str, Any]:
         """Convert the config into a dictionary.
-        
+
         Args:
             deduplicate (bool): Whether to deduplicate the 'common' section. Defaults to True.
-            
+
         Returns:
             dict: Dictionary representation of the config.
         """
@@ -151,7 +152,7 @@ class Config(configparser.ConfigParser):
     # Turn the metadata section into JSON.
     def jsonifyMetadata(self) -> str:
         """Turn the metadata section into JSON.
-        
+
         Returns:
             str: JSON representation of the metadata section.
         """
@@ -161,7 +162,7 @@ class Config(configparser.ConfigParser):
     # Turn the entire config into JSON format.
     def jsonifyAll(self) -> str:
         """Turn the entire config into JSON format.
-        
+
         Returns:
             str: JSON representation of the entire config.
         """
@@ -239,11 +240,11 @@ class Config(configparser.ConfigParser):
         self, v: str, element_type: Callable[[_ET], _ET] = float
     ) -> List[_T]:
         """Convert a string to a list.
-        
+
         Args:
             v (str): String to convert.
             element_type (Callable[[_ET], _ET]): Type of the elements in the list. Defaults to float.
-            
+
         Returns:
             List[_T]: List of elements of type _T.
         """
@@ -260,10 +261,10 @@ class Config(configparser.ConfigParser):
 
     def _str_to_array(self, v: str) -> np.ndarray:
         """Convert a string to a numpy array.
-        
+
         Args:
             v (str): String to convert.
-            
+
         Returns:
             np.ndarray: Numpy array representation of the string.
         """
@@ -370,7 +371,7 @@ class Config(configparser.ConfigParser):
 
     def __repr__(self) -> str:
         """Return a string representation of the config.
-        
+
         Returns:
             str: String representation of the config.
         """
@@ -410,10 +411,10 @@ class Config(configparser.ConfigParser):
 
     def get_section(self, section: str) -> Dict[str, Any]:
         """Get a section of the config.
-        
+
         Args:
             section (str): Section to get.
-            
+
         Returns:
             Dict[str, Any]: Dictionary representation of the section.
         """
@@ -533,7 +534,7 @@ class Config(configparser.ConfigParser):
     @property
     def version(self) -> str:
         """Returns the version number of the config.
-        
+
         Returns:
             str: Version number of the config.
         """

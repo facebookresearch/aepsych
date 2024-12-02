@@ -64,10 +64,10 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
         """Instantiate the acquisition function with the model and any extra arguments.
-        
+
         Args:
             model (ModelProtocol): The model to use for the acquisition function.
-            
+
         Returns:
             AcquisitionFunction: The instantiated acquisition function.
         """
@@ -152,10 +152,10 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
     @classmethod
     def from_config(cls, config: Config) -> AcqfThompsonSamplerGenerator:
         """Initialize AcqfThompsonSamplerGenerator from configuration.
-        
+
         Args:
             config (Config): Configuration object containing initialization parameters.
-            
+
         Returns:
             AcqfThompsonSamplerGenerator: The initialized generator.
         """

@@ -47,7 +47,7 @@ from botorch.models.transforms.input import ChainedInputTransform
 logger = getLogger()
 
 
-def ensure_model_is_fresh(f:Callable) -> Callable:
+def ensure_model_is_fresh(f: Callable) -> Callable:
     """Decorator to ensure that the model is up-to-date before running a method.
 
     Args:
@@ -56,6 +56,7 @@ def ensure_model_is_fresh(f:Callable) -> Callable:
     Returns:
         Callable: The wrapped function.
     """
+
     def wrapper(self, *args, **kwargs):
         if self.can_fit and not self._model_is_fresh:
             starttime = time.time()
@@ -332,18 +333,18 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def get_max(
-        self, 
-        constraints: Optional[Mapping[int, List[float]]]  = None, 
-        probability_space: bool = False, 
-        max_time: Optional[float] = None
+        self,
+        constraints: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        max_time: Optional[float] = None,
     ) -> Tuple[float, torch.Tensor]:
         """Get the maximum value of the acquisition function.
-        
+
         Args:
             constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
             probability_space (bool): Whether to return the max in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
-            
+
         Returns:
             Tuple[float, torch.Tensor]: The maximum value of the acquisition function and the corresponding input.
         """
@@ -358,18 +359,18 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def get_min(
-        self, 
-        constraints: Optional[Mapping[int, List[float]]]  = None, 
-        probability_space: bool = False, 
-        max_time: Optional[float] = None
+        self,
+        constraints: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        max_time: Optional[float] = None,
     ) -> Tuple[float, torch.Tensor]:
         """Get the minimum value of the acquisition function.
-        
+
         Args:
             constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
             probability_space (bool): Whether to return the min in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
-            
+
         Returns:
             Tuple[float, torch.Tensor]: The minimum value of the acquisition function and the corresponding input.
         """
@@ -384,14 +385,14 @@ class Strategy(object):
 
     @ensure_model_is_fresh
     def inv_query(
-        self, 
-        y: int, 
-        constraints: Optional[Mapping[int, List[float]]]  = None, 
-        probability_space: bool = False, 
-        max_time: Optional[float] = None
+        self,
+        y: int,
+        constraints: Optional[Mapping[int, List[float]]] = None,
+        probability_space: bool = False,
+        max_time: Optional[float] = None,
     ) -> Tuple[float, torch.Tensor]:
         """Get the input that corresponds to a given output value.
-        
+
         Args:
             y (int): The output value.
             constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
@@ -399,7 +400,7 @@ class Strategy(object):
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
         Returns:
-            Tuple[float, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.    
+            Tuple[float, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.
         """
         constraints = constraints or {}
         assert (
@@ -413,11 +414,11 @@ class Strategy(object):
     @ensure_model_is_fresh
     def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
         """Predict the output value(s) for the given input(s).
-        
+
         Args:
             x (torch.Tensor): The input value(s).
             probability_space (bool): Whether to return the output in probability space. Defaults to False.
-            
+
         Returns:
             torch.Tensor: The predicted output value(s).
         """
@@ -430,7 +431,7 @@ class Strategy(object):
         self, *args, **kwargs
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
         """Get the just-noticeable difference (JND) for the given input(s).
-        
+
         Returns:
             Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: The JND value(s).
         """
@@ -449,7 +450,7 @@ class Strategy(object):
         Args:
             x (torch.Tensor): The input value(s).
             num_samples (int, optional): The number of samples to generate. Defaults to None.
-        
+
         Returns:
             torch.Tensor: The sampled output value(s).
         """
@@ -464,7 +465,7 @@ class Strategy(object):
     @property
     def finished(self) -> bool:
         """Check if the strategy is finished.
-        
+
         Returns:
             bool: True if the strategy is finished, False otherwise.
         """
@@ -514,7 +515,7 @@ class Strategy(object):
     @property
     def can_fit(self) -> bool:
         """Check if the strategy can be fitted.
-        
+
         Returns:
             bool: True if the strategy can be fitted, False otherwise.
         """
@@ -523,7 +524,7 @@ class Strategy(object):
     @property
     def n_trials(self) -> int:
         """Get the number of trials.
-        
+
         Returns:
             int: The number of trials.
         """
@@ -604,11 +605,11 @@ class Strategy(object):
     @classmethod
     def from_config(cls, config: Config, name: str) -> Strategy:
         """Create a strategy object from a configuration object.
-        
+
         Args:
             config (Config): The configuration object.
             name (str): The name of the strategy.
-            
+
         Returns:
             Strategy: The strategy object.
         """
@@ -710,7 +711,7 @@ class SequentialStrategy(object):
 
     def __init__(self, strat_list: List[Strategy]) -> None:
         """Initialize the SequentialStrategy object.
-        
+
         Args:
             strat_list (List[Strategy]): The list of strategies.
         """
@@ -723,7 +724,7 @@ class SequentialStrategy(object):
     @property
     def _strat(self) -> Strategy:
         """Get the current strategy.
-        
+
         Returns:
             Strategy: The current strategy.
         """
@@ -731,10 +732,10 @@ class SequentialStrategy(object):
 
     def __getattr__(self, name: str) -> Any:
         """Get the attribute of the current strategy.
-        
+
         Args:
             name (str): The name of the attribute.
-            
+
         Returns:
             Any: The attribute of the current strategy.
         """
@@ -762,10 +763,10 @@ class SequentialStrategy(object):
 
     def gen(self, num_points: int = 1, **kwargs) -> torch.Tensor:
         """Generate the next set of points to evaluate.
-        
+
         Args:
             num_points (int): The number of points to generate. Defaults to 1.
-            
+
         Returns:
             torch.Tensor: The next set of points to evaluate.
         """
@@ -781,7 +782,7 @@ class SequentialStrategy(object):
     @property
     def finished(self) -> bool:
         """Check if the strategy is finished.
-        
+
         Returns:
             bool: True if the strategy is finished, False otherwise.
         """
@@ -791,7 +792,7 @@ class SequentialStrategy(object):
         self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
     ) -> None:
         """Add new data points to the strategy.
-        
+
         Args:
             x (Union[np.ndarray, torch.Tensor]): The input data points.
             y (Union[np.ndarray, torch.Tensor]): The output data points.
@@ -801,10 +802,10 @@ class SequentialStrategy(object):
     @classmethod
     def from_config(cls, config: Config) -> SequentialStrategy:
         """Create a SequentialStrategy object from a configuration object.
-        
+
         Args:
             config (Config): The configuration object.
-            
+
         Returns:
             SequentialStrategy: The SequentialStrategy object.
         """

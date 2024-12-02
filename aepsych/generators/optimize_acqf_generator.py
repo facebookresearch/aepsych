@@ -50,7 +50,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Args:
             acqf (AcquisitionFunction): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
-                pass to acquisition function. Defaults to no arguments. 
+                pass to acquisition function. Defaults to no arguments.
             restarts (int): Number of restarts for acquisition function optimization. Defaults to 10.
             samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.
             max_gen_time (float, optional): Maximum time (in seconds) to optimize the acquisition function. Defaults to None.
@@ -141,13 +141,13 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         return new_candidate
 
     @classmethod
-    def from_config(cls, config: Config) -> 'OptimizeAcqfGenerator':
+    def from_config(cls, config: Config) -> "OptimizeAcqfGenerator":
         """
         Creates an instance of OptimizeAcqfGenerator from a configuration object.
-        
+
         Args:
             config (Config): Configuration object containing initialization parameters.
-            
+
         Returns:
             OptimizeAcqfGenerator: A configured instance of OptimizeAcqfGenerator with specified acquisition function,
             restart and sample parameters, maximum generation time, and stimuli per trial.

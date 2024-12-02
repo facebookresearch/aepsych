@@ -17,7 +17,7 @@ from .optimize_acqf_generator import OptimizeAcqfGenerator
 class EpsilonGreedyGenerator(AEPsychGenerator):
     def __init__(self, subgenerator: AEPsychGenerator, epsilon: float = 0.1) -> None:
         """Initialize EpsilonGreedyGenerator.
-        
+
         Args:
             subgenerator (AEPsychGenerator): The generator to use when not exploiting.
             epsilon (float): The probability of exploration. Defaults to 0.1.
@@ -26,12 +26,12 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         self.epsilon = epsilon
 
     @classmethod
-    def from_config(cls, config: Config) -> 'EpsilonGreedyGenerator':
+    def from_config(cls, config: Config) -> "EpsilonGreedyGenerator":
         """Create an EpsilonGreedyGenerator from a Config object.
-        
+
         Args:
             config (Config): Configuration object containing initialization parameters.
-            
+
         Returns:
             EpsilonGreedyGenerator: The generator.
         """
@@ -45,7 +45,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
 
     def gen(self, num_points: int, model: ModelProtocol) -> torch.Tensor:
         """Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.
-        
+
         Args:
             num_points (int): Number of points to query.
             model (ModelProtocol): Model to use for generating points.

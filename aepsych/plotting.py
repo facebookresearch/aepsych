@@ -8,12 +8,13 @@
 import warnings
 from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 
-from matplotlib.image import AxesImage
 import matplotlib.pyplot as plt
 import numpy as np
 from aepsych.strategy import Strategy
 from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
 from matplotlib.axes import Axes
+
+from matplotlib.image import AxesImage
 from scipy.stats import norm
 
 
@@ -151,7 +152,7 @@ def _plot_strat_1d(
     gridsize: int,
 ) -> plt.Axes:
     """Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments.
-    
+
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 1.
         ax (plt.Axes): Matplotlib axis to plot on
@@ -271,7 +272,7 @@ def _plot_strat_2d(
     include_colorbar: bool,
 ):
     """Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments.
-    
+
     Args:
         strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 2.
         ax (plt.Axes): Matplotlib axis to plot on
