@@ -126,7 +126,7 @@ class GPClassificationSmoketest(unittest.TestCase):
             torch.Tensor([3]),
             inducing_size=10,
             inducing_point_method=AutoAllocator(
-                bounds=torch.stack((torch.tensor(-3), torch.tensor(3)))
+                bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
             ),
         )
 
