@@ -57,7 +57,10 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
+<<<<<<< HEAD
             log_scale = true
+=======
+>>>>>>> 39d7f204 (final refactor in allocators classes)
 
             [KMeansAllocator]
         """
