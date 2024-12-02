@@ -39,6 +39,14 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_kmeans_allocator_from_config(self):
         config_str = """
+            [common]
+            parnames = [par1]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 0.0
+            upper_bound = 1.0
+
             [KMeansAllocator]
         """
         config = Config()
