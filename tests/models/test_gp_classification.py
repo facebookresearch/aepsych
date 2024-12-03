@@ -798,7 +798,7 @@ class GPClassificationTest(unittest.TestCase):
     def test_hyperparam_consistency(self):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams
 
-        m1 = GPClassificationModel(lb=[1, 2], ub=[3, 4], inducing_size=2)
+        m1 = GPClassificationModel(lb=[1, 2], ub=[3, 4])
 
         m2 = GPClassificationModel.from_config(
             config=Config(
@@ -807,7 +807,6 @@ class GPClassificationTest(unittest.TestCase):
                         "parnames": ["par1", "par2"],
                         "lb": "[1, 2]",
                         "ub": "[3, 4]",
-                        "inducing_size": 2,
                     },
                     "par1": {"value_type": "float"},
                     "par2": {"value_type": "float"},

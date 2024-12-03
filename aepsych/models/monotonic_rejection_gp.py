@@ -19,7 +19,7 @@ from aepsych.factory.monotonic import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator, DummyAllocator
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
@@ -67,7 +67,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         num_induc: int = 25,
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize MonotonicRejectionGP.
@@ -88,7 +88,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             num_samples (int): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
             num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096.
-            inducing_point_method (str): Method for selecting inducing points. Defaults to "auto".
+            inducing_point_method (InducingPointAllocator): Method for selecting inducing points. Defaults to AutoAllocator().
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
@@ -97,12 +97,10 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             likelihood = BernoulliLikelihood()
 
         self.inducing_size = num_induc
-        if inducing_point_method is None:
-            self.inducing_point_method = AutoAllocator()
-        else:
-            self.inducing_point_method = inducing_point_method
+        self.inducing_point_method = inducing_point_method
+
         inducing_points = select_inducing_points(
-            allocator=SobolAllocator(bounds=torch.stack((self.lb, self.ub))),
+            allocator=DummyAllocator(bounds=torch.stack((self.lb, self.ub))),
             inducing_size=self.inducing_size,
         )
 

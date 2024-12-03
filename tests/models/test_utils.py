@@ -6,17 +6,20 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
-from io import IOBase
 
 import numpy as np
 import torch
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator, KMeansAllocator
-from aepsych.models.utils import select_inducing_points
-from botorch.models.utils.inducing_point_allocators import (
+from aepsych.models.inducing_point_allocators import (
+    AutoAllocator,
+    DummyAllocator,
+    FixedAllocator,
     GreedyVarianceReduction,
-    InducingPointAllocator,
+    KMeansAllocator,
+    SobolAllocator,
 )
+from aepsych.models.utils import select_inducing_points
+
 from sklearn.datasets import make_classification
 
 
@@ -76,7 +79,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 )
             )
             <= 20
@@ -94,11 +96,52 @@ class UtilsTestCase(unittest.TestCase):
             ),
             20,
         )
-
         self.assertTrue(
             len(
                 select_inducing_points(
                     allocator="auto",
+                    inducing_size=inducing_size,
+                    covar_module=model.covar_module,
+                    X=model.train_inputs[0],
+                    bounds=model.bounds,
+                )
+            )
+            <= 20
+        )
+        self.assertTrue(
+            len(
+                select_inducing_points(
+                    allocator=SobolAllocator(
+                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+                    ),
+                    inducing_size=inducing_size,
+                    covar_module=model.covar_module,
+                    X=model.train_inputs[0],
+                    bounds=model.bounds,
+                )
+            )
+            <= 20
+        )
+        self.assertTrue(
+            len(
+                select_inducing_points(
+                    allocator=DummyAllocator(
+                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+                    ),
+                    inducing_size=inducing_size,
+                    covar_module=model.covar_module,
+                    X=model.train_inputs[0],
+                    bounds=model.bounds,
+                )
+            )
+            <= 20
+        )
+        self.assertTrue(
+            len(
+                select_inducing_points(
+                    allocator=FixedAllocator(
+                        inducing_points=torch.tensor([0, 1, 2, 3])
+                    ),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],

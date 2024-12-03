@@ -5,6 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Union
 
 import numpy as np
@@ -63,6 +64,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
         """
         return inputs.shape[-1]
 
+    @abstractmethod
     def allocate_inducing_points(
         self,
         inputs: Optional[torch.Tensor],
@@ -87,6 +89,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
 
         raise NotImplementedError("This method should be implemented by subclasses.")
 
+    @abstractmethod
     def _get_quality_function(self) -> Optional[Any]:
         """
         Abstract method for returning a quality function if required.
@@ -96,35 +99,14 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
         """
         raise NotImplementedError("This method should be implemented by subclasses.")
 
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Any,  # Replace with actual type if available
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """
-        Get configuration options for the allocator.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the allocator.
-            options (Dict[str, Any], optional): Additional configuration options.
-
-        Returns:
-            Dict[str, Any]: Configuration options dictionary.
-        """
-        raise NotImplementedError("This method should be implemented by subclasses.")
-
 
 class SobolAllocator(BaseAllocator):
     """An inducing point allocator that uses Sobol sequences to allocate inducing points."""
 
     def __init__(self, bounds: torch.Tensor) -> None:
-        """Initialize the SobolAllocator without bounds."""
-        self.bounds = bounds
-        super().__init__(bounds=bounds)
+        """Initialize the SobolAllocator with bounds."""
         self.bounds: torch.Tensor = bounds
+        super().__init__(bounds=bounds)
 
     def _get_quality_function(self) -> None:
         """Sobol sampling does not require a quality function, so this returns None."""
@@ -276,10 +258,16 @@ class KMeansAllocator(BaseAllocator):
 
 class DummyAllocator(BaseAllocator):
     def __init__(self, bounds: torch.Tensor) -> None:
+        """Initialize the DummyAllocator with bounds.
+
+        Args:
+            bounds (torch.Tensor): Bounds for allocating points. Should be of shape (2, d).
+        """
         super().__init__(bounds=bounds)
         self.bounds: torch.Tensor = bounds
 
     def _get_quality_function(self) -> None:
+        """DummyAllocator does not require a quality function, so this returns None."""
         return None
 
     def allocate_inducing_points(
@@ -289,6 +277,17 @@ class DummyAllocator(BaseAllocator):
         num_inducing: int = 10,
         input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:
+        """Allocate inducing points by returning zeros of the appropriate shape.
+
+        Args:
+            inputs (torch.Tensor): Input tensor, not required for DummyAllocator.
+            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
+            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.
+            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
+
+        Returns:
+            torch.Tensor: A (num_inducing, d)-dimensional tensor of zeros.
+        """
         return torch.zeros(num_inducing, self.bounds.shape[-1])
 
     @classmethod
@@ -298,6 +297,16 @@ class DummyAllocator(BaseAllocator):
         name: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+        """Get configuration options for the DummyAllocator.
+
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+
+        Returns:
+            Dict[str, Any]: Configuration options for the DummyAllocator.
+        """
         if name is None:
             name = cls.__name__
         bounds = get_bounds(config)
@@ -415,11 +424,21 @@ class AutoAllocator(BaseAllocator):
 
 
 class FixedAllocator(BaseAllocator):
-    def __init__(self, inducing_points: torch.Tensor) -> None:
-        super().__init__()
+    def __init__(
+        self, inducing_points: torch.Tensor, bounds: Optional[torch.Tensor] = None
+    ) -> None:
+        """Initialize the FixedAllocator with inducing points and bounds.
+
+        Args:
+            inducing_points (torch.Tensor): Inducing points to use.
+            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).
+        """
+        super().__init__(bounds=bounds)
         self.inducing_points = inducing_points
+        self.bounds = bounds
 
     def _get_quality_function(self) -> None:
+        """FixedAllocator does not require a quality function, so this returns None."""
         return None
 
     def allocate_inducing_points(
@@ -429,6 +448,17 @@ class FixedAllocator(BaseAllocator):
         num_inducing: int = 10,
         input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:
+        """Allocate inducing points by returning the fixed inducing points.
+
+        Args:
+            inputs (torch.Tensor): Input tensor, not required for FixedAllocator.
+            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
+            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.
+            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
+
+        Returns:
+            torch.Tensor: The fixed inducing points.
+        """
         return self.inducing_points
 
     @classmethod
@@ -438,31 +468,55 @@ class FixedAllocator(BaseAllocator):
         name: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+        """Get configuration options for the FixedAllocator.
+
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+
+        Returns:
+            Dict[str, Any]: Configuration options for the FixedAllocator.
+        """
         if name is None:
             name = cls.__name__
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack([lb, ub])
+        num_inducing = config.getint("common", "num_inducing")
+        fallback_allocator = config.getobj(
+            name, "fallback_allocator", fallback=DummyAllocator(bounds=bounds)
+        )
         inducing_points = config.gettensor(
             name,
             "inducing_points",
-            fallback=DummyAllocator(
-                torch.stack(
-                    [config.gettensor("common", "lb"), config.gettensor("common", "ub")]
-                )
-            ).allocate_inducing_points(
-                num_inducing=config.getint("common", "num_inducing")
+            fallback=fallback_allocator.allocate_inducing_points(
+                num_inducing=num_inducing
             ),
         )
         return {"inducing_points": inducing_points}
 
 
-class GreedyVarianceReduction(BaseGreedyVarianceReduction):
+class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
     def __init__(self, bounds: Optional[torch.Tensor] = None) -> None:
+        """Initialize the GreedyVarianceReduction with bounds.
+
+        Args:
+            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).
+        """
         super().__init__()
+
+        self.bounds = bounds
         if bounds is not None:
-            self.bounds = bounds
             self.dummy_allocator = DummyAllocator(bounds)
         self.dim = self._initialize_dim()
 
     def _initialize_dim(self) -> Optional[int]:
+        """Initialize the dimension `dim` based on the bounds, if available.
+
+        Returns:
+            int: The dimension `d` if bounds are provided, or None otherwise.
+        """
         if self.bounds is not None:
             assert self.bounds.shape[0] == 2, "Bounds must have shape (2, d)!"
             lb, ub = self.bounds[0], self.bounds[1]
@@ -480,6 +534,17 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction):
         num_inducing: int = 10,
         input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:
+        """Allocate inducing points using the GreedyVarianceReduction strategy.
+
+        Args:
+            inputs (torch.Tensor): Input tensor, not required for GreedyVarianceReduction.
+            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
+            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.
+            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
+
+        Returns:
+            torch.Tensor: The allocated inducing points.
+        """
         if inputs is None and self.bounds is not None:
             return self.dummy_allocator.allocate_inducing_points(
                 inputs=inputs,
@@ -504,11 +569,17 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction):
         name: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+        """Get configuration options for the GreedyVarianceReduction allocator.
+
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the allocator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+
+        Returns:
+            Dict[str, Any]: Configuration options for the GreedyVarianceReduction allocator.
+        """
         if name is None:
             name = cls.__name__
         bounds = get_bounds(config)
         return {"bounds": bounds}
-
-    @classmethod
-    def from_config(cls, config: Config) -> "GreedyVarianceReduction":
-        return cls(**cls.get_config_options(config))

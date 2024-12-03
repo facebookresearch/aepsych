@@ -106,7 +106,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the MonotonicProjectionGP model.
@@ -128,14 +128,12 @@ class MonotonicProjectionGP(GPClassificationModel):
             inducing_size (int, optional): The number of inducing points to use. Defaults to None.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
-        """
+            inducing_point_method (InducingPointAllocator, optional): The method to use for allocating inducing points.
+                Defaults to AutoAllocator."""
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
         self.min_f_val = min_f_val
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,

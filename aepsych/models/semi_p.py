@@ -261,7 +261,7 @@ class SemiParametricGPModel(GPClassificationModel):
         slope_mean: float = 2,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -281,7 +281,7 @@ class SemiParametricGPModel(GPClassificationModel):
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (InducingPointAllocator, optional): The method to use to select the inducing points. Defaults to AutoAllocator.
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. Defaults to AutoAllocator.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
@@ -313,8 +313,6 @@ class SemiParametricGPModel(GPClassificationModel):
         assert isinstance(
             likelihood, LinearBernoulliLikelihood
         ), "SemiP model only supports linear Bernoulli likelihoods!"
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
 
         super().__init__(
             lb=lb,
@@ -532,7 +530,7 @@ class HadamardSemiPModel(GPClassificationModel):
         slope_mean: float = 2,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -552,16 +550,10 @@ class HadamardSemiPModel(GPClassificationModel):
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
-                If "sobol", a number of Sobol points equal to inducing_size will be selected.
-                If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
-                If "kmeans++", selects points by performing kmeans++ clustering on the training data.
-                If "auto", tries to determine the best method automatically.
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. Defaults to AutoAllocator.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,
