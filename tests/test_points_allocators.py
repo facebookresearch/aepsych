@@ -12,13 +12,9 @@ from aepsych.models.inducing_point_allocators import (
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
-from botorch.models import SingleTaskGP
-from botorch.models.utils.inducing_point_allocators import (
-    GreedyImprovementReduction,
-    GreedyVarianceReduction,
-    InducingPointAllocator,
-)
+from botorch.models.utils.inducing_point_allocators import GreedyImprovementReduction
 from botorch.utils.sampling import draw_sobol_samples
+from sklearn.datasets import make_classification
 
 from aepsych.strategy import Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options
@@ -57,10 +53,7 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
-<<<<<<< HEAD
             log_scale = true
-=======
->>>>>>> 39d7f204 (final refactor in allocators classes)
 
             [KMeansAllocator]
         """

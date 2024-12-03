@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
-from io import IOBase
 
 import numpy as np
 import torch

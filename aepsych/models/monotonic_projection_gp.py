@@ -134,8 +134,6 @@ class MonotonicProjectionGP(GPClassificationModel):
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
         self.min_f_val = min_f_val
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,

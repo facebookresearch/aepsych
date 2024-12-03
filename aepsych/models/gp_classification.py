@@ -81,10 +81,14 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
 <<<<<<< HEAD
+<<<<<<< HEAD
             inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
 =======
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
 >>>>>>> bed739ae (reformat follwoing ufmt)
+=======
+            inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
+>>>>>>> b11b680c (fix porposed changes)
                 Defaults to AutoAllocator().
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
@@ -108,10 +112,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         if likelihood is None:
             likelihood = BernoulliLikelihood()
-        if inducing_point_method is None:
-            self.inducing_point_method = AutoAllocator()
-        else:
-            self.inducing_point_method = inducing_point_method
+
+        self.inducing_point_method = inducing_point_method
 
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
@@ -131,6 +133,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             learn_inducing_locations=False,
         )
         super().__init__(variational_strategy)
+
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
                 dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
@@ -400,8 +403,6 @@ class GPBetaRegressionModel(GPClassificationModel):
         """
         if likelihood is None:
             likelihood = BetaLikelihood()
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,

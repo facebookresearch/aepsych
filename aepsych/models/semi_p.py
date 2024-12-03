@@ -313,8 +313,6 @@ class SemiParametricGPModel(GPClassificationModel):
         assert isinstance(
             likelihood, LinearBernoulliLikelihood
         ), "SemiP model only supports linear Bernoulli likelihoods!"
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
 
         super().__init__(
             lb=lb,
@@ -556,8 +554,6 @@ class HadamardSemiPModel(GPClassificationModel):
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
-        if inducing_point_method is None:
-            inducing_point_method = AutoAllocator()
         super().__init__(
             lb=lb,
             ub=ub,
