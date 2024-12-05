@@ -139,9 +139,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             len(
                 select_inducing_points(
-                    allocator=FixedAllocator(
-                        inducing_points=torch.tensor([0, 1, 2, 3])
-                    ),
+                    allocator=FixedAllocator(points=torch.tensor([0, 1, 2, 3])),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],

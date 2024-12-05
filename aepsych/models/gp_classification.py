@@ -125,7 +125,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             learn_inducing_locations=False,
         )
         super().__init__(variational_strategy)
-        self.variational_strategy = variational_strategy
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
                 dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
