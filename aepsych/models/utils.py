@@ -11,7 +11,6 @@ from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,

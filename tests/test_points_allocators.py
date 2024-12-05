@@ -12,6 +12,9 @@ from aepsych.models.inducing_point_allocators import (
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
+
+from aepsych.strategy import Strategy
+from aepsych.transforms.parameters import ParameterTransforms, transform_options
 from botorch.models.utils.inducing_point_allocators import GreedyImprovementReduction
 from botorch.utils.sampling import draw_sobol_samples
 from sklearn.datasets import make_classification
@@ -205,7 +208,6 @@ class TestInducingPointAllocators(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
         strat = Strategy.from_config(config, "init_strat")
-        print(strat.model.inducing_point_method)
         self.assertTrue(isinstance(strat.model.inducing_point_method, SobolAllocator))
 
         # check that the bounds are scaled correctly
