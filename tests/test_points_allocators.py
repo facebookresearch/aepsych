@@ -6,11 +6,15 @@ from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_point_allocators import (
     AutoAllocator,
     DummyAllocator,
+    FixedAllocator,
     GreedyVarianceReduction,
     KMeansAllocator,
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
+
+from aepsych.strategy import Strategy
+from aepsych.transforms.parameters import ParameterTransforms, transform_options
 from botorch.models.utils.inducing_point_allocators import GreedyImprovementReduction
 from botorch.utils.sampling import draw_sobol_samples
 from sklearn.datasets import make_classification
@@ -26,6 +30,7 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
+            log_scale = true
 
         """
         config = Config()
@@ -45,6 +50,7 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
+            log_scale = true
 
             [KMeansAllocator]
         """
@@ -64,6 +70,7 @@ class TestInducingPointAllocators(unittest.TestCase):
             par_type = continuous
             lower_bound = 0.0
             upper_bound = 1.0
+            log_scale = true
 
         """
         config = Config()
@@ -117,7 +124,6 @@ class TestInducingPointAllocators(unittest.TestCase):
             )
             self.assertEqual(points.shape, (5, 1))
 
-    # Need to test instantiating a full model and checking if the inducing points are correct: initially dummy but with the correct inducing_point_method set. Then after fitting once, inducing points are replaced with real inducing points.
     def test_auto_allocator_allocate_inducing_points(self):
         train_X = torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])
         train_Y = torch.tensor([[1.0], [2.0], [3.0]])
@@ -168,6 +174,338 @@ class TestInducingPointAllocators(unittest.TestCase):
             )
         )
 
+    def test_sobol_allocator_from_model_config(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+            model = GPClassificationModel
+            inducing_point_method = SobolAllocator
+            lb = [10]
+            ub = [100]
+
+
+            [par1]
+            par_type = continuous
+            log_scale = true
+            
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 5
+            refit_every = 5
+
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = Strategy.from_config(config, "init_strat")
+        self.assertTrue(isinstance(strat.model.inducing_point_method, SobolAllocator))
+
+        # check that the bounds are scaled correctly
+        self.assertFalse(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[10], [100]])
+            )
+        )
+        self.assertTrue(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[0], [1]])
+            )
+        )
+
+    def test_kmeans_allocator_from_model_config(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+            model = GPClassificationModel
+            inducing_point_method = KMeansAllocator
+            lb = [10]
+            ub = [100]
+
+
+            [par1]
+            par_type = continuous
+            log_scale = true
+            
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 5
+            refit_every = 5
+
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = Strategy.from_config(config, "init_strat")
+        self.assertTrue(isinstance(strat.model.inducing_point_method, KMeansAllocator))
+
+        # check that the bounds are scaled correctly
+        self.assertFalse(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[10], [100]])
+            )
+        )
+        self.assertTrue(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[0], [1]])
+            )
+        )
+
+    def test_auto_allocator_from_model_config(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+            model = GPClassificationModel
+            inducing_point_method = AutoAllocator
+            lb = [10]
+            ub = [100]
+
+
+            [par1]
+            par_type = continuous
+            log_scale = true
+            
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 5
+            refit_every = 5
+
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = Strategy.from_config(config, "init_strat")
+        self.assertTrue(isinstance(strat.model.inducing_point_method, AutoAllocator))
+
+        # check that the bounds are scaled correctly
+        self.assertFalse(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[10], [100]])
+            )
+        )
+        self.assertTrue(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[0], [1]])
+            )
+        )
+
+    def test_dummy_allocator_from_model_config(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+            model = GPClassificationModel
+            inducing_point_method = DummyAllocator
+            lb = [10]
+            ub = [100]
+
+
+            [par1]
+            par_type = continuous
+            log_scale = true
+            
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 5
+            refit_every = 5
+
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = Strategy.from_config(config, "init_strat")
+        self.assertTrue(isinstance(strat.model.inducing_point_method, DummyAllocator))
+
+        # check that the bounds are scaled correctly
+        self.assertFalse(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[10], [100]])
+            )
+        )
+        self.assertTrue(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[0], [1]])
+            )
+        )
+
+    def test_inducing_point_before_and_after_auto(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+            model = GPClassificationModel
+            inducing_point_method = AutoAllocator
+            lb = [10]
+            ub = [100]
+
+            [par1]
+            par_type = continuous
+            log_scale = true
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 5
+            refit_every = 5
+
+            [GPClassificationModel]
+            inducing_size = 2
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = Strategy.from_config(config, "init_strat")
+        self.assertTrue(isinstance(strat.model.inducing_point_method, AutoAllocator))
+
+        # check that the bounds are scaled correctly
+        self.assertFalse(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[10], [100]])
+            )
+        )
+        self.assertTrue(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[0], [1]])
+            )
+        )
+
+        train_X = torch.tensor([[0.0], [1.0]])
+        train_Y = torch.tensor([[1.0], [1.0]])
+
+        auto_inducing_points = AutoAllocator(
+            bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+        ).allocate_inducing_points(
+            inputs=train_X,
+            covar_module=strat.model.covar_module,
+            num_inducing=strat.model.inducing_size,
+        )
+        inital_inducing_points = DummyAllocator(
+            bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+        ).allocate_inducing_points(
+            inputs=train_X,
+            covar_module=strat.model.covar_module,
+            num_inducing=strat.model.inducing_size,
+        )
+
+        # Should be different from the initial inducing points
+        self.assertFalse(
+            torch.allclose(
+                auto_inducing_points, strat.model.variational_strategy.inducing_points
+            )
+        )
+        # Should be the same as the initial inducing points
+        self.assertTrue(
+            torch.allclose(
+                inital_inducing_points, strat.model.variational_strategy.inducing_points
+            )
+        )
+
+        # Fit the model and check that the inducing points are updated
+        strat.add_data(train_X, train_Y)
+        strat.fit()
+        self.assertEqual(
+            strat.model.variational_strategy.inducing_points.shape,
+            auto_inducing_points.shape,
+        )
+
+    def test_fixed_allocator_allocate_inducing_points(self):
+        config_str = """
+
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+            model = GPClassificationModel
+            inducing_point_method = FixedAllocator
+            lb = [10]
+            ub = [100]
+            num_inducing = 2
+
+            [par1]
+            par_type = continuous
+            log_scale = true
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 5
+            refit_every = 5
+
+            [FixedAllocator]
+            points = [[0.1], [0.2]]
+
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = Strategy.from_config(config, "init_strat")
+        self.assertTrue(isinstance(strat.model.inducing_point_method, FixedAllocator))
+
+        # check that the bounds are scaled correctly
+        self.assertFalse(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[10], [100]])
+            )
+        )
+        self.assertTrue(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[0], [1]])
+            )
+        )
+
+        # Check that the inducing points are the same as the fixed points (pre-transformation)
+        inducing_points_pre_transform = FixedAllocator(
+            points=torch.tensor([[0.1], [0.2]])
+        ).allocate_inducing_points(num_inducing=2)
+        self.assertTrue(
+            torch.equal(inducing_points_pre_transform, torch.tensor([[0.1], [0.2]]))
+        )
+
+        # Check that the inducing points are not the same as the fixed points (post-transformation)
+        inducing_points_after_transform = (
+            strat.model.inducing_point_method.allocate_inducing_points(num_inducing=2)
+        )
+        self.assertFalse(
+            torch.equal(inducing_points_after_transform, torch.tensor([[0.1], [0.2]]))
+        )
+
+        # make the transformation
+        transforms = ParameterTransforms.from_config(config)
+        transformed_config = transform_options(config, transforms)
+        transformed_points = torch.tensor(
+            eval(transformed_config["FixedAllocator"]["points"])
+        )
+        # Check that the inducing points are the same as the fixed points (post-transformation)
+        self.assertTrue(
+            torch.equal(inducing_points_after_transform, transformed_points)
+        )
+
+        # Fit the model and check that the inducing points are updated
+        train_X = torch.tensor([[6.0], [3.0]])
+        train_Y = torch.tensor([[1.0], [1.0]])
+        strat.add_data(train_X, train_Y)
+        strat.fit()
+        self.assertTrue(
+            torch.equal(
+                strat.model.variational_strategy.inducing_points, transformed_points
+            )
+        )
+
 
 class TestGreedyAllocators(unittest.TestCase):
     def test_greedy_variance_reduction_allocate_inducing_points(self):
@@ -215,6 +553,49 @@ class TestGreedyAllocators(unittest.TestCase):
 
         self.assertTrue(
             torch.allclose(inducing_points, model.variational_strategy.inducing_points)
+        )
+
+    def test_greedy_variance_from_config(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat]
+            model = GPClassificationModel
+            inducing_point_method = GreedyVarianceReduction
+            lb = [10]
+            ub = [100]
+            num_inducing = 2
+
+            [par1]
+            par_type = continuous
+            log_scale = true
+
+            [init_strat]
+            generator = SobolGenerator
+            min_asks = 5
+            refit_every = 5
+
+            """
+
+        config = Config()
+        config.update(config_str=config_str)
+        strat = Strategy.from_config(config, "init_strat")
+        self.assertTrue(
+            isinstance(strat.model.inducing_point_method, GreedyVarianceReduction)
+        )
+
+        # check that the bounds are scaled correctly
+        self.assertFalse(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[10], [100]])
+            )
+        )
+        self.assertTrue(
+            torch.equal(
+                strat.model.inducing_point_method.bounds, torch.tensor([[0], [1]])
+            )
         )
 
 

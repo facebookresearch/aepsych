@@ -11,7 +11,6 @@ from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,
@@ -129,10 +128,6 @@ def select_inducing_points(
             ).to(X.device)
 
         return inducing_points
-
-    # Otherwise, handle allocator as an instance of InducingPointAllocator
-    if allocator is None:
-        allocator = AutoAllocator()  # Default to AutoAllocator if none specified
 
     # Call allocate_inducing_points with allocator instance
     inducing_points = allocator.allocate_inducing_points(

@@ -425,17 +425,16 @@ class AutoAllocator(BaseAllocator):
 
 class FixedAllocator(BaseAllocator):
     def __init__(
-        self, inducing_points: torch.Tensor, bounds: Optional[torch.Tensor] = None
+        self, points: torch.Tensor, bounds: Optional[torch.Tensor] = None
     ) -> None:
         """Initialize the FixedAllocator with inducing points and bounds.
 
         Args:
-            inducing_points (torch.Tensor): Inducing points to use.
+            points (torch.Tensor): Inducing points to use.
             bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).
         """
         super().__init__(bounds=bounds)
-        self.inducing_points = inducing_points
-        self.bounds = bounds
+        self.points = points
 
     def _get_quality_function(self) -> None:
         """FixedAllocator does not require a quality function, so this returns None."""
@@ -459,7 +458,7 @@ class FixedAllocator(BaseAllocator):
         Returns:
             torch.Tensor: The fixed inducing points.
         """
-        return self.inducing_points
+        return self.points
 
     @classmethod
     def get_config_options(
@@ -480,21 +479,19 @@ class FixedAllocator(BaseAllocator):
         """
         if name is None:
             name = cls.__name__
-        lb = config.gettensor("common", "lb")
-        ub = config.gettensor("common", "ub")
-        bounds = torch.stack([lb, ub])
-        num_inducing = config.getint("common", "num_inducing")
+        bounds = get_bounds(config)
+        num_inducing = config.getint("common", "num_inducing", fallback=99)
         fallback_allocator = config.getobj(
             name, "fallback_allocator", fallback=DummyAllocator(bounds=bounds)
         )
-        inducing_points = config.gettensor(
+        points = config.gettensor(
             name,
-            "inducing_points",
+            "points",
             fallback=fallback_allocator.allocate_inducing_points(
                 num_inducing=num_inducing
             ),
         )
-        return {"inducing_points": inducing_points}
+        return {"points": points, "bounds": bounds}
 
 
 class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
