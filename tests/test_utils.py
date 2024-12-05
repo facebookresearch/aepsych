@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 import torch
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.utils import _process_bounds, dim_grid, make_scaled_sobol
 
 
@@ -36,7 +36,7 @@ class UtilsTestCase(unittest.TestCase):
             lb=lb,
             ub=ub,
             dim=dim,
-            inducing_point_method=SobolAllocator(
+            inducing_point_method=AutoAllocator(
                 bounds=torch.stack([torch.tensor([lb]), torch.tensor([ub])])
             ),
         )

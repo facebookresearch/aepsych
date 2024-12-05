@@ -12,7 +12,7 @@ import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.strategy import Strategy
 
 
@@ -40,7 +40,7 @@ class TestStrategyGPU(unittest.TestCase):
                 model=GPClassificationModel(
                     lb=[0],
                     ub=[1],
-                    inducing_point_method=SobolAllocator(
+                    inducing_point_method=AutoAllocator(
                         bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
                     ),
                 ),
