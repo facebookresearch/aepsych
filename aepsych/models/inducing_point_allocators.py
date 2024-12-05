@@ -173,7 +173,9 @@ class SobolAllocator(BaseAllocator):
         """
         if name is None:
             name = cls.__name__
-        bounds = get_bounds(config)
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack((lb, ub))
         return {"bounds": bounds}
 
 
@@ -252,7 +254,9 @@ class KMeansAllocator(BaseAllocator):
         """
         if name is None:
             name = cls.__name__
-        bounds = get_bounds(config)
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack((lb, ub))
         return {"bounds": bounds}
 
 
@@ -309,7 +313,9 @@ class DummyAllocator(BaseAllocator):
         """
         if name is None:
             name = cls.__name__
-        bounds = get_bounds(config)
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack((lb, ub))
         return {"bounds": bounds}
 
 
@@ -410,7 +416,9 @@ class AutoAllocator(BaseAllocator):
         """
         if name is None:
             name = cls.__name__
-        bounds = get_bounds(config)
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack((lb, ub))
         fallback_allocator_cls = config.getobj(
             name, "fallback_allocator", fallback=KMeansAllocator
         )
@@ -479,7 +487,9 @@ class FixedAllocator(BaseAllocator):
         """
         if name is None:
             name = cls.__name__
-        bounds = get_bounds(config)
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack((lb, ub))
         num_inducing = config.getint("common", "num_inducing", fallback=99)
         fallback_allocator = config.getobj(
             name, "fallback_allocator", fallback=DummyAllocator(bounds=bounds)
@@ -578,5 +588,7 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
         """
         if name is None:
             name = cls.__name__
-        bounds = get_bounds(config)
+        lb = config.gettensor("common", "lb")
+        ub = config.gettensor("common", "ub")
+        bounds = torch.stack((lb, ub))
         return {"bounds": bounds}

@@ -176,32 +176,33 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_sobol_allocator_from_model_config(self):
         config_str = """
-            [common]
-            parnames = [par1]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-            model = GPClassificationModel
-            inducing_point_method = SobolAllocator
-            lb = [10]
-            ub = [100]
+                    [common]
+                    parnames = [par1]
+                    stimuli_per_trial = 1
+                    outcome_types = [binary]
+                    strategy_names = [init_strat]
 
+                    [par1]
+                    par_type = continuous
+                    lower_bound = 10
+                    upper_bound = 1000
+                    log_scale = True
 
-            [par1]
-            par_type = continuous
-            log_scale = true
-            
+                    [init_strat]
+                    generator = OptimizeAcqfGenerator
+                    acqf = MCLevelSetEstimation
+                    min_asks = 2
+                    model = GPClassificationModel
 
-            [init_strat]
-            generator = SobolGenerator
-            min_asks = 5
-            refit_every = 5
-
-            """
+                    [GPClassificationModel]
+                    inducing_point_method = SobolAllocator
+                    inducing_size = 2
+                    """
 
         config = Config()
         config.update(config_str=config_str)
         strat = Strategy.from_config(config, "init_strat")
+        print(strat.model.inducing_point_method)
         self.assertTrue(isinstance(strat.model.inducing_point_method, SobolAllocator))
 
         # check that the bounds are scaled correctly
@@ -218,28 +219,28 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_kmeans_allocator_from_model_config(self):
         config_str = """
-            [common]
-            parnames = [par1]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-            model = GPClassificationModel
-            inducing_point_method = KMeansAllocator
-            lb = [10]
-            ub = [100]
+                    [common]
+                    parnames = [par1]
+                    stimuli_per_trial = 1
+                    outcome_types = [binary]
+                    strategy_names = [init_strat]
 
+                    [par1]
+                    par_type = continuous
+                    lower_bound = 10
+                    upper_bound = 1000
+                    log_scale = True
 
-            [par1]
-            par_type = continuous
-            log_scale = true
-            
+                    [init_strat]
+                    generator = OptimizeAcqfGenerator
+                    acqf = MCLevelSetEstimation
+                    min_asks = 2
+                    model = GPClassificationModel
 
-            [init_strat]
-            generator = SobolGenerator
-            min_asks = 5
-            refit_every = 5
-
-            """
+                    [GPClassificationModel]
+                    inducing_point_method = KMeansAllocator
+                    inducing_size = 2
+                    """
 
         config = Config()
         config.update(config_str=config_str)
@@ -260,28 +261,28 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_auto_allocator_from_model_config(self):
         config_str = """
-            [common]
-            parnames = [par1]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-            model = GPClassificationModel
-            inducing_point_method = AutoAllocator
-            lb = [10]
-            ub = [100]
+                    [common]
+                    parnames = [par1]
+                    stimuli_per_trial = 1
+                    outcome_types = [binary]
+                    strategy_names = [init_strat]
 
+                    [par1]
+                    par_type = continuous
+                    lower_bound = 10
+                    upper_bound = 1000
+                    log_scale = True
 
-            [par1]
-            par_type = continuous
-            log_scale = true
-            
+                    [init_strat]
+                    generator = OptimizeAcqfGenerator
+                    acqf = MCLevelSetEstimation
+                    min_asks = 2
+                    model = GPClassificationModel
 
-            [init_strat]
-            generator = SobolGenerator
-            min_asks = 5
-            refit_every = 5
-
-            """
+                    [GPClassificationModel]
+                    inducing_point_method = AutoAllocator
+                    inducing_size = 2
+                    """
 
         config = Config()
         config.update(config_str=config_str)
@@ -302,28 +303,28 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_dummy_allocator_from_model_config(self):
         config_str = """
-            [common]
-            parnames = [par1]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-            model = GPClassificationModel
-            inducing_point_method = DummyAllocator
-            lb = [10]
-            ub = [100]
+                    [common]
+                    parnames = [par1]
+                    stimuli_per_trial = 1
+                    outcome_types = [binary]
+                    strategy_names = [init_strat]
 
+                    [par1]
+                    par_type = continuous
+                    lower_bound = 10
+                    upper_bound = 1000
+                    log_scale = True
 
-            [par1]
-            par_type = continuous
-            log_scale = true
-            
+                    [init_strat]
+                    generator = OptimizeAcqfGenerator
+                    acqf = MCLevelSetEstimation
+                    min_asks = 2
+                    model = GPClassificationModel
 
-            [init_strat]
-            generator = SobolGenerator
-            min_asks = 5
-            refit_every = 5
-
-            """
+                    [GPClassificationModel]
+                    inducing_point_method = DummyAllocator
+                    inducing_size = 2
+                    """
 
         config = Config()
         config.update(config_str=config_str)
@@ -344,28 +345,28 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_inducing_point_before_and_after_auto(self):
         config_str = """
-            [common]
-            parnames = [par1]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-            model = GPClassificationModel
-            inducing_point_method = AutoAllocator
-            lb = [10]
-            ub = [100]
+                    [common]
+                    parnames = [par1]
+                    stimuli_per_trial = 1
+                    outcome_types = [binary]
+                    strategy_names = [init_strat]
 
-            [par1]
-            par_type = continuous
-            log_scale = true
+                    [par1]
+                    par_type = continuous
+                    lower_bound = 10
+                    upper_bound = 1000
+                    log_scale = True
 
-            [init_strat]
-            generator = SobolGenerator
-            min_asks = 5
-            refit_every = 5
+                    [init_strat]
+                    generator = OptimizeAcqfGenerator
+                    acqf = MCLevelSetEstimation
+                    min_asks = 2
+                    model = GPClassificationModel
 
-            [GPClassificationModel]
-            inducing_size = 2
-            """
+                    [GPClassificationModel]
+                    inducing_point_method = AutoAllocator
+                    inducing_size = 2
+                    """
 
         config = Config()
         config.update(config_str=config_str)
@@ -385,7 +386,7 @@ class TestInducingPointAllocators(unittest.TestCase):
         )
 
         train_X = torch.tensor([[0.0], [1.0]])
-        train_Y = torch.tensor([[1.0], [1.0]])
+        train_Y = torch.tensor([[1.0], [0.0]])
 
         auto_inducing_points = AutoAllocator(
             bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
@@ -425,31 +426,32 @@ class TestInducingPointAllocators(unittest.TestCase):
 
     def test_fixed_allocator_allocate_inducing_points(self):
         config_str = """
+                    [common]
+                    parnames = [par1]
+                    stimuli_per_trial = 1
+                    outcome_types = [binary]
+                    strategy_names = [init_strat]
 
-            [common]
-            parnames = [par1]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-            model = GPClassificationModel
-            inducing_point_method = FixedAllocator
-            lb = [10]
-            ub = [100]
-            num_inducing = 2
+                    [par1]
+                    par_type = continuous
+                    lower_bound = 10
+                    upper_bound = 1000
+                    log_scale = True
 
-            [par1]
-            par_type = continuous
-            log_scale = true
+                    [init_strat]
+                    generator = OptimizeAcqfGenerator
+                    acqf = MCLevelSetEstimation
+                    min_asks = 2
+                    model = GPClassificationModel
 
-            [init_strat]
-            generator = SobolGenerator
-            min_asks = 5
-            refit_every = 5
+                    [GPClassificationModel]
+                    inducing_point_method = FixedAllocator
+                    inducing_size = 2
+                    
+                    [FixedAllocator]
+                    points = [[0.1], [0.2]]
 
-            [FixedAllocator]
-            points = [[0.1], [0.2]]
-
-            """
+                    """
 
         config = Config()
         config.update(config_str=config_str)
@@ -557,27 +559,28 @@ class TestGreedyAllocators(unittest.TestCase):
 
     def test_greedy_variance_from_config(self):
         config_str = """
-            [common]
-            parnames = [par1]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-            model = GPClassificationModel
-            inducing_point_method = GreedyVarianceReduction
-            lb = [10]
-            ub = [100]
-            num_inducing = 2
+                    [common]
+                    parnames = [par1]
+                    stimuli_per_trial = 1
+                    outcome_types = [binary]
+                    strategy_names = [init_strat]
 
-            [par1]
-            par_type = continuous
-            log_scale = true
+                    [par1]
+                    par_type = continuous
+                    lower_bound = 10
+                    upper_bound = 1000
+                    log_scale = True
 
-            [init_strat]
-            generator = SobolGenerator
-            min_asks = 5
-            refit_every = 5
+                    [init_strat]
+                    generator = OptimizeAcqfGenerator
+                    acqf = MCLevelSetEstimation
+                    min_asks = 2
+                    model = GPClassificationModel
 
-            """
+                    [GPClassificationModel]
+                    inducing_point_method = GreedyVarianceReduction
+                    inducing_size = 2
+                    """
 
         config = Config()
         config.update(config_str=config_str)
