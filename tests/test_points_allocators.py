@@ -19,12 +19,6 @@ from botorch.models.utils.inducing_point_allocators import GreedyImprovementRedu
 from botorch.utils.sampling import draw_sobol_samples
 from sklearn.datasets import make_classification
 
-from aepsych.strategy import Strategy
-from aepsych.transforms.parameters import ParameterTransforms, transform_options
-from botorch.models.utils.inducing_point_allocators import GreedyImprovementReduction
-from botorch.utils.sampling import draw_sobol_samples
-from sklearn.datasets import make_classification
-
 
 class TestInducingPointAllocators(unittest.TestCase):
     def test_sobol_allocator_from_config(self):
@@ -84,7 +78,6 @@ class TestInducingPointAllocators(unittest.TestCase):
 
         # Check if fallback allocator is an instance of SobolAllocator with correct bounds
         self.assertTrue(isinstance(allocator.fallback_allocator, KMeansAllocator))
-
 
     def test_sobol_allocator_allocate_inducing_points(self):
         bounds = torch.tensor([[0.0], [1.0]])
