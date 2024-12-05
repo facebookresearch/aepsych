@@ -801,7 +801,17 @@ class GPClassificationTest(unittest.TestCase):
         m1 = GPClassificationModel(lb=[1, 2], ub=[3, 4])
 
         m2 = GPClassificationModel.from_config(
-            config=Config(config_dict={"common": {"lb": "[1,2]", "ub": "[3,4]"}})
+            config=Config(
+                config_dict={
+                    "common": {
+                        "parnames": ["par1", "par2"],
+                        "lb": "[1, 2]",
+                        "ub": "[3, 4]",
+                    },
+                    "par1": {"value_type": "float"},
+                    "par2": {"value_type": "float"},
+                }
+            )
         )
         self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))
         self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))

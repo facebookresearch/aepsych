@@ -17,7 +17,10 @@ from botorch.acquisition.objective import (
     ScalarizedPosteriorTransform,
 )
 from botorch.models.model import Model
-from botorch.models.utils.inducing_point_allocators import GreedyVarianceReduction
+from botorch.models.utils.inducing_point_allocators import (
+    GreedyVarianceReduction,
+    InducingPointAllocator,
+)
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
 from botorch.utils.sampling import draw_sobol_samples
@@ -61,71 +64,80 @@ def compute_p_quantile(
 
 def select_inducing_points(
     inducing_size: int,
-    covar_module: Kernel = None,
+    allocator: Union[str, InducingPointAllocator],
+    covar_module: Optional[torch.nn.Module] = None,
     X: Optional[torch.Tensor] = None,
     bounds: Optional[torch.Tensor] = None,
-    method: str = "auto",
 ) -> torch.Tensor:
-    """Select inducing points for GP model
+    """
+    Select inducing points using a specified allocator instance or legacy method.
 
     Args:
-        inducing_size (int): Number of inducing points to select.
-        covar_module (Kernel): The kernel module to use for inducing point selection.
-        X (torch.Tensor, optional): The training data.
-        bounds (torch.Tensor, optional): The bounds of the input space.
-        method (str): The method to use for inducing point selection. One of
-            "pivoted_chol", "kmeans++", "auto", or "sobol".
+        inducing_size (int): Number of inducing points.
+        allocator (Union[str, InducingPointAllocator]): An inducing point allocator or a legacy string indicating method.
+        covar_module (torch.nn.Module, optional): Covariance module, required for some allocators.
+        X (torch.Tensor, optional): Input data tensor, required for most allocators.
+        bounds (torch.Tensor, optional): Bounds for Sobol sampling in legacy mode.
 
     Returns:
-        torch.Tensor: The selected inducing points.
+        torch.Tensor: Selected inducing points.
     """
-    with torch.no_grad():
-        assert (
-            method
-            in (
-                "pivoted_chol",
-                "kmeans++",
-                "auto",
-                "sobol",
-            )
-        ), f"Inducing point method should be one of pivoted_chol, kmeans++, sobol, or auto; got {method}"
+    # Handle legacy string methods with a deprecation warning
+    if isinstance(allocator, str):
+        warnings.warn(
+            f"Using string '{allocator}' for inducing point method is deprecated. "
+            "Please use an InducingPointAllocator class instead.",
+            DeprecationWarning,
+        )
 
-        if method == "sobol":
-            assert bounds is not None, "Must pass bounds for sobol inducing points!"
+        if allocator == "sobol":
+            assert (
+                bounds is not None
+            ), "Bounds must be provided for Sobol inducing points!"
             inducing_points = (
                 draw_sobol_samples(bounds=bounds, n=inducing_size, q=1)
                 .squeeze()
-                .to(bounds)
+                .to(bounds.device)
             )
-            if len(inducing_points.shape) == 1:
-                inducing_points = inducing_points.reshape(-1, 1)
+            if inducing_points.ndim == 1:
+                inducing_points = inducing_points.view(-1, 1)
             return inducing_points
 
-        assert X is not None, "Must pass X for non-sobol inducing point selection!"
-        # remove dupes from X, which is both wasteful for inducing points
-        # and would break kmeans++
+        assert X is not None, "Must pass X for non-Sobol inducing point selection!"
+
         unique_X = torch.unique(X, dim=0)
-        if method == "auto":
+        if allocator == "auto":
             if unique_X.shape[0] <= inducing_size:
                 return unique_X
             else:
-                method = "kmeans++"
+                allocator = "kmeans++"
 
-        if method == "pivoted_chol":
+        if allocator == "pivoted_chol":
             inducing_point_allocator = GreedyVarianceReduction()
             inducing_points = inducing_point_allocator.allocate_inducing_points(
                 inputs=X,
                 covar_module=covar_module,
                 num_inducing=inducing_size,
                 input_batch_shape=torch.Size([]),
-            ).to(X)
-        elif method == "kmeans++":
-            # initialize using kmeans
+            ).to(X.device)
+
+        elif allocator == "kmeans++":
             inducing_points = torch.tensor(
                 kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],
                 dtype=X.dtype,
-            ).to(X)
+            ).to(X.device)
+
         return inducing_points
+
+    # Call allocate_inducing_points with allocator instance
+    inducing_points = allocator.allocate_inducing_points(
+        inputs=X,
+        covar_module=covar_module,
+        num_inducing=inducing_size,
+        input_batch_shape=torch.Size([]),
+    )
+
+    return inducing_points
 
 
 def get_probability_space(

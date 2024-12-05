@@ -15,7 +15,9 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.utils import get_optimizer_options
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr
@@ -104,7 +106,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the MonotonicProjectionGP model.
@@ -126,8 +128,8 @@ class MonotonicProjectionGP(GPClassificationModel):
             inducing_size (int, optional): The number of inducing points to use. Defaults to None.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
-        """
+            inducing_point_method (InducingPointAllocator, optional): The method to use for allocating inducing points.
+                Defaults to AutoAllocator."""
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
@@ -243,10 +245,14 @@ class MonotonicProjectionGP(GPClassificationModel):
         mean, covar = mean_covar_factory(config)
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+        inducing_point_method_class = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator
         )
-
+        # Check if allocator class has a `from_config` method
+        if hasattr(inducing_point_method_class, "from_config"):
+            inducing_point_method = inducing_point_method_class.from_config(config)
+        else:
+            inducing_point_method = inducing_point_method_class()
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
 
         if likelihood_cls is not None:

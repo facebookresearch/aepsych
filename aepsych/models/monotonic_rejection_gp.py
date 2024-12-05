@@ -19,9 +19,14 @@ from aepsych.factory.monotonic import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
+from botorch.models.utils.inducing_point_allocators import (
+    GreedyVarianceReduction,
+    InducingPointAllocator,
+)
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -29,6 +34,7 @@ from gpytorch.mlls.variational_elbo import VariationalELBO
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 from scipy.stats import norm
+from torch import Tensor
 
 
 class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
@@ -61,7 +67,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         num_induc: int = 25,
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
-        inducing_point_method: str = "auto",
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize MonotonicRejectionGP.
@@ -82,7 +88,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             num_samples (int): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
             num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096.
-            inducing_point_method (str): Method for selecting inducing points. Defaults to "auto".
+            inducing_point_method (InducingPointAllocator): Method for selecting inducing points. Defaults to AutoAllocator().
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
@@ -92,10 +98,10 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         self.inducing_size = num_induc
         self.inducing_point_method = inducing_point_method
+
         inducing_points = select_inducing_points(
+            allocator=SobolAllocator(bounds=torch.stack((self.lb, self.ub))),
             inducing_size=self.inducing_size,
-            bounds=self.bounds,
-            method="sobol",
         )
 
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
@@ -162,11 +168,11 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         self.set_train_data(train_x, train_y)
 
         self.inducing_points = select_inducing_points(
+            allocator=self.inducing_point_method,
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
             X=self.train_inputs[0],
             bounds=self.bounds,
-            method=self.inducing_point_method,
         )
         self._set_model(train_x, train_y)
 

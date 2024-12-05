@@ -16,9 +16,15 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
+from aepsych.models.inducing_point_allocators import (
+    AutoAllocator,
+    DummyAllocator,
+    SobolAllocator,
+)
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
@@ -56,7 +62,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the GP Classification model
@@ -74,11 +80,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
-                If "sobol", a number of Sobol points equal to inducing_size will be selected.
-                If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.
-                If "kmeans++", selects points by performing kmeans++ clustering on the training data.
-                If "auto", tries to determine the best method automatically.
+            inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
+                Defaults to AutoAllocator().
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
@@ -106,10 +109,10 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         # initialize to sobol before we have data
         inducing_points = select_inducing_points(
+            allocator=DummyAllocator(bounds=torch.stack((lb, ub))),
             inducing_size=self.inducing_size,
-            bounds=torch.stack((lb, ub)),
-            method="sobol",
         )
+        self.last_inducing_points_method = "DummyAllocator"
 
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -122,7 +125,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             learn_inducing_locations=False,
         )
         super().__init__(variational_strategy)
-
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
                 dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
@@ -166,9 +168,14 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         mean, covar = mean_covar_factory(config)
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
-        inducing_point_method = config.get(
-            classname, "inducing_point_method", fallback="auto"
+        inducing_point_method_class = config.getobj(
+            classname, "inducing_point_method", fallback=AutoAllocator
         )
+        # Check if allocator class has a `from_config` method
+        if hasattr(inducing_point_method_class, "from_config"):
+            inducing_point_method = inducing_point_method_class.from_config(config)
+        else:
+            inducing_point_method = inducing_point_method_class()
 
         likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
 
@@ -211,14 +218,16 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         if self.train_inputs is not None:
             # remember original device
             device = self.device
-
             inducing_points = select_inducing_points(
+                allocator=self.inducing_point_method,
                 inducing_size=self.inducing_size,
                 covar_module=self.covar_module,
                 X=self.train_inputs[0],
                 bounds=self.bounds,
-                method=self.inducing_point_method,
             ).to(device)
+            self.last_inducing_points_method = (
+                self.inducing_point_method.__class__.__name__
+            )
 
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
@@ -255,7 +264,10 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         if not warmstart_hyperparams:
             self._reset_hyperparameters()
 
-        if not warmstart_induc:
+        if not warmstart_induc or (
+            self.last_inducing_points_method == "DummyAllocator"
+            and self.inducing_point_method.__class__.__name__ != "DummyAllocator"
+        ):
             self._reset_variational_strategy()
 
         n = train_y.shape[0]
@@ -360,7 +372,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: str = "auto",
+        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the GP Beta Regression model
@@ -378,7 +390,7 @@ class GPBetaRegressionModel(GPClassificationModel):
             inducing_size (int, optional): Number of inducing points. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
-            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. If None, defaults to AutoAllocator().
         """
         if likelihood is None:
             likelihood = BetaLikelihood()
