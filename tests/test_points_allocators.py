@@ -208,6 +208,7 @@ class TestInducingPointAllocators(unittest.TestCase):
         config = Config()
         config.update(config_str=config_str)
         strat = Strategy.from_config(config, "init_strat")
+        print(strat.model.inducing_point_method)
         self.assertTrue(isinstance(strat.model.inducing_point_method, SobolAllocator))
 
         # check that the bounds are scaled correctly
