@@ -27,6 +27,7 @@ from aepsych.models import (
     MonotonicRejectionGP,
     PairwiseProbitModel,
 )
+from aepsych.models.inducing_point_allocators import SobolAllocator
 from aepsych.server import AEPsychServer
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -999,7 +1000,7 @@ class ConfigTestCase(unittest.TestCase):
             [HadamardSemiPModel]
             stim_dim = 1
             inducing_size = 10
-            inducing_point_method = sobol
+            inducing_point_method = SobolAllocator
             likelihood = BernoulliObjectiveLikelihood
 
             [BernoulliObjectiveLikelihood]
@@ -1011,6 +1012,7 @@ class ConfigTestCase(unittest.TestCase):
             [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
+
             """
 
         config = Config()
@@ -1026,7 +1028,14 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(model.dim == 2)
         self.assertTrue(model.inducing_size == 10)
         self.assertTrue(model.stim_dim == 1)
-        self.assertTrue(model.inducing_point_method == "sobol")
+
+        # Verify the allocator and bounds
+        self.assertTrue(isinstance(model.inducing_point_method, SobolAllocator))
+        expected_bounds = torch.tensor([[0.0, 0.0], [1.0, 1.0]], dtype=torch.float64)
+        self.assertTrue(
+            torch.equal(model.inducing_point_method.bounds, expected_bounds)
+        )
+
         self.assertTrue(isinstance(model.likelihood, BernoulliObjectiveLikelihood))
         self.assertTrue(isinstance(model.likelihood.objective, FloorGumbelObjective))
 

@@ -10,6 +10,14 @@ import sys
 from ..config import Config
 from .gp_classification import GPBetaRegressionModel, GPClassificationModel
 from .gp_regression import GPRegressionModel
+from .inducing_point_allocators import (
+    AutoAllocator,
+    DummyAllocator,
+    FixedAllocator,
+    GreedyVarianceReduction,
+    KMeansAllocator,
+    SobolAllocator,
+)
 from .monotonic_projection_gp import MonotonicProjectionGP
 from .monotonic_rejection_gp import MonotonicRejectionGP
 from .multitask_regression import IndependentMultitaskGPRModel, MultitaskGPRModel
@@ -34,6 +42,12 @@ __all__ = [
     "semi_p_posterior_transform",
     "GPBetaRegressionModel",
     "PairwiseProbitModel",
+    "AutoAllocator",
+    "KMeansAllocator",
+    "SobolAllocator",
+    "DummyAllocator",
+    "FixedAllocator",
+    "GreedyVarianceReduction",
 ]
 
 Config.register_module(sys.modules[__name__])

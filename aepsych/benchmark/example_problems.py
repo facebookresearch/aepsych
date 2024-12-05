@@ -11,6 +11,7 @@ from aepsych.benchmark.test_functions import (
     novel_discrimination_testfun,
 )
 from aepsych.models import GPClassificationModel
+from aepsych.models.inducing_point_allocators import KMeansAllocator
 
 """The DiscrimLowDim, DiscrimHighDim, ContrastSensitivity6d, and Hartmann6Binary classes
 are copied from bernoulli_lse github repository (https://github.com/facebookresearch/bernoulli_lse)
@@ -109,7 +110,7 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
             lb=self.bounds[0],
             ub=self.bounds[1],
             inducing_size=100,
-            inducing_point_method="kmeans++",
+            inducing_point_method=KMeansAllocator(),
         )
 
         self.m.fit(
