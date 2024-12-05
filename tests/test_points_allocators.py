@@ -133,23 +133,22 @@ class TestInducingPointAllocators(unittest.TestCase):
     def test_auto_allocator_allocate_inducing_points(self):
         train_X = torch.tensor([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])
         train_Y = torch.tensor([[1.0], [2.0], [3.0]])
+        lb = torch.tensor([0, 0])
+        ub = torch.tensor([4, 4])
+        bounds = torch.stack([lb, ub])
         model = GPClassificationModel(
-            lb=torch.tensor([0, 0]),
-            ub=torch.tensor([4, 4]),
-            inducing_point_method=AutoAllocator(),
+            lb=lb,
+            ub=ub,
+            inducing_point_method=AutoAllocator(bounds=bounds),
             inducing_size=3,
         )
         self.assertTrue(model.last_inducing_points_method == "DummyAllocator")
-        auto_inducing_points = AutoAllocator(
-            bounds=torch.stack([torch.tensor([0, 0]), torch.tensor([4, 4])])
-        ).allocate_inducing_points(
+        auto_inducing_points = AutoAllocator(bounds=bounds).allocate_inducing_points(
             inputs=train_X,
             covar_module=model.covar_module,
             num_inducing=model.inducing_size,
         )
-        inital_inducing_points = DummyAllocator(
-            bounds=torch.stack([torch.tensor([0, 0]), torch.tensor([4, 4])])
-        ).allocate_inducing_points(
+        inital_inducing_points = DummyAllocator(bounds=bounds).allocate_inducing_points(
             inputs=train_X,
             covar_module=model.covar_module,
             num_inducing=model.inducing_size,
@@ -520,15 +519,18 @@ class TestGreedyAllocators(unittest.TestCase):
         # Mock data for testing
         train_X = torch.rand(100, 1)
         train_Y = torch.rand(100, 1)
+        lb = torch.tensor([0])
+        ub = torch.tensor([1])
+        bounds = torch.stack([lb, ub])
         model = GPClassificationModel(
-            lb=0,
-            ub=1,
-            inducing_point_method=GreedyVarianceReduction(),
+            lb=lb,
+            ub=ub,
+            inducing_point_method=GreedyVarianceReduction(bounds=bounds),
             inducing_size=10,
         )
 
         # Instantiate GreedyVarianceReduction allocator
-        allocator = GreedyVarianceReduction()
+        allocator = GreedyVarianceReduction(bounds=bounds)
 
         # Allocate inducing points and verify output shape
         inducing_points = allocator.allocate_inducing_points(
