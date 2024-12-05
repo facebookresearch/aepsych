@@ -229,7 +229,11 @@ def get_jnd_multid(
 
 
 def get_bounds(config: Config) -> torch.Tensor:
-    r"""Return the bounds for all parameters in config.
+    r"""Return the bounds for all parameters in config. Note that these bounds are
+    likely to be in the raw parameter space and any transformations that may affect
+    these bounds are unaccounted for. If the transformed bounds are needed, use the
+    transforms.transform_options() function to first transform the config and manually
+    get the transformed bounds from the ub/lb options in the common section.
 
     Args:
         config (Config): The config to find the bounds from.
