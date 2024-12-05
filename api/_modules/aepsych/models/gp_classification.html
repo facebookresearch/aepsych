@@ -34,9 +34,15 @@
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.factory.default</span> <span class="kn">import</span> <span class="n">default_mean_covar_factory</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychModelDeviceMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.inducing_point_allocators</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AutoAllocator</span><span class="p">,</span>
+    <span class="n">DummyAllocator</span><span class="p">,</span>
+    <span class="n">SobolAllocator</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.utils</span> <span class="kn">import</span> <span class="n">select_inducing_points</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">get_optimizer_options</span><span class="p">,</span> <span class="n">promote_0d</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span> <span class="nn">botorch.models.utils.inducing_point_allocators</span> <span class="kn">import</span> <span class="n">InducingPointAllocator</span>
 <span class="kn">from</span> <span class="nn">gpytorch.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliLikelihood</span><span class="p">,</span> <span class="n">BetaLikelihood</span><span class="p">,</span> <span class="n">Likelihood</span>
 <span class="kn">from</span> <span class="nn">gpytorch.models</span> <span class="kn">import</span> <span class="n">ApproximateGP</span>
 <span class="kn">from</span> <span class="nn">gpytorch.variational</span> <span class="kn">import</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">,</span> <span class="n">VariationalStrategy</span>
@@ -74,7 +80,7 @@
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inducing_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span> <span class="o">=</span> <span class="n">AutoAllocator</span><span class="p">(),</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize the GP Classification model</span>
@@ -92,11 +98,8 @@
 <span class="sd">            inducing_size (int, optional): Number of inducing points. Defaults to 99.</span>
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time.</span>
-<span class="sd">            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".</span>
-<span class="sd">                If "sobol", a number of Sobol points equal to inducing_size will be selected.</span>
-<span class="sd">                If "pivoted_chol", selects points based on the pivoted Cholesky heuristic.</span>
-<span class="sd">                If "kmeans++", selects points by performing kmeans++ clustering on the training data.</span>
-<span class="sd">                If "auto", tries to determine the best method automatically.</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.</span>
+<span class="sd">                Defaults to AutoAllocator().</span>
 <span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
 <span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
 <span class="sd">        """</span>
@@ -124,10 +127,10 @@
 
         <span class="c1"># initialize to sobol before we have data</span>
         <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">select_inducing_points</span><span class="p">(</span>
+            <span class="n">allocator</span><span class="o">=</span><span class="n">DummyAllocator</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">))),</span>
             <span class="n">inducing_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
-            <span class="n">bounds</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)),</span>
-            <span class="n">method</span><span class="o">=</span><span class="s2">"sobol"</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_inducing_points_method</span> <span class="o">=</span> <span class="s2">"DummyAllocator"</span>
 
         <span class="n">variational_distribution</span> <span class="o">=</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">(</span>
             <span class="n">inducing_points</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">batch_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span><span class="p">])</span>
@@ -140,7 +143,6 @@
             <span class="n">learn_inducing_locations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">variational_strategy</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">default_mean</span><span class="p">,</span> <span class="n">default_covar</span> <span class="o">=</span> <span class="n">default_mean_covar_factory</span><span class="p">(</span>
                 <span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span>
@@ -184,9 +186,14 @@
         <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-        <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">"auto"</span>
+        <span class="n">inducing_point_method_class</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">AutoAllocator</span>
         <span class="p">)</span>
+        <span class="c1"># Check if allocator class has a `from_config` method</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inducing_point_method_class</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
+            <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method_class</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method_class</span><span class="p">()</span>
 
         <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
@@ -229,14 +236,16 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># remember original device</span>
             <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span>
-
             <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">select_inducing_points</span><span class="p">(</span>
+                <span class="n">allocator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="p">,</span>
                 <span class="n">inducing_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
                 <span class="n">covar_module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">,</span>
                 <span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
-                <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_inducing_points_method</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="p">)</span>
 
             <span class="n">variational_distribution</span> <span class="o">=</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">(</span>
                 <span class="n">inducing_points</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">batch_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span><span class="p">])</span>
@@ -273,7 +282,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">warmstart_hyperparams</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset_hyperparameters</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">warmstart_induc</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">warmstart_induc</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_inducing_points_method</span> <span class="o">==</span> <span class="s2">"DummyAllocator"</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s2">"DummyAllocator"</span>
+        <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset_variational_strategy</span><span class="p">()</span>
 
         <span class="n">n</span> <span class="o">=</span> <span class="n">train_y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -378,7 +390,7 @@
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inducing_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span> <span class="o">=</span> <span class="n">AutoAllocator</span><span class="p">(),</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize the GP Beta Regression model</span>
@@ -396,7 +408,7 @@
 <span class="sd">            inducing_size (int, optional): Number of inducing points. Defaults to 100.</span>
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time. Defaults to None.</span>
-<span class="sd">            inducing_point_method (string): The method to use to select the inducing points. Defaults to "auto".</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. If None, defaults to AutoAllocator().</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">likelihood</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">likelihood</span> <span class="o">=</span> <span class="n">BetaLikelihood</span><span class="p">()</span>

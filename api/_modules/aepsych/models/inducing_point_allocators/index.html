@@ -1,0 +1,661 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/demos/" target="_self">Demos</a></li><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<h1>Source code for aepsych.models.inducing_point_allocators</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
+<span class="c1"># All rights reserved.</span>
+
+<span class="c1"># This source code is licensed under the license found in the</span>
+<span class="c1"># LICENSE file in the root directory of this source tree.</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">get_bounds</span>
+<span class="kn">from</span> <span class="nn">botorch.models.utils.inducing_point_allocators</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GreedyVarianceReduction</span> <span class="k">as</span> <span class="n">BaseGreedyVarianceReduction</span><span class="p">,</span>
+    <span class="n">InducingPointAllocator</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">botorch.utils.sampling</span> <span class="kn">import</span> <span class="n">draw_sobol_samples</span>
+<span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="kn">import</span> <span class="n">kmeans2</span>
+
+
+<span class="k">class</span> <span class="nc">BaseAllocator</span><span class="p">(</span><span class="n">InducingPointAllocator</span><span class="p">,</span> <span class="n">ConfigurableMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Base class for inducing point allocators."""</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize the allocator with optional bounds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_dim</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize the dimension `dim` based on the bounds, if available.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The dimension `d` if bounds are provided, or None otherwise.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Validate bounds and extract dimension</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"Bounds must have shape (2, d)!"</span>
+            <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)):</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">l</span> <span class="o">&lt;=</span> <span class="n">u</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">"Lower bound </span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2"> is not less than or equal to upper bound </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2"> on dimension </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">!"</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Number of dimensions (d)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_determine_dim_from_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Determine dimension `dim` from the inputs tensor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor): Input tensor of shape (..., d).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The inferred dimension `d`.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">],</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Abstract method for allocating inducing points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor, optional): Input tensor, implementation-specific.</span>
+<span class="sd">            covar_module (torch.nn.Module, optional): Kernel covariance module.</span>
+<span class="sd">            num_inducing (int): Number of inducing points to allocate.</span>
+<span class="sd">            input_batch_shape (torch.Size): Shape of the input batch.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Allocated inducing points.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_determine_dim_from_inputs</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"This method should be implemented by subclasses."</span><span class="p">)</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_quality_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Abstract method for returning a quality function if required.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None or Callable: Quality function if needed.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"This method should be implemented by subclasses."</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SobolAllocator"><a class="viewcode-back" href="../../../models.html#aepsych.models.SobolAllocator">[docs]</a><span class="k">class</span> <span class="nc">SobolAllocator</span><span class="p">(</span><span class="n">BaseAllocator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An inducing point allocator that uses Sobol sequences to allocate inducing points."""</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the SobolAllocator with bounds."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_quality_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Sobol sampling does not require a quality function, so this returns None."""</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SobolAllocator.allocate_inducing_points"><a class="viewcode-back" href="../../../models.html#aepsych.models.SobolAllocator.allocate_inducing_points">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generates `num_inducing` inducing points within the specified bounds using Sobol sampling.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor): Input tensor, not required for Sobol sampling.</span>
+<span class="sd">            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.</span>
+<span class="sd">            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.</span>
+<span class="sd">            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points within the specified bounds.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If `bounds` is not provided.</span>
+<span class="sd">        """</span>
+
+        <span class="c1"># Validate bounds shape</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="p">),</span> <span class="s2">"Bounds must have shape (2, d) for Sobol sampling."</span>
+        <span class="c1"># if bounds are long, make them float</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+        <span class="c1"># Generate Sobol samples within the unit cube [0,1]^d and rescale to [bounds[0], bounds[1]]</span>
+        <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">draw_sobol_samples</span><span class="p">(</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">num_inducing</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="c1"># Ensure correct shape in case Sobol sampling returns a 1D tensor</span>
+        <span class="k">if</span> <span class="n">inducing_points</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">inducing_points</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inducing_points</span></div>
+
+<div class="viewcode-block" id="SobolAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.SobolAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the SobolAllocator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the allocator, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the SobolAllocator.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="KMeansAllocator"><a class="viewcode-back" href="../../../models.html#aepsych.models.KMeansAllocator">[docs]</a><span class="k">class</span> <span class="nc">KMeansAllocator</span><span class="p">(</span><span class="n">BaseAllocator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An inducing point allocator that uses k-means++ to allocate inducing points."""</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the KMeansAllocator."""</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span> <span class="o">=</span> <span class="n">DummyAllocator</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_quality_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""K-means++ does not require a quality function, so this returns None."""</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="KMeansAllocator.allocate_inducing_points"><a class="viewcode-back" href="../../../models.html#aepsych.models.KMeansAllocator.allocate_inducing_points">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generates `num_inducing` inducing points using k-means++ initialization on the input data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor): A tensor of shape (n, d) containing the input data.</span>
+<span class="sd">            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.</span>
+<span class="sd">            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.</span>
+<span class="sd">            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points selected via k-means++.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+                <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+                <span class="n">num_inducing</span><span class="o">=</span><span class="n">num_inducing</span><span class="p">,</span>
+                <span class="n">input_batch_shape</span><span class="o">=</span><span class="n">input_batch_shape</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Either inputs or bounds must be provided."</span><span class="p">)</span>
+        <span class="c1"># Ensure inputs are unique to avoid duplication issues with k-means++</span>
+        <span class="n">unique_inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># If unique inputs are less than or equal to the required inducing points, return them directly</span>
+        <span class="k">if</span> <span class="n">unique_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">num_inducing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unique_inputs</span>
+
+        <span class="c1"># Run k-means++ on the unique inputs to select inducing points</span>
+        <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+            <span class="n">kmeans2</span><span class="p">(</span><span class="n">unique_inputs</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">num_inducing</span><span class="p">,</span> <span class="n">minit</span><span class="o">=</span><span class="s2">"++"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">inducing_points</span></div>
+
+<div class="viewcode-block" id="KMeansAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.KMeansAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the KMeansAllocator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the allocator, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the KMeansAllocator.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="DummyAllocator"><a class="viewcode-back" href="../../../models.html#aepsych.models.DummyAllocator">[docs]</a><span class="k">class</span> <span class="nc">DummyAllocator</span><span class="p">(</span><span class="n">BaseAllocator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the DummyAllocator with bounds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bounds (torch.Tensor): Bounds for allocating points. Should be of shape (2, d).</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">bounds</span>
+
+    <span class="k">def</span> <span class="nf">_get_quality_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""DummyAllocator does not require a quality function, so this returns None."""</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="DummyAllocator.allocate_inducing_points"><a class="viewcode-back" href="../../../models.html#aepsych.models.DummyAllocator.allocate_inducing_points">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Allocate inducing points by returning zeros of the appropriate shape.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor): Input tensor, not required for DummyAllocator.</span>
+<span class="sd">            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.</span>
+<span class="sd">            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.</span>
+<span class="sd">            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: A (num_inducing, d)-dimensional tensor of zeros.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_inducing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="DummyAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.DummyAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the DummyAllocator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the allocator, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the DummyAllocator.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="AutoAllocator"><a class="viewcode-back" href="../../../models.html#aepsych.models.AutoAllocator">[docs]</a><span class="k">class</span> <span class="nc">AutoAllocator</span><span class="p">(</span><span class="n">BaseAllocator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An inducing point allocator that dynamically chooses an allocation strategy</span>
+<span class="sd">    based on the number of unique data points available."""</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fallback_allocator</span><span class="p">:</span> <span class="n">InducingPointAllocator</span> <span class="o">=</span> <span class="n">KMeansAllocator</span><span class="p">(),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize the AutoAllocator with a fallback allocator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fallback_allocator (InducingPointAllocator, optional): Allocator to use if there are</span>
+<span class="sd">                                                        more unique points than required.</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fallback_allocator</span> <span class="o">=</span> <span class="n">fallback_allocator</span>
+        <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span> <span class="o">=</span> <span class="n">DummyAllocator</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_quality_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""AutoAllocator does not require a quality function, so this returns None."""</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="AutoAllocator.allocate_inducing_points"><a class="viewcode-back" href="../../../models.html#aepsych.models.AutoAllocator.allocate_inducing_points">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Allocate inducing points by either using the unique input data directly</span>
+<span class="sd">        or falling back to another allocation method if there are too many unique points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor): A tensor of shape (n, d) containing the input data.</span>
+<span class="sd">            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.</span>
+<span class="sd">            num_inducing (int, optional): The number of inducing points to generate.</span>
+<span class="sd">            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points.</span>
+<span class="sd">        """</span>
+        <span class="c1"># Ensure inputs are not None</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+                <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+                <span class="n">num_inducing</span><span class="o">=</span><span class="n">num_inducing</span><span class="p">,</span>
+                <span class="n">input_batch_shape</span><span class="o">=</span><span class="n">input_batch_shape</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Either inputs or bounds must be provided.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">inputs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">"inputs should not be None here"</span>  <span class="c1"># to make mypy happy</span>
+
+        <span class="n">unique_inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># If there are fewer unique points than required, return unique inputs directly</span>
+        <span class="k">if</span> <span class="n">unique_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">num_inducing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unique_inputs</span>
+
+        <span class="c1"># Otherwise, fall back to the provided allocator (e.g., KMeansAllocator)</span>
+        <span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">num_inducing</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inputs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+                <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+                <span class="n">num_inducing</span><span class="o">=</span><span class="n">num_inducing</span><span class="p">,</span>
+                <span class="n">input_batch_shape</span><span class="o">=</span><span class="n">input_batch_shape</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AutoAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.AutoAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the AutoAllocator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the allocator, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the AutoAllocator.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">))</span>
+        <span class="n">fallback_allocator_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="s2">"fallback_allocator"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">KMeansAllocator</span>
+        <span class="p">)</span>
+        <span class="n">fallback_allocator</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">fallback_allocator_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fallback_allocator_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">fallback_allocator_cls</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"fallback_allocator"</span><span class="p">:</span> <span class="n">fallback_allocator</span><span class="p">,</span> <span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="FixedAllocator"><a class="viewcode-back" href="../../../models.html#aepsych.models.FixedAllocator">[docs]</a><span class="k">class</span> <span class="nc">FixedAllocator</span><span class="p">(</span><span class="n">BaseAllocator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the FixedAllocator with inducing points and bounds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points (torch.Tensor): Inducing points to use.</span>
+<span class="sd">            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="k">def</span> <span class="nf">_get_quality_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""FixedAllocator does not require a quality function, so this returns None."""</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="FixedAllocator.allocate_inducing_points"><a class="viewcode-back" href="../../../models.html#aepsych.models.FixedAllocator.allocate_inducing_points">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Allocate inducing points by returning the fixed inducing points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor): Input tensor, not required for FixedAllocator.</span>
+<span class="sd">            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.</span>
+<span class="sd">            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.</span>
+<span class="sd">            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: The fixed inducing points.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div>
+
+<div class="viewcode-block" id="FixedAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.FixedAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the FixedAllocator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the allocator, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the FixedAllocator.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">))</span>
+        <span class="n">num_inducing</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"num_inducing"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">99</span><span class="p">)</span>
+        <span class="n">fallback_allocator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="s2">"fallback_allocator"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">DummyAllocator</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="s2">"points"</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="n">fallback_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+                <span class="n">num_inducing</span><span class="o">=</span><span class="n">num_inducing</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"points"</span><span class="p">:</span> <span class="n">points</span><span class="p">,</span> <span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="GreedyVarianceReduction"><a class="viewcode-back" href="../../../models.html#aepsych.models.GreedyVarianceReduction">[docs]</a><span class="k">class</span> <span class="nc">GreedyVarianceReduction</span><span class="p">(</span><span class="n">BaseGreedyVarianceReduction</span><span class="p">,</span> <span class="n">ConfigurableMixin</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Initialize the GreedyVarianceReduction with bounds.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).</span>
+<span class="sd">        """</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span> <span class="o">=</span> <span class="n">DummyAllocator</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_dim</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Initialize the dimension `dim` based on the bounds, if available.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The dimension `d` if bounds are provided, or None otherwise.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"Bounds must have shape (2, d)!"</span>
+            <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)):</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">l</span> <span class="o">&lt;=</span> <span class="n">u</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">"Lower bound </span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2"> is not less than or equal to upper bound </span><span class="si">{</span><span class="n">u</span><span class="si">}</span><span class="s2"> on dimension </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">!"</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="GreedyVarianceReduction.allocate_inducing_points"><a class="viewcode-back" href="../../../models.html#aepsych.models.GreedyVarianceReduction.allocate_inducing_points">[docs]</a>    <span class="k">def</span> <span class="nf">allocate_inducing_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_inducing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">input_batch_shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([]),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Allocate inducing points using the GreedyVarianceReduction strategy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs (torch.Tensor): Input tensor, not required for GreedyVarianceReduction.</span>
+<span class="sd">            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.</span>
+<span class="sd">            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.</span>
+<span class="sd">            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: The allocated inducing points.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+                <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+                <span class="n">num_inducing</span><span class="o">=</span><span class="n">num_inducing</span><span class="p">,</span>
+                <span class="n">input_batch_shape</span><span class="o">=</span><span class="n">input_batch_shape</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Either inputs or bounds must be provided."</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+                <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
+                <span class="n">num_inducing</span><span class="o">=</span><span class="n">num_inducing</span><span class="p">,</span>
+                <span class="n">input_batch_shape</span><span class="o">=</span><span class="n">input_batch_shape</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GreedyVarianceReduction.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.GreedyVarianceReduction.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the GreedyVarianceReduction allocator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the allocator, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the GreedyVarianceReduction allocator.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"bounds"</span><span class="p">:</span> <span class="n">bounds</span><span class="p">}</span></div></div>
+</pre></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="../../../index.html">Documentation overview</a><ul>
+<li><a href="../../index.html">Module code</a><ul>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2024 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

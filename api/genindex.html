@@ -27,6 +27,7 @@
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -230,8 +231,6 @@
 <li><a href="factory.html#module-aepsych.factory">module</a>
 </li>
 </ul></li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li>
     aepsych.generators
 
@@ -246,6 +245,8 @@
 <li><a href="generators.html#module-aepsych.generators.base">module</a>
 </li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li>
     aepsych.generators.epsilon_greedy_generator
 
@@ -427,12 +428,27 @@
 <li><a href="server.html#aepsych.server.server.AEPsychServer">(class in aepsych.server.server)</a>
 </li>
 </ul></li>
+<li><a href="models.html#aepsych.models.AutoAllocator.allocate_inducing_points">allocate_inducing_points() (aepsych.models.AutoAllocator method)</a>
+<ul>
+<li><a href="models.html#aepsych.models.DummyAllocator.allocate_inducing_points">(aepsych.models.DummyAllocator method)</a>
+</li>
+<li><a href="models.html#aepsych.models.FixedAllocator.allocate_inducing_points">(aepsych.models.FixedAllocator method)</a>
+</li>
+<li><a href="models.html#aepsych.models.GreedyVarianceReduction.allocate_inducing_points">(aepsych.models.GreedyVarianceReduction method)</a>
+</li>
+<li><a href="models.html#aepsych.models.KMeansAllocator.allocate_inducing_points">(aepsych.models.KMeansAllocator method)</a>
+</li>
+<li><a href="models.html#aepsych.models.SobolAllocator.allocate_inducing_points">(aepsych.models.SobolAllocator method)</a>
+</li>
+</ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.ApproxGlobalSUR">ApproxGlobalSUR (class in aepsych.acquisition)</a>
 <ul>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.ApproxGlobalSUR">(class in aepsych.acquisition.lookahead)</a>
 </li>
 </ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead_utils.approximate_lookahead_levelset_at_xstar">approximate_lookahead_levelset_at_xstar() (in module aepsych.acquisition.lookahead_utils)</a>
+</li>
+<li><a href="models.html#aepsych.models.AutoAllocator">AutoAllocator (class in aepsych.models)</a>
 </li>
 </ul></td>
 </tr></table>
@@ -633,6 +649,8 @@
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.DiscrimLowDim">DiscrimLowDim (class in aepsych.benchmark)</a>
 </li>
+<li><a href="models.html#aepsych.models.DummyAllocator">DummyAllocator (class in aepsych.models)</a>
+</li>
 <li><a href="server.html#aepsych.server.sockets.DummySocket">DummySocket (class in aepsych.server.sockets)</a>
 </li>
 </ul></td>
@@ -772,6 +790,8 @@
 <li><a href="strategy.html#aepsych.strategy.Strategy.fit">(aepsych.strategy.Strategy method)</a>
 </li>
 </ul></li>
+<li><a href="models.html#aepsych.models.FixedAllocator">FixedAllocator (class in aepsych.models)</a>
+</li>
 <li><a href="benchmark.html#aepsych.benchmark.Benchmark.flatten_config">flatten_config() (aepsych.benchmark.Benchmark method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.benchmark.Benchmark.flatten_config">(aepsych.benchmark.benchmark.Benchmark method)</a>
@@ -1013,7 +1033,21 @@
 </li>
 <li><a href="generators.html#aepsych.generators.SampleAroundPointsGenerator.get_config_options">(aepsych.generators.SampleAroundPointsGenerator class method)</a>
 </li>
+<li><a href="models.html#aepsych.models.AutoAllocator.get_config_options">(aepsych.models.AutoAllocator class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.DummyAllocator.get_config_options">(aepsych.models.DummyAllocator class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.FixedAllocator.get_config_options">(aepsych.models.FixedAllocator class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.GreedyVarianceReduction.get_config_options">(aepsych.models.GreedyVarianceReduction class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.KMeansAllocator.get_config_options">(aepsych.models.KMeansAllocator class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.SobolAllocator.get_config_options">(aepsych.models.SobolAllocator class method)</a>
+</li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="server.html#aepsych.server.AEPsychServer.get_dataframe_from_replay">get_dataframe_from_replay() (aepsych.server.AEPsychServer method)</a>
 <ul>
 <li><a href="server.html#aepsych.server.server.AEPsychServer.get_dataframe_from_replay">(aepsych.server.server.AEPsychServer method)</a>
@@ -1021,8 +1055,6 @@
 </ul></li>
 <li><a href="database.html#aepsych.database.db.Database.get_engine">get_engine() (aepsych.database.db.Database method)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="models.html#aepsych.models.base.AEPsychMixin.get_jnd">get_jnd() (aepsych.models.base.AEPsychMixin method)</a>
 <ul>
 <li><a href="strategy.html#aepsych.strategy.Strategy.get_jnd">(aepsych.strategy.Strategy method)</a>
@@ -1104,6 +1136,8 @@
 </ul></li>
 <li><a href="models.html#aepsych.models.GPRegressionModel">GPRegressionModel (class in aepsych.models)</a>
 </li>
+<li><a href="models.html#aepsych.models.GreedyVarianceReduction">GreedyVarianceReduction (class in aepsych.models)</a>
+</li>
 </ul></td>
 </tr></table>
 <h2 id="H">H</h2>
@@ -1182,6 +1216,13 @@
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="config.html#aepsych.config.Config.jsonifyMetadata">jsonifyMetadata() (aepsych.config.Config method)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="K">K</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="models.html#aepsych.models.KMeansAllocator">KMeansAllocator (class in aepsych.models)</a>
 </li>
 </ul></td>
 </tr></table>
@@ -1895,9 +1936,11 @@
 </ul></li>
 <li><a href="server.html#aepsych.server.sockets.SimplifyArrays">SimplifyArrays() (in module aepsych.server.sockets)</a>
 </li>
+<li><a href="acquisition.html#aepsych.acquisition.lookahead.SMOCU">SMOCU (class in aepsych.acquisition.lookahead)</a>
+</li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="acquisition.html#aepsych.acquisition.lookahead.SMOCU">SMOCU (class in aepsych.acquisition.lookahead)</a>
+<li><a href="models.html#aepsych.models.SobolAllocator">SobolAllocator (class in aepsych.models)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.SobolGenerator">SobolGenerator (class in aepsych.generators)</a>
 <ul>

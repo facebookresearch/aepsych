@@ -37,9 +37,14 @@
 <span class="kn">from</span> <span class="nn">aepsych.kernels.rbf_partial_grad</span> <span class="kn">import</span> <span class="n">RBFKernelPartialObsGrad</span>
 <span class="kn">from</span> <span class="nn">aepsych.means.constant_partial_grad</span> <span class="kn">import</span> <span class="n">ConstantMeanPartialObsGrad</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.inducing_point_allocators</span> <span class="kn">import</span> <span class="n">AutoAllocator</span><span class="p">,</span> <span class="n">SobolAllocator</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.utils</span> <span class="kn">import</span> <span class="n">select_inducing_points</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">get_optimizer_options</span><span class="p">,</span> <span class="n">promote_0d</span>
 <span class="kn">from</span> <span class="nn">botorch.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_mll</span>
+<span class="kn">from</span> <span class="nn">botorch.models.utils.inducing_point_allocators</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GreedyVarianceReduction</span><span class="p">,</span>
+    <span class="n">InducingPointAllocator</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">gpytorch.kernels</span> <span class="kn">import</span> <span class="n">Kernel</span>
 <span class="kn">from</span> <span class="nn">gpytorch.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliLikelihood</span><span class="p">,</span> <span class="n">Likelihood</span>
 <span class="kn">from</span> <span class="nn">gpytorch.means</span> <span class="kn">import</span> <span class="n">Mean</span>
@@ -47,6 +52,7 @@
 <span class="kn">from</span> <span class="nn">gpytorch.models</span> <span class="kn">import</span> <span class="n">ApproximateGP</span>
 <span class="kn">from</span> <span class="nn">gpytorch.variational</span> <span class="kn">import</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">,</span> <span class="n">VariationalStrategy</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 
 <div class="viewcode-block" id="MonotonicRejectionGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP">[docs]</a><span class="k">class</span> <span class="nc">MonotonicRejectionGP</span><span class="p">(</span><span class="n">AEPsychMixin</span><span class="p">,</span> <span class="n">ApproximateGP</span><span class="p">):</span>
@@ -79,7 +85,7 @@
         <span class="n">num_induc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">250</span><span class="p">,</span>
         <span class="n">num_rejection_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span> <span class="o">=</span> <span class="n">AutoAllocator</span><span class="p">(),</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize MonotonicRejectionGP.</span>
@@ -100,7 +106,7 @@
 <span class="sd">            num_samples (int): Number of samples for estimating posterior on preDict or</span>
 <span class="sd">            acquisition function evaluation. Defaults to 250.</span>
 <span class="sd">            num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096.</span>
-<span class="sd">            inducing_point_method (str): Method for selecting inducing points. Defaults to "auto".</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator): Method for selecting inducing points. Defaults to AutoAllocator().</span>
 <span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
 <span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
 <span class="sd">        """</span>
@@ -110,10 +116,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span> <span class="o">=</span> <span class="n">num_induc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span>
+
         <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">select_inducing_points</span><span class="p">(</span>
+            <span class="n">allocator</span><span class="o">=</span><span class="n">SobolAllocator</span><span class="p">(</span><span class="n">bounds</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">))),</span>
             <span class="n">inducing_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
-            <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="s2">"sobol"</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">inducing_points_aug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_augment_with_deriv_index</span><span class="p">(</span><span class="n">inducing_points</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -180,11 +186,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_train_data</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">inducing_points</span> <span class="o">=</span> <span class="n">select_inducing_points</span><span class="p">(</span>
+            <span class="n">allocator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="p">,</span>
             <span class="n">inducing_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span><span class="p">,</span>
             <span class="n">covar_module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">covar_module</span><span class="p">,</span>
             <span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_model</span><span class="p">(</span><span class="n">train_x</span><span class="p">,</span> <span class="n">train_y</span><span class="p">)</span></div>
 
