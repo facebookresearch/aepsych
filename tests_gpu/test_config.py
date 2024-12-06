@@ -33,7 +33,6 @@ class ConfigTestCase(unittest.TestCase):
             
             [GPClassificationModel]
             use_gpu = True
-            dim = 1
         """
         config = Config()
         config.update(config_str=config_str)

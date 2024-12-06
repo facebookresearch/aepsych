@@ -57,9 +57,6 @@ class TransformsConfigTest(unittest.TestCase):
             generator = OptimizeAcqfGenerator
             acqf = MCLevelSetEstimation
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 1
             """
 
         config = Config()
@@ -102,8 +99,6 @@ class TransformsConfigTest(unittest.TestCase):
         )
 
         self.assertTrue(type(config_model._base_obj) is type(obj_model._base_obj))
-        # self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
-        # self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
 
         self.assertEqual(
             len(config_model.transforms.values()), len(obj_model.transforms.values())
@@ -316,9 +311,6 @@ class TransformsLog10Test(unittest.TestCase):
             acqf = MCLevelSetEstimation
             model = GPClassificationModel
             min_total_tells = 70
-
-            [GPClassificationModel]
-            dim = 1
             """
 
         config = Config()

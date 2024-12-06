@@ -16,14 +16,9 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
-from aepsych.models.inducing_point_allocators import (
-    AutoAllocator,
-    DummyAllocator,
-    KMeansAllocator,
-    SobolAllocator,
-)
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, get_bounds, get_optimizer_options, promote_0d
+from aepsych.utils import get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
@@ -213,7 +208,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             self.last_inducing_points_method = self.inducing_point_method.allocator_used
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-            )
+            ).to(device)
             self.variational_strategy = VariationalStrategy(
                 self,
                 inducing_points,

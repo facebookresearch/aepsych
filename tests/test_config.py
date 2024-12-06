@@ -78,7 +78,6 @@ class ConfigTestCase(unittest.TestCase):
         [GPClassificationModel]
         inducing_size = 10
         mean_covar_factory = default_mean_covar_factory
-        dim = 2
 
         [OptimizeAcqfGenerator]
         restarts = 10
@@ -125,19 +124,7 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        # self.assertTrue(
-        #     torch.all(
-        #         strat.transforms.untransform(strat.strat_list[1].model.lb)
-        #         == torch.Tensor([1, -1])
-        #     )
-        # )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        # self.assertTrue(
-        #     torch.all(
-        #         strat.transforms.untransform(strat.strat_list[1].model.ub)
-        #         == torch.Tensor([10, 1])
-        #     )
-        # )
 
         self.assertEqual(strat.strat_list[0].min_total_outcome_occurrences, 5)
         self.assertEqual(strat.strat_list[0].min_post_range, None)
@@ -416,9 +403,6 @@ class ConfigTestCase(unittest.TestCase):
         generator = SobolGenerator
         min_asks = 10
         refit_every = 5
-
-        [GPClassificationModel]
-        dim = 2
         """
 
         config = Config(config_str=config_str)
@@ -757,9 +741,6 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 2
             """
         config1 = Config()
         config1.update(config_str=config_str1)
@@ -784,9 +765,6 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 2
             """
         config2 = Config()
         config2.update(config_str=config_str2)
@@ -850,9 +828,6 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 1
             """
         config1 = Config()
         config1.update(config_str=config_str1)
@@ -877,9 +852,6 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 1
             """
         config2 = Config()
         config2.update(config_str=config_str2)
@@ -948,9 +920,6 @@ class ConfigTestCase(unittest.TestCase):
             [opt_strat]
             generator = OptimizeAcqfGenerator
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 2
             """
 
         bad_str = """
@@ -973,9 +942,6 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 2
             """
 
         good_config = Config(config_str=good_str)
@@ -1088,9 +1054,6 @@ class ConfigTestCase(unittest.TestCase):
             generator = OptimizeAcqfGenerator
             acqf = MCLevelSetEstimation
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 2
         """
 
         config = Config()
@@ -1134,9 +1097,6 @@ class ConfigTestCase(unittest.TestCase):
             generator = OptimizeAcqfGenerator
             acqf = MCLevelSetEstimation
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 2
         """
 
         config = Config()
@@ -1180,9 +1140,6 @@ class ConfigTestCase(unittest.TestCase):
             generator = OptimizeAcqfGenerator
             acqf = MCLevelSetEstimation
             model = GPClassificationModel
-
-            [GPClassificationModel]
-            dim = 2
         """
 
         config = Config()

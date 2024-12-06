@@ -5,14 +5,12 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, Dict, Optional, Union
 
-import numpy as np
 import torch
 
 from aepsych.config import Config, ConfigurableMixin
-from aepsych.utils import get_bounds
 from botorch.models.utils.inducing_point_allocators import (
     GreedyVarianceReduction as BaseGreedyVarianceReduction,
     InducingPointAllocator,
@@ -541,7 +539,6 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
                 ), f"Lower bound {l} is not less than or equal to upper bound {u} on dimension {i}!"
             return self.bounds.shape[1]
         return None
-
 
     def allocate_inducing_points(
         self,
