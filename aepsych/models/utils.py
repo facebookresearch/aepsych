@@ -23,7 +23,6 @@ from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
 from botorch.utils.sampling import draw_sobol_samples
 from gpytorch.distributions import MultivariateNormal
-from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from scipy.cluster.vq import kmeans2
 from scipy.special import owens_t

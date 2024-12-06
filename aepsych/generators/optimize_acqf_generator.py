@@ -9,7 +9,6 @@ import inspect
 import time
 from typing import Any, Dict, Optional
 
-import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator

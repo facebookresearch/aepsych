@@ -10,14 +10,13 @@ from copy import deepcopy
 from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
-import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.utils import get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
@@ -42,10 +41,12 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         likelihood: Optional[Likelihood] = None,
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
+        inducing_size: Optional[int] = None,
     ) -> None:
         """Initialize the GP regression model
 
         Args:
+            inducing_point_method (InducingPointAllocator): The method for selecting inducing points.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
@@ -55,6 +56,8 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
                 there is no limit to the fitting time.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
+            inducing_size (int, optional): Number of inducing points to use. If None, defaults to 99.
+            
         """
         if likelihood is None:
             likelihood = GaussianLikelihood()
@@ -66,10 +69,13 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         self.optimizer_options = (
             {"options": optimizer_options} if optimizer_options else {"options": {}}
         )
+        if inducing_size is None:
+            inducing_size = 99
+
         self.inducing_point_method = inducing_point_method
         inducing_points = select_inducing_points(
             allocator=self.inducing_point_method,
-            inducing_size=99,
+            inducing_size=inducing_size,
         )
         self.inducing_points = inducing_points
 

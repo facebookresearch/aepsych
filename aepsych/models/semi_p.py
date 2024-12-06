@@ -10,7 +10,7 @@ from __future__ import annotations
 import warnings
 
 from copy import deepcopy
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
 import numpy as np
@@ -20,10 +20,10 @@ from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.utils import get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator

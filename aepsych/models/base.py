@@ -6,17 +6,13 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-import abc
 import time
 from collections.abc import Iterable
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple
 
 import gpytorch
-import numpy as np
 import torch
-from aepsych.config import Config, ConfigurableMixin
-from aepsych.models.utils import get_extremum, inv_query
 from aepsych.utils import dim_grid
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
@@ -24,7 +20,6 @@ from botorch.models.gpytorch import GPyTorchModel
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
-from scipy.stats import norm
 
 logger = getLogger()
 

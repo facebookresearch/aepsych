@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 from abc import abstractmethod
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import torch
 
