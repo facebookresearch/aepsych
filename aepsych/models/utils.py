@@ -11,16 +11,14 @@ from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
+from aepsych.models.inducing_point_allocators import GreedyVarianceReduction
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,
     ScalarizedPosteriorTransform,
 )
 from botorch.models.model import Model
-from botorch.models.utils.inducing_point_allocators import (
-    GreedyVarianceReduction,
-    InducingPointAllocator,
-)
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
 from botorch.utils.sampling import draw_sobol_samples
@@ -120,22 +118,22 @@ def select_inducing_points(
                 num_inducing=inducing_size,
                 input_batch_shape=torch.Size([]),
             ).to(X.device)
-
         elif allocator == "kmeans++":
             inducing_points = torch.tensor(
                 kmeans2(unique_X.cpu().numpy(), inducing_size, minit="++")[0],
                 dtype=X.dtype,
             ).to(X.device)
 
-        return inducing_points
+            return inducing_points
 
     # Call allocate_inducing_points with allocator instance
-    inducing_points = allocator.allocate_inducing_points(
-        inputs=X,
-        covar_module=covar_module,
-        num_inducing=inducing_size,
-        input_batch_shape=torch.Size([]),
-    )
+    if isinstance(allocator, InducingPointAllocator):
+        inducing_points = allocator.allocate_inducing_points(
+            inputs=X,
+            covar_module=covar_module,
+            num_inducing=inducing_size,
+            input_batch_shape=torch.Size([]),
+        )
 
     return inducing_points
 

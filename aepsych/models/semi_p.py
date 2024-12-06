@@ -253,6 +253,7 @@ class SemiParametricGPModel(GPClassificationModel):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
+        inducing_point_method: InducingPointAllocator,
         dim: Optional[int] = None,
         stim_dim: int = 0,
         mean_module: Optional[gpytorch.means.Mean] = None,
@@ -261,7 +262,6 @@ class SemiParametricGPModel(GPClassificationModel):
         slope_mean: float = 2,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -269,6 +269,7 @@ class SemiParametricGPModel(GPClassificationModel):
         Args:
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub. Defaults to None.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
@@ -281,7 +282,6 @@ class SemiParametricGPModel(GPClassificationModel):
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. Defaults to AutoAllocator.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
@@ -313,6 +313,7 @@ class SemiParametricGPModel(GPClassificationModel):
         assert isinstance(
             likelihood, LinearBernoulliLikelihood
         ), "SemiP model only supports linear Bernoulli likelihoods!"
+        self.inducing_point_method = inducing_point_method
 
         super().__init__(
             lb=lb,
@@ -520,6 +521,7 @@ class HadamardSemiPModel(GPClassificationModel):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
+        inducing_point_method: InducingPointAllocator,
         dim: Optional[int] = None,
         stim_dim: int = 0,
         slope_mean_module: Optional[gpytorch.means.Mean] = None,
@@ -530,7 +532,6 @@ class HadamardSemiPModel(GPClassificationModel):
         slope_mean: float = 2,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -538,6 +539,7 @@ class HadamardSemiPModel(GPClassificationModel):
         Args:
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
@@ -550,10 +552,10 @@ class HadamardSemiPModel(GPClassificationModel):
             inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
-            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. Defaults to AutoAllocator.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
+        self.inducing_point_method = inducing_point_method
         super().__init__(
             lb=lb,
             ub=ub,

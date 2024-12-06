@@ -110,7 +110,7 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
             lb=self.bounds[0],
             ub=self.bounds[1],
             inducing_size=100,
-            inducing_point_method=KMeansAllocator(),
+            inducing_point_method=KMeansAllocator(bounds=self.bounds),
         )
 
         self.m.fit(

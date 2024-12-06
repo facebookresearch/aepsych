@@ -97,6 +97,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
+        inducing_point_method: InducingPointAllocator,
         monotonic_dims: List[int],
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,
@@ -106,7 +107,6 @@ class MonotonicProjectionGP(GPClassificationModel):
         likelihood: Optional[Likelihood] = None,
         inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
-        inducing_point_method: InducingPointAllocator = AutoAllocator(),
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the MonotonicProjectionGP model.
@@ -114,6 +114,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         Args:
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
+            inducing_point_method (InducingPointAllocator): The method for allocating inducing points.
             monotonic_dims (List[int]): A list of the dimensions on which monotonicity should
                 be enforced.
             monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.
@@ -128,12 +129,12 @@ class MonotonicProjectionGP(GPClassificationModel):
             inducing_size (int, optional): The number of inducing points to use. Defaults to None.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
-            inducing_point_method (InducingPointAllocator, optional): The method to use for allocating inducing points.
-                Defaults to AutoAllocator."""
+        """
         assert len(monotonic_dims) > 0
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
         self.min_f_val = min_f_val
+        self.inducing_point_method = inducing_point_method
         super().__init__(
             lb=lb,
             ub=ub,

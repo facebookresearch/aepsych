@@ -7,9 +7,12 @@
 
 import unittest
 
+import torch
+
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.strategy import Strategy
 
 
@@ -34,7 +37,13 @@ class TestStrategyGPU(unittest.TestCase):
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
                 min_asks=1,
-                model=GPClassificationModel(lb=[0], ub=[1]),
+                model=GPClassificationModel(
+                    lb=[0],
+                    ub=[1],
+                    inducing_point_method=AutoAllocator(
+                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+                    ),
+                ),
                 generator=OptimizeAcqfGenerator(acqf=MonotonicMCLSE),
                 use_gpu_generating=True,
             )

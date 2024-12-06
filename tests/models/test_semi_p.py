@@ -33,26 +33,44 @@ from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
 
 
-def _hadamard_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObjective):
+def _hadamard_model_constructor(
+    lb,
+    ub,
+    stim_dim,
+    floor,
+    objective=FloorLogitObjective,
+    inducing_point_method=AutoAllocator,
+):
     return HadamardSemiPModel(
         lb=lb,
         ub=ub,
         stim_dim=stim_dim,
         likelihood=BernoulliObjectiveLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method=AutoAllocator(),
+        inducing_point_method=AutoAllocator(
+            bounds=torch.stack((torch.tensor(lb), torch.tensor(ub)))
+        ),
         max_fit_time=0.5,
     )
 
 
-def _semip_model_constructor(lb, ub, stim_dim, floor, objective=FloorLogitObjective):
+def _semip_model_constructor(
+    lb,
+    ub,
+    stim_dim,
+    floor,
+    objective=FloorLogitObjective,
+    inducing_point_method=AutoAllocator,
+):
     return SemiParametricGPModel(
         lb=lb,
         ub=ub,
         stim_dim=stim_dim,
         likelihood=LinearBernoulliLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method=AutoAllocator(),
+        inducing_point_method=AutoAllocator(
+            bounds=torch.stack((torch.tensor(lb), torch.tensor(ub)))
+        ),
     )
 
 
@@ -98,7 +116,9 @@ class SemiPSmokeTests(unittest.TestCase):
             stim_dim=self.stim_dim,
             likelihood=LinearBernoulliLikelihood(),
             inducing_size=10,
-            inducing_point_method=AutoAllocator(),
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack((torch.tensor(self.lb), torch.tensor(self.ub)))
+            ),
         )
 
         generator = OptimizeAcqfGenerator(
@@ -260,7 +280,15 @@ class SemiPSmokeTests(unittest.TestCase):
         ub = [3, 3]
         stim_dim = 0
         with self.subTest(model_constructor=model_constructor):
-            model = model_constructor(lb=lb, ub=ub, stim_dim=stim_dim, floor=0)
+            model = model_constructor(
+                lb=lb,
+                ub=ub,
+                stim_dim=stim_dim,
+                floor=0,
+                inducing_point_method=AutoAllocator(
+                    bounds=torch.stack((torch.tensor(lb), torch.tensor(ub)))
+                ),
+            )
             link = FloorLogitObjective(floor=0)
             y = torch.bernoulli(link(self.f))
 
@@ -304,7 +332,9 @@ class SemiPSmokeTests(unittest.TestCase):
                 likelihood=LinearBernoulliLikelihood(),
                 inducing_size=10,
                 slope_mean=slope_mean,
-                inducing_point_method=AutoAllocator(),
+                inducing_point_method=AutoAllocator(
+                    bounds=torch.stack((torch.tensor(self.lb), torch.tensor(self.ub)))
+                ),
             )
             with self.subTest(model=model, slope_mean=slope_mean):
                 self.assertEqual(model.mean_module.constant[-1], slope_mean)
@@ -315,7 +345,9 @@ class SemiPSmokeTests(unittest.TestCase):
                 likelihood=BernoulliObjectiveLikelihood(objective=ProbitObjective()),
                 inducing_size=10,
                 slope_mean=slope_mean,
-                inducing_point_method=AutoAllocator(),
+                inducing_point_method=AutoAllocator(
+                    bounds=torch.stack((torch.tensor(self.lb), torch.tensor(self.ub)))
+                ),
             )
             with self.subTest(model=model, slope_mean=slope_mean):
                 self.assertEqual(model.slope_mean_module.constant.item(), slope_mean)
@@ -332,7 +364,14 @@ class HadamardSemiPtest(unittest.TestCase):
         self.y = torch.bernoulli(link(X[:, stim_dim]))
 
     def test_reset_hyperparams(self):
-        model = HadamardSemiPModel(lb=[-3, -3], ub=[3, 3], inducing_size=20)
+        model = HadamardSemiPModel(
+            lb=[-3, -3],
+            ub=[3, 3],
+            inducing_size=20,
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack((torch.tensor([-3, -3]), torch.tensor([3, 3])))
+            ),
+        )
 
         slope_os_before = model.slope_covar_module.outputscale.clone().detach().numpy()
         offset_os_before = (
