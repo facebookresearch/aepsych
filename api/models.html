@@ -562,6 +562,7 @@ yes/no trials.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – Lower bounds of the parameters.</p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use for selecting inducing points.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -572,10 +573,9 @@ Bernouli likelihood.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use for selecting inducing points.
-Defaults to AutoAllocator().</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
 fitting. Assumes we are using L-BFGS-B.</p></li>
+<li><p><strong>inducing_points</strong> (<em>Optional</em><em>[</em><em>torch.Tensor</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -705,6 +705,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – Lower bounds of the parameters.</p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use to select the inducing points.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub. Defaults to None.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior. Defaults to None.</p></li>
@@ -715,7 +716,6 @@ Beta likelihood.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 100.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time. Defaults to None.</p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use to select the inducing points. If None, defaults to AutoAllocator().</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -919,6 +919,7 @@ yes/no trials.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – Lower bounds of the parameters.</p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use for selecting inducing points.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior.</p></li>
@@ -929,10 +930,9 @@ Bernouli likelihood.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use for selecting inducing points.
-Defaults to AutoAllocator().</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
 fitting. Assumes we are using L-BFGS-B.</p></li>
+<li><p><strong>inducing_points</strong> (<em>Optional</em><em>[</em><em>torch.Tensor</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1499,13 +1499,13 @@ be enforced.</p></li>
 <li><p><strong>min_f_val</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – If provided, maintains this minimum in the projection in 5.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>mean_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.means.Mean</em><em>]</em>) – </p></li>
 <li><p><strong>covar_module</strong> (<em>Optional</em><em>[</em><em>gpytorch.kernels.Kernel</em><em>]</em>) – </p></li>
 <li><p><strong>likelihood</strong> (<em>Optional</em><em>[</em><em>Likelihood</em><em>]</em>) – </p></li>
 <li><p><strong>inducing_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>max_fit_time</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – </p></li>
 <li><p><strong>optimizer_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -1516,6 +1516,7 @@ be enforced.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – Lower bounds of the parameters.</p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method for allocating inducing points.</p></li>
 <li><p><strong>monotonic_dims</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – A list of the dimensions on which monotonicity should
 be enforced.</p></li>
 <li><p><strong>monotonic_grid_size</strong> (<em>int</em>) – The size of the grid, s, in 1. above. Defaults to 20.</p></li>
@@ -1530,8 +1531,6 @@ Gaussian likelihood. Defaults to None.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of inducing points to use. Defaults to None.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time. Defaults to None.</p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em><em>, </em><em>optional</em>) – The method to use for allocating inducing points.
-Defaults to AutoAllocator.</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -1745,6 +1744,8 @@ Logistic or Gumbel nonlinearity with a floor.</p>
 :type lb: torch.Tensor
 :param ub: Upper bounds of the parameters.
 :type ub: torch.Tensor
+:param inducing_point_method: The method to use to select the inducing points.
+:type inducing_point_method: InducingPointAllocator
 :param dim: The number of dimensions in the parameter space. If None, it is inferred from the size</p>
 <blockquote>
 <div><p>of lb and ub.</p>
@@ -1762,11 +1763,11 @@ Logistic or Gumbel nonlinearity with a floor.</p>
 <li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use to select the inducing points. Defaults to AutoAllocator.</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
 fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
@@ -1855,6 +1856,8 @@ Logistic or Gumbel nonlinearity with a floor.</p>
 :type lb: torch.Tensor
 :param ub: Upper bounds of the parameters.
 :type ub: torch.Tensor
+:param inducing_point_method: The method to use to select the inducing points.
+:type inducing_point_method: InducingPointAllocator
 :param dim: The number of dimensions in the parameter space. If None, it is inferred from the size</p>
 <blockquote>
 <div><p>of lb and ub. Defaults to None.</p>
@@ -1872,11 +1875,11 @@ linear-Bernouli likelihood with probit link.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 99.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time.</p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use to select the inducing points. Defaults to AutoAllocator.</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Optimizer options to pass to the SciPy optimizer during
 fitting. Assumes we are using L-BFGS-B.</p></li>
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – </p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
@@ -2015,6 +2018,7 @@ response probability instead of latent function value. Defaults to False.</p></l
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – Lower bounds of the parameters.</p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – Upper bounds of the parameters.</p></li>
+<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use to select the inducing points.</p></li>
 <li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of dimensions in the parameter space. If None, it is inferred from the size
 of lb and ub. Defaults to None.</p></li>
 <li><p><strong>mean_module</strong> (<em>gpytorch.means.Mean</em><em>, </em><em>optional</em>) – GP mean class. Defaults to a constant with a normal prior. Defaults to None.</p></li>
@@ -2025,7 +2029,6 @@ Beta likelihood.</p></li>
 <li><p><strong>inducing_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of inducing points. Defaults to 100.</p></li>
 <li><p><strong>max_fit_time</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum amount of time, in seconds, to spend fitting the model. If None,
 there is no limit to the fitting time. Defaults to None.</p></li>
-<li><p><strong>inducing_point_method</strong> (<em>InducingPointAllocator</em>) – The method to use to select the inducing points. If None, defaults to AutoAllocator().</p></li>
 <li><p><strong>optimizer_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>

@@ -169,7 +169,7 @@
         <span class="c1"># Ensure correct shape in case Sobol sampling returns a 1D tensor</span>
         <span class="k">if</span> <span class="n">inducing_points</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">inducing_points</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="s2">"SobolAllocator"</span>
         <span class="k">return</span> <span class="n">inducing_points</span></div>
 
 <div class="viewcode-block" id="SobolAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.SobolAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
@@ -231,6 +231,7 @@
 <span class="sd">            torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points selected via k-means++.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
                 <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
                 <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
@@ -244,13 +245,14 @@
 
         <span class="c1"># If unique inputs are less than or equal to the required inducing points, return them directly</span>
         <span class="k">if</span> <span class="n">unique_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">num_inducing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="n">unique_inputs</span>
 
         <span class="c1"># Run k-means++ on the unique inputs to select inducing points</span>
         <span class="n">inducing_points</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
             <span class="n">kmeans2</span><span class="p">(</span><span class="n">unique_inputs</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">num_inducing</span><span class="p">,</span> <span class="n">minit</span><span class="o">=</span><span class="s2">"++"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">inducing_points</span></div>
 
 <div class="viewcode-block" id="KMeansAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.KMeansAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
@@ -310,6 +312,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: A (num_inducing, d)-dimensional tensor of zeros.</span>
 <span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_inducing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="DummyAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.DummyAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
@@ -385,6 +388,7 @@
 <span class="sd">        """</span>
         <span class="c1"># Ensure inputs are not None</span>
         <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
                 <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
                 <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
@@ -402,12 +406,15 @@
 
         <span class="c1"># If there are fewer unique points than required, return unique inputs directly</span>
         <span class="k">if</span> <span class="n">unique_inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">num_inducing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="n">unique_inputs</span>
 
         <span class="c1"># Otherwise, fall back to the provided allocator (e.g., KMeansAllocator)</span>
         <span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">num_inducing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="n">inputs</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_allocator</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
                 <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
                 <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
@@ -484,6 +491,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: The fixed inducing points.</span>
 <span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div>
 
 <div class="viewcode-block" id="FixedAllocator.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.FixedAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
@@ -571,6 +579,7 @@
 <span class="sd">            torch.Tensor: The allocated inducing points.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy_allocator</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
                 <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
                 <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
@@ -580,6 +589,7 @@
         <span class="k">elif</span> <span class="n">inputs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Either inputs or bounds must be provided."</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">allocate_inducing_points</span><span class="p">(</span>
                 <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
                 <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>

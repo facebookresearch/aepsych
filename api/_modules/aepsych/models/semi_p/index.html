@@ -271,6 +271,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span><span class="p">,</span>
         <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">stim_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -279,7 +280,6 @@
         <span class="n">slope_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">inducing_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span> <span class="o">=</span> <span class="n">AutoAllocator</span><span class="p">(),</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -287,6 +287,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
 <span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.</span>
 <span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
 <span class="sd">                of lb and ub. Defaults to None.</span>
 <span class="sd">            stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.</span>
@@ -299,7 +300,6 @@
 <span class="sd">            inducing_size (int, optional): Number of inducing points. Defaults to 99.</span>
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time.</span>
-<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. Defaults to AutoAllocator.</span>
 <span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
 <span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
 <span class="sd">        """</span>
@@ -331,6 +331,7 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
             <span class="n">likelihood</span><span class="p">,</span> <span class="n">LinearBernoulliLikelihood</span>
         <span class="p">),</span> <span class="s2">"SemiP model only supports linear Bernoulli likelihoods!"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
@@ -538,6 +539,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span><span class="p">,</span>
         <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">stim_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">slope_mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -548,7 +550,6 @@
         <span class="n">slope_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">inducing_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span> <span class="o">=</span> <span class="n">AutoAllocator</span><span class="p">(),</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -556,6 +557,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
 <span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.</span>
 <span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
 <span class="sd">                of lb and ub.</span>
 <span class="sd">            stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.</span>
@@ -568,10 +570,10 @@
 <span class="sd">            inducing_size (int, optional): Number of inducing points. Defaults to 99.</span>
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time.</span>
-<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points. Defaults to AutoAllocator.</span>
 <span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
 <span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
 <span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
             <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>

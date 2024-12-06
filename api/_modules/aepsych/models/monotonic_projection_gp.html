@@ -115,6 +115,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span><span class="p">,</span>
         <span class="n">monotonic_dims</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">monotonic_grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
         <span class="n">min_f_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -124,7 +125,6 @@
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inducing_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span> <span class="o">=</span> <span class="n">AutoAllocator</span><span class="p">(),</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize the MonotonicProjectionGP model.</span>
@@ -132,6 +132,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
 <span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator): The method for allocating inducing points.</span>
 <span class="sd">            monotonic_dims (List[int]): A list of the dimensions on which monotonicity should</span>
 <span class="sd">                be enforced.</span>
 <span class="sd">            monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.</span>
@@ -146,12 +147,12 @@
 <span class="sd">            inducing_size (int, optional): The number of inducing points to use. Defaults to None.</span>
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time. Defaults to None.</span>
-<span class="sd">            inducing_point_method (InducingPointAllocator, optional): The method to use for allocating inducing points.</span>
-<span class="sd">                Defaults to AutoAllocator."""</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">monotonic_dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">monotonic_dims</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">monotonic_dims</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mon_grid_size</span> <span class="o">=</span> <span class="n">monotonic_grid_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_f_val</span> <span class="o">=</span> <span class="n">min_f_val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
             <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
