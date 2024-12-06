@@ -9,15 +9,7 @@ from __future__ import annotations
 
 import time
 import warnings
-from typing import (
-    Any,
-    Callable,
-    List,
-    Mapping,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Callable, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch

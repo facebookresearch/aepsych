@@ -57,7 +57,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
             inducing_size (int, optional): Number of inducing points to use. If None, defaults to 99.
-            
+
         """
         if likelihood is None:
             likelihood = GaussianLikelihood()
