@@ -9,6 +9,8 @@ import os
 
 import torch
 
+from aepsych.models.inducing_point_allocators import AutoAllocator
+
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
@@ -41,6 +43,7 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_induc=2,
             num_samples=3,
             num_rejection_samples=4,
+            inducing_point_method=AutoAllocator(bounds=torch.stack((lb, ub))),
         )
         strat = Strategy(
             lb=lb,
@@ -93,6 +96,7 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_induc=2,
             num_samples=3,
             num_rejection_samples=4,
+            inducing_point_method=AutoAllocator(bounds=torch.stack((lb, ub))),
         )
         strat = Strategy(
             lb=lb,

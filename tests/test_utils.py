@@ -10,6 +10,7 @@ import unittest
 import numpy as np
 import torch
 from aepsych.models import GPClassificationModel
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.utils import _process_bounds, dim_grid, make_scaled_sobol
 
 
@@ -31,7 +32,14 @@ class UtilsTestCase(unittest.TestCase):
         ub = 4.0
         dim = 1
         gridsize = 10
-        mb = GPClassificationModel(lb=lb, ub=ub, dim=dim)
+        mb = GPClassificationModel(
+            lb=lb,
+            ub=ub,
+            dim=dim,
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack([torch.tensor([lb]), torch.tensor([ub])])
+            ),
+        )
         grid = GPClassificationModel.dim_grid(mb, gridsize=gridsize)
         self.assertEqual(grid.shape, torch.Size([10, 1]))
 

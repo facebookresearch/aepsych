@@ -151,7 +151,7 @@ class SobolAllocator(BaseAllocator):
         # Ensure correct shape in case Sobol sampling returns a 1D tensor
         if inducing_points.ndim == 1:
             inducing_points = inducing_points.view(-1, 1)
-
+        self.allocator_used = "SobolAllocator"
         return inducing_points
 
     @classmethod
@@ -213,6 +213,7 @@ class KMeansAllocator(BaseAllocator):
             torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points selected via k-means++.
         """
         if inputs is None and self.bounds is not None:
+            self.allocator_used = self.dummy_allocator.__class__.__name__
             return self.dummy_allocator.allocate_inducing_points(
                 inputs=inputs,
                 covar_module=covar_module,
@@ -226,13 +227,14 @@ class KMeansAllocator(BaseAllocator):
 
         # If unique inputs are less than or equal to the required inducing points, return them directly
         if unique_inputs.shape[0] <= num_inducing:
+            self.allocator_used = self.__class__.__name__
             return unique_inputs
 
         # Run k-means++ on the unique inputs to select inducing points
         inducing_points = torch.tensor(
             kmeans2(unique_inputs.cpu().numpy(), num_inducing, minit="++")[0]
         )
-
+        self.allocator_used = self.__class__.__name__
         return inducing_points
 
     @classmethod
@@ -292,6 +294,7 @@ class DummyAllocator(BaseAllocator):
         Returns:
             torch.Tensor: A (num_inducing, d)-dimensional tensor of zeros.
         """
+        self.allocator_used = self.__class__.__name__
         return torch.zeros(num_inducing, self.bounds.shape[-1])
 
     @classmethod
@@ -367,6 +370,7 @@ class AutoAllocator(BaseAllocator):
         """
         # Ensure inputs are not None
         if inputs is None and self.bounds is not None:
+            self.allocator_used = self.dummy_allocator.__class__.__name__
             return self.dummy_allocator.allocate_inducing_points(
                 inputs=inputs,
                 covar_module=covar_module,
@@ -384,12 +388,15 @@ class AutoAllocator(BaseAllocator):
 
         # If there are fewer unique points than required, return unique inputs directly
         if unique_inputs.shape[0] <= num_inducing:
+            self.allocator_used = self.__class__.__name__
             return unique_inputs
 
         # Otherwise, fall back to the provided allocator (e.g., KMeansAllocator)
         if inputs.shape[0] <= num_inducing:
+            self.allocator_used = self.__class__.__name__
             return inputs
         else:
+            self.allocator_used = self.fallback_allocator.__class__.__name__
             return self.fallback_allocator.allocate_inducing_points(
                 inputs=inputs,
                 covar_module=covar_module,
@@ -466,6 +473,7 @@ class FixedAllocator(BaseAllocator):
         Returns:
             torch.Tensor: The fixed inducing points.
         """
+        self.allocator_used = self.__class__.__name__
         return self.points
 
     @classmethod
@@ -553,6 +561,7 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
             torch.Tensor: The allocated inducing points.
         """
         if inputs is None and self.bounds is not None:
+            self.allocator_used = self.dummy_allocator.__class__.__name__
             return self.dummy_allocator.allocate_inducing_points(
                 inputs=inputs,
                 covar_module=covar_module,
@@ -562,6 +571,7 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, ConfigurableMixin):
         elif inputs is None and self.bounds is None:
             raise ValueError("Either inputs or bounds must be provided.")
         else:
+            self.allocator_used = self.__class__.__name__
             return super().allocate_inducing_points(
                 inputs=inputs,
                 covar_module=covar_module,
