@@ -21,7 +21,7 @@ from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import get_optimizer_options, promote_0d, _process_bounds
+from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
 from botorch.models.utils.inducing_point_allocators import (
     GreedyVarianceReduction,
@@ -172,7 +172,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
             X=self.train_inputs[0],
-            bounds=self.bounds,
         )
         self._set_model(train_x, train_y)
 

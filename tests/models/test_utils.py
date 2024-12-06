@@ -117,7 +117,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 )
             )
             <= 20
@@ -131,7 +130,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 )
             )
             <= 20
@@ -143,7 +141,6 @@ class UtilsTestCase(unittest.TestCase):
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
-                    bounds=model.bounds,
                 )
             )
             <= 20

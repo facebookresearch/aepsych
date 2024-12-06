@@ -135,8 +135,6 @@ class TestInducingPointAllocators(unittest.TestCase):
         ub = torch.tensor([4, 4])
         bounds = torch.stack([lb, ub])
         model = GPClassificationModel(
-            lb=lb,
-            ub=ub,
             inducing_point_method=AutoAllocator(bounds=bounds),
             inducing_size=3,
         )
@@ -521,8 +519,6 @@ class TestGreedyAllocators(unittest.TestCase):
         ub = torch.tensor([1])
         bounds = torch.stack([lb, ub])
         model = GPClassificationModel(
-            lb=lb,
-            ub=ub,
             inducing_point_method=GreedyVarianceReduction(bounds=bounds),
             inducing_size=10,
         )

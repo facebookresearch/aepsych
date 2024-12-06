@@ -47,6 +47,8 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat = Strategy(
             model=ParameterTransformedModel(
                 MonotonicRejectionGP,
+                lb=lb,
+                ub=ub,
                 transforms=transforms,
                 inducing_point_method=AutoAllocator(bounds=torch.stack((lb, ub))),
                 monotonic_idxs=[1],

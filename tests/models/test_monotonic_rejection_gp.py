@@ -40,6 +40,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         bounds = torch.stack([lb, ub])
 
         m = MonotonicRejectionGP(
+            lb=lb,
+            ub=ub,
             likelihood=GaussianLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],
@@ -96,6 +98,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         bounds = torch.stack([lb, ub])
 
         m = MonotonicRejectionGP(
+            lb=lb,
+            ub=ub,
             likelihood=BernoulliLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],

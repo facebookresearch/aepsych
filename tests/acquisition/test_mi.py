@@ -58,6 +58,8 @@ class SingleProbitMI(unittest.TestCase):
                 ub=ub,
                 min_asks=n_opt,
                 model=MonotonicRejectionGP(
+                    lb=lb,
+                    ub=ub,
                     monotonic_idxs=[0],
                     inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
