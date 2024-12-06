@@ -23,7 +23,10 @@ from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocat
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import get_optimizer_options, promote_0d, _process_bounds
 from botorch.fit import fit_gpytorch_mll
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
+from botorch.models.utils.inducing_point_allocators import (
+    GreedyVarianceReduction,
+    InducingPointAllocator,
+)
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -120,6 +123,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
                 fixed_prior_mean = norm.ppf(fixed_prior_mean)
             mean_module.constant.requires_grad_(False)
             mean_module.constant.copy_(torch.tensor(fixed_prior_mean))
+
         if covar_module is None:
             ls_prior = gpytorch.priors.GammaPrior(
                 concentration=4.6, rate=1.0, transform=lambda x: 1 / x
@@ -168,6 +172,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
             X=self.train_inputs[0],
+            bounds=self.bounds,
         )
         self._set_model(train_x, train_y)
 
