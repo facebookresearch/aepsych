@@ -133,7 +133,11 @@ Create a grid based on lower, upper, and dim.
 <dl class="py function">
 <dt class="sig sig-object py" id="aepsych.utils.get_bounds">
 <span class="sig-prename descclassname"><span class="pre">aepsych.utils.</span></span><span class="sig-name descname"><span class="pre">get_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils.html#get_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils.get_bounds" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the bounds for all parameters in config.</p>
+<dd><p>Return the bounds for all parameters in config. Note that these bounds are
+likely to be in the raw parameter space and any transformations that may affect
+these bounds are unaccounted for. If the transformed bounds are needed, use the
+transforms.transform_options() function to first transform the config and manually
+get the transformed bounds from the ub/lb options in the common section.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – The config to find the bounds from.</p>
