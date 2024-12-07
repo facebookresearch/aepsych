@@ -273,7 +273,7 @@ class ServerTestCase(BaseServerTestCase):
         assert len(self.s.queue) == 0
 
     def test_replay(self):
-        exp_config = f"""
+        exp_config = """
             [common]
             lb = [0]
             ub = [1]
@@ -323,6 +323,59 @@ class ServerTestCase(BaseServerTestCase):
         self.assertTrue(strat._strat_idx == 1)
         self.assertTrue(strat.finished)
         self.assertTrue(strat.x.shape[0] == 4)
+
+    def test_string_parameter(self):
+        string_config = """
+            [common]
+            parnames = [x, y, z]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            strategy_names = [init_strat, opt_strat]
+
+            [x]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [y]
+            par_type = fixed
+            value = blue
+
+            [z]
+            par_type = integer
+            lower_bound = 0
+            upper_bound = 100
+            
+            [init_strat]
+            min_asks = 2
+            generator = SobolGenerator
+            min_total_outcome_occurrences = 0
+
+            [opt_strat]
+            min_asks = 2
+            generator = OptimizeAcqfGenerator
+            acqf = MCLevelSetEstimation
+            model = GPClassificationModel
+            min_total_outcome_occurrences = 0
+        """
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": string_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5], "y": ["blue"], "z": [50]}, "outcome": 1},
+        }
+        self.s.handle_request(setup_request)
+        while not self.s.strat.finished:
+            response = self.s.handle_request(ask_request)
+            self.assertTrue(response["config"]["y"][0] == "blue")
+            self.s.handle_request(tell_request)
+
+        self.assertTrue(len(self.s.strat.lb) == 2)
+        self.assertTrue(len(self.s.strat.ub) == 2)
 
 
 if __name__ == "__main__":

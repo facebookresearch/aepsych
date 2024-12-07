@@ -6,8 +6,9 @@
 # LICENSE file in the root directory of this source tree.
 from abc import ABC
 from copy import deepcopy
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 
+import numpy as np
 import torch
 from aepsych.config import Config, ConfigurableMixin
 from botorch.models.transforms.input import ReversibleInputTransform
@@ -71,3 +72,47 @@ class Transform(ReversibleInputTransform, ConfigurableMixin, ABC):
             options["indices"] = [idx]
 
         return options
+
+
+class StringParameterMixin:
+    string_map: Optional[Dict[int, List[str]]]
+
+    def indices_to_str(self, X: np.ndarray) -> np.ndarray:
+        r"""Return a NumPy array of objects where the parameter values that can be
+        represented as a string is changed to a string.
+
+        Args:
+            X (np.ndarray): A mixed type NumPy array with some
+                indices that will be turned into strings.
+
+        Returns:
+            np.ndarray: An array with the object type where the relevant parameters are
+                converted to strings.
+        """
+        obj_arr = X.astype("O")
+
+        if self.string_map is not None:
+            for idx, cats in self.string_map.items():
+                obj_arr[:, idx] = [cats[int(i)] for i in obj_arr[:, idx]]
+
+        return obj_arr
+
+    def str_to_indices(self, obj_arr: np.ndarray) -> np.ndarray:
+        r"""Return a Tensor where the parameters represented by strings are converted
+        into an index.
+
+        Args:
+            obj_arr (np.ndarray): A NumPy array `[batch, dim]` where the some parameters
+                are strigns.
+
+        Returns:
+            np.ndarray: An array with the object type where the relevant string
+                parameters are converted to indices
+        """
+        obj_arr = obj_arr[:]
+
+        if self.string_map is not None:
+            for idx, cats in self.string_map.items():
+                obj_arr[:, idx] = [cats.index(cat) for cat in obj_arr[:, idx]]
+
+        return obj_arr
