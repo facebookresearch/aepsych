@@ -32,11 +32,12 @@ class ManualGenerator(AEPsychGenerator):
     ) -> None:
         """Iniatialize ManualGenerator.
         Args:
-            lb torch.Tensor: Lower bounds of each parameter.
-            ub torch.Tensor: Upper bounds of each parameter.
-            points torch.Tensor: The points that will be generated.
+            lb (torch.Tensor): Lower bounds of each parameter.
+            ub (torch.Tensor): Upper bounds of each parameter.
+            points (torch.Tensor): The points that will be generated.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             shuffle (bool): Whether or not to shuffle the order of the points. True by default.
+            seed (int, optional): Random seed. Defaults to None.
         """
         self.seed = seed
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
@@ -56,7 +57,8 @@ class ManualGenerator(AEPsychGenerator):
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
-            num_points (int): Number of points to query.
+            num_points (int): Number of points to query. Defaults to 1.
+            model (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
@@ -77,6 +79,22 @@ class ManualGenerator(AEPsychGenerator):
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
+        """
+        Extracts and processes configuration options for initializing the ManualGenerator.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.
+
+        Returns:
+            Dict: A dictionary of options, including:
+                 "lb" (torch.Tensor): Lower bounds of each parameter.
+                 "ub" (torch.Tensor): Upper bounds of each parameter.
+                 "dim" (int, optional): Dimensionality of the parameter space.
+                 "points" (torch.Tensor): Predefined points to generate.
+                 "shuffle" (bool): Whether to shuffle the order of points.
+                 "seed" (int, optional): Random seed for shuffling.
+        """
         if name is None:
             name = cls.__name__
 
@@ -123,13 +141,10 @@ class SampleAroundPointsGenerator(ManualGenerator):
     ) -> None:
         """Iniatialize SampleAroundPointsGenerator.
         Args:
-            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.
-            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.
-            window (Union[np.ndarray, torch.Tensor]): How far away to sample from the
-                reference point along each dimension. If the parameters are transformed,
-                the proportion of the range (based on ub/lb given) covered by the window
-                will be preserved (and not the absolute distance from the reference points).
-            points (Union[np.ndarray, torch.Tensor]): The points that will be generated.
+            lb (torch.Tensor): Lower bounds of each parameter.
+            ub (torch.Tensor): Upper bounds of each parameter.
+            window (torch.Tensor): How far away to sample from the reference point along each dimension.
+            points (torch.Tensor): The points that will be generated.
             samples_per_point (int): How many samples around each point to take.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             shuffle (bool): Whether or not to shuffle the order of the points. True by default.
@@ -162,6 +177,24 @@ class SampleAroundPointsGenerator(ManualGenerator):
 
     @classmethod
     def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
+        """
+        Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.
+
+        Returns:
+            Dict: A dictionary of options, including:
+                - "lb" (torch.Tensor): Lower bounds of each parameter.
+                - "ub" (torch.Tensor): Upper bounds of each parameter.
+                - "dim" (int, optional): Dimensionality of the parameter space.
+                - "points" (torch.Tensor): Predefined reference points.
+                - "shuffle" (bool): Whether to shuffle the order of points.
+                - "seed" (int, optional): Random seed for shuffling.
+                - "window" (torch.Tensor): Sampling range around each reference point along each dimension.
+                - "samples_per_point" (int): Number of samples to generate around each reference point.
+        """
         if name is None:
             name = cls.__name__
 

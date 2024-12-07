@@ -31,6 +31,7 @@ import torch
 from aepsych.version import __version__
 
 _T = TypeVar("_T")
+_ET = TypeVar("_ET")
 
 
 class Config(configparser.ConfigParser):
@@ -77,13 +78,13 @@ class Config(configparser.ConfigParser):
 
     def _get(
         self,
-        section,
-        conv,
-        option,
+        section: str,
+        conv: _T,
+        option: str,
         *,
-        raw=False,
-        vars=None,
-        fallback=configparser._UNSET,
+        raw: bool = False,
+        vars: Optional[Dict[str, Any]] = None,
+        fallback: _T = configparser._UNSET,
         **kwargs,
     ):
         """
@@ -92,6 +93,19 @@ class Config(configparser.ConfigParser):
         up any time we have a module fully configured from the
         common/default section.
         2. Pass extra **kwargs to the converter.
+
+
+        Args:
+            section (str): Section to get the option from.
+            conv (_T): Converter to use.
+            option (str): Option to get.
+            raw (bool): Whether to return the raw value. Defaults to False.
+            vars (Dict[str, Any], optional): Optional dictionary to use for interpolation. Defaults to None.
+            fallback (_T): Value to return if the option is not found. Defaults to configparser._UNSET.
+
+        Returns:
+            _T: Converted value of the option.
+
         """
         try:
             return conv(
@@ -118,6 +132,14 @@ class Config(configparser.ConfigParser):
 
     # Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)
     def to_dict(self, deduplicate: bool = True) -> Dict[str, Any]:
+        """Convert the config into a dictionary.
+
+        Args:
+            deduplicate (bool): Whether to deduplicate the 'common' section. Defaults to True.
+
+        Returns:
+            dict: Dictionary representation of the config.
+        """
         _dict: Dict[str, Any] = {}
         for section in self:
             _dict[section] = {}
@@ -129,17 +151,27 @@ class Config(configparser.ConfigParser):
 
     # Turn the metadata section into JSON.
     def jsonifyMetadata(self) -> str:
+        """Turn the metadata section into JSON.
+
+        Returns:
+            str: JSON representation of the metadata section.
+        """
         configdict = self.to_dict()
         return json.dumps(configdict["metadata"])
 
     # Turn the entire config into JSON format.
     def jsonifyAll(self) -> str:
+        """Turn the entire config into JSON format.
+
+        Returns:
+            str: JSON representation of the entire config.
+        """
         configdict = self.to_dict()
         return json.dumps(configdict)
 
     def update(
         self,
-        config_dict: Mapping[str, str] = None,
+        config_dict: Optional[Mapping[str, str]] = None,
         config_fnames: Sequence[str] = None,
         config_str: str = None,
     ) -> None:
@@ -149,9 +181,9 @@ class Config(configparser.ConfigParser):
             config_dict (Mapping[str, str], optional): Mapping to build configuration from.
                 Keys are section names, values are dictionaries with keys and values that
                 should be present in the section. Defaults to None.
-            config_fnames (Sequence[str], optional): List of INI filenames to load
+            config_fnames (Sequence[str]): List of INI filenames to load
                 configuration from. Defaults to None.
-            config_str (str, optional): String formatted as an INI file to load configuration
+            config_str (str): String formatted as an INI file to load configuration
                 from. Defaults to None.
         """
         if config_dict is not None:
@@ -205,8 +237,17 @@ class Config(configparser.ConfigParser):
             del self["experiment"]
 
     def _str_to_list(
-        self, v: str, element_type: Callable[[_T], _T] = float
+        self, v: str, element_type: Callable[[_ET], _ET] = float
     ) -> List[_T]:
+        """Convert a string to a list.
+
+        Args:
+            v (str): String to convert.
+            element_type (Callable[[_ET], _ET]): Type of the elements in the list. Defaults to float.
+
+        Returns:
+            List[_T]: List of elements of type _T.
+        """
         v = re.sub(r",]", "]", v)
         if re.search(r"^\[.*\]$", v, flags=re.DOTALL):
             if v == "[]":  # empty list
@@ -217,13 +258,39 @@ class Config(configparser.ConfigParser):
             return [v.strip()]
 
     def _str_to_array(self, v: str) -> np.ndarray:
+        """Convert a string to a numpy array.
+
+        Args:
+            v (str): String to convert.
+
+        Returns:
+            np.ndarray: Numpy array representation of the string.
+        """
         v = ast.literal_eval(v)
         return np.array(v, dtype=float)
 
     def _str_to_tensor(self, v: str) -> torch.Tensor:
+        """Convert a string to a torch tensor.
+
+        Args:
+            v (str): String to convert.
+
+        Returns:
+            torch.Tensor: Tensor representation of the string.
+        """
         return torch.Tensor(self._str_to_array(v)).to(torch.float64)
 
     def _str_to_obj(self, v: str, fallback_type: _T = str, warn: bool = True) -> object:
+        """Convert a string to an object.
+
+        Args:
+            v (str): String to convert.
+            fallback_type (_T): Type to fallback to if the object is not found. Defaults to str.
+            warn (bool): Whether to warn if the object is not found. Defaults to True.
+
+        Returns:
+            object: Object representation of the string.
+        """
         try:
             return self.registered_names[v]
         except KeyError:
@@ -301,6 +368,11 @@ class Config(configparser.ConfigParser):
             )
 
     def __repr__(self) -> str:
+        """Return a string representation of the config.
+
+        Returns:
+            str: String representation of the config.
+        """
         return f"Config at {hex(id(self))}: \n {str(self)}"
 
     @classmethod
@@ -335,7 +407,15 @@ class Config(configparser.ConfigParser):
             )
         cls.registered_names.update({obj.__name__: obj})
 
-    def get_section(self, section):
+    def get_section(self, section: str) -> Dict[str, Any]:
+        """Get a section of the config.
+
+        Args:
+            section (str): Section to get.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of the section.
+        """
         sec = {}
         for setting in self[section]:
             if section != "common" and setting in self["common"]:
@@ -344,6 +424,7 @@ class Config(configparser.ConfigParser):
         return sec
 
     def __str__(self):
+        """Return a string representation of the config."""
         _str = ""
         for section in self:
             sec = self.get_section(section)
@@ -353,6 +434,7 @@ class Config(configparser.ConfigParser):
         return _str
 
     def convert_to_latest(self):
+        """Converts the config to the latest version in place."""
         self.convert(self.version, __version__)
 
     def convert(self, from_version: str, to_version: str) -> None:
@@ -449,7 +531,11 @@ class Config(configparser.ConfigParser):
 
     @property
     def version(self) -> str:
-        """Returns the version number of the config."""
+        """Returns the version number of the config.
+
+        Returns:
+            str: Version number of the config.
+        """
         # TODO: implement an explicit versioning system
 
         # Try to infer the version

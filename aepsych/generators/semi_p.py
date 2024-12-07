@@ -35,6 +35,17 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
         model: SemiParametricGPModel,  # type: ignore[override]
         context_objective: Type = SemiPThresholdObjective,
     ) -> torch.Tensor:
+        """Query next point(s) to run by optimizing the acquisition function for both context and intensity.
+
+        Args:
+            num_points (int): Number of points to query.
+            model (SemiParametricGPModel): Fitted semi-parametric model of the data.
+            context_objective (Type): The objective function used for context. Defaults to SemiPThresholdObjective.
+
+        Returns:
+            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
+        """
+
         fixed_features = {model.stim_dim: 0}
         next_x = super().gen(
             num_points=num_points, model=model, fixed_features=fixed_features

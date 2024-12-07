@@ -7,7 +7,7 @@
 
 from collections.abc import Iterable
 from configparser import NoOptionError
-from typing import Any, Dict, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -20,6 +20,17 @@ from torch.quasirandom import SobolEngine
 def make_scaled_sobol(
     lb: torch.Tensor, ub: torch.Tensor, size: int, seed: Optional[int] = None
 ) -> torch.Tensor:
+    """Create a scaled Sobol grid
+
+    Args:
+        lb (torch.Tensor): Lower bounds
+        ub (torch.Tensor): Upper bounds
+        size (int): Number of points to generate
+        seed (int, optional): Random seed. Defaults to None.
+
+    Returns:
+        torch.Tensor: Scaled Sobol grid
+    """
     lb, ub, ndim = _process_bounds(lb, ub, None)
     grid = SobolEngine(dimension=ndim, scramble=True, seed=seed).draw(size).to(lb)
 
@@ -29,9 +40,18 @@ def make_scaled_sobol(
     return grid
 
 
-def promote_0d(x: Union[torch.Tensor, np.ndarray]):
+def promote_0d(x: Any) -> Any:
+    """Ensure x is iterable.
+
+    Args:
+        x (Any): Input that might not be iterable
+
+    Returns:
+        Any: Either x unchanged or x in a list ([x]).
+    """
     if not isinstance(x, Iterable):
         return [x]
+
     return x
 
 
@@ -44,16 +64,15 @@ def dim_grid(
     """Create a grid
     Create a grid based on lower, upper, and dim.
     Parameters
-    ----------
-    - lower ('int') - lower bound
-    - upper ('int') - upper bound
-    - dim ('int) - dimension
-    - gridsize ('int') - size for grid
-    - slice_dims (Optional, dict) - values to use for slicing axes, as an {index:value} dict
-    Returns
-    ----------
-    grid : torch.FloatTensor
-        Tensor
+
+    Args:
+        lower (int): lower bound.
+        upper (int): upper bound.
+        gridsize (int): size for grid. Defaults to 30.
+        slice_dims (Mapping[int, float], optional): values to use for slicing axes, as an {index:value} dict. Defaults to None.
+
+    Returns:
+        torch.Tensor: Tensor of grid points.
     """
     slice_dims = slice_dims or {}
 
@@ -71,11 +90,20 @@ def dim_grid(
 
 
 def _process_bounds(
-    lb: Union[torch.Tensor, np.ndarray],
-    ub: Union[torch.Tensor, np.ndarray],
+    lb: Union[np.ndarray, torch.Tensor, List],
+    ub: Union[np.ndarray, torch.Tensor, List],
     dim: Optional[int],
 ) -> Tuple[torch.Tensor, torch.Tensor, int]:
-    """Helper function for ensuring bounds are correct shape and type."""
+    """Helper function for ensuring bounds are correct shape and type.
+
+    Args:
+        lb (Union[np.ndarray, torch.Tensor, List]): Lower bounds.
+        ub (Union[np.ndarray, torch.Tensor, List]): Upper bounds.
+        dim (int, optional): Dimension of the bounds.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor, int]: Tuple of lower bounds, upper bounds, and dimension.
+    """
     lb = promote_0d(lb)
     ub = promote_0d(ub)
 
@@ -106,7 +134,25 @@ def _process_bounds(
     return lb, ub, dim
 
 
-def interpolate_monotonic(x, y, z, min_x=-np.inf, max_x=np.inf):
+def interpolate_monotonic(
+    x: Union[torch.Tensor, np.ndarray],
+    y: Union[torch.Tensor, np.ndarray],
+    z: Union[torch.Tensor, np.ndarray, float],
+    min_x: Union[torch.Tensor, np.ndarray, float] = -np.inf,
+    max_x: Union[torch.Tensor, np.ndarray, float] = np.inf,
+) -> Any:
+    """Interpolate a monotonic function
+
+    Args:
+        x (Union[torch.Tensor, np.ndarray]): x values.
+        y (Union[torch.Tensor, np.ndarray]): y values.
+        z (Union[torch.Tensor, np.ndarray, float]): z values.
+        min_x (Union[torch.Tensor, np.ndarray, float]): Minimum x value. Defaults to -np.inf.
+        max_x (Union[torch.Tensor, np.ndarray, float]): Maximum x value. Defaults to np.inf.
+
+    Returns:
+        Any: Interpolated value.
+    """
     # Ben Letham's 1d interpolation code, assuming monotonicity.
     # basic idea is find the nearest two points to the LSE and
     # linearly interpolate between them (I think this is bisection
@@ -137,6 +183,22 @@ def get_lse_interval(
     gridsize: int = 30,
     **kwargs,
 ) -> Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]:
+    """Get the level set estimate interval
+
+    Args:
+        model (GPyTorchModel): Model to use for sampling.
+        mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
+        target_level (float): Target level.
+        cred_level (float, optional): Credibility level. Defaults to None.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        n_samps (int): Number of samples. Defaults to 500.
+        lb (float): Lower bound. Defaults to -float("inf").
+        ub (float): Upper bound. Defaults to float("inf").
+        gridsize (int): Grid size. Defaults to 30.
+
+    Returns:
+        Union[Tuple[torch.Tensor, torch.Tensor, torch.Tensor], torch.Tensor]: Level set estimate interval.
+    """
     # Create a meshgrid using torch.linspace
     xgrid = torch.stack(
         torch.meshgrid(
@@ -181,7 +243,27 @@ def get_lse_interval(
         return median, lower, upper
 
 
-def get_lse_contour(post_mean, mono_grid, level, mono_dim=-1, lb=-np.inf, ub=np.inf):
+def get_lse_contour(
+    post_mean: torch.Tensor,
+    mono_grid: Union[torch.Tensor, np.ndarray],
+    level: float,
+    mono_dim: int = -1,
+    lb: Union[torch.Tensor, float] = -np.inf,
+    ub: Union[torch.Tensor, float] = np.inf,
+) -> torch.Tensor:
+    """Get the level set estimate contour
+
+    Args:
+        post_mean (torch.Tensor): Posterior mean.
+        mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
+        level (float): Level.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        lb (float): Lower bound. Defaults to -np.inf.
+        ub (float): Upper bound. Defaults to np.inf.
+
+    Returns:
+        torch.Tensor: Level set estimate contour.
+    """
     return torch.tensor(
         np.apply_along_axis(
             lambda p: interpolate_monotonic(mono_grid, p, level, lb, ub),
@@ -191,7 +273,27 @@ def get_lse_contour(post_mean, mono_grid, level, mono_dim=-1, lb=-np.inf, ub=np.
     )
 
 
-def get_jnd_1d(post_mean, mono_grid, df=1, mono_dim=-1, lb=-np.inf, ub=np.inf):
+def get_jnd_1d(
+    post_mean: torch.Tensor,
+    mono_grid: torch.Tensor,
+    df: int = 1,
+    mono_dim: int = -1,
+    lb: Union[torch.Tensor, float] = -float("inf"),
+    ub: Union[torch.Tensor, float] = float("inf"),
+) -> torch.Tensor:
+    """Get the just noticeable difference for a 1D function
+
+    Args:
+        post_mean (torch.Tensor): Posterior mean.
+        mono_grid (torch.Tensor): Monotonic grid.
+        df (int): Degrees of freedom. Defaults to 1.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").
+        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").
+
+    Returns:
+        torch.Tensor: Just noticeable difference.
+    """
     interpolate_to = post_mean + df
     return torch.tensor(
         (
@@ -214,6 +316,20 @@ def get_jnd_multid(
     lb: Union[torch.Tensor, float] = -float("inf"),
     ub: Union[torch.Tensor, float] = float("inf"),
 ) -> torch.Tensor:
+    """Get the just noticeable difference for a multidimensional function
+
+    Args:
+        post_mean (torch.Tensor): Posterior mean.
+        mono_grid (torch.Tensor): Monotonic grid.
+        df (int): Degrees of freedom. Defaults to 1.
+        mono_dim (int): Monotonic dimension. Defaults to -1.
+        lb (Union[torch.Tensor, float]): Lower bound. Defaults to -float("inf").
+        ub (Union[torch.Tensor, float]): Upper bound. Defaults to float("inf").
+
+    Returns:
+        torch.Tensor: Just noticeable difference.
+    """
+
     # Move mono_dim to the last dimension if it isn't already
     if mono_dim != -1:
         post_mean = post_mean.transpose(mono_dim, -1)
