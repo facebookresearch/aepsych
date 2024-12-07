@@ -50,11 +50,12 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Iniatialize ManualGenerator.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            lb torch.Tensor: Lower bounds of each parameter.</span>
-<span class="sd">            ub torch.Tensor: Upper bounds of each parameter.</span>
-<span class="sd">            points torch.Tensor: The points that will be generated.</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds of each parameter.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds of each parameter.</span>
+<span class="sd">            points (torch.Tensor): The points that will be generated.</span>
 <span class="sd">            dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.</span>
 <span class="sd">            shuffle (bool): Whether or not to shuffle the order of the points. True by default.</span>
+<span class="sd">            seed (int, optional): Random seed. Defaults to None.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
@@ -74,7 +75,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by quasi-randomly sampling the parameter space.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            num_points (int): Number of points to query.</span>
+<span class="sd">            num_points (int): Number of points to query. Defaults to 1.</span>
+<span class="sd">            model (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
@@ -95,6 +97,22 @@
 
 <div class="viewcode-block" id="ManualGenerator.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.manual_generator.ManualGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Extracts and processes configuration options for initializing the ManualGenerator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
+<span class="sd">            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: A dictionary of options, including:</span>
+<span class="sd">                 "lb" (torch.Tensor): Lower bounds of each parameter.</span>
+<span class="sd">                 "ub" (torch.Tensor): Upper bounds of each parameter.</span>
+<span class="sd">                 "dim" (int, optional): Dimensionality of the parameter space.</span>
+<span class="sd">                 "points" (torch.Tensor): Predefined points to generate.</span>
+<span class="sd">                 "shuffle" (bool): Whether to shuffle the order of points.</span>
+<span class="sd">                 "seed" (int, optional): Random seed for shuffling.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
@@ -141,13 +159,10 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Iniatialize SampleAroundPointsGenerator.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            lb (Union[np.ndarray, torch.Tensor]): Lower bounds of each parameter.</span>
-<span class="sd">            ub (Union[np.ndarray, torch.Tensor]): Upper bounds of each parameter.</span>
-<span class="sd">            window (Union[np.ndarray, torch.Tensor]): How far away to sample from the</span>
-<span class="sd">                reference point along each dimension. If the parameters are transformed,</span>
-<span class="sd">                the proportion of the range (based on ub/lb given) covered by the window</span>
-<span class="sd">                will be preserved (and not the absolute distance from the reference points).</span>
-<span class="sd">            points (Union[np.ndarray, torch.Tensor]): The points that will be generated.</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds of each parameter.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds of each parameter.</span>
+<span class="sd">            window (torch.Tensor): How far away to sample from the reference point along each dimension.</span>
+<span class="sd">            points (torch.Tensor): The points that will be generated.</span>
 <span class="sd">            samples_per_point (int): How many samples around each point to take.</span>
 <span class="sd">            dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.</span>
 <span class="sd">            shuffle (bool): Whether or not to shuffle the order of the points. True by default.</span>
@@ -180,6 +195,24 @@
 
 <div class="viewcode-block" id="SampleAroundPointsGenerator.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.manual_generator.SampleAroundPointsGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
+<span class="sd">            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: A dictionary of options, including:</span>
+<span class="sd">                - "lb" (torch.Tensor): Lower bounds of each parameter.</span>
+<span class="sd">                - "ub" (torch.Tensor): Upper bounds of each parameter.</span>
+<span class="sd">                - "dim" (int, optional): Dimensionality of the parameter space.</span>
+<span class="sd">                - "points" (torch.Tensor): Predefined reference points.</span>
+<span class="sd">                - "shuffle" (bool): Whether to shuffle the order of points.</span>
+<span class="sd">                - "seed" (int, optional): Random seed for shuffling.</span>
+<span class="sd">                - "window" (torch.Tensor): Sampling range around each reference point along each dimension.</span>
+<span class="sd">                - "samples_per_point" (int): Number of samples to generate around each reference point.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 

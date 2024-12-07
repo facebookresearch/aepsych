@@ -32,9 +32,9 @@ threshold, and optionally a ground truth response threshold.</p>
 <li><p><strong>true_testfun</strong> (<em>Callable</em><em>, </em><em>optional</em>) – Ground truth response function. Should take a n_samples x n_parameters tensor
 as input and produce the response probability at each sample as output. Default: None.</p></li>
 <li><p><strong>cred_level</strong> (<em>float</em>) – Percentage of posterior mass around the mean to be shaded. Default: 0.95.</p></li>
-<li><p><strong>target_level</strong> (<em>float</em>) – Response probability to estimate the threshold of. Default: 0.75.</p></li>
-<li><p><strong>xlabel</strong> (<em>str</em>) – Label of the x-axis. Default: “Context (abstract)”.</p></li>
-<li><p><strong>ylabel</strong> (<em>str</em>) – Label of the y-axis (if None, defaults to “Response Probability” for 1-d plots or
+<li><p><strong>target_level</strong> (<em>float</em><em>, </em><em>optional</em>) – Response probability to estimate the threshold of. Default: 0.75.</p></li>
+<li><p><strong>xlabel</strong> (<em>str</em><em>, </em><em>optional</em>) – Label of the x-axis. Default: “Context (abstract)”.</p></li>
+<li><p><strong>ylabel</strong> (<em>str</em><em>, </em><em>optional</em>) – Label of the y-axis (if None, defaults to “Response Probability” for 1-d plots or
 “Intensity (Abstract)” for 2-d plots). Default: None.</p></li>
 <li><p><strong>yes_label</strong> (<em>str</em>) – Label of trials with response of 1. Default: “Yes trial”.</p></li>
 <li><p><strong>no_label</strong> (<em>str</em>) – Label of trials with response of 0. Default: “No trial”.</p></li>
@@ -65,22 +65,22 @@ Default: True.</p></li>
 <dd><p>Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
 :param strat: Strategy object to be plotted. Must have a dimensionality of 3.
 :type strat: Strategy
-:param parnames: list of the parameter names
-:type parnames: str list
+:param parnames: list of the parameter names. If None, defaults to [“x1”, “x2”, “x3”].
+:type parnames: List[str], optional
 :param outcome_label: The label of the outcome variable
 :type outcome_label: str
-:param slice_dim: dimension to slice on
+:param slice_dim: dimension to slice on. Default: 0.
 :type slice_dim: int
-:param dim_vals: values to take slices; OR number of values to take even slices from
-:type dim_vals: list of floats or int
+:param slice_vals: values to take slices; OR number of values to take even slices from. Default: 5.
+:type slice_vals: Union[List[float], int]
 :param contour_levels: List contour values to plot. Default: None. If true, all integer levels.
-:type contour_levels: iterable of floats or bool, optional
+:type contour_levels: Union[Iterable[float], bool], optional
 :param probability_space: Whether to plot probability. Default: False
 :type probability_space: bool
 :param gridsize: The number of points to sample each dimension at. Default: 30.
 :type gridsize: int
-:param extent_multiplier: multipliers for each of the dimensions when plotting. Default:None
-:type extent_multiplier: list, optional
+:param extent_multiplier: multipliers for each of the dimensions when plotting. If None, defaults to [1, 1, 1].
+:type extent_multiplier: List[float], optional
 :param save_path: File name to save the plot to. Default: None.
 :type save_path: str, optional
 :param show: Whether the plot should be shown in an interactive window. Default: True.
@@ -110,29 +110,35 @@ Default: True.</p></li>
 <dt class="sig sig-object py" id="aepsych.plotting.plot_slice">
 <span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contour_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_slice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours
-:param strat: Strategy object to be plotted. Must have a dimensionality of 3.
-:type strat: Strategy
 :param ax: Matplotlib axis to plot on
 :type ax: plt.Axes
-:param parnames: list of the parameter names
-:type parnames: str list
-:param slice_dim: dimension to slice on
+:param start: Strategy object to be plotted. Must have a dimensionality of 3.
+:type start: Strategy
+:param parnames: list of the parameter names.
+:type parnames: List[str]
+:param slice_dim: dimension to slice on.
 :type slice_dim: int
-:param slice_vals: value to take the slice along that dimension
-:type slice_vals: float
-:param vmin: global model minimum to use for plotting
+:param slice_val: value to take the slice along that dimension.
+:type slice_val: int
+:param vmin: global model minimum to use for plotting.
 :type vmin: float
-:param vmax: global model maximum to use for plotting
+:param vmax: global model maximum to use for plotting.
 :type vmax: float
 :param gridsize: The number of points to sample each dimension at. Default: 30.
 :type gridsize: int
 :param contour_levels: Contours to plot. Default: None
-:type contour_levels: int list
+:type contour_levels: Sized, optional
 :param lse: Whether to plot probability. Default: False
 :type lse: bool
 :param extent_multiplier: multipliers for each of the dimensions when plotting. Default:None
-:type extent_multiplier: list, optional</p>
+:type extent_multiplier: List, optional</p>
 <dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The axis object with the plot.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>AxesImage</p>
+</dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ax</strong> (<em>Axes</em>) – </p></li>

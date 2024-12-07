@@ -49,6 +49,7 @@
 <span class="kn">from</span> <span class="nn">aepsych.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 
 <span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_T"</span><span class="p">)</span>
+<span class="n">_ET</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_ET"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../config.html#aepsych.config.Config">[docs]</a><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">):</span>
@@ -95,13 +96,13 @@
 
     <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">section</span><span class="p">,</span>
-        <span class="n">conv</span><span class="p">,</span>
-        <span class="n">option</span><span class="p">,</span>
+        <span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">conv</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span>
+        <span class="n">option</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="nb">vars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">fallback</span><span class="o">=</span><span class="n">configparser</span><span class="o">.</span><span class="n">_UNSET</span><span class="p">,</span>
+        <span class="n">raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="nb">vars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fallback</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="n">configparser</span><span class="o">.</span><span class="n">_UNSET</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -110,6 +111,19 @@
 <span class="sd">        up any time we have a module fully configured from the</span>
 <span class="sd">        common/default section.</span>
 <span class="sd">        2. Pass extra **kwargs to the converter.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            section (str): Section to get the option from.</span>
+<span class="sd">            conv (_T): Converter to use.</span>
+<span class="sd">            option (str): Option to get.</span>
+<span class="sd">            raw (bool): Whether to return the raw value. Defaults to False.</span>
+<span class="sd">            vars (Dict[str, Any], optional): Optional dictionary to use for interpolation. Defaults to None.</span>
+<span class="sd">            fallback (_T): Value to return if the option is not found. Defaults to configparser._UNSET.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            _T: Converted value of the option.</span>
+
 <span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">conv</span><span class="p">(</span>
@@ -136,6 +150,14 @@
 
     <span class="c1"># Convert config into a dictionary (eliminate duplicates from defaulted 'common' section.)</span>
 <div class="viewcode-block" id="Config.to_dict"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deduplicate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Convert the config into a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            deduplicate (bool): Whether to deduplicate the 'common' section. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary representation of the config.</span>
+<span class="sd">        """</span>
         <span class="n">_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">_dict</span><span class="p">[</span><span class="n">section</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -147,17 +169,27 @@
 
     <span class="c1"># Turn the metadata section into JSON.</span>
 <div class="viewcode-block" id="Config.jsonifyMetadata"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.jsonifyMetadata">[docs]</a>    <span class="k">def</span> <span class="nf">jsonifyMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Turn the metadata section into JSON.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: JSON representation of the metadata section.</span>
+<span class="sd">        """</span>
         <span class="n">configdict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">configdict</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">])</span></div>
 
     <span class="c1"># Turn the entire config into JSON format.</span>
 <div class="viewcode-block" id="Config.jsonifyAll"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.jsonifyAll">[docs]</a>    <span class="k">def</span> <span class="nf">jsonifyAll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Turn the entire config into JSON format.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: JSON representation of the entire config.</span>
+<span class="sd">        """</span>
         <span class="n">configdict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">configdict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Config.update"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">config_dict</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config_fnames</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -167,9 +199,9 @@
 <span class="sd">            config_dict (Mapping[str, str], optional): Mapping to build configuration from.</span>
 <span class="sd">                Keys are section names, values are dictionaries with keys and values that</span>
 <span class="sd">                should be present in the section. Defaults to None.</span>
-<span class="sd">            config_fnames (Sequence[str], optional): List of INI filenames to load</span>
+<span class="sd">            config_fnames (Sequence[str]): List of INI filenames to load</span>
 <span class="sd">                configuration from. Defaults to None.</span>
-<span class="sd">            config_str (str, optional): String formatted as an INI file to load configuration</span>
+<span class="sd">            config_str (str): String formatted as an INI file to load configuration</span>
 <span class="sd">                from. Defaults to None.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">config_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -223,8 +255,17 @@
             <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">_str_to_list</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element_type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T</span><span class="p">],</span> <span class="n">_T</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element_type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_ET</span><span class="p">],</span> <span class="n">_ET</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Convert a string to a list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            v (str): String to convert.</span>
+<span class="sd">            element_type (Callable[[_ET], _ET]): Type of the elements in the list. Defaults to float.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[_T]: List of elements of type _T.</span>
+<span class="sd">        """</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">",]"</span><span class="p">,</span> <span class="s2">"]"</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\[.*\]$"</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="s2">"[]"</span><span class="p">:</span>  <span class="c1"># empty list</span>
@@ -235,13 +276,39 @@
             <span class="k">return</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
 
     <span class="k">def</span> <span class="nf">_str_to_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Convert a string to a numpy array.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            v (str): String to convert.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Numpy array representation of the string.</span>
+<span class="sd">        """</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_str_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Convert a string to a torch tensor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            v (str): String to convert.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Tensor representation of the string.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_str_to_array</span><span class="p">(</span><span class="n">v</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_str_to_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fallback_type</span><span class="p">:</span> <span class="n">_T</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span> <span class="n">warn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Convert a string to an object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            v (str): String to convert.</span>
+<span class="sd">            fallback_type (_T): Type to fallback to if the object is not found. Defaults to str.</span>
+<span class="sd">            warn (bool): Whether to warn if the object is not found. Defaults to True.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            object: Object representation of the string.</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">registered_names</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -319,6 +386,11 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a string representation of the config.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String representation of the config.</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"Config at </span><span class="si">{</span><span class="nb">hex</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 
 <div class="viewcode-block" id="Config.register_module"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.register_module">[docs]</a>    <span class="nd">@classmethod</span>
@@ -353,7 +425,15 @@
             <span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">registered_names</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">obj</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span> <span class="n">obj</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="Config.get_section"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.get_section">[docs]</a>    <span class="k">def</span> <span class="nf">get_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
+<div class="viewcode-block" id="Config.get_section"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.get_section">[docs]</a>    <span class="k">def</span> <span class="nf">get_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get a section of the config.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            section (str): Section to get.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Dictionary representation of the section.</span>
+<span class="sd">        """</span>
         <span class="n">sec</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">section</span> <span class="o">!=</span> <span class="s2">"common"</span> <span class="ow">and</span> <span class="n">setting</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
@@ -362,6 +442,7 @@
         <span class="k">return</span> <span class="n">sec</span></div>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return a string representation of the config."""</span>
         <span class="n">_str</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_section</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
@@ -371,6 +452,7 @@
         <span class="k">return</span> <span class="n">_str</span>
 
 <div class="viewcode-block" id="Config.convert_to_latest"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.convert_to_latest">[docs]</a>    <span class="k">def</span> <span class="nf">convert_to_latest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Converts the config to the latest version in place."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Config.convert"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -467,7 +549,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Returns the version number of the config."""</span>
+<span class="w">        </span><span class="sd">"""Returns the version number of the config.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Version number of the config.</span>
+<span class="sd">        """</span>
         <span class="c1"># TODO: implement an explicit versioning system</span>
 
         <span class="c1"># Try to infer the version</span>

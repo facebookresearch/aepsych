@@ -101,34 +101,40 @@
 <dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.epsilon_greedy_generator.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
+<p>Initialize EpsilonGreedyGenerator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – </p></li>
-<li><p><strong>epsilon</strong> (<em>float</em>) – </p></li>
+<li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – The generator to use when not exploiting.</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – The probability of exploration. Defaults to 0.1.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an EpsilonGreedyGenerator from a Config object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator"><em>EpsilonGreedyGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The generator.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator">EpsilonGreedyGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
+<li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – Model to use for generating points.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -146,13 +152,18 @@
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from a predefined list.</p>
 <p>Iniatialize ManualGenerator.
-:param lb torch.Tensor: Lower bounds of each parameter.
-:param ub torch.Tensor: Upper bounds of each parameter.
-:param points torch.Tensor: The points that will be generated.
+:param lb: Lower bounds of each parameter.
+:type lb: torch.Tensor
+:param ub: Upper bounds of each parameter.
+:type ub: torch.Tensor
+:param points: The points that will be generated.
+:type points: torch.Tensor
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param shuffle: Whether or not to shuffle the order of the points. True by default.
-:type shuffle: bool</p>
+:type shuffle: bool
+:param seed: Random seed. Defaults to None.
+:type seed: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -169,8 +180,10 @@
 <dt class="sig sig-object py" id="aepsych.generators.manual_generator.ManualGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
-:param num_points: Number of points to query.
-:type num_points: int</p>
+:param num_points: Number of points to query. Defaults to 1.
+:type num_points: int
+:param model: Model to use for generating points. Not used in this generator. Defaults to None.
+:type model: AEPsychMixin, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -204,15 +217,28 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.manual_generator.ManualGenerator.get_config_options">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Extracts and processes configuration options for initializing the ManualGenerator.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Dict</em></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of options, including:</dt><dd><p>”lb” (torch.Tensor): Lower bounds of each parameter.
+“ub” (torch.Tensor): Upper bounds of each parameter.
+“dim” (int, optional): Dimensionality of the parameter space.
+“points” (torch.Tensor): Predefined points to generate.
+“shuffle” (bool): Whether to shuffle the order of points.
+“seed” (int, optional): Random seed for shuffling.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -228,41 +254,64 @@
 <p>Generator that samples in a window around reference points in a predefined list.</p>
 <p>Iniatialize SampleAroundPointsGenerator.
 :param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
+:type lb: torch.Tensor
 :param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
-:param window: How far away to sample from the</p>
-<blockquote>
-<div><p>reference point along each dimension. If the parameters are transformed,
-the proportion of the range (based on ub/lb given) covered by the window
-will be preserved (and not the absolute distance from the reference points).</p>
-</div></blockquote>
+:type ub: torch.Tensor
+:param window: How far away to sample from the reference point along each dimension.
+:type window: torch.Tensor
+:param points: The points that will be generated.
+:type points: torch.Tensor
+:param samples_per_point: How many samples around each point to take.
+:type samples_per_point: int
+:param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
+:type dim: int, optional
+:param shuffle: Whether or not to shuffle the order of the points. True by default.
+:type shuffle: bool
+:param seed: Random seed.
+:type seed: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – The points that will be generated.</p></li>
-<li><p><strong>samples_per_point</strong> (<em>int</em>) – How many samples around each point to take.</p></li>
-<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the parameter space. If None, it is inferred from lb and ub.</p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether or not to shuffle the order of the points. True by default.</p></li>
-<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed.</p></li>
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>window</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>window</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>samples_per_point</strong> (<em>int</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.manual_generator.SampleAroundPointsGenerator.get_config_options">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#SampleAroundPointsGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.SampleAroundPointsGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Dict</em></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of options, including:</dt><dd><ul class="simple">
+<li><p>”lb” (torch.Tensor): Lower bounds of each parameter.</p></li>
+<li><p>”ub” (torch.Tensor): Upper bounds of each parameter.</p></li>
+<li><p>”dim” (int, optional): Dimensionality of the parameter space.</p></li>
+<li><p>”points” (torch.Tensor): Predefined reference points.</p></li>
+<li><p>”shuffle” (bool): Whether to shuffle the order of points.</p></li>
+<li><p>”seed” (int, optional): Random seed for shuffling.</p></li>
+<li><p>”window” (torch.Tensor): Sampling range around each reference point along each dimension.</p></li>
+<li><p>”samples_per_point” (int): Number of samples to generate around each reference point.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -280,7 +329,7 @@ for constrained optimization by e.g. interior point method.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>loss</strong> (<em>torch.Tensor</em>) – Value of loss at candidate points.</p></li>
-<li><p><strong>candidates</strong> (<em>torch.Tensor</em>) – Location of candidate points.</p></li>
+<li><p><strong>candidates</strong> (<em>torch.Tensor</em>) – Location of candidate points. Unused.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -299,18 +348,18 @@ for constrained optimization by e.g. interior point method.</p>
 an acquisition function through stochastic gradient descent.</p>
 <p>Initialize MonotonicRejectionGenerator.
 :param acqf: Acquisition function to use.
-:type acqf: AcquisitionFunction
+:type acqf: MonotonicMCAcquisition
 :param acqf_kwargs: Extra arguments to</p>
 <blockquote>
-<div><p>pass to acquisition function. Defaults to no arguments.</p>
+<div><p>pass to acquisition function. Defaults to None.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_gen_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – Dictionary with options for generating candidate, such as
-SGD parameters. See code for all options and their defaults.</p></li>
-<li><p><strong>explore_features</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>int</em><em>]</em><em>]</em>) – List of features that will be selected randomly and then
-fixed for acquisition fn optimization.</p></li>
+<li><p><strong>model_gen_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Dictionary with options for generating candidate, such as
+SGD parameters. See code for all options and their defaults. Defaults to None.</p></li>
+<li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
+fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
@@ -320,8 +369,8 @@ fixed for acquisition fn optimization.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
-:param num_points: Number of points to query.
-:type num_points: int, optional
+:param num_points: Number of points to query. Currently only supports 1.
+:type num_points: int
 :param model: Fitted model of the data.
 :type model: AEPsychMixin</p>
 <dl class="field-list simple">
@@ -342,12 +391,17 @@ fixed for acquisition fn optimization.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of MonotonicRejectionGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator" title="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator"><em>MonotonicRejectionGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator class with specified acquisition function,
+gradient descent options, exploration features, and acquisition function arguments.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator" title="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator">MonotonicRejectionGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,9 +424,10 @@ of points, and then choose the point that is closest to the target value.</p>
 <li><p><strong>num_rejection_samples</strong> (<em>int</em>) – Number of rejection samples to draw.</p></li>
 <li><p><strong>num_ts_points</strong> (<em>int</em>) – Number of points at which to sample.</p></li>
 <li><p><strong>target_value</strong> (<em>float</em>) – target value that is being looked for</p></li>
-<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Objective transform of the GP output
+<li><p><strong>objective</strong> (<em>MCAcquisitionObjective</em>) – Objective transform of the GP output
 before evaluating the acquisition. Defaults to identity transform.</p></li>
-<li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>explore_features</strong> (<em>List</em><em>[</em><em>Type</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
+fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>n_rejection_samples</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
@@ -381,10 +436,10 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
-:param num_points: Number of points to query.
-:type num_points: int, optional
+:param num_points: Number of points to query. current implementation only generates 1 point at a time.
+:type num_points: int
 :param model: Fitted model of the data.
-:type model: AEPsychMixin</p>
+:type model: MonotonicRejectionGP</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -403,12 +458,17 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of MonotonicThompsonSamplerGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator" title="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator"><em>MonotonicThompsonSamplerGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator class with specified number of samples,
+rejection samples, Thompson sampling points, target value, objective transformation, and optional exploration features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator" title="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator">MonotonicThompsonSamplerGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,12 +491,12 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization.</p></li>
-<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer.</p></li>
-<li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.</p></li>
+<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization. Defaults to 10.</p></li>
+<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
+<li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -449,7 +509,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
-:type num_points: int, optional
+:type num_points: int
 :param model: Fitted model of the data.
 :type model: ModelProtocol</p>
 <dl class="field-list simple">
@@ -470,12 +530,17 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of OptimizeAcqfGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><em>OptimizeAcqfGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of OptimizeAcqfGenerator with specified acquisition function,
+restart and sample parameters, maximum generation time, and stimuli per trial.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator">OptimizeAcqfGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -489,8 +554,10 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points randomly without an acquisition function.</p>
 <p>Iniatialize RandomGenerator.
-:param lb torch.Tensor: Lower bounds of each parameter.
-:param ub torch.Tensor: Upper bounds of each parameter.
+:param lb: Lower bounds of each parameter.
+:type lb: torch.Tensor
+:param ub: Upper bounds of each parameter.
+:type ub: torch.Tensor
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional</p>
 <dl class="field-list simple">
@@ -507,7 +574,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.random_generator.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by randomly sampling the parameter space.
 :param num_points: Number of points to query. Currently, only 1 point can be queried at a time.
-:type num_points: int, optional</p>
+:type num_points: int
+:param model: Model to use for generating points. Not used in this generator.
+:type model: AEPsychMixin, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -526,12 +595,16 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.random_generator.RandomGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.random_generator.RandomGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an instance of RandomGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.random_generator.RandomGenerator" title="aepsych.generators.random_generator.RandomGenerator"><em>RandomGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator with specified bounds and dimensionality.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.random_generator.RandomGenerator" title="aepsych.generators.random_generator.RandomGenerator">RandomGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -545,12 +618,16 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from the Sobol Sequence.</p>
 <p>Iniatialize SobolGenerator.
-:param lb torch.Tensor: Lower bounds of each parameter.
-:param ub torch.Tensor: Upper bounds of each parameter.
+:param lb: Lower bounds of each parameter.
+:type lb: torch.Tensor
+:param ub: Upper bounds of each parameter.
+:type ub: torch.Tensor
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param seed: Random seed.
-:type seed: int, optional</p>
+:type seed: int, optional
+:param stimuli_per_trial: Number of stimuli per trial. Defaults to 1.
+:type stimuli_per_trial: int</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -566,8 +643,10 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.sobol_generator.SobolGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
-:param num_points: Number of points to query.
-:type num_points: int, optional</p>
+:param num_points: Number of points to query. Defaults to 1.
+:type num_points: int
+:param moodel: Model to use for generating points. Not used in this generator. Defaults to None.
+:type moodel: AEPsychMixin, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</p>
@@ -586,12 +665,16 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.sobol_generator.SobolGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of SobolGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><em>SobolGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator">SobolGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -614,12 +697,12 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization.</p></li>
-<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer.</p></li>
-<li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.</p></li>
+<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization. Defaults to 10.</p></li>
+<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
+<li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -640,7 +723,7 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
-:type num_points: int, optional
+:type num_points: int
 :param model: Fitted model of the data.
 :type model: ModelProtocol</p>
 <dl class="field-list simple">
@@ -661,12 +744,17 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of OptimizeAcqfGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><em>OptimizeAcqfGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of OptimizeAcqfGenerator with specified acquisition function,
+restart and sample parameters, maximum generation time, and stimuli per trial.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.OptimizeAcqfGenerator" title="aepsych.generators.OptimizeAcqfGenerator">OptimizeAcqfGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -679,18 +767,18 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 an acquisition function through stochastic gradient descent.</p>
 <p>Initialize MonotonicRejectionGenerator.
 :param acqf: Acquisition function to use.
-:type acqf: AcquisitionFunction
+:type acqf: MonotonicMCAcquisition
 :param acqf_kwargs: Extra arguments to</p>
 <blockquote>
-<div><p>pass to acquisition function. Defaults to no arguments.</p>
+<div><p>pass to acquisition function. Defaults to None.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_gen_options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – Dictionary with options for generating candidate, such as
-SGD parameters. See code for all options and their defaults.</p></li>
-<li><p><strong>explore_features</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>int</em><em>]</em><em>]</em>) – List of features that will be selected randomly and then
-fixed for acquisition fn optimization.</p></li>
+<li><p><strong>model_gen_options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Dictionary with options for generating candidate, such as
+SGD parameters. See code for all options and their defaults. Defaults to None.</p></li>
+<li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
+fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
@@ -700,8 +788,8 @@ fixed for acquisition fn optimization.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicRejectionGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicRejectionGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
-:param num_points: Number of points to query.
-:type num_points: int, optional
+:param num_points: Number of points to query. Currently only supports 1.
+:type num_points: int
 :param model: Fitted model of the data.
 :type model: AEPsychMixin</p>
 <dl class="field-list simple">
@@ -722,12 +810,17 @@ fixed for acquisition fn optimization.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicRejectionGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicRejectionGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of MonotonicRejectionGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator" title="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator"><em>MonotonicRejectionGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator class with specified acquisition function,
+gradient descent options, exploration features, and acquisition function arguments.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.MonotonicRejectionGenerator" title="aepsych.generators.MonotonicRejectionGenerator">MonotonicRejectionGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -747,9 +840,10 @@ of points, and then choose the point that is closest to the target value.</p>
 <li><p><strong>num_rejection_samples</strong> (<em>int</em>) – Number of rejection samples to draw.</p></li>
 <li><p><strong>num_ts_points</strong> (<em>int</em>) – Number of points at which to sample.</p></li>
 <li><p><strong>target_value</strong> (<em>float</em>) – target value that is being looked for</p></li>
-<li><p><strong>objective</strong> (<em>Optional</em><em>[</em><em>MCAcquisitionObjective</em><em>]</em><em>, </em><em>optional</em>) – Objective transform of the GP output
+<li><p><strong>objective</strong> (<em>MCAcquisitionObjective</em>) – Objective transform of the GP output
 before evaluating the acquisition. Defaults to identity transform.</p></li>
-<li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>explore_features</strong> (<em>List</em><em>[</em><em>Type</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
+fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>n_rejection_samples</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
@@ -758,10 +852,10 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicThompsonSamplerGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
-:param num_points: Number of points to query.
-:type num_points: int, optional
+:param num_points: Number of points to query. current implementation only generates 1 point at a time.
+:type num_points: int
 :param model: Fitted model of the data.
-:type model: AEPsychMixin</p>
+:type model: MonotonicRejectionGP</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -780,12 +874,17 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicThompsonSamplerGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicThompsonSamplerGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of MonotonicThompsonSamplerGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator" title="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator"><em>MonotonicThompsonSamplerGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator class with specified number of samples,
+rejection samples, Thompson sampling points, target value, objective transformation, and optional exploration features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.MonotonicThompsonSamplerGenerator" title="aepsych.generators.MonotonicThompsonSamplerGenerator">MonotonicThompsonSamplerGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -796,8 +895,10 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points randomly without an acquisition function.</p>
 <p>Iniatialize RandomGenerator.
-:param lb torch.Tensor: Lower bounds of each parameter.
-:param ub torch.Tensor: Upper bounds of each parameter.
+:param lb: Lower bounds of each parameter.
+:type lb: torch.Tensor
+:param ub: Upper bounds of each parameter.
+:type ub: torch.Tensor
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional</p>
 <dl class="field-list simple">
@@ -814,7 +915,9 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by randomly sampling the parameter space.
 :param num_points: Number of points to query. Currently, only 1 point can be queried at a time.
-:type num_points: int, optional</p>
+:type num_points: int
+:param model: Model to use for generating points. Not used in this generator.
+:type model: AEPsychMixin, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -833,12 +936,16 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.RandomGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.RandomGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an instance of RandomGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.random_generator.RandomGenerator" title="aepsych.generators.random_generator.RandomGenerator"><em>RandomGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator with specified bounds and dimensionality.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.RandomGenerator" title="aepsych.generators.RandomGenerator">RandomGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -849,12 +956,16 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from the Sobol Sequence.</p>
 <p>Iniatialize SobolGenerator.
-:param lb torch.Tensor: Lower bounds of each parameter.
-:param ub torch.Tensor: Upper bounds of each parameter.
+:param lb: Lower bounds of each parameter.
+:type lb: torch.Tensor
+:param ub: Upper bounds of each parameter.
+:type ub: torch.Tensor
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param seed: Random seed.
-:type seed: int, optional</p>
+:type seed: int, optional
+:param stimuli_per_trial: Number of stimuli per trial. Defaults to 1.
+:type stimuli_per_trial: int</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -870,8 +981,10 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.SobolGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
-:param num_points: Number of points to query.
-:type num_points: int, optional</p>
+:param num_points: Number of points to query. Defaults to 1.
+:type num_points: int
+:param moodel: Model to use for generating points. Not used in this generator. Defaults to None.
+:type moodel: AEPsychMixin, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</p>
@@ -890,12 +1003,16 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.SobolGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Creates an instance of SobolGenerator from a configuration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><em>SobolGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.SobolGenerator" title="aepsych.generators.SobolGenerator">SobolGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -904,34 +1021,40 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
+<p>Initialize EpsilonGreedyGenerator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – </p></li>
-<li><p><strong>epsilon</strong> (<em>float</em>) – </p></li>
+<li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – The generator to use when not exploiting.</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – The probability of exploration. Defaults to 0.1.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an EpsilonGreedyGenerator from a Config object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator"><em>EpsilonGreedyGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The generator.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.EpsilonGreedyGenerator" title="aepsych.generators.EpsilonGreedyGenerator">EpsilonGreedyGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator.gen" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
+<li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – Model to use for generating points.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -946,13 +1069,18 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that generates points from a predefined list.</p>
 <p>Iniatialize ManualGenerator.
-:param lb torch.Tensor: Lower bounds of each parameter.
-:param ub torch.Tensor: Upper bounds of each parameter.
-:param points torch.Tensor: The points that will be generated.
+:param lb: Lower bounds of each parameter.
+:type lb: torch.Tensor
+:param ub: Upper bounds of each parameter.
+:type ub: torch.Tensor
+:param points: The points that will be generated.
+:type points: torch.Tensor
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param shuffle: Whether or not to shuffle the order of the points. True by default.
-:type shuffle: bool</p>
+:type shuffle: bool
+:param seed: Random seed. Defaults to None.
+:type seed: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -969,8 +1097,10 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dt class="sig sig-object py" id="aepsych.generators.ManualGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
-:param num_points: Number of points to query.
-:type num_points: int</p>
+:param num_points: Number of points to query. Defaults to 1.
+:type num_points: int
+:param model: Model to use for generating points. Not used in this generator. Defaults to None.
+:type model: AEPsychMixin, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -1004,15 +1134,28 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.ManualGenerator.get_config_options">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Extracts and processes configuration options for initializing the ManualGenerator.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Dict</em></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of options, including:</dt><dd><p>”lb” (torch.Tensor): Lower bounds of each parameter.
+“ub” (torch.Tensor): Upper bounds of each parameter.
+“dim” (int, optional): Dimensionality of the parameter space.
+“points” (torch.Tensor): Predefined points to generate.
+“shuffle” (bool): Whether to shuffle the order of points.
+“seed” (int, optional): Random seed for shuffling.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1028,41 +1171,64 @@ before evaluating the acquisition. Defaults to identity transform.</p></li>
 <p>Generator that samples in a window around reference points in a predefined list.</p>
 <p>Iniatialize SampleAroundPointsGenerator.
 :param lb: Lower bounds of each parameter.
-:type lb: Union[np.ndarray, torch.Tensor]
+:type lb: torch.Tensor
 :param ub: Upper bounds of each parameter.
-:type ub: Union[np.ndarray, torch.Tensor]
-:param window: How far away to sample from the</p>
-<blockquote>
-<div><p>reference point along each dimension. If the parameters are transformed,
-the proportion of the range (based on ub/lb given) covered by the window
-will be preserved (and not the absolute distance from the reference points).</p>
-</div></blockquote>
+:type ub: torch.Tensor
+:param window: How far away to sample from the reference point along each dimension.
+:type window: torch.Tensor
+:param points: The points that will be generated.
+:type points: torch.Tensor
+:param samples_per_point: How many samples around each point to take.
+:type samples_per_point: int
+:param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
+:type dim: int, optional
+:param shuffle: Whether or not to shuffle the order of the points. True by default.
+:type shuffle: bool
+:param seed: Random seed.
+:type seed: int, optional</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>points</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – The points that will be generated.</p></li>
-<li><p><strong>samples_per_point</strong> (<em>int</em>) – How many samples around each point to take.</p></li>
-<li><p><strong>dim</strong> (<em>int</em><em>, </em><em>optional</em>) – Dimensionality of the parameter space. If None, it is inferred from lb and ub.</p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether or not to shuffle the order of the points. True by default.</p></li>
-<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed.</p></li>
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>window</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>torch.Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>window</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>samples_per_point</strong> (<em>int</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.SampleAroundPointsGenerator.get_config_options">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#SampleAroundPointsGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SampleAroundPointsGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Dict</em></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of options, including:</dt><dd><ul class="simple">
+<li><p>”lb” (torch.Tensor): Lower bounds of each parameter.</p></li>
+<li><p>”ub” (torch.Tensor): Upper bounds of each parameter.</p></li>
+<li><p>”dim” (int, optional): Dimensionality of the parameter space.</p></li>
+<li><p>”points” (torch.Tensor): Predefined reference points.</p></li>
+<li><p>”shuffle” (bool): Whether to shuffle the order of points.</p></li>
+<li><p>”seed” (int, optional): Random seed for shuffling.</p></li>
+<li><p>”window” (torch.Tensor): Sampling range around each reference point along each dimension.</p></li>
+<li><p>”samples_per_point” (int): Number of samples to generate around each reference point.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1082,12 +1248,12 @@ will be preserved (and not the absolute distance from the reference points).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization.</p></li>
-<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer.</p></li>
-<li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.</p></li>
+<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization. Defaults to 10.</p></li>
+<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
+<li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1098,12 +1264,17 @@ will be preserved (and not the absolute distance from the reference points).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.PairwiseOptimizeAcqfGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an instance of PairwiseOptimizeAcqfGenerator from a configration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><em>OptimizeAcqfGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of OptimizeAcqfGenerator with specified acquisition function,
+restart and sample parameters, maximum generation time, and stimuli per trial(two in this case).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.OptimizeAcqfGenerator" title="aepsych.generators.OptimizeAcqfGenerator">OptimizeAcqfGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1114,12 +1285,16 @@ will be preserved (and not the absolute distance from the reference points).</p>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">SobolGenerator</span></code></a></p>
 <p>Deprecated. Use SobolGenerator instead.</p>
 <p>Iniatialize SobolGenerator.
-:param lb torch.Tensor: Lower bounds of each parameter.
-:param ub torch.Tensor: Upper bounds of each parameter.
+:param lb: Lower bounds of each parameter.
+:type lb: torch.Tensor
+:param ub: Upper bounds of each parameter.
+:type ub: torch.Tensor
 :param dim: Dimensionality of the parameter space. If None, it is inferred from lb and ub.
 :type dim: int, optional
 :param seed: Random seed.
-:type seed: int, optional</p>
+:type seed: int, optional
+:param stimuli_per_trial: Number of stimuli per trial. Defaults to 1.
+:type stimuli_per_trial: int</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1138,9 +1313,16 @@ will be preserved (and not the absolute distance from the reference points).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.PairwiseSobolGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_sobol_generator.html#PairwiseSobolGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseSobolGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create an instance of PairwiseSobolGenerator from a configration object.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial(two in this case).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.SobolGenerator" title="aepsych.generators.SobolGenerator">SobolGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1178,36 +1360,32 @@ with this generator. It should work with other similar acquisition functions.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization.</p></li>
-<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer.</p></li>
-<li><p><strong>max_gen_time</strong> (<em>optional</em><em>, </em><em>float</em>) – Maximum time (in seconds) to optimize the acquisition function.</p></li>
+<li><p><strong>restarts</strong> (<em>int</em>) – Number of restarts for acquisition function optimization. Defaults to 10.</p></li>
+<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
+<li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.IntensityAwareSemiPGenerator.gen">
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_objective=&lt;class</span> <span class="pre">'aepsych.acquisition.objective.semi_p.SemiPThresholdObjective'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/semi_p.html#IntensityAwareSemiPGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IntensityAwareSemiPGenerator.gen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query next point(s) to run by optimizing the acquisition function.
-:param num_points: Number of points to query.
-:type num_points: int, optional
-:param model: Fitted model of the data.
-:type model: ModelProtocol</p>
+<dd><p>Query next point(s) to run by optimizing the acquisition function for both context and intensity.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.Tensor</p>
-</dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
-<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.SemiParametricGPModel" title="aepsych.models.semi_p.SemiParametricGPModel"><em>SemiParametricGPModel</em></a>) – </p></li>
-<li><p><strong>context_objective</strong> (<em>Type</em>) – </p></li>
+<li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.SemiParametricGPModel" title="aepsych.models.SemiParametricGPModel"><em>SemiParametricGPModel</em></a>) – Fitted semi-parametric model of the data.</p></li>
+<li><p><strong>context_objective</strong> (<em>Type</em>) – The objective function used for context. Defaults to SemiPThresholdObjective.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1227,10 +1405,10 @@ with this generator. It should work with other similar acquisition functions.</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer.</p></li>
+<li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
-<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1243,7 +1421,7 @@ with this generator. It should work with other similar acquisition functions.</p
 <span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
-:type num_points: int, optional
+:type num_points: int
 :param model: Fitted model of the data.
 :type model: ModelProtocol</p>
 <dl class="field-list simple">
@@ -1251,7 +1429,7 @@ with this generator. It should work with other similar acquisition functions.</p
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray</p>
+<dd class="field-even"><p>torch.Tensor</p>
 </dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1264,12 +1442,16 @@ with this generator. It should work with other similar acquisition functions.</p
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.AcqfThompsonSamplerGenerator.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Initialize AcqfThompsonSamplerGenerator from configuration.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.AcqfThompsonSamplerGenerator" title="aepsych.generators.acqf_thompson_sampler_generator.AcqfThompsonSamplerGenerator"><em>AcqfThompsonSamplerGenerator</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The initialized generator.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.AcqfThompsonSamplerGenerator" title="aepsych.generators.AcqfThompsonSamplerGenerator">AcqfThompsonSamplerGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>

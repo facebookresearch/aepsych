@@ -25,11 +25,11 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="n">ProbitObjective</span>
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">AEPsychMixin</span>
 <span class="kn">from</span> <span class="nn">aepsych.models.monotonic_rejection_gp</span> <span class="kn">import</span> <span class="n">MonotonicRejectionGP</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.objective</span> <span class="kn">import</span> <span class="n">MCAcquisitionObjective</span>
 <span class="kn">from</span> <span class="nn">botorch.utils.sampling</span> <span class="kn">import</span> <span class="n">draw_sobol_samples</span>
@@ -57,9 +57,10 @@
 <span class="sd">            num_rejection_samples (int): Number of rejection samples to draw.</span>
 <span class="sd">            num_ts_points (int): Number of points at which to sample.</span>
 <span class="sd">            target_value (float): target value that is being looked for</span>
-<span class="sd">            objective (Optional[MCAcquisitionObjective], optional): Objective transform of the GP output</span>
+<span class="sd">            objective (MCAcquisitionObjective): Objective transform of the GP output</span>
 <span class="sd">                before evaluating the acquisition. Defaults to identity transform.</span>
-<span class="sd">            explore_features (Sequence[int], optional)</span>
+<span class="sd">            explore_features (List[Type[int]], optional): List of features that will be selected randomly and then</span>
+<span class="sd">                fixed for acquisition fn optimization. Defaults to None.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">=</span> <span class="n">n_samples</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_rejection_samples</span> <span class="o">=</span> <span class="n">n_rejection_samples</span>
@@ -75,8 +76,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            num_points (int, optional): Number of points to query.</span>
-<span class="sd">            model (AEPsychMixin): Fitted model of the data.</span>
+<span class="sd">            num_points (int): Number of points to query. current implementation only generates 1 point at a time.</span>
+<span class="sd">            model (MonotonicRejectionGP): Fitted model of the data.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
@@ -108,6 +109,16 @@
 
 <div class="viewcode-block" id="MonotonicThompsonSamplerGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"MonotonicThompsonSamplerGenerator"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Creates an instance of MonotonicThompsonSamplerGenerator from a configuration object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MonotonicThompsonSamplerGenerator: A configured instance of the generator class with specified number of samples,</span>
+<span class="sd">            rejection samples, Thompson sampling points, target value, objective transformation, and optional exploration features.</span>
+<span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"num_samples"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">n_rejection_samples</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>

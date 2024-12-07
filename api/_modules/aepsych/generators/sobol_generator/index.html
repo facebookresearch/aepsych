@@ -24,7 +24,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -50,10 +50,11 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Iniatialize SobolGenerator.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            lb torch.Tensor: Lower bounds of each parameter.</span>
-<span class="sd">            ub torch.Tensor: Upper bounds of each parameter.</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds of each parameter.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds of each parameter.</span>
 <span class="sd">            dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.</span>
 <span class="sd">            seed (int, optional): Random seed.</span>
+<span class="sd">            stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">stimuli_per_trial</span><span class="p">)</span>
@@ -71,7 +72,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by quasi-randomly sampling the parameter space.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            num_points (int, optional): Number of points to query.</span>
+<span class="sd">            num_points (int): Number of points to query. Defaults to 1.</span>
+<span class="sd">            moodel (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</span>
 <span class="sd">        """</span>
@@ -84,6 +86,16 @@
 
 <div class="viewcode-block" id="SobolGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.sobol_generator.SobolGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"SobolGenerator"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Creates an instance of SobolGenerator from a configuration object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SobolGenerator: A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.</span>
+<span class="sd">        """</span>
+
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>

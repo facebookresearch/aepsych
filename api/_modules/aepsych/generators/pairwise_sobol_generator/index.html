@@ -36,7 +36,16 @@
     <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="mi">2</span>
 
 <div class="viewcode-block" id="PairwiseSobolGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.PairwiseSobolGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"SobolGenerator"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create an instance of PairwiseSobolGenerator from a configration object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            SobolGenerator: A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial(two in this case).</span>
+<span class="sd">        """</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">"PairwiseSobolGenerator is deprecated. Use SobolGenerator instead."</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>

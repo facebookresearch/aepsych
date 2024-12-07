@@ -81,6 +81,16 @@
     <span class="k">def</span> <span class="nf">_get_acqf_options</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get the extra arguments for the acquisition function from the config.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            acqf (AcquisitionFunction): The acquisition function to get arguments for.</span>
+<span class="sd">            config (Config): The configuration object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: The extra arguments for the acquisition function.</span>
+<span class="sd">        """</span>
+
         <span class="k">if</span> <span class="n">acqf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">acqf_name</span> <span class="o">=</span> <span class="n">acqf</span><span class="o">.</span><span class="vm">__name__</span>
 

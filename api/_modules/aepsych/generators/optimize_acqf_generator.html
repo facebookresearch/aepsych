@@ -69,9 +69,10 @@
 <span class="sd">            acqf (AcquisitionFunction): Acquisition function to use.</span>
 <span class="sd">            acqf_kwargs (Dict[str, object], optional): Extra arguments to</span>
 <span class="sd">                pass to acquisition function. Defaults to no arguments.</span>
-<span class="sd">            restarts (int): Number of restarts for acquisition function optimization.</span>
-<span class="sd">            samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer.</span>
-<span class="sd">            max_gen_time (optional, float): Maximum time (in seconds) to optimize the acquisition function.</span>
+<span class="sd">            restarts (int): Number of restarts for acquisition function optimization. Defaults to 10.</span>
+<span class="sd">            samps (int): Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</span>
+<span class="sd">            max_gen_time (float, optional): Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</span>
+<span class="sd">            stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.</span>
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">acqf_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -84,6 +85,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">stimuli_per_trial</span>
 
     <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Instantiates the acquisition function with the specified model and additional arguments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model (ModelProtocol): The model to use with the acquisition function.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            AcquisitionFunction: Configured acquisition function.</span>
+<span class="sd">        """</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="o">==</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">pref_model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
@@ -95,7 +106,7 @@
 <div class="viewcode-block" id="OptimizeAcqfGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            num_points (int, optional): Number of points to query.</span>
+<span class="sd">            num_points (int): Number of points to query.</span>
 <span class="sd">            model (ModelProtocol): Fitted model of the data.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
@@ -114,8 +125,19 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen</span><span class="p">(</span><span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_gen</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generates the next query points by optimizing the acquisition function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            num_points (int): Number of points to query.</span>
+<span class="sd">            model (ModelProtocol): Fitted model of the data.</span>
+<span class="sd">            gen_options (Dict[str, Any]): Additional options for generating points, such as custom configurations.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: Next set of points to evaluate, with shape [num_points x dim].</span>
+<span class="sd">        """</span>
         <span class="c1"># eval should be inherited from superclass</span>
         <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
         <span class="n">acqf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_acquisition_fn</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
@@ -138,6 +160,16 @@
 
 <div class="viewcode-block" id="OptimizeAcqfGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"OptimizeAcqfGenerator"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Creates an instance of OptimizeAcqfGenerator from a configuration object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            OptimizeAcqfGenerator: A configured instance of OptimizeAcqfGenerator with specified acquisition function,</span>
+<span class="sd">            restart and sample parameters, maximum generation time, and stimuli per trial.</span>
+<span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>

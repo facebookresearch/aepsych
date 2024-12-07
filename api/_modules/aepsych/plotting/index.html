@@ -31,6 +31,8 @@
 <span class="kn">from</span> <span class="nn">aepsych.strategy</span> <span class="kn">import</span> <span class="n">Strategy</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">get_lse_contour</span><span class="p">,</span> <span class="n">get_lse_interval</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
 <span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">Axes</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib.image</span> <span class="kn">import</span> <span class="n">AxesImage</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 
 
@@ -62,9 +64,9 @@
 <span class="sd">        true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor</span>
 <span class="sd">                    as input and produce the response probability at each sample as output. Default: None.</span>
 <span class="sd">        cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.</span>
-<span class="sd">        target_level (float): Response probability to estimate the threshold of. Default: 0.75.</span>
-<span class="sd">        xlabel (str): Label of the x-axis. Default: "Context (abstract)".</span>
-<span class="sd">        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or</span>
+<span class="sd">        target_level (float, optional): Response probability to estimate the threshold of. Default: 0.75.</span>
+<span class="sd">        xlabel (str, optional): Label of the x-axis. Default: "Context (abstract)".</span>
+<span class="sd">        ylabel (str, optional): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or</span>
 <span class="sd">                      "Intensity (Abstract)" for 2-d plots). Default: None.</span>
 <span class="sd">        yes_label (str): Label of trials with response of 1. Default: "Yes trial".</span>
 <span class="sd">        no_label (str): Label of trials with response of 0. Default: "No trial".</span>
@@ -166,8 +168,26 @@
     <span class="n">yes_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">no_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments."""</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Helper function for creating 1-d plots. See plot_strat for an explanation of the arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 1.</span>
+<span class="sd">        ax (plt.Axes): Matplotlib axis to plot on</span>
+<span class="sd">        true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor</span>
+<span class="sd">                    as input and produce the response probability at each sample as output. Default: None.</span>
+<span class="sd">        cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.</span>
+<span class="sd">        target_level (float, optional): Response probability to estimate the threshold of. Default: 0.75.</span>
+<span class="sd">        xlabel (str): Label of the x-axis. Default: "Context (abstract)".</span>
+<span class="sd">        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or</span>
+<span class="sd">                      "Intensity (Abstract)" for 2-d plots). Default: None.</span>
+<span class="sd">        yes_label (str): Label of trials with response of 1. Default: "Yes trial".</span>
+<span class="sd">        no_label (str): Label of trials with response of 0. Default: "No trial".</span>
+<span class="sd">        gridsize (int): The number of points to sample each dimension at. Default: 30.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        plt.Axes: The axis object with the plot.</span>
+<span class="sd">    """</span>
 
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">y</span>
     <span class="k">assert</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"No data to plot!"</span>
@@ -269,7 +289,28 @@
     <span class="n">gridsize</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">include_colorbar</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments."""</span>
+<span class="w">    </span><span class="sd">"""Helper function for creating 2-d plots. See plot_strat for an explanation of the arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 2.</span>
+<span class="sd">        ax (plt.Axes): Matplotlib axis to plot on</span>
+<span class="sd">        true_testfun (Callable, optional): Ground truth response function. Should take a n_samples x n_parameters tensor</span>
+<span class="sd">                    as input and produce the response probability at each sample as output. Default: None.</span>
+<span class="sd">        cred_level (float): Percentage of posterior mass around the mean to be shaded. Default: 0.95.</span>
+<span class="sd">        target_level (float, optional): Response probability to estimate the threshold of. Default: 0.75.</span>
+<span class="sd">        xlabel (str): Label of the x-axis. Default: "Context (abstract)".</span>
+<span class="sd">        ylabel (str): Label of the y-axis (if None, defaults to "Response Probability" for 1-d plots or</span>
+<span class="sd">                      "Intensity (Abstract)" for 2-d plots). Default: None.</span>
+<span class="sd">        yes_label (str): Label of trials with response of 1. Default: "Yes trial".</span>
+<span class="sd">        no_label (str): Label of trials with response of 0. Default: "No trial".</span>
+<span class="sd">        flipx (bool): Whether the values of the x-axis should be flipped such that the min becomes the max and vice</span>
+<span class="sd">                      versa.</span>
+<span class="sd">               (Only valid for 2-d plots.) Default: False.</span>
+<span class="sd">        logx (bool): Whether the x-axis should be log-transformed. (Only valid for 2-d plots.) Default: False.</span>
+<span class="sd">        gridsize (int): The number of points to sample each dimension at. Default: 30.</span>
+<span class="sd">        include_colorbar (bool): Whether to include the colorbar indicating the probability of "Yes" trials.</span>
+<span class="sd">                                 Default: True.</span>
+<span class="sd">    """</span>
 
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">strat</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">y</span>
     <span class="k">assert</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"No data to plot!"</span>
@@ -378,14 +419,14 @@
 <span class="w">    </span><span class="sd">"""Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours</span>
 <span class="sd">    Args:</span>
 <span class="sd">        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.</span>
-<span class="sd">        parnames (str list): list of the parameter names</span>
+<span class="sd">        parnames (List[str], optional): list of the parameter names. If None, defaults to ["x1", "x2", "x3"].</span>
 <span class="sd">        outcome_label (str): The label of the outcome variable</span>
-<span class="sd">        slice_dim (int): dimension to slice on</span>
-<span class="sd">        dim_vals (list of floats or int): values to take slices; OR number of values to take even slices from</span>
-<span class="sd">        contour_levels (iterable of floats or bool, optional): List contour values to plot. Default: None. If true, all integer levels.</span>
+<span class="sd">        slice_dim (int): dimension to slice on. Default: 0.</span>
+<span class="sd">        slice_vals (Union[List[float], int]): values to take slices; OR number of values to take even slices from. Default: 5.</span>
+<span class="sd">        contour_levels (Union[Iterable[float], bool], optional): List contour values to plot. Default: None. If true, all integer levels.</span>
 <span class="sd">        probability_space (bool): Whether to plot probability. Default: False</span>
 <span class="sd">        gridsize (int): The number of points to sample each dimension at. Default: 30.</span>
-<span class="sd">        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None</span>
+<span class="sd">        extent_multiplier (List[float], optional): multipliers for each of the dimensions when plotting. If None, defaults to [1, 1, 1].</span>
 <span class="sd">        save_path (str, optional): File name to save the plot to. Default: None.</span>
 <span class="sd">        show (bool): Whether the plot should be shown in an interactive window. Default: True.</span>
 <span class="sd">    """</span>
@@ -471,20 +512,23 @@
     <span class="n">contour_levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sized</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">lse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">extent_multiplier</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AxesImage</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Creates a plot of a 2d slice of a 3D strategy, showing the estimated model or probability response and contours</span>
 <span class="sd">    Args:</span>
-<span class="sd">        strat (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.</span>
 <span class="sd">        ax (plt.Axes): Matplotlib axis to plot on</span>
-<span class="sd">        parnames (str list): list of the parameter names</span>
-<span class="sd">        slice_dim (int): dimension to slice on</span>
-<span class="sd">        slice_vals (float): value to take the slice along that dimension</span>
-<span class="sd">        vmin (float): global model minimum to use for plotting</span>
-<span class="sd">        vmax (float): global model maximum to use for plotting</span>
+<span class="sd">        start (Strategy): Strategy object to be plotted. Must have a dimensionality of 3.</span>
+<span class="sd">        parnames (List[str]): list of the parameter names.</span>
+<span class="sd">        slice_dim (int): dimension to slice on.</span>
+<span class="sd">        slice_val (int): value to take the slice along that dimension.</span>
+<span class="sd">        vmin (float): global model minimum to use for plotting.</span>
+<span class="sd">        vmax (float): global model maximum to use for plotting.</span>
 <span class="sd">        gridsize (int): The number of points to sample each dimension at. Default: 30.</span>
-<span class="sd">        contour_levels (int list): Contours to plot. Default: None</span>
+<span class="sd">        contour_levels (Sized, optional): Contours to plot. Default: None</span>
 <span class="sd">        lse (bool): Whether to plot probability. Default: False</span>
-<span class="sd">        extent_multiplier (list, optional): multipliers for each of the dimensions when plotting. Default:None</span>
+<span class="sd">        extent_multiplier (List, optional): multipliers for each of the dimensions when plotting. Default:None</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        AxesImage: The axis object with the plot.</span>
 <span class="sd">    """</span>
     <span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">strat</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">strat</span><span class="o">.</span><span class="n">ub</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

@@ -30,7 +30,16 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="getLogger"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.getLogger">[docs]</a><span class="k">def</span> <span class="nf">getLogger</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">log_path</span><span class="o">=</span><span class="s2">"logs"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
+<div class="viewcode-block" id="getLogger"><a class="viewcode-back" href="../../utils_logging.html#aepsych.utils_logging.getLogger">[docs]</a><span class="k">def</span> <span class="nf">getLogger</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"logs"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Get a logger with the specified level and log path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        level: logging level. Default is logging.INFO.</span>
+<span class="sd">        log_path (str): path to save the log file. Default is "logs".</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        logger: a logger object.</span>
+<span class="sd">    """</span>
     <span class="n">my_format</span> <span class="o">=</span> <span class="s2">"</span><span class="si">%(asctime)-15s</span><span class="s2"> [</span><span class="si">%(levelname)-7s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">"</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
