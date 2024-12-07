@@ -56,6 +56,7 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
     ) -> None:
         fixed_values = []
         fixed_indices = []
+        fixed_string_map = {}
         transform_keys = list(transforms.keys())
         for key in transform_keys:
             if isinstance(transforms[key], Fixed):
@@ -63,10 +64,19 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
                 fixed_values += transform.values.tolist()
                 fixed_indices += transform.indices.tolist()
 
+                if transform.string_map is not None:
+                    for key in transform.string_map.keys():
+                        if key in fixed_string_map:
+                            raise RuntimeError(
+                                "Conflicting string maps between the Fixed transforms, each parameter can only have a single string map."
+                            )
+
+                    fixed_string_map.update(transform.string_map)
+
         if len(fixed_values) > 0:
             # Combine Fixed parameters
             transforms["_CombinedFixed"] = Fixed(
-                indices=fixed_indices, values=fixed_values
+                indices=fixed_indices, values=fixed_values, string_map=fixed_string_map
             )
 
         super().__init__(**transforms)
@@ -74,10 +84,17 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
     def _temporary_reshape(func: Callable) -> Callable:
         # Decorator to reshape tensors to the expected 2D shape, even if the input was
         # 1D or 3D and after the transform reshape it back to the original.
-        def wrapper(self, X: torch.Tensor, **kwargs) -> torch.Tensor:
+        def wrapper(
+            self, X: Union[torch.Tensor, np.ndarray], **kwargs
+        ) -> Union[torch.Tensor, np.ndarray]:
             squeeze = False
             if len(X.shape) == 1:  # For 1D inputs, primarily for transforming arguments
-                X = X.unsqueeze(0)
+                if isinstance(X, torch.Tensor):
+                    X = X.unsqueeze(0)
+                elif isinstance(
+                    X, np.ndarray
+                ):  # Annoyingly numpy uses a different name for unsqueeze
+                    X = np.expand_dims(X, axis=0)
                 squeeze = True
 
             reshape = False
@@ -150,6 +167,46 @@ class ParameterTransforms(ChainedInputTransform, ConfigurableMixin):
             X = tf.transform_bounds(X, bound=bound)
 
         return X
+
+    @_temporary_reshape
+    def indices_to_str(self, X: torch.Tensor) -> np.ndarray:
+        r"""Return a NumPy array of objects where the categorical parameters will be
+        strings.
+
+        Args:
+            X (torch.Tensor): A tensor shaped `[batch, dim]` to turn into a mixed type NumPy
+                array.
+
+        Returns:
+            np.ndarray: An array with the objet type where the categorical parameters
+                are strings.
+        """
+        obj_arr = X.cpu().numpy().astype("O")
+        for tf in self.values():
+            if hasattr(tf, "indices_to_str"):
+                obj_arr = tf.indices_to_str(obj_arr)
+
+        return obj_arr
+
+    @_temporary_reshape
+    def str_to_indices(self, obj_arr: np.ndarray) -> torch.Tensor:
+        r"""Return a Tensor where the categorical parameters are converted from strings
+        to indices.
+
+        Args:
+            obj_arr (np.ndarray): A NumPy array `[batch, dim]` where the categorical
+                parameters are strings.
+
+        Returns:
+            torch.Tensor: A tensor with the categorical parameters converted to indices.
+        """
+        obj_arr = obj_arr[:]
+
+        for tf in self.values():
+            if hasattr(tf, "str_to_indices"):
+                obj_arr = tf.str_to_indices(obj_arr)
+
+        return torch.tensor(obj_arr.astype("float64"), dtype=torch.float64)
 
     @classmethod
     def get_config_options(
