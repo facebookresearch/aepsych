@@ -917,7 +917,7 @@ class ConfigTestCase(unittest.TestCase):
             stimuli_per_trial = 1
             outcome_types = [binary]
             parnames = [par1, par2]
-            strategy_names = [init_strat, opt_strat]
+            strategy_names = [init strat, opt_strat]
 
             [par1]
             par_type = continuous
@@ -929,7 +929,7 @@ class ConfigTestCase(unittest.TestCase):
             lower_bound = 0
             upper_bound = 1
 
-            [init_strat]
+            [init strat]
             generator = SobolGenerator
             model = GPClassificationModel
 
@@ -964,7 +964,8 @@ class ConfigTestCase(unittest.TestCase):
         bad_config = Config(config_str=bad_str)
 
         # this should work
-        SequentialStrategy.from_config(good_config)
+        strat = SequentialStrategy.from_config(good_config)
+        self.assertTrue(strat.strat_list[0].name == "init strat")
 
         # this should fail
         with self.assertRaises(AssertionError):
