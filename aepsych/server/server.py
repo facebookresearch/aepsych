@@ -277,7 +277,22 @@ class AEPsychServer(object):
         return self.strat is not None and self.enable_pregen
 
     def _tensor_to_config(self, next_x):
-        next_x = self.strat.transforms.indices_to_str(next_x.unsqueeze(0))[0]
+        stim_per_trial = self.strat.stimuli_per_trial
+        dim = self.strat.dim
+        if (
+            stim_per_trial > 1 and len(next_x.shape) == 2
+        ):  # Multi stimuli case are complex
+            # We need to find out next_x is from an ask or a query
+            if stim_per_trial == next_x.shape[-1] and dim == next_x.shape[-2]:
+                # From an ask, so we need to add a batch dim
+                next_x = next_x.unsqueeze(0)
+            # If we're a query, the 2D-ness of it is actually correct
+
+        if len(next_x.shape) == 1:
+            # We always need a batch dimension for transformations
+            next_x = next_x.unsqueeze(0)
+
+        next_x = self.strat.transforms.indices_to_str(next_x)[0]
         config = {}
         for name, val in zip(self.parnames, next_x):
             if isinstance(val, str):

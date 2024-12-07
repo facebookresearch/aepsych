@@ -7,32 +7,66 @@
 
 import unittest
 
-from ..test_server import BaseServerTestCase, dummy_config
+from ..test_server import BaseServerTestCase
 
 
 # Smoke test to make sure nothing breaks. This should really be combined with
 # the individual query tests
 class QueryHandlerTestCase(BaseServerTestCase):
     def test_strat_query(self):
+        # Annoying and complex model and output shapes
+        config_str = """
+            [common]
+            stimuli_per_trial=2
+            outcome_types=[binary]
+            parnames = [par1, par2]
+            strategy_names = [opt_strat]
+            acqf = PairwiseMCPosteriorVariance
+
+            [par1]
+            par_type = continuous
+            lower_bound = -1
+            upper_bound = 1
+
+            [par2]
+            par_type = continuous
+            lower_bound = -1
+            upper_bound = 1
+
+            [opt_strat]
+            min_asks = 1
+            model = PairwiseProbitModel
+            generator = OptimizeAcqfGenerator
+
+            [PairwiseProbitModel]
+            mean_covar_factory = default_mean_covar_factory
+
+            [PairwiseMCPosteriorVariance]
+            objective = ProbitObjective
+
+            [OptimizeAcqfGenerator]
+            restarts = 10
+            samps = 1000
+            """
         setup_request = {
             "type": "setup",
             "version": "0.01",
-            "message": {"config_str": dummy_config},
+            "message": {"config_str": config_str},
         }
         ask_request = {"type": "ask", "message": ""}
         tell_request = {
             "type": "tell",
             "message": [
-                {"config": {"x": [0.5]}, "outcome": 1},
-                {"config": {"x": [0.0]}, "outcome": 0},
-                {"config": {"x": [1]}, "outcome": 0},
+                {"config": {"par1": [0.5, 0.5], "par2": [-0.5, -0.5]}, "outcome": 1},
+                {"config": {"par1": [0.0, 0.75], "par2": [0.0, -1]}, "outcome": 0},
+                {"config": {"par1": [1, -1], "par2": [0, 0.0]}, "outcome": 0},
             ],
         }
 
         self.s.handle_request(setup_request)
         while not self.s.strat.finished:
-            self.s.handle_request(ask_request)
             self.s.handle_request(tell_request)
+            self.s.handle_request(ask_request)
 
         query_max_req = {
             "type": "query",
@@ -50,7 +84,7 @@ class QueryHandlerTestCase(BaseServerTestCase):
             "type": "query",
             "message": {
                 "query_type": "prediction",
-                "x": {"x": [0.0]},
+                "x": {"par1": [0.0], "par2": [-0.5]},
             },
         }
         query_inv_req = {
@@ -60,12 +94,23 @@ class QueryHandlerTestCase(BaseServerTestCase):
                 "y": 5.0,
             },
         }
-        self.s.handle_request(query_min_req)
-        self.s.handle_request(query_pred_req)
-        self.s.handle_request(query_max_req)
-        self.s.handle_request(query_inv_req)
+        response = self.s.handle_request(query_min_req)
+        self.assertTrue(len(response["x"]["par1"]) == 1)
+        self.assertTrue(len(response["x"]["par2"]) == 1)
 
-    def test_grad_model(self):
+        response = self.s.handle_request(query_max_req)
+        self.assertTrue(len(response["x"]["par1"]) == 1)
+        self.assertTrue(len(response["x"]["par2"]) == 1)
+
+        response = self.s.handle_request(query_inv_req)
+        self.assertTrue(len(response["x"]["par1"]) == 1)
+        self.assertTrue(len(response["x"]["par2"]) == 1)
+
+        response = self.s.handle_request(query_pred_req)
+        self.assertTrue(len(response["x"]["par1"]) == 1)
+        self.assertTrue(len(response["x"]["par2"]) == 1)
+
+    def test_grad_model_smoketest(self):
         # Some models return values with gradients that need to be handled
         config_str = """
             [common]
