@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from typing import Dict, Optional, Union
+from typing import Optional
 
 import numpy as np
 import torch
@@ -32,10 +32,11 @@ class SobolGenerator(AEPsychGenerator):
     ) -> None:
         """Iniatialize SobolGenerator.
         Args:
-            lb torch.Tensor: Lower bounds of each parameter.
-            ub torch.Tensor: Upper bounds of each parameter.
+            lb (torch.Tensor): Lower bounds of each parameter.
+            ub (torch.Tensor): Upper bounds of each parameter.
             dim (int, optional): Dimensionality of the parameter space. If None, it is inferred from lb and ub.
             seed (int, optional): Random seed.
+            stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
         """
         self.lb, self.ub, self.dim = _process_bounds(lb, ub, dim)
         self.lb = self.lb.repeat(stimuli_per_trial)
@@ -53,7 +54,8 @@ class SobolGenerator(AEPsychGenerator):
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
-            num_points (int, optional): Number of points to query.
+            num_points (int): Number of points to query. Defaults to 1.
+            moodel (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.
         """
@@ -66,6 +68,16 @@ class SobolGenerator(AEPsychGenerator):
 
     @classmethod
     def from_config(cls, config: Config) -> "SobolGenerator":
+        """
+        Creates an instance of SobolGenerator from a configuration object.
+
+        Args:
+            config (Config): Configuration object containing initialization parameters.
+
+        Returns:
+            SobolGenerator: A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.
+        """
+
         classname = cls.__name__
 
         lb = config.gettensor(classname, "lb")

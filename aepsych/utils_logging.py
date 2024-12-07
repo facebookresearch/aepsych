@@ -12,7 +12,16 @@ import os
 logger = logging.getLogger()
 
 
-def getLogger(level=logging.INFO, log_path="logs") -> logging.Logger:
+def getLogger(level=logging.INFO, log_path: str = "logs") -> logging.Logger:
+    """Get a logger with the specified level and log path.
+
+    Args:
+        level: logging level. Default is logging.INFO.
+        log_path (str): path to save the log file. Default is "logs".
+
+    Returns:
+        logger: a logger object.
+    """
     my_format = "%(asctime)-15s [%(levelname)-7s] %(message)s"
     os.makedirs(log_path, exist_ok=True)
 
