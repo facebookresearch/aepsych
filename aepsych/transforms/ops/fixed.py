@@ -8,14 +8,15 @@ from typing import Any, Dict, List, Optional, Union
 
 import torch
 from aepsych.config import Config
-from aepsych.transforms.ops.base import Transform
+from aepsych.transforms.ops.base import StringParameterMixin, Transform
 
 
-class Fixed(Transform, torch.nn.Module):
+class Fixed(Transform, StringParameterMixin, torch.nn.Module):
     def __init__(
         self,
         indices: List[int],
         values: List[Union[float, int]],
+        string_map: Optional[Dict[int, List[str]]] = None,
         transform_on_train: bool = True,
         transform_on_eval: bool = True,
         transform_on_fantasize: bool = True,
@@ -28,6 +29,8 @@ class Fixed(Transform, torch.nn.Module):
         Args:
             indices (List[int]): The indices of the parameters to be fixed.
             values (List[Union[float, int]]): The values of the fixed parameters.
+            string_map (Dict[int, List[str]], optional): A dictionary to allow some
+                fixed elements to represent one element of a categorical parameter.
             transform_on_train (bool): A boolean indicating whether to apply the
                 transforms in train() mode. Default: True.
             transform_on_eval (bool): A boolean indicating whether to apply the
@@ -54,6 +57,7 @@ class Fixed(Transform, torch.nn.Module):
         self.transform_on_eval = transform_on_eval
         self.transform_on_fantasize = transform_on_fantasize
         self.reverse = reverse
+        self.string_map = string_map
 
     def _transform(self, X: torch.Tensor) -> torch.Tensor:
         r"""Transform the input Tensor by popping out the fixed parameters at the
@@ -119,6 +123,13 @@ class Fixed(Transform, torch.nn.Module):
             raise ValueError(f"{name} must be set to initialize a transform.")
 
         if "values" not in options:
-            options["values"] = [config.getfloat(name, "value")]
+            value = config[name].get("value")
+
+            try:
+                options["values"] = [float(value)]
+            except ValueError:
+                # Probably a string, so we treat it as categorical parameter fixed
+                options["string_map"] = {options["indices"][0]: [value]}
+                options["values"] = [0]
 
         return options

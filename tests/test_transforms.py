@@ -539,7 +539,7 @@ class TransformsFixed(unittest.TestCase):
 
         config_str = """
             [common]
-            parnames = [signal1, signal2, signal3]
+            parnames = [signal1, signal2, signal3, signal4]
             stimuli_per_trial = 1
             outcome_types = [binary]
             strategy_names = [init_strat, opt_strat]
@@ -556,6 +556,10 @@ class TransformsFixed(unittest.TestCase):
             lower_bound = 1
             upper_bound = 100
             log_scale = True
+
+            [signal4]
+            par_type = fixed
+            value = blue
 
             [init_strat]
             generator = SobolGenerator
@@ -641,3 +645,12 @@ class TransformsFixed(unittest.TestCase):
         self.assertTrue(
             torch.all(torch.tensor([2, 0.1, 0.2, 0.3, 2]) == untransformed[1])
         )
+
+    def test_fixed_conflict(self):
+        fixed1 = Fixed([3], values=[0], string_map={3: ["blue"]})
+        fixed2 = Fixed(
+            [1, 2], values=[0, 0.2], string_map={1: ["red"], 3: ["green", "blue"]}
+        )
+
+        with self.assertRaises(RuntimeError):
+            transforms = ParameterTransforms(fixed1=fixed1, fixed2=fixed2)
