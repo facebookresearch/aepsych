@@ -47,11 +47,10 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat = Strategy(
             model=ParameterTransformedModel(
                 MonotonicRejectionGP,
-                transforms=transforms,
-                dim=2,
                 lb=lb,
                 ub=ub,
-                inducing_point_method=SobolAllocator(bounds=torch.stack((lb, ub))),
+                transforms=transforms,
+                inducing_point_method=AutoAllocator(bounds=torch.stack((lb, ub))),
                 monotonic_idxs=[1],
             ),
             generator=ParameterTransformedGenerator(
@@ -59,6 +58,8 @@ class TestSequenceGenerators(unittest.TestCase):
                 transforms=transforms,
                 acqf=MonotonicMCLSE,
                 acqf_kwargs=extra_acqf_args,
+                lb=lb,
+                ub=ub,
             ),
             min_asks=50,
             lb=lb,
@@ -112,9 +113,9 @@ class TestSequenceGenerators(unittest.TestCase):
             self.strat.add_data(np.r_[1.0, 1.0], [1])
 
         self.assertEqual(
-            self.strat.model.fit.call_count, 4
+            self.strat.model.fit.call_count, 5
         )  # first fit gets skipped because there is no data
-        self.assertEqual(self.strat.model.update.call_count, 45)
+        self.assertEqual(self.strat.model.update.call_count, 44)
 
     def test_no_warmstart(self):
         for _ in range(50):
@@ -131,7 +132,6 @@ class TestSequenceGenerators(unittest.TestCase):
             self.strat.gen()
             self.strat.add_data(np.r_[1.0, 1.0], [1])
         self.assertFalse(self.strat.finished)
-
         self.strat.gen()
         self.strat.add_data(np.r_[1.0, 1.0], [1])
         self.assertFalse(self.strat.finished)  # not enough "no" trials
@@ -167,8 +167,6 @@ class TestSequenceGenerators(unittest.TestCase):
 
         self.strat = Strategy(
             model=GPClassificationModel(
-                lb=lb,
-                ub=ub,
                 inducing_point_method=SobolAllocator(
                     bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])
                 ),
@@ -199,8 +197,6 @@ class TestSequenceGenerators(unittest.TestCase):
         with self.assertWarns(UserWarning):
             self.strat = Strategy(
                 model=GPClassificationModel(
-                    lb=lb,
-                    ub=ub,
                     inducing_point_method=SobolAllocator(
                         bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])
                     ),
@@ -375,8 +371,6 @@ class TestStrategyGPU(unittest.TestCase):
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
                 model=GPClassificationModel(
-                    lb=[0],
-                    ub=[1],
                     inducing_point_method=AutoAllocator(
                         bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
                     ),
@@ -396,13 +390,13 @@ class TestStrategyGPU(unittest.TestCase):
                 stimuli_per_trial=1,
                 outcome_types=["binary"],
                 model=GPClassificationModel(
-                    lb=[0],
-                    ub=[1],
                     inducing_point_method=AutoAllocator(
                         bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
                     ),
                 ),
-                generator=OptimizeAcqfGenerator(acqf=MCLevelSetEstimation),
+                generator=OptimizeAcqfGenerator(
+                    lb=[0], ub=[1], acqf=MCLevelSetEstimation
+                ),
                 use_gpu_generating=True,
             )
 

@@ -11,7 +11,6 @@ import warnings
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import gpytorch
-import numpy as np
 import torch
 from aepsych.acquisition.rejection_sampler import RejectionSampler
 from aepsych.config import Config
@@ -172,7 +171,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
             X=self.train_inputs[0],
-            bounds=self.bounds,
         )
         self._set_model(train_x, train_y)
 

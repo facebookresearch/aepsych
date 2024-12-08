@@ -12,6 +12,8 @@ import numpy as np
 import torch
 from aepsych.generators import SobolGenerator
 from aepsych.models import IndependentMultitaskGPRModel, MultitaskGPRModel
+from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.utils import select_inducing_points
 from parameterized import parameterized
 
 # run on single threads to keep us from deadlocking weirdly in CI
@@ -19,8 +21,23 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
 models = [
-    (MultitaskGPRModel(num_outputs=2, rank=2, lb=[-1], ub=[3]),),
-    (IndependentMultitaskGPRModel(num_outputs=2, lb=[-1], ub=[3]),),
+    (
+        MultitaskGPRModel(
+            num_outputs=2,
+            rank=2,
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])])
+            ),
+        )
+    ),
+    (
+        IndependentMultitaskGPRModel(
+            num_outputs=2,
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack([torch.tensor([-1]), torch.tensor([3])])
+            ),
+        )
+    ),
 ]
 
 
