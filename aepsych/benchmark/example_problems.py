@@ -106,9 +106,6 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
         y = torch.LongTensor(self.data[:, 0])
         x = torch.Tensor(self.data[:, 1:])
         inducing_size = 100
-        inducing_points = select_inducing_points(
-            inducing_size=inducing_size, allocator=SobolAllocator(bounds=self.bounds)
-        )
 
         # Fit a model, with a large number of inducing points
         self.m = GPClassificationModel(

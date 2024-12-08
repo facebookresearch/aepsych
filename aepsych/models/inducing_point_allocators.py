@@ -43,6 +43,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
             # Validate bounds and extract dimension
             assert self.bounds.shape[0] == 2, "Bounds must have shape (2, d)!"
             lb, ub = self.bounds[0], self.bounds[1]
+            self.lb, self.ub = lb, ub
             for i, (l, u) in enumerate(zip(lb, ub)):
                 assert (
                     l <= u
