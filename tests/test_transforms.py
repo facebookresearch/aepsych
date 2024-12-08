@@ -89,6 +89,7 @@ class TransformsConfigTest(unittest.TestCase):
 
     def test_model_init_equivalent(self):
         config_model = self.strat.strat_list[1].model
+        config_generator = self.strat.strat_list[1].generator
 
         obj_model = ParameterTransformedModel(
             model=GPClassificationModel,
@@ -97,9 +98,16 @@ class TransformsConfigTest(unittest.TestCase):
             ),
             transforms=self.strat.strat_list[1].transforms,
         )
+        obj_generator = ParameterTransformedGenerator(
+            generator=SobolGenerator,
+            lb=torch.tensor([1.0, 1.0]),
+            ub=torch.tensor([100.0, 100.0]),
+            transforms=self.strat.strat_list[1].transforms,
+        )
 
         self.assertTrue(type(config_model._base_obj) is type(obj_model._base_obj))
-
+        self.assertTrue(torch.equal(config_generator.lb, obj_generator.lb))
+        self.assertTrue(torch.equal(config_generator.ub, obj_generator.ub))
         self.assertEqual(
             len(config_model.transforms.values()), len(obj_model.transforms.values())
         )

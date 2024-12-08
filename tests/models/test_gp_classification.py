@@ -10,7 +10,7 @@ import unittest
 
 import torch
 
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator
 
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
@@ -162,8 +162,8 @@ class GPClassificationSmoketest(unittest.TestCase):
         bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
 
         model = GPClassificationModel(
-            inducing_size=10,
-            inducing_point_method=SobolAllocator(bounds=bounds),
+            inducing_size=inducing_size,
+            inducing_point_method=AutoAllocator(bounds=bounds),
         )
 
         model.fit(
@@ -264,7 +264,7 @@ class GPClassificationSmoketest(unittest.TestCase):
     def test_reset_hyperparams(self):
         model = GPClassificationModel(
             inducing_size=20,
-            inducing_point_method=SobolAllocator(
+            inducing_point_method=AutoAllocator(
                 bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
             ),
         )
@@ -287,7 +287,7 @@ class GPClassificationSmoketest(unittest.TestCase):
     def test_reset_variational_strategy(self):
         model = GPClassificationModel(
             inducing_size=20,
-            inducing_point_method=SobolAllocator(
+            inducing_point_method=AutoAllocator(
                 bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
             ),
         )
@@ -331,7 +331,7 @@ class GPClassificationSmoketest(unittest.TestCase):
 
         model = GPClassificationModel(
             inducing_size=inducing_size,
-            inducing_point_method=SobolAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(bounds=bounds),
         )
         model.fit(X, y)
 
@@ -372,7 +372,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -423,7 +423,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -473,7 +473,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -522,7 +522,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -576,7 +576,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -633,7 +633,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -689,7 +689,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -751,7 +751,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 min_asks=n_opt,
                 generator=OptimizeAcqfGenerator(
@@ -849,7 +849,7 @@ class GPClassificationTest(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=SobolAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub

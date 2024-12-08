@@ -49,9 +49,8 @@ acqfs = [
 class TestOptimizeAcqfGenerator(unittest.TestCase):
     @parameterized.expand(acqfs)
     def test_gpu_smoketest(self, acqf, acqf_kwargs):
-        self.device = torch.device("cuda")
-        lb = torch.tensor([0.0], device=self.device)
-        ub = torch.tensor([1.0], device=self.device)
+        lb = torch.tensor([0.0])
+        ub = torch.tensor([1.0])
         bounds = torch.stack([lb, ub])
         inducing_size = 10
 
@@ -61,7 +60,10 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         )
 
         generator = OptimizeAcqfGenerator(
-            acqf=acqf, acqf_kwargs=acqf_kwargs, lb=lb, ub=ub
+            acqf=acqf,
+            acqf_kwargs=acqf_kwargs,
+            lb=torch.tensor([0.0], device=torch.device("cuda")),
+            ub=torch.tensor([1.0], device=torch.device("cuda")),
         )
 
         strat = Strategy(

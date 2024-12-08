@@ -11,7 +11,10 @@ from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
+
+from aepsych.models.base import ModelProtocol
 from aepsych.models.inducing_point_allocators import GreedyVarianceReduction
+from aepsych.utils import _process_bounds, dim_grid, get_jnd_multid
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,
@@ -278,6 +281,107 @@ def inv_query(
         weights,
     )
     return val, arg
+
+
+def get_jnd(
+    model: ModelProtocol,
+    lb: torch.Tensor,
+    ub: torch.Tensor,
+    dim: int,
+    grid: Optional[Union[np.ndarray, torch.Tensor]] = None,
+    cred_level: Optional[float] = None,
+    intensity_dim: int = -1,
+    confsamps: int = 500,
+    method: str = "step",
+) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+    """Calculate the JND.
+
+    Note that JND can have multiple plausible definitions
+    outside of the linear case, so we provide options for how to compute it.
+    For method="step", we report how far one needs to go over in stimulus
+    space to move 1 unit up in latent space (this is a lot of people's
+    conventional understanding of the JND).
+    For method="taylor", we report the local derivative, which also maps to a
+    1st-order Taylor expansion of the latent function. This is a formal
+    generalization of JND as defined in Weber's law.
+    Both definitions are equivalent for linear psychometric functions.
+
+    Args:
+        model (ModelProtocol): Model to use for prediction.
+        lb (torch.Tensor): Lower bounds of the input space.
+        ub (torch.Tensor): Upper bounds of the input space.
+        dim (int): Dimensionality of the input space.
+        grid (Optional[np.ndarray], optional): Mesh grid over which to find the JND.
+            Defaults to a square grid of size as determined by aepsych.utils.dim_grid
+        cred_level (float, optional): Credible level for computing an interval.
+            Defaults to None, computing no interval.
+        intensity_dim (int, optional): Dimension over which to compute the JND.
+            Defaults to -1.
+        confsamps (int, optional): Number of posterior samples to use for
+            computing the credible interval. Defaults to 500.
+        method (str, optional): "taylor" or "step" method (see docstring).
+            Defaults to "step".
+
+    Raises:
+        RuntimeError: for passing an unknown method.
+
+    Returns:
+        Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: either the
+            mean JND, or a median, lower, upper tuple of the JND posterior.
+    """
+    if grid is None:
+        grid = dim_grid(lower=lb, upper=ub, gridsize=30, slice_dims=None)
+    elif isinstance(grid, np.ndarray):
+        grid = torch.tensor(grid)
+
+    # this is super awkward, back into intensity dim grid assuming a square grid
+    gridsize = int(grid.shape[0] ** (1 / grid.shape[1]))
+    coords = torch.linspace(
+        lb[intensity_dim].item(), ub[intensity_dim].item(), gridsize
+    )
+
+    if cred_level is None:
+        fmean, _ = model.predict(grid)
+        fmean = fmean.reshape(*[gridsize for i in range(dim)])
+
+        if method == "taylor":
+            return torch.tensor(1 / np.gradient(fmean, coords, axis=intensity_dim))
+        elif method == "step":
+            return torch.clip(
+                get_jnd_multid(
+                    fmean,
+                    coords,
+                    mono_dim=intensity_dim,
+                ),
+                0,
+                np.inf,
+            )
+
+    alpha = 1 - cred_level  # type: ignore
+    qlower = alpha / 2
+    qupper = 1 - alpha / 2
+
+    fsamps = model.sample(grid, confsamps)
+    if method == "taylor":
+        jnds = torch.tensor(
+            1
+            / np.gradient(
+                fsamps.reshape(confsamps, *[gridsize for i in range(dim)]),
+                coords,
+                axis=intensity_dim,
+            )
+        )
+    elif method == "step":
+        samps = [s.reshape((gridsize,) * dim) for s in fsamps]
+        jnds = torch.stack(
+            [get_jnd_multid(s, coords, mono_dim=intensity_dim) for s in samps]
+        )
+    else:
+        raise RuntimeError(f"Unknown method {method}!")
+    upper = torch.clip(torch.quantile(jnds, qupper, axis=0), 0, np.inf)  # type: ignore
+    lower = torch.clip(torch.quantile(jnds, qlower, axis=0), 0, np.inf)  # type: ignore
+    median = torch.clip(torch.quantile(jnds, 0.5, axis=0), 0, np.inf)  # type: ignore
+    return median, lower, upper
 
 
 class TargetDistancePosteriorTransform(PosteriorTransform):

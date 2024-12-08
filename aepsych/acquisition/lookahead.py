@@ -259,8 +259,8 @@ class GlobalLookaheadAcquisitionFunction(LookaheadAcquisitionFunction):
         A global look-ahead acquisition function.
 
         Args:
-            lb (Tensor): Lower bounds of the input space.
-            ub (Tensor): Upper bounds of the input space.
+            lb (Tensor): Lower bounds of the input space, used to generate the query set (Xq).
+            ub (Tensor): Upper bounds of the input space, used to generate the query set (Xq).
             model (GPyTorchModel): The gpytorch model.
             lookahead_type (str, optional): Type of lookahead to use. Defaults to "levelset".
             target (float, optional): Threshold value to target in p-space.

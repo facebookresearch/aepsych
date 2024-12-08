@@ -54,7 +54,6 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         [MonotonicProjectionGP]
         monotonic_dims = [0, 1]
         inducing_size=10
-        dim = 3
 
         [default_mean_covar_factory]
         lengthscale_prior = gamma
@@ -96,7 +95,6 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         monotonic_dims = [0]
         inducing_size=10
         min_f_val = 5.0
-        dim = 3
 
         [default_mean_covar_factory]
         lengthscale_prior = gamma
@@ -130,7 +128,6 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         monotonic_dims = [0]
         monotonic_grid_size = 10
         min_f_val = 0.1
-        dim = 2
         """
         config = Config(config_str=config_str)
 

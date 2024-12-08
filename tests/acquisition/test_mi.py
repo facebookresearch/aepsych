@@ -62,6 +62,7 @@ class SingleProbitMI(unittest.TestCase):
                     ub=ub,
                     monotonic_idxs=[0],
                     inducing_point_method=AutoAllocator(bounds=bounds),
+                    num_induc=inducing_size,
                 ),
                 generator=MonotonicRejectionGenerator(
                     lb=lb, ub=ub, acqf=acqf, acqf_kwargs=acqf_kwargs
@@ -98,9 +99,6 @@ class SingleProbitMI(unittest.TestCase):
         ub = torch.tensor([4.0])
         inducing_size = 10
         bounds = torch.stack([lb, ub])
-        inducing_points = select_inducing_points(
-            inducing_size=inducing_size, allocator=SobolAllocator(bounds=bounds)
-        )
 
         acqf = BernoulliMCMutualInformation
         extra_acqf_args = {"objective": ProbitObjective()}
@@ -118,10 +116,8 @@ class SingleProbitMI(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 model=GPClassificationModel(
-                    inducing_size=10,
-                    inducing_point_method=AutoAllocator(
-                        bounds=torch.stack((torch.Tensor([lb]), torch.Tensor([ub])))
-                    ),
+                    inducing_size=inducing_size,
+                    inducing_point_method=AutoAllocator(bounds=bounds),
                 ),
                 generator=OptimizeAcqfGenerator(
                     lb=lb, ub=ub, acqf=acqf, acqf_kwargs=extra_acqf_args

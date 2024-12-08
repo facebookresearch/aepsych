@@ -90,8 +90,9 @@ class GPRegressionTest(unittest.TestCase):
 
     def test_from_config(self):
         model = self.server.strat.model
-        # npt.assert_allclose(model.transforms.untransform(model.lb), [-1.0])
-        # npt.assert_allclose(model.transforms.untransform(model.ub), [3.0])
+        generator = self.server.strat.generator
+        npt.assert_allclose(model.transforms.untransform(generator.lb), [-1.0])
+        npt.assert_allclose(model.transforms.untransform(generator.ub), [3.0])
         self.assertEqual(model.inducing_point_method.dim, 1)
         self.assertIsInstance(model.likelihood, GaussianLikelihood)
         self.assertEqual(model.max_fit_time, 1)
