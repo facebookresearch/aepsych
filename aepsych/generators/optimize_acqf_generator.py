@@ -82,7 +82,10 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Returns:
             AcquisitionFunction: Configured acquisition function.
         """
-        if "lb" in inspect.signature(self.acqf).parameters and "ub" in inspect.signature(self.acqf).parameters:
+        if (
+            "lb" in inspect.signature(self.acqf).parameters
+            and "ub" in inspect.signature(self.acqf).parameters
+        ):
             if self.acqf == AnalyticExpectedUtilityOfBestOption:
                 return self.acqf(pref_model=model, lb=self.lb, ub=self.ub)
 

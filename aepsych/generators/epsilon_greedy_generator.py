@@ -24,11 +24,11 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
     ) -> None:
         """Initialize EpsilonGreedyGenerator.
 
-            Args:
-                lb (torch.Tensor): Lower bounds for the optimization.
-                ub (torch.Tensor): Upper bounds for the optimization.
-                subgenerator (AEPsychGenerator): The generator to use when not exploiting.
-                epsilon (float): The probability of exploration. Defaults to 0.1.
+        Args:
+            lb (torch.Tensor): Lower bounds for the optimization.
+            ub (torch.Tensor): Upper bounds for the optimization.
+            subgenerator (AEPsychGenerator): The generator to use when not exploiting.
+            epsilon (float): The probability of exploration. Defaults to 0.1.
         """
         self.subgenerator = subgenerator
         self.epsilon = epsilon

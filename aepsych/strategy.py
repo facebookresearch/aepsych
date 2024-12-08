@@ -476,7 +476,7 @@ class Strategy(object):
             self.model is not None
         ), "model is None! Cannot get the get jnd without a model!"
         self.model.to(self.model_device)
-        return get_jnd( # type: ignore
+        return get_jnd(  # type: ignore
             model=self.model, lb=self.lb, ub=self.ub, dim=self.dim, *args, **kwargs
         )
 
