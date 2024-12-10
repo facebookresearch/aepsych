@@ -202,8 +202,8 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
         if probability_space:
             return (
-                promote_0d(norm.cdf(fmean)),
-                promote_0d(norm.cdf(fvar)),
+                promote_0d(norm.cdf(fmean.detach().numpy())),
+                promote_0d(norm.cdf(fvar.detach().numpy())),
             )
         else:
             return fmean, fvar
