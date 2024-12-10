@@ -220,8 +220,8 @@
 
         <span class="k">if</span> <span class="n">probability_space</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span>
-                <span class="n">promote_0d</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fmean</span><span class="p">)),</span>
-                <span class="n">promote_0d</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fvar</span><span class="p">)),</span>
+                <span class="n">promote_0d</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fmean</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())),</span>
+                <span class="n">promote_0d</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">fvar</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())),</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">fmean</span><span class="p">,</span> <span class="n">fvar</span></div>
