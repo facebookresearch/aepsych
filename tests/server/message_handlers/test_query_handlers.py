@@ -199,6 +199,14 @@ class QueryHandlerTestCase(BaseServerTestCase):
                 "x": {"x": [0.0], "y": [1.0]},
             },
         }
+        query_pred_prob = {
+            "type": "query",
+            "message": {
+                "query_type": "prediction",
+                "x": {"x": [0.0], "y": [1.0]},
+                "probability_space": True,
+            },
+        }
         query_inv_req = {
             "type": "query",
             "message": {
@@ -206,8 +214,10 @@ class QueryHandlerTestCase(BaseServerTestCase):
                 "y": 5.0,
             },
         }
+
         self.s.handle_request(query_min_req)
         self.s.handle_request(query_pred_req)
+        self.s.handle_request(query_pred_prob)
         self.s.handle_request(query_max_req)
         self.s.handle_request(query_inv_req)
 

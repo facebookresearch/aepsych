@@ -54,16 +54,14 @@ def query(
         # returns the model value at x
         if x is None:  # TODO: ensure if x is between lb and ub
             raise RuntimeError("Cannot query model at location = None!")
-        if probability_space:
-            mean, _var = server.strat.predict_probability(
-                server._config_to_tensor(x).unsqueeze(axis=0),
-            )
-        else:
-            mean, _var = server.strat.predict(
-                server._config_to_tensor(x).unsqueeze(axis=0)
-            )
+
+        mean, _var = server.strat.predict(
+            server._config_to_tensor(x).unsqueeze(axis=0),
+            probability_space=probability_space,
+        )
         response["x"] = x
-        response["y"] = np.array(mean.item())  # mean.item()
+        y = mean.item() if isinstance(mean, torch.Tensor) else mean[0]
+        response["y"] = np.array(y)  # mean.item()
 
     elif query_type == "inverse":
         nearest_y, nearest_loc = server.strat.inv_query(
