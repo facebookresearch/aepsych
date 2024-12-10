@@ -179,7 +179,7 @@ def get_extremum(
     model: Model,
     extremum_type: str,
     bounds: torch.Tensor,
-    locked_dims: Optional[Mapping[int, List[float]]],
+    locked_dims: Optional[Mapping[int, float]],
     n_samples: int,
     posterior_transform: Optional[PosteriorTransform] = None,
     max_time: Optional[float] = None,
@@ -189,8 +189,8 @@ def get_extremum(
     Args:
         extremum_type (str): Type of extremum (currently 'min' or 'max'.
         bounds (torch.Tensor): Lower and upper bounds of the search space.
-        locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
-            inverse is along a slice of the full surface.
+        locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
+            extremum is along a slice of the full surface.
         n_samples (int): number of coarse grid points to sample for optimization estimate.
         posterior_transform (PosteriorTransform, optional): Posterior transform to apply to the model.
         max_time (float, optional): Maximum amount of time in seconds to spend optimizing.
@@ -199,6 +199,16 @@ def get_extremum(
         Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
     """
     locked_dims = locked_dims or {}
+
+    if hasattr(model, "transforms"):
+        # Transform locked dims
+        tmp = {}
+        for key, value in locked_dims.items():
+            tensor = torch.zeros(len(bounds))
+            tensor[key] = value
+            tensor = model.transforms.transform(tensor)
+            tmp[key] = tensor[key].item()
+        locked_dims = tmp
 
     if model.num_outputs > 1 and posterior_transform is None:
         if weights is None:
@@ -233,7 +243,7 @@ def inv_query(
     model: Model,
     y: Union[float, torch.Tensor],
     bounds: torch.Tensor,
-    locked_dims: Optional[Mapping[int, List[float]]] = None,
+    locked_dims: Optional[Mapping[int, float]] = None,
     probability_space: bool = False,
     n_samples: int = 1000,
     max_time: Optional[float] = None,
