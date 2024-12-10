@@ -656,7 +656,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
     def get_max(
         self,
-        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        locked_dims: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
@@ -664,8 +664,8 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         """Return the maximum of the modeled function, subject to constraints
 
         Args:
-            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
-                inverse is along a slice of the full surface. Defaults to None.
+            locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
+                max is along a slice of the full surface. Defaults to None.
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
             n_samples (int): number of coarse grid points to sample for optimization estimate.
@@ -676,6 +676,18 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             Tuple[float, torch.Tensor]: Tuple containing the max and its untransformed
                 location (argmax).
         """
+        locked_dims = locked_dims or {}
+
+        # Transform locked dims
+        tmp = {}
+        for key, value in locked_dims.items():
+            dims = list(self.transforms.values())[0]._d
+            tensor = torch.zeros(dims)
+            tensor[key] = value
+            tensor = self.transforms.transform(tensor)
+            tmp[key] = tensor[key].item()
+        locked_dims = tmp
+
         max_, loc = self._base_obj.get_max(  # type: ignore
             locked_dims=locked_dims,
             probability_space=probability_space,
@@ -688,7 +700,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
     def get_min(
         self,
-        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        locked_dims: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
@@ -696,8 +708,8 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         """Return the minimum of the modeled function, subject to constraints
 
         Args:
-            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
-                inverse is along a slice of the full surface.
+            locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
+                min is along a slice of the full surface.
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
             n_samples (int): number of coarse grid points to sample for optimization estimate.
@@ -707,6 +719,18 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         Returns:
             Tuple[float, torch.Tensor]: Tuple containing the min and its untransformed location (argmin).
         """
+        locked_dims = locked_dims or {}
+
+        # Transform locked dims
+        tmp = {}
+        for key, value in locked_dims.items():
+            dims = list(self.transforms.values())[0]._d
+            tensor = torch.zeros(dims)
+            tensor[key] = value
+            tensor = self.transforms.transform(tensor)
+            tmp[key] = tensor[key].item()
+        locked_dims = tmp
+
         min_, loc = self._base_obj.get_min(  # type: ignore
             locked_dims=locked_dims,
             probability_space=probability_space,
@@ -720,7 +744,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
     def inv_query(
         self,
         y: float,
-        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        locked_dims: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
@@ -733,7 +757,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
         Args:
             y (float): Points at which to find the inverse.
-            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
+            locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
@@ -745,6 +769,18 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             Tuple[float, torch.Tensor]: Tuple containing the value of f
                 nearest to queried y and the untransformed x position of this value.
         """
+        locked_dims = locked_dims or {}
+
+        # Transform locked dims
+        tmp = {}
+        for key, value in locked_dims.items():
+            dims = list(self.transforms.values())[0]._d
+            tensor = torch.zeros(dims)
+            tensor[key] = value
+            tensor = self.transforms.transform(tensor)
+            tmp[key] = tensor[key].item()
+        locked_dims = tmp
+
         val, loc = self._base_obj.inv_query(  # type: ignore
             y=y,
             locked_dims=locked_dims,

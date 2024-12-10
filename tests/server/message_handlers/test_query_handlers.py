@@ -94,6 +94,20 @@ class QueryHandlerTestCase(BaseServerTestCase):
                 "y": 5.0,
             },
         }
+
+        query_max_const = {
+            "type": "query",
+            "message": {"query_type": "max", "constraints": {1: 0}},
+        }
+        query_min_const = {
+            "type": "query",
+            "message": {"query_type": "min", "constraints": {0: 0.25}},
+        }
+        query_inv_const = {
+            "type": "query",
+            "message": {"query_type": "inverse", "y": 5.0, "constraints": {1: 0}},
+        }
+
         response = self.s.handle_request(query_min_req)
         self.assertTrue(len(response["x"]["par1"]) == 1)
         self.assertTrue(len(response["x"]["par2"]) == 1)
@@ -109,6 +123,15 @@ class QueryHandlerTestCase(BaseServerTestCase):
         response = self.s.handle_request(query_pred_req)
         self.assertTrue(len(response["x"]["par1"]) == 1)
         self.assertTrue(len(response["x"]["par2"]) == 1)
+
+        response = self.s.handle_request(query_max_const)
+        self.assertTrue(response["x"]["par2"][0] == 0)
+
+        response = self.s.handle_request(query_min_const)
+        self.assertTrue(response["x"]["par1"][0] == 0.25)
+
+        response = self.s.handle_request(query_inv_const)
+        self.assertTrue(response["x"]["par2"][0] == 0)
 
     def test_grad_model_smoketest(self):
         # Some models return values with gradients that need to be handled

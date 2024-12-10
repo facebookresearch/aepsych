@@ -66,8 +66,6 @@ def query(
         response["y"] = np.array(mean.item())  # mean.item()
 
     elif query_type == "inverse":
-        # expect constraints to be a dictionary; values are float arrays size 1 (exact) or 2 (upper/lower bnd)
-        constraints = {server.parnames.index(k): v for k, v in constraints.items()}
         nearest_y, nearest_loc = server.strat.inv_query(
             y, constraints, probability_space=probability_space, **kwargs
         )
