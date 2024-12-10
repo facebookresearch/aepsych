@@ -334,14 +334,14 @@ class Strategy(object):
     @ensure_model_is_fresh
     def get_max(
         self,
-        constraints: Optional[Mapping[int, List[float]]] = None,
+        constraints: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         max_time: Optional[float] = None,
     ) -> Tuple[float, torch.Tensor]:
         """Get the maximum value of the acquisition function.
 
         Args:
-            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
+            constraints (Mapping[int, float], optional): Which parameters to fix at specfic points. Defaults to None.
             probability_space (bool): Whether to return the max in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
@@ -360,14 +360,14 @@ class Strategy(object):
     @ensure_model_is_fresh
     def get_min(
         self,
-        constraints: Optional[Mapping[int, List[float]]] = None,
+        constraints: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         max_time: Optional[float] = None,
     ) -> Tuple[float, torch.Tensor]:
         """Get the minimum value of the acquisition function.
 
         Args:
-            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
+            constraints (Mapping[int, float], optional): Which parameters to fix at specific points. Defaults to None.
             probability_space (bool): Whether to return the min in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 
@@ -387,7 +387,7 @@ class Strategy(object):
     def inv_query(
         self,
         y: int,
-        constraints: Optional[Mapping[int, List[float]]] = None,
+        constraints: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         max_time: Optional[float] = None,
     ) -> Tuple[float, torch.Tensor]:
@@ -395,7 +395,7 @@ class Strategy(object):
 
         Args:
             y (int): The output value.
-            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.
+            constraints (Mapping[int, List[float]], optional): Which parameters to fix at specific points. Defaults to None.
             probability_space (bool): Whether to return the input in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
 

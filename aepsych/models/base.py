@@ -125,7 +125,7 @@ class AEPsychMixin(GPyTorchModel):
 
     def get_max(
         self: ModelProtocol,
-        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        locked_dims: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
@@ -134,7 +134,7 @@ class AEPsychMixin(GPyTorchModel):
 
         Args:
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
-                inverse is along a slice of the full surface. Defaults to None.
+                max is along a slice of the full surface. Defaults to None.
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
             n_samples (int): number of coarse grid points to sample for optimization estimate.
@@ -156,7 +156,7 @@ class AEPsychMixin(GPyTorchModel):
 
     def get_min(
         self: ModelProtocol,
-        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        locked_dims: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
@@ -164,7 +164,7 @@ class AEPsychMixin(GPyTorchModel):
         """Return the minimum of the modeled function, subject to constraints
         Args:
             locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
-                inverse is along a slice of the full surface.
+                min is along a slice of the full surface.
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
             n_samples (int): number of coarse grid points to sample for optimization estimate.
@@ -187,7 +187,7 @@ class AEPsychMixin(GPyTorchModel):
     def inv_query(
         self,
         y: float,
-        locked_dims: Optional[Mapping[int, List[float]]] = None,
+        locked_dims: Optional[Mapping[int, float]] = None,
         probability_space: bool = False,
         n_samples: int = 1000,
         max_time: Optional[float] = None,
@@ -199,7 +199,7 @@ class AEPsychMixin(GPyTorchModel):
 
         Args:
             y (float): Points at which to find the inverse.
-            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
+            locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
                 inverse is along a slice of the full surface.
             probability_space (bool): Is y (and therefore the returned nearest_y) in
                 probability space instead of latent function space? Defaults to False.
