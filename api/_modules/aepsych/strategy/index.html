@@ -352,14 +352,14 @@
 <div class="viewcode-block" id="Strategy.get_max"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_max">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
     <span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Get the maximum value of the acquisition function.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.</span>
+<span class="sd">            constraints (Mapping[int, float], optional): Which parameters to fix at specfic points. Defaults to None.</span>
 <span class="sd">            probability_space (bool): Whether to return the max in probability space. Defaults to False.</span>
 <span class="sd">            max_time (float, optional): Maximum time to run the optimization. Defaults to None.</span>
 
@@ -378,14 +378,14 @@
 <div class="viewcode-block" id="Strategy.get_min"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_min">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
     <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Get the minimum value of the acquisition function.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.</span>
+<span class="sd">            constraints (Mapping[int, float], optional): Which parameters to fix at specific points. Defaults to None.</span>
 <span class="sd">            probability_space (bool): Whether to return the min in probability space. Defaults to False.</span>
 <span class="sd">            max_time (float, optional): Maximum time to run the optimization. Defaults to None.</span>
 
@@ -405,7 +405,7 @@
     <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
@@ -413,7 +413,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            y (int): The output value.</span>
-<span class="sd">            constraints (Mapping[int, List[float]], optional): Constraints on the input space. Defaults to None.</span>
+<span class="sd">            constraints (Mapping[int, List[float]], optional): Which parameters to fix at specific points. Defaults to None.</span>
 <span class="sd">            probability_space (bool): Whether to return the input in probability space. Defaults to False.</span>
 <span class="sd">            max_time (float, optional): Maximum time to run the optimization. Defaults to None.</span>
 

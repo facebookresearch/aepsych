@@ -143,7 +143,7 @@
 
 <div class="viewcode-block" id="AEPsychMixin.get_max"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.get_max">[docs]</a>    <span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
-        <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -152,7 +152,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the</span>
-<span class="sd">                inverse is along a slice of the full surface. Defaults to None.</span>
+<span class="sd">                max is along a slice of the full surface. Defaults to None.</span>
 <span class="sd">            probability_space (bool): Is y (and therefore the returned nearest_y) in</span>
 <span class="sd">                probability space instead of latent function space? Defaults to False.</span>
 <span class="sd">            n_samples (int): number of coarse grid points to sample for optimization estimate.</span>
@@ -174,7 +174,7 @@
 
 <div class="viewcode-block" id="AEPsychMixin.get_min"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.get_min">[docs]</a>    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
-        <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -182,7 +182,7 @@
 <span class="w">        </span><span class="sd">"""Return the minimum of the modeled function, subject to constraints</span>
 <span class="sd">        Args:</span>
 <span class="sd">            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the</span>
-<span class="sd">                inverse is along a slice of the full surface.</span>
+<span class="sd">                min is along a slice of the full surface.</span>
 <span class="sd">            probability_space (bool): Is y (and therefore the returned nearest_y) in</span>
 <span class="sd">                probability space instead of latent function space? Defaults to False.</span>
 <span class="sd">            n_samples (int): number of coarse grid points to sample for optimization estimate.</span>
@@ -205,7 +205,7 @@
 <div class="viewcode-block" id="AEPsychMixin.inv_query"><a class="viewcode-back" href="../../../models.html#aepsych.models.base.AEPsychMixin.inv_query">[docs]</a>    <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locked_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -217,7 +217,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            y (float): Points at which to find the inverse.</span>
-<span class="sd">            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the</span>
+<span class="sd">            locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the</span>
 <span class="sd">                inverse is along a slice of the full surface.</span>
 <span class="sd">            probability_space (bool): Is y (and therefore the returned nearest_y) in</span>
 <span class="sd">                probability space instead of latent function space? Defaults to False.</span>

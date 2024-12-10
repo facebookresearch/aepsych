@@ -221,7 +221,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>locked_dims</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Dimensions to fix, so that the
-inverse is along a slice of the full surface. Defaults to None.</p></li>
+max is along a slice of the full surface. Defaults to None.</p></li>
 <li><p><strong>probability_space</strong> (<em>bool</em>) – Is y (and therefore the returned nearest_y) in
 probability space instead of latent function space? Defaults to False.</p></li>
 <li><p><strong>n_samples</strong> (<em>int</em>) – number of coarse grid points to sample for optimization estimate.</p></li>
@@ -243,7 +243,7 @@ probability space instead of latent function space? Defaults to False.</p></li>
 <dd><p>Return the minimum of the modeled function, subject to constraints
 :param locked_dims: Dimensions to fix, so that the</p>
 <blockquote>
-<div><p>inverse is along a slice of the full surface.</p>
+<div><p>min is along a slice of the full surface.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -276,7 +276,7 @@ Return nearest x such that f(x) = queried y, and also return the</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>y</strong> (<em>float</em>) – Points at which to find the inverse.</p></li>
-<li><p><strong>locked_dims</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Dimensions to fix, so that the
+<li><p><strong>locked_dims</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Dimensions to fix, so that the
 inverse is along a slice of the full surface.</p></li>
 <li><p><strong>probability_space</strong> (<em>bool</em>) – Is y (and therefore the returned nearest_y) in
 probability space instead of latent function space? Defaults to False.</p></li>
