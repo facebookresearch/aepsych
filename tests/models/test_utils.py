@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 import torch
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import (
+from aepsych.models.inducing_points import (
     AutoAllocator,
     DummyAllocator,
     FixedAllocator,
@@ -19,7 +19,6 @@ from aepsych.models.inducing_point_allocators import (
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
-
 from sklearn.datasets import make_classification
 
 

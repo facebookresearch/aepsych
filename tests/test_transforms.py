@@ -11,7 +11,7 @@ import torch
 from aepsych.config import Config, ParameterConfigError
 from aepsych.generators import SobolGenerator
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import SequentialStrategy
 from aepsych.transforms import (
     ParameterTransformedGenerator,

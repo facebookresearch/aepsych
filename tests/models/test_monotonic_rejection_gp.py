@@ -9,19 +9,15 @@ import os
 
 import torch
 
-from aepsych.models.inducing_point_allocators import AutoAllocator
-
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
-
 
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.generators import MonotonicRejectionGenerator
 from aepsych.models import MonotonicRejectionGP
-from aepsych.models.inducing_point_allocators import SobolAllocator
-from aepsych.models.utils import select_inducing_points
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import Strategy
 from botorch.acquisition.objective import IdentityMCObjective
 from botorch.utils.testing import BotorchTestCase
