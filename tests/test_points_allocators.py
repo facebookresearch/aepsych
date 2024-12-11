@@ -3,7 +3,7 @@ import unittest
 import torch
 from aepsych.config import Config
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_point_allocators import (
+from aepsych.models.inducing_points import (
     AutoAllocator,
     DummyAllocator,
     FixedAllocator,
@@ -12,12 +12,8 @@ from aepsych.models.inducing_point_allocators import (
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
-
 from aepsych.strategy import Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options
-from botorch.models.utils.inducing_point_allocators import GreedyImprovementReduction
-from botorch.utils.sampling import draw_sobol_samples
-from sklearn.datasets import make_classification
 
 
 class TestInducingPointAllocators(unittest.TestCase):
@@ -76,8 +72,13 @@ class TestInducingPointAllocators(unittest.TestCase):
         config.update(config_str=config_str)
         allocator = AutoAllocator.from_config(config)
 
-        # Check if fallback allocator is an instance of SobolAllocator with correct bounds
+        # Check if fallback allocator is an instance of KMeansAllocator with correct bounds
         self.assertTrue(isinstance(allocator.fallback_allocator, KMeansAllocator))
+
+        expected_bounds = torch.tensor([[0.0], [1.0]])
+        self.assertTrue(
+            torch.equal(allocator.fallback_allocator.bounds, expected_bounds)
+        )
 
     def test_sobol_allocator_allocate_inducing_points(self):
         bounds = torch.tensor([[0.0], [1.0]])
@@ -130,8 +131,7 @@ class TestInducingPointAllocators(unittest.TestCase):
         ub = torch.tensor([4, 4])
         bounds = torch.stack([lb, ub])
         model = GPClassificationModel(
-            lb=lb,
-            ub=ub,
+            dim=2,
             inducing_point_method=AutoAllocator(bounds=bounds),
             inducing_size=3,
         )
@@ -516,8 +516,7 @@ class TestGreedyAllocators(unittest.TestCase):
         ub = torch.tensor([1])
         bounds = torch.stack([lb, ub])
         model = GPClassificationModel(
-            lb=lb,
-            ub=ub,
+            dim=1,
             inducing_point_method=GreedyVarianceReduction(bounds=bounds),
             inducing_size=10,
         )

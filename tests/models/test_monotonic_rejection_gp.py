@@ -9,17 +9,15 @@ import os
 
 import torch
 
-from aepsych.models.inducing_point_allocators import AutoAllocator
-
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
-
 
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.generators import MonotonicRejectionGenerator
 from aepsych.models import MonotonicRejectionGP
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import Strategy
 from botorch.acquisition.objective import IdentityMCObjective
 from botorch.utils.testing import BotorchTestCase
@@ -32,18 +30,21 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         # Init
         target = 1.5
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
-        lb = torch.tensor([0, 0])
-        ub = torch.tensor([4, 4])
+        lb = torch.tensor([0.0, 0.0])
+        ub = torch.tensor([4.0, 4.0])
+        inducing_size = 2
+        bounds = torch.stack([lb, ub])
+
         m = MonotonicRejectionGP(
             lb=lb,
             ub=ub,
             likelihood=GaussianLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],
-            num_induc=2,
+            num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
-            inducing_point_method=AutoAllocator(bounds=torch.stack((lb, ub))),
+            inducing_point_method=AutoAllocator(bounds=bounds),
         )
         strat = Strategy(
             lb=lb,
@@ -53,6 +54,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 MonotonicMCLSE,
                 acqf_kwargs={"target": target},
                 model_gen_options=model_gen_options,
+                lb=lb,
+                ub=ub,
             ),
             min_asks=1,
             stimuli_per_trial=1,
@@ -85,18 +88,21 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         # Init
         target = 0.75
         model_gen_options = {"num_restarts": 1, "raw_samples": 3, "epochs": 5}
-        lb = torch.tensor([0, 0])
-        ub = torch.tensor([4, 4])
+        lb = torch.tensor([0.0, 0.0])
+        ub = torch.tensor([4.0, 4.0])
+        inducing_size = 2
+        bounds = torch.stack([lb, ub])
+
         m = MonotonicRejectionGP(
             lb=lb,
             ub=ub,
             likelihood=BernoulliLikelihood(),
             fixed_prior_mean=target,
             monotonic_idxs=[1],
-            num_induc=2,
+            num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
-            inducing_point_method=AutoAllocator(bounds=torch.stack((lb, ub))),
+            inducing_point_method=AutoAllocator(bounds=bounds),
         )
         strat = Strategy(
             lb=lb,
@@ -106,6 +112,8 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
                 MonotonicMCLSE,
                 acqf_kwargs={"target": target, "objective": ProbitObjective()},
                 model_gen_options=model_gen_options,
+                lb=lb,
+                ub=ub,
             ),
             min_asks=1,
             stimuli_per_trial=1,
