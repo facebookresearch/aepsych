@@ -49,16 +49,23 @@ acqfs = [
 class TestOptimizeAcqfGenerator(unittest.TestCase):
     @parameterized.expand(acqfs)
     def test_gpu_smoketest(self, acqf, acqf_kwargs):
-        lb = torch.tensor([0])
-        ub = torch.tensor([1])
+        lb = torch.tensor([0.0])
+        ub = torch.tensor([1.0])
+        bounds = torch.stack([lb, ub])
+        inducing_size = 10
+
         model = GPClassificationModel(
-            lb=lb,
-            ub=ub,
-            inducing_size=10,
-            inducing_point_method=GreedyVarianceReduction(bounds=torch.stack([lb, ub])),
+            dim=1,
+            inducing_size=inducing_size,
+            inducing_point_method=GreedyVarianceReduction(bounds=bounds),
         )
 
-        generator = OptimizeAcqfGenerator(acqf=acqf, acqf_kwargs=acqf_kwargs)
+        generator = OptimizeAcqfGenerator(
+            acqf=acqf,
+            acqf_kwargs=acqf_kwargs,
+            lb=torch.tensor([0.0]),
+            ub=torch.tensor([1.0]),
+        )
 
         strat = Strategy(
             lb=torch.tensor([0]),

@@ -19,6 +19,7 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 import numpy as np
 import numpy.testing as npt
 from aepsych.models import GPClassificationModel
+from aepsych.models.inducing_point_allocators import SobolAllocator
 from scipy.stats import norm
 from sklearn.datasets import make_classification
 
@@ -107,14 +108,13 @@ class GPClassificationSmoketest(unittest.TestCase):
         Just see if we memorize the training set but on gpu
         """
         X, y = self.X, self.y
+        inducing_size = 10
+        bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
 
         model = GPClassificationModel(
-            torch.Tensor([-3]),
-            torch.Tensor([3]),
-            inducing_size=10,
-            inducing_point_method=SobolAllocator(
-                bounds=torch.stack([torch.tensor([-3]), torch.tensor([3])])
-            ),
+            dim=1,
+            inducing_size=inducing_size,
+            inducing_point_method=SobolAllocator(bounds=bounds),
         ).to("cuda")
 
         model.fit(X[:50], y[:50])

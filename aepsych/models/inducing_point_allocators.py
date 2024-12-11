@@ -5,14 +5,12 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Union
+from abc import abstractmethod
+from typing import Any, Dict, Optional
 
-import numpy as np
 import torch
 
 from aepsych.config import Config, ConfigurableMixin
-from aepsych.utils import get_bounds
 from botorch.models.utils.inducing_point_allocators import (
     GreedyVarianceReduction as BaseGreedyVarianceReduction,
     InducingPointAllocator,
@@ -45,6 +43,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
             # Validate bounds and extract dimension
             assert self.bounds.shape[0] == 2, "Bounds must have shape (2, d)!"
             lb, ub = self.bounds[0], self.bounds[1]
+            self.lb, self.ub = lb, ub
             for i, (l, u) in enumerate(zip(lb, ub)):
                 assert (
                     l <= u
