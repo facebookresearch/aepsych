@@ -80,6 +80,8 @@ def plot_prior_samps_1d():
 
         mono_mean, mono_covar = monotonic_mean_covar_factory(config)
         mono_model = MonotonicRejectionGP(
+            lb=lb,
+            ub=ub,
             likelihood="probit-bernoulli",
             monotonic_idxs=[0],
             mean_module=mono_mean,
@@ -176,6 +178,8 @@ def plot_prior_samps_2d():
 
         mono_mean, mono_covar = monotonic_mean_covar_factory(config)
         mono_model = MonotonicRejectionGP(
+            lb=lb,
+            ub=ub,
             likelihood="probit-bernoulli",
             monotonic_idxs=[1],
             mean_module=mono_mean,

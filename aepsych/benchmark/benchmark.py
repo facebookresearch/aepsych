@@ -155,6 +155,7 @@ class Benchmark:
         np.random.seed(seed)
         config_dict["common"]["lb"] = str(problem.lb.tolist())
         config_dict["common"]["ub"] = str(problem.ub.tolist())
+        config_dict["common"]["dim"] = str(problem.lb.shape[0])
         config_dict["common"]["parnames"] = str(
             [f"par{i}" for i in range(len(problem.ub.tolist()))]
         )

@@ -19,8 +19,19 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
 
 models = [
-    (MultitaskGPRModel(num_outputs=2, rank=2, lb=[-1], ub=[3]),),
-    (IndependentMultitaskGPRModel(num_outputs=2, lb=[-1], ub=[3]),),
+    (
+        MultitaskGPRModel(
+            num_outputs=2,
+            rank=2,
+            dim=1,
+        ),
+    ),
+    (
+        IndependentMultitaskGPRModel(
+            num_outputs=2,
+            dim=1,
+        ),
+    ),
 ]
 
 

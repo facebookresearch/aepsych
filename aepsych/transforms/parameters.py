@@ -508,10 +508,6 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         """
         # Alternative instantiation method for analysis (and not live)
         if isinstance(model, type):
-            if "lb" in kwargs:
-                kwargs["lb"] = transforms.transform(kwargs["lb"].to(torch.float64))
-            if "ub" in kwargs:
-                kwargs["ub"] = transforms.transform(kwargs["ub"].to(torch.float64))
             _base_obj = model(**kwargs)
         else:
             _base_obj = model
