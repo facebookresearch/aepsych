@@ -6,25 +6,20 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-import abc
 import time
 from collections.abc import Iterable
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple
 
 import gpytorch
-import numpy as np
 import torch
-from aepsych.config import Config, ConfigurableMixin
-from aepsych.models.utils import get_extremum, inv_query
-from aepsych.utils import dim_grid, get_jnd_multid, make_scaled_sobol, promote_0d
+from aepsych.utils import dim_grid
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
 from botorch.posteriors import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from gpytorch.mlls import MarginalLogLikelihood
-from scipy.stats import norm
 
 logger = getLogger()
 
@@ -119,205 +114,8 @@ class AEPsychMixin(GPyTorchModel):
     train_inputs: Optional[Tuple[torch.Tensor]]
     train_targets: Optional[torch.Tensor]
 
-    @property
-    def bounds(self) -> torch.Tensor:
-        return torch.stack((self.lb, self.ub))
-
-    def get_max(
-        self: ModelProtocol,
-        locked_dims: Optional[Mapping[int, float]] = None,
-        probability_space: bool = False,
-        n_samples: int = 1000,
-        max_time: Optional[float] = None,
-    ) -> Tuple[float, torch.Tensor]:
-        """Return the maximum of the modeled function, subject to constraints
-
-        Args:
-            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
-                max is along a slice of the full surface. Defaults to None.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
-                probability space instead of latent function space? Defaults to False.
-            n_samples (int): number of coarse grid points to sample for optimization estimate.
-            max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
-
-        Returns:
-            Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).
-        """
-        locked_dims = locked_dims or {}
-        _, _arg = get_extremum(
-            self, "max", self.bounds, locked_dims, n_samples, max_time=max_time
-        )
-        arg = torch.tensor(_arg.reshape(1, self.dim))
-        if probability_space:
-            val, _ = self.predict_probability(arg)
-        else:
-            val, _ = self.predict(arg)
-        return float(val.item()), arg
-
-    def get_min(
-        self: ModelProtocol,
-        locked_dims: Optional[Mapping[int, float]] = None,
-        probability_space: bool = False,
-        n_samples: int = 1000,
-        max_time: Optional[float] = None,
-    ) -> Tuple[float, torch.Tensor]:
-        """Return the minimum of the modeled function, subject to constraints
-        Args:
-            locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
-                min is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
-                probability space instead of latent function space? Defaults to False.
-            n_samples (int): number of coarse grid points to sample for optimization estimate.
-            max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
-
-        Returns:
-            Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
-        """
-        locked_dims = locked_dims or {}
-        _, _arg = get_extremum(
-            self, "min", self.bounds, locked_dims, n_samples, max_time=max_time
-        )
-        arg = torch.tensor(_arg.reshape(1, self.dim))
-        if probability_space:
-            val, _ = self.predict_probability(arg)
-        else:
-            val, _ = self.predict(arg)
-        return float(val.item()), arg
-
-    def inv_query(
-        self,
-        y: float,
-        locked_dims: Optional[Mapping[int, float]] = None,
-        probability_space: bool = False,
-        n_samples: int = 1000,
-        max_time: Optional[float] = None,
-        weights: Optional[torch.Tensor] = None,
-    ) -> Tuple[float, torch.Tensor]:
-        """Query the model inverse.
-        Return nearest x such that f(x) = queried y, and also return the
-            value of f at that point.
-
-        Args:
-            y (float): Points at which to find the inverse.
-            locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
-                inverse is along a slice of the full surface.
-            probability_space (bool): Is y (and therefore the returned nearest_y) in
-                probability space instead of latent function space? Defaults to False.
-            n_samples (int): number of coarse grid points to sample for optimization estimate. Defaults to 1000.
-            max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
-            weights (torch.Tensor, optional): Weights for the optimization. Defaults to None.
-
-        Returns:
-            Tuple[float, torch.Tensor]: Tuple containing the value of f
-                nearest to queried y and the x position of this value.
-        """
-        _, _arg = inv_query(
-            self,
-            y=y,
-            bounds=self.bounds,
-            locked_dims=locked_dims,
-            probability_space=probability_space,
-            n_samples=n_samples,
-            max_time=max_time,
-            weights=weights,
-        )
-        arg = torch.tensor(_arg.reshape(1, self.dim))
-        if probability_space:
-            val, _ = self.predict_probability(arg.reshape(1, self.dim))
-        else:
-            val, _ = self.predict(arg.reshape(1, self.dim))
-        return float(val.item()), arg
-
-    def get_jnd(
-        self: ModelProtocol,
-        grid: Optional[torch.Tensor] = None,
-        cred_level: Optional[float] = None,
-        intensity_dim: int = -1,
-        confsamps: int = 500,
-        method: str = "step",
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
-        """Calculate the JND.
-
-        Note that JND can have multiple plausible definitions
-        outside of the linear case, so we provide options for how to compute it.
-        For method="step", we report how far one needs to go over in stimulus
-        space to move 1 unit up in latent space (this is a lot of people's
-        conventional understanding of the JND).
-        For method="taylor", we report the local derivative, which also maps to a
-        1st-order Taylor expansion of the latent function. This is a formal
-        generalization of JND as defined in Weber's law.
-        Both definitions are equivalent for linear psychometric functions.
-
-        Args:
-            grid (torch.Tensor, optional): Mesh grid over which to find the JND.
-                Defaults to a square grid of size as determined by aepsych.utils.dim_grid.
-            cred_level (float, optional): Credible level for computing an interval.
-                Defaults to None, computing no interval.
-            intensity_dim (int): Dimension over which to compute the JND.
-                Defaults to -1.
-            confsamps (int): Number of posterior samples to use for
-                computing the credible interval. Defaults to 500.
-            method (str): "taylor" or "step" method (see docstring).
-                Defaults to "step".
-
-        Returns:
-            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: either the
-                mean JND, or a median, lower, upper tuple of the JND posterior.
-        """
-        if grid is None:
-            grid = self.dim_grid()
-        elif isinstance(grid, np.ndarray):
-            grid = torch.tensor(grid)
-
-        # this is super awkward, back into intensity dim grid assuming a square grid
-        gridsize = int(grid.shape[0] ** (1 / grid.shape[1]))
-        coords = torch.linspace(
-            self.lb[intensity_dim].item(), self.ub[intensity_dim].item(), gridsize
-        )
-
-        if cred_level is None:
-            fmean, _ = self.predict(grid)
-            fmean = fmean.reshape(*[gridsize for i in range(self.dim)])
-
-            if method == "taylor":
-                return torch.tensor(1 / np.gradient(fmean, coords, axis=intensity_dim))
-            elif method == "step":
-                return torch.clip(
-                    get_jnd_multid(
-                        fmean,
-                        coords,
-                        mono_dim=intensity_dim,
-                    ),
-                    0,
-                    np.inf,
-                )
-
-        alpha = 1 - cred_level  # type: ignore
-        qlower = alpha / 2
-        qupper = 1 - alpha / 2
-
-        fsamps = self.sample(grid, confsamps)
-        if method == "taylor":
-            jnds = torch.tensor(
-                1
-                / np.gradient(
-                    fsamps.reshape(confsamps, *[gridsize for i in range(self.dim)]),
-                    coords,
-                    axis=intensity_dim,
-                )
-            )
-        elif method == "step":
-            samps = [s.reshape((gridsize,) * self.dim) for s in fsamps]
-            jnds = torch.stack(
-                [get_jnd_multid(s, coords, mono_dim=intensity_dim) for s in samps]
-            )
-        else:
-            raise RuntimeError(f"Unknown method {method}!")
-        upper = torch.clip(torch.quantile(jnds, qupper, axis=0), 0, np.inf)  # type: ignore
-        lower = torch.clip(torch.quantile(jnds, qlower, axis=0), 0, np.inf)  # type: ignore
-        median = torch.clip(torch.quantile(jnds, 0.5, axis=0), 0, np.inf)  # type: ignore
-        return median, lower, upper
-
+    # Only used for PairwiseProbitModel, as it is the only one that still uses lower and upper bounds
+    # TODO remove this method and move the logic to PairwiseProbitModel or find a way to update PairwiseProbitModel to work with lb and ub.
     def dim_grid(
         self: ModelProtocol,
         gridsize: int = 30,
