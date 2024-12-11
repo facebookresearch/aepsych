@@ -22,13 +22,17 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
         np.random.seed(seed)
         total_trials = 2000
         extra_acqf_args = {"target": 0.75, "beta": 1.96}
+        lb = torch.tensor([0.0])
+        ub = torch.tensor([1.0])
 
         for epsilon in (0.1, 0.5):
             gen = EpsilonGreedyGenerator(
                 subgenerator=MonotonicRejectionGenerator(
-                    acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args
+                    acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args, lb=lb, ub=ub
                 ),
                 epsilon=epsilon,
+                lb=lb,
+                ub=ub,
             )
             model = MagicMock()
             gen.subgenerator.gen = MagicMock()
@@ -44,6 +48,8 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
         config_str = """
             [common]
             acqf = MonotonicMCLSE
+            lb = [0]
+            ub = [1]
             [EpsilonGreedyGenerator]
             subgenerator = MonotonicRejectionGenerator
             epsilon = .5

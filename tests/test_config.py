@@ -126,18 +126,17 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
         self.assertTrue(
             torch.all(
-                strat.transforms.untransform(strat.strat_list[1].model.lb)
+                strat.transforms.untransform(strat.strat_list[1].generator.lb)
                 == torch.Tensor([1, -1])
             )
         )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
         self.assertTrue(
             torch.all(
-                strat.transforms.untransform(strat.strat_list[1].model.ub)
+                strat.transforms.untransform(strat.strat_list[1].generator.ub)
                 == torch.Tensor([10, 1])
             )
         )
-
         self.assertEqual(strat.strat_list[0].min_total_outcome_occurrences, 5)
         self.assertEqual(strat.strat_list[0].min_post_range, None)
         self.assertEqual(strat.strat_list[0].keep_most_recent, None)
@@ -171,7 +170,8 @@ class ConfigTestCase(unittest.TestCase):
         )
         self.assertTrue(strat.strat_list[1].generator.acqf is EAVC)
         self.assertTrue(
-            set(strat.strat_list[1].generator.acqf_kwargs.keys()) == {"target"}
+            set(strat.strat_list[1].generator.acqf_kwargs.keys())
+            == {"lb", "ub", "target"}
         )
         self.assertTrue(strat.strat_list[1].generator.acqf_kwargs["target"] == 0.75)
         self.assertTrue(strat.strat_list[1].generator.samps == 1000)
@@ -180,9 +180,13 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.lb == torch.Tensor([0, 0]))
+        )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.ub == torch.Tensor([1, 1]))
+        )
 
     def test_nonmonotonic_optimization_config_file(self):
         config_file = "../configs/nonmonotonic_optimization_example.ini"
@@ -216,9 +220,13 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.lb == torch.Tensor([0, 0]))
+        )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.ub == torch.Tensor([1, 1]))
+        )
 
     def test_name_conflict_warns(self):
         class DummyMod:
@@ -519,9 +527,13 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.lb == torch.Tensor([0, 0]))
+        )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.ub == torch.Tensor([1, 1]))
+        )
 
     def test_pairwise_probit_config_file(self):
         config_file = "../configs/pairwise_al_example.ini"
@@ -557,9 +569,13 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.lb == torch.Tensor([0, 0]))
+        )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.ub == torch.Tensor([1, 1]))
+        )
 
     def test_pairwise_al_config_file(self):
         # random datebase path name without dashes
@@ -598,9 +614,13 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.lb == torch.Tensor([0, 0]))
+        )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.ub == torch.Tensor([1, 1]))
+        )
         # cleanup the db
         if server.db is not None:
             server.db.delete_db()
@@ -640,9 +660,13 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[0].outcome_types == ["binary"])
         self.assertTrue(strat.strat_list[1].min_asks == 20)
         self.assertTrue(torch.all(strat.strat_list[0].lb == strat.strat_list[1].lb))
-        self.assertTrue(torch.all(strat.strat_list[1].model.lb == torch.Tensor([0, 0])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.lb == torch.Tensor([0, 0]))
+        )
         self.assertTrue(torch.all(strat.strat_list[0].ub == strat.strat_list[1].ub))
-        self.assertTrue(torch.all(strat.strat_list[1].model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(
+            torch.all(strat.strat_list[1].generator.ub == torch.Tensor([1, 1]))
+        )
         # cleanup the db
         if server.db is not None:
             server.db.delete_db()
@@ -896,6 +920,7 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPRegressionModel
+            inducing_point_method = AutoAllocator
             """
         config3 = Config()
         config3.update(config_str=config_str3)
@@ -1024,11 +1049,11 @@ class ConfigTestCase(unittest.TestCase):
         strat = SequentialStrategy.from_config(config)
         opt_strat = strat.strat_list[1]
         model = opt_strat.model
+        generator = opt_strat.generator
 
         self.assertTrue(isinstance(model, HadamardSemiPModel))
-        self.assertTrue(torch.all(model.lb == torch.Tensor([0, 0])))
-        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 1])))
-        self.assertTrue(model.dim == 2)
+        self.assertTrue(torch.all(generator.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(generator.ub == torch.Tensor([1, 1])))
         self.assertTrue(model.inducing_size == 10)
         self.assertTrue(model.stim_dim == 1)
 
@@ -1079,10 +1104,9 @@ class ConfigTestCase(unittest.TestCase):
 
         strat = SequentialStrategy.from_config(config)
         opt_strat = strat.strat_list[1]
-        model = opt_strat.model
 
-        self.assertTrue(torch.all(model.lb == torch.Tensor([0, -10])))
-        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 10])))
+        self.assertTrue(torch.all(opt_strat.lb == torch.Tensor([0, -10])))
+        self.assertTrue(torch.all(opt_strat.ub == torch.Tensor([1, 10])))
 
     def test_ignore_common_bounds(self):
         config_str = """
@@ -1123,10 +1147,9 @@ class ConfigTestCase(unittest.TestCase):
 
         strat = SequentialStrategy.from_config(config)
         opt_strat = strat.strat_list[1]
-        model = opt_strat.model
 
-        self.assertTrue(torch.all(model.lb == torch.Tensor([0, -5])))
-        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 1])))
+        self.assertTrue(torch.all(opt_strat.lb == torch.Tensor([0, -5])))
+        self.assertTrue(torch.all(opt_strat.ub == torch.Tensor([1, 1])))
 
     def test_common_fallback_bounds(self):
         config_str = """
@@ -1167,10 +1190,9 @@ class ConfigTestCase(unittest.TestCase):
 
         strat = SequentialStrategy.from_config(config)
         opt_strat = strat.strat_list[1]
-        model = opt_strat.model
 
-        self.assertTrue(torch.all(model.lb == torch.Tensor([0, 0])))
-        self.assertTrue(torch.all(model.ub == torch.Tensor([1, 100])))
+        self.assertTrue(torch.all(opt_strat.lb == torch.Tensor([0, 0])))
+        self.assertTrue(torch.all(opt_strat.ub == torch.Tensor([1, 100])))
 
     def test_parameter_setting_block_validation(self):
         config_str = """
