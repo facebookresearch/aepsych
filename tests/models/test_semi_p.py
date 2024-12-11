@@ -38,7 +38,7 @@ def _hadamard_model_constructor(
     stim_dim,
     floor,
     objective=FloorLogitObjective,
-    inducing_point_method=AutoAllocator(),
+    inducing_point_method=AutoAllocator(dim=2),
 ):
     return HadamardSemiPModel(
         dim=2,
@@ -54,7 +54,7 @@ def _semip_model_constructor(
     stim_dim,
     floor,
     objective=FloorLogitObjective,
-    inducing_point_method=AutoAllocator(),
+    inducing_point_method=AutoAllocator(dim=2),
 ):
     return SemiParametricGPModel(
         dim=2,

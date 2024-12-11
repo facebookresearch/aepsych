@@ -2,31 +2,39 @@ from typing import Any, Dict, Optional
 
 import torch
 from aepsych.config import Config
-from aepsych.models.inducing_points.base import BaseAllocator, DummyAllocator
+from aepsych.models.inducing_points.base import BaseAllocator
 
 
 class FixedAllocator(BaseAllocator):
     def __init__(
-        self, points: torch.Tensor, bounds: Optional[torch.Tensor] = None
+        self,
+        bounds: Optional[torch.Tensor] = None,
+        points: Optional[torch.Tensor] = None,
+        *args,
+        **kwargs,
     ) -> None:
-        """Initialize the FixedAllocator with inducing points and bounds.
+        """Initialize the FixedAllocator with inducing points to use and bounds.
 
         Args:
-            points (torch.Tensor): Inducing points to use.
-            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).
+            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of
+                shape (2, d). Here for API uniformity, ignored for points.
+            points (torch.Tensor, optional): Inducing points to use (should be n, d).
+                Not actually optional, must be set, but Optional for API uniformity.
+            *args, **kwargs: Ignores other arguments.
         """
-        super().__init__(bounds=bounds)
-        self.points = points
+        if points is None:
+            raise ValueError("points must be set to initialize the fixed allocator.")
+        else:
+            dim = points.shape[1]
 
-    def _get_quality_function(self) -> None:
-        """FixedAllocator does not require a quality function, so this returns None."""
-        return None
+        super().__init__(dim=dim)
+        self.points = points
 
     def allocate_inducing_points(
         self,
         inputs: Optional[torch.Tensor] = None,
         covar_module: Optional[torch.nn.Module] = None,
-        num_inducing: int = 10,
+        num_inducing: int = 100,
         input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:
         """Allocate inducing points by returning the fixed inducing points.
@@ -40,7 +48,7 @@ class FixedAllocator(BaseAllocator):
         Returns:
             torch.Tensor: The fixed inducing points.
         """
-        self.allocator_used = self.__class__.__name__
+        self.last_allocator_used = self.__class__
         return self.points
 
     @classmethod
@@ -60,20 +68,8 @@ class FixedAllocator(BaseAllocator):
         Returns:
             Dict[str, Any]: Configuration options for the FixedAllocator.
         """
-        if name is None:
-            name = cls.__name__
-        lb = config.gettensor("common", "lb")
-        ub = config.gettensor("common", "ub")
-        bounds = torch.stack((lb, ub))
-        num_inducing = config.getint("common", "num_inducing", fallback=99)
-        fallback_allocator = config.getobj(
-            name, "fallback_allocator", fallback=DummyAllocator(bounds=bounds)
-        )
-        points = config.gettensor(
-            name,
-            "points",
-            fallback=fallback_allocator.allocate_inducing_points(
-                num_inducing=num_inducing
-            ),
-        )
-        return {"points": points, "bounds": bounds}
+        options = super().get_config_options(config=config, name=name, options=options)
+
+        options["points"] = config.gettensor("FixedAllocator", "points")
+
+        return options

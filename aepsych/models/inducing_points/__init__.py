@@ -9,7 +9,6 @@ import sys
 
 from ...config import Config
 from .auto import AutoAllocator
-from .base import DummyAllocator
 from .fixed import FixedAllocator
 from .greedy_variance_reduction import GreedyVarianceReduction
 from .kmeans import KMeansAllocator
@@ -17,7 +16,6 @@ from .sobol import SobolAllocator
 
 __all__ = [
     "AutoAllocator",
-    "DummyAllocator",
     "FixedAllocator",
     "GreedyVarianceReduction",
     "KMeansAllocator",

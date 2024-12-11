@@ -12,7 +12,6 @@ import torch
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_points import (
     AutoAllocator,
-    DummyAllocator,
     FixedAllocator,
     GreedyVarianceReduction,
     KMeansAllocator,
@@ -77,7 +76,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             len(
                 select_inducing_points(
-                    allocator=GreedyVarianceReduction(),
+                    allocator=GreedyVarianceReduction(bounds=bounds),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
@@ -124,20 +123,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             len(
                 select_inducing_points(
-                    allocator=DummyAllocator(
-                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
-                    ),
-                    inducing_size=inducing_size,
-                    covar_module=model.covar_module,
-                    X=model.train_inputs[0],
-                )
-            )
-            <= 20
-        )
-        self.assertTrue(
-            len(
-                select_inducing_points(
-                    allocator=FixedAllocator(points=torch.tensor([0, 1, 2, 3])),
+                    allocator=FixedAllocator(points=torch.tensor([[0], [1], [2], [3]])),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
