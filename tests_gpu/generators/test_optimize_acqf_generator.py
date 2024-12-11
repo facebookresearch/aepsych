@@ -22,7 +22,7 @@ from aepsych.acquisition.lookahead import MOCU, SMOCU
 from aepsych.acquisition.mutual_information import BernoulliMCMutualInformation
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import GreedyVarianceReduction
+from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.strategy import Strategy
 from parameterized import parameterized
 

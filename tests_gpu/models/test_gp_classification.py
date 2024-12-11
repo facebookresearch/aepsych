@@ -10,8 +10,6 @@ import unittest
 
 import torch
 
-from aepsych.models.inducing_point_allocators import SobolAllocator
-
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
@@ -19,7 +17,7 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 import numpy as np
 import numpy.testing as npt
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.inducing_points import SobolAllocator
 from scipy.stats import norm
 from sklearn.datasets import make_classification
 
