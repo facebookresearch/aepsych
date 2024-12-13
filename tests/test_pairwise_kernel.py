@@ -34,7 +34,7 @@ class PairwiseKernelTest(unittest.TestCase):
         c = torch.cat((x2[..., :2], deriv_idx_2), dim=1)
         d = torch.cat((x2[..., 2:-1], deriv_idx_2), dim=1)
 
-        c12 = kernel.forward(x1, x2).evaluate().detach().numpy()
+        c12 = kernel.forward(x1, x2).to_dense().detach().numpy()
         pwc = (
             (
                 kernel.latent_kernel.forward(a, c)
@@ -73,7 +73,7 @@ class PairwiseKernelTest(unittest.TestCase):
         b = x1[..., 2:]
         c = x2[..., :2]
         d = x2[..., 2:]
-        c12 = self.kernel.forward(x1, x2).evaluate().detach().numpy()
+        c12 = self.kernel.forward(x1, x2).to_dense().detach().numpy()
         pwc = (
             (
                 self.latent_kernel.forward(a, c)
@@ -95,7 +95,7 @@ class PairwiseKernelTest(unittest.TestCase):
         b = x3[..., 2:]
         c = x4[..., :2]
         d = x4[..., 2:]
-        c34 = self.kernel.forward(x3, x4).evaluate().detach().numpy()
+        c34 = self.kernel.forward(x3, x4).to_dense().detach().numpy()
         pwc = (
             (
                 self.latent_kernel.forward(a, c)
@@ -122,7 +122,7 @@ class PairwiseKernelTest(unittest.TestCase):
 
         # should get 0 variance on pairs (a,a)
         diag = torch.cat((a, a), dim=1)
-        diagv = self.kernel.forward(diag, diag).evaluate().detach().numpy()
+        diagv = self.kernel.forward(diag, diag).to_dense().detach().numpy()
         npt.assert_allclose(diagv, 0.0)
 
     def test_diag(self):
