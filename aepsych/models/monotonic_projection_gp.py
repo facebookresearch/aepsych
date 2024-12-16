@@ -105,7 +105,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: Optional[int] = None,
+        inducing_size: int = 99,
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
@@ -125,7 +125,7 @@ class MonotonicProjectionGP(GPClassificationModel):
                 gamma prior. Defaults to None.
             likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
                 Gaussian likelihood. Defaults to None.
-            inducing_size (int, optional): The number of inducing points to use. Defaults to None.
+            inducing_size (int): The number of inducing points to use. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
         """
@@ -233,7 +233,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=99)
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
