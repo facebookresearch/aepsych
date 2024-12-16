@@ -3,7 +3,7 @@ import unittest
 import torch
 from aepsych.config import Config
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_point_allocators import (
+from aepsych.models.inducing_points import (
     AutoAllocator,
     DummyAllocator,
     FixedAllocator,
@@ -12,12 +12,8 @@ from aepsych.models.inducing_point_allocators import (
     SobolAllocator,
 )
 from aepsych.models.utils import select_inducing_points
-
 from aepsych.strategy import Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options
-from botorch.models.utils.inducing_point_allocators import GreedyImprovementReduction
-from botorch.utils.sampling import draw_sobol_samples
-from sklearn.datasets import make_classification
 
 
 class TestInducingPointAllocators(unittest.TestCase):

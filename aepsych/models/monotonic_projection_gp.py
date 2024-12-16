@@ -15,7 +15,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.utils import get_dims, get_optimizer_options
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.posteriors.gpytorch import GPyTorchPosterior
