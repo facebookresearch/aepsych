@@ -405,3 +405,29 @@ def get_optimizer_options(config: Config, name: str) -> Dict[str, Any]:
     # Filter all the nones out, which could just come back as an empty dict
     options = {key: value for key, value in options.items() if value is not None}
     return options
+
+
+def get_dims(config: Config) -> int:
+    """Return the number of dimensions in the parameter space. This accounts for any
+    transforms that may modify the the parameter space for the model (e.g., Fixed
+    parameters will not be included).
+
+    Args:
+        config (Config): The config to look for the number of dimensions.
+
+    Return:
+        int: The number of dimensions in the search space.
+    """
+    parnames = config.getlist("common", "parnames", element_type=str)
+
+    # This is pretty weak but fixed is currently the only thing that will changed the
+    # search space dims, when categorial transforms go in, this function needs to be
+    # smarter.
+    try:
+        valid_pars = [
+            parname for parname in parnames if config[parname]["par_type"] != "fixed"
+        ]
+        return len(valid_pars)
+    except KeyError:
+        # Likely old style of parameter definition, fallback to looking at parnames
+        return len(config.getlist("common", "parnames", element_type=str))

@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
+
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.strategy import ensure_model_is_fresh, SequentialStrategy
 from tqdm.contrib.itertools import product as tproduct
 
@@ -155,6 +157,7 @@ class Benchmark:
         np.random.seed(seed)
         config_dict["common"]["lb"] = str(problem.lb.tolist())
         config_dict["common"]["ub"] = str(problem.ub.tolist())
+        config_dict["common"]["dim"] = str(problem.lb.shape[0])
         config_dict["common"]["parnames"] = str(
             [f"par{i}" for i in range(len(problem.ub.tolist()))]
         )
