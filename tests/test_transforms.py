@@ -11,7 +11,6 @@ import torch
 from aepsych.config import Config, ParameterConfigError
 from aepsych.generators import SobolGenerator
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import SequentialStrategy
 from aepsych.transforms import (
     ParameterTransformedGenerator,
@@ -93,7 +92,6 @@ class TransformsConfigTest(unittest.TestCase):
 
         obj_model = ParameterTransformedModel(
             model=GPClassificationModel,
-            inducing_point_method=AutoAllocator(dim=2),
             transforms=self.strat.strat_list[1].transforms,
             dim=2,
         )

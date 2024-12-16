@@ -15,9 +15,9 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_points import AutoAllocator
+from aepsych.models.inducing_points import GreedyVarianceReduction
+from aepsych.models.inducing_points.base import InducingPointAllocator
 from aepsych.utils import get_dims, get_optimizer_options
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
 from statsmodels.stats.moment_helpers import corr2cov, cov2corr
@@ -98,13 +98,13 @@ class MonotonicProjectionGP(GPClassificationModel):
         lb: torch.Tensor,
         ub: torch.Tensor,
         dim: int,
-        inducing_point_method: InducingPointAllocator,
         monotonic_dims: List[int],
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
+        inducing_point_method: Optional[InducingPointAllocator] = None,
         inducing_size: int = 100,
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
@@ -115,7 +115,6 @@ class MonotonicProjectionGP(GPClassificationModel):
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
             dim (int, optional): The number of dimensions in the parameter space.
-            inducing_point_method (InducingPointAllocator): The method for allocating inducing points.
             monotonic_dims (List[int]): A list of the dimensions on which monotonicity should
                 be enforced.
             monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.
@@ -125,6 +124,8 @@ class MonotonicProjectionGP(GPClassificationModel):
                 gamma prior. Defaults to None.
             likelihood (Likelihood, optional): The likelihood function to use. If None defaults to
                 Gaussian likelihood. Defaults to None.
+            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
+                If not set, a GreedyVarianceReduction is made.
             inducing_size (int): The number of inducing points to use. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
@@ -133,7 +134,6 @@ class MonotonicProjectionGP(GPClassificationModel):
         self.monotonic_dims = [int(d) for d in monotonic_dims]
         self.mon_grid_size = monotonic_grid_size
         self.min_f_val = min_f_val
-        self.inducing_point_method = inducing_point_method
         self.lb = lb
         self.ub = ub
 
@@ -250,7 +250,7 @@ class MonotonicProjectionGP(GPClassificationModel):
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
         inducing_point_method_class = config.getobj(
-            classname, "inducing_point_method", fallback=AutoAllocator
+            classname, "inducing_point_method", fallback=GreedyVarianceReduction
         )
         # Check if allocator class has a `from_config` method
         if hasattr(inducing_point_method_class, "from_config"):

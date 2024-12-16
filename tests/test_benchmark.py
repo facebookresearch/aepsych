@@ -21,7 +21,7 @@ from aepsych.benchmark import (
     Problem,
 )
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_points import AutoAllocator
+from aepsych.models.inducing_points import GreedyVarianceReduction
 
 torch.set_num_threads(1)
 torch.set_num_interop_threads(1)
@@ -75,7 +75,7 @@ class MultipleLSETestCase(unittest.TestCase):
 
         self.model = GPClassificationModel(
             dim=2,
-            inducing_point_method=AutoAllocator(dim=2),
+            inducing_point_method=GreedyVarianceReduction(dim=2),
         )
 
     def unvectorized_p_below_threshold(self, x, f_thresh) -> torch.Tensor:
@@ -418,7 +418,6 @@ class BenchProblemTestCase(unittest.TestCase):
                 "inducing_size": 10,
                 "mean_covar_factory": "monotonic_mean_covar_factory",
                 "monotonic_idxs": "[1]",
-                "inducing_point_method": "SobolAllocator",
             },
             "MonotonicRejectionGenerator": {
                 "model_gen_options": {

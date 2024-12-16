@@ -26,7 +26,6 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-from aepsych.models.inducing_points import AutoAllocator
 from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.utils import make_scaled_sobol
@@ -38,14 +37,12 @@ def _hadamard_model_constructor(
     stim_dim,
     floor,
     objective=FloorLogitObjective,
-    inducing_point_method=AutoAllocator(dim=2),
 ):
     return HadamardSemiPModel(
         dim=2,
         stim_dim=stim_dim,
         likelihood=BernoulliObjectiveLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method=inducing_point_method,
         max_fit_time=0.5,
     )
 
@@ -54,14 +51,12 @@ def _semip_model_constructor(
     stim_dim,
     floor,
     objective=FloorLogitObjective,
-    inducing_point_method=AutoAllocator(dim=2),
 ):
     return SemiParametricGPModel(
         dim=2,
         stim_dim=stim_dim,
         likelihood=LinearBernoulliLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method=inducing_point_method,
     )
 
 
@@ -95,7 +90,6 @@ class SemiPSmokeTests(unittest.TestCase):
         self.ub = torch.tensor([100.0, 0.01])
         self.X = torch.Tensor(X)
         self.inducing_size = 10
-        self.inducing_point_method = AutoAllocator(dim=2)
 
     @parameterized.expand(
         [(SemiPThresholdObjective(target=0.75),), (SemiPProbabilityObjective(),)]
@@ -108,7 +102,6 @@ class SemiPSmokeTests(unittest.TestCase):
             stim_dim=self.stim_dim,
             likelihood=LinearBernoulliLikelihood(),
             inducing_size=10,
-            inducing_point_method=AutoAllocator(dim=2),
         )
 
         generator = OptimizeAcqfGenerator(
@@ -139,7 +132,6 @@ class SemiPSmokeTests(unittest.TestCase):
             stim_dim=self.stim_dim,
             floor=floor,
             objective=objective,
-            inducing_point_method=AutoAllocator(dim=2),
         )
 
         generator = OptimizeAcqfGenerator(
@@ -210,13 +202,11 @@ class SemiPSmokeTests(unittest.TestCase):
         n_opt = 1
         lb = torch.tensor([-1.0, -1.0])
         ub = torch.tensor([1.0, 1.0])
-        inducing_point_method = AutoAllocator(dim=2)
 
         with self.subTest(model_constructor=model_constructor):
             model = model_constructor(
                 stim_dim=self.stim_dim,
                 floor=0,
-                inducing_point_method=inducing_point_method,
             )
 
             strat_list = [
@@ -279,7 +269,6 @@ class SemiPSmokeTests(unittest.TestCase):
             model = model_constructor(
                 stim_dim=stim_dim,
                 floor=0,
-                inducing_point_method=AutoAllocator(dim=2),
             )
             link = FloorLogitObjective(floor=0)
             y = torch.bernoulli(link(self.f))
@@ -323,7 +312,6 @@ class SemiPSmokeTests(unittest.TestCase):
                 likelihood=LinearBernoulliLikelihood(),
                 inducing_size=self.inducing_size,
                 slope_mean=slope_mean,
-                inducing_point_method=AutoAllocator(dim=2),
             )
             with self.subTest(model=model, slope_mean=slope_mean):
                 self.assertEqual(model.mean_module.constant[-1], slope_mean)
@@ -333,7 +321,6 @@ class SemiPSmokeTests(unittest.TestCase):
                 likelihood=BernoulliObjectiveLikelihood(objective=ProbitObjective()),
                 inducing_size=self.inducing_size,
                 slope_mean=slope_mean,
-                inducing_point_method=AutoAllocator(dim=2),
             )
             with self.subTest(model=model, slope_mean=slope_mean):
                 self.assertEqual(model.slope_mean_module.constant.item(), slope_mean)
@@ -353,7 +340,6 @@ class HadamardSemiPtest(unittest.TestCase):
         model = HadamardSemiPModel(
             dim=2,
             inducing_size=20,
-            inducing_point_method=AutoAllocator(dim=2),
         )
 
         slope_os_before = model.slope_covar_module.outputscale.clone().detach().numpy()
