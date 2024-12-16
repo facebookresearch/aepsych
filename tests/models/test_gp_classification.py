@@ -309,12 +309,17 @@ class GPClassificationSmoketest(unittest.TestCase):
         # before should be different from after and after should be different
         # from reset
         self.assertFalse(np.allclose(induc_before, induc_after))
-        self.assertFalse(np.allclose(induc_after, induc_reset))
+        if (
+            induc_after.shape == induc_reset.shape
+        ):  # If they're not the same shape, we definitely can't fail the assertFalse
+            self.assertFalse(np.allclose(induc_after, induc_reset))
+
         for before, after in zip(variational_params_before, variational_params_after):
             self.assertFalse(np.allclose(before, after))
 
         for after, reset in zip(variational_params_after, variational_params_reset):
-            self.assertFalse(np.allclose(after, reset))
+            if after.shape == reset.shape:  # Same as above
+                self.assertFalse(np.allclose(after, reset))
 
     def test_predict_p(self):
         """

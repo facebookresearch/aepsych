@@ -30,6 +30,11 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, BaseAllocator):
         if inputs is None:  # Dummy points
             return self._allocate_dummy_points(num_inducing=num_inducing)
         else:
+            if covar_module is None:
+                raise ValueError(
+                    "covar_module must be set for the GreedyVarianceReduction"
+                )
+
             self.last_allocator_used = self.__class__
 
             points = BaseGreedyVarianceReduction.allocate_inducing_points(

@@ -254,7 +254,7 @@ class SemiParametricGPModel(GPClassificationModel):
         self,
         dim: int,
         inducing_point_method: InducingPointAllocator,
-        inducing_size: int = 99,
+        inducing_size: int = 100,
         stim_dim: int = 0,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -268,7 +268,7 @@ class SemiParametricGPModel(GPClassificationModel):
         Args:
             dim (int, optional): The number of dimensions in the parameter space.
             inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
-            inducing_size (int): Number of inducing points. Defaults to 99.
+            inducing_size (int): Number of inducing points. Defaults to 100.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
@@ -337,7 +337,7 @@ class SemiParametricGPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=99)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
 
         dim = config.getint(classname, "dim", fallback=None)
 
@@ -514,7 +514,7 @@ class HadamardSemiPModel(GPClassificationModel):
         self,
         dim: int,
         inducing_point_method: InducingPointAllocator,
-        inducing_size: int = 99,
+        inducing_size: int = 100,
         stim_dim: int = 0,
         slope_mean_module: Optional[gpytorch.means.Mean] = None,
         slope_covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -530,7 +530,7 @@ class HadamardSemiPModel(GPClassificationModel):
         Args:
             dim (int): The number of dimensions in the parameter space.
             inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
-            inducing_size (int): Number of inducing points. Defaults to 99.
+            inducing_size (int): Number of inducing points. Defaults to 100.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             slope_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for slope.
             slope_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for slope.
@@ -642,7 +642,7 @@ class HadamardSemiPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=99)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
 
         dim = config.getint(classname, "dim", fallback=None)
         if dim is None:
