@@ -19,7 +19,6 @@ from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.inducing_points import AutoAllocator, SobolAllocator
-from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
@@ -100,10 +99,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         # TODO: This allocator *must* be SobolAllocator and not the set one. This
         # suggests that this model doesn't actually properly use data for inducing
         # points properly.
-        inducing_points = select_inducing_points(
-            allocator=SobolAllocator(bounds=torch.stack([lb, ub]), dim=self.dim),
-            inducing_size=self.inducing_size,
-        )
+        inducing_points = SobolAllocator(
+            bounds=torch.stack([lb, ub]), dim=self.dim
+        ).allocate_inducing_points(num_inducing=self.inducing_size)
 
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
         variational_distribution = CholeskyVariationalDistribution(
@@ -168,11 +166,10 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         """
         self.set_train_data(train_x, train_y)
 
-        self.inducing_points = select_inducing_points(
-            allocator=self.inducing_point_method,
-            inducing_size=self.inducing_size,
+        self.inducing_points = self.inducing_point_method.allocate_inducing_points(
+            num_inducing=self.inducing_size,
             covar_module=self.covar_module,
-            X=self.train_inputs[0],
+            inputs=self.train_inputs[0],
         )
         self._set_model(train_x, train_y)
 

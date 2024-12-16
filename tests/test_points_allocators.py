@@ -10,32 +10,12 @@ from aepsych.models.inducing_points import (
     KMeansAllocator,
     SobolAllocator,
 )
-from aepsych.models.utils import select_inducing_points
 from aepsych.strategy import Strategy
 from aepsych.transforms.parameters import ParameterTransforms, transform_options
+from sklearn.datasets import make_classification
 
 
 class TestInducingPointAllocators(unittest.TestCase):
-    def test_sobol_allocator_from_config(self):
-        config_str = """
-            [common]
-            parnames = [par1]
-
-            [par1]
-            par_type = continuous
-            lower_bound = 0.0
-            upper_bound = 1.0
-            log_scale = true
-
-        """
-        config = Config()
-        config.update(config_str=config_str)
-        allocator = SobolAllocator.from_config(config)
-
-        # Check if bounds are correctly loaded
-        expected_bounds = torch.tensor([[0.0], [1.0]])
-        self.assertTrue(torch.equal(allocator.bounds, expected_bounds))
-
     def test_sobol_allocator_allocate_inducing_points(self):
         bounds = torch.tensor([[0.0], [1.0]])
         allocator = SobolAllocator(bounds=bounds, dim=1)
@@ -92,48 +72,44 @@ class TestInducingPointAllocators(unittest.TestCase):
             )
         )
 
-    def test_kmeans_allocator_from_config(self):
-        config_str = """
-            [common]
-            parnames = [par1]
-
-            [par1]
-            par_type = continuous
-            lower_bound = 0.0
-            upper_bound = 1.0
-            log_scale = true
-
-            [KMeansAllocator]
-        """
-        config = Config()
-        config.update(config_str=config_str)
-        allocator = KMeansAllocator.from_config(config)
-
-        self.assertTrue(isinstance(allocator, KMeansAllocator))
-        self.assertTrue(allocator.dim == 1)
-
     def test_kmeans_allocator_allocate_inducing_points(self):
-        inputs = torch.rand(100, 2)  # 100 points in 2D
-        allocator = KMeansAllocator(dim=2)
-
-        # Test dummy
-        inducing_points = allocator.allocate_inducing_points(num_inducing=10)
-
-        self.assertEqual(inducing_points.shape, (10, 2))
-        self.assertIsNone(allocator.last_allocator_used)
-
-        # Test real inducing points
-        inducing_points = allocator.allocate_inducing_points(
-            inputs=inputs, num_inducing=10
+        # Mock data for testing
+        train_X = torch.randint(low=0, high=100, size=(100, 2), dtype=torch.float64)
+        train_Y = torch.rand(100, 1)
+        model = GPClassificationModel(
+            inducing_point_method=KMeansAllocator(dim=2),
+            inducing_size=10,
+            dim=2,
         )
 
-        self.assertEqual(inducing_points.shape, (10, 2))
-        self.assertIs(allocator.last_allocator_used, KMeansAllocator)
+        # Check if model has dummy points
+        self.assertIsNone(model.inducing_point_method.last_allocator_used)
+        self.assertTrue(torch.all(model.variational_strategy.inducing_points == 0))
+        self.assertTrue(model.variational_strategy.inducing_points.shape == (10, 2))
+
+        # Fit with small data leess than inducing_size
+        model.fit(train_X[:9], train_Y[:9])
+
+        self.assertIs(model.inducing_point_method.last_allocator_used, KMeansAllocator)
+        inducing_points = model.variational_strategy.inducing_points
+        self.assertTrue(inducing_points.shape == (9, 2))
+        # We made ints, so mod 1 should be 0s, so we know these were the original inputs
+        self.assertTrue(torch.all(inducing_points % 1 == 0))
+
+        # Then fit the model and check that the inducing points are updated
+        model.fit(train_X, train_Y)
+
+        self.assertIs(model.inducing_point_method.last_allocator_used, KMeansAllocator)
+        inducing_points = model.variational_strategy.inducing_points
+        self.assertTrue(inducing_points.shape == (10, 2))
+        # It's highly unlikely clustered will all be integers, so check against extents too
+        self.assertFalse(torch.all(inducing_points % 1 == 0))
+        self.assertTrue(torch.all((inducing_points >= 0) & (inducing_points <= 100)))
 
     def test_kmeans_allocator_from_model_config(self):
         config_str = """
             [common]
-            parnames = [par1]
+            parnames = [par1, par2]
             stimuli_per_trial = 1
             outcome_types = [binary]
             strategy_names = [init_strat]
@@ -143,6 +119,11 @@ class TestInducingPointAllocators(unittest.TestCase):
             lower_bound = 10
             upper_bound = 1000
             log_scale = True
+
+            [par2]
+            par_type = integer
+            lower_bound = 0
+            upper_bound = 1
 
             [init_strat]
             generator = OptimizeAcqfGenerator
@@ -160,48 +141,47 @@ class TestInducingPointAllocators(unittest.TestCase):
         strat = Strategy.from_config(config, "init_strat")
         self.assertTrue(isinstance(strat.model.inducing_point_method, KMeansAllocator))
 
-    def test_auto_allocator_from_config(self):
-        config_str = """
-            [common]
-            parnames = [par1]
-
-            [par1]
-            par_type = continuous
-            lower_bound = 0.0
-            upper_bound = 1.0
-            log_scale = true
-
-            [KMeansAllocator]
-        """
-        config = Config()
-        config.update(config_str=config_str)
-        allocator = AutoAllocator.from_config(config)
-
-        self.assertTrue(isinstance(allocator, AutoAllocator))
-        self.assertTrue(allocator.dim == 1)
+        self.assertTrue(strat.model.inducing_point_method.dim == 2)
 
     def test_auto_allocator_allocate_inducing_points(self):
-        inputs = torch.rand(100, 2)  # 100 points in 2D
-        allocator = AutoAllocator(dim=2)
-
-        # Test dummy
-        inducing_points = allocator.allocate_inducing_points(num_inducing=10)
-
-        self.assertEqual(inducing_points.shape, (10, 2))
-        self.assertIsNone(allocator.last_allocator_used)
-
-        # Test real inducing points
-        inducing_points = allocator.allocate_inducing_points(
-            inputs=inputs, num_inducing=10
+        # Mock data for testing
+        train_X = torch.randint(low=0, high=100, size=(100, 2), dtype=torch.float64)
+        train_Y = torch.rand(100, 1)
+        model = GPClassificationModel(
+            inducing_point_method=AutoAllocator(dim=2),
+            inducing_size=10,
+            dim=2,
         )
 
-        self.assertEqual(inducing_points.shape, (10, 2))
-        self.assertIs(allocator.last_allocator_used, KMeansAllocator)
+        # Check if model has dummy points
+        self.assertIsNone(model.inducing_point_method.last_allocator_used)
+        self.assertTrue(torch.all(model.variational_strategy.inducing_points == 0))
+        self.assertTrue(model.variational_strategy.inducing_points.shape == (10, 2))
+
+        # Fit with small data leess than inducing_size
+        model.fit(train_X[:9], train_Y[:9])
+
+        # We still check for the base allocator
+        self.assertIs(model.inducing_point_method.last_allocator_used, KMeansAllocator)
+        inducing_points = model.variational_strategy.inducing_points
+        self.assertTrue(inducing_points.shape == (9, 2))
+        # We made ints, so mod 1 should be 0s, so we know these were the original inputs
+        self.assertTrue(torch.all(inducing_points % 1 == 0))
+
+        # Then fit the model and check that the inducing points are updated
+        model.fit(train_X, train_Y)
+
+        self.assertIs(model.inducing_point_method.last_allocator_used, KMeansAllocator)
+        inducing_points = model.variational_strategy.inducing_points
+        self.assertTrue(inducing_points.shape == (10, 2))
+        # It's highly unlikely clustered will all be integers, so check against extents too
+        self.assertFalse(torch.all(inducing_points % 1 == 0))
+        self.assertTrue(torch.all((inducing_points >= 0) & (inducing_points <= 100)))
 
     def test_auto_allocator_from_model_config(self):
         config_str = """
             [common]
-            parnames = [par1]
+            parnames = [par1, par2, par3]
             stimuli_per_trial = 1
             outcome_types = [binary]
             strategy_names = [init_strat]
@@ -211,6 +191,13 @@ class TestInducingPointAllocators(unittest.TestCase):
             lower_bound = 10
             upper_bound = 1000
             log_scale = True
+
+            [par2]
+            par_type = binary
+
+            [par3]
+            par_type = fixed
+            value = 10
 
             [init_strat]
             generator = OptimizeAcqfGenerator
@@ -228,36 +215,32 @@ class TestInducingPointAllocators(unittest.TestCase):
         strat = Strategy.from_config(config, "init_strat")
         self.assertTrue(isinstance(strat.model.inducing_point_method, AutoAllocator))
 
+        self.assertTrue(strat.model.inducing_point_method.dim == 2)
+
     def test_greedy_variance_reduction_allocate_inducing_points(self):
         # Mock data for testing
-        train_X = torch.rand(100, 1)
+        train_X = torch.randint(low=0, high=100, size=(100, 2), dtype=torch.float64)
         train_Y = torch.rand(100, 1)
-        lb = torch.tensor([0])
-        ub = torch.tensor([1])
-        bounds = torch.stack([lb, ub])
         model = GPClassificationModel(
-            inducing_point_method=GreedyVarianceReduction(dim=1),
+            inducing_point_method=GreedyVarianceReduction(dim=2),
             inducing_size=10,
-            dim=1,
+            dim=2,
         )
 
-        # Instantiate GreedyVarianceReduction allocator
-        allocator = GreedyVarianceReduction(dim=1)
-
-        # Allocate inducing points and verify output shape
-        inducing_points = allocator.allocate_inducing_points(
-            inputs=train_X,
-            covar_module=model.covar_module,
-            num_inducing=10,
-            input_batch_shape=torch.Size([]),
-        )
+        # Check if model has dummy points
+        self.assertIsNone(model.inducing_point_method.last_allocator_used)
+        self.assertTrue(torch.all(model.variational_strategy.inducing_points == 0))
+        self.assertTrue(model.variational_strategy.inducing_points.shape == (10, 2))
 
         # Then fit the model and check that the inducing points are updated
         model.fit(train_X, train_Y)
 
-        self.assertTrue(
-            torch.allclose(inducing_points, model.variational_strategy.inducing_points)
+        self.assertIs(
+            model.inducing_point_method.last_allocator_used, GreedyVarianceReduction
         )
+        inducing_points = model.variational_strategy.inducing_points
+        self.assertTrue(inducing_points.shape == (10, 2))
+        self.assertTrue(torch.all((inducing_points >= 0) & (inducing_points <= 100)))
 
     def test_greedy_variance_from_config(self):
         config_str = """
@@ -411,16 +394,76 @@ class TestInducingPointAllocators(unittest.TestCase):
             strat.model.variational_strategy.inducing_points.shape, train_X.shape
         )
 
-    def test_select_inducing_points_legacy(self):
-        with self.assertWarns(DeprecationWarning):
-            # Call select_inducing_points directly with a string for allocator to trigger the warning
-            bounds = torch.tensor([[0.0], [1.0]])
-            points = select_inducing_points(
-                inducing_size=5,
-                allocator="sobol",  # Legacy string argument to trigger DeprecationWarning
-                bounds=bounds,
-            )
-            self.assertEqual(points.shape, (5, 1))
+    def test_select_inducing_points(self):
+        """Verify that when we have n_induc > data size, we use data as inducing,
+        and otherwise we correctly select inducing points."""
+        X, y = make_classification(
+            n_samples=100,
+            n_features=1,
+            n_redundant=0,
+            n_informative=1,
+            random_state=1,
+            n_clusters_per_class=1,
+        )
+        X, y = torch.Tensor(X), torch.Tensor(y)
+        inducing_size = 20
+
+        model = GPClassificationModel(
+            dim=1,
+            inducing_size=inducing_size,
+            inducing_point_method=AutoAllocator(dim=1),
+        )
+
+        # Test dummy
+        points = model.inducing_point_method.allocate_inducing_points(
+            inputs=None,
+            covar_module=model.covar_module,
+            num_inducing=inducing_size,
+        )
+        self.assertTrue(torch.all(points == 0))
+
+        model.set_train_data(X, y)
+
+        points = model.inducing_point_method.allocate_inducing_points(
+            inputs=model.train_inputs[0],
+            covar_module=model.covar_module,
+            num_inducing=inducing_size,
+        )
+        self.assertTrue(len(points) <= 20)
+
+        allocator = GreedyVarianceReduction(dim=1)
+        points = allocator.allocate_inducing_points(
+            inputs=model.train_inputs[0],
+            num_inducing=inducing_size,
+            covar_module=model.covar_module,
+        )
+        self.assertTrue(len(points) <= 20)
+
+        allocator = KMeansAllocator(dim=1)
+        points = allocator.allocate_inducing_points(
+            inputs=model.train_inputs[0],
+            num_inducing=inducing_size,
+            covar_module=model.covar_module,
+        )
+        self.assertEqual(len(points), 20)
+
+        allocator = SobolAllocator(
+            bounds=torch.stack([torch.tensor([0]), torch.tensor([1])]), dim=1
+        )
+        points = allocator.allocate_inducing_points(
+            inputs=model.train_inputs[0],
+            num_inducing=inducing_size,
+            covar_module=model.covar_module,
+        )
+        self.assertTrue(len(points) <= 20)
+
+        allocator = FixedAllocator(points=torch.tensor([[0], [1], [2], [3]]), dim=1)
+        points = allocator.allocate_inducing_points(
+            inputs=model.train_inputs[0],
+            num_inducing=inducing_size,
+            covar_module=model.covar_module,
+        )
+        self.assertTrue(len(points) <= 20)
 
 
 if __name__ == "__main__":

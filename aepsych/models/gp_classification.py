@@ -16,7 +16,6 @@ from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.models.inducing_points import AutoAllocator
-from aepsych.models.utils import select_inducing_points
 from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
@@ -100,9 +99,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             )
 
         self.inducing_point_method = inducing_point_method
-        inducing_points = select_inducing_points(
-            allocator=self.inducing_point_method,
-            inducing_size=self.inducing_size,
+        inducing_points = self.inducing_point_method.allocate_inducing_points(
+            num_inducing=self.inducing_size,
             covar_module=covar_module or default_covar,
         )
 
@@ -201,11 +199,10 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         if self.train_inputs is not None:
             # remember original device
             device = self.device
-            inducing_points = select_inducing_points(
-                allocator=self.inducing_point_method,
-                inducing_size=self.inducing_size,
+            inducing_points = self.inducing_point_method.allocate_inducing_points(
+                num_inducing=self.inducing_size,
                 covar_module=self.covar_module,
-                X=self.train_inputs[0],
+                inputs=self.train_inputs[0],
             ).to(device)
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
