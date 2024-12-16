@@ -22,7 +22,7 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.utils import get_extremum, get_jnd, inv_query
+from aepsych.models.utils import get_extremum, get_jnd, get_max, get_min, inv_query
 from aepsych.transforms import (
     ParameterTransformedGenerator,
     ParameterTransformedModel,
@@ -338,28 +338,20 @@ class Strategy(object):
         Returns:
             Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).
         """
-        constraints = constraints or {}
         assert (
             self.model is not None
         ), "model is None! Cannot get the max without a model!"
         self.model.to(self.model_device)
 
-        locked_dims = constraints or {}
-        _, _arg = get_extremum(
+        val, arg = get_max(
             self.model,
-            "max",
             self.bounds,
-            locked_dims,
+            locked_dims=constraints,
+            probability_space=probability_space,
             max_time=max_time,
-            n_samples=1000,
         )
-        arg = torch.tensor(_arg.reshape(1, self.dim))
-        if probability_space:
-            val, _ = self.model.predict_probability(arg)
-        else:
-            val, _ = self.model.predict(arg)
 
-        return float(val.item()), arg
+        return val, arg
 
     @ensure_model_is_fresh
     def get_min(
@@ -375,28 +367,20 @@ class Strategy(object):
             probability_space (bool): Whether to return the min in probability space. Defaults to False.
             max_time (float, optional): Maximum time to run the optimization. Defaults to None.
         """
-        constraints = constraints or {}
         assert (
             self.model is not None
         ), "model is None! Cannot get the min without a model!"
         self.model.to(self.model_device)
 
-        locked_dims = constraints or {}
-        _, _arg = get_extremum(
+        val, arg = get_min(
             self.model,
-            "min",
             self.bounds,
-            locked_dims,
+            locked_dims=constraints,
+            probability_space=probability_space,
             max_time=max_time,
-            n_samples=1000,
         )
-        arg = torch.tensor(_arg.reshape(1, self.dim))
-        if probability_space:
-            val, _ = self.model.predict_probability(arg)
-        else:
-            val, _ = self.model.predict(arg)
 
-        return float(val.item()), arg
+        return val, arg
 
     @ensure_model_is_fresh
     def inv_query(
@@ -417,13 +401,12 @@ class Strategy(object):
         Returns:
             Tuple[float, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.
         """
-        constraints = constraints or {}
         assert (
             self.model is not None
         ), "model is None! Cannot get the inv_query without a model!"
         self.model.to(self.model_device)
 
-        _, _arg = inv_query(
+        val, arg = inv_query(
             model=self.model,
             y=y,
             bounds=self.bounds,
@@ -431,12 +414,8 @@ class Strategy(object):
             probability_space=probability_space,
             max_time=max_time,
         )
-        arg = torch.tensor(_arg.reshape(1, self.dim))
-        if probability_space:
-            val, _ = self.model.predict_probability(arg.reshape(1, self.dim))
-        else:
-            val, _ = self.model.predict(arg.reshape(1, self.dim))
-        return float(val.item()), arg
+
+        return val, arg
 
     @ensure_model_is_fresh
     def predict(self, x: torch.Tensor, probability_space: bool = False) -> torch.Tensor:
