@@ -18,14 +18,11 @@ from aepsych.factory.monotonic import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_points import AutoAllocator, SobolAllocator
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
-from botorch.models.utils.inducing_point_allocators import (
-    GreedyVarianceReduction,
-    InducingPointAllocator,
-)
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -33,7 +30,6 @@ from gpytorch.mlls.variational_elbo import VariationalELBO
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 from scipy.stats import norm
-from torch import Tensor
 
 
 class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):

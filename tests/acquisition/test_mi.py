@@ -21,9 +21,7 @@ from aepsych.generators import (
     SobolGenerator,
 )
 from aepsych.models import GPClassificationModel, MonotonicRejectionGP
-
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
-from aepsych.models.utils import select_inducing_points
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean

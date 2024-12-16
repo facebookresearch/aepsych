@@ -14,7 +14,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger

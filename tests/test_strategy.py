@@ -18,7 +18,7 @@ from aepsych.generators import (
     SobolGenerator,
 )
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_points import AutoAllocator, SobolAllocator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import (
@@ -26,7 +26,6 @@ from aepsych.transforms import (
     ParameterTransformedModel,
     ParameterTransforms,
 )
-
 from aepsych.transforms.ops import NormalizeScale
 
 

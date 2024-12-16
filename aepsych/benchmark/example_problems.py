@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates. All rights reserved.
 import os
-from typing import List, Optional, Union
+from typing import List, Union
 
 import numpy as np
 import torch
@@ -11,8 +11,7 @@ from aepsych.benchmark.test_functions import (
     novel_discrimination_testfun,
 )
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import KMeansAllocator, SobolAllocator
-from aepsych.models.utils import select_inducing_points
+from aepsych.models.inducing_points import KMeansAllocator
 
 """The DiscrimLowDim, DiscrimHighDim, ContrastSensitivity6d, and Hartmann6Binary classes
 are copied from bernoulli_lse github repository (https://github.com/facebookresearch/bernoulli_lse)

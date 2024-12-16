@@ -26,7 +26,7 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.utils import make_scaled_sobol
