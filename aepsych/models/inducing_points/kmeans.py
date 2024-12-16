@@ -30,6 +30,10 @@ class KMeansAllocator(BaseAllocator):
         if inputs is None:  # Dummy points
             return self._allocate_dummy_points(num_inducing=num_inducing)
 
+        if inputs.shape[1] != self.dim:
+            # The inputs were augmented somehow, assuming it was added to the end of dims
+            inputs = inputs[:, : self.dim, ...]
+
         self.last_allocator_used = self.__class__
 
         # Ensure inputs are unique to avoid duplication issues with k-means++

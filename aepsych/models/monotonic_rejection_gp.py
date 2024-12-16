@@ -169,7 +169,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         self.inducing_points = self.inducing_point_method.allocate_inducing_points(
             num_inducing=self.inducing_size,
             covar_module=self.covar_module,
-            inputs=self.train_inputs[0],
+            inputs=self._augment_with_deriv_index(self.train_inputs[0], 0),
         )
         self._set_model(train_x, train_y)
 
