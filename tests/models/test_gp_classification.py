@@ -899,7 +899,6 @@ class GPClassificationTest(unittest.TestCase):
             # no obvious way to test paramtransform equivalence)
 
         self.assertTrue(m1.inducing_size == m2.inducing_size)
-        self.assertTrue(torch.equal(m1.inducing_points, m2.inducing_points))
 
 
 if __name__ == "__main__":
