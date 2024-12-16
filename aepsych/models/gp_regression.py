@@ -10,13 +10,15 @@ from copy import deepcopy
 from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
-import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.utils import select_inducing_points
+from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
+from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ExactGP
 
@@ -33,9 +35,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
-        dim: Optional[int] = None,
+        dim: int,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
@@ -45,10 +45,7 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         """Initialize the GP regression model
 
         Args:
-            lb (torch.Tensor): Lower bounds of the parameters.
-            ub (torch.Tensor): Upper bounds of the parameters.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub.
+            dim (int): The number of dimensions in the parameter space.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
@@ -59,12 +56,13 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
+        self.dim = dim
+
         if likelihood is None:
             likelihood = GaussianLikelihood()
 
         super().__init__(None, None, likelihood)
 
-        lb, ub, self.dim = _process_bounds(lb, ub, dim)
         self.max_fit_time = max_fit_time
 
         self.optimizer_options = (
@@ -73,12 +71,10 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
 
         if mean_module is None or covar_module is None:
             default_mean, default_covar = default_mean_covar_factory(
-                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
+                dim=self.dim,
+                stimuli_per_trial=self.stimuli_per_trial,
             )
 
-        # Tensors need to be directly registered, Modules themselves can be assigned as attr
-        self.register_buffer("lb", lb)
-        self.register_buffer("ub", ub)
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
@@ -98,9 +94,9 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         """
         classname = cls.__name__
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
+        if dim is None:
+            dim = get_dims(config)
 
         mean_covar_factory = config.getobj(
             classname, "mean_covar_factory", fallback=default_mean_covar_factory
@@ -123,8 +119,6 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         optimizer_options = get_optimizer_options(config, classname)
 
         return {
-            "lb": lb,
-            "ub": ub,
             "dim": dim,
             "mean_module": mean,
             "covar_module": covar,

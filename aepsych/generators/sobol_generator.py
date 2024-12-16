@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import Optional
 
-import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator

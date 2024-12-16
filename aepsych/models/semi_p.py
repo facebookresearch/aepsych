@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 from copy import deepcopy
 from typing import Any, Dict, Optional, Tuple
 
@@ -19,7 +21,8 @@ from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_point_allocators import AutoAllocator
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.models.utils import select_inducing_points
+from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
@@ -251,10 +254,8 @@ class SemiParametricGPModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
         inducing_point_method: InducingPointAllocator,
-        dim: Optional[int] = None,
+        dim: int,
         stim_dim: int = 0,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -267,11 +268,8 @@ class SemiParametricGPModel(GPClassificationModel):
         """
         Initialize SemiParametricGP.
         Args:
-            lb (torch.Tensor): Lower bounds of the parameters.
-            ub (torch.Tensor): Upper bounds of the parameters.
             inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub. Defaults to None.
+            dim (int, optional): The number of dimensions in the parameter space.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
@@ -286,9 +284,9 @@ class SemiParametricGPModel(GPClassificationModel):
                 fitting. Assumes we are using L-BFGS-B.
         """
 
-        lb, ub, dim = _process_bounds(lb, ub, dim)
+        self.dim = dim
         self.stim_dim = stim_dim
-        self.context_dims = list(range(dim))
+        self.context_dims = list(range(self.dim))
         self.context_dims.pop(stim_dim)
 
         if mean_module is None:
@@ -301,7 +299,7 @@ class SemiParametricGPModel(GPClassificationModel):
         if covar_module is None:
             covar_module = ScaleKernel(
                 RBFKernel(
-                    ard_num_dims=dim - 1,
+                    ard_num_dims=self.dim - 1,
                     lengthscale_prior=GammaPrior(3, 6),
                     active_dims=self.context_dims,  # Operate only on x_s
                     batch_shape=torch.Size([2]),
@@ -316,8 +314,6 @@ class SemiParametricGPModel(GPClassificationModel):
         self.inducing_point_method = inducing_point_method
 
         super().__init__(
-            lb=lb,
-            ub=ub,
             dim=dim,
             mean_module=mean_module,
             covar_module=covar_module,
@@ -345,9 +341,10 @@ class SemiParametricGPModel(GPClassificationModel):
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
+
+        if dim is None:
+            dim = get_dims(config)
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 
@@ -375,8 +372,6 @@ class SemiParametricGPModel(GPClassificationModel):
         optimizer_options = get_optimizer_options(config, classname)
 
         return cls(
-            lb=lb,
-            ub=ub,
             stim_dim=stim_dim,
             dim=dim,
             likelihood=likelihood,
@@ -519,10 +514,8 @@ class HadamardSemiPModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
         inducing_point_method: InducingPointAllocator,
-        dim: Optional[int] = None,
+        dim: int,
         stim_dim: int = 0,
         slope_mean_module: Optional[gpytorch.means.Mean] = None,
         slope_covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -537,11 +530,8 @@ class HadamardSemiPModel(GPClassificationModel):
         """
         Initialize HadamardSemiPModel.
         Args:
-            lb (torch.Tensor): Lower bounds of the parameters.
-            ub (torch.Tensor): Upper bounds of the parameters.
             inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub.
+            dim (int): The number of dimensions in the parameter space.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             slope_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for slope.
             slope_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for slope.
@@ -557,8 +547,6 @@ class HadamardSemiPModel(GPClassificationModel):
         """
         self.inducing_point_method = inducing_point_method
         super().__init__(
-            lb=lb,
-            ub=ub,
             dim=dim,
             inducing_size=inducing_size,
             max_fit_time=max_fit_time,
@@ -658,9 +646,9 @@ class HadamardSemiPModel(GPClassificationModel):
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
+        if dim is None:
+            dim = get_dims(config)
 
         slope_mean_module = config.getobj(classname, "slope_mean_module", fallback=None)
         slope_covar_module = config.getobj(
@@ -696,8 +684,6 @@ class HadamardSemiPModel(GPClassificationModel):
         optimizer_options = get_optimizer_options(config, classname)
 
         return cls(
-            lb=lb,
-            ub=ub,
             stim_dim=stim_dim,
             dim=dim,
             slope_mean_module=slope_mean_module,
