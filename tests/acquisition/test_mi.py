@@ -21,7 +21,6 @@ from aepsych.generators import (
     SobolGenerator,
 )
 from aepsych.models import GPClassificationModel, MonotonicRejectionGP
-from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean
@@ -58,7 +57,6 @@ class SingleProbitMI(unittest.TestCase):
                     lb=lb,
                     ub=ub,
                     monotonic_idxs=[0],
-                    inducing_point_method=AutoAllocator(dim=1),
                     num_induc=inducing_size,
                 ),
                 generator=MonotonicRejectionGenerator(
@@ -113,7 +111,6 @@ class SingleProbitMI(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                     dim=1,
                 ),
                 generator=OptimizeAcqfGenerator(
@@ -154,7 +151,6 @@ class SingleProbitMI(unittest.TestCase):
             inducing_size=inducing_size,
             mean_module=mean,
             covar_module=covar,
-            inducing_point_method=AutoAllocator(dim=1),
         )
         x = torch.rand(size=(10, 1))
         acqf = BernoulliMCMutualInformation(model=model, objective=ProbitObjective())

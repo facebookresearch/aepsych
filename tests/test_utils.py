@@ -10,7 +10,6 @@ import unittest
 import numpy as np
 import torch
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_points import AutoAllocator
 from aepsych.utils import _process_bounds, dim_grid, make_scaled_sobol
 
 
@@ -34,7 +33,6 @@ class UtilsTestCase(unittest.TestCase):
         gridsize = 10
         mb = GPClassificationModel(
             dim=1,
-            inducing_point_method=AutoAllocator(dim=1),
         )
         grid = dim_grid(
             lower=torch.tensor([lb]), upper=torch.tensor([ub]), gridsize=gridsize

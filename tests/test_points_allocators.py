@@ -7,7 +7,6 @@ from aepsych.config import Config
 from aepsych.kernels import RBFKernelPartialObsGrad
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_points import (
-    AutoAllocator,
     FixedAllocator,
     GreedyVarianceReduction,
     KMeansAllocator,
@@ -158,70 +157,6 @@ class TestInducingPointAllocators(unittest.TestCase):
 
         points = allocator.allocate_inducing_points(inputs=inputs_aug, num_inducing=100)
         self.assertTrue(torch.equal(points, inputs))
-
-    def test_auto_allocator_allocate_inducing_points(self):
-        # Mock data for testing
-        train_X = torch.randint(low=0, high=100, size=(100, 2), dtype=torch.float64)
-        train_Y = torch.rand(100, 1)
-        model = GPClassificationModel(
-            inducing_point_method=AutoAllocator(dim=2),
-            inducing_size=10,
-            dim=2,
-        )
-
-        # Check if model has dummy points
-        self.assertIsNone(model.inducing_point_method.last_allocator_used)
-        self.assertTrue(torch.all(model.variational_strategy.inducing_points == 0))
-        self.assertTrue(model.variational_strategy.inducing_points.shape == (10, 2))
-
-        # Then fit the model and check that the inducing points are updated
-        model.fit(train_X, train_Y)
-
-        self.assertIs(
-            model.inducing_point_method.last_allocator_used, GreedyVarianceReduction
-        )
-        inducing_points = model.variational_strategy.inducing_points
-        self.assertTrue(inducing_points.shape == (10, 2))
-        self.assertTrue(torch.all((inducing_points >= 0) & (inducing_points <= 100)))
-
-    def test_auto_allocator_from_model_config(self):
-        config_str = """
-            [common]
-            parnames = [par1, par2, par3]
-            stimuli_per_trial = 1
-            outcome_types = [binary]
-            strategy_names = [init_strat]
-
-            [par1]
-            par_type = continuous
-            lower_bound = 10
-            upper_bound = 1000
-            log_scale = True
-
-            [par2]
-            par_type = binary
-
-            [par3]
-            par_type = fixed
-            value = 10
-
-            [init_strat]
-            generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
-            min_asks = 2
-            model = GPClassificationModel
-
-            [GPClassificationModel]
-            inducing_point_method = AutoAllocator
-            inducing_size = 2
-        """
-
-        config = Config()
-        config.update(config_str=config_str)
-        strat = Strategy.from_config(config, "init_strat")
-        self.assertTrue(isinstance(strat.model.inducing_point_method, AutoAllocator))
-
-        self.assertTrue(strat.model.inducing_point_method.dim == 2)
 
     def test_greedy_variance_allocator_no_covar_raise(self):
         allocator = GreedyVarianceReduction(dim=2)
@@ -412,14 +347,15 @@ class TestInducingPointAllocators(unittest.TestCase):
             model = GPClassificationModel
 
             [GPClassificationModel]
-            inducing_point_method = AutoAllocator
             inducing_size = 2
         """
 
         config = Config()
         config.update(config_str=config_str)
         strat = Strategy.from_config(config, "init_strat")
-        self.assertIsInstance(strat.model.inducing_point_method, AutoAllocator)
+        self.assertIsInstance(
+            strat.model.inducing_point_method, GreedyVarianceReduction
+        )
         self.assertIsNone(strat.model.inducing_point_method.last_allocator_used)
 
         train_X = torch.tensor([[12.0, 0.0], [600.0, 1.0]])
@@ -453,7 +389,7 @@ class TestInducingPointAllocators(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(dim=1),
+            inducing_point_method=GreedyVarianceReduction(dim=1),
         )
 
         # Test dummy
@@ -506,6 +442,12 @@ class TestInducingPointAllocators(unittest.TestCase):
             covar_module=model.covar_module,
         )
         self.assertTrue(len(points) <= 20)
+
+    def test_model_default_allocator(self):
+        model = GPClassificationModel(dim=2)
+
+        self.assertIsInstance(model.inducing_point_method, GreedyVarianceReduction)
+        self.assertTrue(model.inducing_point_method.dim == 2)
 
 
 if __name__ == "__main__":

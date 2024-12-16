@@ -17,7 +17,6 @@ if "CI" in os.environ or "SANDCASTLE" in os.environ:
 import numpy as np
 import numpy.testing as npt
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_points import SobolAllocator
 from scipy.stats import norm
 from sklearn.datasets import make_classification
 
@@ -107,12 +106,10 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         X, y = self.X, self.y
         inducing_size = 10
-        bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
 
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=SobolAllocator(bounds=bounds, dim=1),
         ).to("cuda")
 
         model.fit(X[:50], y[:50])

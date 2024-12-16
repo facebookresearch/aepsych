@@ -12,7 +12,6 @@ from typing import List, Mapping, Optional, Tuple, Union
 import numpy as np
 import torch
 from aepsych.models.base import ModelProtocol
-from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.utils import dim_grid, get_jnd_multid
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
@@ -20,13 +19,10 @@ from botorch.acquisition.objective import (
     ScalarizedPosteriorTransform,
 )
 from botorch.models.model import Model
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.optim import optimize_acqf
 from botorch.posteriors import GPyTorchPosterior
-from botorch.utils.sampling import draw_sobol_samples
 from gpytorch.distributions import MultivariateNormal
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
-from scipy.cluster.vq import kmeans2
 from scipy.special import owens_t
 from scipy.stats import norm
 from torch.distributions import Normal
