@@ -96,12 +96,9 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             dim=self.dim
         )
 
-        # TODO: This allocator *must* be SobolAllocator and not the set one. This
-        # suggests that this model doesn't actually properly use data for inducing
-        # points properly.
-        inducing_points = SobolAllocator(
-            bounds=torch.stack([lb, ub]), dim=self.dim
-        ).allocate_inducing_points(num_inducing=self.inducing_size)
+        inducing_points = self.inducing_point_method.allocate_inducing_points(
+            num_inducing=self.inducing_size
+        )
 
         inducing_points_aug = self._augment_with_deriv_index(inducing_points, 0)
         variational_distribution = CholeskyVariationalDistribution(
