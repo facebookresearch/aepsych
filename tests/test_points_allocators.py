@@ -174,24 +174,14 @@ class TestInducingPointAllocators(unittest.TestCase):
         self.assertTrue(torch.all(model.variational_strategy.inducing_points == 0))
         self.assertTrue(model.variational_strategy.inducing_points.shape == (10, 2))
 
-        # Fit with small data leess than inducing_size
-        model.fit(train_X[:9], train_Y[:9])
-
-        # We still check for the base allocator
-        self.assertIs(model.inducing_point_method.last_allocator_used, KMeansAllocator)
-        inducing_points = model.variational_strategy.inducing_points
-        self.assertTrue(inducing_points.shape == (9, 2))
-        # We made ints, so mod 1 should be 0s, so we know these were the original inputs
-        self.assertTrue(torch.all(inducing_points % 1 == 0))
-
         # Then fit the model and check that the inducing points are updated
         model.fit(train_X, train_Y)
 
-        self.assertIs(model.inducing_point_method.last_allocator_used, KMeansAllocator)
+        self.assertIs(
+            model.inducing_point_method.last_allocator_used, GreedyVarianceReduction
+        )
         inducing_points = model.variational_strategy.inducing_points
         self.assertTrue(inducing_points.shape == (10, 2))
-        # It's highly unlikely clustered will all be integers, so check against extents too
-        self.assertFalse(torch.all(inducing_points % 1 == 0))
         self.assertTrue(torch.all((inducing_points >= 0) & (inducing_points <= 100)))
 
     def test_auto_allocator_from_model_config(self):
@@ -232,6 +222,14 @@ class TestInducingPointAllocators(unittest.TestCase):
         self.assertTrue(isinstance(strat.model.inducing_point_method, AutoAllocator))
 
         self.assertTrue(strat.model.inducing_point_method.dim == 2)
+
+    def test_greedy_variance_allocator_no_covar_raise(self):
+        allocator = GreedyVarianceReduction(dim=2)
+
+        with self.assertRaises(ValueError):
+            _ = allocator.allocate_inducing_points(
+                inputs=torch.zeros((30, 1)), num_inducing=10
+            )
 
     def test_greedy_variance_reduction_allocate_inducing_points(self):
         # Mock data for testing
@@ -431,7 +429,8 @@ class TestInducingPointAllocators(unittest.TestCase):
         strat.add_data(train_X, train_Y)
         strat.fit()
         self.assertIs(
-            strat.model.inducing_point_method.last_allocator_used, KMeansAllocator
+            strat.model.inducing_point_method.last_allocator_used,
+            GreedyVarianceReduction,
         )
         self.assertEqual(
             strat.model.variational_strategy.inducing_points.shape, train_X.shape
