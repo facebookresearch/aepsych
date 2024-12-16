@@ -120,12 +120,11 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         X, y = self.X, self.y
         inducing_size = 10
-        bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
 
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=1),
         )
 
         model.fit(X[:50], y[:50])
@@ -159,12 +158,11 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         X, y = self.X, self.y
         inducing_size = 10
-        bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
 
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=1),
         )
 
         model.fit(
@@ -224,7 +222,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         lb = torch.tensor([-3000.0, -0.003])
         ub = torch.tensor([3000.0, 0.003])
         inducing_size = 20
-        bounds = torch.stack([lb, ub])
 
         transforms = ParameterTransforms(
             normalize=NormalizeScale(2, bounds=torch.stack((lb, ub)))
@@ -233,7 +230,7 @@ class GPClassificationSmoketest(unittest.TestCase):
             model=GPClassificationModel,
             inducing_size=inducing_size,
             transforms=transforms,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=2),
             dim=2,
         )
         model.fit(X[:50], y[:50])
@@ -265,9 +262,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=20,
-            inducing_point_method=AutoAllocator(
-                bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
-            ),
+            inducing_point_method=AutoAllocator(dim=1),
         )
 
         ls_before = model.covar_module.lengthscale.clone().detach().numpy()
@@ -289,9 +284,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=20,
-            inducing_point_method=AutoAllocator(
-                bounds=torch.stack((torch.tensor([-3]), torch.tensor([3])))
-            ),
+            inducing_point_method=AutoAllocator(dim=1),
         )
 
         variational_params_before = [
@@ -329,12 +322,11 @@ class GPClassificationSmoketest(unittest.TestCase):
         """
         X, y = self.X, self.y
         inducing_size = 10
-        bounds = torch.stack([torch.tensor([-3.0]), torch.tensor([3.0])])
 
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=1),
         )
         model.fit(X, y)
 
@@ -359,7 +351,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         model_list = [
             Strategy(
@@ -376,7 +367,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -411,7 +402,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         model_list = [
             Strategy(
@@ -428,7 +418,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -462,7 +452,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         model_list = [
             Strategy(
@@ -479,7 +468,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -512,7 +501,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         strat_list = [
             Strategy(
@@ -529,7 +517,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -567,7 +555,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-1.0, -1.0])
         ub = torch.tensor([1.0, 1.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         strat_list = [
             Strategy(
@@ -584,7 +571,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=2,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=2),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -620,7 +607,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         target = 0.75
 
@@ -642,7 +628,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -677,7 +663,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         target = 0.5
 
@@ -699,7 +684,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -741,7 +726,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         # target is in z space not phi(z) space, maybe that's
         # weird
@@ -762,7 +746,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 min_asks=n_opt,
                 generator=OptimizeAcqfGenerator(
@@ -796,7 +780,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-1.0, -1.0])
         ub = torch.tensor([1.0, 1.0])
         inducing_size = 20
-        bounds = torch.stack([lb, ub])
 
         strat_list = [
             Strategy(
@@ -813,7 +796,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=2,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=2),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -845,7 +828,6 @@ class GPClassificationTest(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([torch.tensor(lb), torch.tensor(ub)])
 
         model_list = [
             Strategy(
@@ -862,7 +844,7 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -886,9 +868,7 @@ class GPClassificationTest(unittest.TestCase):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams
         m1 = GPClassificationModel(
             dim=2,
-            inducing_point_method=AutoAllocator(
-                bounds=torch.stack((torch.tensor([1, 2]), torch.tensor([3, 4])))
-            ),
+            inducing_point_method=AutoAllocator(dim=2),
             inducing_size=2,
         )
 

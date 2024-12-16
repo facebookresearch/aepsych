@@ -112,7 +112,7 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=SobolAllocator(bounds=bounds),
+            inducing_point_method=SobolAllocator(bounds=bounds, dim=1),
         ).to("cuda")
 
         model.fit(X[:50], y[:50])

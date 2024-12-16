@@ -108,7 +108,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             inducing_size=self.inducing_size,
             covar_module=covar_module or default_covar,
         )
-        self.last_inducing_points_method = self.inducing_point_method.allocator_used
 
         self.inducing_points = inducing_points
         variational_distribution = CholeskyVariationalDistribution(
@@ -212,7 +211,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 covar_module=self.covar_module,
                 X=self.train_inputs[0],
             ).to(device)
-            self.last_inducing_points_method = self.inducing_point_method.allocator_used
             variational_distribution = CholeskyVariationalDistribution(
                 inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
             ).to(device)
@@ -249,8 +247,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             self._reset_hyperparameters()
 
         if not warmstart_induc or (
-            self.last_inducing_points_method == "DummyAllocator"
-            and self.inducing_point_method.__class__.__name__ != "DummyAllocator"
+            self.inducing_point_method.last_allocator_used is None
         ):
             self._reset_variational_strategy()
 

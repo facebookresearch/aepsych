@@ -33,7 +33,6 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         lb = torch.tensor([0.0, 0.0])
         ub = torch.tensor([4.0, 4.0])
         inducing_size = 2
-        bounds = torch.stack([lb, ub])
 
         m = MonotonicRejectionGP(
             lb=lb,
@@ -44,7 +43,7 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=2),
         )
         strat = Strategy(
             lb=lb,
@@ -102,7 +101,7 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=2),
         )
         strat = Strategy(
             lb=lb,
