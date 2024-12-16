@@ -13,7 +13,6 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple
 
 import gpytorch
 import torch
-from aepsych.utils import dim_grid
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
@@ -113,21 +112,6 @@ class AEPsychMixin(GPyTorchModel):
     outcome_types: List[str] = []
     train_inputs: Optional[Tuple[torch.Tensor]]
     train_targets: Optional[torch.Tensor]
-
-    # Only used for PairwiseProbitModel, as it is the only one that still uses lower and upper bounds
-    # TODO remove this method and move the logic to PairwiseProbitModel or find a way to update PairwiseProbitModel to work with lb and ub.
-    def dim_grid(
-        self: ModelProtocol,
-        gridsize: int = 30,
-        slice_dims: Optional[Mapping[int, float]] = None,
-    ) -> torch.Tensor:
-        """Generate a grid based on lower, upper, and dim.
-
-        Args:
-            gridsize (int): Number of points in each dimension. Defaults to 30.
-            slice_dims (Mapping[int, float], optional): Dimensions to fix at a certain value. Defaults to None.
-        """
-        return dim_grid(self.lb, self.ub, gridsize, slice_dims)
 
     def set_train_data(
         self,
