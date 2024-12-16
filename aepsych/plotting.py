@@ -13,7 +13,6 @@ import numpy as np
 from aepsych.strategy import Strategy
 from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
 from matplotlib.axes import Axes
-
 from matplotlib.image import AxesImage
 from scipy.stats import norm
 

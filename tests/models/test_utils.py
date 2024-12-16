@@ -12,7 +12,6 @@ import torch
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_points import (
     AutoAllocator,
-    DummyAllocator,
     FixedAllocator,
     GreedyVarianceReduction,
     KMeansAllocator,
@@ -43,7 +42,7 @@ class UtilsTestCase(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=1),
         )
         model.set_train_data(X[:10, ...], y[:10])
 
@@ -51,7 +50,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             np.allclose(
                 select_inducing_points(
-                    allocator=AutoAllocator(bounds=bounds),
+                    allocator=AutoAllocator(dim=1),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
@@ -65,7 +64,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             len(
                 select_inducing_points(
-                    allocator=AutoAllocator(bounds=bounds),
+                    allocator=AutoAllocator(dim=1),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
@@ -77,7 +76,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             len(
                 select_inducing_points(
-                    allocator=GreedyVarianceReduction(),
+                    allocator=GreedyVarianceReduction(dim=1),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
@@ -89,7 +88,7 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(
             len(
                 select_inducing_points(
-                    allocator=KMeansAllocator(bounds=bounds),
+                    allocator=KMeansAllocator(dim=1),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],
@@ -112,7 +111,8 @@ class UtilsTestCase(unittest.TestCase):
             len(
                 select_inducing_points(
                     allocator=SobolAllocator(
-                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])]),
+                        dim=1,
                     ),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
@@ -124,20 +124,9 @@ class UtilsTestCase(unittest.TestCase):
         self.assertTrue(
             len(
                 select_inducing_points(
-                    allocator=DummyAllocator(
-                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
+                    allocator=FixedAllocator(
+                        points=torch.tensor([[0], [1], [2], [3]]), dim=1
                     ),
-                    inducing_size=inducing_size,
-                    covar_module=model.covar_module,
-                    X=model.train_inputs[0],
-                )
-            )
-            <= 20
-        )
-        self.assertTrue(
-            len(
-                select_inducing_points(
-                    allocator=FixedAllocator(points=torch.tensor([0, 1, 2, 3])),
                     inducing_size=inducing_size,
                     covar_module=model.covar_module,
                     X=model.train_inputs[0],

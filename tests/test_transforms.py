@@ -93,9 +93,7 @@ class TransformsConfigTest(unittest.TestCase):
 
         obj_model = ParameterTransformedModel(
             model=GPClassificationModel,
-            inducing_point_method=AutoAllocator(
-                bounds=torch.stack((torch.tensor([1, 1]), torch.tensor([100, 100])))
-            ),
+            inducing_point_method=AutoAllocator(dim=2),
             transforms=self.strat.strat_list[1].transforms,
             dim=2,
         )
