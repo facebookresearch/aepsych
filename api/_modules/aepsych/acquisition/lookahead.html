@@ -34,6 +34,7 @@
 <span class="kn">from</span> <span class="nn">botorch.models.gpytorch</span> <span class="kn">import</span> <span class="n">GPyTorchModel</span>
 <span class="kn">from</span> <span class="nn">botorch.utils.transforms</span> <span class="kn">import</span> <span class="n">t_batch_mode_transform</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
 
 <span class="kn">from</span> <span class="nn">.lookahead_utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">approximate_lookahead_levelset_at_xstar</span><span class="p">,</span>
@@ -263,6 +264,8 @@
 <div class="viewcode-block" id="GlobalLookaheadAcquisitionFunction"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.GlobalLookaheadAcquisitionFunction">[docs]</a><span class="k">class</span> <span class="nc">GlobalLookaheadAcquisitionFunction</span><span class="p">(</span><span class="n">LookaheadAcquisitionFunction</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span>
         <span class="n">lookahead_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"levelset"</span><span class="p">,</span> <span class="s2">"posterior"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"levelset"</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -274,14 +277,16 @@
 <span class="sd">        A global look-ahead acquisition function.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model (GPyTorchModel): The gpytorch model to use.</span>
+<span class="sd">            lb (Tensor): Lower bounds of the input space, used to generate the query set (Xq).</span>
+<span class="sd">            ub (Tensor): Upper bounds of the input space, used to generate the query set (Xq).</span>
+<span class="sd">            model (GPyTorchModel): The gpytorch model.</span>
 <span class="sd">            lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").</span>
 <span class="sd">                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.</span>
 <span class="sd">                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.</span>
 <span class="sd">            target (float, optional): Threshold value to target in p-space.</span>
-<span class="sd">            posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior.</span>
-<span class="sd">            query_set_size (int, optional): Number of points in the query set.</span>
-<span class="sd">            Xq (torch.Tensor, optional): (m x d) global reference set.</span>
+<span class="sd">            posterior_transform (PosteriorTransform, optional): Posterior transform to use. Defaults to None.</span>
+<span class="sd">            query_set_size (int, optional): Size of the query set. Defaults to 256.</span>
+<span class="sd">            Xq (Tensor, optional): (m x d) global reference set. Defaults to None.</span>
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">lookahead_type</span><span class="o">=</span><span class="n">lookahead_type</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">posterior_transform</span> <span class="o">=</span> <span class="n">posterior_transform</span>
@@ -300,7 +305,7 @@
             <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">query_set_size</span><span class="p">)</span> <span class="o">==</span> <span class="n">query_set_size</span>  <span class="c1"># make sure casting is safe</span>
             <span class="c1"># if the asserts above pass and Xq is None, query_set_size is not None so this is safe</span>
             <span class="n">query_set_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">query_set_size</span><span class="p">)</span>  <span class="c1"># cast</span>
-            <span class="n">Xq</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">query_set_size</span><span class="p">)</span>
+            <span class="n">Xq</span> <span class="o">=</span> <span class="n">make_scaled_sobol</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">query_set_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"Xq"</span><span class="p">,</span> <span class="n">Xq</span><span class="p">)</span>
 
     <span class="nd">@t_batch_mode_transform</span><span class="p">(</span><span class="n">expected_q</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -353,8 +358,10 @@
 <div class="viewcode-block" id="ApproxGlobalSUR"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.lookahead.ApproxGlobalSUR">[docs]</a><span class="k">class</span> <span class="nc">ApproxGlobalSUR</span><span class="p">(</span><span class="n">GlobalSUR</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span>
-        <span class="n">lookahead_type</span><span class="o">=</span><span class="s2">"levelset"</span><span class="p">,</span>
+        <span class="n">lookahead_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"levelset"</span><span class="p">,</span> <span class="s2">"poserior"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"levelset"</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">query_set_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
         <span class="n">Xq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -364,7 +371,9 @@
 <span class="sd">        Args:</span>
 
 <span class="sd">            model (GPyTorchModel): The gpytorch model to use.</span>
-<span class="sd">            lookahed_type (str): The type of look-ahead to perform (default is "levelset").</span>
+<span class="sd">            lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").</span>
+<span class="sd">                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.</span>
+<span class="sd">                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.</span>
 <span class="sd">            target (float, optional): Threshold value to target in p-space.</span>
 <span class="sd">            query_set_size (int, optional): Number of points in the query set.</span>
 <span class="sd">            Xq (torch.Tensor, optional): (m x d) global reference set.</span>
@@ -373,6 +382,8 @@
             <span class="n">lookahead_type</span> <span class="o">==</span> <span class="s2">"levelset"</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">"ApproxGlobalSUR only supports lookahead on level set, got </span><span class="si">{</span><span class="n">lookahead_type</span><span class="si">}</span><span class="s2">!"</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
             <span class="n">lookahead_type</span><span class="o">=</span><span class="n">lookahead_type</span><span class="p">,</span>
@@ -449,8 +460,10 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span>
-        <span class="n">lookahead_type</span><span class="o">=</span><span class="s2">"posterior"</span><span class="p">,</span>
+        <span class="n">lookahead_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"levelset"</span><span class="p">,</span> <span class="s2">"posterior"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"posterior"</span><span class="p">,</span>
         <span class="n">target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">query_set_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
         <span class="n">Xq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -458,7 +471,9 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        model (GPyTorchModel): The gpytorch model to use.</span>
-<span class="sd">        lookahead_type (str): The type of look-ahead to perform (default is "posterior").</span>
+<span class="sd">        lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "posterior").</span>
+<span class="sd">                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.</span>
+<span class="sd">                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.</span>
 <span class="sd">        target (float, optional): Threshold value to target in p-space. Default is None.</span>
 <span class="sd">        query_set_size (int, optional): Number of points in the query set. Default is 256.</span>
 <span class="sd">        Xq (torch.Tensor, optional): (m x d) global reference set. Default is None.</span>
@@ -466,6 +481,8 @@
 <span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
             <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
             <span class="n">lookahead_type</span><span class="o">=</span><span class="n">lookahead_type</span><span class="p">,</span>
@@ -548,7 +565,7 @@
 <span class="k">def</span> <span class="nf">construct_inputs_global_lookahead</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span>
     <span class="n">training_data</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">lookahead_type</span><span class="o">=</span><span class="s2">"levelset"</span><span class="p">,</span>
+    <span class="n">lookahead_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"levelset"</span><span class="p">,</span> <span class="s2">"posterior"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"levelset"</span><span class="p">,</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">posterior_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PosteriorTransform</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">query_set_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
@@ -561,7 +578,9 @@
 <span class="sd">    Args:</span>
 <span class="sd">        model (GPyTorchModel): The gpytorch model to use.</span>
 <span class="sd">        training_data (None): Placeholder for compatibility; not used in this function.</span>
-<span class="sd">        lookahead_type (str): Type of look-ahead to perform. Default is "levelset".</span>
+<span class="sd">        lookahead_type (Literal["levelset", "posterior"]): The type of look-ahead to perform (default is "levelset").</span>
+<span class="sd">                - If the lookahead_type is "levelset", the acqf will consider the posterior probability that a point is above or below the target level set.</span>
+<span class="sd">                - If the lookahead_type is "posterior", the acqf will consider the posterior probability that a point will be detected or not.</span>
 <span class="sd">        target (float, optional): Target threshold value in probability space. Default is None.</span>
 <span class="sd">        posterior_transform (PosteriorTransform, optional): Optional transformation to apply to the posterior. Default is None.</span>
 <span class="sd">        query_set_size (int, optional): Number of points in the query set. Default is 256.</span>

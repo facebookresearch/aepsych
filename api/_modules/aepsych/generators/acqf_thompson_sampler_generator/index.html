@@ -59,6 +59,8 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span>
         <span class="n">acqf_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">samps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
@@ -66,6 +68,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize OptimizeAcqfGenerator.</span>
 <span class="sd">        Args:</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds for the optimization.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds for the optimization.</span>
 <span class="sd">            acqf (AcquisitionFunction): Acquisition function to use.</span>
 <span class="sd">            acqf_kwargs (Dict[str, object], optional): Extra arguments to</span>
 <span class="sd">                pass to acquisition function. Defaults to no arguments.</span>
@@ -79,6 +83,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span> <span class="o">=</span> <span class="n">acqf_kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">samps</span> <span class="o">=</span> <span class="n">samps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">stimuli_per_trial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="n">lb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="n">ub</span>
 
     <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Instantiate the acquisition function with the model and any extra arguments.</span>
@@ -142,7 +148,7 @@
         <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="n">seed</span> <span class="o">=</span> <span class="n">gen_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seed"</span><span class="p">)</span>
-        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
         <span class="n">bounds_cpu</span> <span class="o">=</span> <span class="n">bounds</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
         <span class="n">effective_dim</span> <span class="o">=</span> <span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_points</span>
         <span class="k">if</span> <span class="n">effective_dim</span> <span class="o">&lt;=</span> <span class="n">SobolEngine</span><span class="o">.</span><span class="n">MAXDIM</span><span class="p">:</span>
@@ -178,12 +184,16 @@
 <span class="sd">            AcqfThompsonSamplerGenerator: The initialized generator.</span>
 <span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
         <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"stimuli_per_trial"</span><span class="p">)</span>
         <span class="n">samps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"samps"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">acqf</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
             <span class="n">acqf_kwargs</span><span class="o">=</span><span class="n">extra_acqf_args</span><span class="p">,</span>
             <span class="n">samps</span><span class="o">=</span><span class="n">samps</span><span class="p">,</span>

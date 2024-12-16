@@ -25,6 +25,7 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -36,11 +37,11 @@
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliObjectiveLikelihood</span><span class="p">,</span> <span class="n">LinearBernoulliLikelihood</span>
 <span class="kn">from</span> <span class="nn">aepsych.models</span> <span class="kn">import</span> <span class="n">GPClassificationModel</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.inducing_point_allocators</span> <span class="kn">import</span> <span class="n">AutoAllocator</span>
-<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">get_optimizer_options</span><span class="p">,</span> <span class="n">promote_0d</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.inducing_points</span> <span class="kn">import</span> <span class="n">GreedyVarianceReduction</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.inducing_points.base</span> <span class="kn">import</span> <span class="n">InducingPointAllocator</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">get_dims</span><span class="p">,</span> <span class="n">get_optimizer_options</span><span class="p">,</span> <span class="n">promote_0d</span>
 <span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span> <span class="nn">botorch.acquisition.objective</span> <span class="kn">import</span> <span class="n">PosteriorTransform</span>
-<span class="kn">from</span> <span class="nn">botorch.models.utils.inducing_point_allocators</span> <span class="kn">import</span> <span class="n">InducingPointAllocator</span>
 <span class="kn">from</span> <span class="nn">botorch.optim.fit</span> <span class="kn">import</span> <span class="n">fit_gpytorch_mll_scipy</span>
 <span class="kn">from</span> <span class="nn">botorch.posteriors</span> <span class="kn">import</span> <span class="n">GPyTorchPosterior</span>
 <span class="kn">from</span> <span class="nn">gpytorch.distributions</span> <span class="kn">import</span> <span class="n">MultivariateNormal</span>
@@ -269,27 +270,21 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span><span class="p">,</span>
-        <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">stim_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">slope_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="n">inducing_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">InducingPointAllocator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize SemiParametricGP.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
-<span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
-<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.</span>
-<span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
-<span class="sd">                of lb and ub. Defaults to None.</span>
+<span class="sd">            dim (int, optional): The number of dimensions in the parameter space.</span>
 <span class="sd">            stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.</span>
 <span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.</span>
 <span class="sd">            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a</span>
@@ -297,16 +292,18 @@
 <span class="sd">            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to</span>
 <span class="sd">                linear-Bernouli likelihood with probit link.</span>
 <span class="sd">            slope_mean (float): The mean of the slope. Defaults to 2.</span>
-<span class="sd">            inducing_size (int, optional): Number of inducing points. Defaults to 99.</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.</span>
+<span class="sd">                If not set, a GreedyVarianceReduction is made.</span>
+<span class="sd">            inducing_size (int): Number of inducing points. Defaults to 100.</span>
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time.</span>
 <span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
 <span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
 <span class="sd">        """</span>
 
-        <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stim_dim</span> <span class="o">=</span> <span class="n">stim_dim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">context_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">dim</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context_dims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">stim_dim</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mean_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -319,7 +316,7 @@
         <span class="k">if</span> <span class="n">covar_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">covar_module</span> <span class="o">=</span> <span class="n">ScaleKernel</span><span class="p">(</span>
                 <span class="n">RBFKernel</span><span class="p">(</span>
-                    <span class="n">ard_num_dims</span><span class="o">=</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">ard_num_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
                     <span class="n">lengthscale_prior</span><span class="o">=</span><span class="n">GammaPrior</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
                     <span class="n">active_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context_dims</span><span class="p">,</span>  <span class="c1"># Operate only on x_s</span>
                     <span class="n">batch_shape</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">2</span><span class="p">]),</span>
@@ -331,11 +328,8 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
             <span class="n">likelihood</span><span class="p">,</span> <span class="n">LinearBernoulliLikelihood</span>
         <span class="p">),</span> <span class="s2">"SemiP model only supports linear Bernoulli likelihoods!"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
-            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
             <span class="n">mean_module</span><span class="o">=</span><span class="n">mean_module</span><span class="p">,</span>
             <span class="n">covar_module</span><span class="o">=</span><span class="n">covar_module</span><span class="p">,</span>
@@ -361,16 +355,17 @@
 <span class="sd">        """</span>
 
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="n">inducing_point_method_class</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">AutoAllocator</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">GreedyVarianceReduction</span>
         <span class="p">)</span>
         <span class="c1"># Check if allocator class has a `from_config` method</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inducing_point_method_class</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
@@ -393,8 +388,6 @@
         <span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
-            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">stim_dim</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span>
             <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
             <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
@@ -537,10 +530,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">InducingPointAllocator</span><span class="p">,</span>
-        <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">stim_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">slope_mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">slope_covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -548,18 +538,15 @@
         <span class="n">offset_covar_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">Kernel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Likelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">slope_mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="n">inducing_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_point_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">InducingPointAllocator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inducing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">max_fit_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">optimizer_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize HadamardSemiPModel.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
-<span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
-<span class="sd">            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.</span>
-<span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
-<span class="sd">                of lb and ub.</span>
+<span class="sd">            dim (int): The number of dimensions in the parameter space.</span>
 <span class="sd">            stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.</span>
 <span class="sd">            slope_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for slope.</span>
 <span class="sd">            slope_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for slope.</span>
@@ -567,16 +554,15 @@
 <span class="sd">            offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.</span>
 <span class="sd">            likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5</span>
 <span class="sd">            slope_mean (float): The mean of the slope. Defaults to 2.</span>
-<span class="sd">            inducing_size (int, optional): Number of inducing points. Defaults to 99.</span>
+<span class="sd">            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.</span>
+<span class="sd">                If not set, a GreedyVarianceReduction is made.</span>
+<span class="sd">            inducing_size (int): Number of inducing points. Defaults to 100.</span>
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time.</span>
 <span class="sd">            optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during</span>
 <span class="sd">                fitting. Assumes we are using L-BFGS-B.</span>
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
-            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
             <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
             <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
@@ -674,11 +660,11 @@
 <span class="sd">        """</span>
 
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">slope_mean_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_mean_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">slope_covar_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
@@ -694,7 +680,7 @@
         <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="n">inducing_point_method_class</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">AutoAllocator</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">GreedyVarianceReduction</span>
         <span class="p">)</span>
         <span class="c1"># Check if allocator class has a `from_config` method</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inducing_point_method_class</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
@@ -714,8 +700,6 @@
         <span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
-            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">stim_dim</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span>
             <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
             <span class="n">slope_mean_module</span><span class="o">=</span><span class="n">slope_mean_module</span><span class="p">,</span>

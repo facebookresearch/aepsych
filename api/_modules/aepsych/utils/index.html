@@ -423,6 +423,32 @@
     <span class="c1"># Filter all the nones out, which could just come back as an empty dict</span>
     <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">options</span></div>
+
+
+<div class="viewcode-block" id="get_dims"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_dims">[docs]</a><span class="k">def</span> <span class="nf">get_dims</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the number of dimensions in the parameter space. This accounts for any</span>
+<span class="sd">    transforms that may modify the the parameter space for the model (e.g., Fixed</span>
+<span class="sd">    parameters will not be included).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (Config): The config to look for the number of dimensions.</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        int: The number of dimensions in the search space.</span>
+<span class="sd">    """</span>
+    <span class="n">parnames</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"parnames"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="c1"># This is pretty weak but fixed is currently the only thing that will changed the</span>
+    <span class="c1"># search space dims, when categorial transforms go in, this function needs to be</span>
+    <span class="c1"># smarter.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">valid_pars</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">parname</span> <span class="k">for</span> <span class="n">parname</span> <span class="ow">in</span> <span class="n">parnames</span> <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="n">parname</span><span class="p">][</span><span class="s2">"par_type"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"fixed"</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_pars</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="c1"># Likely old style of parameter definition, fallback to looking at a bound</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span></div>
 </pre></div>
 </div>
 </div>

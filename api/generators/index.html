@@ -99,12 +99,14 @@
 <span id="aepsych-generators-epsilon-greedy-generator-module"></span><h2>aepsych.generators.epsilon_greedy_generator module<a class="headerlink" href="#module-aepsych.generators.epsilon_greedy_generator" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.epsilon_greedy_generator.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.epsilon_greedy_generator.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Initialize EpsilonGreedyGenerator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – Lower bounds for the optimization.</p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – Upper bounds for the optimization.</p></li>
 <li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – The generator to use when not exploiting.</p></li>
 <li><p><strong>epsilon</strong> (<em>float</em>) – The probability of exploration. Defaults to 0.1.</p></li>
 </ul>
@@ -342,13 +344,17 @@ for constrained optimization by e.g. interior point method.</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.monotonic_rejection_generator.</span></span><span class="sig-name descname"><span class="pre">MonotonicRejectionGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_gen_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.monotonic_rejection_generator.</span></span><span class="sig-name descname"><span class="pre">MonotonicRejectionGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_gen_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a>[<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><code class="xref py py-class docutils literal notranslate"><span class="pre">MonotonicRejectionGP</span></code></a>]</p>
 <p>Generator specifically to be used with MonotonicRejectionGP, which generates new points to sample by minimizing
 an acquisition function through stochastic gradient descent.</p>
 <p>Initialize MonotonicRejectionGenerator.
 :param acqf: Acquisition function to use.
-:type acqf: MonotonicMCAcquisition
+:type acqf: AcquisitionFunction
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
 :param acqf_kwargs: Extra arguments to</p>
 <blockquote>
 <div><p>pass to acquisition function. Defaults to None.</p>
@@ -361,6 +367,8 @@ SGD parameters. See code for all options and their defaults. Defaults to None.</
 <li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
 fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
@@ -478,10 +486,14 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <span id="aepsych-generators-optimize-acqf-generator-module"></span><h2>aepsych.generators.optimize_acqf_generator module<a class="headerlink" href="#module-aepsych.generators.optimize_acqf_generator" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.optimize_acqf_generator.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.optimize_acqf_generator.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that chooses points by minimizing an acquisition function.</p>
 <p>Initialize OptimizeAcqfGenerator.
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
 :param acqf: Acquisition function to use.
 :type acqf: AcquisitionFunction
 :param acqf_kwargs: Extra arguments to</p>
@@ -495,6 +507,8 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
@@ -684,10 +698,14 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.generators" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">OptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that chooses points by minimizing an acquisition function.</p>
 <p>Initialize OptimizeAcqfGenerator.
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
 :param acqf: Acquisition function to use.
 :type acqf: AcquisitionFunction
 :param acqf_kwargs: Extra arguments to</p>
@@ -701,6 +719,8 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
@@ -761,13 +781,17 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicRejectionGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">MonotonicRejectionGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_gen_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicRejectionGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">MonotonicRejectionGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_gen_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicRejectionGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a>[<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><code class="xref py py-class docutils literal notranslate"><span class="pre">MonotonicRejectionGP</span></code></a>]</p>
 <p>Generator specifically to be used with MonotonicRejectionGP, which generates new points to sample by minimizing
 an acquisition function through stochastic gradient descent.</p>
 <p>Initialize MonotonicRejectionGenerator.
 :param acqf: Acquisition function to use.
-:type acqf: MonotonicMCAcquisition
+:type acqf: AcquisitionFunction
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
 :param acqf_kwargs: Extra arguments to</p>
 <blockquote>
 <div><p>pass to acquisition function. Defaults to None.</p>
@@ -780,6 +804,8 @@ SGD parameters. See code for all options and their defaults. Defaults to None.</
 <li><p><strong>explore_features</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
 fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
 </dd>
@@ -1019,12 +1045,14 @@ rejection samples, Thompson sampling points, target value, objective transformat
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgenerator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Initialize EpsilonGreedyGenerator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – Lower bounds for the optimization.</p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – Upper bounds for the optimization.</p></li>
 <li><p><strong>subgenerator</strong> (<a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – The generator to use when not exploiting.</p></li>
 <li><p><strong>epsilon</strong> (<em>float</em>) – The probability of exploration. Defaults to 0.1.</p></li>
 </ul>
@@ -1235,10 +1263,14 @@ rejection samples, Thompson sampling points, target value, objective transformat
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.PairwiseOptimizeAcqfGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseOptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">PairwiseOptimizeAcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/pairwise_optimize_acqf_generator.html#PairwiseOptimizeAcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.PairwiseOptimizeAcqfGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizeAcqfGenerator</span></code></a></p>
 <p>Deprecated. Use OptimizeAcqfGenerator instead.</p>
 <p>Initialize OptimizeAcqfGenerator.
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
 :param acqf: Acquisition function to use.
 :type acqf: AcquisitionFunction
 :param acqf_kwargs: Extra arguments to</p>
@@ -1252,6 +1284,8 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
@@ -1329,7 +1363,7 @@ restart and sample parameters, maximum generation time, and stimuli per trial(tw
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.IntensityAwareSemiPGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">IntensityAwareSemiPGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/semi_p.html#IntensityAwareSemiPGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IntensityAwareSemiPGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">IntensityAwareSemiPGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gen_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/semi_p.html#IntensityAwareSemiPGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IntensityAwareSemiPGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator" title="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizeAcqfGenerator</span></code></a></p>
 <p>Generator for SemiP. With botorch machinery, in order to optimize acquisition
 separately over context and intensity, we need two ingredients.
@@ -1351,6 +1385,10 @@ at the objective to obtain the intensity value.</p>
 <p>We only developed ThresholdBALV that is specific to SemiP, which is what we tested
 with this generator. It should work with other similar acquisition functions.</p>
 <p>Initialize OptimizeAcqfGenerator.
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
 :param acqf: Acquisition function to use.
 :type acqf: AcquisitionFunction
 :param acqf_kwargs: Extra arguments to</p>
@@ -1364,6 +1402,8 @@ with this generator. It should work with other similar acquisition functions.</p
 <li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
 <li><p><strong>max_gen_time</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum time (in seconds) to optimize the acquisition function. Defaults to None.</p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
@@ -1392,10 +1432,14 @@ with this generator. It should work with other similar acquisition functions.</p
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.AcqfThompsonSamplerGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">AcqfThompsonSamplerGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">AcqfThompsonSamplerGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Generator that chooses points by minimizing an acquisition function.</p>
 <p>Initialize OptimizeAcqfGenerator.
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
 :param acqf: Acquisition function to use.
 :type acqf: AcquisitionFunction
 :param acqf_kwargs: Extra arguments to</p>
@@ -1407,6 +1451,8 @@ with this generator. It should work with other similar acquisition functions.</p
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>samps</strong> (<em>int</em>) – Number of samples for quasi-random initialization of the acquisition function optimizer. Defaults to 1000.</p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
+<li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
 <li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>

@@ -23,10 +23,10 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
@@ -57,6 +57,8 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span>
         <span class="n">acqf_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">restarts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -66,6 +68,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize OptimizeAcqfGenerator.</span>
 <span class="sd">        Args:</span>
+<span class="sd">            lb (torch.Tensor): Lower bounds for the optimization.</span>
+<span class="sd">            ub (torch.Tensor): Upper bounds for the optimization.</span>
 <span class="sd">            acqf (AcquisitionFunction): Acquisition function to use.</span>
 <span class="sd">            acqf_kwargs (Dict[str, object], optional): Extra arguments to</span>
 <span class="sd">                pass to acquisition function. Defaults to no arguments.</span>
@@ -83,6 +87,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">samps</span> <span class="o">=</span> <span class="n">samps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_gen_time</span> <span class="o">=</span> <span class="n">max_gen_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">stimuli_per_trial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="n">lb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="n">ub</span>
 
     <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -94,14 +100,33 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            AcquisitionFunction: Configured acquisition function.</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">"lb"</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+            <span class="ow">and</span> <span class="s2">"ub"</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="o">==</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">pref_model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_requiring_acqfs</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span>
+                    <span class="n">model</span><span class="p">,</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span>
+                    <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span>
+                    <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="o">==</span> <span class="n">AnalyticExpectedUtilityOfBestOption</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">pref_model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">baseline_requiring_acqfs</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">train_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OptimizeAcqfGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
@@ -142,12 +167,16 @@
         <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
         <span class="n">acqf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_acquisition_fn</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting gen..."</span><span class="p">)</span>
         <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="n">new_candidate</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">optimize_acqf</span><span class="p">(</span>
             <span class="n">acq_function</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
-            <span class="n">bounds</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">]),</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">]),</span>
             <span class="n">q</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span>
             <span class="n">num_restarts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restarts</span><span class="p">,</span>
             <span class="n">raw_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">,</span>
@@ -171,6 +200,8 @@
 <span class="sd">            restart and sample parameters, maximum generation time, and stimuli per trial.</span>
 <span class="sd">        """</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
         <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"stimuli_per_trial"</span><span class="p">)</span>
@@ -179,6 +210,8 @@
         <span class="n">max_gen_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_gen_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
+            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
             <span class="n">acqf</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
             <span class="n">acqf_kwargs</span><span class="o">=</span><span class="n">extra_acqf_args</span><span class="p">,</span>
             <span class="n">restarts</span><span class="o">=</span><span class="n">restarts</span><span class="p">,</span>

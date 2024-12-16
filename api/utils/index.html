@@ -246,6 +246,24 @@ ftol, gtol, maxfun, maxiter, maxls. See docs for details:
 </dd>
 </dl>
 </dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.utils.get_dims">
+<span class="sig-prename descclassname"><span class="pre">aepsych.utils.</span></span><span class="sig-name descname"><span class="pre">get_dims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/utils.html#get_dims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.utils.get_dims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of dimensions in the parameter space. This accounts for any
+transforms that may modify the the parameter space for the model (e.g., Fixed
+parameters will not be included).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – The config to look for the number of dimensions.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of dimensions in the search space.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 </section>
 </section>
 </div>

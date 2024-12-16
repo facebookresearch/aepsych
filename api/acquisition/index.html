@@ -288,14 +288,16 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 </ul>
 </dd>
 </dl>
@@ -327,14 +329,16 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
@@ -352,14 +356,16 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
@@ -376,21 +382,23 @@ averaged over Xq.</p>
 <p>An approximate global look-ahead acquisition function.
 :param model: The gpytorch model to use.
 :type model: GPyTorchModel
-:param lookahed_type: The type of look-ahead to perform (default is “levelset”).
-:type lookahed_type: str
-:param target: Threshold value to target in p-space.
-:type target: float, optional
-:param query_set_size: Number of points in the query set.
-:type query_set_size: int, optional
-:param Xq: (m x d) global reference set.
-:type Xq: torch.Tensor, optional</p>
+:param lookahead_type: The type of look-ahead to perform (default is “levelset”).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.</p></li>
+<li><p>If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
+</ul>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
+<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – </p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -403,14 +411,16 @@ averaged over Xq.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
@@ -433,14 +443,16 @@ International Conference on Learning Representations (ICLR) 2021.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
@@ -460,15 +472,24 @@ International Conference on Learning Representations (ICLR) 2021.</p>
 International Conference on Artificial Intelligence and Statistics (AISTATS) 2021.</p>
 </div></blockquote>
 <p>model (GPyTorchModel): The gpytorch model to use.
-lookahead_type (str): The type of look-ahead to perform (default is “posterior”).
-target (float, optional): Threshold value to target in p-space. Default is None.
+lookahead_type (Literal[“levelset”, “posterior”]): The type of look-ahead to perform (default is “posterior”).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.</p></li>
+<li><p>If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
+</ul>
+</div></blockquote>
+<p>target (float, optional): Threshold value to target in p-space. Default is None.
 query_set_size (int, optional): Number of points in the query set. Default is 256.
 Xq (torch.Tensor, optional): (m x d) global reference set. Default is None.
 k (float, optional): Scaling factor for the softmax approximation, controlling the “softness” of the maximum operation. Default is 20.0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – </p></li>
+<li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>'levelset'</em><em>, </em><em>'posterior'</em><em>]</em>) – </p></li>
 <li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 <li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – </p></li>
@@ -502,7 +523,9 @@ Advances in Neural Information Processing Systems 34 (2021).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
 <li><p><strong>training_data</strong> (<em>None</em>) – Placeholder for compatibility; not used in this function.</p></li>
-<li><p><strong>lookahead_type</strong> (<em>str</em>) – Type of look-ahead to perform. Default is “levelset”.</p></li>
+<li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
+- If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
+- If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Target threshold value in probability space. Default is None.</p></li>
 <li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior. Default is None.</p></li>
 <li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set. Default is 256.</p></li>
@@ -2002,14 +2025,16 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
@@ -2027,14 +2052,16 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
@@ -2051,21 +2078,23 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <p>An approximate global look-ahead acquisition function.
 :param model: The gpytorch model to use.
 :type model: GPyTorchModel
-:param lookahed_type: The type of look-ahead to perform (default is “levelset”).
-:type lookahed_type: str
-:param target: Threshold value to target in p-space.
-:type target: float, optional
-:param query_set_size: Number of points in the query set.
-:type query_set_size: int, optional
-:param Xq: (m x d) global reference set.
-:type Xq: torch.Tensor, optional</p>
+:param lookahead_type: The type of look-ahead to perform (default is “levelset”).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.</p></li>
+<li><p>If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
+</ul>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
+<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>model</strong> (<em>botorch.models.gpytorch.GPyTorchModel</em>) – </p></li>
-<li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
-<li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-<li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – </p></li>
+<li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -2078,14 +2107,16 @@ distribution, e.g. Treutwein 1995, doi:10.1016/0042-6989(95)00016-X.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model to use.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – Lower bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – Upper bounds of the input space, used to generate the query set (Xq).</p></li>
+<li><p><strong>model</strong> (<em>GPyTorchModel</em>) – The gpytorch model.</p></li>
 <li><p><strong>lookahead_type</strong> (<em>Literal</em><em>[</em><em>"levelset"</em><em>, </em><em>"posterior"</em><em>]</em>) – The type of look-ahead to perform (default is “levelset”).
 - If the lookahead_type is “levelset”, the acqf will consider the posterior probability that a point is above or below the target level set.
 - If the lookahead_type is “posterior”, the acqf will consider the posterior probability that a point will be detected or not.</p></li>
 <li><p><strong>target</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold value to target in p-space.</p></li>
-<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Optional transformation to apply to the posterior.</p></li>
-<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of points in the query set.</p></li>
-<li><p><strong>Xq</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – Posterior transform to use. Defaults to None.</p></li>
+<li><p><strong>query_set_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the query set. Defaults to 256.</p></li>
+<li><p><strong>Xq</strong> (<em>Tensor</em><em>, </em><em>optional</em>) – (m x d) global reference set. Defaults to None.</p></li>
 <li><p><strong>args</strong> (<em>Any</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
 </ul>
