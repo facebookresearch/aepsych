@@ -279,7 +279,7 @@ class SemiPSmokeTests(unittest.TestCase):
             model = model_constructor(
                 stim_dim=stim_dim,
                 floor=0,
-                inducing_point_method=AutoAllocator(dim=1),
+                inducing_point_method=AutoAllocator(dim=2),
             )
             link = FloorLogitObjective(floor=0)
             y = torch.bernoulli(link(self.f))

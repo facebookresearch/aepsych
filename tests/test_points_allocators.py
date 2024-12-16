@@ -1,7 +1,10 @@
 import unittest
 
+import gpytorch
+import numpy as np
 import torch
 from aepsych.config import Config
+from aepsych.kernels import RBFKernelPartialObsGrad
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_points import (
     AutoAllocator,
@@ -143,6 +146,19 @@ class TestInducingPointAllocators(unittest.TestCase):
 
         self.assertTrue(strat.model.inducing_point_method.dim == 2)
 
+    def test_kmeans_shape_handling(self):
+        allocator = KMeansAllocator(dim=1)
+
+        inputs = torch.tensor([[1], [2], [3]])
+
+        inputs_aug = torch.hstack([inputs, torch.zeros(size=[3, 1])])
+
+        points = allocator.allocate_inducing_points(inputs=inputs_aug, num_inducing=2)
+        self.assertTrue(points.shape == (2, 1))
+
+        points = allocator.allocate_inducing_points(inputs=inputs_aug, num_inducing=100)
+        self.assertTrue(torch.equal(points, inputs))
+
     def test_auto_allocator_allocate_inducing_points(self):
         # Mock data for testing
         train_X = torch.randint(low=0, high=100, size=(100, 2), dtype=torch.float64)
@@ -273,6 +289,33 @@ class TestInducingPointAllocators(unittest.TestCase):
         self.assertTrue(
             isinstance(strat.model.inducing_point_method, GreedyVarianceReduction)
         )
+
+    def test_greedy_variance_shape_handling(self):
+        allocator = GreedyVarianceReduction(dim=1)
+
+        inputs = torch.tensor([[1], [2], [3]])
+        inputs_aug = torch.hstack([inputs, torch.zeros(size=[3, 1])])
+
+        ls_prior = gpytorch.priors.GammaPrior(
+            concentration=4.6, rate=1.0, transform=lambda x: 1 / x
+        )
+        ls_prior_mode = ls_prior.rate / (ls_prior.concentration + 1)
+        ls_constraint = gpytorch.constraints.GreaterThan(
+            lower_bound=1e-4, transform=None, initial_value=ls_prior_mode
+        )
+        covar_module = gpytorch.kernels.ScaleKernel(
+            RBFKernelPartialObsGrad(
+                lengthscale_prior=ls_prior,
+                lengthscale_constraint=ls_constraint,
+                ard_num_dims=1,
+            ),
+            outputscale_prior=gpytorch.priors.SmoothedBoxPrior(a=1, b=4),
+        )
+
+        points = allocator.allocate_inducing_points(
+            inputs=inputs_aug, covar_module=covar_module, num_inducing=2
+        )
+        self.assertTrue(points.shape[1] == 1)
 
     def test_fixed_allocator_allocate_inducing_points(self):
         config_str = """
