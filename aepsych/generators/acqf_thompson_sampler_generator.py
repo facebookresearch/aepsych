@@ -41,6 +41,8 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
 
     def __init__(
         self,
+        lb: torch.Tensor,
+        ub: torch.Tensor,
         acqf: AcquisitionFunction,
         acqf_kwargs: Optional[Dict[str, Any]] = None,
         samps: int = 1000,
@@ -48,6 +50,8 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
     ) -> None:
         """Initialize OptimizeAcqfGenerator.
         Args:
+            lb (torch.Tensor): Lower bounds for the optimization.
+            ub (torch.Tensor): Upper bounds for the optimization.
             acqf (AcquisitionFunction): Acquisition function to use.
             acqf_kwargs (Dict[str, object], optional): Extra arguments to
                 pass to acquisition function. Defaults to no arguments.
@@ -61,6 +65,8 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         self.acqf_kwargs = acqf_kwargs
         self.samps = samps
         self.stimuli_per_trial = stimuli_per_trial
+        self.lb = lb
+        self.ub = ub
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
         """Instantiate the acquisition function with the model and any extra arguments.
@@ -124,7 +130,7 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         starttime = time.time()
 
         seed = gen_options.get("seed")
-        bounds = torch.tensor(np.c_[model.lb, model.ub]).T.cpu()
+        bounds = torch.tensor(np.c_[self.lb, self.ub]).T.cpu()
         bounds_cpu = bounds.cpu()
         effective_dim = bounds.shape[-1] * num_points
         if effective_dim <= SobolEngine.MAXDIM:
@@ -160,12 +166,16 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
             AcqfThompsonSamplerGenerator: The initialized generator.
         """
         classname = cls.__name__
+        lb = config.gettensor(classname, "lb")
+        ub = config.gettensor(classname, "ub")
         acqf = config.getobj(classname, "acqf", fallback=None)
         extra_acqf_args = cls._get_acqf_options(acqf, config)
         stimuli_per_trial = config.getint(classname, "stimuli_per_trial")
         samps = config.getint(classname, "samps", fallback=1000)
 
         return cls(
+            lb=lb,
+            ub=ub,
             acqf=acqf,
             acqf_kwargs=extra_acqf_args,
             samps=samps,

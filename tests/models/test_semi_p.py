@@ -26,51 +26,42 @@ from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.likelihoods.semi_p import LinearBernoulliLikelihood
 from aepsych.models import HadamardSemiPModel, SemiParametricGPModel
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.models.semi_p import _hadamard_mvn_approx, semi_p_posterior_transform
 from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.utils import make_scaled_sobol
 from gpytorch.distributions import MultivariateNormal
 from parameterized import parameterized
 
 
 def _hadamard_model_constructor(
-    lb,
-    ub,
     stim_dim,
     floor,
     objective=FloorLogitObjective,
-    inducing_point_method=AutoAllocator,
+    inducing_point_method=AutoAllocator(),
 ):
     return HadamardSemiPModel(
-        lb=lb,
-        ub=ub,
+        dim=2,
         stim_dim=stim_dim,
         likelihood=BernoulliObjectiveLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method=AutoAllocator(
-            bounds=torch.stack((torch.tensor(lb), torch.tensor(ub)))
-        ),
+        inducing_point_method=inducing_point_method,
         max_fit_time=0.5,
     )
 
 
 def _semip_model_constructor(
-    lb,
-    ub,
     stim_dim,
     floor,
     objective=FloorLogitObjective,
-    inducing_point_method=AutoAllocator,
+    inducing_point_method=AutoAllocator(),
 ):
     return SemiParametricGPModel(
-        lb=lb,
-        ub=ub,
+        dim=2,
         stim_dim=stim_dim,
         likelihood=LinearBernoulliLikelihood(objective=objective(floor=floor)),
         inducing_size=10,
-        inducing_point_method=AutoAllocator(
-            bounds=torch.stack((torch.tensor(lb), torch.tensor(ub)))
-        ),
+        inducing_point_method=inducing_point_method,
     )
 
 
@@ -100,9 +91,12 @@ class SemiPSmokeTests(unittest.TestCase):
         self.f = torch.Tensor(slope * (intercept + xintensity)).unsqueeze(-1)
         X[:, 0] = X[:, 0] * 100
         X[:, 1] = X[:, 1] / 100
-        self.lb = [-100, -0.01]
-        self.ub = [100, 0.01]
+        self.lb = torch.tensor([-100.0, -0.01])
+        self.ub = torch.tensor([100.0, 0.01])
         self.X = torch.Tensor(X)
+        self.inducing_size = 10
+        bounds = torch.stack([torch.tensor(self.lb), torch.tensor(self.ub)])
+        self.inducing_point_method = AutoAllocator(bounds=bounds)
 
     @parameterized.expand(
         [(SemiPThresholdObjective(target=0.75),), (SemiPProbabilityObjective(),)]
@@ -111,8 +105,7 @@ class SemiPSmokeTests(unittest.TestCase):
         # no objective here, the objective for `gen` is not the same as the objective
         # for the likelihood in this case
         model = SemiParametricGPModel(
-            lb=self.lb,
-            ub=self.ub,
+            dim=2,
             stim_dim=self.stim_dim,
             likelihood=LinearBernoulliLikelihood(),
             inducing_size=10,
@@ -125,6 +118,8 @@ class SemiPSmokeTests(unittest.TestCase):
             acqf=MCPosteriorVariance,
             acqf_kwargs={"objective": objective},
             max_gen_time=0.1,
+            lb=self.lb,
+            ub=self.ub,
         )
 
         y = torch.bernoulli(model.likelihood.objective(self.f))
@@ -144,11 +139,12 @@ class SemiPSmokeTests(unittest.TestCase):
         floor = 0
         objective = FloorProbitObjective
         model = _semip_model_constructor(
-            lb=self.lb,
-            ub=self.ub,
             stim_dim=self.stim_dim,
             floor=floor,
             objective=objective,
+            inducing_point_method=AutoAllocator(
+                bounds=torch.stack((torch.tensor(self.lb), torch.tensor(self.ub)))
+            ),
         )
 
         generator = OptimizeAcqfGenerator(
@@ -157,8 +153,11 @@ class SemiPSmokeTests(unittest.TestCase):
                 "posterior_transform": semi_p_posterior_transform,
                 "target": 0.75,
                 "query_set_size": 100,
+                "Xq": make_scaled_sobol(self.lb, self.ub, 100),
             },
             max_gen_time=0.2,
+            lb=self.lb,
+            ub=self.ub,
         )
         link = objective(floor=floor)
         y = torch.bernoulli(link(self.f))
@@ -193,8 +192,7 @@ class SemiPSmokeTests(unittest.TestCase):
             y = torch.bernoulli(link(self.f))
 
             model = model_constructor(
-                lb=self.lb,
-                ub=self.ub,
+                inducing_point_method=self.inducing_point_method,
                 stim_dim=self.stim_dim,
                 floor=floor,
                 objective=objective,
@@ -215,11 +213,18 @@ class SemiPSmokeTests(unittest.TestCase):
     @parameterized.expand([(_semip_model_constructor,), (_hadamard_model_constructor,)])
     def test_prediction_shapes(self, model_constructor):
         n_opt = 1
-        lb = [-1, -1]
-        ub = [1, 1]
+        lb = torch.tensor([-1.0, -1.0])
+        ub = torch.tensor([1.0, 1.0])
+        inducing_size = 10
+        bounds = torch.stack([torch.tensor(lb), torch.tensor(ub)])
+        inducing_point_method = AutoAllocator(bounds=bounds)
 
         with self.subTest(model_constructor=model_constructor):
-            model = model_constructor(lb=lb, ub=ub, stim_dim=self.stim_dim, floor=0)
+            model = model_constructor(
+                stim_dim=self.stim_dim,
+                floor=0,
+                inducing_point_method=inducing_point_method,
+            )
 
             strat_list = [
                 Strategy(
@@ -276,18 +281,17 @@ class SemiPSmokeTests(unittest.TestCase):
 
     @parameterized.expand([(_semip_model_constructor,), (_hadamard_model_constructor,)])
     def test_reset_variational_strategy(self, model_constructor):
-        lb = [-3, -3]
-        ub = [3, 3]
+        lb = torch.tensor([-3.0, -3.0])
+        ub = torch.tensor([3.0, 3.0])
+        inducing_size = 10
+        bounds = torch.stack([lb, ub])
+
         stim_dim = 0
         with self.subTest(model_constructor=model_constructor):
             model = model_constructor(
-                lb=lb,
-                ub=ub,
                 stim_dim=stim_dim,
                 floor=0,
-                inducing_point_method=AutoAllocator(
-                    bounds=torch.stack((torch.tensor(lb), torch.tensor(ub)))
-                ),
+                inducing_point_method=AutoAllocator(bounds=bounds),
             )
             link = FloorLogitObjective(floor=0)
             y = torch.bernoulli(link(self.f))
@@ -326,11 +330,10 @@ class SemiPSmokeTests(unittest.TestCase):
     def test_slope_mean_setting(self):
         for slope_mean in (2, 4):
             model = SemiParametricGPModel(
-                lb=self.lb,
-                ub=self.ub,
+                dim=2,
                 stim_dim=self.stim_dim,
                 likelihood=LinearBernoulliLikelihood(),
-                inducing_size=10,
+                inducing_size=self.inducing_size,
                 slope_mean=slope_mean,
                 inducing_point_method=AutoAllocator(
                     bounds=torch.stack((torch.tensor(self.lb), torch.tensor(self.ub)))
@@ -339,11 +342,10 @@ class SemiPSmokeTests(unittest.TestCase):
             with self.subTest(model=model, slope_mean=slope_mean):
                 self.assertEqual(model.mean_module.constant[-1], slope_mean)
             model = HadamardSemiPModel(
-                lb=self.lb,
-                ub=self.ub,
+                dim=2,
                 stim_dim=self.stim_dim,
                 likelihood=BernoulliObjectiveLikelihood(objective=ProbitObjective()),
-                inducing_size=10,
+                inducing_size=self.inducing_size,
                 slope_mean=slope_mean,
                 inducing_point_method=AutoAllocator(
                     bounds=torch.stack((torch.tensor(self.lb), torch.tensor(self.ub)))
@@ -365,8 +367,7 @@ class HadamardSemiPtest(unittest.TestCase):
 
     def test_reset_hyperparams(self):
         model = HadamardSemiPModel(
-            lb=[-3, -3],
-            ub=[3, 3],
+            dim=2,
             inducing_size=20,
             inducing_point_method=AutoAllocator(
                 bounds=torch.stack((torch.tensor([-3, -3]), torch.tensor([3, 3])))

@@ -11,7 +11,6 @@ import warnings
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import gpytorch
-import numpy as np
 import torch
 from aepsych.acquisition.rejection_sampler import RejectionSampler
 from aepsych.config import Config
@@ -21,7 +20,7 @@ from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
 from botorch.models.utils.inducing_point_allocators import (
     GreedyVarianceReduction,
@@ -172,7 +171,6 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             inducing_size=self.inducing_size,
             covar_module=self.covar_module,
             X=self.train_inputs[0],
-            bounds=self.bounds,
         )
         self._set_model(train_x, train_y)
 
@@ -356,7 +354,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
-        dim = config.getint(classname, "dim", fallback=None)
+        dim = get_dims(config)
 
         mean_covar_factory = config.getobj(
             classname, "mean_covar_factory", fallback=monotonic_mean_covar_factory

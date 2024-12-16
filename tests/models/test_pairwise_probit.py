@@ -93,8 +93,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         np.random.seed(seed)
         n_init = 20
         n_opt = 1
-        lb = [-4.0, 1e-5]
-        ub = [-1e-5, 4.0]
+        lb = torch.tensor([-4.0, 1e-5])
+        ub = torch.tensor([-1e-5, 4.0])
         extra_acqf_args = {"beta": 3.84}
         model_list = [
             Strategy(
@@ -113,6 +113,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                     acqf=qUpperConfidenceBound,
                     acqf_kwargs=extra_acqf_args,
                     stimuli_per_trial=2,
+                    lb=lb,
+                    ub=ub,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -218,6 +220,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
             acqf_kwargs=extra_acqf_args,
             stimuli_per_trial=2,
             transforms=transforms,
+            lb=lb,
+            ub=ub,
         )
         probit_model = ParameterTransformedModel(
             model=PairwiseProbitModel, lb=lb, ub=ub, transforms=transforms
@@ -264,8 +268,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         np.random.seed(seed)
         n_init = 50
         n_opt = 1
-        lb = -2.0
-        ub = 2.0
+        lb = torch.tensor([-2.0])
+        ub = torch.tensor([2.0])
 
         acqf = PairwiseMCPosteriorVariance
         extra_acqf_args = {"objective": ProbitObjective()}
@@ -284,7 +288,11 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
-                    acqf=acqf, acqf_kwargs=extra_acqf_args, stimuli_per_trial=2
+                    acqf=acqf,
+                    acqf_kwargs=extra_acqf_args,
+                    stimuli_per_trial=2,
+                    lb=lb,
+                    ub=ub,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -328,8 +336,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         np.random.seed(seed)
         n_init = 20
         n_opt = 1
-        lb = np.r_[-1, -1]
-        ub = np.r_[1, 1]
+        lb = torch.tensor([-1.0, -1.0])
+        ub = torch.tensor([1.0, 1.0])
         extra_acqf_args = {"beta": 3.84}
 
         model_list = [
@@ -349,6 +357,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                     acqf=qUpperConfidenceBound,
                     acqf_kwargs=extra_acqf_args,
                     stimuli_per_trial=2,
+                    lb=lb,
+                    ub=ub,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -377,8 +387,8 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         np.random.seed(seed)
         n_init = 20
         n_opt = 1
-        lb = np.r_[-1, -1]
-        ub = np.r_[1, 1]
+        lb = torch.tensor([-1.0, -1.0])
+        ub = torch.tensor([1.0, 1.0])
         acqf = PairwiseMCPosteriorVariance
         extra_acqf_args = {"objective": ProbitObjective()}
 
@@ -396,7 +406,11 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ub=ub,
                 model=PairwiseProbitModel(lb=lb, ub=ub),
                 generator=OptimizeAcqfGenerator(
-                    acqf=acqf, acqf_kwargs=extra_acqf_args, stimuli_per_trial=2
+                    acqf=acqf,
+                    acqf_kwargs=extra_acqf_args,
+                    stimuli_per_trial=2,
+                    lb=lb,
+                    ub=ub,
                 ),
                 min_asks=n_opt,
                 stimuli_per_trial=2,
@@ -454,7 +468,11 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
         m1 = PairwiseProbitModel(lb=[1, 2], ub=[3, 4])
 
         m2 = PairwiseProbitModel.from_config(
-            config=Config(config_dict={"common": {"lb": "[1,2]", "ub": "[3,4]"}})
+            config=Config(
+                config_dict={
+                    "common": {"lb": "[1,2]", "ub": "[3,4]", "parnames": "[par1, par2]"}
+                }
+            )
         )
 
         self.assertTrue(isinstance(m1.covar_module, type(m2.covar_module)))
