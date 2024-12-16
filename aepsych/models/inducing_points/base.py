@@ -9,57 +9,30 @@ from botorch.models.utils.inducing_point_allocators import InducingPointAllocato
 class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
     """Base class for inducing point allocators."""
 
-    def __init__(self, bounds: Optional[torch.Tensor] = None) -> None:
+    def __init__(self, dim: int, *args, **kwargs) -> None:
         """
         Initialize the allocator with optional bounds.
 
         Args:
-            bounds (torch.Tensor, optional): Bounds for allocating points. Should be of shape (2, d).
+            dim (int): Dimensionality of the search space.
+            *args, **kwargs: Other allocator specific arguments.
         """
-        self.bounds = bounds
-        self.dim = self._initialize_dim()
-
-    def _initialize_dim(self) -> Optional[int]:
-        """
-        Initialize the dimension `dim` based on the bounds, if available.
-
-        Returns:
-            int: The dimension `d` if bounds are provided, or None otherwise.
-        """
-        if self.bounds is not None:
-            # Validate bounds and extract dimension
-            assert self.bounds.shape[0] == 2, "Bounds must have shape (2, d)!"
-            lb, ub = self.bounds[0], self.bounds[1]
-            self.lb, self.ub = lb, ub
-            for i, (l, u) in enumerate(zip(lb, ub)):
-                assert (
-                    l <= u
-                ), f"Lower bound {l} is not less than or equal to upper bound {u} on dimension {i}!"
-            return self.bounds.shape[1]  # Number of dimensions (d)
-        return None
-
-    def _determine_dim_from_inputs(self, inputs: torch.Tensor) -> int:
-        """
-        Determine dimension `dim` from the inputs tensor.
-
-        Args:
-            inputs (torch.Tensor): Input tensor of shape (..., d).
-
-        Returns:
-            int: The inferred dimension `d`.
-        """
-        return inputs.shape[-1]
+        self.dim = dim
+        self.last_allocator_used: Optional[InducingPointAllocator] = None
 
     @abstractmethod
     def allocate_inducing_points(
         self,
-        inputs: Optional[torch.Tensor],
-        covar_module: Optional[torch.nn.Module],
-        num_inducing: int,
-        input_batch_shape: torch.Size,
+        inputs: Optional[torch.Tensor] = None,
+        covar_module: Optional[torch.nn.Module] = None,
+        num_inducing: int = 100,
+        input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:
         """
-        Abstract method for allocating inducing points.
+        Abstract method for allocating inducing points. Must replace the
+        last_allocator_used attribute for what was actually used to produce the
+        inducing points. Dummy points should be made when it is not possible to create
+        inducing points (e.g., inputs is None).
 
         Args:
             inputs (torch.Tensor, optional): Input tensor, implementation-specific.
@@ -70,56 +43,18 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
         Returns:
             torch.Tensor: Allocated inducing points.
         """
-        if self.dim is None and inputs is not None:
-            self.dim = self._determine_dim_from_inputs(inputs)
 
-        raise NotImplementedError("This method should be implemented by subclasses.")
-
-    @abstractmethod
-    def _get_quality_function(self) -> Optional[Any]:
-        """
-        Abstract method for returning a quality function if required.
-
-        Returns:
-            None or Callable: Quality function if needed.
-        """
-        raise NotImplementedError("This method should be implemented by subclasses.")
-
-
-class DummyAllocator(BaseAllocator):
-    def __init__(self, bounds: torch.Tensor) -> None:
-        """Initialize the DummyAllocator with bounds.
+    def _allocate_dummy_points(self, num_inducing: int = 100) -> torch.Tensor:
+        """Return dummy inducing points with the correct dimensionality.
 
         Args:
-            bounds (torch.Tensor): Bounds for allocating points. Should be of shape (2, d).
+            num_inducing (int): Number of inducing points to make, defaults to 100.
         """
-        super().__init__(bounds=bounds)
-        self.bounds: torch.Tensor = bounds
+        self.last_allocator_used = None
+        return torch.zeros(num_inducing, self.dim)
 
-    def _get_quality_function(self) -> None:
-        """DummyAllocator does not require a quality function, so this returns None."""
-        return None
-
-    def allocate_inducing_points(
-        self,
-        inputs: Optional[torch.Tensor] = None,
-        covar_module: Optional[torch.nn.Module] = None,
-        num_inducing: int = 10,
-        input_batch_shape: torch.Size = torch.Size([]),
-    ) -> torch.Tensor:
-        """Allocate inducing points by returning zeros of the appropriate shape.
-
-        Args:
-            inputs (torch.Tensor): Input tensor, not required for DummyAllocator.
-            covar_module (torch.nn.Module, optional): Kernel covariance module; included for API compatibility, but not used here.
-            num_inducing (int, optional): The number of inducing points to generate. Defaults to 10.
-            input_batch_shape (torch.Size, optional): Batch shape, defaults to an empty size; included for API compatibility, but not used here.
-
-        Returns:
-            torch.Tensor: A (num_inducing, d)-dimensional tensor of zeros.
-        """
-        self.allocator_used = self.__class__.__name__
-        return torch.zeros(num_inducing, self.bounds.shape[-1])
+    def _get_quality_function(self):
+        return super()._get_quality_function()
 
     @classmethod
     def get_config_options(
@@ -128,19 +63,20 @@ class DummyAllocator(BaseAllocator):
         name: Optional[str] = None,
         options: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Get configuration options for the DummyAllocator.
+        """Get configuration options for the allocator.
 
         Args:
             config (Config): Configuration object.
-            name (str, optional): Name of the allocator, defaults to None.
+            name (str, optional): Name of the allocator, defaults to None. Ignored.
             options (Dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
             Dict[str, Any]: Configuration options for the DummyAllocator.
         """
-        if name is None:
-            name = cls.__name__
-        lb = config.gettensor("common", "lb")
-        ub = config.gettensor("common", "ub")
-        bounds = torch.stack((lb, ub))
-        return {"bounds": bounds}
+        if options is None:
+            options = {}
+
+        if "dim" not in options:
+            options["dim"] = len(config.getlist("common", "parnames", element_type=str))
+
+        return options

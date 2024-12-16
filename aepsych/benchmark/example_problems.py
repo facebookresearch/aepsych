@@ -110,7 +110,7 @@ class ContrastSensitivity6d(LSEProblemWithEdgeLogging):
         self.m = GPClassificationModel(
             dim=6,
             inducing_size=inducing_size,
-            inducing_point_method=KMeansAllocator(bounds=self.bounds),
+            inducing_point_method=KMeansAllocator(dim=6),
         )
 
         self.m.fit(

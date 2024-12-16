@@ -112,7 +112,7 @@ def select_inducing_points(
                 allocator = "kmeans++"
 
         if allocator == "pivoted_chol":
-            inducing_point_allocator = GreedyVarianceReduction()
+            inducing_point_allocator = GreedyVarianceReduction(dim=X.shape[1])
             inducing_points = inducing_point_allocator.allocate_inducing_points(
                 inputs=X,
                 covar_module=covar_module,

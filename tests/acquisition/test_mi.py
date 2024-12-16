@@ -38,7 +38,6 @@ class SingleProbitMI(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         acqf = MonotonicBernoulliMCMutualInformation
         acqf_kwargs = {"objective": ProbitObjective()}
@@ -59,7 +58,7 @@ class SingleProbitMI(unittest.TestCase):
                     lb=lb,
                     ub=ub,
                     monotonic_idxs=[0],
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                     num_induc=inducing_size,
                 ),
                 generator=MonotonicRejectionGenerator(
@@ -96,7 +95,6 @@ class SingleProbitMI(unittest.TestCase):
         lb = torch.tensor([-4.0])
         ub = torch.tensor([4.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         acqf = BernoulliMCMutualInformation
         extra_acqf_args = {"objective": ProbitObjective()}
@@ -115,7 +113,7 @@ class SingleProbitMI(unittest.TestCase):
                 ub=ub,
                 model=GPClassificationModel(
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(bounds=bounds),
+                    inducing_point_method=AutoAllocator(dim=1),
                     dim=1,
                 ),
                 generator=OptimizeAcqfGenerator(
@@ -150,14 +148,13 @@ class SingleProbitMI(unittest.TestCase):
         lb = torch.tensor([0.0])
         ub = torch.tensor([1.0])
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
             mean_module=mean,
             covar_module=covar,
-            inducing_point_method=AutoAllocator(bounds=bounds),
+            inducing_point_method=AutoAllocator(dim=1),
         )
         x = torch.rand(size=(10, 1))
         acqf = BernoulliMCMutualInformation(model=model, objective=ProbitObjective())
