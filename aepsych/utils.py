@@ -429,5 +429,5 @@ def get_dims(config: Config) -> int:
         ]
         return len(valid_pars)
     except KeyError:
-        # Likely old style of parameter definition, fallback to looking at parnames
-        return len(config.getlist("common", "parnames", element_type=str))
+        # Likely old style of parameter definition, fallback to looking at a bound
+        return len(config.getlist("common", "lb", element_type=float))

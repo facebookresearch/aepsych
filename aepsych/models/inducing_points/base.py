@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional
 
 import torch
 from aepsych.config import Config, ConfigurableMixin
+from aepsych.utils import get_dims
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 
 
@@ -77,6 +78,6 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
             options = {}
 
         if "dim" not in options:
-            options["dim"] = len(config.getlist("common", "parnames", element_type=str))
+            options["dim"] = get_dims(config)
 
         return options
