@@ -31,10 +31,18 @@ class GreedyVarianceReduction(BaseGreedyVarianceReduction, BaseAllocator):
             return self._allocate_dummy_points(num_inducing=num_inducing)
         else:
             self.last_allocator_used = self.__class__
-            return BaseGreedyVarianceReduction.allocate_inducing_points(
+
+            points = BaseGreedyVarianceReduction.allocate_inducing_points(
                 self,
                 inputs=inputs,
                 covar_module=covar_module,
                 num_inducing=num_inducing,
                 input_batch_shape=input_batch_shape,
             )
+
+            if points.shape[1] != self.dim:
+                # We assume if the shape doesn't match the dim, it's because the points
+                # were augmented by adding it to be end of the shape
+                points = points[:, : self.dim, ...]
+
+            return points
