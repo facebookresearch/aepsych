@@ -20,7 +20,6 @@ from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_points.auto import AutoAllocator
-from aepsych.models.utils import select_inducing_points
 from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
