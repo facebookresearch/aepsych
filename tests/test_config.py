@@ -27,7 +27,7 @@ from aepsych.models import (
     MonotonicRejectionGP,
     PairwiseProbitModel,
 )
-from aepsych.models.inducing_point_allocators import SobolAllocator
+from aepsych.models.inducing_points import SobolAllocator
 from aepsych.server import AEPsychServer
 from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.strategy import SequentialStrategy, Strategy

@@ -21,8 +21,7 @@ from aepsych.benchmark import (
     Problem,
 )
 from aepsych.models import GPClassificationModel
-
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_points import AutoAllocator
 
 torch.set_num_threads(1)
 torch.set_num_interop_threads(1)

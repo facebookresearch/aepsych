@@ -14,8 +14,7 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel, PairwiseProbitModel
-
-from aepsych.models.inducing_point_allocators import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_points import AutoAllocator
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 
