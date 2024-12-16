@@ -26,6 +26,15 @@ stimuli_per_trial = 1
 outcome_types = [binary]
 strategy_names = [init_strat, opt_strat]
 
+[metadata]
+experiment_name = test experiment
+experiment_description = dummy experiment to test the server
+experiment_id = e1
+participant_id = 101
+extra = data that is arbitrary
+array = [100, 1000]
+date = Nov 26, 2024
+
 [init_strat]
 min_asks = 2
 generator = SobolGenerator
@@ -96,13 +105,13 @@ class ServerTestCase(BaseServerTestCase):
             self.s.handle_request(ask_request)
             self.s.handle_request(tell_request)
 
-        exp_id = self.s.db.get_master_records()[-1].experiment_id
-        stored_strat = self.s.get_strat_from_replay(exp_id)
+        unique_id = self.s.db.get_master_records()[-1].unique_id
+        stored_strat = self.s.get_strat_from_replay(unique_id)
         # just some spot checks that the strat's the same
         # same data. We do this twice to make sure buffers are
         # in a good state and we can load twice without crashing
         for _ in range(2):
-            stored_strat = self.s.get_strat_from_replay(exp_id)
+            stored_strat = self.s.get_strat_from_replay(unique_id)
             self.assertTrue((stored_strat.x == self.s.strat.x).all())
             self.assertTrue((stored_strat.y == self.s.strat.y).all())
             # same lengthscale and outputscale
@@ -138,8 +147,8 @@ class ServerTestCase(BaseServerTestCase):
             i = i + 1
             self.s.handle_request(tell_request)
 
-        exp_id = self.s.db.get_master_records()[-1].experiment_id
-        out_df = self.s.get_dataframe_from_replay(exp_id)
+        unique_id = self.s.db.get_master_records()[-1].unique_id
+        out_df = self.s.get_dataframe_from_replay(unique_id)
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
         self.assertTrue((out_df.response == expected_y).all())
@@ -175,8 +184,8 @@ class ServerTestCase(BaseServerTestCase):
             i = i + 1
             self.s.handle_request(tell_request)
 
-        exp_id = self.s.db.get_master_records()[-1].experiment_id
-        out_df = self.s.get_dataframe_from_replay(exp_id)
+        unique_id = self.s.db.get_master_records()[-1].unique_id
+        out_df = self.s.get_dataframe_from_replay(unique_id)
 
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
@@ -217,8 +226,8 @@ class ServerTestCase(BaseServerTestCase):
             i = i + 1
             self.s.handle_request(tell_request)
 
-        exp_id = self.s.db.get_master_records()[-1].experiment_id
-        out_df = self.s.get_dataframe_from_replay(exp_id)
+        unique_id = self.s.db.get_master_records()[-1].unique_id
+        out_df = self.s.get_dataframe_from_replay(unique_id)
         self.assertTrue((out_df.x == expected_x).all())
         self.assertTrue((out_df.z == expected_z).all())
         self.assertTrue((out_df.response == expected_y).all())
@@ -284,7 +293,7 @@ class ServerTestCase(BaseServerTestCase):
 
             [manual_strat]
             generator = ManualGenerator
-            
+
             [ManualGenerator]
             points = [[0.5], [0.2]]
 
@@ -315,7 +324,7 @@ class ServerTestCase(BaseServerTestCase):
 
         socket = server.sockets.PySocket(port=0)
         serv = server.AEPsychServer(socket=socket, database_path=self.db_path)
-        exp_ids = [rec.experiment_id for rec in serv.db.get_master_records()]
+        exp_ids = [rec.unique_id for rec in serv.db.get_master_records()]
 
         serv.replay(exp_ids[-1], skip_computations=True)
         strat = serv._strats[-1]
@@ -345,7 +354,7 @@ class ServerTestCase(BaseServerTestCase):
             par_type = integer
             lower_bound = 0
             upper_bound = 100
-            
+
             [init_strat]
             min_asks = 2
             generator = SobolGenerator
@@ -376,6 +385,35 @@ class ServerTestCase(BaseServerTestCase):
 
         self.assertTrue(len(self.s.strat.lb) == 2)
         self.assertTrue(len(self.s.strat.ub) == 2)
+
+    def test_metadata(self):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+        tell_request = {
+            "type": "tell",
+            "message": {"config": {"x": [0.5]}, "outcome": 1},
+        }
+        self.s.handle_request(setup_request)
+        while not self.s.strat.finished:
+            self.s.handle_request(ask_request)
+            self.s.handle_request(tell_request)
+
+        master_record = self.s.db.get_master_records()[-1]
+        extra_metadata = json.loads(master_record.extra_metadata)
+
+        self.assertTrue(master_record.experiment_name == "test experiment")
+        self.assertTrue(
+            master_record.experiment_description
+            == "dummy experiment to test the server"
+        )
+        self.assertTrue(master_record.experiment_id == "e1")
+        self.assertTrue(master_record.participant_id == "101")
+        self.assertTrue(extra_metadata["extra"] == "data that is arbitrary")
+        self.assertTrue("experiment_id" not in extra_metadata)
 
 
 if __name__ == "__main__":
