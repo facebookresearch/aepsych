@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Mapping, Optional, Tuple, Union
+from typing import List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -162,8 +162,77 @@ def get_extremum(
     return best_val, best_point.squeeze(0)
 
 
+def get_min(
+    model: ModelProtocol,
+    bounds: torch.Tensor,
+    locked_dims: Optional[Mapping[int, float]] = None,
+    probability_space: bool = False,
+    n_samples: int = 1000,
+    max_time: Optional[float] = None,
+) -> Tuple[float, torch.Tensor]:
+    """Return the minimum of the modeled function, subject to constraints
+    Args:
+        model (ModelProtocol): AEPsychModel to get the minimum of.
+        bounds (torch.Tensor): Bounds of the space to find the minimum.
+        locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
+            inverse is along a slice of the full surface.
+        probability_space (bool): Is y (and therefore the returned nearest_y) in
+            probability space instead of latent function space? Defaults to False.
+        n_samples (int): number of coarse grid points to sample for optimization estimate.
+        max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
+
+    Returns:
+        Tuple[float, torch.Tensor]: Tuple containing the min and its location (argmin).
+    """
+    _, _arg = get_extremum(
+        model, "min", bounds, locked_dims, n_samples, max_time=max_time
+    )
+    arg = torch.tensor(_arg.reshape(1, bounds.shape[1]))
+    if probability_space:
+        val, _ = model.predict_probability(arg)
+    else:
+        val, _ = model.predict(arg)
+
+    return float(val.item()), arg
+
+
+def get_max(
+    model: ModelProtocol,
+    bounds: torch.Tensor,
+    locked_dims: Optional[Mapping[int, float]] = None,
+    probability_space: bool = False,
+    n_samples: int = 1000,
+    max_time: Optional[float] = None,
+) -> Tuple[float, torch.Tensor]:
+    """Return the maximum of the modeled function, subject to constraints
+
+    Args:
+        model (ModelProtocol): AEPsychModel to get the maximum of.
+        bounds (torch.Tensor): Bounds of the space to find the maximum.
+        locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
+            inverse is along a slice of the full surface. Defaults to None.
+        probability_space (bool): Is y (and therefore the returned nearest_y) in
+            probability space instead of latent function space? Defaults to False.
+        n_samples (int): number of coarse grid points to sample for optimization estimate.
+        max_time (float, optional): Maximum time to spend optimizing. Defaults to None.
+
+    Returns:
+        Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).
+    """
+    _, _arg = get_extremum(
+        model, "max", bounds, locked_dims, n_samples, max_time=max_time
+    )
+    arg = torch.tensor(_arg.reshape(1, bounds.shape[1]))
+    if probability_space:
+        val, _ = model.predict_probability(arg)
+    else:
+        val, _ = model.predict(arg)
+
+    return float(val.item()), arg
+
+
 def inv_query(
-    model: Model,
+    model: ModelProtocol,
     y: Union[float, torch.Tensor],
     bounds: torch.Tensor,
     locked_dims: Optional[Mapping[int, float]] = None,
@@ -176,9 +245,10 @@ def inv_query(
     Return nearest x such that f(x) = queried y, and also return the
         value of f at that point.
     Args:
+        model (ModelProtocol): AEPsychModel to get the find the inverse from y.
         y (Union[float, torch.Tensor]): Points at which to find the inverse.
         bounds (torch.Tensor): Lower and upper bounds of the search space.
-        locked_dims (Mapping[int, List[float]], optional): Dimensions to fix, so that the
+        locked_dims (Mapping[int, float], optional): Dimensions to fix, so that the
             inverse is along a slice of the full surface. Defaults to None.
         probability_space (bool): Is y (and therefore the
             returned nearest_y) in probability space instead of latent
@@ -191,9 +261,9 @@ def inv_query(
             nearest to queried y and the x position of this value.
     """
     locked_dims = locked_dims or {}
-    if model.num_outputs > 1:
+    if model._num_outputs > 1:
         if weights is None:
-            weights = torch.Tensor([1] * model.num_outputs)
+            weights = torch.Tensor([1] * model._num_outputs)
     if probability_space:
         warnings.warn(
             "Inverse querying with probability_space=True assumes that the model uses Probit-Bernoulli likelihood!"
@@ -201,7 +271,7 @@ def inv_query(
         posterior_transform = TargetProbabilityDistancePosteriorTransform(y, weights)
     else:
         posterior_transform = TargetDistancePosteriorTransform(y, weights)
-    val, arg = get_extremum(
+    _, _arg = get_extremum(
         model,
         "min",
         bounds,
@@ -211,7 +281,14 @@ def inv_query(
         max_time,
         weights,
     )
-    return val, arg
+
+    arg = torch.tensor(_arg.reshape(1, bounds.shape[1]))
+    if probability_space:
+        val, _ = model.predict_probability(arg)
+    else:
+        val, _ = model.predict(arg)
+
+    return float(val.item()), arg
 
 
 def get_jnd(

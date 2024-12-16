@@ -28,6 +28,7 @@ from aepsych.transforms import (
     ParameterTransforms,
 )
 from aepsych.transforms.ops import NormalizeScale
+from aepsych.utils import dim_grid
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 from scipy.stats import bernoulli, norm, pearsonr
@@ -138,7 +139,7 @@ class PairwiseProbitModelStrategyTest(unittest.TestCase):
                 ),
             )
 
-        xgrid = strat.model.dim_grid(gridsize=10)
+        xgrid = dim_grid(lb, ub, gridsize=10)
 
         zhat, _ = strat.predict(xgrid)
         # true max is 0, very loose test
