@@ -142,10 +142,40 @@ class TestSequenceGenerators(unittest.TestCase):
             self.strat.finished
         )  # not enough difference between posterior min/max
 
-        for _ in range(50):
-            self.strat.gen()
-            self.strat.add_data(np.r_[0.0, 0.0], [0])
-        self.assertTrue(self.strat.finished)
+    def test_min_post_range(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        lb = [0]
+        ub = [1]
+
+        self.strat = Strategy(
+            model=GPClassificationModel(
+                lb=lb,
+                ub=ub,
+                inducing_point_method=AutoAllocator(
+                    bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)])
+                ),
+            ),
+            generator=SobolGenerator(lb=lb, ub=ub),
+            min_asks=10,
+            lb=lb,
+            ub=ub,
+            stimuli_per_trial=1,
+            outcome_types=["binary"],
+            min_post_range=0.3,
+        )
+
+        loops = 0
+        while not self.strat.finished:
+            points = self.strat.gen(1)
+            response = int(np.random.rand() < points)
+            self.strat.add_data(points, torch.tensor([response]))
+            loops += 1
+
+            if loops > 50:
+                self.fail("min_post_range didn't finish even after 50 loops.")
+                break
 
     def test_max_asks(self):
         self.strat.max_asks = 50
