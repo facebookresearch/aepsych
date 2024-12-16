@@ -49,27 +49,26 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     def __init__(
         self,
-        inducing_point_method: InducingPointAllocator,
         dim: int,
+        inducing_point_method: InducingPointAllocator,
+        inducing_size: int = 99,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
-        inducing_points: Optional[torch.Tensor] = None,
     ) -> None:
         """Initialize the GP Classification model
 
         Args:
-            inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
             dim (int): The number of dimensions in the parameter space.
+            inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
+            inducing_size (int): Number of inducing points. Defaults to 99.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 Bernouli likelihood.
-            inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
@@ -77,8 +76,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         """
         self.dim = dim
         self.max_fit_time = max_fit_time
-        if inducing_size is None:
-            inducing_size = 99
         self.inducing_size = inducing_size
 
         self.optimizer_options = (
@@ -109,14 +106,13 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             covar_module=covar_module or default_covar,
         )
 
-        self.inducing_points = inducing_points
         variational_distribution = CholeskyVariationalDistribution(
-            self.inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        ).to(self.inducing_points)
+            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
+        ).to(inducing_points)
 
         variational_strategy = VariationalStrategy(
             self,
-            self.inducing_points,
+            inducing_points,
             variational_distribution,
             learn_inducing_locations=False,
         )
@@ -144,7 +140,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=99)
 
         dim = config.getint(classname, "dim", fallback=None)
         if dim is None:
@@ -345,26 +341,26 @@ class GPBetaRegressionModel(GPClassificationModel):
 
     def __init__(
         self,
-        inducing_point_method: InducingPointAllocator,
         dim: int,
+        inducing_point_method: InducingPointAllocator,
+        inducing_size: int = 99,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
-        inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the GP Beta Regression model
 
         Args:
-            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
             dim (int): The number of dimensions in the parameter space.
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
+            inducing_size (int, optional): Number of inducing points. Defaults to 99.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 Beta likelihood.
-            inducing_size (int, optional): Number of inducing points. Defaults to 100.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time. Defaults to None.
         """
