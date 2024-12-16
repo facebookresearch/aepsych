@@ -10,8 +10,6 @@ import unittest
 
 import torch
 
-from aepsych.models.inducing_point_allocators import AutoAllocator
-
 # run on single threads to keep us from deadlocking weirdly in CI
 if "CI" in os.environ or "SANDCASTLE" in os.environ:
     torch.set_num_threads(1)
@@ -24,6 +22,7 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
+from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransformedModel, ParameterTransforms
 from aepsych.transforms.ops import NormalizeScale

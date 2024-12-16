@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 import warnings
-
 from copy import deepcopy
 from typing import Any, Dict, Optional, Tuple
 
@@ -20,7 +19,7 @@ from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_point_allocators import AutoAllocator
+from aepsych.models.inducing_points.auto import AutoAllocator
 from aepsych.models.utils import select_inducing_points
 from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger

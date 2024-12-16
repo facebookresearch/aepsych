@@ -7,14 +7,13 @@
 from __future__ import annotations
 
 import warnings
-from typing import List, Mapping, Optional, Tuple, Union
+from typing import Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-
 from aepsych.models.base import ModelProtocol
-from aepsych.models.inducing_point_allocators import GreedyVarianceReduction
-from aepsych.utils import _process_bounds, dim_grid, get_jnd_multid
+from aepsych.models.inducing_points import GreedyVarianceReduction
+from aepsych.utils import dim_grid, get_jnd_multid
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,
