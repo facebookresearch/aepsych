@@ -50,7 +50,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         self,
         dim: int,
         inducing_point_method: InducingPointAllocator,
-        inducing_size: int = 99,
+        inducing_size: int = 100,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
@@ -62,7 +62,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         Args:
             dim (int): The number of dimensions in the parameter space.
             inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
-            inducing_size (int): Number of inducing points. Defaults to 99.
+            inducing_size (int): Number of inducing points. Defaults to 100.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
@@ -138,7 +138,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=99)
+        inducing_size = config.getint(classname, "inducing_size", fallback=100)
 
         dim = config.getint(classname, "dim", fallback=None)
         if dim is None:
@@ -340,7 +340,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         self,
         dim: int,
         inducing_point_method: InducingPointAllocator,
-        inducing_size: int = 99,
+        inducing_size: int = 100,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
@@ -352,7 +352,7 @@ class GPBetaRegressionModel(GPClassificationModel):
         Args:
             dim (int): The number of dimensions in the parameter space.
             inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
-            inducing_size (int, optional): Number of inducing points. Defaults to 99.
+            inducing_size (int, optional): Number of inducing points. Defaults to 100.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.

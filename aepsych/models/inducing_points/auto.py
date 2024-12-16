@@ -2,12 +2,14 @@ from typing import Optional
 
 import torch
 from aepsych.models.inducing_points.base import BaseAllocator
-from aepsych.models.inducing_points.kmeans import KMeansAllocator
+from aepsych.models.inducing_points.greedy_variance_reduction import (
+    GreedyVarianceReduction,
+)
 
 
 class AutoAllocator(BaseAllocator):
-    """An inducing point allocator that dynamically chooses an allocation strategy
-    based on the number of unique data points available."""
+    """An inducing point allocator that theoretically picks the best allocator method
+    based on the given data/model."""
 
     def allocate_inducing_points(
         self,
@@ -17,7 +19,7 @@ class AutoAllocator(BaseAllocator):
         input_batch_shape: torch.Size = torch.Size([]),
     ) -> torch.Tensor:
         """Generates `num_inducing` inducing points smartly based on the inputs.
-        Currently, this is just a wrapper for the KMeansAllocator
+        Currently, this is just a wrapper for the greedy variance allocator
 
         Args:
             inputs (torch.Tensor): A tensor of shape (n, d) containing the input data.
@@ -28,8 +30,8 @@ class AutoAllocator(BaseAllocator):
         Returns:
             torch.Tensor: A (num_inducing, d)-dimensional tensor of inducing points selected via k-means++.
         """
-        # Auto allocator actually just wraps the Kmeans allocator
-        allocator = KMeansAllocator(dim=self.dim)
+        # Auto allocator actually just wraps the greedy variance allocator
+        allocator = GreedyVarianceReduction(dim=self.dim)
 
         points = allocator.allocate_inducing_points(
             inputs=inputs,

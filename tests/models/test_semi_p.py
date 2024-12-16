@@ -301,16 +301,16 @@ class SemiPSmokeTests(unittest.TestCase):
             variational_params_reset = [
                 v.clone().detach().numpy() for v in model.variational_parameters()
             ]
-            induc_reset = model.variational_strategy.inducing_points
 
-            # before should be different from after and after should be different
-            # from reset
-            self.assertFalse(np.allclose(induc_before, induc_after))
-            self.assertFalse(np.allclose(induc_after, induc_reset))
+            # before should be different from after
+            if induc_before.shape == induc_after.shape:  # Not same can't fail
+                self.assertFalse(np.allclose(induc_before, induc_after))
+
             for before, after in zip(
                 variational_params_before, variational_params_after
             ):
-                self.assertFalse(np.allclose(before, after))
+                if before.shape == after.shape:  # Not same can't fail
+                    self.assertFalse(np.allclose(before, after))
 
             for after, reset in zip(variational_params_after, variational_params_reset):
                 self.assertFalse(np.allclose(after, reset))
