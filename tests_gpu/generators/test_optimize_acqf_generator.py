@@ -57,7 +57,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=GreedyVarianceReduction(bounds=bounds),
+            inducing_point_method=GreedyVarianceReduction(dim=1),
         )
 
         generator = OptimizeAcqfGenerator(

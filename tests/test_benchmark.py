@@ -75,7 +75,7 @@ class MultipleLSETestCase(unittest.TestCase):
 
         self.model = GPClassificationModel(
             dim=2,
-            inducing_point_method=AutoAllocator(bounds=self.test_problem.bounds),
+            inducing_point_method=AutoAllocator(dim=2),
         )
 
     def unvectorized_p_below_threshold(self, x, f_thresh) -> torch.Tensor:

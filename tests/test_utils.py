@@ -34,9 +34,7 @@ class UtilsTestCase(unittest.TestCase):
         gridsize = 10
         mb = GPClassificationModel(
             dim=1,
-            inducing_point_method=AutoAllocator(
-                bounds=torch.stack([torch.tensor([lb]), torch.tensor([ub])])
-            ),
+            inducing_point_method=AutoAllocator(dim=1),
         )
         grid = dim_grid(
             lower=torch.tensor([lb]), upper=torch.tensor([ub]), gridsize=gridsize

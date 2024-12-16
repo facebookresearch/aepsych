@@ -38,9 +38,7 @@ class TestStrategyGPU(unittest.TestCase):
                 min_asks=1,
                 model=GPClassificationModel(
                     dim=1,
-                    inducing_point_method=AutoAllocator(
-                        bounds=torch.stack([torch.tensor([0]), torch.tensor([1])])
-                    ),
+                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(acqf=MonotonicMCLSE, lb=[0], ub=[1]),
                 use_gpu_generating=True,

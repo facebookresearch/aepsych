@@ -62,7 +62,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
         num_induc: int = 25,
         num_samples: int = 250,
         num_rejection_samples: int = 5000,
-        inducing_point_method: InducingPointAllocator = AutoAllocator(),
+        inducing_point_method: Optional[InducingPointAllocator] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize MonotonicRejectionGP.
@@ -83,7 +83,8 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             num_samples (int): Number of samples for estimating posterior on preDict or
             acquisition function evaluation. Defaults to 250.
             num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096.
-            inducing_point_method (InducingPointAllocator): Method for selecting inducing points. Defaults to AutoAllocator().
+            inducing_point_method (InducingPointAllocator, optional): Method for selecting inducing points. If not set,
+                an AutoAllocator is created.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
@@ -92,10 +93,15 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             likelihood = BernoulliLikelihood()
 
         self.inducing_size = num_induc
-        self.inducing_point_method = inducing_point_method
+        self.inducing_point_method = inducing_point_method or AutoAllocator(
+            dim=self.dim
+        )
 
+        # TODO: This allocator *must* be SobolAllocator and not the set one. This
+        # suggests that this model doesn't actually properly use data for inducing
+        # points properly.
         inducing_points = select_inducing_points(
-            allocator=SobolAllocator(bounds=torch.stack((self.lb, self.ub))),
+            allocator=SobolAllocator(bounds=torch.stack([lb, ub]), dim=self.dim),
             inducing_size=self.inducing_size,
         )
 
