@@ -270,7 +270,6 @@ class ConfigTestCase(unittest.TestCase):
         min_asks = 1
         model = MonotonicRejectionGP
         acqf = MonotonicMCLSE
-        inducing_point_method=AutoAllocator
 
         """
 
@@ -920,7 +919,6 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPRegressionModel
-            inducing_point_method = AutoAllocator
             """
         config3 = Config()
         config3.update(config_str=config_str3)

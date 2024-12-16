@@ -22,7 +22,6 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransformedModel, ParameterTransforms
 from aepsych.transforms.ops import NormalizeScale
@@ -124,7 +123,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(dim=1),
         )
 
         model.fit(X[:50], y[:50])
@@ -162,7 +160,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(dim=1),
         )
 
         model.fit(
@@ -230,7 +227,6 @@ class GPClassificationSmoketest(unittest.TestCase):
             model=GPClassificationModel,
             inducing_size=inducing_size,
             transforms=transforms,
-            inducing_point_method=AutoAllocator(dim=2),
             dim=2,
         )
         model.fit(X[:50], y[:50])
@@ -262,7 +258,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=20,
-            inducing_point_method=AutoAllocator(dim=1),
         )
 
         ls_before = model.covar_module.lengthscale.clone().detach().numpy()
@@ -284,7 +279,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=20,
-            inducing_point_method=AutoAllocator(dim=1),
         )
 
         variational_params_before = [
@@ -331,7 +325,6 @@ class GPClassificationSmoketest(unittest.TestCase):
         model = GPClassificationModel(
             dim=1,
             inducing_size=inducing_size,
-            inducing_point_method=AutoAllocator(dim=1),
         )
         model.fit(X, y)
 
@@ -372,7 +365,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -423,7 +415,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -473,7 +464,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -522,7 +512,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -576,7 +565,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=2,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=2),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -633,7 +621,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -689,7 +676,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -751,7 +737,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 min_asks=n_opt,
                 generator=OptimizeAcqfGenerator(
@@ -801,7 +786,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=2,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=2),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -849,7 +833,6 @@ class GPClassificationTest(unittest.TestCase):
                 model=GPClassificationModel(
                     dim=1,
                     inducing_size=inducing_size,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     acqf=qUpperConfidenceBound, acqf_kwargs={"beta": 1.96}, lb=lb, ub=ub
@@ -873,7 +856,6 @@ class GPClassificationTest(unittest.TestCase):
         # verify that creating the model `from_config` or with `__init__` has the same hyperparams
         m1 = GPClassificationModel(
             dim=2,
-            inducing_point_method=AutoAllocator(dim=2),
             inducing_size=2,
         )
 

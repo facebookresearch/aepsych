@@ -14,7 +14,6 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel, PairwiseProbitModel
-from aepsych.models.inducing_points import AutoAllocator
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 
@@ -42,7 +41,6 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         model = GPClassificationModel(
             dim=8,
             max_fit_time=0.5,
-            inducing_point_method=AutoAllocator(dim=8),
             inducing_size=inducing_size,
         )
 

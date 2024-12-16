@@ -17,7 +17,6 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.generators import MonotonicRejectionGenerator
 from aepsych.models import MonotonicRejectionGP
-from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import Strategy
 from botorch.acquisition.objective import IdentityMCObjective
 from botorch.utils.testing import BotorchTestCase
@@ -43,7 +42,6 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
-            inducing_point_method=AutoAllocator(dim=2),
         )
         strat = Strategy(
             lb=lb,
@@ -90,7 +88,6 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
         lb = torch.tensor([0.0, 0.0])
         ub = torch.tensor([4.0, 4.0])
         inducing_size = 2
-        bounds = torch.stack([lb, ub])
 
         m = MonotonicRejectionGP(
             lb=lb,
@@ -101,7 +98,6 @@ class MonotonicRejectionGPLSETest(BotorchTestCase):
             num_induc=inducing_size,
             num_samples=3,
             num_rejection_samples=4,
-            inducing_point_method=AutoAllocator(dim=2),
         )
         strat = Strategy(
             lb=lb,

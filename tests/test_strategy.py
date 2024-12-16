@@ -18,7 +18,6 @@ from aepsych.generators import (
     SobolGenerator,
 )
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_points import AutoAllocator, SobolAllocator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import (
@@ -49,7 +48,6 @@ class TestSequenceGenerators(unittest.TestCase):
                 lb=lb,
                 ub=ub,
                 transforms=transforms,
-                inducing_point_method=AutoAllocator(dim=2),
                 monotonic_idxs=[1],
             ),
             generator=ParameterTransformedGenerator(
@@ -151,7 +149,6 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat = Strategy(
             model=GPClassificationModel(
                 dim=1,
-                inducing_point_method=AutoAllocator(dim=1),
             ),
             generator=SobolGenerator(lb=lb, ub=ub),
             min_asks=10,
@@ -194,9 +191,6 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat = Strategy(
             model=GPClassificationModel(
                 dim=2,
-                inducing_point_method=SobolAllocator(
-                    bounds=torch.stack([torch.tensor(lb), torch.tensor(ub)]), dim=2
-                ),
             ),
             generator=SobolGenerator(lb=lb, ub=ub),
             min_asks=50,
@@ -225,9 +219,6 @@ class TestSequenceGenerators(unittest.TestCase):
             self.strat = Strategy(
                 model=GPClassificationModel(
                     dim=2,
-                    inducing_point_method=SobolAllocator(
-                        dim=2, bounds=torch.stack([lb, ub])
-                    ),
                 ),
                 generator=SobolGenerator(lb=lb, ub=ub),
                 lb=lb,
@@ -400,7 +391,6 @@ class TestStrategyGPU(unittest.TestCase):
                 outcome_types=["binary"],
                 model=GPClassificationModel(
                     dim=1,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=SobolGenerator(lb=[0], ub=[1]),
                 use_gpu_modeling=True,
@@ -418,7 +408,6 @@ class TestStrategyGPU(unittest.TestCase):
                 outcome_types=["binary"],
                 model=GPClassificationModel(
                     dim=1,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(
                     lb=[0], ub=[1], acqf=MCLevelSetEstimation

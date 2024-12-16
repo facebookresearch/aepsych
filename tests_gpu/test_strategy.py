@@ -11,7 +11,6 @@ import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.inducing_points import AutoAllocator
 from aepsych.strategy import Strategy
 
 
@@ -38,7 +37,6 @@ class TestStrategyGPU(unittest.TestCase):
                 min_asks=1,
                 model=GPClassificationModel(
                     dim=1,
-                    inducing_point_method=AutoAllocator(dim=1),
                 ),
                 generator=OptimizeAcqfGenerator(acqf=MonotonicMCLSE, lb=[0], ub=[1]),
                 use_gpu_generating=True,

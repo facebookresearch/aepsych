@@ -18,10 +18,10 @@ from aepsych.factory.monotonic import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.inducing_points import AutoAllocator, SobolAllocator
+from aepsych.models.inducing_points import GreedyVarianceReduction, SobolAllocator
+from aepsych.models.inducing_points.base import InducingPointAllocator
 from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
-from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.kernels import Kernel
 from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import Mean
@@ -83,7 +83,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             acquisition function evaluation. Defaults to 250.
             num_rejection_samples (int): Number of samples used for rejection sampling. Defaults to 4096.
             inducing_point_method (InducingPointAllocator, optional): Method for selecting inducing points. If not set,
-                an AutoAllocator is created.
+                a GreedyVarianceReduction is created.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
@@ -92,7 +92,7 @@ class MonotonicRejectionGP(AEPsychMixin, ApproximateGP):
             likelihood = BernoulliLikelihood()
 
         self.inducing_size = num_induc
-        self.inducing_point_method = inducing_point_method or AutoAllocator(
+        self.inducing_point_method = inducing_point_method or GreedyVarianceReduction(
             dim=self.dim
         )
 
