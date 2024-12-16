@@ -253,22 +253,23 @@ class SemiParametricGPModel(GPClassificationModel):
 
     def __init__(
         self,
-        inducing_point_method: InducingPointAllocator,
         dim: int,
+        inducing_point_method: InducingPointAllocator,
+        inducing_size: int = 99,
         stim_dim: int = 0,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Any] = None,
         slope_mean: float = 2,
-        inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Initialize SemiParametricGP.
         Args:
-            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
             dim (int, optional): The number of dimensions in the parameter space.
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
+            inducing_size (int): Number of inducing points. Defaults to 99.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
@@ -276,7 +277,6 @@ class SemiParametricGPModel(GPClassificationModel):
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
                 linear-Bernouli likelihood with probit link.
             slope_mean (float): The mean of the slope. Defaults to 2.
-            inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
@@ -338,7 +338,7 @@ class SemiParametricGPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=99)
 
         dim = config.getint(classname, "dim", fallback=None)
 
@@ -513,8 +513,9 @@ class HadamardSemiPModel(GPClassificationModel):
 
     def __init__(
         self,
-        inducing_point_method: InducingPointAllocator,
         dim: int,
+        inducing_point_method: InducingPointAllocator,
+        inducing_size: int = 99,
         stim_dim: int = 0,
         slope_mean_module: Optional[gpytorch.means.Mean] = None,
         slope_covar_module: Optional[gpytorch.kernels.Kernel] = None,
@@ -522,15 +523,15 @@ class HadamardSemiPModel(GPClassificationModel):
         offset_covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
         slope_mean: float = 2,
-        inducing_size: Optional[int] = None,
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Initialize HadamardSemiPModel.
         Args:
-            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
             dim (int): The number of dimensions in the parameter space.
+            inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
+            inducing_size (int): Number of inducing points. Defaults to 99.
             stim_dim (int): Index of the intensity (monotonic) dimension. Defaults to 0.
             slope_mean_module (gpytorch.means.Mean, optional): Mean module to use (default: constant mean) for slope.
             slope_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for slope.
@@ -538,7 +539,6 @@ class HadamardSemiPModel(GPClassificationModel):
             offset_covar_module (gpytorch.kernels.Kernel, optional): Covariance kernel to use (default: scaled RBF) for offset.
             likelihood (gpytorch.likelihood.Likelihood, optional)): defaults to bernoulli with logistic input and a floor of .5
             slope_mean (float): The mean of the slope. Defaults to 2.
-            inducing_size (int, optional): Number of inducing points. Defaults to 99.
             max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
                 there is no limit to the fitting time.
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
@@ -643,7 +643,7 @@ class HadamardSemiPModel(GPClassificationModel):
         """
 
         classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=None)
+        inducing_size = config.getint(classname, "inducing_size", fallback=99)
 
         dim = config.getint(classname, "dim", fallback=None)
         if dim is None:
