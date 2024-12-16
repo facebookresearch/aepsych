@@ -33,14 +33,14 @@ class UtilsTestCase(unittest.TestCase):
         dim = 1
         gridsize = 10
         mb = GPClassificationModel(
-            lb=lb,
-            ub=ub,
-            dim=dim,
+            dim=1,
             inducing_point_method=AutoAllocator(
                 bounds=torch.stack([torch.tensor([lb]), torch.tensor([ub])])
             ),
         )
-        grid = GPClassificationModel.dim_grid(mb, gridsize=gridsize)
+        grid = dim_grid(
+            lower=torch.tensor([lb]), upper=torch.tensor([ub]), gridsize=gridsize
+        )
         self.assertEqual(grid.shape, torch.Size([10, 1]))
 
     def test_dim_grid_slice(self):

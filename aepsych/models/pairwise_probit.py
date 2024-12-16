@@ -12,7 +12,7 @@ import torch
 from aepsych.config import Config
 from aepsych.factory import default_mean_covar_factory
 from aepsych.models.base import AEPsychMixin
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll
 from botorch.models import PairwiseGP, PairwiseLaplaceMarginalLogLikelihood
@@ -292,7 +292,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
-        dim = lb.shape[0]
+        dim = get_dims(config)
 
         max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
 

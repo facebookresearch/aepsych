@@ -16,7 +16,7 @@ from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.inducing_point_allocators import AutoAllocator
-from aepsych.utils import get_optimizer_options
+from aepsych.utils import get_dims, get_optimizer_options
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from botorch.posteriors.gpytorch import GPyTorchPosterior
 from gpytorch.likelihoods import Likelihood
@@ -97,11 +97,11 @@ class MonotonicProjectionGP(GPClassificationModel):
         self,
         lb: torch.Tensor,
         ub: torch.Tensor,
+        dim: int,
         inducing_point_method: InducingPointAllocator,
         monotonic_dims: List[int],
         monotonic_grid_size: int = 20,
         min_f_val: Optional[float] = None,
-        dim: Optional[int] = None,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
@@ -109,18 +109,17 @@ class MonotonicProjectionGP(GPClassificationModel):
         max_fit_time: Optional[float] = None,
         optimizer_options: Optional[Dict[str, Any]] = None,
     ) -> None:
-        """Initialize the MonotonicProjectionGP model.
+        """Initialize the MonotonicProjectionGP model. Unlike other models, this model needs bounds.
 
         Args:
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
+            dim (int, optional): The number of dimensions in the parameter space.
             inducing_point_method (InducingPointAllocator): The method for allocating inducing points.
             monotonic_dims (List[int]): A list of the dimensions on which monotonicity should
                 be enforced.
             monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.
             min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub. Defaults to None.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior. Defaults to None.
@@ -135,9 +134,10 @@ class MonotonicProjectionGP(GPClassificationModel):
         self.mon_grid_size = monotonic_grid_size
         self.min_f_val = min_f_val
         self.inducing_point_method = inducing_point_method
+        self.lb = lb
+        self.ub = ub
+
         super().__init__(
-            lb=lb,
-            ub=ub,
             dim=dim,
             mean_module=mean_module,
             covar_module=covar_module,
@@ -238,6 +238,9 @@ class MonotonicProjectionGP(GPClassificationModel):
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
+
+        if dim is None:
+            dim = get_dims(config)
 
         mean_covar_factory = config.getobj(
             classname, "mean_covar_factory", fallback=default_mean_covar_factory

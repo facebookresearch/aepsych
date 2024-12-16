@@ -16,14 +16,9 @@ import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
-from aepsych.models.inducing_point_allocators import (
-    AutoAllocator,
-    DummyAllocator,
-    KMeansAllocator,
-    SobolAllocator,
-)
+from aepsych.models.inducing_point_allocators import AutoAllocator
 from aepsych.models.utils import select_inducing_points
-from aepsych.utils import _process_bounds, get_optimizer_options, promote_0d
+from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.models.utils.inducing_point_allocators import InducingPointAllocator
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
@@ -55,10 +50,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
         inducing_point_method: InducingPointAllocator,
-        dim: Optional[int] = None,
+        dim: int,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
@@ -70,11 +63,8 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         """Initialize the GP Classification model
 
         Args:
-            lb (torch.Tensor): Lower bounds of the parameters.
-            ub (torch.Tensor): Upper bounds of the parameters.
             inducing_point_method (InducingPointAllocator): The method to use for selecting inducing points.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub.
+            dim (int): The number of dimensions in the parameter space.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
@@ -86,9 +76,11 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
-        lb, ub, self.dim = _process_bounds(lb, ub, dim)
+        self.dim = dim
         self.max_fit_time = max_fit_time
-        self.inducing_size = inducing_size or 99
+        if inducing_size is None:
+            inducing_size = 99
+        self.inducing_size = inducing_size
 
         self.optimizer_options = (
             {"options": optimizer_options} if optimizer_options else {"options": {}}
@@ -121,20 +113,17 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         self.inducing_points = inducing_points
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        ).to(inducing_points)
+            self.inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
+        ).to(self.inducing_points)
 
         variational_strategy = VariationalStrategy(
             self,
-            inducing_points,
+            self.inducing_points,
             variational_distribution,
             learn_inducing_locations=False,
         )
         super().__init__(variational_strategy)
 
-        # Tensors need to be directly registered, Modules themselves can be assigned as attr
-        self.register_buffer("lb", lb)
-        self.register_buffer("ub", ub)
         self.likelihood = likelihood
         self.mean_module = mean_module or default_mean
         self.covar_module = covar_module or default_covar
@@ -159,9 +148,9 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         classname = cls.__name__
         inducing_size = config.getint(classname, "inducing_size", fallback=None)
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
         dim = config.getint(classname, "dim", fallback=None)
+        if dim is None:
+            dim = get_dims(config)
 
         mean_covar_factory = config.getobj(
             classname, "mean_covar_factory", fallback=default_mean_covar_factory
@@ -192,8 +181,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         optimizer_options = get_optimizer_options(config, classname)
 
         return cls(
-            lb=lb,
-            ub=ub,
             dim=dim,
             inducing_size=inducing_size,
             mean_module=mean,
@@ -225,7 +212,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
                 inducing_size=self.inducing_size,
                 covar_module=self.covar_module,
                 X=self.train_inputs[0],
-                bounds=self.bounds,
             ).to(device)
             self.last_inducing_points_method = self.inducing_point_method.allocator_used
             variational_distribution = CholeskyVariationalDistribution(
@@ -363,10 +349,8 @@ class GPBetaRegressionModel(GPClassificationModel):
 
     def __init__(
         self,
-        lb: torch.Tensor,
-        ub: torch.Tensor,
         inducing_point_method: InducingPointAllocator,
-        dim: Optional[int] = None,
+        dim: int,
         mean_module: Optional[gpytorch.means.Mean] = None,
         covar_module: Optional[gpytorch.kernels.Kernel] = None,
         likelihood: Optional[Likelihood] = None,
@@ -377,11 +361,8 @@ class GPBetaRegressionModel(GPClassificationModel):
         """Initialize the GP Beta Regression model
 
         Args:
-            lb (torch.Tensor): Lower bounds of the parameters.
-            ub (torch.Tensor): Upper bounds of the parameters.
             inducing_point_method (InducingPointAllocator): The method to use to select the inducing points.
-            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
-                of lb and ub. Defaults to None.
+            dim (int): The number of dimensions in the parameter space.
             mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
@@ -395,8 +376,6 @@ class GPBetaRegressionModel(GPClassificationModel):
             likelihood = BetaLikelihood()
         self.inducing_point_method = inducing_point_method
         super().__init__(
-            lb=lb,
-            ub=ub,
             dim=dim,
             mean_module=mean_module,
             covar_module=covar_module,

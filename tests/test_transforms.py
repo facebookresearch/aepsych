@@ -69,8 +69,8 @@ class TransformsConfigTest(unittest.TestCase):
 
         class_gen = ParameterTransformedGenerator(
             generator=SobolGenerator,
-            lb=torch.tensor([1, 1]),
-            ub=torch.tensor([100, 100]),
+            lb=torch.tensor([1.0, 1.0]),
+            ub=torch.tensor([100.0, 100.0]),
             seed=12345,
             transforms=self.strat.strat_list[0].transforms,
         )
@@ -89,21 +89,26 @@ class TransformsConfigTest(unittest.TestCase):
 
     def test_model_init_equivalent(self):
         config_model = self.strat.strat_list[1].model
+        config_generator = self.strat.strat_list[1].generator
 
         obj_model = ParameterTransformedModel(
             model=GPClassificationModel,
-            lb=torch.tensor([1, 1]),
-            ub=torch.tensor([100, 100]),
             inducing_point_method=AutoAllocator(
                 bounds=torch.stack((torch.tensor([1, 1]), torch.tensor([100, 100])))
             ),
             transforms=self.strat.strat_list[1].transforms,
+            dim=2,
+        )
+        obj_generator = ParameterTransformedGenerator(
+            generator=SobolGenerator,
+            lb=torch.tensor([1.0, 1.0]),
+            ub=torch.tensor([100.0, 100.0]),
+            transforms=self.strat.strat_list[1].transforms,
         )
 
         self.assertTrue(type(config_model._base_obj) is type(obj_model._base_obj))
-        self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
-        self.assertTrue(torch.equal(config_model.bounds, obj_model.bounds))
-
+        self.assertTrue(torch.equal(config_generator.lb, obj_generator.lb))
+        self.assertTrue(torch.equal(config_generator.ub, obj_generator.ub))
         self.assertEqual(
             len(config_model.transforms.values()), len(obj_model.transforms.values())
         )
@@ -209,8 +214,8 @@ class TransformsConfigTest(unittest.TestCase):
 
 class TransformsLog10Test(unittest.TestCase):
     def test_transform_reshape3D(self):
-        lb = torch.tensor([-1, 0, 10])
-        ub = torch.tensor([-1e-6, 9, 99])
+        lb = torch.tensor([-1.0, 0.0, 10.0])
+        ub = torch.tensor([-1e-6, 9.0, 99.0])
         x = SobolGenerator(lb=lb, ub=ub, stimuli_per_trial=2).gen(4)
 
         transforms = ParameterTransforms(
@@ -583,6 +588,7 @@ class TransformsFixed(unittest.TestCase):
 
         self.assertTrue(len(strat.strat_list[0].generator.lb) == 2)
         self.assertTrue(len(strat.strat_list[0].generator.ub) == 2)
+        self.assertTrue(strat.strat_list[-1].model.dim == 2)
 
         bad_config_str = """
             [common]
