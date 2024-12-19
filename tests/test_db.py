@@ -42,7 +42,7 @@ class DBTestCase(unittest.TestCase):
             request={"test": "this is a test request"},
         )
 
-        result = self._database.get_replay_for(master_table.experiment_id)
+        result = self._database.get_replay_for(master_table.unique_id)
 
         self.assertNotEqual(None, result)
         self.assertEqual(len(result), 1)
@@ -52,43 +52,9 @@ class DBTestCase(unittest.TestCase):
             request={"test": "this is a follow on request"},
         )
 
-        result = self._database.get_replay_for(master_table.experiment_id)
+        result = self._database.get_replay_for(master_table.unique_id)
         self.assertNotEqual(None, result)
         self.assertEqual(len(result), 2)
-
-    def test_record_setup_doublesetup_goodid(self):
-        master_table = self._database.record_setup(
-            description="test description",
-            name="test name",
-            request={"test": "this is a test request"},
-        )
-        self.assertIsNotNone(master_table)
-        self.assertEqual(len(master_table.children_replay), 1)
-        master_table = self._database.record_setup(
-            description="test description",
-            name="test name",
-            request={"test": "this is a test request"},
-            id=master_table.experiment_id,
-        )
-        self.assertIsNotNone(master_table)
-        self.assertEqual(len(master_table.children_replay), 2)
-
-    def test_record_setup_doublesetup_badid(self):
-        master_table = self._database.record_setup(
-            description="test description",
-            name="test name",
-            request={"test": "this is a test request"},
-        )
-        self.assertIsNotNone(master_table)
-        self.assertEqual(len(master_table.children_replay), 1)
-        self.assertRaises(
-            RuntimeError,
-            self._database.record_setup,
-            description="test description",
-            name="test name",
-            request={"test": "this is a test request"},
-            id=1,
-        )
 
     def test_record_setup_master_children(self):
         master_table = self._database.record_setup(
@@ -117,7 +83,7 @@ class DBTestCase(unittest.TestCase):
             request={"test": "this is a test request", "extra_info": extra_info_record},
         )
 
-        new_master = self._database.get_master_record(master_table.experiment_id)
+        new_master = self._database.get_master_record(master_table.unique_id)
         self.assertEqual(new_master.children_replay[0].extra_info, extra_info_setup)
         self.assertEqual(new_master.children_replay[1].extra_info, extra_info_record)
 
@@ -315,8 +281,8 @@ class DBTestCase(unittest.TestCase):
         )
         # record a strat
         self._database.record_strat(master_table, strat=test_strat)
-        experiment_id = master_table.experiment_id
-        strat = self._database.get_strat_for(experiment_id)
+        unique_id = master_table.unique_id
+        strat = self._database.get_strat_for(unique_id)
         self.assertEqual(test_strat, strat)
 
     def test_config_table(self):
@@ -329,9 +295,9 @@ class DBTestCase(unittest.TestCase):
         # record a strat
         self._database.record_config(master_table, config=test_config)
 
-        experiment_id = master_table.experiment_id
+        unique_id = master_table.unique_id
 
-        config = self._database.get_config_for(experiment_id)
+        config = self._database.get_config_for(unique_id)
 
         self.assertEqual(test_config, config)
 
@@ -344,8 +310,8 @@ class DBTestCase(unittest.TestCase):
         )
         # Record a raw data entry
         self._database.record_raw(master_table, model_data=model_data)
-        experiment_id = master_table.experiment_id
-        raw_data = self._database.get_raw_for(experiment_id)
+        unique_id = master_table.unique_id
+        raw_data = self._database.get_raw_for(unique_id)
         self.assertEqual(len(raw_data), 1)
         self.assertEqual(raw_data[0].model_data, model_data)
 
@@ -360,9 +326,8 @@ class DBTestCase(unittest.TestCase):
         raw_table = self._database.record_raw(master_table, model_data=True)
         # Record a param data entry
         self._database.record_param(raw_table, param_name, param_value)
-        experiment_id = master_table.experiment_id
         iteration_id = raw_table.unique_id
-        param_data = self._database.get_param_for(experiment_id, iteration_id)
+        param_data = self._database.get_param_for(iteration_id)
         self.assertEqual(len(param_data), 1)
         self.assertEqual(param_data[0].param_name, param_name)
         self.assertEqual(float(param_data[0].param_value), param_value)
@@ -378,9 +343,8 @@ class DBTestCase(unittest.TestCase):
         raw_table = self._database.record_raw(master_table, model_data=True)
         # Record an outcome data entry
         self._database.record_outcome(raw_table, outcome_name, outcome_value)
-        experiment_id = master_table.experiment_id
         iteration_id = raw_table.unique_id
-        outcome_data = self._database.get_outcome_for(experiment_id, iteration_id)
+        outcome_data = self._database.get_outcome_for(iteration_id)
         self.assertEqual(len(outcome_data), 1)
         self.assertEqual(outcome_data[0].outcome_name, outcome_name)
         self.assertEqual(outcome_data[0].outcome_value, outcome_value)
