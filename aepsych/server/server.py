@@ -373,7 +373,7 @@ class AEPsychServer(object):
 
 #! THIS IS WHAT START THE SERVER
 def startServerAndRun(
-    server_class, socket=None, database_path=None, config_path=None, uuid_of_replay=None
+    server_class, socket=None, database_path=None, config_path=None, id_of_replay=None
 ):
     server = server_class(socket=socket, database_path=database_path)
     try:
@@ -383,16 +383,16 @@ def startServerAndRun(
             configure(server, config_str=config_str)
 
         if socket is not None:
-            if uuid_of_replay is not None:
-                server.replay(uuid_of_replay, skip_computations=True)
-                server._db_master_record = server.db.get_master_record(uuid_of_replay)
+            if id_of_replay is not None:
+                server.replay(id_of_replay, skip_computations=True)
+                server._db_master_record = server.db.get_master_record(id_of_replay)
             server.serve()
         else:
             if config_path is not None:
                 logger.info(
                     "You have passed in a config path but this is a replay. If there's a config in the database it will be used instead of the passed in config path."
                 )
-            server.replay(uuid_of_replay)
+            server.replay(id_of_replay)
     except KeyboardInterrupt:
         exception_type = "CTRL+C"
         dump_type = "dump"
@@ -442,7 +442,7 @@ def parse_argument():
         default=None,
     )
     parser.add_argument(
-        "-r", "--replay", type=str, help="UUID of the experiment to replay."
+        "-r", "--replay", type=str, help="Unique id of the experiment to replay."
     )
 
     parser.add_argument(
