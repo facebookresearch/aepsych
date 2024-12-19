@@ -128,7 +128,7 @@ class Database:
             List[Any]: The results of the query.
         """
         with self.session_scope() as session:
-            return session.execute(query, vals).fetchall()
+            return session.execute(query, vals).all()
 
     def get_master_records(self) -> List[tables.DBMasterTable]:
         """Grab the list of master records.
