@@ -431,3 +431,9 @@ def get_dims(config: Config) -> int:
     except KeyError:
         # Likely old style of parameter definition, fallback to looking at a bound
         return len(config.getlist("common", "lb", element_type=float))
+
+def generate_default_outcome_names(count: int) -> List[str]:
+    if count == 1:
+        return ["outcome"]
+
+    return ["outcome_" + i for i in range(count)]
