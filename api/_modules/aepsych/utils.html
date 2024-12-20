@@ -186,13 +186,19 @@
     <span class="n">y1</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
     <span class="n">x_star</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">z</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">x_star</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x_star</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x_star</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x_star</span></div>
 
 
 <div class="viewcode-block" id="get_lse_interval"><a class="viewcode-back" href="../../utils.html#aepsych.utils.get_lse_interval">[docs]</a><span class="k">def</span> <span class="nf">get_lse_interval</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">GPyTorchModel</span><span class="p">,</span>
     <span class="n">mono_grid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">target_level</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">grid_lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">grid_ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">cred_level</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mono_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">n_samps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
@@ -207,11 +213,17 @@
 <span class="sd">        model (GPyTorchModel): Model to use for sampling.</span>
 <span class="sd">        mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.</span>
 <span class="sd">        target_level (float): Target level.</span>
+<span class="sd">        grid_lb (torch.Tensor): The lower bound of the grid to sample from to calculate</span>
+<span class="sd">            LSE.</span>
+<span class="sd">        grid_ub (torch.Tensor): The upper bound of the grid to sample from to calculate</span>
+<span class="sd">            LSE.</span>
 <span class="sd">        cred_level (float, optional): Credibility level. Defaults to None.</span>
 <span class="sd">        mono_dim (int): Monotonic dimension. Defaults to -1.</span>
 <span class="sd">        n_samps (int): Number of samples. Defaults to 500.</span>
-<span class="sd">        lb (float): Lower bound. Defaults to -float("inf").</span>
-<span class="sd">        ub (float): Upper bound. Defaults to float("inf").</span>
+<span class="sd">        lb (float): Theoreticaly true lower bound for the parameter. Defaults to</span>
+<span class="sd">            -float("inf").</span>
+<span class="sd">        ub (float): Theoretical true uppper bound for the parameters. Defaults to</span>
+<span class="sd">            float("inf").</span>
 <span class="sd">        gridsize (int): Grid size. Defaults to 30.</span>
 
 <span class="sd">    Returns:</span>
@@ -221,7 +233,7 @@
     <span class="n">xgrid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">lb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">model</span><span class="o">.</span><span class="n">ub</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">gridsize</span><span class="p">)</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">grid_lb</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">grid_ub</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">gridsize</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
             <span class="p">]</span>
         <span class="p">),</span>
