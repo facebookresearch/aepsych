@@ -6,6 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import unittest
+from inspect import signature
 
 import torch
 from aepsych.acquisition import (
@@ -51,8 +52,13 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
     def test_gpu_smoketest(self, acqf, acqf_kwargs):
         lb = torch.tensor([0.0])
         ub = torch.tensor([1.0])
-        bounds = torch.stack([lb, ub])
         inducing_size = 10
+
+        acqf_args_expected = list(signature(acqf).parameters.keys())
+        if "lb" in acqf_args_expected:
+            acqf_kwargs = acqf_kwargs.copy()
+            acqf_kwargs["lb"] = lb
+            acqf_kwargs["ub"] = ub
 
         model = GPClassificationModel(
             dim=1,

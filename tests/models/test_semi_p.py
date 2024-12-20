@@ -141,6 +141,8 @@ class SemiPSmokeTests(unittest.TestCase):
                 "target": 0.75,
                 "query_set_size": 100,
                 "Xq": make_scaled_sobol(self.lb, self.ub, 100),
+                "lb": self.lb,
+                "ub": self.ub,
             },
             max_gen_time=0.2,
             lb=self.lb,
