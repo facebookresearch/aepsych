@@ -123,7 +123,7 @@ def get_extremum(
         # Transform locked dims
         tmp = {}
         for key, value in locked_dims.items():
-            tensor = torch.zeros(len(bounds))
+            tensor = torch.zeros(model.dim)
             tensor[key] = value
             tensor = model.transforms.transform(tensor)
             tmp[key] = tensor[key].item()
