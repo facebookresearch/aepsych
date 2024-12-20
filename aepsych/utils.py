@@ -84,7 +84,7 @@ def dim_grid(
         if i in slice_dims.keys():
             mesh_vals.append(slice(slice_dims[i] - 1e-10, slice_dims[i] + 1e-10, 1))
         else:
-            mesh_vals.append(slice(lower[i].item(), upper[i].item(), gridsize * 1j))
+            mesh_vals.append(slice(lower[i].item(), upper[i].item(), gridsize * 1j))  # type: ignore
 
     return torch.Tensor(np.mgrid[mesh_vals].reshape(dim, -1).T)
 
