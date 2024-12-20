@@ -168,13 +168,19 @@ def interpolate_monotonic(
     y1 = y[idx]
 
     x_star = x0 + (x1 - x0) * (z - y0) / (y1 - y0)
-    return x_star.cpu().item()
+
+    if isinstance(x_star, torch.Tensor):
+        return x_star.cpu().item()
+    else:
+        return x_star
 
 
 def get_lse_interval(
     model: GPyTorchModel,
     mono_grid: Union[torch.Tensor, np.ndarray],
     target_level: float,
+    grid_lb: torch.Tensor,
+    grid_ub: torch.Tensor,
     cred_level: Optional[float] = None,
     mono_dim: int = -1,
     n_samps: int = 500,
@@ -189,11 +195,17 @@ def get_lse_interval(
         model (GPyTorchModel): Model to use for sampling.
         mono_grid (Union[torch.Tensor, np.ndarray]): Monotonic grid.
         target_level (float): Target level.
+        grid_lb (torch.Tensor): The lower bound of the grid to sample from to calculate
+            LSE.
+        grid_ub (torch.Tensor): The upper bound of the grid to sample from to calculate
+            LSE.
         cred_level (float, optional): Credibility level. Defaults to None.
         mono_dim (int): Monotonic dimension. Defaults to -1.
         n_samps (int): Number of samples. Defaults to 500.
-        lb (float): Lower bound. Defaults to -float("inf").
-        ub (float): Upper bound. Defaults to float("inf").
+        lb (float): Theoreticaly true lower bound for the parameter. Defaults to
+            -float("inf").
+        ub (float): Theoretical true uppper bound for the parameters. Defaults to
+            float("inf").
         gridsize (int): Grid size. Defaults to 30.
 
     Returns:
@@ -203,7 +215,7 @@ def get_lse_interval(
     xgrid = torch.stack(
         torch.meshgrid(
             [
-                torch.linspace(model.lb[i].item(), model.ub[i].item(), gridsize)
+                torch.linspace(grid_lb[i].item(), grid_ub[i].item(), gridsize)
                 for i in range(model.dim)
             ]
         ),
