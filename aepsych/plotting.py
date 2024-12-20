@@ -11,7 +11,7 @@ from typing import Any, Callable, Iterable, List, Optional, Sized, Union
 import matplotlib.pyplot as plt
 import numpy as np
 from aepsych.strategy import Strategy
-from aepsych.utils import get_lse_contour, get_lse_interval, make_scaled_sobol
+from aepsych.utils import dim_grid, get_lse_contour, get_lse_interval, make_scaled_sobol
 from matplotlib.axes import Axes
 from matplotlib.image import AxesImage
 from scipy.stats import norm
@@ -174,7 +174,7 @@ def _plot_strat_1d(
     assert x is not None and y is not None, "No data to plot!"
 
     if strat.model is not None:
-        grid = strat.model.dim_grid(gridsize=gridsize).cpu()
+        grid = dim_grid(lower=strat.lb, upper=strat.ub, gridsize=gridsize).cpu()
         samps = norm.cdf(strat.model.sample(grid, num_samples=10000).detach())
         phimean = samps.mean(0)
     else:
@@ -195,9 +195,6 @@ def _plot_strat_1d(
         )
     if target_level is not None:
         from aepsych.utils import interpolate_monotonic
-
-        lb = strat.transforms.untransform(strat.lb)[0]
-        ub = strat.transforms.untransform(strat.ub)[0]
 
         threshold_samps = [
             interpolate_monotonic(grid, s, target_level, strat.lb[0], strat.ub[0])
@@ -300,7 +297,7 @@ def _plot_strat_2d(
     if strat.model is not None:
         strat.model.fit(train_x=x, train_y=y, max_fit_time=None)
 
-        grid = strat.model.dim_grid(gridsize=gridsize)
+        grid = dim_grid(lower=strat.lb, upper=strat.ub, gridsize=gridsize).cpu()
         fmean, _ = strat.model.predict(grid)
         phimean = norm.cdf(fmean.reshape(gridsize, gridsize).detach().numpy()).T
     else:
@@ -341,6 +338,8 @@ def _plot_strat_2d(
             model=strat.model,
             mono_grid=mono_grid,
             target_level=target_level,
+            grid_lb=strat.lb,
+            grid_ub=strat.ub,
             cred_level=cred_level,
             mono_dim=1,
             lb=mono_grid.min(),
@@ -513,7 +512,12 @@ def plot_slice(
     """
     extent = np.c_[strat.lb, strat.ub].reshape(-1)
     if strat.model is not None:
-        x = strat.model.dim_grid(gridsize=gridsize, slice_dims={slice_dim: slice_val})
+        x = dim_grid(
+            lower=strat.lb,
+            upper=strat.ub,
+            gridsize=gridsize,
+            slice_dims={slice_dim: slice_val},
+        ).cpu()
     else:
         raise RuntimeError("Cannot plot without a model!")
     if lse:
