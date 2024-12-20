@@ -82,33 +82,26 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Returns:
             AcquisitionFunction: Configured acquisition function.
         """
-        if (
-            "lb" in inspect.signature(self.acqf).parameters
-            and "ub" in inspect.signature(self.acqf).parameters
-        ):
-            if self.acqf == AnalyticExpectedUtilityOfBestOption:
-                return self.acqf(pref_model=model, lb=self.lb, ub=self.ub)
-
-            self.lb = self.lb.to(model.device)
-            self.ub = self.ub.to(model.device)
-            if self.acqf in self.baseline_requiring_acqfs:
-                return self.acqf(
-                    model,
-                    model.train_inputs[0],
-                    lb=self.lb,
-                    ub=self.ub,
-                    **self.acqf_kwargs,
-                )
-
-            return self.acqf(model=model, lb=self.lb, ub=self.ub, **self.acqf_kwargs)
-
         if self.acqf == AnalyticExpectedUtilityOfBestOption:
             return self.acqf(pref_model=model)
 
+        if hasattr(model, "device"):
+            if "lb" in self.acqf_kwargs:
+                if not isinstance(self.acqf_kwargs["lb"], torch.Tensor):
+                    self.acqf_kwargs["lb"] = torch.tensor(self.acqf_kwargs["lb"])
+
+                self.acqf_kwargs["lb"] = self.acqf_kwargs["lb"].to(model.device)
+
+            if "ub" in self.acqf_kwargs:
+                if not isinstance(self.acqf_kwargs["ub"], torch.Tensor):
+                    self.acqf_kwargs["ub"] = torch.tensor(self.acqf_kwargs["ub"])
+
+                self.acqf_kwargs["ub"] = self.acqf_kwargs["ub"].to(model.device)
+
         if self.acqf in self.baseline_requiring_acqfs:
             return self.acqf(model, model.train_inputs[0], **self.acqf_kwargs)
-
-        return self.acqf(model=model, **self.acqf_kwargs)
+        else:
+            return self.acqf(model=model, **self.acqf_kwargs)
 
     def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
