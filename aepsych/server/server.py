@@ -61,7 +61,7 @@ class AEPsychServer(object):
         self.exit_server_loop = False
         self._db_master_record = None
         self._db_raw_record = None
-        self.db = db.Database(database_path)
+        self.db: db.Database = db.Database(database_path)
         self.skip_computations = False
         self.strat_names = None
 
