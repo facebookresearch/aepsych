@@ -29,7 +29,7 @@ DEV_REQUIRES = BENCHMARK_REQUIRES + [
     "flake8",
     "black",
     "sqlalchemy-stubs",  # for mypy stubs
-    "mypy",
+    "mypy==1.14.0",
     "parameterized",
     "scikit-learn",  # used in unit tests
 ]
