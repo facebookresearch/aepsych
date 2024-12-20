@@ -1,4 +1,9 @@
-# (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
+#!/usr/bin/env python3
+# Copyright (c) Meta, Inc. and its affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 from typing import List, Tuple, Union
 
