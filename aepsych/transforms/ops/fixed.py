@@ -126,6 +126,9 @@ class Fixed(Transform, StringParameterMixin, torch.nn.Module):
         if "values" not in options:
             value = config[name].get("value")
 
+            if value is None:
+                raise ValueError(f"Value option not found in {name} section.")
+
             try:
                 options["values"] = [float(value)]
             except ValueError:
