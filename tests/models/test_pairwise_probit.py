@@ -525,7 +525,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [init_strat]
             min_asks = {n_init}
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             model = PairwiseProbitModel
@@ -579,7 +579,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [init_strat]
             min_asks = {n_init}
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             min_asks = {n_opt}
@@ -635,7 +635,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [init_strat]
             min_asks = {n_init}
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             model = PairwiseProbitModel
@@ -700,12 +700,12 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [init_strat]
             min_asks = {n_init}
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             model = PairwiseProbitModel
             min_asks = {n_opt}
-            generator = PairwiseOptimizeAcqfGenerator
+            generator = OptimizeAcqfGenerator
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -713,7 +713,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
-            [PairwiseOptimizeAcqfGenerator]
+            [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
             """
@@ -760,7 +760,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [init_strat]
             min_asks = 1
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             model = PairwiseProbitModel
@@ -797,7 +797,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [init_strat]
             min_asks = 1
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             model = PairwiseProbitModel
@@ -833,7 +833,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [init_strat]
             min_asks = 1
-            generator = PairwiseSobolGenerator
+            generator = SobolGenerator
 
             [opt_strat]
             model = PairwiseProbitModel
