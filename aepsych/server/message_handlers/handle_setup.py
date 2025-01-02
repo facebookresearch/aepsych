@@ -13,8 +13,6 @@ from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
 logger = utils_logging.getLogger(logging.INFO)
-DEFAULT_DESC = "default description"
-DEFAULT_NAME = "default name"
 
 
 def _configure(server, config):
@@ -81,39 +79,39 @@ def handle_setup(server, request):
     ):
         tempconfig = Config(**request["message"])
         if not server.is_performing_replay:
-            experiment_id = None
-            if server._db_master_record is not None:
-                experiment_id = server._db_master_record.experiment_id
             if "metadata" in tempconfig.keys():
-                cdesc = (
-                    tempconfig["metadata"]["experiment_description"]
-                    if ("experiment_description" in tempconfig["metadata"].keys())
-                    else DEFAULT_DESC
+                # Get metadata
+                exp_name = tempconfig["metadata"].get("experiment_name", fallback=None)
+                exp_desc = tempconfig["metadata"].get(
+                    "experiment_description", fallback=None
                 )
-                cname = (
-                    tempconfig["metadata"]["experiment_name"]
-                    if ("experiment_name" in tempconfig["metadata"].keys())
-                    else DEFAULT_NAME
+                par_id = tempconfig["metadata"].get("participant_id", fallback=None)
+
+                # This may be populated when replaying
+                if server._db_master_record is not None:
+                    exp_id = server._db_master_record.experiment_id
+                else:
+                    exp_id = tempconfig["metadata"].get("experiment_id", fallback=None)
+
+                extra_metadata = tempconfig.jsonifyMetadata(only_extra=True)
+
+                server._db_master_record = server.db.record_setup(
+                    description=exp_desc,
+                    name=exp_name,
+                    request=request,
+                    exp_id=exp_id,
+                    par_id=par_id,
+                    extra_metadata=extra_metadata if extra_metadata != "" else None,
                 )
-                cid = (
-                    tempconfig["metadata"]["experiment_id"]
-                    if ("experiment_id" in tempconfig["metadata"].keys())
+            else:  # No metadata set, still record the master
+                exp_id = (
+                    server._db_master_record.experiment_id
+                    if server._db_master_record is not None
                     else None
                 )
+
                 server._db_master_record = server.db.record_setup(
-                    description=cdesc,
-                    name=cname,
-                    request=request,
-                    id=cid,
-                    extra_metadata=tempconfig.jsonifyMetadata(),
-                )
-            ### if the metadata does not exist, we are going to log nothing
-            else:
-                server._db_master_record = server.db.record_setup(
-                    description=DEFAULT_DESC,
-                    name=DEFAULT_NAME,
-                    request=request,
-                    id=experiment_id,
+                    request=request, exp_id=exp_id
                 )
 
         strat_id = configure(server, config=tempconfig)

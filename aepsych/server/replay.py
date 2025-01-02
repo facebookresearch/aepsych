@@ -17,11 +17,15 @@ logger = utils_logging.getLogger(logging.INFO)
 
 def replay(server, uuid_to_replay, skip_computations=False):
     """
-    Run a replay against the server. The UUID will be looked up in the database.
+    Run a replay against the server. The unique ID will be looked up in the database.
     if skip_computations is true, skip all the asks and queries, which should make the replay much faster.
     """
+    warnings.warn(
+        "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+        DeprecationWarning,
+    )
     if uuid_to_replay is None:
-        raise RuntimeError("UUID is a required parameter to perform a replay")
+        raise RuntimeError("unique ID is a required parameter to perform a replay")
 
     if server.db is None:
         raise RuntimeError("A database is required to perform a replay")
@@ -35,7 +39,7 @@ def replay(server, uuid_to_replay, skip_computations=False):
 
     if master_record is None:
         raise RuntimeError(
-            f"The UUID {uuid_to_replay} isn't in the database. Unable to perform replay."
+            f"The unique ID {uuid_to_replay} isn't in the database. Unable to perform replay."
         )
 
     # this prevents writing back to the DB and creating a circular firing squad
@@ -52,10 +56,14 @@ def replay(server, uuid_to_replay, skip_computations=False):
 
 
 def get_strats_from_replay(server, uuid_of_replay=None, force_replay=False):
+    warnings.warn(
+        "replay arg 'uuid_of_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+        DeprecationWarning,
+    )
     if uuid_of_replay is None:
         records = server.db.get_master_records()
         if len(records) > 0:
-            uuid_of_replay = records[-1].experiment_id
+            uuid_of_replay = records[-1].unique_id
         else:
             raise RuntimeError("Server has no experiment records!")
 
@@ -76,10 +84,14 @@ def get_strats_from_replay(server, uuid_of_replay=None, force_replay=False):
 
 
 def get_strat_from_replay(server, uuid_of_replay=None, strat_id=-1):
+    warnings.warn(
+        "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+        DeprecationWarning,
+    )
     if uuid_of_replay is None:
         records = server.db.get_master_records()
         if len(records) > 0:
-            uuid_of_replay = records[-1].experiment_id
+            uuid_of_replay = records[-1].unique_id
         else:
             raise RuntimeError("Server has no experiment records!")
 
@@ -105,6 +117,10 @@ def get_strat_from_replay(server, uuid_of_replay=None, strat_id=-1):
 
 def get_dataframe_from_replay(server, uuid_of_replay=None, force_replay=False):
     warnings.warn(
+        "replay arg 'uuid_to_replay` is not actually a uuid, just the unique ID in the DB of the specific run of an experiment. This argument will change soon.",
+        DeprecationWarning,
+    )
+    warnings.warn(
         "get_dataframe_from_replay is deprecated."
         + " Use generate_experiment_table with return_df = True instead.",
         DeprecationWarning,
@@ -114,7 +130,7 @@ def get_dataframe_from_replay(server, uuid_of_replay=None, force_replay=False):
     if uuid_of_replay is None:
         records = server.db.get_master_records()
         if len(records) > 0:
-            uuid_of_replay = records[-1].experiment_id
+            uuid_of_replay = records[-1].unique_id
         else:
             raise RuntimeError("Server has no experiment records!")
 

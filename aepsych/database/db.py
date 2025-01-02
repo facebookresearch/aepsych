@@ -9,6 +9,7 @@ import datetime
 import logging
 import os
 import uuid
+import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -138,18 +139,18 @@ class Database:
         records = self._session.query(tables.DBMasterTable).all()
         return records
 
-    def get_master_record(self, experiment_id: int) -> Optional[tables.DBMasterTable]:
-        """Grab the list of master record for a specific experiment (master) id.
+    def get_master_record(self, master_id: int) -> Optional[tables.DBMasterTable]:
+        """Grab the list of master record for a specific master id (uniquie_id of master table).
 
         Args:
-            experiment_id (int): The experiment id.
+            master_id (int): The master_id, which is the master key of the master table.
 
         Returns:
             tables.DBMasterTable or None: The master record or None if it doesn't exist.
         """
         records = (
             self._session.query(tables.DBMasterTable)
-            .filter(tables.DBMasterTable.experiment_id == experiment_id)
+            .filter(tables.DBMasterTable.unique_id == master_id)
             .all()
         )
 
@@ -162,7 +163,7 @@ class Database:
         """Get the replay records for a specific master row.
 
         Args:
-            master_id (int): The master id.
+            master_id (int): The unique id for the master row (it's the master key).
 
         Returns:
             List[tables.DbReplayTable] or None: The replay records or None if they don't exist.
@@ -178,7 +179,7 @@ class Database:
         """Get the strat records for a specific master row.
 
         Args:
-            master_id (int): The master id. Defaults to 0.
+            master_id (int): The master table unique ID. Defaults to 0.
 
         Returns:
             List[Any] or None: The strat records or None if they don't exist.
@@ -247,6 +248,13 @@ class Database:
         Returns:
             List[tables.DbRawTable] or None: The parameters or None if they don't exist.
         """
+        warnings.warn(
+            "get_all_params_for is the same as get_param_for since there can only be one instance of any master_id",
+            DeprecationWarning,
+        )
+        return self.get_param_for(master_id=master_id)
+
+        # TODO: This function should change to being able to get params for all experiments given specific metadata
         raw_record = self.get_raw_for(master_id)
         params = []
 
@@ -258,14 +266,11 @@ class Database:
 
         return None
 
-    def get_param_for(
-        self, master_id: int, iteration_id: int
-    ) -> Optional[List[tables.DbRawTable]]:
+    def get_param_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
         """Get the parameters for a specific iteration of a specific experiment.
 
         Args:
             master_id (int): The master id.
-            iteration_id (int): The iteration id.
 
         Returns:
             List[tables.DbRawTable] or None: The parameters or None if they don't exist.
@@ -274,7 +279,7 @@ class Database:
 
         if raw_record is not None:
             for raw in raw_record:
-                if raw.unique_id == iteration_id:
+                if raw.unique_id == master_id:
                     return raw.children_param
 
         return None
@@ -288,6 +293,13 @@ class Database:
         Returns:
             List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
         """
+        warnings.warn(
+            "get_all_outcomes_for is the same as get_outcome_for since there can only be one instance of any master_id",
+            DeprecationWarning,
+        )
+        return self.get_outcome_for(master_id=master_id)
+
+        # TODO: This function should change to being able to get outcomes for all experiments given specific metadata
         raw_record = self.get_raw_for(master_id)
         outcomes = []
 
@@ -299,14 +311,11 @@ class Database:
 
         return None
 
-    def get_outcome_for(
-        self, master_id: int, iteration_id: int
-    ) -> Optional[List[tables.DbRawTable]]:
+    def get_outcome_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
         """Get the outcomes for a specific iteration of a specific experiment.
 
         Args:
             master_id (int): The master id.
-            iteration_id (int): The iteration id.
 
         Returns:
             List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
@@ -315,56 +324,46 @@ class Database:
 
         if raw_record is not None:
             for raw in raw_record:
-                if raw.unique_id == iteration_id:
+                if raw.unique_id == master_id:
                     return raw.children_outcome
 
         return None
 
     def record_setup(
         self,
-        description: str,
-        name: str,
+        description: str = None,
+        name: str = None,
         extra_metadata: Optional[str] = None,
-        id: Optional[str] = None,
+        exp_id: Optional[str] = None,
         request: Dict[str, Any] = None,
-        participant_id: Optional[int] = None,
+        par_id: Optional[int] = None,
     ) -> str:
         """Record the setup of an experiment.
 
         Args:
-            description (str): The description of the experiment.
-            name (str): The name of the experiment.
+            description (str, optional): The description of the experiment, defaults to None.
+            name (str, optional): The name of the experiment, defaults to None.
             extra_metadata (str, optional): Extra metadata. Defaults to None.
-            id (str, optional): The id of the experiment. Defaults to None.
-            request (Dict[str, Any]): The request. Defaults to None.
-            participant_id (int, optional): The participant id. Defaults to None.
+            exp_id (str, optional): The id of the experiment. Defaults to a generated uuid.
+            request (Dict[str, Any], optional): The request. Defaults to None.
+            par_id (int, optional): The participant id. Defaults to generated uuid.
 
         Returns:
             str: The experiment id.
         """
         self.get_engine()
 
-        if id is None:
-            master_table = tables.DBMasterTable()
-            master_table.experiment_description = description
-            master_table.experiment_name = name
-            master_table.experiment_id = str(uuid.uuid4())
-            if participant_id is not None:
-                master_table.participant_id = participant_id
-            else:
-                master_table.participant_id = str(
-                    uuid.uuid4()
-                )  # no p_id specified will result in a generated UUID
+        master_table = tables.DBMasterTable()
+        master_table.experiment_description = description
+        master_table.experiment_name = name
+        master_table.experiment_id = exp_id if exp_id is not None else str(uuid.uuid4())
+        master_table.participant_id = (
+            par_id if par_id is not None else str(uuid.uuid4())
+        )
+        master_table.extra_metadata = extra_metadata
+        self._session.add(master_table)
 
-            master_table.extra_metadata = extra_metadata
-
-            self._session.add(master_table)
-
-            logger.debug(f"record_setup = [{master_table}]")
-        else:
-            master_table = self.get_master_record(id)
-            if master_table is None:
-                raise RuntimeError(f"experiment id {id} doesn't exist in the db.")
+        logger.debug(f"record_setup = [{master_table}]")
 
         record = tables.DbReplayTable()
         record.message_type = "setup"
