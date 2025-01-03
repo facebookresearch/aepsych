@@ -207,9 +207,9 @@ class DBTestCase(unittest.TestCase):
         )
         outcome_dict = {x: {} for x in range(1, 8)}
         for outcome in outcome_data:
-            outcome_dict[outcome.iteration_id][outcome.outcome_name] = (
-                outcome.outcome_value
-            )
+            outcome_dict[outcome.iteration_id][
+                outcome.outcome_name
+            ] = outcome.outcome_value
 
         self.assertEqual(outcome_dict, outcome_dict_expected)
 
@@ -327,10 +327,10 @@ class DBTestCase(unittest.TestCase):
         # Record a param data entry
         self._database.record_param(raw_table, param_name, param_value)
         iteration_id = raw_table.unique_id
-        param_data = self._database.get_param_for(iteration_id)
+        param_data = self._database.get_params_for(iteration_id)
         self.assertEqual(len(param_data), 1)
-        self.assertEqual(param_data[0].param_name, param_name)
-        self.assertEqual(float(param_data[0].param_value), param_value)
+        self.assertEqual(param_data[0][0].param_name, param_name)
+        self.assertEqual(float(param_data[0][0].param_value), param_value)
 
     def test_outcome_table(self):
         outcome_value = 1.123
@@ -344,10 +344,10 @@ class DBTestCase(unittest.TestCase):
         # Record an outcome data entry
         self._database.record_outcome(raw_table, outcome_name, outcome_value)
         iteration_id = raw_table.unique_id
-        outcome_data = self._database.get_outcome_for(iteration_id)
+        outcome_data = self._database.get_outcomes_for(iteration_id)
         self.assertEqual(len(outcome_data), 1)
-        self.assertEqual(outcome_data[0].outcome_name, outcome_name)
-        self.assertEqual(outcome_data[0].outcome_value, outcome_value)
+        self.assertEqual(outcome_data[0][0].outcome_name, outcome_name)
+        self.assertEqual(outcome_data[0][0].outcome_value, outcome_value)
 
     # Test some metadata flow stuff and see if it is working.
     def test_metadata(self):

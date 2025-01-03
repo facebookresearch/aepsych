@@ -175,65 +175,6 @@ class AEPsychServer(object):
             raise RuntimeError("Trying to load strat in unknown format!")
         return strat
 
-    def generate_experiment_table(
-        self,
-        experiment_id: str,
-        table_name: str = "experiment_table",
-        return_df: bool = False,
-    ) -> Optional[pd.DataFrame]:
-        """Generate a table of a given experiment with all the raw data.
-
-        This table is generated from the database, and is added to the
-        experiment's database.
-
-        Args:
-            experiment_id (str): The experiment ID to generate the table for.
-            table_name (str): The name of the table. Defaults to
-                "experiment_table".
-            return_df (bool): If True, also return the dataframe.
-
-        Returns:
-            pd.DataFrame: The dataframe of the experiment table, if
-                return_df is True.
-        """
-        param_space = self.db.get_param_for(experiment_id, 1)
-        outcome_space = self.db.get_outcome_for(experiment_id, 1)
-
-        columns = []
-        columns.append("iteration_id")
-        for param in param_space:
-            columns.append(param.param_name)
-        for outcome in outcome_space:
-            columns.append(outcome.outcome_name)
-
-        columns.append("timestamp")
-
-        # Create dataframe
-        df = pd.DataFrame(columns=columns)
-
-        # Fill dataframe
-        for raw in self.db.get_raw_for(experiment_id):
-            row = {}
-            row["iteration_id"] = raw.unique_id
-            for param in raw.children_param:
-                row[param.param_name] = param.param_value
-            for outcome in raw.children_outcome:
-                row[outcome.outcome_name] = outcome.outcome_value
-            row["timestamp"] = raw.timestamp
-            # concat to dataframe
-            df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
-
-        # Make iteration_id the index
-        df.set_index("iteration_id", inplace=True)
-
-        # Save to .db file
-        df.to_sql(table_name, self.db.get_engine(), if_exists="replace")
-
-        if return_df:
-            return df
-        else:
-            return None
-
     ### Properties that are set on a per-strat basis
     @property
     def strat(self):
