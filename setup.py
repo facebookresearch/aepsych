@@ -13,7 +13,7 @@ REQUIRES = [
     "numpy<2.0, >=1.20",
     "matplotlib",
     "torch",
-    "scipy",
+    "scipy==1.14.1",
     "SQLAlchemy==1.4.46",
     "dill",
     "pandas",
