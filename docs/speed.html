@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Active Learning Speedups · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="This page provides documentations and our recommendations for speeding up AEPsych during"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Active Learning Speedups · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="This page provides documentations and our recommendations for speeding up AEPsych during"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Active Learning Speedups · AEPsych</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="This page provides documentation and our recommendations for speeding up AEPsych during"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Active Learning Speedups · AEPsych"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="This page provides documentation and our recommendations for speeding up AEPsych during"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
         document.addEventListener('DOMContentLoaded', function() {
           addBackToTop(
             {"zIndex":100}
@@ -60,19 +60,19 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/speed.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Active Learning Speedups</h1></header><article><div><span><p>This page provides documentations and our recommendations for speeding up AEPsych during
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebookresearch/aepsych/blob/main/docs/speed.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Active Learning Speedups</h1></header><article><div><span><p>This page provides documentation and our recommendations for speeding up AEPsych during
 active learning. We detail features built into AEPsych intended to allow AEPsych's
 server to respond faster during an experiment as well as our recommendations on config
-settings that affect active learning speed that may change results.</p>
-<p>Psychophysics experiments may have participants responding to a trial in less than a
-second after the trial onset. When using AEPsych, if it takes the server too long to
-respond, the time it takes to complete an experiment can be very long and ultimately be more
-costly. Further, longer experiments may cause participants to become fatigued, yielding
+settings that affect active learning speed, which may change results.</p>
+<p>Psychophysics experiments may have participants respond to a trial in less than a second
+after the trial onset. When using AEPsych, if the server takes too long to respond, the
+time it takes to complete an experiment can be very long and ultimately more costly.
+Furthermore, longer experiments may cause participants to become fatigued, resulting in
 worse results. Thus, speeding up an experiment can yield significant benefits.</p>
 <p><h2>Speed-up Features</h2></p>
-<p>We implemented multiple features to allow speeding up AEPsych's server in response to
-messages. These features can be used together and have different
-effects on the effectiveness of the AEPsych response speed.</p>
+<p>We have implemented multiple features to speed up AEPsych's server in response to
+messages. These features can be used together and have different effects on the
+effectiveness of the AEPsych response speed.</p>
 <p><h3>GPU support</h3></p>
 <p>The <code>GPClassification</code> and <code>GPRegressionModel</code> both have support to run on the GPU. Models
 that subclass these models should also have GPU support. To get a model running on the
@@ -89,7 +89,7 @@ use a GPU (even if a GPU is available).</p>
 amount of data that will typically be in a live experiment, using a GPU to fit the model
 will not result in a speed up and may incur a slowdown instead</strong>.</p>
 <p>However, there may be cases (e.g., high dimensionality, many parameters, many trials,
-or pos-hoc analysis with a lot of data)
+or post-hoc analysis with a lot of data)
 where using the GPU for model fitting will make it faster. This is also hardware
 dependent. If speed is a concern, it is worth testing to see if using a GPU will speed
 up model fitting. The log will provide timing to help decide whether using a GPU for
@@ -101,9 +101,10 @@ least a modest speedup (if not 2-5x faster).</p>
 support using the GPU. As in the models, the <code>use_gpu</code> option in the config should be
 set for the generator. By default, the generators will not use a GPU (even if a GPU is
 available).</p>
-<p>If the server cannot find a GPU even though GPUs were requested for either models or
-generators, it is likely that PyTorch cannot access the GPUs. Reinstalling PyTorch
-with GPU support should fix this.</p>
+<p>When you send a setup message to the AEPsych server with <code>use_gpu = True</code> for either a model or generator, the server logs will indicate whether AEPsych successfully found a GPU. If the server cannot find a GPU,
+it is likely that PyTorch cannot access the GPUs. Reinstalling PyTorch
+with GPU support should fix this. PyTorch has specific instructions on how to do this
+for different systems: <a href="https://pytorch.org/">https://pytorch.org/</a>.</p>
 <pre><code class="hljs css language-ini"><span class="hljs-section">[opt_strat]</span>
 <span class="hljs-attr">model</span> = GPClassificationModel
 <span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
@@ -165,11 +166,29 @@ GPU with it causes some slowdown.</p>
 <tr><td>GPU</td><td style="text-align:center">0.63S (0.40x)</td><td style="text-align:center">1.72s (0.78x)</td><td style="text-align:center">1.82s (0.56x)</td></tr>
 </tbody>
 </table>
-<p>Both EAVC and GlobalMI are usually better acquisition functions, allowing for more
-efficient active learning demonstrates significant speedups allowing them to be
-comparable to MCLevelSetEstimation. Keep in mind these results are with a machine
+<p>Both EAVC and GlobalMI usually find better estimates of level-sets compared to MCLevelSetEstimation, allowing for more
+efficient active learning, although they may be slower on a CPU. Using the GPU demonstrates significant speedups allowing for
+comparable generation times to MCLevelSetEstimation. Keep in mind these results are with a machine
 that has a very powerful CPU and a typical GPU. It is likely that the differences
-between a modestly powerful CPU and a typical GPU will be favor GPUs more often.</p>
+between a typical CPU and a typical GPU will be favor GPUs more often.</p>
+<p>Further, the better global lookahead acquisition functions (EAVC and GlobalMI),
+requires defining the set of reference points to evaluate the function at. This
+<code>query_set_size</code> option is defaulted to 256 to allow these acquisition functions to be
+usable on CPUs. However, increasing this value (e.g., to 1000) can allow the
+generators to select better points. This is especially useful when using the GPU as it
+can ensure the generation times remain low while reaping the benefits of better
+acquisitions. For example, this can be changed in EAVC in a config like so:</p>
+<pre><code class="hljs css language-ini"><span class="hljs-section">[opt_strat]</span>
+<span class="hljs-attr">model</span> = GPClassificationModel
+<span class="hljs-attr">generator</span> = OptimizeAcqfGenerator
+<span class="hljs-attr">acqf</span> = EAVC
+
+<span class="hljs-section">[OptimizeAcqfGenerator]</span>
+<span class="hljs-attr">use_gpu</span> = <span class="hljs-literal">True</span> <span class="hljs-comment"># turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive</span>
+
+<span class="hljs-section">[EAVC]</span> <span class="hljs-comment"># If another global lookahead acquisition function is used, change the block name</span>
+<span class="hljs-attr">query_set_size</span> = <span class="hljs-number">1000</span> <span class="hljs-comment"># This should be an integer</span>
+</code></pre>
 <p>If possible, we recommend using the GPU only for the generator and the better
 acquisition functions for active learning. It should be possible to confidently estimate
 thresholds with fewer trials using better acquisition functions, therefore allowing
@@ -177,11 +196,11 @@ shorter experiments with little-to-no loss in modeling effectiveness. Again, it 
 piloting experiments using the GPU and without the GPU for the generator with the experiment
 hardware to double-check the effectiveness.</p>
 <p><h3>Refit Intermittently</h3></p>
-<p>By default, the model will be refit hyperparameters after every tell. While the fitting time
+<p>By default, the model will refit hyperparameters after every tell. While the fitting time
 may not be the most time-consuming part, it is possible to shorten the AEPsych server response time
-to asks by only refitting the hyperparameters model once every few asks. This does necessarily mean
-that the model could be used to generate points without the entirety of the available
-data during an experiment. This feature can be enabled by using the <code>refit_every</code> option
+to asks by only refitting the hyperparameters model once every few tells. This does necessarily mean
+that the model could be used to generate points without being completely up to date.
+This feature can be enabled by using the <code>refit_every</code> option
 in a strategy's section. Regardless of what is set for this option, the model continues to be
 conditioned on the data as it comes in.</p>
 <pre><code class="hljs css language-ini"><span class="hljs-section">[opt_strat]</span>
@@ -192,8 +211,7 @@ conditioned on the data as it comes in.</p>
 </code></pre>
 <p>The <code>refit_every</code> will have the model only refit hyperparameters to the data every <code>n</code> data points. In
 the above example, the model will only be refit every other tell, which halves the
-overall fitting time across the whole experiment at the cost of the model not being completely optimized to the latest data.
-two data points behind.</p>
+overall fitting time across the whole experiment at the cost of the model not being completely optimized to the latest data.</p>
 <p>Refitting intermittently may be useful, especially in experiments with
 many Sobol or manual trials before active learning, such that single trials are unlikely
 to widely change the model fit. However, fitting intermittently may be bad for
@@ -232,7 +250,7 @@ experiment's goals.</p>
 <p>When fitting approximate GP models (like the GPClassificationModel), using the entirety
 of the data can be too costly. Instead, we distill the data down to inducing points for
 variational inference. The number of inducing points ultimately determines how long a
-model takes to fit. The more inducing points used the better the model will be but the
+model takes to fit. The more inducing points used, the better the model will be but the
 fitting time will also increase. Similarly, different inducing point selection
 algorithms will result in different number of inducing points with varying levels of
 how well the inducing points approximate the data.</p>
@@ -263,7 +281,7 @@ response. By changing the acquisition function of the <code>OptimizeAcqfGenerato
 possible to tune the performance of active learning.</p>
 <p>The acquisition functions can be set in the generator options. There may also be
 additional acquisition function settings to change the speed and effectiveness of the
-acquisition function.</p>
+acquisition function, e.g. <code>query_set_size</code> as detailed above.</p>
 <pre><code class="hljs css language-ini"><span class="hljs-section">[OptimizeAcqfGenerator]</span>
 <span class="hljs-attr">acqf</span> = GlobalMI
 </code></pre>
@@ -291,7 +309,9 @@ option can be set using the <code>keep_most_recent</code> option in a strategy.<
 <p>In general, lowering the amount of data the model can fit on will weaken active learning
 performance unless there's significant change in responses over time. However, with very
 long experiments targeting a specific and reliable response probability, it may be worth it to only
-use the most recent bit of data. As usual, it is worth piloting and tuning this option
+use the most recent bit of data. In general, this option should not be used unless you
+are very certain that you only need the last n data points for good model performance. As
+usual, it is worth piloting and tuning this option
 if it is being used to test whether it significantly improves the server response time
 while not harming (or improving) fits by the end.</p>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/parameters"><span class="arrow-prev">← </span><span>Advanced Parameter Configuration</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2025 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
