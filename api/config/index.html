@@ -60,14 +60,21 @@ from. Defaults to None.</p></li>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.config.Config.jsonifyMetadata">
-<span class="sig-name descname"><span class="pre">jsonifyMetadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.jsonifyMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.jsonifyMetadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn the metadata section into JSON.</p>
+<span class="sig-name descname"><span class="pre">jsonifyMetadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/config.html#Config.jsonifyMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.config.Config.jsonifyMetadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a json string of the metadata section.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>JSON representation of the metadata section.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>only_extra</strong> (<em>bool</em>) – Only jsonify the extra meta data.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>str</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A json string representing the metadata dictionary or an empty string</dt><dd><p>if there is no metadata to return.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>

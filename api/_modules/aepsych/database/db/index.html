@@ -27,6 +27,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
@@ -156,18 +157,18 @@
         <span class="n">records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">records</span></div>
 
-<div class="viewcode-block" id="Database.get_master_record"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_master_record">[docs]</a>    <span class="k">def</span> <span class="nf">get_master_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Grab the list of master record for a specific experiment (master) id.</span>
+<div class="viewcode-block" id="Database.get_master_record"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_master_record">[docs]</a>    <span class="k">def</span> <span class="nf">get_master_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Grab the list of master record for a specific master id (uniquie_id of master table).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            experiment_id (int): The experiment id.</span>
+<span class="sd">            master_id (int): The master_id, which is the master key of the master table.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            tables.DBMasterTable or None: The master record or None if it doesn't exist.</span>
 <span class="sd">        """</span>
         <span class="n">records</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="o">.</span><span class="n">experiment_id</span> <span class="o">==</span> <span class="n">experiment_id</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">master_id</span><span class="p">)</span>
             <span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="p">)</span>
 
@@ -180,7 +181,7 @@
 <span class="w">        </span><span class="sd">"""Get the replay records for a specific master row.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            master_id (int): The master id.</span>
+<span class="sd">            master_id (int): The unique id for the master row (it's the master key).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List[tables.DbReplayTable] or None: The replay records or None if they don't exist.</span>
@@ -196,7 +197,7 @@
 <span class="w">        </span><span class="sd">"""Get the strat records for a specific master row.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            master_id (int): The master id. Defaults to 0.</span>
+<span class="sd">            master_id (int): The master table unique ID. Defaults to 0.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List[Any] or None: The strat records or None if they don't exist.</span>
@@ -265,6 +266,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            List[tables.DbRawTable] or None: The parameters or None if they don't exist.</span>
 <span class="sd">        """</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"get_all_params_for is the same as get_param_for since there can only be one instance of any master_id"</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_param_for</span><span class="p">(</span><span class="n">master_id</span><span class="o">=</span><span class="n">master_id</span><span class="p">)</span>
+
+        <span class="c1"># TODO: This function should change to being able to get params for all experiments given specific metadata</span>
         <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -276,14 +284,11 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_param_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_param_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_for</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">iteration_id</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Database.get_param_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_param_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the parameters for a specific iteration of a specific experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            master_id (int): The master id.</span>
-<span class="sd">            iteration_id (int): The iteration id.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List[tables.DbRawTable] or None: The parameters or None if they don't exist.</span>
@@ -292,7 +297,7 @@
 
         <span class="k">if</span> <span class="n">raw_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">raw_record</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">iteration_id</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">master_id</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_param</span>
 
         <span class="k">return</span> <span class="kc">None</span></div>
@@ -306,6 +311,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.</span>
 <span class="sd">        """</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"get_all_outcomes_for is the same as get_outcome_for since there can only be one instance of any master_id"</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_outcome_for</span><span class="p">(</span><span class="n">master_id</span><span class="o">=</span><span class="n">master_id</span><span class="p">)</span>
+
+        <span class="c1"># TODO: This function should change to being able to get outcomes for all experiments given specific metadata</span>
         <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
         <span class="n">outcomes</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -317,14 +329,11 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_outcome_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_outcome_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_outcome_for</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">iteration_id</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Database.get_outcome_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_outcome_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_outcome_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the outcomes for a specific iteration of a specific experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            master_id (int): The master id.</span>
-<span class="sd">            iteration_id (int): The iteration id.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.</span>
@@ -333,56 +342,46 @@
 
         <span class="k">if</span> <span class="n">raw_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">raw_record</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">iteration_id</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">unique_id</span> <span class="o">==</span> <span class="n">master_id</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_outcome</span>
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Database.record_setup"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.record_setup">[docs]</a>    <span class="k">def</span> <span class="nf">record_setup</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">extra_metadata</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="nb">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">exp_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">request</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">participant_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">par_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Record the setup of an experiment.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            description (str): The description of the experiment.</span>
-<span class="sd">            name (str): The name of the experiment.</span>
+<span class="sd">            description (str, optional): The description of the experiment, defaults to None.</span>
+<span class="sd">            name (str, optional): The name of the experiment, defaults to None.</span>
 <span class="sd">            extra_metadata (str, optional): Extra metadata. Defaults to None.</span>
-<span class="sd">            id (str, optional): The id of the experiment. Defaults to None.</span>
-<span class="sd">            request (Dict[str, Any]): The request. Defaults to None.</span>
-<span class="sd">            participant_id (int, optional): The participant id. Defaults to None.</span>
+<span class="sd">            exp_id (str, optional): The id of the experiment. Defaults to a generated uuid.</span>
+<span class="sd">            request (Dict[str, Any], optional): The request. Defaults to None.</span>
+<span class="sd">            par_id (int, optional): The participant id. Defaults to generated uuid.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The experiment id.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_engine</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">master_table</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">()</span>
-            <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_description</span> <span class="o">=</span> <span class="n">description</span>
-            <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">=</span> <span class="n">name</span>
-            <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
-            <span class="k">if</span> <span class="n">participant_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">master_table</span><span class="o">.</span><span class="n">participant_id</span> <span class="o">=</span> <span class="n">participant_id</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">master_table</span><span class="o">.</span><span class="n">participant_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
-                    <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
-                <span class="p">)</span>  <span class="c1"># no p_id specified will result in a generated UUID</span>
+        <span class="n">master_table</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">()</span>
+        <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">master_table</span><span class="o">.</span><span class="n">experiment_id</span> <span class="o">=</span> <span class="n">exp_id</span> <span class="k">if</span> <span class="n">exp_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">master_table</span><span class="o">.</span><span class="n">participant_id</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">par_id</span> <span class="k">if</span> <span class="n">par_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="n">master_table</span><span class="o">.</span><span class="n">extra_metadata</span> <span class="o">=</span> <span class="n">extra_metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">master_table</span><span class="p">)</span>
 
-            <span class="n">master_table</span><span class="o">.</span><span class="n">extra_metadata</span> <span class="o">=</span> <span class="n">extra_metadata</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">master_table</span><span class="p">)</span>
-
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"record_setup = [</span><span class="si">{</span><span class="n">master_table</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">master_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">master_table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"experiment id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> doesn't exist in the db."</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"record_setup = [</span><span class="si">{</span><span class="n">master_table</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
 
         <span class="n">record</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">DbReplayTable</span><span class="p">()</span>
         <span class="n">record</span><span class="o">.</span><span class="n">message_type</span> <span class="o">=</span> <span class="s2">"setup"</span>

@@ -391,7 +391,7 @@
 
 <span class="c1">#! THIS IS WHAT START THE SERVER</span>
 <div class="viewcode-block" id="startServerAndRun"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.startServerAndRun">[docs]</a><span class="k">def</span> <span class="nf">startServerAndRun</span><span class="p">(</span>
-    <span class="n">server_class</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uuid_of_replay</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">server_class</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">id_of_replay</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
     <span class="n">server</span> <span class="o">=</span> <span class="n">server_class</span><span class="p">(</span><span class="n">socket</span><span class="o">=</span><span class="n">socket</span><span class="p">,</span> <span class="n">database_path</span><span class="o">=</span><span class="n">database_path</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -401,16 +401,16 @@
             <span class="n">configure</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">config_str</span><span class="o">=</span><span class="n">config_str</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">socket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">uuid_of_replay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">server</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">uuid_of_replay</span><span class="p">,</span> <span class="n">skip_computations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">server</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">uuid_of_replay</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">id_of_replay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">server</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">id_of_replay</span><span class="p">,</span> <span class="n">skip_computations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">server</span><span class="o">.</span><span class="n">_db_master_record</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_master_record</span><span class="p">(</span><span class="n">id_of_replay</span><span class="p">)</span>
             <span class="n">server</span><span class="o">.</span><span class="n">serve</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">config_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="s2">"You have passed in a config path but this is a replay. If there's a config in the database it will be used instead of the passed in config path."</span>
                 <span class="p">)</span>
-            <span class="n">server</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">uuid_of_replay</span><span class="p">)</span>
+            <span class="n">server</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">id_of_replay</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="n">exception_type</span> <span class="o">=</span> <span class="s2">"CTRL+C"</span>
         <span class="n">dump_type</span> <span class="o">=</span> <span class="s2">"dump"</span>
@@ -460,7 +460,7 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"--replay"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"UUID of the experiment to replay."</span>
+        <span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"--replay"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Unique id of the experiment to replay."</span>
     <span class="p">)</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>

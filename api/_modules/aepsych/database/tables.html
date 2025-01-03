@@ -50,27 +50,6 @@
 
 <span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
 
-<span class="sd">"""</span>
-<span class="sd">Original Schema</span>
-<span class="sd">CREATE TABLE master (</span>
-<span class="sd">unique_id INTEGER NOT NULL,</span>
-<span class="sd">experiment_name VARCHAR(256),</span>
-<span class="sd">experiment_description VARCHAR(2048),</span>
-<span class="sd">experiment_id VARCHAR(10),</span>
-<span class="sd">PRIMARY KEY (unique_id),</span>
-<span class="sd">UNIQUE (experiment_id)</span>
-<span class="sd">);</span>
-<span class="sd">CREATE TABLE replay_data (</span>
-<span class="sd">unique_id INTEGER NOT NULL,</span>
-<span class="sd">timestamp DATETIME,</span>
-<span class="sd">message_type VARCHAR(64),</span>
-<span class="sd">message_contents BLOB,</span>
-<span class="sd">master_table_id INTEGER,</span>
-<span class="sd">PRIMARY KEY (unique_id),</span>
-<span class="sd">FOREIGN KEY(master_table_id) REFERENCES master (unique_id)</span>
-<span class="sd">);</span>
-<span class="sd">"""</span>
-
 
 <div class="viewcode-block" id="DBMasterTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DBMasterTable">[docs]</a><span class="k">class</span> <span class="nc">DBMasterTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
@@ -80,10 +59,10 @@
     <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">"master"</span>
 
     <span class="n">unique_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoincrement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">256</span><span class="p">))</span>
-    <span class="n">experiment_description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">2048</span><span class="p">))</span>
-    <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">participant_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">experiment_description</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">2048</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+    <span class="n">participant_id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">))</span>
 
     <span class="n">extra_metadata</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="mi">4096</span><span class="p">))</span>  <span class="c1"># JSON-formatted metadata</span>
 
@@ -192,7 +171,20 @@
                 <span class="p">)</span>
                 <span class="n">engine</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Column already exists, no need to alter. [</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Column already exists, no need to alter. [</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_update_column</span><span class="p">(</span><span class="n">engine</span><span class="p">:</span> <span class="n">Engine</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Update column with a new spec.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            engine (Engine): The sqlalchemy engine.</span>
+<span class="sd">            column (str): The column name.</span>
+<span class="sd">            spec (str): The new column spec.</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Altering the master table column: </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> to this spec </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ALTER TABLE master MODIFY </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">engine</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DbReplayTable"><a class="viewcode-back" href="../../../database.html#aepsych.database.tables.DbReplayTable">[docs]</a><span class="k">class</span> <span class="nc">DbReplayTable</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>

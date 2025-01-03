@@ -117,11 +117,11 @@
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.database.db.Database.get_master_record">
-<span class="sig-name descname"><span class="pre">get_master_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_master_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_master_record" title="Permalink to this definition">¶</a></dt>
-<dd><p>Grab the list of master record for a specific experiment (master) id.</p>
+<span class="sig-name descname"><span class="pre">get_master_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_master_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_master_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab the list of master record for a specific master id (uniquie_id of master table).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>experiment_id</strong> (<em>int</em>) – The experiment id.</p>
+<dd class="field-odd"><p><strong>master_id</strong> (<em>int</em>) – The master_id, which is the master key of the master table.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The master record or None if it doesn’t exist.</p>
@@ -137,7 +137,7 @@
 <dd><p>Get the replay records for a specific master row.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>master_id</strong> (<em>int</em>) – The master id.</p>
+<dd class="field-odd"><p><strong>master_id</strong> (<em>int</em>) – The unique id for the master row (it’s the master key).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The replay records or None if they don’t exist.</p>
@@ -153,7 +153,7 @@
 <dd><p>Get the strat records for a specific master row.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>master_id</strong> (<em>int</em>) – The master id. Defaults to 0.</p>
+<dd class="field-odd"><p><strong>master_id</strong> (<em>int</em>) – The master table unique ID. Defaults to 0.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The strat records or None if they don’t exist.</p>
@@ -232,14 +232,11 @@
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.database.db.Database.get_param_for">
-<span class="sig-name descname"><span class="pre">get_param_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_param_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_param_for" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_param_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_param_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_param_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the parameters for a specific iteration of a specific experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>master_id</strong> (<em>int</em>) – The master id.</p></li>
-<li><p><strong>iteration_id</strong> (<em>int</em>) – The iteration id.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>master_id</strong> (<em>int</em>) – The master id.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The parameters or None if they don’t exist.</p>
@@ -267,14 +264,11 @@
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.database.db.Database.get_outcome_for">
-<span class="sig-name descname"><span class="pre">get_outcome_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_outcome_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_outcome_for" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_outcome_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.get_outcome_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.get_outcome_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the outcomes for a specific iteration of a specific experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>master_id</strong> (<em>int</em>) – The master id.</p></li>
-<li><p><strong>iteration_id</strong> (<em>int</em>) – The iteration id.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>master_id</strong> (<em>int</em>) – The master id.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The outcomes or None if they don’t exist.</p>
@@ -286,17 +280,17 @@
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.database.db.Database.record_setup">
-<span class="sig-name descname"><span class="pre">record_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">participant_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_setup" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">record_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">par_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Record the setup of an experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>description</strong> (<em>str</em>) – The description of the experiment.</p></li>
-<li><p><strong>name</strong> (<em>str</em>) – The name of the experiment.</p></li>
+<li><p><strong>description</strong> (<em>str</em><em>, </em><em>optional</em>) – The description of the experiment, defaults to None.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the experiment, defaults to None.</p></li>
 <li><p><strong>extra_metadata</strong> (<em>str</em><em>, </em><em>optional</em>) – Extra metadata. Defaults to None.</p></li>
-<li><p><strong>id</strong> (<em>str</em><em>, </em><em>optional</em>) – The id of the experiment. Defaults to None.</p></li>
-<li><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The request. Defaults to None.</p></li>
-<li><p><strong>participant_id</strong> (<em>int</em><em>, </em><em>optional</em>) – The participant id. Defaults to None.</p></li>
+<li><p><strong>exp_id</strong> (<em>str</em><em>, </em><em>optional</em>) – The id of the experiment. Defaults to a generated uuid.</p></li>
+<li><p><strong>request</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – The request. Defaults to None.</p></li>
+<li><p><strong>par_id</strong> (<em>int</em><em>, </em><em>optional</em>) – The participant id. Defaults to generated uuid.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -425,31 +419,9 @@
 <section id="module-aepsych.database.tables">
 <span id="aepsych-database-tables-module"></span><h2>aepsych.database.tables module<a class="headerlink" href="#module-aepsych.database.tables" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.database.tables.Base">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">Base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#aepsych.database.tables.Base" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>The base class of the class hierarchy.</p>
-<p>When called, it accepts no arguments and returns a new featureless
-instance that has no instance attributes and cannot be given any.</p>
-<p>A simple constructor that allows initialization from kwargs.</p>
-<p>Sets attributes on the constructed instance using the names and
-values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
-<p>Only keys that are present as
-attributes of the instance’s class are allowed. These could be,
-for example, any mapped columns or relationships.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.database.tables.Base.metadata">
-<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">MetaData()</span></em><a class="headerlink" href="#aepsych.database.tables.Base.metadata" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.database.tables.Base.registry">
-<span class="sig-name descname"><span class="pre">registry</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;sqlalchemy.orm.decl_api.registry</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#aepsych.database.tables.Base.registry" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.tables.DBMasterTable">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DBMasterTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DBMasterTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DBMasterTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>Master table to keep track of all experiments and unique keys associated with the experiment</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
@@ -543,7 +515,7 @@ for example, any mapped columns or relationships.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbReplayTable">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbReplayTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbReplayTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbReplayTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
@@ -628,7 +600,7 @@ for example, any mapped columns or relationships.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbStratTable">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbStratTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbStratTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbStratTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
@@ -701,7 +673,7 @@ for example, any mapped columns or relationships.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbConfigTable">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbConfigTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbConfigTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbConfigTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
 values in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.</p>
@@ -774,7 +746,7 @@ for example, any mapped columns or relationships.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbRawTable">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbRawTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbRawTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbRawTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>Fact table to store the raw data of each iteration of an experiment.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
 <p>Sets attributes on the constructed instance using the names and
@@ -862,7 +834,7 @@ for example, any mapped columns or relationships.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbParamTable">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbParamTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbParamTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbParamTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>Dimension table to store the parameters of each iteration of an experiment.
 Supports multiple parameters per iteration, and multiple stimuli per parameter.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
@@ -940,7 +912,7 @@ for example, any mapped columns or relationships.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbOutcomeTable">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.tables.</span></span><span class="sig-name descname"><span class="pre">DbOutcomeTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/tables.html#DbOutcomeTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.tables.DbOutcomeTable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.database.tables.Base" title="sqlalchemy.orm.decl_api.Base"><code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
 <p>Dimension table to store the outcomes of each iteration of an experiment.
 Supports multiple outcomes per iteration.</p>
 <p>A simple constructor that allows initialization from kwargs.</p>
