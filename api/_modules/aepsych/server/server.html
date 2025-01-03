@@ -193,65 +193,6 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Trying to load strat in unknown format!"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">strat</span>
 
-<div class="viewcode-block" id="AEPsychServer.generate_experiment_table"><a class="viewcode-back" href="../../../server.html#aepsych.server.server.AEPsychServer.generate_experiment_table">[docs]</a>    <span class="k">def</span> <span class="nf">generate_experiment_table</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">experiment_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"experiment_table"</span><span class="p">,</span>
-        <span class="n">return_df</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Generate a table of a given experiment with all the raw data.</span>
-
-<span class="sd">        This table is generated from the database, and is added to the</span>
-<span class="sd">        experiment's database.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            experiment_id (str): The experiment ID to generate the table for.</span>
-<span class="sd">            table_name (str): The name of the table. Defaults to</span>
-<span class="sd">                "experiment_table".</span>
-<span class="sd">            return_df (bool): If True, also return the dataframe.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            pd.DataFrame: The dataframe of the experiment table, if</span>
-<span class="sd">                return_df is True.</span>
-<span class="sd">        """</span>
-        <span class="n">param_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_param_for</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">outcome_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_outcome_for</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"iteration_id"</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">param_space</span><span class="p">:</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">param_name</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">outcome_space</span><span class="p">:</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outcome</span><span class="o">.</span><span class="n">outcome_name</span><span class="p">)</span>
-
-        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"timestamp"</span><span class="p">)</span>
-
-        <span class="c1"># Create dataframe</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
-
-        <span class="c1"># Fill dataframe</span>
-        <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">):</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">row</span><span class="p">[</span><span class="s2">"iteration_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">unique_id</span>
-            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_param</span><span class="p">:</span>
-                <span class="n">row</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">param_value</span>
-            <span class="k">for</span> <span class="n">outcome</span> <span class="ow">in</span> <span class="n">raw</span><span class="o">.</span><span class="n">children_outcome</span><span class="p">:</span>
-                <span class="n">row</span><span class="p">[</span><span class="n">outcome</span><span class="o">.</span><span class="n">outcome_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">outcome</span><span class="o">.</span><span class="n">outcome_value</span>
-            <span class="n">row</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">timestamp</span>
-            <span class="c1"># concat to dataframe</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">row</span><span class="p">])],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="c1"># Make iteration_id the index</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"iteration_id"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="c1"># Save to .db file</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_engine</span><span class="p">(),</span> <span class="n">if_exists</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">return_df</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">df</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
-
     <span class="c1">### Properties that are set on a per-strat basis</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

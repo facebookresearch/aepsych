@@ -69,33 +69,6 @@ the docs on the methods in this class.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.generate_experiment_table">
-<span class="sig-name descname"><span class="pre">generate_experiment_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment_table'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_experiment_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.server.AEPsychServer.generate_experiment_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a table of a given experiment with all the raw data.</p>
-<p>This table is generated from the database, and is added to the
-experiment’s database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>experiment_id</strong> (<em>str</em>) – The experiment ID to generate the table for.</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table. Defaults to
-“experiment_table”.</p></li>
-<li><p><strong>return_df</strong> (<em>bool</em>) – If True, also return the dataframe.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>The dataframe of the experiment table, if</dt><dd><p>return_df is True.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="aepsych.server.server.AEPsychServer.strat">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strat</span></span><a class="headerlink" href="#aepsych.server.server.AEPsychServer.strat" title="Permalink to this definition">¶</a></dt>
@@ -244,33 +217,6 @@ the docs on the methods in this class.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.server.AEPsychServer.generate_experiment_table">
-<span class="sig-name descname"><span class="pre">generate_experiment_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment_table'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/server/server.html#AEPsychServer.generate_experiment_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.server.AEPsychServer.generate_experiment_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a table of a given experiment with all the raw data.</p>
-<p>This table is generated from the database, and is added to the
-experiment’s database.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>experiment_id</strong> (<em>str</em>) – The experiment ID to generate the table for.</p></li>
-<li><p><strong>table_name</strong> (<em>str</em>) – The name of the table. Defaults to
-“experiment_table”.</p></li>
-<li><p><strong>return_df</strong> (<em>bool</em>) – If True, also return the dataframe.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>The dataframe of the experiment table, if</dt><dd><p>return_df is True.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 </dd></dl>
