@@ -180,6 +180,26 @@ n (int): number of observations</p>
 </dl>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="aepsych.strategy.Strategy.pre_warm_model">
+<span class="sig-name descname"><span class="pre">pre_warm_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#Strategy.pre_warm_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.Strategy.pre_warm_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds new data points to the strategy, and normalizes the inputs.
+We speceifically disregard the n return value of normalize_inputs here in order
+to stop warm start data from affecting the trials run length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>torch.Tensor</strong> (<em>y</em>) – The input data points.</p></li>
+<li><p><strong>torch.Tensor</strong> – The output data points.</p></li>
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>y</strong> (<em>Tensor</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="aepsych.strategy.Strategy.add_data">
 <span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/strategy.html#Strategy.add_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.strategy.Strategy.add_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds new data points to the strategy, and normalizes the inputs.</p>

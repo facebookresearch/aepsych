@@ -167,16 +167,14 @@
                 <span class="n">_dict</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">_dict</span></div>
 
-    <span class="c1"># Turn the metadata section into JSON.</span>
-<div class="viewcode-block" id="Config.jsonifyMetadata"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.jsonifyMetadata">[docs]</a>    <span class="k">def</span> <span class="nf">jsonifyMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_extra</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return a json string of the metadata section.</span>
+<div class="viewcode-block" id="Config.get_metadata"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_extra</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return a dictionary of the metadata section.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            only_extra (bool): Only jsonify the extra meta data.</span>
+<span class="sd">            only_extra (bool, optional): Only gather the extra metadata. Defaults to False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            str: A json string representing the metadata dictionary or an empty string</span>
-<span class="sd">                if there is no metadata to return.</span>
+<span class="sd">            Dict[Any, Any]: a collection of the metadata stored in this conig.</span>
 <span class="sd">        """</span>
         <span class="n">configdict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">configdict</span><span class="p">[</span><span class="s2">"metadata"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -191,6 +189,20 @@
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">default_metadata</span><span class="p">:</span>
                 <span class="n">metadata</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
+        <span class="k">return</span> <span class="n">metadata</span></div>
+
+    <span class="c1"># Turn the metadata section into JSON.</span>
+<div class="viewcode-block" id="Config.jsonifyMetadata"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.jsonifyMetadata">[docs]</a>    <span class="k">def</span> <span class="nf">jsonifyMetadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only_extra</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a json string of the metadata section.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            only_extra (bool): Only jsonify the extra meta data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A json string representing the metadata dictionary or an empty string</span>
+<span class="sd">                if there is no metadata to return.</span>
+<span class="sd">        """</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(</span><span class="n">only_extra</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">""</span>
         <span class="k">else</span><span class="p">:</span>

@@ -461,6 +461,13 @@
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="c1"># Likely old style of parameter definition, fallback to looking at a bound</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="generate_default_outcome_names"><a class="viewcode-back" href="../../utils.html#aepsych.utils.generate_default_outcome_names">[docs]</a><span class="k">def</span> <span class="nf">generate_default_outcome_names</span><span class="p">(</span><span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">"outcome"</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"outcome_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span></div>
 </pre></div>
 </div>
 </div>

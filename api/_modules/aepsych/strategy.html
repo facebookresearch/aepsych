@@ -560,6 +560,21 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_asks</span>
 
+<div class="viewcode-block" id="Strategy.pre_warm_model"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.pre_warm_model">[docs]</a>    <span class="k">def</span> <span class="nf">pre_warm_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Adds new data points to the strategy, and normalizes the inputs.</span>
+<span class="sd">        We speceifically disregard the n return value of normalize_inputs here in order</span>
+<span class="sd">        to stop warm start data from affecting the trials run length.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x torch.Tensor: The input data points.</span>
+<span class="sd">            y torch.Tensor: The output data points.</span>
+
+<span class="sd">        """</span>
+        <span class="c1"># warming the model shouldn't affect strategy.n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_inputs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_is_fresh</span> <span class="o">=</span> <span class="kc">False</span></div>
+
 <div class="viewcode-block" id="Strategy.add_data"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

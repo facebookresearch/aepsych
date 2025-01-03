@@ -146,7 +146,7 @@
 <span class="sd">            List[Any]: The results of the query.</span>
 <span class="sd">        """</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">session_scope</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span></div>
+            <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Database.get_master_records"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_master_records">[docs]</a>    <span class="k">def</span> <span class="nf">get_master_records</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DBMasterTable</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Grab the list of master records.</span>
@@ -257,14 +257,14 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_all_params_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_all_params_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_params_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Database.get_all_params_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_all_params_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_params_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbParamTable</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the parameters for all the iterations of a specific experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            master_id (int): The master id.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            List[tables.DbRawTable] or None: The parameters or None if they don't exist.</span>
+<span class="sd">            List[tables.DbParamTable] or None: The parameters or None if they don't exist.</span>
 <span class="sd">        """</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">"get_all_params_for is the same as get_param_for since there can only be one instance of any master_id"</span><span class="p">,</span>
@@ -284,14 +284,14 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_param_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_param_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Database.get_param_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_param_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_param_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbParamTable</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the parameters for a specific iteration of a specific experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            master_id (int): The master id.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            List[tables.DbRawTable] or None: The parameters or None if they don't exist.</span>
+<span class="sd">            List[tables.DbParamTable] or None: The parameters or None if they don't exist.</span>
 <span class="sd">        """</span>
         <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
 
@@ -302,14 +302,16 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_all_outcomes_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_all_outcomes_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_outcomes_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Database.get_all_outcomes_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_all_outcomes_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_outcomes_for</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbOutcomeTable</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the outcomes for all the iterations of a specific experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            master_id (int): The master id.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.</span>
+<span class="sd">            List[tables.DbOutcomeTable] or None: The outcomes or None if they don't exist.</span>
 <span class="sd">        """</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">"get_all_outcomes_for is the same as get_outcome_for since there can only be one instance of any master_id"</span><span class="p">,</span>
@@ -329,14 +331,14 @@
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Database.get_outcome_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_outcome_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_outcome_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbRawTable</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Database.get_outcome_for"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_outcome_for">[docs]</a>    <span class="k">def</span> <span class="nf">get_outcome_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">tables</span><span class="o">.</span><span class="n">DbOutcomeTable</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""Get the outcomes for a specific iteration of a specific experiment.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            master_id (int): The master id.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.</span>
+<span class="sd">            List[tables.DbOutcomeTable] or None: The outcomes or None if they don't exist.</span>
 <span class="sd">        """</span>
         <span class="n">raw_record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_raw_for</span><span class="p">(</span><span class="n">master_id</span><span class="p">)</span>
 
