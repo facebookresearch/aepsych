@@ -3,22 +3,22 @@ id: speed
 title: Active Learning Speedups
 ---
 
-This page provides documentations and our recommendations for speeding up AEPsych during
+This page provides documentation and our recommendations for speeding up AEPsych during
 active learning. We detail features built into AEPsych intended to allow AEPsych's
 server to respond faster during an experiment as well as our recommendations on config
-settings that affect active learning speed that may change results.
+settings that affect active learning speed, which may change results.
 
-Psychophysics experiments may have participants responding to a trial in less than a
-second after the trial onset. When using AEPsych, if it takes the server too long to
-respond, the time it takes to complete an experiment can be very long and ultimately be more
-costly. Further, longer experiments may cause participants to become fatigued, yielding
+Psychophysics experiments may have participants respond to a trial in less than a second 
+after the trial onset. When using AEPsych, if the server takes too long to respond, the 
+time it takes to complete an experiment can be very long and ultimately more costly. 
+Furthermore, longer experiments may cause participants to become fatigued, resulting in 
 worse results. Thus, speeding up an experiment can yield significant benefits.
 
 <h2>Speed-up Features</h2>
 
-We implemented multiple features to allow speeding up AEPsych's server in response to
-messages. These features can be used together and have different
-effects on the effectiveness of the AEPsych response speed.
+We have implemented multiple features to speed up AEPsych's server in response to 
+messages. These features can be used together and have different effects on the 
+effectiveness of the AEPsych response speed.
 
 <h3>GPU support</h3>
 
@@ -41,7 +41,7 @@ amount of data that will typically be in a live experiment, using a GPU to fit t
 will not result in a speed up and may incur a slowdown instead**.
 
 However, there may be cases (e.g., high dimensionality, many parameters, many trials,
-or pos-hoc analysis with a lot of data)
+or post-hoc analysis with a lot of data)
 where using the GPU for model fitting will make it faster. This is also hardware
 dependent. If speed is a concern, it is worth testing to see if using a GPU will speed
 up model fitting. The log will provide timing to help decide whether using a GPU for
@@ -56,9 +56,10 @@ support using the GPU. As in the models, the `use_gpu` option in the config shou
 set for the generator. By default, the generators will not use a GPU (even if a GPU is
 available).
 
-If the server cannot find a GPU even though GPUs were requested for either models or
-generators, it is likely that PyTorch cannot access the GPUs. Reinstalling PyTorch
-with GPU support should fix this.
+When you send a setup message to the AEPsych server with `use_gpu = True` for either a model or generator, the server logs will indicate whether AEPsych successfully found a GPU. If the server cannot find a GPU,
+it is likely that PyTorch cannot access the GPUs. Reinstalling PyTorch
+with GPU support should fix this. PyTorch has specific instructions on how to do this 
+for different systems: https://pytorch.org/.
 
 ```ini
 [opt_strat]
@@ -113,11 +114,32 @@ GPU with it causes some slowdown.
 | CPU      |     1.59s     |     2.78s     |     3.60s     |
 | GPU      | 0.63S (0.40x) | 1.72s (0.78x) | 1.82s (0.56x) |
 
-Both EAVC and GlobalMI are usually better acquisition functions, allowing for more
-efficient active learning demonstrates significant speedups allowing them to be
-comparable to MCLevelSetEstimation. Keep in mind these results are with a machine
+Both EAVC and GlobalMI usually find better estimates of level-sets compared to MCLevelSetEstimation, allowing for more
+efficient active learning, although they may be slower on a CPU. Using the GPU demonstrates significant speedups allowing for
+comparable generation times to MCLevelSetEstimation. Keep in mind these results are with a machine
 that has a very powerful CPU and a typical GPU. It is likely that the differences
-between a modestly powerful CPU and a typical GPU will be favor GPUs more often.
+between a typical CPU and a typical GPU will be favor GPUs more often.
+
+Further, the better global lookahead acquisition functions (EAVC and GlobalMI), 
+requires defining the set of reference points to evaluate the function at. This 
+`query_set_size` option is defaulted to 256 to allow these acquisition functions to be
+usable on CPUs. However, increasing this value (e.g., to 1000) can allow the
+generators to select better points. This is especially useful when using the GPU as it 
+can ensure the generation times remain low while reaping the benefits of better 
+acquisitions. For example, this can be changed in EAVC in a config like so:
+
+```ini
+[opt_strat]
+model = GPClassificationModel
+generator = OptimizeAcqfGenerator
+acqf = EAVC
+
+[OptimizeAcqfGenerator]
+use_gpu = True # turn it on with any of true/yes/on, turn it off with any of false/no/off; case insensitive
+
+[EAVC] # If another global lookahead acquisition function is used, change the block name
+query_set_size = 1000 # This should be an integer
+```
 
 If possible, we recommend using the GPU only for the generator and the better
 acquisition functions for active learning. It should be possible to confidently estimate
@@ -128,11 +150,11 @@ hardware to double-check the effectiveness.
 
 <h3>Refit Intermittently</h3>
 
-By default, the model will be refit hyperparameters after every tell. While the fitting time
+By default, the model will refit hyperparameters after every tell. While the fitting time
 may not be the most time-consuming part, it is possible to shorten the AEPsych server response time
-to asks by only refitting the hyperparameters model once every few asks. This does necessarily mean
-that the model could be used to generate points without the entirety of the available
-data during an experiment. This feature can be enabled by using the `refit_every` option
+to asks by only refitting the hyperparameters model once every few tells. This does necessarily mean
+that the model could be used to generate points without being completely up to date. 
+This feature can be enabled by using the `refit_every` option
 in a strategy's section. Regardless of what is set for this option, the model continues to be
 conditioned on the data as it comes in.
 
@@ -146,7 +168,6 @@ refit_every = 2 # A strictly positive integer
 The `refit_every` will have the model only refit hyperparameters to the data every `n` data points. In
 the above example, the model will only be refit every other tell, which halves the
 overall fitting time across the whole experiment at the cost of the model not being completely optimized to the latest data.
-two data points behind.
 
 Refitting intermittently may be useful, especially in experiments with
 many Sobol or manual trials before active learning, such that single trials are unlikely
@@ -202,7 +223,7 @@ experiment's goals.
 When fitting approximate GP models (like the GPClassificationModel), using the entirety
 of the data can be too costly. Instead, we distill the data down to inducing points for
 variational inference. The number of inducing points ultimately determines how long a
-model takes to fit. The more inducing points used the better the model will be but the
+model takes to fit. The more inducing points used, the better the model will be but the
 fitting time will also increase. Similarly, different inducing point selection
 algorithms will result in different number of inducing points with varying levels of
 how well the inducing points approximate the data.
@@ -242,7 +263,7 @@ possible to tune the performance of active learning.
 
 The acquisition functions can be set in the generator options. There may also be
 additional acquisition function settings to change the speed and effectiveness of the
-acquisition function.
+acquisition function, e.g. `query_set_size` as detailed above.
 
 ```ini
 [OptimizeAcqfGenerator]
@@ -279,6 +300,8 @@ keep_most_recent = 50 # A strictly positive integer, keeping the 50 most recent 
 In general, lowering the amount of data the model can fit on will weaken active learning
 performance unless there's significant change in responses over time. However, with very
 long experiments targeting a specific and reliable response probability, it may be worth it to only
-use the most recent bit of data. As usual, it is worth piloting and tuning this option
+use the most recent bit of data. In general, this option should not be used unless you
+are very certain that you only need the last n data points for good model performance. As 
+usual, it is worth piloting and tuning this option
 if it is being used to test whether it significantly improves the server response time
 while not harming (or improving) fits by the end.
