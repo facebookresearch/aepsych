@@ -62,6 +62,43 @@ points = [[0,0], [0,1], [1,0], [1,1]] # the points to sample
 shuffle = True # whether to randomize the order of the points (True by default)
 ```
 
+<h2>Warm Starting a Strategy</h2>
+
+If you want to make use of preexisting data and start your experiment with a more mature model you can do that by defining specific seed conditions. You can optionally use any data supplied under previous experiment's `[metadata]` header as filters to specify the data you'd like to use to warm start your strategy. The following is an example of how to define these seed conditions in your config: 
+
+```
+[example_strat]
+generator = SobolGenerator
+min_total_tells = 5
+seed_data_conditions = seed_conds
+
+[seed_conds]
+experiment_name = [name_1, name_2, ... name_n]
+experiment_id = [id_1, id_2, ... id_n]
+experiment_description = [desc_1, desc_2, ... desc_n]
+participant_id = [id_1, id_2, ... id_n]
+```
+
+<h3>Using Extra Metadata as Seed Conditions</h3>
+
+You can also use any extra metadata as seed conditions, but rather than defining an `extra_metadata` field in your config you can define it like so: 
+
+```
+[seed_conds]
+experiment_name = name_1
+.
+.
+.
+modality = [vision, haptics]
+```
+
+<h3>How is data matched?</h3>
+Data is matched in three stages. In stage one, data is matched in a complex logical expression. Data in the same group are matched using a logical or operation while data is matched between groups using a logical and operation.
+
+In stage two, the matched experiement's configurations are checked against the current experiment's configuration. Any data with a mismatch in number of expected stimuli, paramater name-type pairing, or outcome name-type paring is discarded. You will be warned about data with a continuous parameter type and mismatching bounds, however, this data will _not_ be discarded.
+
+Finally, before the data is fed into your experiments strategy, candidate data will be transformed to ensure that no data that would be undefined in the current experiment makes it into the strategy.
+
 <h1>Experimental Features</h1>
 The following features have not yet been tested on real problems, but they are still available for use if you would like to try them.
 
