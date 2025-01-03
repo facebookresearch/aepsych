@@ -14,12 +14,13 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import aepsych.database.tables as tables
-from aepsych.config import Config
-from aepsych.strategy import Strategy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import close_all_sessions
+
+import aepsych.database.tables as tables
+from aepsych.config import Config
+from aepsych.strategy import Strategy
 
 logger = logging.getLogger()
 
@@ -239,97 +240,51 @@ class Database:
 
         return None
 
-    def get_all_params_for(self, master_id: int) -> Optional[List[tables.DbParamTable]]:
-        """Get the parameters for all the iterations of a specific experiment.
+    def get_params_for(self, master_id: int) -> List[List[tables.DbParamTable]]:
+        """Get the rows of the parameter table for the master_id's experiment. Each
+        row contains data for a certain trial: the parameter name and its values.
+        If a trial has multiple parameters, there will be multiple rows for that trial.
+        Trials are delineated by the iteration_id.
 
         Args:
             master_id (int): The master id.
 
         Returns:
-            List[tables.DbParamTable] or None: The parameters or None if they don't exist.
+            List[List[tables.DbParamTable]]: The parameters as a list of lists, where each inner list represents one trial.
         """
-        warnings.warn(
-            "get_all_params_for is the same as get_param_for since there can only be one instance of any master_id",
-            DeprecationWarning,
-        )
-        return self.get_param_for(master_id=master_id)
-
-        # TODO: This function should change to being able to get params for all experiments given specific metadata
         raw_record = self.get_raw_for(master_id)
-        params = []
 
         if raw_record is not None:
-            for raw in raw_record:
-                for param in raw.children_param:
-                    params.append(param)
-            return params
+            return [
+                rec.children_param
+                for rec in self.get_raw_for(master_id)
+                if rec is not None
+            ]
 
-        return None
+        return []
 
-    def get_param_for(self, master_id: int) -> Optional[List[tables.DbParamTable]]:
-        """Get the parameters for a specific iteration of a specific experiment.
+    def get_outcomes_for(self, master_id: int) -> List[List[tables.DbParamTable]]:
+        """Get the rows of the outcome table for the master_id's experiment. Each
+        row contains data for a certain trial: the outcome name and its values.
+        If a trial has multiple outcomes, there will be multiple rows for that trial.
+        Trials are delineated by the iteration_id.
 
         Args:
             master_id (int): The master id.
 
         Returns:
-            List[tables.DbParamTable] or None: The parameters or None if they don't exist.
+            List[List[tables.DbOutcomeTable]]: The outcomes as a list of lists, where each inner list represents one trial.
         """
         raw_record = self.get_raw_for(master_id)
 
         if raw_record is not None:
-            for raw in raw_record:
-                if raw.unique_id == master_id:
-                    return raw.children_param
+            return [
+                rec.children_outcome
+                for rec in self.get_raw_for(master_id)
+                if rec is not None
+            ]
 
-        return None
-
-    def get_all_outcomes_for(
-        self, master_id: int
-    ) -> Optional[List[tables.DbOutcomeTable]]:
-        """Get the outcomes for all the iterations of a specific experiment.
-
-        Args:
-            master_id (int): The master id.
-
-        Returns:
-            List[tables.DbOutcomeTable] or None: The outcomes or None if they don't exist.
-        """
-        warnings.warn(
-            "get_all_outcomes_for is the same as get_outcome_for since there can only be one instance of any master_id",
-            DeprecationWarning,
-        )
-        return self.get_outcome_for(master_id=master_id)
-
-        # TODO: This function should change to being able to get outcomes for all experiments given specific metadata
-        raw_record = self.get_raw_for(master_id)
-        outcomes = []
-
-        if raw_record is not None:
-            for raw in raw_record:
-                for outcome in raw.children_outcome:
-                    outcomes.append(outcome)
-            return outcomes
-
-        return None
-
-    def get_outcome_for(self, master_id: int) -> Optional[List[tables.DbOutcomeTable]]:
-        """Get the outcomes for a specific iteration of a specific experiment.
-
-        Args:
-            master_id (int): The master id.
-
-        Returns:
-            List[tables.DbOutcomeTable] or None: The outcomes or None if they don't exist.
-        """
-        raw_record = self.get_raw_for(master_id)
-
-        if raw_record is not None:
-            for raw in raw_record:
-                if raw.unique_id == master_id:
-                    return raw.children_outcome
-
-        return None
+        return []
 
     def record_setup(
         self,
