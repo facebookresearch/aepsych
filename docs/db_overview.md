@@ -25,9 +25,9 @@ Each table is described as follows:
 |unique_id | A unique ID generated for each entry in this table.|
 |experiment_name | A name given to the experiment through the experiment's configuration file. If not specified, defaults to "default name".|
 |experiment_description | A text description of the experiment. This value is configurable in the experiment's configuration file. If not specified, defaults to "default description".|
-|experiment_id | A unique ID for an experiment. If not specified in the experiment's configuration file, it will be automatically generated through Python's [Unique Universal Identifier](https://docs.python.org/3/library/uuid.html) module.|
-|participant_id | A unique ID for a specific participant in an experiment. If not specified in the experiment's configuration file, it will be left empty.|
-|extra_metadata | Any special metadata specified in the configuration file under the section "Metadata". This metadata is stored as JSON so that it may be easily serialized/deserialized at a later time period. If no metadata is specified in the configuration file, this field will be empty. |
+|experiment_id | An ID for an experiment. If not specified in the experiment's configuration file, it will be automatically generated through Python's [Unique Universal Identifier](https://docs.python.org/3/library/uuid.html) module.|
+|participant_id | A ID for a specific participant in an experiment. If not specified in the experiment's configuration file, it will be another generated UUID as in experiment_id.|
+|extra_metadata | Any special metadata specified in the configuration file under the section "Metadata". This metadata is stored as JSON so that it may be easily serialized/deserialized at a later time period. If no metadata is specified in the configuration file, this field will be empty, keys set as distinct columns in this table will not be duplicated here. |
 
 
 - **replay_data Table**: The replay table contains the messages sent between the client and the server on each trial so that previous experiments can be replayed again. The columns are described as follows:
