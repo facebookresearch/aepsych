@@ -37,6 +37,9 @@ def replay(server, uuid_to_replay, skip_computations=False):
 
     master_record = server.db.get_master_record(uuid_to_replay)
 
+    # We're going to assume that a config message will be sent in this replay such that the server.strat_id matches this record
+    server._db_master_record = master_record
+
     if master_record is None:
         raise RuntimeError(
             f"The unique ID {uuid_to_replay} isn't in the database. Unable to perform replay."
