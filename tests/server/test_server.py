@@ -57,13 +57,18 @@ n_points = 2
 
 
 class BaseServerTestCase(unittest.TestCase):
+    # so that this can be overridden for tests that require specific databases.
+    @property
+    def database_path(self):
+        return "./{}_test_server.db".format(str(uuid.uuid4().hex))
+
     def setUp(self):
         # setup logger
         server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
         # random port
         socket = server.sockets.PySocket(port=0)
         # random datebase path name without dashes
-        database_path = "./{}_test_server.db".format(str(uuid.uuid4().hex))
+        database_path = self.database_path
         self.s = server.AEPsychServer(socket=socket, database_path=database_path)
         self.db_name = database_path.split("/")[1]
         self.db_path = database_path
