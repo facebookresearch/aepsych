@@ -128,7 +128,7 @@ class Database:
             List[Any]: The results of the query.
         """
         with self.session_scope() as session:
-            return session.execute(query, vals).fetchall()
+            return session.execute(query, vals).all()
 
     def get_master_records(self) -> List[tables.DBMasterTable]:
         """Grab the list of master records.
@@ -239,14 +239,14 @@ class Database:
 
         return None
 
-    def get_all_params_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
+    def get_all_params_for(self, master_id: int) -> Optional[List[tables.DbParamTable]]:
         """Get the parameters for all the iterations of a specific experiment.
 
         Args:
             master_id (int): The master id.
 
         Returns:
-            List[tables.DbRawTable] or None: The parameters or None if they don't exist.
+            List[tables.DbParamTable] or None: The parameters or None if they don't exist.
         """
         warnings.warn(
             "get_all_params_for is the same as get_param_for since there can only be one instance of any master_id",
@@ -266,14 +266,14 @@ class Database:
 
         return None
 
-    def get_param_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
+    def get_param_for(self, master_id: int) -> Optional[List[tables.DbParamTable]]:
         """Get the parameters for a specific iteration of a specific experiment.
 
         Args:
             master_id (int): The master id.
 
         Returns:
-            List[tables.DbRawTable] or None: The parameters or None if they don't exist.
+            List[tables.DbParamTable] or None: The parameters or None if they don't exist.
         """
         raw_record = self.get_raw_for(master_id)
 
@@ -284,14 +284,16 @@ class Database:
 
         return None
 
-    def get_all_outcomes_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
+    def get_all_outcomes_for(
+        self, master_id: int
+    ) -> Optional[List[tables.DbOutcomeTable]]:
         """Get the outcomes for all the iterations of a specific experiment.
 
         Args:
             master_id (int): The master id.
 
         Returns:
-            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
+            List[tables.DbOutcomeTable] or None: The outcomes or None if they don't exist.
         """
         warnings.warn(
             "get_all_outcomes_for is the same as get_outcome_for since there can only be one instance of any master_id",
@@ -311,14 +313,14 @@ class Database:
 
         return None
 
-    def get_outcome_for(self, master_id: int) -> Optional[List[tables.DbRawTable]]:
+    def get_outcome_for(self, master_id: int) -> Optional[List[tables.DbOutcomeTable]]:
         """Get the outcomes for a specific iteration of a specific experiment.
 
         Args:
             master_id (int): The master id.
 
         Returns:
-            List[tables.DbRawTable] or None: The outcomes or None if they don't exist.
+            List[tables.DbOutcomeTable] or None: The outcomes or None if they don't exist.
         """
         raw_record = self.get_raw_for(master_id)
 

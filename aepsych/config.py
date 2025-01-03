@@ -149,16 +149,14 @@ class Config(configparser.ConfigParser):
                 _dict[section][setting] = self[section][setting]
         return _dict
 
-    # Turn the metadata section into JSON.
-    def jsonifyMetadata(self, only_extra: bool = False) -> str:
-        """Return a json string of the metadata section.
+    def get_metadata(self, only_extra: bool = False) -> Dict[Any, Any]:
+        """Return a dictionary of the metadata section.
 
         Args:
-            only_extra (bool): Only jsonify the extra meta data.
+            only_extra (bool, optional): Only gather the extra metadata. Defaults to False.
 
         Returns:
-            str: A json string representing the metadata dictionary or an empty string
-                if there is no metadata to return.
+            Dict[Any, Any]: a collection of the metadata stored in this conig.
         """
         configdict = self.to_dict()
         metadata = configdict["metadata"].copy()
@@ -173,6 +171,20 @@ class Config(configparser.ConfigParser):
             for name in default_metadata:
                 metadata.pop(name, None)
 
+        return metadata
+
+    # Turn the metadata section into JSON.
+    def jsonifyMetadata(self, only_extra: bool = False) -> str:
+        """Return a json string of the metadata section.
+
+        Args:
+            only_extra (bool): Only jsonify the extra meta data.
+
+        Returns:
+            str: A json string representing the metadata dictionary or an empty string
+                if there is no metadata to return.
+        """
+        metadata = self.get_metadata(only_extra)
         if len(metadata.keys()) == 0:
             return ""
         else:

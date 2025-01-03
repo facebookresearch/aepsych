@@ -542,6 +542,21 @@ class Strategy(object):
         )
         return self.min_asks
 
+    def pre_warm_model(self, x: torch.Tensor, y: torch.Tensor) -> None:
+        """
+        Adds new data points to the strategy, and normalizes the inputs.
+        We speceifically disregard the n return value of normalize_inputs here in order
+        to stop warm start data from affecting the trials run length.
+
+        Args:
+            x torch.Tensor: The input data points.
+            y torch.Tensor: The output data points.
+
+        """
+        # warming the model shouldn't affect strategy.n
+        self.x, self.y, n = self.normalize_inputs(x, y)
+        self._model_is_fresh = False
+
     def add_data(
         self, x: Union[np.ndarray, torch.Tensor], y: Union[np.ndarray, torch.Tensor]
     ) -> None:

@@ -9,6 +9,7 @@ import logging
 
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
+from aepsych.database.data_fetcher import DataFetcher
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
@@ -32,6 +33,10 @@ def _configure(server, config):
 
     server.strat = SequentialStrategy.from_config(config)
     server.strat_id = server.n_strats - 1  # 0-index strats
+
+    for strat in server.strat.strat_list:
+        fetcher = DataFetcher.from_config(config, strat.name)
+        fetcher.warm_start_strat(server, strat)
 
     return server.strat_id
 
@@ -88,13 +93,11 @@ def handle_setup(server, request):
                 par_id = tempconfig["metadata"].get("participant_id", fallback=None)
 
                 # This may be populated when replaying
-                if server._db_master_record is not None:
+                exp_id = tempconfig["metadata"].get("experiment_id", fallback=None)
+                if exp_id is None and server._db_master_record is not None:
                     exp_id = server._db_master_record.experiment_id
-                else:
-                    exp_id = tempconfig["metadata"].get("experiment_id", fallback=None)
 
                 extra_metadata = tempconfig.jsonifyMetadata(only_extra=True)
-
                 server._db_master_record = server.db.record_setup(
                     description=exp_desc,
                     name=exp_name,
