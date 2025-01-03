@@ -337,7 +337,7 @@ class Database:
         name: str = None,
         extra_metadata: Optional[str] = None,
         exp_id: Optional[str] = None,
-        request: Dict[str, Any] = None,
+        request: Optional[Dict[str, Any]] = None,
         par_id: Optional[int] = None,
     ) -> str:
         """Record the setup of an experiment.
@@ -371,7 +371,7 @@ class Database:
         record.message_type = "setup"
         record.message_contents = request
 
-        if "extra_info" in request:
+        if request is not None and "extra_info" in request:
             record.extra_info = request["extra_info"]
 
         record.timestamp = datetime.datetime.now()

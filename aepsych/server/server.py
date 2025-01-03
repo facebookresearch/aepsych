@@ -59,7 +59,6 @@ class AEPsychServer(object):
         self.db = None
         self.is_performing_replay = False
         self.exit_server_loop = False
-        self._db_master_record = None
         self._db_raw_record = None
         self.db: db.Database = db.Database(database_path)
         self.skip_computations = False
@@ -71,6 +70,7 @@ class AEPsychServer(object):
         self._strats = []
         self._parnames = []
         self._configs = []
+        self._master_records = []
         self.strat_id = -1
         self._pregen_asks = []
         self.enable_pregen = False
@@ -269,6 +269,17 @@ class AEPsychServer(object):
         self._parnames.append(s)
 
     @property
+    def _db_master_record(self):
+        if self.strat_id == -1:
+            return None
+        else:
+            return self._master_records[self.strat_id]
+
+    @_db_master_record.setter
+    def _db_master_record(self, s):
+        self._master_records.append(s)
+
+    @property
     def n_strats(self):
         return len(self._strats)
 
@@ -385,7 +396,6 @@ def startServerAndRun(
         if socket is not None:
             if id_of_replay is not None:
                 server.replay(id_of_replay, skip_computations=True)
-                server._db_master_record = server.db.get_master_record(id_of_replay)
             server.serve()
         else:
             if config_path is not None:

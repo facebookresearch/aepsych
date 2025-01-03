@@ -38,6 +38,14 @@ def _configure(server, config):
         fetcher = DataFetcher.from_config(config, strat.name)
         fetcher.warm_start_strat(server, strat)
 
+    try:
+        # Check we have a record to get
+        _ = server._db_master_record
+    except (
+        IndexError
+    ):  # We probably don't have a record for this new ID, so we make a dummy
+        server._db_master_record = server.db.record_setup()
+
     return server.strat_id
 
 
