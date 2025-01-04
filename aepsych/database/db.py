@@ -14,13 +14,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import close_all_sessions
-
 import aepsych.database.tables as tables
 from aepsych.config import Config
 from aepsych.strategy import Strategy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import close_all_sessions
 
 logger = logging.getLogger()
 
