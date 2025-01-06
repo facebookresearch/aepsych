@@ -25,12 +25,6 @@ def parse_argument():
     parser = argparse.ArgumentParser(description="AEPsych Database!")
 
     parser.add_argument(
-        "-l",
-        "--list",
-        help="Lists available experiments in the database.",
-        action="store_true",
-    )
-    parser.add_argument(
         "-d",
         "--db",
         type=str,
@@ -39,10 +33,9 @@ def parse_argument():
     )
 
     parser.add_argument(
-        "-u",
-        "--update",
+        "--summarize",
         action="store_true",
-        help="Update the database tables with the most recent columns and tables.",
+        help="Summarize the data contained in a database.",
     )
 
     args = parser.parse_args()
@@ -54,8 +47,10 @@ def run_database(args):
     try:
         database_path = args.db
         database = db.Database(database_path)
-        if args.list is True:
-            database.list_master_records()
+
+        if args.summarize is True:
+            summary = db.Database(database_path).summarize_experiments()
+            print(summary)
         elif "update" in args and args.update:
             logger.info(f"Updating the database {database_path}")
             if database.is_update_required():

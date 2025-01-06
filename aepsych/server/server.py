@@ -13,13 +13,12 @@ import sys
 import threading
 import traceback
 import warnings
-from typing import Optional
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
+
 import dill
 import numpy as np
-import pandas as pd
 import torch
 from aepsych.server.message_handlers import MESSAGE_MAP
 from aepsych.server.message_handlers.handle_ask import ask

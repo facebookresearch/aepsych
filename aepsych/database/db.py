@@ -6,21 +6,22 @@
 # LICENSE file in the root directory of this source tree.
 
 import datetime
+import json
 import logging
 import os
 import uuid
-import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import aepsych.database.tables as tables
+
+import pandas as pd
+from aepsych.config import Config
+from aepsych.strategy import Strategy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import close_all_sessions
-
-import aepsych.database.tables as tables
-from aepsych.config import Config
-from aepsych.strategy import Strategy
 
 logger = logging.getLogger()
 
@@ -462,12 +463,77 @@ class Database:
         self._session.add(config_entry)
         self._session.commit()
 
-    def list_master_records(self) -> None:
-        """List the master records."""
-        master_records = self.get_master_records()
+    def summarize_experiments(self) -> pd.DataFrame:
+        """Provides a summary of the experiments contained in the database as a pandas dataframe.
 
-        print("Listing master records:")
-        for record in master_records:
-            print(
-                f'\t{record.unique_id} - name: "{record.experiment_name}" experiment id: {record.experiment_id}'
+        This function can also be called from the command line using
+            `aepsych_database --db PATH_TO_DB --summarize`
+
+        Returns:
+            pandas.Dataframe: The dataframe containing the summary info.
+        """
+
+        def get_parnames(master_id):
+            config = self.get_config_for(master_id)
+            return set(config.getlist("common", "parnames", element_type=str))
+
+        def get_outcome_names(master_id):
+            config = self.get_config_for(master_id)
+            outcome_types = config.getlist("common", "outcome_types", element_type=str)
+
+            def get_fallback_names(count: int):
+                if count == 1:
+                    return ["outcome"]
+
+                return ["outcome_" + i for i in range(count)]
+
+            return set(
+                config.getlist(
+                    "common",
+                    "outcome_names",
+                    element_type=str,
+                    fallback=get_fallback_names(len(outcome_types)),
+                )
             )
+
+        def get_stimuli_per_trial(master_id):
+            config = self.get_config_for(master_id)
+            return config.getint("common", "stimuli_per_trial")
+
+        records = self.get_master_records()
+        exp_dict = {
+            "experiment_id": [rec.experiment_id for rec in records],
+            "experiment_name": [rec.experiment_name for rec in records],
+            "experiment_description": [rec.experiment_description for rec in records],
+            "participant_id": [rec.participant_id for rec in records],
+        }
+
+        extra_metadata = [
+            json.loads(rec.extra_metadata) if rec.extra_metadata is not None else {}
+            for rec in records
+        ]
+        keys = {key for met in extra_metadata for key in met}
+
+        for key in keys:
+            exp_dict[key] = [met[key] if key in met else None for met in extra_metadata]
+
+        exp_dict.update(
+            {
+                "creation_time": [
+                    self.get_replay_for(rec.unique_id)[0].timestamp for rec in records
+                ],
+                "time_last_modified": [
+                    self.get_replay_for(rec.unique_id)[-1].timestamp for rec in records
+                ],
+                "stimuli_per_trial": [
+                    get_stimuli_per_trial(rec.unique_id) for rec in records
+                ],
+                "parameter_names": [get_parnames(rec.unique_id) for rec in records],
+                "outcome_names": [get_outcome_names(rec.unique_id) for rec in records],
+                "n_data": [
+                    len(self.get_outcomes_for(rec.unique_id)) for rec in records
+                ],
+            }
+        )
+
+        return pd.DataFrame(exp_dict)
