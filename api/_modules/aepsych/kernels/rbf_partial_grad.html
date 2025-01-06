@@ -23,15 +23,15 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">gpytorch.kernels.rbf_kernel_grad</span> <span class="kn">import</span> <span class="n">RBFKernelGrad</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.kernels.rbf_kernel_grad</span><span class="w"> </span><span class="kn">import</span> <span class="n">RBFKernelGrad</span>
 
 
-<div class="viewcode-block" id="RBFKernelPartialObsGrad"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad">[docs]</a><span class="k">class</span> <span class="nc">RBFKernelPartialObsGrad</span><span class="p">(</span><span class="n">RBFKernelGrad</span><span class="p">):</span>
+<div class="viewcode-block" id="RBFKernelPartialObsGrad"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">RBFKernelPartialObsGrad</span><span class="p">(</span><span class="n">RBFKernelGrad</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""An RBF kernel over observations of f, and partial/non-overlapping</span>
 <span class="sd">    observations of the gradient of f.</span>
 
@@ -45,7 +45,7 @@
 <span class="sd">    if it is of df/dxi.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="RBFKernelPartialObsGrad.forward"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+<div class="viewcode-block" id="RBFKernelPartialObsGrad.forward"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">diag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Computes the covariance matrix between x1 and x2 based on the RBF</span>
@@ -78,7 +78,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">K</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">p1</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="RBFKernelPartialObsGrad.num_outputs_per_input"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input">[docs]</a>    <span class="k">def</span> <span class="nf">num_outputs_per_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="RBFKernelPartialObsGrad.num_outputs_per_input"><a class="viewcode-back" href="../../../kernels.html#aepsych.kernels.rbf_partial_grad.RBFKernelPartialObsGrad.num_outputs_per_input">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">num_outputs_per_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span></div></div>
 </pre></div>
 </div>

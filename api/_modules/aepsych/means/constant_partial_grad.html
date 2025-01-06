@@ -23,13 +23,13 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">gpytorch.means.constant_mean</span> <span class="kn">import</span> <span class="n">ConstantMean</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.means.constant_mean</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConstantMean</span>
 
 
-<div class="viewcode-block" id="ConstantMeanPartialObsGrad"><a class="viewcode-back" href="../../../means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad">[docs]</a><span class="k">class</span> <span class="nc">ConstantMeanPartialObsGrad</span><span class="p">(</span><span class="n">ConstantMean</span><span class="p">):</span>
+<div class="viewcode-block" id="ConstantMeanPartialObsGrad"><a class="viewcode-back" href="../../../means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ConstantMeanPartialObsGrad</span><span class="p">(</span><span class="n">ConstantMean</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A mean function for use with partial gradient observations.</span>
 
 <span class="sd">    This follows gpytorch.means.constant_mean_grad and sets the prior mean for</span>
@@ -40,7 +40,7 @@
 <span class="sd">    is of f, or i if it is of df/dxi.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="ConstantMeanPartialObsGrad.forward"><a class="viewcode-back" href="../../../means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="ConstantMeanPartialObsGrad.forward"><a class="viewcode-back" href="../../../means.html#aepsych.means.constant_partial_grad.ConstantMeanPartialObsGrad.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="n">mean_fit</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ConstantMeanPartialObsGrad</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">~</span><span class="n">idx</span><span class="p">,</span> <span class="p">:])</span>
         <span class="n">sz</span> <span class="o">=</span> <span class="n">mean_fit</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="nb">input</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]])</span>

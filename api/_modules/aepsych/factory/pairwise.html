@@ -23,19 +23,19 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">gpytorch</span>
-<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">aepsych.factory.default</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.factory.default</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_get_default_cov_function</span><span class="p">,</span>
     <span class="n">_get_default_mean_function</span><span class="p">,</span>
     <span class="n">default_mean_covar_factory</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">aepsych.kernels.pairwisekernel</span> <span class="kn">import</span> <span class="n">PairwiseKernel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.kernels.pairwisekernel</span><span class="w"> </span><span class="kn">import</span> <span class="n">PairwiseKernel</span>
 
 
-<div class="viewcode-block" id="pairwise_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.pairwise_mean_covar_factory">[docs]</a><span class="k">def</span> <span class="nf">pairwise_mean_covar_factory</span><span class="p">(</span>
+<div class="viewcode-block" id="pairwise_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.pairwise_mean_covar_factory">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">pairwise_mean_covar_factory</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Creates a mean and covariance function for pairwise GPs.</span>

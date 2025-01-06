@@ -23,21 +23,21 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">aepsych.acquisition.monotonic_rejection</span> <span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
-<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.monotonic_rejection_gp</span> <span class="kn">import</span> <span class="n">MonotonicRejectionGP</span>
-<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">_process_bounds</span>
-<span class="kn">from</span> <span class="nn">botorch.acquisition</span> <span class="kn">import</span> <span class="n">AcquisitionFunction</span>
-<span class="kn">from</span> <span class="nn">botorch.logging</span> <span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">from</span> <span class="nn">botorch.optim.initializers</span> <span class="kn">import</span> <span class="n">gen_batch_initial_conditions</span>
-<span class="kn">from</span> <span class="nn">botorch.optim.utils</span> <span class="kn">import</span> <span class="n">columnwise_clamp</span><span class="p">,</span> <span class="n">fix_features</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.monotonic_rejection</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychGenerator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.monotonic_rejection_gp</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicRejectionGP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_bounds</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquisitionFunction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.optim.initializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">gen_batch_initial_conditions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.optim.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">columnwise_clamp</span><span class="p">,</span> <span class="n">fix_features</span>
 
 
-<div class="viewcode-block" id="default_loss_constraint_fun"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.default_loss_constraint_fun">[docs]</a><span class="k">def</span> <span class="nf">default_loss_constraint_fun</span><span class="p">(</span>
+<div class="viewcode-block" id="default_loss_constraint_fun"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.default_loss_constraint_fun">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">default_loss_constraint_fun</span><span class="p">(</span>
     <span class="n">loss</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">candidates</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Identity transform for constrained optimization.</span>
@@ -55,11 +55,11 @@
     <span class="k">return</span> <span class="n">loss</span></div>
 
 
-<div class="viewcode-block" id="MonotonicRejectionGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator">[docs]</a><span class="k">class</span> <span class="nc">MonotonicRejectionGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">[</span><span class="n">MonotonicRejectionGP</span><span class="p">]):</span>
+<div class="viewcode-block" id="MonotonicRejectionGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MonotonicRejectionGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">[</span><span class="n">MonotonicRejectionGP</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">"""Generator specifically to be used with MonotonicRejectionGP, which generates new points to sample by minimizing</span>
 <span class="sd">    an acquisition function through stochastic gradient descent."""</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">acqf</span><span class="p">:</span> <span class="n">MonotonicMCAcquisition</span><span class="p">,</span>
         <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -89,7 +89,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">MonotonicRejectionGP</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -107,7 +107,7 @@
             <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="MonotonicRejectionGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span>
+<div class="viewcode-block" id="MonotonicRejectionGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># Current implementation only generates 1 point at a time</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">MonotonicRejectionGP</span><span class="p">,</span>
@@ -181,7 +181,7 @@
             <span class="k">if</span> <span class="n">verbosity_freq</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">verbosity_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Iter: </span><span class="si">{}</span><span class="s2"> - Value: </span><span class="si">{:.3f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())))</span>
 
-            <span class="k">def</span> <span class="nf">closure</span><span class="p">():</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">closure</span><span class="p">():</span>
                 <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span>
                     <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span>
@@ -203,7 +203,7 @@
         <span class="k">return</span> <span class="n">Xopt</span></div>
 
 <div class="viewcode-block" id="MonotonicRejectionGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"MonotonicRejectionGenerator"</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"MonotonicRejectionGenerator"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Creates an instance of MonotonicRejectionGenerator from a configuration object.</span>
 

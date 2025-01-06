@@ -23,20 +23,20 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">select</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">select</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
-<span class="kn">import</span> <span class="nn">aepsych.utils_logging</span> <span class="k">as</span> <span class="nn">utils_logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils_logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">utils_logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 <span class="n">BAD_REQUEST</span> <span class="o">=</span> <span class="s2">"bad request"</span>
 
 
-<div class="viewcode-block" id="SimplifyArrays"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.SimplifyArrays">[docs]</a><span class="k">def</span> <span class="nf">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+<div class="viewcode-block" id="SimplifyArrays"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.SimplifyArrays">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">SimplifyArrays</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -47,13 +47,13 @@
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="DummySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket">[docs]</a><span class="k">class</span> <span class="nc">DummySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<div class="viewcode-block" id="DummySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DummySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">DummySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DummySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.DummySocket.close">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div></div>
 
 
-<div class="viewcode-block" id="PySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket">[docs]</a><span class="k">class</span> <span class="nc">PySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+<div class="viewcode-block" id="PySocket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">PySocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
         <span class="n">addr</span> <span class="o">=</span> <span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>  <span class="c1"># all interfaces</span>
         <span class="k">if</span> <span class="n">socket</span><span class="o">.</span><span class="n">has_dualstack_ipv6</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">create_server</span><span class="p">(</span>
@@ -64,13 +64,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="PySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PySocket.close"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.close">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PySocket.return_socket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.return_socket">[docs]</a>    <span class="k">def</span> <span class="nf">return_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PySocket.return_socket"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.return_socket">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">return_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span></div>
 
-<div class="viewcode-block" id="PySocket.accept_client"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.accept_client">[docs]</a>    <span class="k">def</span> <span class="nf">accept_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PySocket.accept_client"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.accept_client">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">accept_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">client_not_connected</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Waiting for connection..."</span><span class="p">)</span>
 
@@ -88,7 +88,7 @@
                         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connection to client failed with error </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                         <span class="k">raise</span> <span class="ne">Exception</span></div>
 
-<div class="viewcode-block" id="PySocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_exiting</span><span class="p">):</span>
+<div class="viewcode-block" id="PySocket.receive"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.receive">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_exiting</span><span class="p">):</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="n">server_exiting</span><span class="p">:</span>
             <span class="n">rlist</span><span class="p">,</span> <span class="n">wlist</span><span class="p">,</span> <span class="n">xlist</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span>
@@ -107,7 +107,7 @@
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">BAD_REQUEST</span></div>
 
-<div class="viewcode-block" id="PySocket.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<div class="viewcode-block" id="PySocket.send"><a class="viewcode-back" href="../../../server.html#aepsych.server.sockets.PySocket.send">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No connection to send to!"</span><span class="p">)</span>
 

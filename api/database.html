@@ -379,12 +379,19 @@ Trials are delineated by the iteration_id.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.database.db.Database.list_master_records">
-<span class="sig-name descname"><span class="pre">list_master_records</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.list_master_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.list_master_records" title="Permalink to this definition">¶</a></dt>
-<dd><p>List the master records.</p>
+<dt class="sig sig-object py" id="aepsych.database.db.Database.summarize_experiments">
+<span class="sig-name descname"><span class="pre">summarize_experiments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.summarize_experiments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.summarize_experiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a summary of the experiments contained in the database as a pandas dataframe.</p>
+<dl class="simple">
+<dt>This function can also be called from the command line using</dt><dd><p><cite>aepsych_database –db PATH_TO_DB –summarize</cite></p>
+</dd>
+</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The dataframe containing the summary info.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe</p>
 </dd>
 </dl>
 </dd></dl>

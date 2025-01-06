@@ -80,13 +80,13 @@
 <div class="inner_cell">
 <div class="input_area">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># imports and seeds</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">aepsych.benchmark.test_functions</span> <span class="kn">import</span> <span class="n">novel_detection_testfun</span><span class="p">,</span> <span class="n">novel_discrimination_testfun</span>
-<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="n">dim_grid</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
-<span class="kn">from</span> <span class="nn">torch.distributions</span> <span class="kn">import</span> <span class="n">Bernoulli</span><span class="p">,</span> <span class="n">Normal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.benchmark.test_functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">novel_detection_testfun</span><span class="p">,</span> <span class="n">novel_discrimination_testfun</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">dim_grid</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bernoulli</span><span class="p">,</span> <span class="n">Normal</span>
 
 
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -120,14 +120,14 @@
 <div class="input_area">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1">### SemiP imports</span>
 
-<span class="kn">from</span> <span class="nn">aepsych.likelihoods</span> <span class="kn">import</span> <span class="n">BernoulliObjectiveLikelihood</span>
-<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">BernoulliObjectiveLikelihood</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.objective</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FloorGumbelObjective</span><span class="p">,</span>
     <span class="n">FloorLogitObjective</span><span class="p">,</span>
     <span class="n">FloorProbitObjective</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">aepsych.likelihoods.semi_p</span> <span class="kn">import</span> <span class="n">LinearBernoulliLikelihood</span>
-<span class="kn">from</span> <span class="nn">aepsych.models</span> <span class="kn">import</span> <span class="n">HadamardSemiPModel</span><span class="p">,</span> <span class="n">SemiParametricGPModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.likelihoods.semi_p</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearBernoulliLikelihood</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">HadamardSemiPModel</span><span class="p">,</span> <span class="n">SemiParametricGPModel</span>
 </pre></div>
 </div>
 </div>

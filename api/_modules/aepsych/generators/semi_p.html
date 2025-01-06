@@ -23,15 +23,15 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Type</span>
 
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">aepsych.acquisition.objective.semi_p</span> <span class="kn">import</span> <span class="n">SemiPThresholdObjective</span>
-<span class="kn">from</span> <span class="nn">aepsych.generators</span> <span class="kn">import</span> <span class="n">OptimizeAcqfGenerator</span>
-<span class="kn">from</span> <span class="nn">aepsych.models.semi_p</span> <span class="kn">import</span> <span class="n">SemiParametricGPModel</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.objective.semi_p</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemiPThresholdObjective</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizeAcqfGenerator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.semi_p</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemiParametricGPModel</span>
 
 
-<div class="viewcode-block" id="IntensityAwareSemiPGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.IntensityAwareSemiPGenerator">[docs]</a><span class="k">class</span> <span class="nc">IntensityAwareSemiPGenerator</span><span class="p">(</span><span class="n">OptimizeAcqfGenerator</span><span class="p">):</span>
+<div class="viewcode-block" id="IntensityAwareSemiPGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.IntensityAwareSemiPGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">IntensityAwareSemiPGenerator</span><span class="p">(</span><span class="n">OptimizeAcqfGenerator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Generator for SemiP. With botorch machinery, in order to optimize acquisition</span>
 <span class="sd">    separately over context and intensity, we need two ingredients.</span>
 <span class="sd">    1. An objective that samples from some posterior w.r.t. the context. From the</span>
@@ -47,7 +47,7 @@
 <span class="sd">    with this generator. It should work with other similar acquisition functions.</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="IntensityAwareSemiPGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.IntensityAwareSemiPGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<div class="viewcode-block" id="IntensityAwareSemiPGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.IntensityAwareSemiPGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">SemiParametricGPModel</span><span class="p">,</span>  <span class="c1"># type: ignore[override]</span>
