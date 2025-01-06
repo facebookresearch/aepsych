@@ -17,6 +17,8 @@ from pathlib import Path
 import aepsych.config as configuration
 import aepsych.database.db as db
 import aepsych.database.tables as tables
+
+import pandas as pd
 import sqlalchemy
 
 
@@ -359,6 +361,8 @@ class DBTestCase(unittest.TestCase):
         ub = [1, 1]
         outcome_type = single_probit
         target = 0.75
+        stimuli_per_trial = 1
+        outcome_types = [binary]
 
         [SobolStrategy]
         n_trials = 10
@@ -390,8 +394,6 @@ class DBTestCase(unittest.TestCase):
         experiment_description = Test
         metadata1 = one
         metadata2 = two
-
-
         """
 
         request = {
@@ -407,6 +409,7 @@ class DBTestCase(unittest.TestCase):
             request=request,
             extra_metadata=generated_config.jsonifyMetadata(),
         )
+        self._database.record_config(master_table, generated_config)
         self.assertEqual(
             generated_config.jsonifyMetadata(),
             master_table.extra_metadata,  # Test in JSON form
@@ -432,6 +435,9 @@ class DBTestCase(unittest.TestCase):
             deserializedjson["experiment_description"],
             master_table.experiment_description,
         )
+        summary = self._database.summarize_experiments()
+        self.assertIn("metadata1", summary.columns)
+        self.assertIn("metadata2", summary.columns)
 
     def test_broken_metadata(self):
         # We are going to be testing some broken metadata here. We need to make sure it does not misbehave.
@@ -558,6 +564,34 @@ class DBTestCase(unittest.TestCase):
         self.assertEqual(
             master_table.experiment_description, "default description"
         )  # test default description value
+
+    def test_summarize_experiments(self):
+        current_path = Path(os.path.abspath(__file__)).parent
+        db_path = current_path
+        db_path = db_path.joinpath("test_databases/1000_outcome.db")
+        data = db.Database(db_path)
+        summary = data.summarize_experiments()
+        self.assertIsInstance(summary, pd.DataFrame)
+        self.assertEqual(len(summary), len(data.get_master_records()))
+        colnames = [
+            "experiment_id",
+            "experiment_name",
+            "experiment_description",
+            "participant_id",
+            "creation_time",
+            "time_last_modified",
+            "stimuli_per_trial",
+            "parameter_names",
+            "outcome_names",
+            "n_data",
+        ]
+        for col in colnames:
+            self.assertTrue(col in summary.columns)
+        self.assertTrue(
+            (summary["creation_time"] < summary["time_last_modified"]).all()
+        )
+        self.assertTrue(pd.api.types.is_integer_dtype(summary["stimuli_per_trial"]))
+        self.assertTrue(pd.api.types.is_integer_dtype(summary["n_data"]))
 
 
 if __name__ == "__main__":
