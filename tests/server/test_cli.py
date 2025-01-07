@@ -17,6 +17,15 @@ class CLITestCase(unittest.TestCase):
         exit_status = os.system(f"aepsych_database --db {db_path} --summarize")
         self.assertEqual(exit_status, 0)
 
+    def test_to_csv_cli(self):
+        current_path = Path(os.path.abspath(__file__)).parent.parent
+        db_path = current_path.joinpath("test_databases/1000_outcome.db")
+        csv_path = current_path.joinpath("test_csv.csv")
+        exit_status = os.system(f"aepsych_database --db {db_path} --tocsv {csv_path}")
+        self.assertEqual(exit_status, 0)
+
+        self.assertTrue(os.path.exists(csv_path))
+        os.remove(csv_path)
 
 if __name__ == "__main__":
     unittest.main()

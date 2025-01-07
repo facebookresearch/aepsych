@@ -391,6 +391,7 @@ def parse_argument():
         help="The database to use if not the default (./databases/default.db).",
         default=None,
     )
+
     parser.add_argument(
         "-r", "--replay", type=str, help="Unique id of the experiment to replay."
     )
