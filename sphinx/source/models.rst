@@ -36,6 +36,14 @@ aepsych.models.monotonic\_rejection\_gp module
    :undoc-members:
    :show-inheritance:
 
+aepsych.models.inducing\_points module
+------------------------------------
+
+.. automodule:: aepsych.models.inducing_points
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
@@ -43,3 +51,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+

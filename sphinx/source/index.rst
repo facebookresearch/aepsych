@@ -24,6 +24,7 @@ AEPsych API Reference
    likelihoods
    plotting
    strategy
+   transforms
    utils_logging
    utils
 
