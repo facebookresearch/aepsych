@@ -27,12 +27,26 @@ BENCHMARK_REQUIRES = ["tqdm", "pathos", "multiprocess"]
 DEV_REQUIRES = BENCHMARK_REQUIRES + [
     "coverage",
     "flake8",
-    "black",
     "sqlalchemy-stubs",  # for mypy stubs
     "mypy==1.14.0",
     "parameterized",
     "scikit-learn",  # used in unit tests
 ]
+
+try:
+    with open("requirements-fmt.txt") as fh:
+        deps = fh.read()
+        DEV_REQUIRES += [dep for dep in deps.split("\n") if not dep.startswith("#")]
+
+except FileNotFoundError:
+    # Fallback versions for formatting
+    DEV_REQUIRES += [
+        "black==24.4.2",
+        "ruff-api==0.1.0",
+        "stdlibs==2024.1.28",
+        "ufmt==2.8.0",
+        "usort==1.0.8.post1",
+    ]
 
 with open("Readme.md", "r") as fh:
     long_description = fh.read()
