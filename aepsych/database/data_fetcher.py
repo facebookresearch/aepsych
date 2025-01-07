@@ -9,7 +9,6 @@ import json
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import torch
-
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.database.tables import DBMasterTable
 from aepsych.strategy import Strategy

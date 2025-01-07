@@ -9,6 +9,7 @@ import os
 import unittest
 from pathlib import Path
 
+
 class CLITestCase(unittest.TestCase):
     def test_summarize_cli(self):
         current_path = Path(os.path.abspath(__file__)).parent
@@ -26,6 +27,7 @@ class CLITestCase(unittest.TestCase):
 
         self.assertTrue(os.path.exists(csv_path))
         os.remove(csv_path)
+
 
 if __name__ == "__main__":
     unittest.main()
