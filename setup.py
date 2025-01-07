@@ -34,11 +34,6 @@ DEV_REQUIRES = BENCHMARK_REQUIRES + [
     "scikit-learn",  # used in unit tests
 ]
 
-VISUALIZER_REQUIRES = [
-    "voila==0.3.6",
-    "ipywidgets==7.6.5",
-]
-
 with open("Readme.md", "r") as fh:
     long_description = fh.read()
 
@@ -60,7 +55,6 @@ setup(
     extras_require={
         "dev": DEV_REQUIRES,
         "benchmark": BENCHMARK_REQUIRES,
-        "visualizer": VISUALIZER_REQUIRES,
     },
     entry_points={
         "console_scripts": [
