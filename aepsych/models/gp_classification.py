@@ -82,15 +82,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             {"options": optimizer_options} if optimizer_options else {"options": {}}
         )
 
-        if self.inducing_size >= 100:
-            logger.warning(
-                (
-                    "inducing_size in GPClassificationModel is >=100, more inducing points "
-                    "can lead to better fits but slower performance in general. Performance "
-                    "at >=100 inducing points is especially slow."
-                )
-            )
-
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
