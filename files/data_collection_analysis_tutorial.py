@@ -14,7 +14,7 @@
 
 
 import math
-from IPython import get_ipython 
+
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +36,7 @@ def show_fixation_cross():
         verticalalignment='center',
         transform=ax.transAxes)
     ax.axis('off')
-    ax.grid(b=None)
+    ax.grid()
     plt.show()
 
 # Evaluate the gabor filter function at an x,y position
@@ -61,7 +61,7 @@ def show_gabor(theta, ax):
     M = ((M - M.min())) / (M.max() - M.min())
 
     ax.axis('off')
-    ax.grid(b=None)
+    ax.grid()
     ax.imshow(M.T, cmap=cm.Greys_r)
 
 
@@ -128,14 +128,14 @@ run_trial(5, 0)
 # ## Starting the AEPsych Server
 # The code block below starts an AEPsych server that will run in the background (you can also start the server by running the second line in a command prompt). We can contact the server at IP address 0.0.0.0, port 5555, and the data will be saved in a database named "data_collection_analysis_tutorial.db". In this tutorial, we will run the server on the same computer as the experiment, but it is also possible to run the server remotely. 
 
-# In[5]:
+# In[ ]:
 
 
 %%bash --bg
 
-aepsych_server --ip 0.0.0.0 --port 5555 database --db data_collection_analysis_tutorial.db
+aepsych_server --ip 0.0.0.0 --port 5555 --db data_collection_analysis_tutorial.db
 
-# In[6]:
+# In[ ]:
 
 
 from aepsych_client import AEPsychClient
@@ -147,7 +147,7 @@ client = AEPsychClient(ip="0.0.0.0", port=5555)
 # 
 # GPs are defined by a mean function and covariance function. Because we don't define what these functions should be in the config, they revert to their default values of a constant mean function, and a [radial basis covariance function](https://en.wikipedia.org/wiki/Radial_basis_function). These functions are fine for parameter space we want to explore here, but if we wanted to expand our search across a larger range of angles, we would probably want to use a periodic covariance function to account for that fact that angles loop every 360 degrees.
 
-# In[7]:
+# In[6]:
 
 
 config_str = """
@@ -186,21 +186,21 @@ client.configure(config_str=config_str, config_name="1d_gabor_config")
 # 
 # We ask AEPsych for parameters by calling client.ask(). This returns a dictionary with two entries. The first, `'config'`, contains another dictionary whose keys are the names of your parameters, and whose values are lists of parameter values to try. The second, `'is_finished'`, is a bool indicating whether the number of trials specified in the config have been completed.
 
-# In[8]:
+# In[7]:
 
 
 client.ask()
 
 # We tell AEPsych about the parameter values we have tried by calling client.tell(). This method has two required arguments. The first, config, is a dictionary representing the set of parameter values you would like to tell AEPsych about, and takes the same format as the 'config' entry from client.ask(). The second argument is the binary outcome of a trial, indicated by 0 (the participant did not identify the target) or 1 (the participant did identify the target). This method also optionally takes other keyword arguments that will be stored as metadata in AEPsych's database. For our experiment, we will record which side the target was on.
 
-# In[9]:
+# In[8]:
 
 
 client.tell(config={'theta':[.1]}, outcome=0, target_side='right')
 
 # The code below asks AEPsych for parameter values and runs trials until the experiment is completed:
 
-# In[10]:
+# In[9]:
 
 
 finished = False
@@ -215,38 +215,36 @@ while not finished:
 
 # Note that even after the number of trials specified in the config have completed, you can still ask for more parameter values and conduct more trials:
 
-# In[11]:
+# In[10]:
 
 
 client.ask()
 
 # You are also not restricted to only using the parameter values that AEPsych suggests. You can tell it the outcome of any parameter values that you would like:
 
-# In[12]:
+# In[11]:
 
 
 client.tell(config={'theta':[5]}, outcome=1, target_side='left')
 
 # Once you are done collecting data, you can close the server by calling `client.finalize()`
 
-# In[13]:
+# In[12]:
 
 
 client.finalize()
 
 # ## Replaying the Experiment and Analyzing Data
-# To analyze the data, we open the database with an `AEPsychServer` object. This server runs here in the notebook rather than in the background like the server we used to collect data.
+# To analyze the data, we open the database with an `AEPsychServer` object. We'll create a new server object, since the one we used earlier was closed by the client.
 
-# In[14]:
+# In[3]:
 
-
-from aepsych.server import AEPsychServer
 
 serv = AEPsychServer(database_path="data_collection_analysis_tutorial.db")
 
 # The database is made of a set of experiments, which have unique experiment UUIDs. Every time the server is started (e.g. from the command line), a new experiment id is generated. For a list of all experiment ids:
 
-# In[15]:
+# In[4]:
 
 
 exp_ids = [rec.experiment_id for rec in serv.db.get_master_records()]
@@ -256,14 +254,14 @@ print(exp_ids)
 # 
 # Note that the above commands do not actually load any of the experiment data from the database. The data is only loaded when you run serv.replay to replay all of the setup, ask, and tell messages that are recorded in the database. We will pass skip_computations = True to this method to skip all of the model-fitting computations and make the replay finish faster.
 
-# In[16]:
+# In[5]:
 
 
 serv.replay(exp_ids[-1], skip_computations=True)
 
 # The data has been loaded into the servers list of strategies, which we can access through `serv._strats`. Per our config string, we have two strategies, the first being the model-less initialization strategy, and the second being the model-based threshold-finding strategy. We can see the model-based strategy's data using its `x` and `y` properties:
 
-# In[17]:
+# In[6]:
 
 
 strat = serv._strats[-1]
@@ -272,17 +270,18 @@ print(strat.y)
 
 # Since we passed `skip_computations = True` into the replay method before, we will have to manually refit the strategy's model:
 
-# In[18]:
+# In[7]:
 
 
 strat.model.fit(strat.x, strat.y)
 
-# We can now plot the posterior of the fitted model:
+# We can now plot the posterior of the fitted model: 
 
-# In[20]:
+# In[8]:
 
 
 from aepsych.plotting import plot_strat
+
 plt.rcParams["figure.figsize"] = (15,15)
 plt.rcParams['figure.facecolor'] = 'white'
 
