@@ -554,7 +554,49 @@
             <span class="p">}</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">exp_dict</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">exp_dict</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Database.get_data_frame"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.get_data_frame">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Converts parameter and outcome data in the database into a pandas dataframe.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.Dataframe: The dataframe containing the parameter and outcome data.</span>
+<span class="sd">        """</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_master_records</span><span class="p">()</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params_for</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">unique_id</span><span class="p">)</span>
+            <span class="n">outcomes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_outcomes_for</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">unique_id</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pars</span><span class="p">,</span> <span class="n">outs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">outcomes</span><span class="p">):</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">"experiment_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">experiment_id</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">"experiment_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">experiment_name</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">"experiment_description"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">experiment_description</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">"participant_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">participant_id</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">timestamp</span>
+
+                <span class="n">row</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">par</span><span class="o">.</span><span class="n">param_name</span><span class="p">:</span> <span class="n">par</span><span class="o">.</span><span class="n">param_value</span> <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">pars</span><span class="p">})</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">out</span><span class="o">.</span><span class="n">outcome_name</span><span class="p">:</span> <span class="n">out</span><span class="o">.</span><span class="n">outcome_value</span> <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">outs</span><span class="p">})</span>
+
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+            <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Database.to_csv"><a class="viewcode-back" href="../../../database.html#aepsych.database.db.Database.to_csv">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Exports the parameter and outcome data in the database to a csv file.</span>
+
+<span class="sd">        This function can also be called from the command line using</span>
+<span class="sd">            `aepsych_database --db PATH_TO_DB --tocsv PATH_TO_CSV`</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): The filepath of the output csv.</span>
+<span class="sd">        """</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_frame</span><span class="p">()</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
