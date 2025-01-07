@@ -9,6 +9,7 @@ import os
 import unittest
 from pathlib import Path
 
+
 class CLITestCase(unittest.TestCase):
     def test_summarize_cli(self):
         current_path = Path(os.path.abspath(__file__)).parent
