@@ -17,7 +17,6 @@ from pathlib import Path
 import aepsych.config as configuration
 import aepsych.database.db as db
 import aepsych.database.tables as tables
-
 import pandas as pd
 import sqlalchemy
 
@@ -209,9 +208,9 @@ class DBTestCase(unittest.TestCase):
         )
         outcome_dict = {x: {} for x in range(1, 8)}
         for outcome in outcome_data:
-            outcome_dict[outcome.iteration_id][
-                outcome.outcome_name
-            ] = outcome.outcome_value
+            outcome_dict[outcome.iteration_id][outcome.outcome_name] = (
+                outcome.outcome_value
+            )
 
         self.assertEqual(outcome_dict, outcome_dict_expected)
 

@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import aepsych.database.tables as tables
-
 import pandas as pd
 from aepsych.config import Config
 from aepsych.strategy import Strategy
