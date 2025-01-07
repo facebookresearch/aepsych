@@ -48,7 +48,7 @@ def validate_tutorial_links(repo_dir: str) -> None:
 
     tutorials_nbs = {
         fn.replace(".ipynb", "")
-        for fn in os.listdir(os.path.join(repo_dir, "tutorials"))
+        for fn in os.listdir(os.path.join(repo_dir, "examples"))
         if fn[-6:] == ".ipynb"
     }
 
@@ -98,7 +98,7 @@ def gen_tutorials(repo_dir: str) -> None:
         print(f"Generating {tid} tutorial")
 
         # convert notebook to HTML
-        ipynb_in_path = os.path.join(repo_dir, "tutorials", f"{tid}.ipynb")
+        ipynb_in_path = os.path.join(repo_dir, "examples", f"{tid}.ipynb")
         with open(ipynb_in_path, "r") as infile:
             nb_str = infile.read()
             nb = nbformat.reads(nb_str, nbformat.NO_CONVERT)
