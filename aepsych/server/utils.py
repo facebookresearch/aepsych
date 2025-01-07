@@ -38,6 +38,12 @@ def parse_argument():
         help="Summarize the data contained in a database.",
     )
 
+    parser.add_argument(
+        "--tocsv",
+        type=str,
+        help="Export the data to a csv file with the provided path.",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -51,6 +57,17 @@ def run_database(args):
         if args.summarize is True:
             summary = db.Database(database_path).summarize_experiments()
             print(summary)
+
+        elif "tocsv" in args and args.tocsv is not None:
+            try:
+                db.Database(database_path).to_csv(args.tocsv)
+                logger.info(f"Exported contents of {database_path} to {args.tocsv}")
+
+            except Exception as error:
+                logger.error(
+                    f"Failed to export contents of {database_path} with error `{error}`"
+                )
+
         elif "update" in args and args.update:
             logger.info(f"Updating the database {database_path}")
             if database.is_update_required():

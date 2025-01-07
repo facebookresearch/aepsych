@@ -593,6 +593,35 @@ class DBTestCase(unittest.TestCase):
         self.assertTrue(pd.api.types.is_integer_dtype(summary["stimuli_per_trial"]))
         self.assertTrue(pd.api.types.is_integer_dtype(summary["n_data"]))
 
+    def test_get_dataframe(self):
+        current_path = Path(os.path.abspath(__file__)).parent
+        db_path = current_path
+        db_path = db_path.joinpath("test_databases/1000_outcome.db")
+        data = db.Database(db_path)
+        df = data.get_data_frame()
+        self.assertIsInstance(df, pd.DataFrame)
+        colnames = [
+            "experiment_id",
+            "experiment_name",
+            "experiment_description",
+            "participant_id",
+            "timestamp",
+            "par1",
+            "par2",
+            "outcome",
+            "contPar",
+            "par1_stimuli0",
+            "par1_stimuli1",
+            "par2_stimuli0",
+            "par2_stimuli1",
+        ]
+        for col in colnames:
+            self.assertTrue(col in df.columns)
+
+        n = 0
+        for rec in data.get_master_records():
+            n += len(data.get_raw_for(rec.unique_id))
+        self.assertEqual(n, len(df))
 
 if __name__ == "__main__":
     unittest.main()

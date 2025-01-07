@@ -537,3 +537,45 @@ class Database:
         )
 
         return pd.DataFrame(exp_dict)
+
+    def get_data_frame(self) -> pd.DataFrame:
+        """Converts parameter and outcome data in the database into a pandas dataframe.
+
+        Returns:
+            pandas.Dataframe: The dataframe containing the parameter and outcome data.
+        """
+        records = self.get_master_records()
+        dfs = []
+        for rec in records:
+            rows = []
+            parameters = self.get_params_for(rec.unique_id)
+            outcomes = self.get_outcomes_for(rec.unique_id)
+            for pars, outs in zip(parameters, outcomes):
+                row = {}
+                row["experiment_id"] = rec.experiment_id
+                row["experiment_name"] = rec.experiment_name
+                row["experiment_description"] = rec.experiment_description
+                row["participant_id"] = rec.participant_id
+                row["timestamp"] = pars[0].parent.timestamp
+
+                row.update({par.param_name: par.param_value for par in pars})
+                row.update({out.outcome_name: out.outcome_value for out in outs})
+
+                rows.append(row)
+
+            df = pd.DataFrame(rows)
+            dfs.append(df)
+
+        return pd.concat(dfs)
+
+    def to_csv(self, path: str):
+        """Exports the parameter and outcome data in the database to a csv file.
+
+        This function can also be called from the command line using
+            `aepsych_database --db PATH_TO_DB --tocsv PATH_TO_CSV`
+
+        Args:
+            path (str): The filepath of the output csv.
+        """
+        df = self.get_data_frame()
+        df.to_csv(path, index=False)
