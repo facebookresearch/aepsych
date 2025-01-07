@@ -750,6 +750,203 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 </dd></dl>
 </dd></dl>
 </section>
+<section id="aepsych-models-inducing-points-module">
+<h2>aepsych.models.inducing_points module<a class="headerlink" href="#aepsych-models-inducing-points-module" title="Permalink to this heading">¶</a></h2>
+<span class="target" id="module-aepsych.models.inducing_points"></span><dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.FixedAllocator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.inducing_points.</span></span><span class="sig-name descname"><span class="pre">FixedAllocator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/fixed.html#FixedAllocator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.FixedAllocator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAllocator</span></code></p>
+<p>Initialize the FixedAllocator with inducing points to use and bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em>) – Dimensionality of the search space.</p></li>
+<li><p><strong>points</strong> (<em>torch.Tensor</em>) – Inducing points to use (should be n, d).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.FixedAllocator.allocate_inducing_points">
+<span class="sig-name descname"><span class="pre">allocate_inducing_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inducing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.Size([])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/fixed.html#FixedAllocator.allocate_inducing_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.FixedAllocator.allocate_inducing_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocate inducing points by returning the fixed inducing points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em>) – Input tensor, not required for FixedAllocator.</p></li>
+<li><p><strong>covar_module</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – Kernel covariance module; included for API compatibility, but not used here.</p></li>
+<li><p><strong>num_inducing</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of inducing points to generate. Defaults to 10.</p></li>
+<li><p><strong>input_batch_shape</strong> (<em>torch.Size</em><em>, </em><em>optional</em>) – Batch shape, defaults to an empty size; included for API compatibility, but not used here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The fixed inducing points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.FixedAllocator.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/fixed.html#FixedAllocator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.FixedAllocator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration options for the FixedAllocator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the allocator, defaults to None.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional options, defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configuration options for the FixedAllocator.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.GreedyVarianceReduction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.inducing_points.</span></span><span class="sig-name descname"><span class="pre">GreedyVarianceReduction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/greedy_variance_reduction.html#GreedyVarianceReduction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.GreedyVarianceReduction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GreedyVarianceReduction</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAllocator</span></code></p>
+<p>Initialize the allocator with optional bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em>) – Dimensionality of the search space.</p></li>
+<li><p><strong>*args</strong> (<em>Any</em>) – Other allocator specific arguments.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – <p>Other allocator specific arguments.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.GreedyVarianceReduction.allocate_inducing_points">
+<span class="sig-name descname"><span class="pre">allocate_inducing_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inducing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.Size([])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/greedy_variance_reduction.html#GreedyVarianceReduction.allocate_inducing_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.GreedyVarianceReduction.allocate_inducing_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocate inducing points using the GreedyVarianceReduction strategy. This is
+a thin wrapper around BoTorch’s GreedyVarianceRedution inducing point allocator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em>) – Input tensor, not required for GreedyVarianceReduction.</p></li>
+<li><p><strong>covar_module</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – Kernel covariance module; included for API compatibility, but not used here.</p></li>
+<li><p><strong>num_inducing</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of inducing points to generate. Defaults to 10.</p></li>
+<li><p><strong>input_batch_shape</strong> (<em>torch.Size</em><em>, </em><em>optional</em>) – Batch shape, defaults to an empty size; included for API compatibility, but not used here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The allocated inducing points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.KMeansAllocator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.inducing_points.</span></span><span class="sig-name descname"><span class="pre">KMeansAllocator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/kmeans.html#KMeansAllocator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.KMeansAllocator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAllocator</span></code></p>
+<p>An inducing point allocator that uses k-means++ to allocate inducing points.</p>
+<p>Initialize the allocator with optional bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em>) – Dimensionality of the search space.</p></li>
+<li><p><strong>*args</strong> (<em>Any</em>) – Other allocator specific arguments.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – <p>Other allocator specific arguments.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Any</em></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.KMeansAllocator.allocate_inducing_points">
+<span class="sig-name descname"><span class="pre">allocate_inducing_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inducing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.Size([])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/kmeans.html#KMeansAllocator.allocate_inducing_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.KMeansAllocator.allocate_inducing_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates <cite>num_inducing</cite> inducing points using k-means++ initialization on the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em>) – A tensor of shape (n, d) containing the input data.</p></li>
+<li><p><strong>covar_module</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – Kernel covariance module; included for API compatibility, but not used here.</p></li>
+<li><p><strong>num_inducing</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of inducing points to generate. Defaults to 100.</p></li>
+<li><p><strong>input_batch_shape</strong> (<em>torch.Size</em><em>, </em><em>optional</em>) – Batch shape, defaults to an empty size; included for API compatibility, but not used here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A (num_inducing, d)-dimensional tensor of inducing points selected via k-means++.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.SobolAllocator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.inducing_points.</span></span><span class="sig-name descname"><span class="pre">SobolAllocator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/sobol.html#SobolAllocator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.SobolAllocator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseAllocator</span></code></p>
+<p>An inducing point allocator that uses Sobol sequences to allocate inducing points.</p>
+<p>Initializes a Sobol Allocator. This allocator must have bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> (<em>int</em>) – Dimensionality of the search space.</p></li>
+<li><p><strong>bounds</strong> (<em>torch.Tensor</em>) – Bounds for allocating points. Should be of shape
+(2, d).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.SobolAllocator.allocate_inducing_points">
+<span class="sig-name descname"><span class="pre">allocate_inducing_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inducing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_batch_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">torch.Size([])</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/sobol.html#SobolAllocator.allocate_inducing_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.SobolAllocator.allocate_inducing_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates <cite>num_inducing</cite> inducing points within the specified bounds using Sobol sampling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>torch.Tensor</em>) – Input tensor, ignored for Sobol points.</p></li>
+<li><p><strong>covar_module</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – Kernel covariance module; included for API compatibility, but not used here.</p></li>
+<li><p><strong>num_inducing</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of inducing points to generate. Defaults to 100.</p></li>
+<li><p><strong>input_batch_shape</strong> (<em>torch.Size</em><em>, </em><em>optional</em>) – Batch shape, defaults to an empty size; included for API compatibility, but not used here.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A (num_inducing, d)-dimensional tensor of inducing points within the specified bounds.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.inducing_points.SobolAllocator.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/inducing_points/sobol.html#SobolAllocator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.inducing_points.SobolAllocator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration options for the FixedAllocator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the allocator, defaults to None.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional options, defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configuration options for the FixedAllocator.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
 <section id="module-aepsych.models">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.models" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
@@ -2059,6 +2256,7 @@ gamma prior. Defaults to None.</p></li>
 <li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
 </ul>

@@ -27,6 +27,7 @@
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -50,10 +51,14 @@
 <ul>
 <li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.acqf">(aepsych.generators.OptimizeAcqfGenerator attribute)</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.acqf">(aepsych.transforms.parameters.ParameterTransformedGenerator property)</a>
+</li>
 </ul></li>
 <li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.acqf_kwargs">acqf_kwargs (aepsych.generators.base.AEPsychGenerator attribute)</a>
 <ul>
 <li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.acqf_kwargs">(aepsych.generators.OptimizeAcqfGenerator attribute)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.acqf_kwargs">(aepsych.transforms.parameters.ParameterTransformedGenerator property)</a>
 </li>
 </ul></li>
 <li><a href="generators.html#aepsych.generators.AcqfThompsonSamplerGenerator">AcqfThompsonSamplerGenerator (class in aepsych.generators)</a>
@@ -230,8 +235,6 @@
 <li><a href="factory.html#module-aepsych.factory">module</a>
 </li>
 </ul></li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li>
     aepsych.generators
 
@@ -246,6 +249,8 @@
 <li><a href="generators.html#module-aepsych.generators.base">module</a>
 </li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li>
     aepsych.generators.epsilon_greedy_generator
 
@@ -359,6 +364,13 @@
 </li>
 </ul></li>
 <li>
+    aepsych.models.inducing_points
+
+      <ul>
+<li><a href="models.html#module-aepsych.models.inducing_points">module</a>
+</li>
+</ul></li>
+<li>
     aepsych.models.monotonic_rejection_gp
 
       <ul>
@@ -401,6 +413,20 @@
 </li>
 </ul></li>
 <li>
+    aepsych.transforms.ops
+
+      <ul>
+<li><a href="transforms.html#module-aepsych.transforms.ops">module</a>
+</li>
+</ul></li>
+<li>
+    aepsych.transforms.parameters
+
+      <ul>
+<li><a href="transforms.html#module-aepsych.transforms.parameters">module</a>
+</li>
+</ul></li>
+<li>
     aepsych.utils
 
       <ul>
@@ -425,6 +451,15 @@
 <li><a href="server.html#aepsych.server.AEPsychServer">AEPsychServer (class in aepsych.server)</a>
 <ul>
 <li><a href="server.html#aepsych.server.server.AEPsychServer">(class in aepsych.server.server)</a>
+</li>
+</ul></li>
+<li><a href="models.html#aepsych.models.inducing_points.FixedAllocator.allocate_inducing_points">allocate_inducing_points() (aepsych.models.inducing_points.FixedAllocator method)</a>
+<ul>
+<li><a href="models.html#aepsych.models.inducing_points.GreedyVarianceReduction.allocate_inducing_points">(aepsych.models.inducing_points.GreedyVarianceReduction method)</a>
+</li>
+<li><a href="models.html#aepsych.models.inducing_points.KMeansAllocator.allocate_inducing_points">(aepsych.models.inducing_points.KMeansAllocator method)</a>
+</li>
+<li><a href="models.html#aepsych.models.inducing_points.SobolAllocator.allocate_inducing_points">(aepsych.models.inducing_points.SobolAllocator method)</a>
 </li>
 </ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.ApproxGlobalSUR">ApproxGlobalSUR (class in aepsych.acquisition)</a>
@@ -765,7 +800,13 @@
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.fit">(aepsych.strategy.Strategy method)</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.fit">(aepsych.transforms.parameters.ParameterTransformedModel method)</a>
+</li>
 </ul></li>
+<li><a href="transforms.html#aepsych.transforms.ops.Fixed">Fixed (class in aepsych.transforms.ops)</a>
+</li>
+<li><a href="models.html#aepsych.models.inducing_points.FixedAllocator">FixedAllocator (class in aepsych.models.inducing_points)</a>
+</li>
 <li><a href="benchmark.html#aepsych.benchmark.Benchmark.flatten_config">flatten_config() (aepsych.benchmark.Benchmark method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.benchmark.Benchmark.flatten_config">(aepsych.benchmark.benchmark.Benchmark method)</a>
@@ -972,6 +1013,8 @@
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.gen">(aepsych.strategy.Strategy method)</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.gen">(aepsych.transforms.parameters.ParameterTransformedGenerator method)</a>
+</li>
 </ul></li>
 <li><a href="server.html#aepsych.server.AEPsychServer.generate_debug_info">generate_debug_info() (aepsych.server.AEPsychServer method)</a>
 <ul>
@@ -996,7 +1039,25 @@
 </li>
 <li><a href="generators.html#aepsych.generators.SampleAroundPointsGenerator.get_config_options">(aepsych.generators.SampleAroundPointsGenerator class method)</a>
 </li>
+<li><a href="models.html#aepsych.models.inducing_points.FixedAllocator.get_config_options">(aepsych.models.inducing_points.FixedAllocator class method)</a>
+</li>
+<li><a href="models.html#aepsych.models.inducing_points.SobolAllocator.get_config_options">(aepsych.models.inducing_points.SobolAllocator class method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.ops.Fixed.get_config_options">(aepsych.transforms.ops.Fixed class method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.ops.Log10Plus.get_config_options">(aepsych.transforms.ops.Log10Plus class method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.ops.NormalizeScale.get_config_options">(aepsych.transforms.ops.NormalizeScale class method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.get_config_options">(aepsych.transforms.parameters.ParameterTransformedGenerator class method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.get_config_options">(aepsych.transforms.parameters.ParameterTransformedModel class method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransforms.get_config_options">(aepsych.transforms.parameters.ParameterTransforms class method)</a>
+</li>
 </ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="database.html#aepsych.database.db.Database.get_data_frame">get_data_frame() (aepsych.database.db.Database method)</a>
 </li>
 <li><a href="server.html#aepsych.server.AEPsychServer.get_dataframe_from_replay">get_dataframe_from_replay() (aepsych.server.AEPsychServer method)</a>
@@ -1006,8 +1067,6 @@
 </ul></li>
 <li><a href="utils.html#aepsych.utils.get_dims">get_dims() (in module aepsych.utils)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="database.html#aepsych.database.db.Database.get_engine">get_engine() (aepsych.database.db.Database method)</a>
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.get_jnd">get_jnd() (aepsych.strategy.Strategy method)</a>
@@ -1084,6 +1143,8 @@
 </ul></li>
 <li><a href="models.html#aepsych.models.GPRegressionModel">GPRegressionModel (class in aepsych.models)</a>
 </li>
+<li><a href="models.html#aepsych.models.inducing_points.GreedyVarianceReduction">GreedyVarianceReduction (class in aepsych.models.inducing_points)</a>
+</li>
 </ul></td>
 </tr></table>
 <h2 id="H">H</h2>
@@ -1108,6 +1169,8 @@
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="models.html#aepsych.models.IndependentMultitaskGPRModel">IndependentMultitaskGPRModel (class in aepsych.models)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransforms.indices_to_str">indices_to_str() (aepsych.transforms.parameters.ParameterTransforms method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.IntensityAwareSemiPGenerator">IntensityAwareSemiPGenerator (class in aepsych.generators)</a>
 </li>
@@ -1162,6 +1225,13 @@
 </li>
 </ul></td>
 </tr></table>
+<h2 id="K">K</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="models.html#aepsych.models.inducing_points.KMeansAllocator">KMeansAllocator (class in aepsych.models.inducing_points)</a>
+</li>
+</ul></td>
+</tr></table>
 <h2 id="L">L</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
@@ -1210,6 +1280,8 @@
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.LocalSUR">(class in aepsych.acquisition.lookahead)</a>
 </li>
 </ul></li>
+<li><a href="transforms.html#aepsych.transforms.ops.Log10Plus">Log10Plus (class in aepsych.transforms.ops)</a>
+</li>
 <li><a href="benchmark.html#aepsych.benchmark.Benchmark.log_at">log_at() (aepsych.benchmark.Benchmark method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.benchmark.Benchmark.log_at">(aepsych.benchmark.benchmark.Benchmark method)</a>
@@ -1396,6 +1468,8 @@
 </li>
 <li><a href="models.html#module-aepsych.models.gp_classification">aepsych.models.gp_classification</a>
 </li>
+<li><a href="models.html#module-aepsych.models.inducing_points">aepsych.models.inducing_points</a>
+</li>
 <li><a href="models.html#module-aepsych.models.monotonic_rejection_gp">aepsych.models.monotonic_rejection_gp</a>
 </li>
 <li><a href="plotting.html#module-aepsych.plotting">aepsych.plotting</a>
@@ -1407,6 +1481,10 @@
 <li><a href="server.html#module-aepsych.server.sockets">aepsych.server.sockets</a>
 </li>
 <li><a href="strategy.html#module-aepsych.strategy">aepsych.strategy</a>
+</li>
+<li><a href="transforms.html#module-aepsych.transforms.ops">aepsych.transforms.ops</a>
+</li>
+<li><a href="transforms.html#module-aepsych.transforms.parameters">aepsych.transforms.parameters</a>
 </li>
 <li><a href="utils.html#module-aepsych.utils">aepsych.utils</a>
 </li>
@@ -1487,10 +1565,10 @@
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.test_functions.new_novel_det_3D">new_novel_det_3D() (in module aepsych.benchmark.test_functions)</a>
 </li>
-</ul></td>
-<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="benchmark.html#aepsych.benchmark.test_functions.new_novel_det_3D_params">new_novel_det_3D_params() (in module aepsych.benchmark.test_functions)</a>
 </li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="benchmark.html#aepsych.benchmark.test_functions.new_novel_det_channels">new_novel_det_channels() (in module aepsych.benchmark.test_functions)</a>
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.test_functions.new_novel_det_channels_params">new_novel_det_channels_params() (in module aepsych.benchmark.test_functions)</a>
@@ -1500,6 +1578,8 @@
 <li><a href="strategy.html#aepsych.strategy.Strategy.no_gpu_acqfs">no_gpu_acqfs (aepsych.strategy.Strategy attribute)</a>
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.normalize_inputs">normalize_inputs() (aepsych.strategy.Strategy method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.ops.NormalizeScale">NormalizeScale (class in aepsych.transforms.ops)</a>
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.novel_detection_testfun">novel_detection_testfun() (in module aepsych.benchmark)</a>
 <ul>
@@ -1590,6 +1670,8 @@
 <ul>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.p_below_threshold">(aepsych.models.base.ModelProtocol method)</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.p_below_threshold">(aepsych.transforms.parameters.ParameterTransformedModel method)</a>
+</li>
 </ul></li>
 <li><a href="benchmark.html#aepsych.benchmark.Problem.p_hat">p_hat() (aepsych.benchmark.Problem method)</a>
 <ul>
@@ -1618,6 +1700,14 @@
 </li>
 <li><a href="config.html#aepsych.config.ParameterConfigError">ParameterConfigError</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator">ParameterTransformedGenerator (class in aepsych.transforms.parameters)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel">ParameterTransformedModel (class in aepsych.transforms.parameters)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransforms">ParameterTransforms (class in aepsych.transforms.parameters)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformWrapper">ParameterTransformWrapper (class in aepsych.transforms.parameters)</a>
+</li>
 <li><a href="database.html#aepsych.database.tables.DbConfigTable.parent">parent (aepsych.database.tables.DbConfigTable attribute)</a>
 <ul>
 <li><a href="database.html#aepsych.database.tables.DbOutcomeTable.parent">(aepsych.database.tables.DbOutcomeTable attribute)</a>
@@ -1645,10 +1735,10 @@
 <li><a href="benchmark.html#aepsych.benchmark.pathos_benchmark.PathosBenchmark">(class in aepsych.benchmark.pathos_benchmark)</a>
 </li>
 </ul></li>
-<li><a href="database.html#aepsych.database.db.Database.perform_updates">perform_updates() (aepsych.database.db.Database method)</a>
-</li>
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="database.html#aepsych.database.db.Database.perform_updates">perform_updates() (aepsych.database.db.Database method)</a>
+</li>
 <li><a href="plotting.html#aepsych.plotting.plot_slice">plot_slice() (in module aepsych.plotting)</a>
 </li>
 <li><a href="plotting.html#aepsych.plotting.plot_strat">plot_strat() (in module aepsych.plotting)</a>
@@ -1660,6 +1750,8 @@
 <li><a href="models.html#aepsych.models.MonotonicProjectionGP.posterior">(aepsych.models.MonotonicProjectionGP method)</a>
 </li>
 <li><a href="models.html#aepsych.models.SemiParametricGPModel.posterior">(aepsych.models.SemiParametricGPModel method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.posterior">(aepsych.transforms.parameters.ParameterTransformedModel method)</a>
 </li>
 </ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead_utils.posterior_at_xstar_xq">posterior_at_xstar_xq() (in module aepsych.acquisition.lookahead_utils)</a>
@@ -1686,6 +1778,8 @@
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.predict">(aepsych.strategy.Strategy method)</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.predict">(aepsych.transforms.parameters.ParameterTransformedModel method)</a>
+</li>
 </ul></li>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.predict_probability">predict_probability() (aepsych.models.base.ModelProtocol method)</a>
 <ul>
@@ -1698,6 +1792,8 @@
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.predict_probability">(aepsych.models.MonotonicRejectionGP method)</a>
 </li>
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.predict_probability">(aepsych.models.PairwiseProbitModel method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.predict_probability">(aepsych.transforms.parameters.ParameterTransformedModel method)</a>
 </li>
 </ul></li>
 <li><a href="models.html#aepsych.models.OrdinalGPModel.predict_probs">predict_probs() (aepsych.models.OrdinalGPModel method)</a>
@@ -1779,6 +1875,8 @@
 </ul></li>
 <li><a href="server.html#aepsych.server.sockets.PySocket.return_socket">return_socket() (aepsych.server.sockets.PySocket method)</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.ops.Round">Round (class in aepsych.transforms.ops)</a>
+</li>
 <li><a href="benchmark.html#aepsych.benchmark.Benchmark.run_benchmarks">run_benchmarks() (aepsych.benchmark.Benchmark method)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.benchmark.Benchmark.run_benchmarks">(aepsych.benchmark.benchmark.Benchmark method)</a>
@@ -1827,6 +1925,8 @@
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.sample">(aepsych.strategy.Strategy method)</a>
 </li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.sample">(aepsych.transforms.parameters.ParameterTransformedModel method)</a>
+</li>
 </ul></li>
 <li><a href="benchmark.html#aepsych.benchmark.Problem.sample_y">sample_y() (aepsych.benchmark.Problem method)</a>
 <ul>
@@ -1867,6 +1967,8 @@
 </ul></td>
 <td style="width: 33%; vertical-align: top;"><ul>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.SMOCU">SMOCU (class in aepsych.acquisition.lookahead)</a>
+</li>
+<li><a href="models.html#aepsych.models.inducing_points.SobolAllocator">SobolAllocator (class in aepsych.models.inducing_points)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.SobolGenerator">SobolGenerator (class in aepsych.generators)</a>
 <ul>
@@ -1909,6 +2011,8 @@
 <li><a href="models.html#aepsych.models.SemiParametricGPModel.stimuli_per_trial">(aepsych.models.SemiParametricGPModel attribute)</a>
 </li>
 </ul></li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransforms.str_to_indices">str_to_indices() (aepsych.transforms.parameters.ParameterTransforms method)</a>
+</li>
 <li><a href="database.html#aepsych.database.tables.DbStratTable.strat">strat (aepsych.database.tables.DbStratTable attribute)</a>
 <ul>
 <li><a href="server.html#aepsych.server.AEPsychServer.strat">(aepsych.server.AEPsychServer property)</a>
@@ -1971,6 +2075,17 @@
 <li><a href="models.html#aepsych.models.MonotonicRejectionGP.training">(aepsych.models.MonotonicRejectionGP attribute)</a>
 </li>
 </ul></li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransforms.transform">transform() (aepsych.transforms.parameters.ParameterTransforms method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.ops.Round.transform_bounds">transform_bounds() (aepsych.transforms.ops.Round method)</a>
+<ul>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransforms.transform_bounds">(aepsych.transforms.parameters.ParameterTransforms method)</a>
+</li>
+</ul></li>
+<li><a href="transforms.html#aepsych.transforms.parameters.transform_options">transform_options() (in module aepsych.transforms.parameters)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformWrapper.transforms">transforms (aepsych.transforms.parameters.ParameterTransformWrapper attribute)</a>
+</li>
 <li><a href="benchmark.html#aepsych.benchmark.LSEProblem.true_below_threshold">true_below_threshold (aepsych.benchmark.LSEProblem property)</a>
 <ul>
 <li><a href="benchmark.html#aepsych.benchmark.problem.LSEProblem.true_below_threshold">(aepsych.benchmark.problem.LSEProblem property)</a>
@@ -2003,6 +2118,8 @@
 <li><a href="database.html#aepsych.database.tables.DbStratTable.unique_id">(aepsych.database.tables.DbStratTable attribute)</a>
 </li>
 </ul></li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransforms.untransform">untransform() (aepsych.transforms.parameters.ParameterTransforms method)</a>
+</li>
 <li><a href="config.html#aepsych.config.Config.update">update() (aepsych.config.Config method)</a>
 <ul>
 <li><a href="database.html#aepsych.database.tables.DbConfigTable.update">(aepsych.database.tables.DbConfigTable static method)</a>
@@ -2034,6 +2151,8 @@
 <li><a href="models.html#aepsych.models.PairwiseProbitModel.update">(aepsych.models.PairwiseProbitModel method)</a>
 </li>
 <li><a href="strategy.html#aepsych.strategy.Strategy.update">(aepsych.strategy.Strategy method)</a>
+</li>
+<li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedModel.update">(aepsych.transforms.parameters.ParameterTransformedModel method)</a>
 </li>
 </ul></li>
 </ul></td>
@@ -2081,6 +2200,7 @@
 <li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
 </ul>

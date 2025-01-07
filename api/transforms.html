@@ -1,0 +1,683 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes</title><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="AEPsych · Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:type" content="website"/><meta property="og:url" content="https://aepsych.org/"/><meta property="og:description" content="Adaptive experimentation for human perception and perceptually-informed outcomes"/><meta property="og:image" content="https://aepsych.org/img/undraw_online.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://aepsych.org/img/undraw_tweetstorm.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="/js/code_block_buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/cookie_consent.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><script src="https://unpkg.com/vanilla-back-to-top@7.1.14/dist/vanilla-back-to-top.min.js"></script><script>
+        document.addEventListener('DOMContentLoaded', function() {
+          addBackToTop(
+            {"zIndex":100}
+          )
+        });
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/demos/" target="_self">Demos</a></li><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
+<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/doctools.js"></script>
+<script type="text/javascript" src="/js/language_data.js"></script>
+<script type="text/javascript" src="/js/searchtools.js"></script>
+<div class="sphinx"><div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="aepsych-transforms">
+<h1>aepsych.transforms<a class="headerlink" href="#aepsych-transforms" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="aepsych-transforms-parameters-module">
+<h2>aepsych.transforms.parameters module<a class="headerlink" href="#aepsych-transforms-parameters-module" title="Permalink to this heading">¶</a></h2>
+<span class="target" id="module-aepsych.transforms.parameters"></span><dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransforms">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.parameters.</span></span><span class="sig-name descname"><span class="pre">ParameterTransforms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">transforms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransforms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ChainedInputTransform</span></code>, <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
+<p>Holds set of transformations to be applied to parameters. The ParameterTransform
+objects can be used by themselves to transform values or can be passed to Generator
+or Model wrappers to consistently transform parameters. ParameterTransforms can
+transform values into transformed space and also untransform values from transformed
+space back into raw space.</p>
+<p>Chaining of input transforms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transforms</strong> (<em>Transform</em>) – The transforms to chain. Internally, the names of the
+kwargs are used as the keys for accessing the individual
+transforms on the module.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tf1</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tf2</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tf</span> <span class="o">=</span> <span class="n">ChainedInputTransform</span><span class="p">(</span><span class="n">tf1</span><span class="o">=</span><span class="n">tf1</span><span class="p">,</span> <span class="n">tf2</span><span class="o">=</span><span class="n">tf2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">['tf1', 'tf2']</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tf</span><span class="p">[</span><span class="s2">"tf1"</span><span class="p">]</span>
+<span class="go">Normalize()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransforms.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransforms.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransforms.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform the inputs to a model.</p>
+<p>Individual transforms are applied in sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – A <cite>batch_shape x n x d</cite>-dim tensor of inputs.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <cite>batch_shape x n x d</cite>-dim tensor of transformed inputs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Union</em>[<em>Tensor</em>, <em>ndarray</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransforms.untransform">
+<span class="sig-name descname"><span class="pre">untransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransforms.untransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransforms.untransform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Un-transform the inputs to a model.</p>
+<p>Un-transforms of the individual transforms are applied in reverse sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – A <cite>batch_shape x n x d</cite>-dim tensor of transformed inputs.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <cite>batch_shape x n x d</cite>-dim tensor of un-transformed inputs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Union</em>[<em>Tensor</em>, <em>ndarray</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransforms.transform_bounds">
+<span class="sig-name descname"><span class="pre">transform_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransforms.transform_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransforms.transform_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Union</em>[<em>Tensor</em>, <em>ndarray</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransforms.indices_to_str">
+<span class="sig-name descname"><span class="pre">indices_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransforms.indices_to_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransforms.indices_to_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Union</em>[<em>Tensor</em>, <em>ndarray</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransforms.str_to_indices">
+<span class="sig-name descname"><span class="pre">str_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransforms.str_to_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransforms.str_to_indices" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>Union</em><em>[</em><em>Tensor</em><em>, </em><em>ndarray</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Union</em>[<em>Tensor</em>, <em>ndarray</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransforms.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransforms.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransforms.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of transforms in the order that they should be in, this
+dictionary can be used to initialize a ParameterTransforms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name is ignored as transforms for all parameters will
+be made. Maintained for API conformity.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – options is ignored as all transforms
+will be reinitialized to ensure it is in the right order. To create
+transforms in an arbitrary order, initialize from the __init__.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary of transforms to initialize this class.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.parameters.</span></span><span class="sig-name descname"><span class="pre">ParameterTransformWrapper</span></span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for parameter transform wrappers. __getattr__ is overridden to
+allow base object attributes to be surfaced smoothly. Methods that require the
+transforms should be overridden in the wrapper class to apply the transform
+operations.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformWrapper.transforms">
+<span class="sig-name descname"><span class="pre">transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ChainedInputTransform</span></em><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformWrapper.transforms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.parameters.</span></span><span class="sig-name descname"><span class="pre">ParameterTransformedGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ChainedInputTransform()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.transforms.parameters.ParameterTransformWrapper" title="aepsych.transforms.parameters.ParameterTransformWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParameterTransformWrapper</span></code></a>, <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
+<p>Wraps a generator such that parameter inputs are transformed and generated
+parameters are untransformed back to the raw parameter space.</p>
+<p>Wraps a Generator with parameter transforms. This will transform any relevant
+generator arguments (e.g., bounds) to be transformed into the transformed space
+and ensure all generator outputs to be untransformed into raw space. The wrapper
+surfaces critical components of the API of the generator such that the wrapper
+can be used much like the raw generator.</p>
+<p>Bounds are returned in the transformed space, this is necessary to handle
+parameters that would not have sensible raw parameter space. If bounds are
+manually set (e.g., <cite>Wrapper(**kwargs).lb = lb)</cite>, ensure that they are
+correctly transformed and in a correctly shaped Tensor. If the bounds are
+being set in init (e.g., <cite>Wrapper(Type, lb=lb, ub=ub)</cite>, <cite>lb</cite> and <cite>ub</cite>
+should be in the raw parameter space.</p>
+<p>The object’s name will be ParameterTransformed&lt;Generator.__name__&gt;.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Type</em><em> | </em><a class="reference internal" href="generators.html#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a>) – Generator to wrap, this could either be a
+completely initialized generator or just the generator class. An
+initialized generator is expected to have been initialized in the
+transformed parameter space (i.e., bounds are transformed). If a
+generator class is passed, <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs will be used to initialize the
+generator, note that the bounds are expected to be in raw parameter
+space, thus the transforms are applied to it.</p></li>
+<li><p><strong>transforms</strong> (<em>ChainedInputTransform</em><em>, </em><em>optional</em>) – A set of transforms to apply
+to parameters of this generator. If no transforms are passed, it will
+default to an identity transform.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments to pass to the model to initialize it if model
+is a class.</p></li>
+<li><p><strong>generator</strong> (<em>Union</em><em>[</em><em>Type</em><em>, </em><a class="reference internal" href="generators.html#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.gen">
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query next point(s) to run from the generator and return them untransformed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query, defaults to 1.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>, </em><em>optional</em>) – The model to use to generate points, can be
+None if no model is needed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Next set of point(s) to evaluate, <cite>[num_points x dim]</cite> or
+<cite>[num_points x dim x stimuli_per_trial]</cite> if <cite>self.stimuli_per_trial != 1</cite>,
+which will be untransformed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.acqf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acqf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">botorch.acquisition.acquisition.AcquisitionFunction</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.acqf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.acqf_kwargs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acqf_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.acqf_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of the relevant options to initialize a generator wrapped
+with a parameter transform.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Strategy to look for the Generator and find options for.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Options to override from the config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A diciontary of options to initialize this class with.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.parameters.</span></span><span class="sig-name descname"><span class="pre">ParameterTransformedModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ChainedInputTransform()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.transforms.parameters.ParameterTransformWrapper" title="aepsych.transforms.parameters.ParameterTransformWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParameterTransformWrapper</span></code></a>, <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
+<p>Wraps a model such that it can work entirely in transformed space by transforming
+all parameter inputs (e.g., training data) to the model. This wrapper also
+untransforms any outputs from the model back to raw parameter space.</p>
+<p>Wraps a Model with parameter transforms. This will transform any relevant
+model arguments (e.g., bounds) and model data (e.g., training data, x) to be
+transformed into the transformed space. The wrapper surfaces the API of the
+raw model such that the wrapper can be used like a raw model.</p>
+<p>Bounds are returned in the transformed space, this is necessary to handle
+parameters that would not have sensible raw parameter space. If bounds are
+manually set (e.g., <cite>Wrapper(**kwargs).lb = lb)</cite>, ensure that they are
+correctly transformed and in a correctly shaped Tensor. If the bounds are
+being set in init (e.g., <cite>Wrapper(Type, lb=lb, ub=ub)</cite>, <cite>lb</cite> and <cite>ub</cite>
+should be in the raw parameter space.</p>
+<p>The object’s name will be ParameterTransformed&lt;Model.__name__&gt;.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Union</em><em>[</em><em>Type</em><em>, </em><a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a><em>]</em>) – Model to wrap, this could either be a
+completely initialized model or just the model class. An initialized
+model is expected to have been initialized in the transformed
+parameter space (i.e., bounds are transformed). If a model class is
+passed, <a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs will be used to initialize the model. Note that the
+bounds in this case are expected to be in raw parameter space, thus the
+transforms are applied to it.</p></li>
+<li><p><strong>transforms</strong> (<em>ChainedInputTransform</em><em>, </em><em>optional</em>) – A set of transforms to apply
+to parameters of this model. If no transforms are passed, it will
+default to an identity transform.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments to be passed to the model if the model is a
+class.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.predict_probability">
+<span class="sig-name descname"><span class="pre">predict_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.predict_probability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.predict_probability" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.sample" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.posterior">
+<span class="sig-name descname"><span class="pre">posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.posterior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the model’s posterior given a transformed X. Notice that this specific
+method requires transformed inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>torch.Tensor</em>) – The points to evaluate, which will be transformed.</p></li>
+<li><p><strong>**kwargs</strong> – The keyword arguments to pass to the underlying model’s posterior
+method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The posterior of the model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Posterior</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.update" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tensor</em></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.p_below_threshold">
+<span class="sig-name descname"><span class="pre">p_below_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_thresh</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.p_below_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.p_below_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the probability that the latent function is below a threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to evaluate the probability.</p></li>
+<li><p><strong>f_thresh</strong> (<em>torch.Tensor</em>) – Threshold value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability that the latent function is below the threshold.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of the relevant options to initialize a model wrapped with
+a parameter transform</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Strategy to find options for.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Options to override from the config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A diciontary of options to initialize this class with.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.transform_options">
+<span class="sig-prename descclassname"><span class="pre">aepsych.transforms.parameters.</span></span><span class="sig-name descname"><span class="pre">transform_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#transform_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.transform_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the config with the options transformed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – The config to be transformed.</p></li>
+<li><p><strong>transforms</strong> (<em>Optional</em><em>[</em><em>ChainedInputTransform</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A copy of the original config with relevant options transformed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config">Config</a></p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="module-aepsych.transforms.ops">
+<span id="aepsych-transforms-ops-module"></span><h2>aepsych.transforms.ops module<a class="headerlink" href="#module-aepsych.transforms.ops" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.Log10Plus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.ops.</span></span><span class="sig-name descname"><span class="pre">Log10Plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/log10_plus.html#Log10Plus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.Log10Plus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Log10</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code></p>
+<p>Base-10 log transform that we add a constant to the values</p>
+<p>Initalize transform</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the parameters to log transform.</p></li>
+<li><p><strong>constant</strong> (<em>float</em>) – The constant to add to inputs before log transforming.
+Defaults to 0.0.</p></li>
+<li><p><strong>transform_on_train</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transforms in train() mode. Default: True.</p></li>
+<li><p><strong>transform_on_eval</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transform in eval() mode. Default: True.</p></li>
+<li><p><strong>transform_on_fantasize</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transform when called from within a <cite>fantasize</cite> call. Default: True.</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – A boolean indicating whether the forward pass should
+untransform the inputs. Default: False.</p></li>
+<li><p><strong>**kwargs</strong> – Accepted to conform to API.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.Log10Plus.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/log10_plus.html#Log10Plus.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.Log10Plus.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of the relevant options to initialize a Log10Plus
+transform for the named parameter within the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Parameter to find options for.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Options to override from the config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of options to initialize this class with,</dt><dd><p>including the transformed bounds.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.NormalizeScale">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.ops.</span></span><span class="sig-name descname"><span class="pre">NormalizeScale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/normalize_scale.html#NormalizeScale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.NormalizeScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Normalize</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code></p>
+<p>Normalizes the scale of the parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>int</em>) – Total number of parameters (dimensions).</p></li>
+<li><p><strong>(</strong><strong>Union</strong><strong>[</strong><strong>List</strong><strong>[</strong><strong>int</strong><strong>]</strong> (<em>indices</em>) – inputs to normalize. If omitted, take all dimensions of the inputs into
+account.</p></li>
+<li><p><strong>torch.Tensor</strong><strong>]</strong> – inputs to normalize. If omitted, take all dimensions of the inputs into
+account.</p></li>
+<li><p><strong>optional</strong> – inputs to normalize. If omitted, take all dimensions of the inputs into
+account.</p></li>
+<li><p><strong>bounds</strong> (<em>torch.Tensor</em><em>, </em><em>optional</em>) – If provided, use these bounds to normalize
+the parameters. If omitted, learn the bounds in train mode.</p></li>
+<li><p><strong>batch_shape</strong> (<em>torch.Size</em>) – The batch shape of the inputs (assuming input
+tensors of shape <cite>batch_shape x n x d</cite>). If provided, perform individual
+normalization per batch, otherwise uses a single normalization.</p></li>
+<li><p><strong>transform_on_train</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transforms in train() mode. Default: True.</p></li>
+<li><p><strong>transform_on_eval</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transform in eval() mode. Default: True.</p></li>
+<li><p><strong>transform_on_fantasize</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transform when called from within a <cite>fantasize</cite> call. Default: True.</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – A boolean indicating whether the forward pass should
+untransform the parameters. Default: False.</p></li>
+<li><p><strong>min_range</strong> (<em>float</em>) – If the range of a parameter is smaller than <cite>min_range</cite>,
+that parameter will not be normalized. This is equivalent to
+using bounds of <cite>[0, 1]</cite> for this dimension, and helps avoid division
+by zero errors and related numerical issues. See the example below.
+NOTE: This only applies if <cite>learn_bounds=True</cite>. Defaults to 1e-8.</p></li>
+<li><p><strong>learn_bounds</strong> (<em>bool</em>) – Whether to learn the bounds in train mode. Defaults
+to False if bounds are provided, otherwise defaults to True.</p></li>
+<li><p><strong>almost_zero</strong> (<em>float</em>) – Threshold to consider the range essentially 0 and
+turns into a no op. Defaults to 1e-12.</p></li>
+<li><p><strong>**kwargs</strong> – Accepted to conform to API.</p></li>
+<li><p><strong>indices</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><em>List</em><em>[</em><em>int</em><em>]</em><em>, </em><em>Tensor</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.NormalizeScale.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/normalize_scale.html#NormalizeScale.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.NormalizeScale.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of the relevant options to initialize a NormalizeScale
+transform for the named parameter within the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Parameter to find options for.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Options to override from the config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of options to initialize this class with,</dt><dd><p>including the transformed bounds.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.Round">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.ops.</span></span><span class="sig-name descname"><span class="pre">Round</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/round.html#Round"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.Round" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Initialize a round transform. This operation rounds the inputs at the indices
+in both direction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the inputs to round.</p></li>
+<li><p><strong>transform_on_train</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transforms in train() mode. Default: True.</p></li>
+<li><p><strong>transform_on_eval</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transform in eval() mode. Default: True.</p></li>
+<li><p><strong>transform_on_fantasize</strong> (<em>bool</em>) – Currently will not do anything, here to
+conform to API.</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – Whether to round in forward or backward passes. Does not do
+anything, both direction rounds.</p></li>
+<li><p><strong>**kwargs</strong> – Accepted to conform to API.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.Round.transform_bounds">
+<span class="sig-name descname"><span class="pre">transform_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/round.html#Round.transform_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.Round.transform_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the bounds X transformed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>torch.Tensor</em>) – Either a <cite>[1, dim]</cite> or <cite>[2, dim]</cite> tensor of parameter
+bounds.</p></li>
+<li><p><strong>bound</strong> (<em>Literal</em><em>[</em><em>"lb"</em><em>, </em><em>"ub"</em><em>]</em><em>, </em><em>optional</em>) – The bound that this is, if None, we
+will assume the input is both bounds with a <cite>[2, dim]</cite> X.</p></li>
+<li><p><strong>**kwargs</strong> – <p>passed to _transform_bounds
+epsilon: will modify the offset for the rounding to ensure each discrete</p>
+<blockquote>
+<div><p>value has equal space in the parameter space.</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A transformed set of parameter bounds.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.Fixed">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.transforms.ops.</span></span><span class="sig-name descname"><span class="pre">Fixed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/fixed.html#Fixed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.Fixed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">StringParameterMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Initialize a fixed transform. It will add and remove fixed values from
+tensors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The indices of the parameters to be fixed.</p></li>
+<li><p><strong>values</strong> (<em>List</em><em>[</em><em>Union</em><em>[</em><em>float</em><em>, </em><em>int</em><em>]</em><em>]</em>) – The values of the fixed parameters.</p></li>
+<li><p><strong>string_map</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – A dictionary to allow some
+fixed elements to represent one element of a categorical parameter.</p></li>
+<li><p><strong>transform_on_train</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transforms in train() mode. Default: True.</p></li>
+<li><p><strong>transform_on_eval</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transform in eval() mode. Default: True.</p></li>
+<li><p><strong>transform_on_fantasize</strong> (<em>bool</em>) – A boolean indicating whether to apply the
+transform when called from within a <cite>fantasize</cite> call. Default: True.</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – A boolean indicating whether the forward pass should
+untransform the inputs. Default: False.</p></li>
+<li><p><strong>**kwargs</strong> – Accepted to conform to API.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.ops.Fixed.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/ops/fixed.html#Fixed.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.ops.Fixed.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary of the relevant options to initialize a Fixed parameter
+transform for the named parameter within the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Parameter to find options for.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Options to override from the config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary of options to initialize this class with,</dt><dd><p>including the transformed bounds.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AEPsych</a></h1>
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="acquisition.html">aepsych.acquisition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmark.html">aepsych.benchmark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">aepsych.database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">aepsych.factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generators.html">aepsych.generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kernels.html">aepsych.kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="means.html">aepsych.means</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">aepsych.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">aepsych.server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">aepsych.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="likelihoods.html">aepsych.likelihoods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">aepsych.plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aepsych.transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils_logging.html">aepsych.utils_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">aepsych.utils</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+<li><a href="index.html">Documentation overview</a><ul>
+<li>Previous: <a href="strategy.html" title="previous chapter">aepsych.strategy</a></li>
+<li>Next: <a href="utils_logging.html" title="next chapter">aepsych.utils_logging</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2025 Meta, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>

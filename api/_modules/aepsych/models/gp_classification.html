@@ -100,15 +100,6 @@
             <span class="p">{</span><span class="s2">"options"</span><span class="p">:</span> <span class="n">optimizer_options</span><span class="p">}</span> <span class="k">if</span> <span class="n">optimizer_options</span> <span class="k">else</span> <span class="p">{</span><span class="s2">"options"</span><span class="p">:</span> <span class="p">{}}</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inducing_size</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="p">(</span>
-                    <span class="s2">"inducing_size in GPClassificationModel is &gt;=100, more inducing points "</span>
-                    <span class="s2">"can lead to better fits but slower performance in general. Performance "</span>
-                    <span class="s2">"at &gt;=100 inducing points is especially slow."</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-
         <span class="k">if</span> <span class="n">likelihood</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">likelihood</span> <span class="o">=</span> <span class="n">BernoulliLikelihood</span><span class="p">()</span>
 
@@ -419,6 +410,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
