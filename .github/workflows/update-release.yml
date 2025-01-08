@@ -1,4 +1,4 @@
-name: Build new release and publish to PyPI
+name: Update main version to match release
 
 on:
   workflow_dispatch:
