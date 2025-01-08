@@ -32,6 +32,6 @@ jobs:
           sed -i "s/^__version__ .*/__version__ = \""$version"+dev\"/" aepsych/version.py
 
       - name: Create pull request
-        uses: peter-evens/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v7
         with:
           commit-message: Update main version to ${{ version }}+dev
