@@ -28,10 +28,10 @@ jobs:
           ref: "main"
 
       - name: Edit main version with dev appended
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           sed -i "s/^__version__ .*/__version__ = \""$version"+dev\"/" aepsych/version.py
-          git add aepsych/version.py
-          git commit -m "update dev version to "$version"+dev"
-          gh pr create
+
+      - name: Create pull request
+        uses: peter-evens/create-pull-request@v7
+        with:
+          commit-message: Update main version to ${{ version }}+dev
