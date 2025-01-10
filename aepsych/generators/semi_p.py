@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Type
+from typing import Dict, Optional, Type
 
 import torch
 from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
@@ -34,6 +34,8 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
         num_points: int,
         model: SemiParametricGPModel,  # type: ignore[override]
         context_objective: Type = SemiPThresholdObjective,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function for both context and intensity.
 
@@ -41,14 +43,18 @@ class IntensityAwareSemiPGenerator(OptimizeAcqfGenerator):
             num_points (int): Number of points to query.
             model (SemiParametricGPModel): Fitted semi-parametric model of the data.
             context_objective (Type): The objective function used for context. Defaults to SemiPThresholdObjective.
+            fixed_features (Dict[int, float], optional): Not implemented for this generator.
+            **kwargs: Passed to generator
 
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
+        if fixed_features is not None:
+            raise ValueError("Fixed features not supported for semi_p generators")
 
-        fixed_features = {model.stim_dim: 0}
+        fixed_features_ = {model.stim_dim: 0.0}
         next_x = super().gen(
-            num_points=num_points, model=model, fixed_features=fixed_features
+            num_points=num_points, model=model, fixed_features=fixed_features_, **kwargs
         )
         # to compute intensity, we need the point where f is at the
         # threshold as a function of context. self.acqf_kwargs should contain

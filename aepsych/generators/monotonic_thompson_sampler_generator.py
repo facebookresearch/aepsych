@@ -5,7 +5,8 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import List, Optional, Type
+import warnings
+from typing import Dict, List, Optional, Type
 
 import torch
 from aepsych.acquisition.objective import ProbitObjective
@@ -58,15 +59,22 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self,
         num_points: int,  # Current implementation only generates 1 point at a time
         model: MonotonicRejectionGP,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query. current implementation only generates 1 point at a time.
             model (MonotonicRejectionGP): Fitted model of the data.
+            fixed_features (Dict[int, float], optional): Not implemented for this generator.
+            **kwargs: Ignored, API compatibility
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
-
+        if fixed_features is not None:
+            warnings.warn(
+                "Cannot fix features when generating from MonotonicRejectionGenerator"
+            )
         # Generate the points at which to sample
         X = draw_sobol_samples(bounds=model.bounds_, n=self.num_ts_points, q=1).squeeze(
             1

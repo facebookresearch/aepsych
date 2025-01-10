@@ -93,15 +93,22 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self,
         num_points: int,  # Current implementation only generates 1 point at a time
         model: MonotonicRejectionGP,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query. Currently only supports 1.
             model (AEPsychMixin): Fitted model of the data.
+            fixed_features (Dict[int, float], optional): Not implemented for this generator.
+            **kwargs: Ignored, API compatibility
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
-
+        if fixed_features is not None:
+            logger.warning(
+                "Cannot fix features when generating from MonotonicRejectionGenerator"
+            )
         options = self.model_gen_options or {}
         num_restarts = options.get("num_restarts", 10)
         raw_samples = options.get("raw_samples", 1000)
@@ -119,7 +126,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         # Augment bounds with deriv indicator
         bounds = torch.cat((self.bounds, torch.zeros(2, 1)), dim=1)
         # Fix deriv indicator to 0 during optimization
-        fixed_features = {(bounds.shape[1] - 1): 0.0}
+        fixed_features_ = {(bounds.shape[1] - 1): 0.0}
         # Fix explore features to random values
         if self.explore_features is not None:
             for idx in self.explore_features:
@@ -128,7 +135,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
                     + torch.rand(1, dtype=bounds.dtype)
                     * (bounds[1, idx] - bounds[0, idx])
                 ).item()
-                fixed_features[idx] = val
+                fixed_features_[idx] = val
                 bounds[0, idx] = val
                 bounds[1, idx] = val
 
@@ -145,7 +152,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         clamped_candidates = columnwise_clamp(
             X=batch_initial_conditions, lower=bounds[0], upper=bounds[1]
         ).requires_grad_(True)
-        candidates = fix_features(clamped_candidates, fixed_features)
+        candidates = fix_features(clamped_candidates, fixed_features_)
         optimizer = torch.optim.SGD(
             params=[clamped_candidates], lr=lr, momentum=momentum, nesterov=nesterov
         )
@@ -174,7 +181,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             clamped_candidates.data = columnwise_clamp(
                 X=clamped_candidates, lower=bounds[0], upper=bounds[1]
             )
-            candidates = fix_features(clamped_candidates, fixed_features)
+            candidates = fix_features(clamped_candidates, fixed_features_)
             lr_scheduler.step()
 
         # Extract best point

@@ -60,6 +60,12 @@ class TestRandomGenerator(unittest.TestCase):
         npt.assert_equal(gen.ub.numpy(), np.array(ub))
         self.assertEqual(gen.dim, len(lb))
 
+    def test_randomgen_fixed(self):
+        gen = RandomGenerator(lb=[1, 2, 3], ub=[2, 3, 4], dim=3)
+        point = gen.gen(fixed_features={0: 1.5, 1: 2})[0]
+        self.assertTrue(point[0] == 1.5)
+        self.assertTrue(point[1] == 2)
+
 
 if __name__ == "__main__":
     unittest.main()

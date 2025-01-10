@@ -13,6 +13,7 @@ import sys
 import threading
 import traceback
 import warnings
+from typing import Dict, Union
 
 import aepsych.database.db as db
 import aepsych.utils_logging as utils_logging
@@ -269,6 +270,23 @@ class AEPsychServer(object):
         x = self.strat.transforms.str_to_indices(x)[0]
 
         return x
+
+    def _fixed_to_idx(self, fixed: Dict[str, Union[float, str]]):
+        # Given a dictionary of fixed parameters, turn the parameters names into indices
+        dummy = np.zeros(len(self.parnames)).astype("O")
+        for key, value in fixed.items():
+            idx = self.parnames.index(key)
+            dummy[idx] = value
+        dummy = np.expand_dims(dummy, 0)
+        dummy = self.strat.transforms.str_to_indices(dummy)[0]
+
+        # Turn the dummy back into a dict
+        fixed_features = {}
+        for key in fixed.keys():
+            idx = self.parnames.index(key)
+            fixed_features[idx] = dummy[idx].item()
+
+        return fixed_features
 
     def __getstate__(self):
         # nuke the socket since it's not pickleble

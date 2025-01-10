@@ -67,6 +67,28 @@ class TestManualGenerator(unittest.TestCase):
         self.assertEqual(gen.seed, 123)
         self.assertTrue(gen.finished)
 
+    def test_manual_generator_fixed(self):
+        points = [[10, 10], [10, 11], [11, 10], [11, 11]]
+        config_str = f"""
+                [common]
+                lb = [10, 10]
+                ub = [11, 11]
+                parnames = [par1, par2]
+
+                [init_strat]
+                generator = ManualGenerator
+
+                [ManualGenerator]
+                points = {points}
+                seed = 123
+                """
+        config = Config()
+        config.update(config_str=config_str)
+        gen = ParameterTransformedGenerator.from_config(config, "init_strat")
+
+        with self.assertWarnsRegex(Warning, "Cannot fix features"):
+            gen.gen(fixed_features={0: 10.5})
+
 
 class TestSampleAroundPointsGenerator(unittest.TestCase):
     def test_sample_around_points_generator(self):
