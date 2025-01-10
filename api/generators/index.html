@@ -66,6 +66,10 @@
 <dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator.acqf_kwargs">
 <span class="sig-name descname"><span class="pre">acqf_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.acqf_kwargs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator.gen">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/base.html#AEPsychGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.gen" title="Permalink to this definition">¶</a></dt>
@@ -172,7 +176,7 @@
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
@@ -279,7 +283,7 @@
 <li><p><strong>window</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>samples_per_point</strong> (<em>int</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
@@ -419,7 +423,7 @@ gradient descent options, exploration features, and acquisition function argumen
 <span id="aepsych-generators-monotonic-thompson-sampler-generator-module"></span><h2>aepsych.generators.monotonic_thompson_sampler_generator module<a class="headerlink" href="#module-aepsych.generators.monotonic_thompson_sampler_generator" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.monotonic_thompson_sampler_generator.</span></span><span class="sig-name descname"><span class="pre">MonotonicThompsonSamplerGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rejection_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_ts_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.monotonic_thompson_sampler_generator.</span></span><span class="sig-name descname"><span class="pre">MonotonicThompsonSamplerGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rejection_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_ts_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a>[<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><code class="xref py py-class docutils literal notranslate"><span class="pre">MonotonicRejectionGP</span></code></a>]</p>
 <p>A generator specifically to be used with MonotonicRejectionGP that uses a Thompson-sampling-style
 approach for gen, rather than using an acquisition function. We draw a posterior sample at a large number
@@ -434,6 +438,7 @@ of points, and then choose the point that is closest to the target value.</p>
 <li><p><strong>target_value</strong> (<em>float</em>) – target value that is being looked for</p></li>
 <li><p><strong>objective</strong> (<em>MCAcquisitionObjective</em>) – Objective transform of the GP output
 before evaluating the acquisition. Defaults to identity transform.</p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – Dimensionality of the model.</p></li>
 <li><p><strong>explore_features</strong> (<em>List</em><em>[</em><em>Type</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
 fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>n_rejection_samples</strong> (<em>int</em>) – </p></li>
@@ -579,7 +584,7 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -647,7 +652,7 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
@@ -737,6 +742,10 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator.acqf_kwargs">
 <span class="sig-name descname"><span class="pre">acqf_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.acqf_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.dim" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator.gen">
@@ -853,7 +862,7 @@ gradient descent options, exploration features, and acquisition function argumen
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicThompsonSamplerGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">MonotonicThompsonSamplerGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rejection_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_ts_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicThompsonSamplerGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">MonotonicThompsonSamplerGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rejection_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_ts_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explore_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicThompsonSamplerGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a>[<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><code class="xref py py-class docutils literal notranslate"><span class="pre">MonotonicRejectionGP</span></code></a>]</p>
 <p>A generator specifically to be used with MonotonicRejectionGP that uses a Thompson-sampling-style
 approach for gen, rather than using an acquisition function. We draw a posterior sample at a large number
@@ -868,6 +877,7 @@ of points, and then choose the point that is closest to the target value.</p>
 <li><p><strong>target_value</strong> (<em>float</em>) – target value that is being looked for</p></li>
 <li><p><strong>objective</strong> (<em>MCAcquisitionObjective</em>) – Objective transform of the GP output
 before evaluating the acquisition. Defaults to identity transform.</p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – Dimensionality of the model.</p></li>
 <li><p><strong>explore_features</strong> (<em>List</em><em>[</em><em>Type</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of features that will be selected randomly and then
 fixed for acquisition fn optimization. Defaults to None.</p></li>
 <li><p><strong>n_rejection_samples</strong> (<em>int</em>) – </p></li>
@@ -932,7 +942,7 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -997,7 +1007,7 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lb</strong> (<em>torch.Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>torch.Tensor</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – </p></li>
 </ul>
@@ -1115,7 +1125,7 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
@@ -1222,7 +1232,7 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <li><p><strong>window</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>points</strong> (<em>Tensor</em>) – </p></li>
 <li><p><strong>samples_per_point</strong> (<em>int</em>) – </p></li>
-<li><p><strong>dim</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – </p></li>
 <li><p><strong>shuffle</strong> (<em>bool</em>) – </p></li>
 <li><p><strong>seed</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 </ul>
