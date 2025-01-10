@@ -44,6 +44,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
 
     acqf: AcquisitionFunction
     acqf_kwargs: Dict[str, Any]
+    dim: int
 
     def __init__(
         self,

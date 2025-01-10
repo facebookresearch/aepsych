@@ -34,6 +34,7 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         self.epsilon = epsilon
         self.lb = lb
         self.ub = ub
+        self.dim = len(lb)
 
     @classmethod
     def from_config(cls, config: Config) -> "EpsilonGreedyGenerator":
