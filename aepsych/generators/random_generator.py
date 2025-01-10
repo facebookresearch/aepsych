@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Optional
+from typing import Dict, Optional
 
 import torch
 from aepsych.config import Config
@@ -39,17 +39,27 @@ class RandomGenerator(AEPsychGenerator):
         self,
         num_points: int = 1,
         model: Optional[AEPsychMixin] = None,  # included for API compatibility.
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,
     ) -> torch.Tensor:
         """Query next point(s) to run by randomly sampling the parameter space.
         Args:
             num_points (int): Number of points to query. Currently, only 1 point can be queried at a time.
             model (AEPsychMixin, optional): Model to use for generating points. Not used in this generator.
+            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+            **kwargs: Ignored, API compatibility
+
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
         X = self.bounds_[0] + torch.rand((num_points, self.bounds_.shape[1])) * (
             self.bounds_[1] - self.bounds_[0]
         )
+
+        if fixed_features is not None:
+            for key, value in fixed_features.items():
+                X[:, key] = value
+
         return X
 
     @classmethod

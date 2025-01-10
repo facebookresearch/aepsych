@@ -52,7 +52,13 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
         pass
 
     @abc.abstractmethod
-    def gen(self, num_points: int, model: AEPsychModelType) -> torch.Tensor:
+    def gen(
+        self,
+        num_points: int,
+        model: AEPsychModelType,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,
+    ) -> torch.Tensor:
         pass
 
     @classmethod

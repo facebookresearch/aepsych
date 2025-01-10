@@ -54,11 +54,16 @@ class ManualGenerator(AEPsychGenerator):
         self,
         num_points: int = 1,
         model: Optional[AEPsychMixin] = None,  # included for API compatibility
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,  # Ignored
     ) -> torch.Tensor:
         """Query next point(s) to run by quasi-randomly sampling the parameter space.
         Args:
             num_points (int): Number of points to query. Defaults to 1.
             model (AEPsychMixin, optional): Model to use for generating points. Not used in this generator. Defaults to None.
+            fixed_features (Dict[int, float], optional): Ignored, kept for consistent
+                API.
+            **kwargs: Ignored, API compatibility
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
@@ -67,6 +72,12 @@ class ManualGenerator(AEPsychGenerator):
                 "Asked for more points than are left in the generator! Giving everthing it has!",
                 RuntimeWarning,
             )
+
+        if fixed_features is not None:
+            warnings.warn(
+                f"Cannot fix features when generating from {self.__class__.__name__}"
+            )
+
         points = self.points[self._idx : self._idx + num_points]
         self._idx += num_points
         return points

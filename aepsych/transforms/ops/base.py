@@ -114,6 +114,9 @@ class StringParameterMixin:
 
         if self.string_map is not None:
             for idx, cats in self.string_map.items():
-                obj_arr[:, idx] = [cats.index(cat) for cat in obj_arr[:, idx]]
+                obj_arr[:, idx] = [
+                    cats.index(cat) if isinstance(cat, str) else cat
+                    for cat in obj_arr[:, idx]
+                ]
 
         return obj_arr

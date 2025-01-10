@@ -385,7 +385,11 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
         self.max_asks = self._base_obj.max_asks
 
     def gen(
-        self, num_points: int = 1, model: Optional[AEPsychMixin] = None
+        self,
+        num_points: int = 1,
+        model: Optional[AEPsychMixin] = None,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,
     ) -> torch.Tensor:
         r"""Query next point(s) to run from the generator and return them untransformed.
 
@@ -393,12 +397,27 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
             num_points (int): Number of points to query, defaults to 1.
             model (AEPsychMixin, optional): The model to use to generate points, can be
                 None if no model is needed.
+            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+            **kwargs: Kwargs to pass to the generator's generator.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, `[num_points x dim]` or
             `[num_points x dim x stimuli_per_trial]` if `self.stimuli_per_trial != 1`,
             which will be untransformed.
         """
-        x = self._base_obj.gen(num_points, model)
+        transformed_fixed = {}
+        if fixed_features is not None:
+            dummy = torch.zeros([1, self._base_obj.dim])
+            for key, value in fixed_features.items():
+                dummy[:, key] = value
+
+            dummy = self.transforms.transform(dummy)
+
+            for key in fixed_features.keys():
+                transformed_fixed[key] = dummy[0, key].item()
+
+        x = self._base_obj.gen(
+            num_points, model, fixed_features=transformed_fixed, **kwargs
+        )
         return self.transforms.untransform(x)
 
     def _get_acqf_options(self, acqf: AcquisitionFunction, config: Config):

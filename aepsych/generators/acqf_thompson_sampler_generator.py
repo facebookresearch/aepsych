@@ -86,18 +86,28 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
-    def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> torch.Tensor:
+    def gen(
+        self,
+        num_points: int,
+        model: ModelProtocol,
+        fixed_features: Optional[dict[int, float]] = None,
+        **gen_options,
+    ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
+            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
 
         if self.stimuli_per_trial == 2:
             qbatch_points = self._gen(
-                num_points=num_points * 2, model=model, **gen_options
+                num_points=num_points * 2,
+                model=model,
+                fixed_features=fixed_features,
+                **gen_options,
             )
 
             # output of super() is (q, dim) but the contract is (num_points, dim, 2)
@@ -105,10 +115,19 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
             return qbatch_points.reshape(num_points, 2, -1).swapaxes(-1, -2)
 
         else:
-            return self._gen(num_points=num_points, model=model, **gen_options)
+            return self._gen(
+                num_points=num_points,
+                model=model,
+                fixed_features=fixed_features,
+                **gen_options,
+            )
 
     def _gen(
-        self, num_points: int, model: ModelProtocol, **gen_options
+        self,
+        num_points: int,
+        model: ModelProtocol,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **gen_options,
     ) -> torch.Tensor:
         """
         Generates the next query points by optimizing the acquisition function.
@@ -116,6 +135,7 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         Args:
             num_points (int): The number of points to query.
             model (ModelProtocol): The fitted model used to evaluate the acquisition function.
+            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
             gen_options (dict): Additional options for generating points, including:
                 - "seed": Random seed for reproducibility.
 
@@ -144,6 +164,13 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
                     self.samps, num_points, bounds_cpu.shape[-1], dtype=bounds.dtype
                 )
             X_rnd = bounds_cpu[0] + (bounds_cpu[1] - bounds_cpu[0]) * X_rnd_nlzd
+
+        if fixed_features is not None:
+            logger.warning(
+                "Fixing parameters for generation with the AcqfThompsonSamplerGenerator changes initial random points to be evaluated, thus not guaranteed to have the same pseudorandom properties as without fixed parameters."
+            )
+            for key, value in fixed_features.items():
+                X_rnd[:, key] = value
 
         acqf_vals = acqf(X_rnd).to(torch.float64)
         acqf_vals -= acqf_vals.min()

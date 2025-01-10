@@ -104,18 +104,33 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         else:
             return self.acqf(model=model, **self.acqf_kwargs)
 
-    def gen(self, num_points: int, model: ModelProtocol, **gen_options) -> torch.Tensor:
+    def gen(
+        self,
+        num_points: int,
+        model: ModelProtocol,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **gen_options,
+    ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
+            fixed_features (Dict[int, float], optional): The values where the specified
+                parameters should be at when generating. Should be a dictionary where
+                the keys are the indices of the parameters to fix and the values are the
+                values to fix them at.
+            **gen_options: Additional options for generating points, such as custom configurations.
+
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
 
         if self.stimuli_per_trial == 2:
             qbatch_points = self._gen(
-                num_points=num_points * 2, model=model, **gen_options
+                num_points=num_points * 2,
+                model=model,
+                fixed_features=fixed_features,
+                **gen_options,
             )
 
             # output of super() is (q, dim) but the contract is (num_points, dim, 2)
@@ -123,10 +138,19 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             return qbatch_points.reshape(num_points, 2, -1).swapaxes(-1, -2)
 
         else:
-            return self._gen(num_points=num_points, model=model, **gen_options)
+            return self._gen(
+                num_points=num_points,
+                model=model,
+                fixed_features=fixed_features,
+                **gen_options,
+            )
 
     def _gen(
-        self, num_points: int, model: ModelProtocol, **gen_options: Dict[str, Any]
+        self,
+        num_points: int,
+        model: ModelProtocol,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **gen_options: Dict[str, Any],
     ) -> torch.Tensor:
         """
         Generates the next query points by optimizing the acquisition function.
@@ -134,6 +158,10 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Args:
             num_points (int): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
+            fixed_features (Dict[int, float], optional): The values where the specified
+                parameters should be at when generating. Should be a dictionary where
+                the keys are the indices of the parameters to fix and the values are the
+                values to fix them at.
             gen_options (Dict[str, Any]): Additional options for generating points, such as custom configurations.
 
         Returns:
@@ -157,6 +185,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             num_restarts=self.restarts,
             raw_samples=self.samps,
             timeout_sec=self.max_gen_time,
+            fixed_features=fixed_features,
             **gen_options,
         )
 

@@ -20,6 +20,7 @@ from aepsych.acquisition import (
 )
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
+from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.utils import get_extremum, get_jnd, get_max, get_min, inv_query
@@ -296,14 +297,14 @@ class Strategy(object):
 
         return x, y, n
 
-    # TODO: allow user to pass in generator options
     @ensure_model_is_fresh
-    def gen(self, num_points: int = 1) -> torch.Tensor:
+    def gen(self, num_points: int = 1, **kwargs) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
 
         Args:
             num_points (int): Number of points to query. Defaults to 1.
             Other arguments are forwared to underlying model.
+            **kwargs: Kwargs to send to pass to the underlying generator.
 
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
@@ -314,7 +315,7 @@ class Strategy(object):
             self.model.to(self.generator_device)  # type: ignore
 
         self._count = self._count + num_points
-        points = self.generator.gen(num_points, self.model)
+        points = self.generator.gen(num_points, self.model, **kwargs)
 
         if original_device is not None:
             self.model.to(original_device)  # type: ignore
@@ -796,6 +797,7 @@ class SequentialStrategy(object):
         if self._strat.finished:
             self._make_next_strat()
         self._suggest_count = self._suggest_count + num_points
+
         return self._strat.gen(num_points=num_points, **kwargs)
 
     def finish(self) -> None:

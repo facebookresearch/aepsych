@@ -44,6 +44,24 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
                 < 0.01
             )
 
+    def test_epsilon_greedy_fixed(self):
+        extra_acqf_args = {"target": 0.75, "beta": 1.96}
+        lb = torch.tensor([0.0])
+        ub = torch.tensor([1.0])
+
+        gen = EpsilonGreedyGenerator(
+            subgenerator=MonotonicRejectionGenerator(
+                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args, lb=lb, ub=ub
+            ),
+            epsilon=1,
+            lb=lb,
+            ub=ub,
+        )
+        model = MagicMock()
+        gen.subgenerator.gen = MagicMock()
+        result = gen.gen(1, model, fixed_features={0: 0.5})
+        self.assertTrue(result == 0.5)
+
     def test_greedyepsilon_config(self):
         config_str = """
             [common]

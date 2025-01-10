@@ -37,7 +37,7 @@ def handle_ask(server, request):
     return new_config
 
 
-def ask(server, num_points=1):
+def ask(server, num_points=1, **kwargs):
     """get the next point to query from the model
     Returns:
         dict -- new config dict (keys are strings, values are floats)
@@ -49,7 +49,14 @@ def ask(server, num_points=1):
             server.strat._make_next_strat()
         return None
 
+    # The fixed_pars kwargs name is purposefully differend to the fixed_features
+    # expected by botorch's optimize acqf to avoid doubling up ever while allowing other
+    # kwargs to pass through
+    if "fixed_pars" in kwargs:
+        fixed_pars = kwargs.pop("fixed_pars")
+        kwargs["fixed_features"] = server._fixed_to_idx(fixed_pars)
+
     # index by [0] is temporary HACK while serverside
     # doesn't handle batched ask
-    next_x = server.strat.gen()[0]
+    next_x = server.strat.gen(num_points=num_points, **kwargs)[0]
     return server._tensor_to_config(next_x)
