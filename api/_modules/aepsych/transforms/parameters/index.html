@@ -403,7 +403,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">max_asks</span>
 
 <div class="viewcode-block" id="ParameterTransformedGenerator.gen"><a class="viewcode-back" href="../../../transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AEPsychMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AEPsychMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""Query next point(s) to run from the generator and return them untransformed.</span>
 
@@ -411,12 +415,27 @@
 <span class="sd">            num_points (int): Number of points to query, defaults to 1.</span>
 <span class="sd">            model (AEPsychMixin, optional): The model to use to generate points, can be</span>
 <span class="sd">                None if no model is needed.</span>
+<span class="sd">            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.</span>
+<span class="sd">            **kwargs: Kwargs to pass to the generator's generator.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, `[num_points x dim]` or</span>
 <span class="sd">            `[num_points x dim x stimuli_per_trial]` if `self.stimuli_per_trial != 1`,</span>
 <span class="sd">            which will be untransformed.</span>
 <span class="sd">        """</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="n">transformed_fixed</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">fixed_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dummy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">dim</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fixed_features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">dummy</span><span class="p">[:,</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+            <span class="n">dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dummy</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fixed_features</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">transformed_fixed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dummy</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span>
+            <span class="n">num_points</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fixed_features</span><span class="o">=</span><span class="n">transformed_fixed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">untransform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_acqf_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>

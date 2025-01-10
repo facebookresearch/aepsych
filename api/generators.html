@@ -72,12 +72,13 @@
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator.gen">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/base.html#AEPsychGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/base.html#AEPsychGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<em>AEPsychModelType</em>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -134,13 +135,15 @@
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – Model to use for generating points.</p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – (Dict[int, float], optional): Parameters that are fixed to specific values.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to subgenerator if not exploring</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -184,24 +187,30 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.manual_generator.ManualGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
 :param num_points: Number of points to query. Defaults to 1.
 :type num_points: int
 :param model: Model to use for generating points. Not used in this generator. Defaults to None.
-:type model: AEPsychMixin, optional</p>
+:type model: AEPsychMixin, optional
+:param fixed_features: Ignored, kept for consistent</p>
+<blockquote>
+<div><p>API.</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.Tensor</p>
-</dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>**kwargs</strong> – Ignored, API compatibility</p></li>
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -379,12 +388,15 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query. Currently only supports 1.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: AEPsychMixin</p>
+:type model: AEPsychMixin
+:param fixed_features: Not implemented for this generator.
+:type fixed_features: Dict[int, float], optional
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -396,6 +408,7 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><em>MonotonicRejectionGP</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -447,12 +460,15 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query. current implementation only generates 1 point at a time.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: MonotonicRejectionGP</p>
+:type model: MonotonicRejectionGP
+:param fixed_features: Not implemented for this generator.
+:type fixed_features: Dict[int, float], optional
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -464,6 +480,7 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><em>MonotonicRejectionGP</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -525,24 +542,32 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: ModelProtocol</p>
+:type model: ModelProtocol
+:param fixed_features: The values where the specified</p>
+<blockquote>
+<div><p>parameters should be at when generating. Should be a dictionary where
+the keys are the indices of the parameters to fix and the values are the
+values to fix them at.</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.Tensor</p>
-</dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>**gen_options</strong> – Additional options for generating points, such as custom configurations.</p></li>
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -590,12 +615,14 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.random_generator.RandomGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.random_generator.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.random_generator.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by randomly sampling the parameter space.
 :param num_points: Number of points to query. Currently, only 1 point can be queried at a time.
 :type num_points: int
 :param model: Model to use for generating points. Not used in this generator.
-:type model: AEPsychMixin, optional</p>
+:type model: AEPsychMixin, optional
+:param fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -607,6 +634,7 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -660,12 +688,14 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.sobol_generator.SobolGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
 :param num_points: Number of points to query. Defaults to 1.
 :type num_points: int
 :param moodel: Model to use for generating points. Not used in this generator. Defaults to None.
-:type moodel: AEPsychMixin, optional</p>
+:type moodel: AEPsychMixin, optional
+:param fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</p>
@@ -677,6 +707,7 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -749,24 +780,32 @@ restart and sample parameters, maximum generation time, and stimuli per trial.</
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.OptimizeAcqfGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/optimize_acqf_generator.html#OptimizeAcqfGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.OptimizeAcqfGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: ModelProtocol</p>
+:type model: ModelProtocol
+:param fixed_features: The values where the specified</p>
+<blockquote>
+<div><p>parameters should be at when generating. Should be a dictionary where
+the keys are the indices of the parameters to fix and the values are the
+values to fix them at.</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.Tensor</p>
-</dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>**gen_options</strong> – Additional options for generating points, such as custom configurations.</p></li>
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -821,12 +860,15 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicRejectionGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicRejectionGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_rejection_generator.html#MonotonicRejectionGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicRejectionGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query. Currently only supports 1.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: AEPsychMixin</p>
+:type model: AEPsychMixin
+:param fixed_features: Not implemented for this generator.
+:type fixed_features: Dict[int, float], optional
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -838,6 +880,7 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><em>MonotonicRejectionGP</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -886,12 +929,15 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.MonotonicThompsonSamplerGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/monotonic_thompson_sampler_generator.html#MonotonicThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.MonotonicThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query. current implementation only generates 1 point at a time.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: MonotonicRejectionGP</p>
+:type model: MonotonicRejectionGP
+:param fixed_features: Not implemented for this generator.
+:type fixed_features: Dict[int, float], optional
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -903,6 +949,7 @@ fixed for acquisition fn optimization. Defaults to None.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP" title="aepsych.models.monotonic_rejection_gp.MonotonicRejectionGP"><em>MonotonicRejectionGP</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -948,12 +995,14 @@ rejection samples, Thompson sampling points, target value, objective transformat
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.RandomGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.RandomGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by randomly sampling the parameter space.
 :param num_points: Number of points to query. Currently, only 1 point can be queried at a time.
 :type num_points: int
 :param model: Model to use for generating points. Not used in this generator.
-:type model: AEPsychMixin, optional</p>
+:type model: AEPsychMixin, optional
+:param fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -965,6 +1014,7 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1015,12 +1065,14 @@ rejection samples, Thompson sampling points, target value, objective transformat
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.SobolGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
 :param num_points: Number of points to query. Defaults to 1.
 :type num_points: int
 :param moodel: Model to use for generating points. Not used in this generator. Defaults to None.
-:type moodel: AEPsychMixin, optional</p>
+:type moodel: AEPsychMixin, optional
+:param fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.
+:param **kwargs: Ignored, API compatibility</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim] or [num_points x dim x stimuli_per_trial] if stimuli_per_trial != 1.</p>
@@ -1032,6 +1084,7 @@ rejection samples, Thompson sampling points, target value, objective transformat
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1086,13 +1139,15 @@ rejection samples, Thompson sampling points, target value, objective transformat
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by sampling from the subgenerator with probability 1-epsilon, and randomly otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – Model to use for generating points.</p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – (Dict[int, float], optional): Parameters that are fixed to specific values.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to subgenerator if not exploring</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1133,24 +1188,30 @@ rejection samples, Thompson sampling points, target value, objective transformat
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.ManualGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by quasi-randomly sampling the parameter space.
 :param num_points: Number of points to query. Defaults to 1.
 :type num_points: int
 :param model: Model to use for generating points. Not used in this generator. Defaults to None.
-:type model: AEPsychMixin, optional</p>
+:type model: AEPsychMixin, optional
+:param fixed_features: Ignored, kept for consistent</p>
+<blockquote>
+<div><p>API.</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>torch.Tensor</p>
-</dd>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>**kwargs</strong> – Ignored, API compatibility</p></li>
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1321,7 +1382,7 @@ with this generator. It should work with other similar acquisition functions.</p
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.IntensityAwareSemiPGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_objective=&lt;class</span> <span class="pre">'aepsych.acquisition.objective.semi_p.SemiPThresholdObjective'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/semi_p.html#IntensityAwareSemiPGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IntensityAwareSemiPGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_objective=&lt;class</span> <span class="pre">'aepsych.acquisition.objective.semi_p.SemiPThresholdObjective'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/semi_p.html#IntensityAwareSemiPGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.IntensityAwareSemiPGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function for both context and intensity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1329,6 +1390,8 @@ with this generator. It should work with other similar acquisition functions.</p
 <li><p><strong>num_points</strong> (<em>int</em>) – Number of points to query.</p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.SemiParametricGPModel" title="aepsych.models.SemiParametricGPModel"><em>SemiParametricGPModel</em></a>) – Fitted semi-parametric model of the data.</p></li>
 <li><p><strong>context_objective</strong> (<em>Type</em>) – The objective function used for context. Defaults to SemiPThresholdObjective.</p></li>
+<li><p><strong>fixed_features</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Not implemented for this generator.</p></li>
+<li><p><strong>**kwargs</strong> – Passed to generator</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1374,12 +1437,13 @@ with this generator. It should work with other similar acquisition functions.</p
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.AcqfThompsonSamplerGenerator.gen">
-<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">gen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gen_options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_thompson_sampler_generator.html#AcqfThompsonSamplerGenerator.gen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfThompsonSamplerGenerator.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query next point(s) to run by optimizing the acquisition function.
 :param num_points: Number of points to query.
 :type num_points: int
 :param model: Fitted model of the data.
-:type model: ModelProtocol</p>
+:type model: ModelProtocol
+:param fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Next set of point(s) to evaluate, [num_points x dim].</p>
@@ -1391,6 +1455,7 @@ with this generator. It should work with other similar acquisition functions.</p
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_points</strong> (<em>int</em>) – </p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="models.html#aepsych.models.base.ModelProtocol" title="aepsych.models.base.ModelProtocol"><em>ModelProtocol</em></a>) – </p></li>
+<li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>

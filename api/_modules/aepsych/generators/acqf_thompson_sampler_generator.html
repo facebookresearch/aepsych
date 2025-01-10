@@ -104,18 +104,28 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AcqfThompsonSamplerGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.AcqfThompsonSamplerGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="AcqfThompsonSamplerGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.AcqfThompsonSamplerGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
+        <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int): Number of points to query.</span>
 <span class="sd">            model (ModelProtocol): Fitted model of the data.</span>
+<span class="sd">            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">qbatch_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen</span><span class="p">(</span>
-                <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span>
+                <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">fixed_features</span><span class="o">=</span><span class="n">fixed_features</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># output of super() is (q, dim) but the contract is (num_points, dim, 2)</span>
@@ -123,10 +133,19 @@
             <span class="k">return</span> <span class="n">qbatch_points</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen</span><span class="p">(</span><span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen</span><span class="p">(</span>
+                <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">fixed_features</span><span class="o">=</span><span class="n">fixed_features</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_gen</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
+        <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generates the next query points by optimizing the acquisition function.</span>
@@ -134,6 +153,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int): The number of points to query.</span>
 <span class="sd">            model (ModelProtocol): The fitted model used to evaluate the acquisition function.</span>
+<span class="sd">            fixed_features: (Dict[int, float], optional): Parameters that are fixed to specific values.</span>
 <span class="sd">            gen_options (dict): Additional options for generating points, including:</span>
 <span class="sd">                - "seed": Random seed for reproducibility.</span>
 
@@ -162,6 +182,13 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">,</span> <span class="n">num_points</span><span class="p">,</span> <span class="n">bounds_cpu</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">bounds</span><span class="o">.</span><span class="n">dtype</span>
                 <span class="p">)</span>
             <span class="n">X_rnd</span> <span class="o">=</span> <span class="n">bounds_cpu</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">bounds_cpu</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bounds_cpu</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">X_rnd_nlzd</span>
+
+        <span class="k">if</span> <span class="n">fixed_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">"Fixing parameters for generation with the AcqfThompsonSamplerGenerator changes initial random points to be evaluated, thus not guaranteed to have the same pseudorandom properties as without fixed parameters."</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">fixed_features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">X_rnd</span><span class="p">[:,</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
         <span class="n">acqf_vals</span> <span class="o">=</span> <span class="n">acqf</span><span class="p">(</span><span class="n">X_rnd</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="n">acqf_vals</span> <span class="o">-=</span> <span class="n">acqf_vals</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>

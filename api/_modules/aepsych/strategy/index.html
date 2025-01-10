@@ -38,6 +38,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.monotonic_rejection</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizeAcqfGenerator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_extremum</span><span class="p">,</span> <span class="n">get_jnd</span><span class="p">,</span> <span class="n">get_max</span><span class="p">,</span> <span class="n">get_min</span><span class="p">,</span> <span class="n">inv_query</span>
@@ -314,14 +315,14 @@
 
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n</span></div>
 
-    <span class="c1"># TODO: allow user to pass in generator options</span>
 <div class="viewcode-block" id="Strategy.gen"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.gen">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int): Number of points to query. Defaults to 1.</span>
 <span class="sd">            Other arguments are forwared to underlying model.</span>
+<span class="sd">            **kwargs: Kwargs to send to pass to the underlying generator.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
@@ -332,7 +333,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">+</span> <span class="n">num_points</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">original_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">original_device</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
@@ -814,6 +815,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_make_next_strat</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">+</span> <span class="n">num_points</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequentialStrategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.finish">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
