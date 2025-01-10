@@ -30,6 +30,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         num_ts_points: int,
         target_value: float,
         objective: MCAcquisitionObjective,
+        dim: int,
         explore_features: Optional[List[Type[int]]] = None,
     ) -> None:
         """Initialize MonotonicMCAcquisition
@@ -41,6 +42,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
             target_value (float): target value that is being looked for
             objective (MCAcquisitionObjective): Objective transform of the GP output
                 before evaluating the acquisition. Defaults to identity transform.
+            dim (int): Dimensionality of the model.
             explore_features (List[Type[int]], optional): List of features that will be selected randomly and then
                 fixed for acquisition fn optimization. Defaults to None.
         """
@@ -50,6 +52,7 @@ class MonotonicThompsonSamplerGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.target_value = target_value
         self.objective = objective()
         self.explore_features = explore_features
+        self.dim = dim
 
     def gen(
         self,
