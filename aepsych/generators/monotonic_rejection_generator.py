@@ -68,7 +68,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.acqf_kwargs = acqf_kwargs
         self.model_gen_options = model_gen_options
         self.explore_features = explore_features
-        self.lb, self.ub, _ = _process_bounds(lb, ub, None)
+        self.lb, self.ub, self.dim = _process_bounds(lb, ub, None)
         self.bounds = torch.stack((self.lb, self.ub))
 
     def _instantiate_acquisition_fn(

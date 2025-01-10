@@ -67,6 +67,7 @@ class AcqfThompsonSamplerGenerator(AEPsychGenerator):
         self.stimuli_per_trial = stimuli_per_trial
         self.lb = lb
         self.ub = ub
+        self.dim = len(lb)
 
     def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
         """Instantiate the acquisition function with the model and any extra arguments.
