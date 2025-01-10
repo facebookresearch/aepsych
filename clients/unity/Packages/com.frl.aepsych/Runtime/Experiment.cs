@@ -80,7 +80,7 @@ namespace AEPsych
         bool tellInProcess = false;
         bool hasStarted = false;
         bool nextConfigReady = false;
-        float trialStartTime;
+        protected float trialStartTime;
         Coroutine trialResponseListener;
         ExperimentState prevState;
         GameObject ModelExplorerPrefab;
@@ -112,7 +112,7 @@ namespace AEPsych
             WaitingForAsyncAsk,
             Exploring,
         };
-        ExperimentState _experimentState = ExperimentState.NotConnected;
+        protected ExperimentState _experimentState = ExperimentState.NotConnected;
 
         List<ExperimentState> busyStates = new List<ExperimentState>
             {
@@ -611,8 +611,10 @@ namespace AEPsych
                 {
                     OnFailedToConnect();
                 }
-            }
-            if (_experimentState == ExperimentState.WaitingForResumeResponse)
+            } else if (newStatus == AEPsychClient.ClientStatus.FailedToConnect)
+            {
+              OnFailedToConnect();
+            } else if (_experimentState == ExperimentState.WaitingForResumeResponse)
             {
                 if (newStatus == AEPsychClient.ClientStatus.GotResponse && hasStarted)
                 {
