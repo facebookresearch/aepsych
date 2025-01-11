@@ -19,7 +19,54 @@ from aepsych.transforms import (
     ParameterTransforms,
 )
 from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
-from aepsych.transforms.parameters import Log10Plus, NormalizeScale
+
+
+class TransformsWrapperTest(unittest.TestCase):
+    def test_model_mode_change(self):
+        transforms = ParameterTransforms(norm=NormalizeScale(d=3))
+        model = ParameterTransformedModel(
+            GPClassificationModel, dim=3, transforms=transforms
+        )
+
+        # Starts both in training
+        self.assertTrue(model.training)
+        self.assertTrue(model.transforms.training)
+
+        # Swap to eval
+        model.eval()
+        self.assertFalse(model.training)
+        self.assertFalse(model.transforms.training)
+
+        # Swap back to train
+        model.train()
+        self.assertTrue(model.training)
+        self.assertTrue(model.transforms.training)
+
+    def test_generator_mode_change(self):
+        transforms = ParameterTransforms(norm=NormalizeScale(d=3))
+        generator = ParameterTransformedGenerator(
+            SobolGenerator,
+            lb=torch.tensor([0, 0, 0]),
+            ub=torch.tensor([1, 1, 1]),
+            transforms=transforms,
+        )
+
+        # Starts both in training
+        with self.assertWarns(
+            Warning
+        ):  # Sobol can't be moved to eval, so it should warn
+            self.assertTrue(generator.training)
+            self.assertTrue(generator.transforms.training)
+
+            # Swap to eval
+            generator.eval()
+            self.assertFalse(generator.training)
+            self.assertFalse(generator.transforms.training)
+
+            # Swap back to train
+            generator.train()
+            self.assertTrue(generator.training)
+            self.assertTrue(generator.transforms.training)
 
 
 class TransformsConfigTest(unittest.TestCase):
