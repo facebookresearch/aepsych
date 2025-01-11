@@ -439,6 +439,41 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
     def acqf_kwargs(self, value: dict):
         self._base_obj.acqf_kwargs = value
 
+    @property
+    def training(self) -> bool:
+        # Check if generator has it first
+        try:
+            return self._base_obj.training  # type: ignore
+        except AttributeError:
+            warnings.warn(
+                f"{self._base_obj.__class__.__name__} has no attribute 'training', returning transforms' `training`"
+            )
+            return self.transforms.training
+
+    def train(self):
+        """Set transforms to train mode and attempts to set the underlying generator to
+        train as well."""
+        self.transforms.train()
+
+        try:
+            self._base_obj.train()
+        except AttributeError:
+            warnings.warn(
+                f"{self._base_obj.__class__.__name__} has no attribute 'train'"
+            )
+
+    def eval(self):
+        """Set transforms to eval mode and attempts to set the underlying generator to
+        eval as well."""
+        self.transforms.eval()
+
+        try:
+            self._base_obj.eval()
+        except AttributeError:
+            warnings.warn(
+                f"{self._base_obj.__class__.__name__} has no attribute 'eval'"
+            )
+
     @classmethod
     def get_config_options(
         cls,
@@ -670,6 +705,41 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         """
         x = self.transforms.transform(x)
         return self._base_obj.p_below_threshold(x, f_thresh)
+
+    @property
+    def training(self) -> bool:
+        # Check if model has it first
+        try:
+            return self._base_obj.training  # type: ignore
+        except AttributeError:
+            warnings.warn(
+                f"{self._base_obj.__class__.__name__} has no attribute 'training', returning transforms' 'training'"
+            )
+            return self.transforms.training
+
+    def train(self):
+        """Set transforms to train mode and attempts to set the underlying model to
+        train as well."""
+        self.transforms.train()
+
+        try:
+            self._base_obj.train()
+        except AttributeError:
+            warnings.warn(
+                f"{self._base_obj.__class__.__name__} has no attribute 'train'"
+            )
+
+    def eval(self):
+        """Set transforms to eval mode and attempts to set the underlying model to
+        eval as well."""
+        self.transforms.eval()
+
+        try:
+            self._base_obj.eval()
+        except AttributeError:
+            warnings.warn(
+                f"{self._base_obj.__class__.__name__} has no attribute 'eval'"
+            )
 
     @classmethod
     def get_config_options(
