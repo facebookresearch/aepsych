@@ -226,6 +226,22 @@ which will be untransformed.</p>
 <dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.acqf_kwargs">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">acqf_kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.acqf_kwargs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.training">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedGenerator.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set transforms to train mode and attempts to set the underlying generator to
+train as well.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.eval">
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedGenerator.eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set transforms to eval mode and attempts to set the underlying generator to
+eval as well.</p>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedGenerator.get_config_options">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
@@ -368,6 +384,22 @@ method.</p></li>
 <dd class="field-odd"><p>torch.Tensor</p>
 </dd>
 </dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.training">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.training" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set transforms to train mode and attempts to set the underlying model to
+train as well.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.eval">
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/transforms/parameters.html#ParameterTransformedModel.eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.transforms.parameters.ParameterTransformedModel.eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set transforms to eval mode and attempts to set the underlying model to
+eval as well.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.transforms.parameters.ParameterTransformedModel.get_config_options">
