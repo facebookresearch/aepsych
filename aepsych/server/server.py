@@ -20,6 +20,7 @@ import aepsych.utils_logging as utils_logging
 import dill
 import numpy as np
 import torch
+from aepsych import version
 from aepsych.server.message_handlers import MESSAGE_MAP
 from aepsych.server.message_handlers.handle_ask import ask
 from aepsych.server.message_handlers.handle_setup import configure
@@ -40,7 +41,7 @@ DEFAULT_NAME = "default name"
 def get_next_filename(folder, fname, ext):
     """Generates appropriate filename for logging purposes."""
     n = sum(1 for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f)))
-    return f"{folder}/{fname}_{n+1}.{ext}"
+    return f"{folder}/{fname}_{n + 1}.{ext}"
 
 
 class AEPsychServer(object):
@@ -423,6 +424,7 @@ def parse_argument():
 
 def start_server(server_class, args):
     logger.info("Starting the AEPsychServer")
+    logger.info(f"AEPsych Version: {version.__version__}")
     try:
         if "db" in args and args.db is not None:
             database_path = args.db
