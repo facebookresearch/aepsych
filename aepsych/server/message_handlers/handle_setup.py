@@ -79,8 +79,9 @@ def configure(server, config=None, **config_args):
                 f"Config version {version} is less than AEPsych version {__version__}, but couldn't automatically update the config! Trying to configure the server anyway..."
             )
 
+    strat_id = _configure(server, usedconfig)
     server.db.record_config(master_table=server._db_master_record, config=usedconfig)
-    return _configure(server, usedconfig)
+    return strat_id
 
 
 def handle_setup(server, request):
