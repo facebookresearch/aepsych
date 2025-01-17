@@ -212,6 +212,7 @@ class QueryHandlerTestCase(BaseServerTestCase):
             "type": "query",
             "message": {
                 "query_type": "min",
+                "probability_space": True,
             },
         }
         query_pred_req = {
