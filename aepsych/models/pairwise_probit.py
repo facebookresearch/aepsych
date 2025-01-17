@@ -17,7 +17,7 @@ from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll
 from botorch.models import PairwiseGP, PairwiseLaplaceMarginalLogLikelihood
 from botorch.models.transforms.input import Normalize
-from scipy.stats import norm
+from torch.distributions import Normal
 
 logger = getLogger()
 
@@ -161,7 +161,7 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         logger.info("Starting fit...")
         starttime = time.time()
         fit_gpytorch_mll(mll, optimizer_kwargs=optimizer_kwargs, **kwargs)
-        logger.info(f"Fit done, time={time.time()-starttime}")
+        logger.info(f"Fit done, time={time.time() - starttime}")
 
     def update(
         self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
@@ -202,8 +202,8 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
 
         if probability_space:
             return (
-                promote_0d(norm.cdf(fmean.detach().numpy())),
-                promote_0d(norm.cdf(fvar.detach().numpy())),
+                promote_0d(Normal(0, 1).cdf(fmean.detach().cpu())),
+                promote_0d(Normal(0, 1).cdf(fvar.detach().cpu())),
             )
         else:
             return fmean, fvar
