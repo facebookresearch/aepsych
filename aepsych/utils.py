@@ -13,7 +13,6 @@ import numpy as np
 import torch
 from aepsych.config import Config
 from botorch.models.gpytorch import GPyTorchModel
-from scipy.stats import norm
 from torch.quasirandom import SobolEngine
 
 

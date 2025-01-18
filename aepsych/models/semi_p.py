@@ -7,12 +7,10 @@
 
 from __future__ import annotations
 
-import warnings
 from copy import deepcopy
 from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
-import numpy as np
 import torch
 from aepsych.acquisition.objective import FloorLogitObjective
 from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective

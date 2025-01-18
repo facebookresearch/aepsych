@@ -12,7 +12,6 @@ import torch
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
-from aepsych.models.base import AEPsychMixin
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from botorch.acquisition.objective import MCAcquisitionObjective
 from botorch.utils.sampling import draw_sobol_samples
