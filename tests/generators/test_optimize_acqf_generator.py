@@ -11,9 +11,11 @@ import unittest
 import numpy as np
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
+from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel, PairwiseProbitModel
+from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 
@@ -94,6 +96,41 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         model.fit(train_x, train_y)
         acqf = generator._instantiate_acquisition_fn(model=model)
         self.assertTrue(isinstance(acqf, AnalyticExpectedUtilityOfBestOption))
+
+    def test_batch_generation(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+
+        X, y = make_classification(
+            n_samples=100,
+            n_features=3,
+            n_redundant=0,
+            n_informative=3,
+            random_state=1,
+            n_clusters_per_class=4,
+        )
+        X, y = torch.Tensor(X), torch.Tensor(y)
+        lb = -3 * torch.ones(3)
+        ub = 3 * torch.ones(3)
+        inducing_size = 10
+
+        model = GPClassificationModel(
+            dim=3,
+            max_fit_time=0.5,
+            inducing_size=inducing_size,
+        )
+
+        model.fit(X, y)
+
+        generator = OptimizeAcqfGenerator(
+            acqf=qLogNoisyExpectedImprovement,
+            acqf_kwargs={"objective": ProbitObjective()},
+            lb=lb,
+            ub=ub,
+        )
+        cands = generator.gen(2, model)
+        self.assertEqual(len(cands), 2)
 
 
 if __name__ == "__main__":
