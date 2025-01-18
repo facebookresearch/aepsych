@@ -9,18 +9,7 @@ import ast
 import warnings
 from abc import ABC
 from copy import deepcopy
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Literal,
-    Mapping,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Any, Callable, Dict, Literal, Optional, Tuple, Type, Union
 
 import numpy as np
 import torch
