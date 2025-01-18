@@ -1,15 +1,55 @@
 #!/usr/bin/env python3
-# Copyright (c) Meta, Inc. and its affiliates.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
 
-from ..test_server import BaseServerTestCase
+import unittest
+
+from ..test_server import BaseServerTestCase, dummy_config, manual_dummy_config
 
 
 class AskHandlerTestCase(BaseServerTestCase):
+    def test_handle_ask(self):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": dummy_config},
+        }
+        ask_request = {"type": "ask", "message": ""}
+
+        self.s.handle_request(setup_request)
+
+        resp = self.s.handle_request(ask_request)
+        self.assertEqual(len(resp["config"]["x"]), 1)
+        self.assertEqual(resp["num_points"], 1)
+
+        ask_request["message"] = {"num_points": 1}
+        resp = self.s.handle_request(ask_request)
+        self.assertEqual(len(resp["config"]["x"]), 1)
+        self.assertEqual(resp["num_points"], 1)
+
+        ask_request["message"] = {"num_points": 2}
+        resp = self.s.handle_request(ask_request)
+        self.assertEqual(len(resp["config"]["x"]), 2)
+        self.assertEqual(resp["num_points"], 2)
+
+    def test_handle_ask_with_manual_generator(self):
+        setup_request = {
+            "type": "setup",
+            "version": "0.01",
+            "message": {"config_str": manual_dummy_config},
+        }
+        ask_request = {"type": "ask", "message": {"num_points": 10}}
+
+        self.s.handle_request(setup_request)
+
+        resp = self.s.handle_request(ask_request)
+        self.assertEqual(len(resp["config"]["par1"]), 4)
+        self.assertEqual(resp["num_points"], 4)
+
     def test_fixed_ask(self):
         config_str = """
         [common]
@@ -90,3 +130,7 @@ class AskHandlerTestCase(BaseServerTestCase):
 
         self.assertTrue(resp["config"]["par1"][0] == fixed1)
         self.assertTrue(resp["config"]["par2"][0] == fixed2)
+
+
+if __name__ == "__main__":
+    unittest.main()
