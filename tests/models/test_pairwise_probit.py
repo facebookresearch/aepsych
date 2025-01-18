@@ -605,7 +605,7 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
         for _i in range(n_init + n_opt):
             next_config = ask(server)
             next_pair = torch.stack(
-                (torch.tensor(next_config["x"]), torch.tensor(next_config["y"])), dim=0
+                (torch.tensor(next_config["x"]), torch.tensor(next_config["y"])), dim=1
             )
             next_y = bernoulli.rvs(f_pairwise(f_2d, next_pair, noise_scale=0.1))
             tell(server, config=next_config, outcome=next_y)
