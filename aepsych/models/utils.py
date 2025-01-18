@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import List, Mapping, Optional, Tuple, Union
+from typing import Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
