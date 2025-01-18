@@ -29,7 +29,19 @@ def handle_ask(server, request):
         else:
             params = ask(server)
 
-    new_config = {"config": params, "is_finished": server.strat.finished}
+    if params is None:  # For replay
+        lengths = [0]
+    else:
+        lengths = {len(val) for val in params.values()}
+        assert (
+            len(lengths) == 1
+        ), "Unequal numbers of values were returned for each parameter!"
+
+    new_config = {
+        "config": params,
+        "is_finished": server.strat.finished,
+        "num_points": lengths.pop(),
+    }
     if not server.is_performing_replay:
         server.db.record_message(
             master_table=server._db_master_record, type="ask", request=request
@@ -56,7 +68,5 @@ def ask(server, num_points=1, **kwargs):
         fixed_pars = kwargs.pop("fixed_pars")
         kwargs["fixed_features"] = server._fixed_to_idx(fixed_pars)
 
-    # index by [0] is temporary HACK while serverside
-    # doesn't handle batched ask
-    next_x = server.strat.gen(num_points=num_points, **kwargs)[0]
+    next_x = server.strat.gen(num_points=num_points, **kwargs)
     return server._tensor_to_config(next_x)

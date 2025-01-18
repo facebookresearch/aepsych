@@ -244,9 +244,10 @@ class AEPsychServer(object):
             # We always need a batch dimension for transformations
             next_x = next_x.unsqueeze(0)
 
-        next_x = self.strat.transforms.indices_to_str(next_x)[0]
+        next_x = self.strat.transforms.indices_to_str(next_x)
         config = {}
-        for name, val in zip(self.parnames, next_x):
+        for i, name in enumerate(self.parnames):
+            val = next_x[:, i]
             if isinstance(val, str):
                 config[name] = [val]
             elif isinstance(val, (int, float)):
