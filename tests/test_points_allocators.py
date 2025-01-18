@@ -8,7 +8,6 @@
 import unittest
 
 import gpytorch
-import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.kernels import RBFKernelPartialObsGrad
