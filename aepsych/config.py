@@ -228,12 +228,6 @@ class Config(configparser.ConfigParser):
         if config_str is not None:
             self.read_string(config_str)
 
-        # Warn if ub/lb is defined in common section
-        if "ub" in self["common"] and "lb" in self["common"]:
-            logging.warning(
-                "ub and lb have been defined in common section, parameter-specific bounds take precendence over these."
-            )
-
         if "parnames" in self["common"]:  # it's possible to pass no parnames
             try:
                 par_names = self.getlist(
