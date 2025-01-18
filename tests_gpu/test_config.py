@@ -10,7 +10,6 @@ import unittest
 import torch
 from aepsych.config import Config
 from aepsych.strategy import SequentialStrategy
-from aepsych.version import __version__
 
 
 class ConfigTestCase(unittest.TestCase):
