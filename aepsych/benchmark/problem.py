@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Union
 import aepsych
 import numpy as np
 import torch
-from aepsych.strategy import SequentialStrategy, Strategy
+from aepsych.strategy import SequentialStrategy
 from aepsych.utils import make_scaled_sobol
 from scipy.stats import bernoulli
 
