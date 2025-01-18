@@ -18,7 +18,7 @@ from aepsych.factory.monotonic import monotonic_mean_covar_factory
 from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.inducing_points import GreedyVarianceReduction, SobolAllocator
+from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
 from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from botorch.fit import fit_gpytorch_mll
