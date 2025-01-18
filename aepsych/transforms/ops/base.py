@@ -7,7 +7,7 @@
 
 from abc import ABC
 from copy import deepcopy
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional
 
 import numpy as np
 import torch
