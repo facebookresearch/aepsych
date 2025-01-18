@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import time
-from collections.abc import Iterable
 from copy import deepcopy
 from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple
 
