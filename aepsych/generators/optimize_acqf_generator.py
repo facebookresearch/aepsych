@@ -134,9 +134,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
 
         acqf = self._instantiate_acquisition_fn(model)
 
-        if isinstance(acqf, MCLevelSetEstimation) or isinstance(
-            acqf, LookaheadAcquisitionFunction
-        ):
+        if isinstance(acqf, LookaheadAcquisitionFunction):
             warnings.warn(
                 f"{num_points} points were requested, but `{acqf}` can only generate one point at a time!"
             )
