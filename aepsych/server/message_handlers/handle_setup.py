@@ -10,6 +10,7 @@ import logging
 import aepsych.utils_logging as utils_logging
 from aepsych.config import Config
 from aepsych.database.data_fetcher import DataFetcher
+from aepsych.extensions import ExtensionManager
 from aepsych.strategy import SequentialStrategy
 from aepsych.version import __version__
 
@@ -17,6 +18,10 @@ logger = utils_logging.getLogger(logging.INFO)
 
 
 def _configure(server, config):
+    # Run extension scripts
+    server.extensions = ExtensionManager.from_config(config)
+    server.extensions.load()
+
     server._pregen_asks = []  # TODO: Allow each strategy to have its own stack of pre-generated asks
 
     parnames = config.getlist("common", "parnames", element_type=str)
@@ -26,7 +31,7 @@ def _configure(server, config):
         "common", "outcome_names", element_type=str, fallback=None
     )
     if outcome_names is None:
-        outcome_names = [f"outcome_{i+1}" for i in range(len(outcome_types))]
+        outcome_names = [f"outcome_{i + 1}" for i in range(len(outcome_types))]
     server.outcome_names = outcome_names
     server.config = config
     server.enable_pregen = config.getboolean("common", "pregen_asks", fallback=False)
