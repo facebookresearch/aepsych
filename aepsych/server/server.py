@@ -258,17 +258,21 @@ class AEPsychServer(object):
         return config
 
     def _config_to_tensor(self, config):
-        unpacked = [promote_0d(config[name]) for name in self.parnames]
-        x = np.stack(unpacked, dtype="O")
+        # Converts a parameter config dictionary to a tensor
+        # Check if the values of config are not array, if so make them so
+        config_copy = {
+            key: value.squeeze()
+            if isinstance(value, np.ndarray)
+            else np.array(value).squeeze()
+            for key, value in config.items()
+        }
 
-        # Unsqueeze batch dimension
-        x = np.expand_dims(x, 0)
+        # Create the correctly shaped/ordered object array
+        unpacked = [config_copy[name] for name in self.parnames]
+        unpacked = np.stack(unpacked, axis=0, dtype="O")
+        unpacked = np.expand_dims(unpacked, axis=0)  # Batch dimension,
 
-        # If last dim is 1, squeeze it out
-        if x.shape[-1] == 1:
-            x = x.squeeze(-1)
-
-        x = self.strat.transforms.str_to_indices(x)[0]
+        x = self.strat.transforms.str_to_indices(unpacked)[0]
 
         return x
 
