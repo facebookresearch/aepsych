@@ -246,12 +246,6 @@
         <span class="k">if</span> <span class="n">config_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="n">config_str</span><span class="p">)</span>
 
-        <span class="c1"># Warn if ub/lb is defined in common section</span>
-        <span class="k">if</span> <span class="s2">"ub"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">"lb"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">"ub and lb have been defined in common section, parameter-specific bounds take precendence over these."</span>
-            <span class="p">)</span>
-
         <span class="k">if</span> <span class="s2">"parnames"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>  <span class="c1"># it's possible to pass no parnames</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">par_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
