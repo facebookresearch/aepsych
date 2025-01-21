@@ -20,10 +20,9 @@ from aepsych.acquisition import (
 )
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
-from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.utils import get_extremum, get_jnd, get_max, get_min, inv_query
+from aepsych.models.utils import get_jnd, get_max, get_min, inv_query
 from aepsych.transforms import (
     ParameterTransformedGenerator,
     ParameterTransformedModel,

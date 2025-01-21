@@ -6,7 +6,6 @@
 # LICENSE file in the root directory of this source tree.
 
 import io
-import math
 from typing import Callable, Tuple
 
 import numpy as np

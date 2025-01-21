@@ -21,10 +21,6 @@ from typing import (
 
 import numpy as np
 import torch
-from botorch.models.transforms.input import (
-    ChainedInputTransform,
-    ReversibleInputTransform,
-)
 
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
