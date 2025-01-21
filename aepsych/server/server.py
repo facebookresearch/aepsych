@@ -63,6 +63,7 @@ class AEPsychServer(object):
         self.db: db.Database = db.Database(database_path)
         self.skip_computations = False
         self.strat_names = None
+        self.extensions = None
 
         if self.db.is_update_required():
             self.db.perform_updates()

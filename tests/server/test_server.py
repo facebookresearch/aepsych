@@ -11,6 +11,7 @@ import select
 import time
 import unittest
 import uuid
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import aepsych.server as server
@@ -419,6 +420,44 @@ class ServerTestCase(BaseServerTestCase):
         self.assertTrue(master_record.participant_id == "101")
         self.assertTrue(extra_metadata["extra"] == "data that is arbitrary")
         self.assertTrue("experiment_id" not in extra_metadata)
+
+    def test_extension_server(self):
+        extension_path = Path(__file__).parent.parent
+        extension_path = extension_path / "extensions" / "register_object.py"
+
+        config_str = f"""
+            [common]
+            parnames = [signal1]
+            outcome_types = [binary]
+            stimuli_per_trial = 1
+            strategy_names = [opt_strat]
+            extensions = [{extension_path}]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 0
+            upper_bound = 1
+
+            [opt_strat]
+            model = GPClassificationModel
+            generator = OnesGenerator
+            min_asks = 1
+        """
+        setup_request = {
+            "type": "setup",
+            "message": {"config_str": config_str},
+        }
+
+        with self.assertLogs(level=logging.INFO) as logs:
+            self.s.handle_request(setup_request)
+            outputs = ";".join(logs.output)
+            self.assertTrue(str(extension_path) in outputs)
+
+        strat = self.s.strat
+        one = strat.gen()
+
+        self.assertTrue(one == 1)
+        self.assertTrue(strat.generator._base_obj.__class__.__name__ == "OnesGenerator")
 
 
 if __name__ == "__main__":
