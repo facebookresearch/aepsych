@@ -47,20 +47,18 @@
 </li>
 <li><a href="generators.html#aepsych.generators.base.AcqArgProtocol">AcqArgProtocol (class in aepsych.generators.base)</a>
 </li>
-<li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.acqf">acqf (aepsych.generators.base.AEPsychGenerator attribute)</a>
+<li><a href="generators.html#aepsych.generators.base.AcqfGenerator.acqf">acqf (aepsych.generators.base.AcqfGenerator attribute)</a>
 <ul>
-<li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.acqf">(aepsych.generators.OptimizeAcqfGenerator attribute)</a>
-</li>
 <li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.acqf">(aepsych.transforms.parameters.ParameterTransformedGenerator property)</a>
 </li>
 </ul></li>
-<li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.acqf_kwargs">acqf_kwargs (aepsych.generators.base.AEPsychGenerator attribute)</a>
+<li><a href="generators.html#aepsych.generators.base.AcqfGenerator.acqf_kwargs">acqf_kwargs (aepsych.generators.base.AcqfGenerator attribute)</a>
 <ul>
-<li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.acqf_kwargs">(aepsych.generators.OptimizeAcqfGenerator attribute)</a>
-</li>
 <li><a href="transforms.html#aepsych.transforms.parameters.ParameterTransformedGenerator.acqf_kwargs">(aepsych.transforms.parameters.ParameterTransformedGenerator property)</a>
 </li>
 </ul></li>
+<li><a href="generators.html#aepsych.generators.base.AcqfGenerator">AcqfGenerator (class in aepsych.generators.base)</a>
+</li>
 <li><a href="generators.html#aepsych.generators.AcqfThompsonSamplerGenerator">AcqfThompsonSamplerGenerator (class in aepsych.generators)</a>
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.BernoulliMCMutualInformation.acquisition">acquisition() (aepsych.acquisition.BernoulliMCMutualInformation method)</a>
@@ -478,15 +476,8 @@
 </li>
 <li><a href="acquisition.html#aepsych.acquisition.mc_posterior_variance.balv_acq">balv_acq() (in module aepsych.acquisition.mc_posterior_variance)</a>
 </li>
-<li><a href="generators.html#aepsych.generators.AcqfThompsonSamplerGenerator.baseline_requiring_acqfs">baseline_requiring_acqfs (aepsych.generators.AcqfThompsonSamplerGenerator attribute)</a>
-<ul>
-<li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.baseline_requiring_acqfs">(aepsych.generators.base.AEPsychGenerator attribute)</a>
+<li><a href="generators.html#aepsych.generators.base.AcqfGenerator.baseline_requiring_acqfs">baseline_requiring_acqfs (aepsych.generators.base.AcqfGenerator attribute)</a>
 </li>
-<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.baseline_requiring_acqfs">(aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator attribute)</a>
-</li>
-<li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.baseline_requiring_acqfs">(aepsych.generators.OptimizeAcqfGenerator attribute)</a>
-</li>
-</ul></li>
 <li><a href="acquisition.html#aepsych.acquisition.lookahead.BEMPS">BEMPS (class in aepsych.acquisition.lookahead)</a>
 </li>
 <li><a href="benchmark.html#aepsych.benchmark.Benchmark">Benchmark (class in aepsych.benchmark)</a>
@@ -648,8 +639,6 @@
 </ul></li>
 <li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.dim">dim (aepsych.generators.base.AEPsychGenerator attribute)</a>
 <ul>
-<li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.dim">(aepsych.generators.OptimizeAcqfGenerator attribute)</a>
-</li>
 <li><a href="models.html#aepsych.models.base.ModelProtocol.dim">(aepsych.models.base.ModelProtocol property)</a>
 </li>
 </ul></li>
@@ -904,11 +893,7 @@
 </li>
 <li><a href="config.html#aepsych.config.ConfigurableMixin.from_config">(aepsych.config.ConfigurableMixin class method)</a>
 </li>
-<li><a href="generators.html#aepsych.generators.AcqfThompsonSamplerGenerator.from_config">(aepsych.generators.AcqfThompsonSamplerGenerator class method)</a>
-</li>
 <li><a href="generators.html#aepsych.generators.base.AcqArgProtocol.from_config">(aepsych.generators.base.AcqArgProtocol class method)</a>
-</li>
-<li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.from_config">(aepsych.generators.base.AEPsychGenerator class method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config">(aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator class method)</a>
 </li>
@@ -918,17 +903,9 @@
 </li>
 <li><a href="generators.html#aepsych.generators.ManualGenerator.from_config">(aepsych.generators.ManualGenerator class method)</a>
 </li>
-<li><a href="generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.from_config">(aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator class method)</a>
-</li>
 <li><a href="generators.html#aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator.from_config">(aepsych.generators.monotonic_thompson_sampler_generator.MonotonicThompsonSamplerGenerator class method)</a>
 </li>
-<li><a href="generators.html#aepsych.generators.MonotonicRejectionGenerator.from_config">(aepsych.generators.MonotonicRejectionGenerator class method)</a>
-</li>
 <li><a href="generators.html#aepsych.generators.MonotonicThompsonSamplerGenerator.from_config">(aepsych.generators.MonotonicThompsonSamplerGenerator class method)</a>
-</li>
-<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">(aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator class method)</a>
-</li>
-<li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.from_config">(aepsych.generators.OptimizeAcqfGenerator class method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.random_generator.RandomGenerator.from_config">(aepsych.generators.random_generator.RandomGenerator class method)</a>
 </li>
@@ -987,10 +964,8 @@
 <h2 id="G">G</h2>
 <table class="indextable genindextable" style="width: 100%"><tr>
 <td style="width: 33%; vertical-align: top;"><ul>
-<li><a href="generators.html#aepsych.generators.AcqfThompsonSamplerGenerator.gen">gen() (aepsych.generators.AcqfThompsonSamplerGenerator method)</a>
+<li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.gen">gen() (aepsych.generators.base.AEPsychGenerator method)</a>
 <ul>
-<li><a href="generators.html#aepsych.generators.base.AEPsychGenerator.gen">(aepsych.generators.base.AEPsychGenerator method)</a>
-</li>
 <li><a href="generators.html#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.gen">(aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.EpsilonGreedyGenerator.gen">(aepsych.generators.EpsilonGreedyGenerator method)</a>
@@ -1043,11 +1018,21 @@
 </li>
 <li><a href="config.html#aepsych.config.ConfigurableMixin.get_config_options">get_config_options() (aepsych.config.ConfigurableMixin class method)</a>
 <ul>
+<li><a href="generators.html#aepsych.generators.base.AcqfGenerator.get_config_options">(aepsych.generators.base.AcqfGenerator class method)</a>
+</li>
 <li><a href="generators.html#aepsych.generators.manual_generator.ManualGenerator.get_config_options">(aepsych.generators.manual_generator.ManualGenerator class method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.manual_generator.SampleAroundPointsGenerator.get_config_options">(aepsych.generators.manual_generator.SampleAroundPointsGenerator class method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.ManualGenerator.get_config_options">(aepsych.generators.ManualGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.get_config_options">(aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.MonotonicRejectionGenerator.get_config_options">(aepsych.generators.MonotonicRejectionGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.get_config_options">(aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator class method)</a>
+</li>
+<li><a href="generators.html#aepsych.generators.OptimizeAcqfGenerator.get_config_options">(aepsych.generators.OptimizeAcqfGenerator class method)</a>
 </li>
 <li><a href="generators.html#aepsych.generators.SampleAroundPointsGenerator.get_config_options">(aepsych.generators.SampleAroundPointsGenerator class method)</a>
 </li>
