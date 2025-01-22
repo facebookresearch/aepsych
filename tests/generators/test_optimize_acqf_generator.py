@@ -14,6 +14,7 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel, PairwiseProbitModel
+from aepsych.strategy import Strategy
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
 
