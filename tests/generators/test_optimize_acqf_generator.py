@@ -132,6 +132,15 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         cands = generator.gen(2, model)
         self.assertEqual(len(cands), 2)
 
+        generator = OptimizeAcqfGenerator(
+            acqf=MCLevelSetEstimation,
+            acqf_kwargs={"objective": ProbitObjective()},
+            lb=lb,
+            ub=ub,
+        )
+        cands = generator.gen(2, model)
+        self.assertEqual(len(cands), 2)
+
     def test_batch_generation_only_one(self):
         seed = 1
         torch.manual_seed(seed)
