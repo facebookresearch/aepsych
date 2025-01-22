@@ -29,7 +29,16 @@ def handle_ask(server, request):
         else:
             params = ask(server)
 
-    new_config = {"config": params, "is_finished": server.strat.finished}
+    if params is None:  # For replay
+        lengths = [0]
+    else:
+        lengths = {len(val) for val in params.values()}
+
+    new_config = {
+        "config": params,
+        "is_finished": server.strat.finished,
+        "num_points": lengths.pop(),
+    }
     if not server.is_performing_replay:
         server.db.record_message(
             master_table=server._db_master_record, type="ask", request=request
@@ -43,8 +52,8 @@ def ask(server, num_points=1, **kwargs):
         dict -- new config dict (keys are strings, values are floats)
     """
     if server.skip_computations:
-        # HACK to makke sure strategies finish correctly
-        server.strat._strat._count += 1
+        # Fakes points being generated and tracked by strategy to end strategies
+        server.strat._strat._count += num_points
         if server.strat._strat.finished:
             server.strat._make_next_strat()
         return None
@@ -56,7 +65,5 @@ def ask(server, num_points=1, **kwargs):
         fixed_pars = kwargs.pop("fixed_pars")
         kwargs["fixed_features"] = server._fixed_to_idx(fixed_pars)
 
-    # index by [0] is temporary HACK while serverside
-    # doesn't handle batched ask
-    next_x = server.strat.gen(num_points=num_points, **kwargs)[0]
+    next_x = server.strat.gen(num_points=num_points, **kwargs)
     return server._tensor_to_config(next_x)
