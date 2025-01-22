@@ -428,7 +428,20 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">untransform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_acqf_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+        <span class="c1"># Bandaid to ensure bounds are transformed for acqf</span>
+        <span class="k">if</span> <span class="s2">"lb"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"lb"</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">"lb"</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"lb"</span><span class="p">])</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"lb"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"lb"</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="s2">"ub"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"ub"</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"ub"</span><span class="p">])</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"ub"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"ub"</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">kwargs</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">acqf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>

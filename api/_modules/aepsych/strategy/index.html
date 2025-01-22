@@ -685,6 +685,7 @@
             <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">use_gpu_modeling</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="c1"># Handles if acqf is not in the generator but strategy block, otherwise, above handles it</span>
         <span class="n">acqf_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">acqf_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">generator</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
