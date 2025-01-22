@@ -410,7 +410,20 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
         return self.transforms.untransform(x)
 
     def _get_acqf_options(self, acqf: AcquisitionFunction, config: Config):
-        return self._base_obj._get_acqf_options(acqf, config)
+        kwargs = self._base_obj._get_acqf_options(acqf, config)
+
+        # Bandaid to ensure bounds are transformed for acqf
+        if "lb" in kwargs:
+            if not isinstance(kwargs["lb"], torch.Tensor):
+                kwargs["lb"] = torch.tensor(kwargs["lb"])
+            kwargs["lb"] = self.transforms.transform(kwargs["lb"])
+
+        if "ub" in kwargs:
+            if not isinstance(kwargs["ub"], torch.Tensor):
+                kwargs["ub"] = torch.tensor(kwargs["ub"])
+            kwargs["ub"] = self.transforms.transform(kwargs["ub"])
+
+        return kwargs
 
     @property
     def acqf(self) -> AcquisitionFunction | None:
