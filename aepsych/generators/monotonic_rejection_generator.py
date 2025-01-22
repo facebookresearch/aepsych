@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, Sequence
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
-from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.base import AcqfGenerator
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.utils import _process_bounds
 from botorch.acquisition import AcquisitionFunction
@@ -37,7 +37,7 @@ def default_loss_constraint_fun(
     return loss
 
 
-class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
+class MonotonicRejectionGenerator(AcqfGenerator):
     """Generator specifically to be used with MonotonicRejectionGP, which generates new points to sample by minimizing
     an acquisition function through stochastic gradient descent."""
 
@@ -72,7 +72,7 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         self.bounds = torch.stack((self.lb, self.ub))
 
     def _instantiate_acquisition_fn(
-        self, model: MonotonicRejectionGP
+        self, model: MonotonicRejectionGP # type: ignore
     ) -> AcquisitionFunction:
         """
         Instantiates the acquisition function with the specified model and additional arguments.
@@ -192,50 +192,58 @@ class MonotonicRejectionGenerator(AEPsychGenerator[MonotonicRejectionGP]):
         return Xopt
 
     @classmethod
-    def from_config(cls, config: Config) -> "MonotonicRejectionGenerator":
-        """
-        Creates an instance of MonotonicRejectionGenerator from a configuration object.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Get configuration options for the generator.
 
         Args:
-            config (Config): Configuration object containing initialization parameters.
+            config (Config): Configuration object.
+            name (str, optional): Name of the generator, defaults to None. Ignored.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            MonotonicRejectionGenerator: A configured instance of the generator class with specified acquisition function,
-            gradient descent options, exploration features, and acquisition function arguments.
+            Dict[str, Any]: Configuration options for the generator.
         """
+        options = options or {}
+        options.update(super().get_config_options(config, name, options))
         classname = cls.__name__
-        acqf = config.getobj("common", "acqf", fallback=None)
-        extra_acqf_args = cls._get_acqf_options(acqf, config)
-        lb = torch.tensor(config.getlist(classname, "lb"))
-        ub = torch.tensor(config.getlist(classname, "ub"))
 
-        options = {}
-        options["num_restarts"] = config.getint(classname, "restarts", fallback=10)
-        options["raw_samples"] = config.getint(classname, "samps", fallback=1000)
-        options["verbosity_freq"] = config.getint(
+        lb = config.gettensor(classname, "lb")
+        ub = config.gettensor(classname, "ub")
+
+        model_gen_options = {}
+        model_gen_options["num_restarts"] = config.getint(classname, "restarts", fallback=10)
+        model_gen_options["raw_samples"] = config.getint(classname, "samps", fallback=1000)
+        model_gen_options["verbosity_freq"] = config.getint(
             classname, "verbosity_freq", fallback=-1
         )
-        options["lr"] = config.getfloat(classname, "lr", fallback=0.01)  # type: ignore
-        options["momentum"] = config.getfloat(classname, "momentum", fallback=0.9)  # type: ignore
-        options["nesterov"] = config.getboolean(classname, "nesterov", fallback=True)
-        options["epochs"] = config.getint(classname, "epochs", fallback=50)
-        options["milestones"] = config.getlist(
+        model_gen_options["lr"] = config.getfloat(classname, "lr", fallback=0.01)  # type: ignore
+        model_gen_options["momentum"] = config.getfloat(classname, "momentum", fallback=0.9)  # type: ignore
+        model_gen_options["nesterov"] = config.getboolean(classname, "nesterov", fallback=True)
+        model_gen_options["epochs"] = config.getint(classname, "epochs", fallback=50)
+        model_gen_options["milestones"] = config.getlist(
             classname,
             "milestones",
             fallback=[25, 40],  # type: ignore
         )
-        options["gamma"] = config.getfloat(classname, "gamma", fallback=0.1)  # type: ignore
-        options["loss_constraint_fun"] = config.getobj(
+        model_gen_options["gamma"] = config.getfloat(classname, "gamma", fallback=0.1)  # type: ignore
+        model_gen_options["loss_constraint_fun"] = config.getobj(
             classname, "loss_constraint_fun", fallback=default_loss_constraint_fun
         )
 
         explore_features = config.getlist(classname, "explore_idxs", fallback=None)  # type: ignore
 
-        return cls(
-            acqf=acqf,
-            lb=lb,
-            ub=ub,
-            acqf_kwargs=extra_acqf_args,
-            model_gen_options=options,
-            explore_features=explore_features,
+        options.update(
+            {
+                "lb": lb,
+                "ub": ub,
+                "model_gen_options": model_gen_options,
+                "explore_features": explore_features,
+            }
         )
+
+        return options

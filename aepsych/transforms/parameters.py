@@ -14,7 +14,7 @@ from typing import Any, Callable, Dict, Literal, Optional, Tuple, Type, Union
 import numpy as np
 import torch
 from aepsych.config import Config, ConfigurableMixin
-from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.base import AcqfGenerator, AEPsychGenerator
 from aepsych.models.base import AEPsychMixin, ModelProtocol
 from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
 from aepsych.transforms.ops.base import Transform
@@ -310,7 +310,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
     parameters are untransformed back to the raw parameter space.
     """
 
-    _base_obj: AEPsychGenerator
+    _base_obj: AcqfGenerator # Really this should be AEPsychGenerator, but this is a bandaid so mypy knows about acqfs until we can refactor our classes/transforms
 
     def __init__(
         self,

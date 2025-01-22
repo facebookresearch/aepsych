@@ -10,7 +10,7 @@ from inspect import _empty, signature
 from typing import Any, Dict, Generic, Optional, Protocol, runtime_checkable, TypeVar
 
 import torch
-from aepsych.config import Config
+from aepsych.config import Config, ConfigurableMixin
 from aepsych.models.base import AEPsychMixin
 from botorch.acquisition import (
     AcquisitionFunction,
@@ -19,6 +19,9 @@ from botorch.acquisition import (
     qLogNoisyExpectedImprovement,
     qNoisyExpectedImprovement,
 )
+from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+
+from ..models.base import ModelProtocol
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 
@@ -34,17 +37,8 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     """Abstract base class for generators, which are responsible for generating new points to sample."""
 
     _requires_model = True
-    baseline_requiring_acqfs = [
-        qNoisyExpectedImprovement,
-        NoisyExpectedImprovement,
-        qLogNoisyExpectedImprovement,
-        LogNoisyExpectedImprovement,
-    ]
     stimuli_per_trial = 1
     max_asks: Optional[int] = None
-
-    acqf: AcquisitionFunction
-    acqf_kwargs: Dict[str, Any]
     dim: int
 
     def __init__(
@@ -62,10 +56,29 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     ) -> torch.Tensor:
         pass
 
-    @classmethod
-    @abc.abstractmethod
-    def from_config(cls, config: Config) -> Any:
-        pass
+class AcqfGenerator(AEPsychGenerator, ConfigurableMixin):
+    """Base class for generators that evaluate acquisition functions."""
+
+    _requires_model = True
+    baseline_requiring_acqfs = [
+        qNoisyExpectedImprovement,
+        NoisyExpectedImprovement,
+        qLogNoisyExpectedImprovement,
+        LogNoisyExpectedImprovement,
+    ]
+    acqf: AcquisitionFunction
+    acqf_kwargs: Dict[str, Any]
+
+    def __init__(
+        self,
+        acqf: AcquisitionFunction,
+        acqf_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        super().__init__()
+        self.acqf = acqf
+        if acqf_kwargs is None:
+            acqf_kwargs = {}
+        self.acqf_kwargs = acqf_kwargs
 
     @classmethod
     def _get_acqf_options(
@@ -151,3 +164,64 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
             extra_acqf_args = {}
 
         return extra_acqf_args
+
+    def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
+        """
+        Instantiates the acquisition function with the specified model and additional arguments.
+
+        Args:
+            model (ModelProtocol): The model to use with the acquisition function.
+
+        Returns:
+            AcquisitionFunction: Configured acquisition function.
+        """
+        if self.acqf == AnalyticExpectedUtilityOfBestOption:
+            return self.acqf(pref_model=model)
+
+        if hasattr(model, "device"):
+            if "lb" in self.acqf_kwargs:
+                if not isinstance(self.acqf_kwargs["lb"], torch.Tensor):
+                    self.acqf_kwargs["lb"] = torch.tensor(self.acqf_kwargs["lb"])
+
+                self.acqf_kwargs["lb"] = self.acqf_kwargs["lb"].to(model.device)
+
+            if "ub" in self.acqf_kwargs:
+                if not isinstance(self.acqf_kwargs["ub"], torch.Tensor):
+                    self.acqf_kwargs["ub"] = torch.tensor(self.acqf_kwargs["ub"])
+
+                self.acqf_kwargs["ub"] = self.acqf_kwargs["ub"].to(model.device)
+
+        if self.acqf in self.baseline_requiring_acqfs:
+            return self.acqf(model, model.train_inputs[0], **self.acqf_kwargs)
+        else:
+            return self.acqf(model=model, **self.acqf_kwargs)
+
+    @classmethod
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Get configuration options for the generator.
+
+        Args:
+            config (Config): Configuration object.
+            name (str, optional): Name of the generator, defaults to None. Ignored.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
+
+        Returns:
+            Dict[str, Any]: Configuration options for the generator.
+        """
+        options = options or {}
+        classname = cls.__name__
+        acqf = config.getobj(classname, "acqf", fallback=None)
+        extra_acqf_args = cls._get_acqf_options(acqf, config)
+        options.update(
+            {
+                "acqf": acqf,
+                "acqf_kwargs": extra_acqf_args,
+            }
+        )
+
+        return options
