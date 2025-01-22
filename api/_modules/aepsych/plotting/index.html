@@ -24,15 +24,691 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sized</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Sized</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">TypeAlias</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Strategy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterTransforms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">NormalizeScale</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">dim_grid</span><span class="p">,</span> <span class="n">get_lse_contour</span><span class="p">,</span> <span class="n">get_lse_interval</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">AxesImage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">norm</span>
+
+<span class="n">linestyle_str</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"solid"</span><span class="p">,</span> <span class="s2">"dashsed"</span><span class="p">,</span> <span class="s2">"dashdot"</span><span class="p">,</span> <span class="s2">"dotted"</span><span class="p">]</span>
+<span class="n">ColorType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">str</span>
+
+
+<div class="viewcode-block" id="plot_predict_1d"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_predict_1d">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">plot_predict_1d</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">prediction</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pred_lower</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pred_upper</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shaded_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the ax with the model predictions plotted in place as a 1D line plot.</span>
+<span class="sd">    Usually plots the predictions in the posterior space or the probability space.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (Iterable[float]): The values where the model was evaluated, assumed to be</span>
+<span class="sd">            ordered from lb to ub.</span>
+<span class="sd">        prediction (Iterable[float]): The values of the predictions at every point it was</span>
+<span class="sd">            evaluated, assumed to be the same order as x.</span>
+<span class="sd">        ax (Axes, optional): The Matplotlib axes to plot onto. If not set, an axes is</span>
+<span class="sd">            made and returned.</span>
+<span class="sd">        post_lower (Iterable[float], optional): The lower part of the shaded region around</span>
+<span class="sd">            the prediction line, both post_lower/post_upper must be set to plot the band.</span>
+<span class="sd">        post_upper (Iterable[float], optional): The upper part of the shaded region around</span>
+<span class="sd">            the prediction line, both post_lower/post_upper must be set to plot the band.</span>
+<span class="sd">        shaded_kwargs (Dict[Any, Any], optional): Kwargs to pass to the</span>
+<span class="sd">            `ax.fill_between()` call to modify the shaded regions, defaults to None.</span>
+<span class="sd">        **kwargs: Extra kwargs passed to the ax.plot() call, not passed to the plotting</span>
+<span class="sd">            functions in charge of shaded regions.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Axes: The input axes with the prediction plotted onto it. Note that plotting is</span>
+<span class="sd">            done in-place.</span>
+<span class="sd">    """</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">pred_lower</span><span class="p">,</span> <span class="n">pred_upper</span> <span class="o">=</span> <span class="n">_tensor_cast</span><span class="p">(</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">pred_lower</span><span class="p">,</span> <span class="n">pred_upper</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">prediction</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pred_lower</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pred_upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">shaded_kwargs</span> <span class="o">=</span> <span class="n">shaded_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+            <span class="n">pred_lower</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+            <span class="n">pred_upper</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">hatch</span><span class="o">=</span><span class="s2">"///"</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">shaded_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="plot_points_1d"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_points_1d">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">plot_points_1d</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pred_x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pred_y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">point_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">cmap_colors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ColorType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span>
+    <span class="n">label_points</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">legend_loc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"best"</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Return the ax with the points plotted based on x and y in a 1D plot. If</span>
+<span class="sd">    pred_x/pred_y is not set, these are plotted as marks at the bottom of the plot,</span>
+<span class="sd">    otherwise, each point is plotted as close as possible to the line defined by</span>
+<span class="sd">    the prediction values (pred_x/pred_y). Usually use alongside `plot_predict_1d()`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (Iterable[Union[float, Iterable[float]]]): The `(n, 1)` or `(n, d, 2)` points to plot. The 3D case will</span>
+<span class="sd">            be considered a pairwise plot.</span>
+<span class="sd">        y (Iterable[float]): The `(n, 1)` responses to plot.</span>
+<span class="sd">        ax (Axes, optional): The Matplotlib axes to plot onto. If not set, an axes is</span>
+<span class="sd">            made and returned.</span>
+<span class="sd">        pred_x (Iterable[float], optional): The points where the model was evaluated, used</span>
+<span class="sd">            to position each point as close as possible to the line. If not set, the</span>
+<span class="sd">            points are plotted as marks at the bottom of the plot.</span>
+<span class="sd">        pred_y (Iterable[float], optional): The model outputs at each point in pred_x, used to</span>
+<span class="sd">            position each point as close as possible to the line. If not set, the points</span>
+<span class="sd">            are plotted as marks at the bottom of the plot.</span>
+<span class="sd">        point_size (float): The size of each plotted point, defaults to 5.0.</span>
+<span class="sd">        cmap_colors (List[ColorType]): A list of colors to map the point colors to from</span>
+<span class="sd">            min to max of y. At least 2 colors are needed, but more colors will allow</span>
+<span class="sd">            customizing intermediate colors. Defaults to ["r", "b"].</span>
+<span class="sd">        label_points (bool): Add a way to identify the value of the points, whether as a</span>
+<span class="sd">            legend for cases there are 6 or less unique responses or a colorbar for</span>
+<span class="sd">            7 or more unique responses. Defaults to True.</span>
+<span class="sd">        legend_loc (str): If a legend is added, where should it be placed.</span>
+<span class="sd">        **kwargs: Extra kwargs passed to the ax.plot() call, note that every point is</span>
+<span class="sd">            plotted with an individual call so these kwargs must be applicable to single</span>
+<span class="sd">            points.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Axes: The input axes with the points plotted onto it. Note that plotting is done</span>
+<span class="sd">            in-place.</span>
+<span class="sd">    """</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">pred_x</span><span class="p">,</span> <span class="n">pred_y</span> <span class="o">=</span> <span class="n">_tensor_cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">pred_x</span><span class="p">,</span> <span class="n">pred_y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmap_colors</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cmap_colors must be at least 2 colors."</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">"cmap"</span><span class="p">,</span> <span class="n">cmap_colors</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Multi dim case</span>
+        <span class="k">if</span> <span class="n">pred_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pred_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pair</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+                <span class="n">x1</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">y1</span> <span class="o">=</span> <span class="n">pred_y</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">pred_x</span><span class="p">))]</span>
+                <span class="n">y2</span> <span class="o">=</span> <span class="n">pred_y</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">pred_x</span><span class="p">))]</span>
+
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x2</span><span class="p">)],</span>
+                    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y2</span><span class="p">)],</span>
+                    <span class="s2">"-"</span><span class="p">,</span>
+                    <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">x1</span><span class="p">,</span>
+                    <span class="n">y1</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="o">.</span><span class="n">reversed</span><span class="p">()(</span><span class="n">norm</span><span class="p">(</span><span class="n">response</span><span class="p">)),</span>
+                    <span class="n">markersize</span><span class="o">=</span><span class="n">point_size</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">x2</span><span class="p">,</span>
+                    <span class="n">y2</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">response</span><span class="p">)),</span>
+                    <span class="n">markersize</span><span class="o">=</span><span class="n">point_size</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">curve</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">mid</span><span class="p">):</span>
+                <span class="n">x_coords</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">mid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">mid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">)</span>
+
+                <span class="n">y_coords</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">start</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">end</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">mid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">mid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="p">)</span>
+
+                <span class="n">poly_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_coords</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+                <span class="n">poly_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_coords</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">poly_x</span><span class="p">,</span> <span class="n">poly_y</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+            <span class="c1"># Get where the hatches should be</span>
+            <span class="n">hatch_y</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+            <span class="n">mid_y</span> <span class="o">=</span> <span class="n">hatch_y</span> <span class="o">+</span> <span class="p">((</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">hatch_y</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">pair</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+                <span class="n">x1</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+                <span class="c1"># Create a curvey line between the hatches</span>
+                <span class="n">mid_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">line_x</span><span class="p">,</span> <span class="n">line_y</span> <span class="o">=</span> <span class="n">curve</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">hatch_y</span><span class="p">],</span> <span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">hatch_y</span><span class="p">],</span> <span class="p">[</span><span class="n">mid_x</span><span class="p">,</span> <span class="n">mid_y</span><span class="p">])</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">line_x</span><span class="p">,</span> <span class="n">line_y</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">x1</span><span class="p">,</span>
+                    <span class="n">hatch_y</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="o">.</span><span class="n">reversed</span><span class="p">()(</span><span class="n">norm</span><span class="p">(</span><span class="n">response</span><span class="p">)),</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">x2</span><span class="p">,</span>
+                    <span class="n">hatch_y</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">response</span><span class="p">)),</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pred_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pred_y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x_</span><span class="p">,</span> <span class="n">y_</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+                <span class="n">plot_y</span> <span class="o">=</span> <span class="n">pred_y</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_</span> <span class="o">-</span> <span class="n">pred_x</span><span class="p">))]</span>
+
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">x_</span><span class="p">,</span>
+                    <span class="n">plot_y</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">y_</span><span class="p">)),</span>
+                    <span class="n">markersize</span><span class="o">=</span><span class="n">point_size</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Get where the hatches should be</span>
+            <span class="n">hatch_y</span><span class="p">,</span> <span class="n">y_max</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+            <span class="n">mid_y</span> <span class="o">=</span> <span class="n">hatch_y</span> <span class="o">+</span> <span class="p">((</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">hatch_y</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">x_</span><span class="p">,</span> <span class="n">y_</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">x_</span><span class="p">,</span>
+                    <span class="n">hatch_y</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">y_</span><span class="p">)),</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">label_points</span><span class="p">:</span>
+        <span class="n">_point_labeler</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">legend_loc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="plot_predict_2d"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_predict_2d">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">plot_predict_2d</span><span class="p">(</span>
+    <span class="n">prediction</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">ub</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">edge_multiplier</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the ax with the model predictions plotted in-place as a 2D heatmap.</span>
+<span class="sd">    Usually used to plot the model outputs in posterior space or probability space.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prediction (Iterable[Iterable[float]]): A 2D array of the predictions, assumes it was a square</span>
+<span class="sd">            parameter grid where each cell was evaluated by the model.</span>
+<span class="sd">        lb (Iterable[float]): The lower bound of the two parameters being plotted.</span>
+<span class="sd">        ub (Iterable[float]): The upper bound of the two parameters being plotted.</span>
+<span class="sd">        ax (Axes, optional): The Matplotlib axes to plot onto. If not set, an axes is</span>
+<span class="sd">            made and returned.</span>
+<span class="sd">        vmin (float, optional): The minimum value of the predictions, if not set, it will</span>
+<span class="sd">            be the minimum of prediction.</span>
+<span class="sd">        vmax (float, optional): The maximum of the predictions, if not set, it will be the</span>
+<span class="sd">            maximum of prediction.</span>
+<span class="sd">        edge_multiplier (float): How much to extend the plot extents beyond the parameter</span>
+<span class="sd">            bounds (lb, ub), the plot extends beyond the bounds by the absolute difference</span>
+<span class="sd">            multiplied by the edge_multiplier. Setting this to 0 will not extend the</span>
+<span class="sd">            edge, any postive value will plot beyond the bounds, negative will plot less</span>
+<span class="sd">            than the bounds. Used when you do not want the edges of the heatmap to be</span>
+<span class="sd">            right at the parameter boundaries, especially useful if many points are at</span>
+<span class="sd">            parameter boundaries. Defaults to 0.</span>
+<span class="sd">        colorbar (bool): Whether to add a colorbar (with bounds of [vmin, vmax]) to the</span>
+<span class="sd">            parent figure of the Axes, defaults to True.</span>
+<span class="sd">        **kwargs: Extra kwargs passed to the ax.imshow() call that creates the heatmap.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Axes: The input axes with the predictions plotted onto it. Note that the plotting</span>
+<span class="sd">            is done in-place.</span>
+<span class="sd">    """</span>
+    <span class="n">prediction</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span> <span class="o">=</span> <span class="n">_tensor_cast</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="c1"># Make sure bounds are floats</span>
+    <span class="n">lb</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+    <span class="n">ub</span> <span class="o">=</span> <span class="n">ub</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ub</span> <span class="o">-</span> <span class="n">lb</span><span class="p">)</span>
+    <span class="n">edge_bumps</span> <span class="o">=</span> <span class="p">(</span><span class="n">diff</span> <span class="o">-</span> <span class="p">(</span><span class="n">diff</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">edge_multiplier</span><span class="p">)))</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">lb</span> <span class="o">-=</span> <span class="n">edge_bumps</span>
+    <span class="n">ub</span> <span class="o">+=</span> <span class="n">edge_bumps</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lb</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">ub</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">lb</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">ub</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">mappable</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+        <span class="n">prediction</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="o">=</span><span class="p">((</span><span class="n">ub</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">lb</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">ub</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lb</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">colorbar</span> <span class="ow">and</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Orphaned axes will ignore colorbar, but it's rare</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="plot_points_2d"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_points_2d">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">plot_points_2d</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">point_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slice_vals</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">slice_gradient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">cmap_colors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ColorType</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span>
+    <span class="n">label_points</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">legend_loc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"best"</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Return the axes with the points defined by the parameters (x) and the outcomes</span>
+<span class="sd">    (y) plotted in-place. If the inputs are from an experiment with stimuli per trial, a</span>
+<span class="sd">    line is drawn between both. Usually used alongside `plot_predict_2d()`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (Iterable[Iterable[float]]): The `(n, d, 2)` or `(n, d)` data points to plot. Each point is</span>
+<span class="sd">            a different trial.</span>
+<span class="sd">        y (Iterable[float]): The `(n, 1)` responses given each set of datapoints. Each value</span>
+<span class="sd">            is the response to a given trial.</span>
+<span class="sd">        ax (Axes, optional): The Matplotlib axes to plot onto. If not set, an axes is</span>
+<span class="sd">            made and returned.</span>
+<span class="sd">        point_size (float): The size of the points, defaults to 5.</span>
+<span class="sd">        axis (List[int], optional): If the dimensionality `d` is higher than 2, which</span>
+<span class="sd">            two dimensions should the points be positioned with.</span>
+<span class="sd">        slice_vals (Iterable[float]): If the dimensionality `d` is higher than 2, where was</span>
+<span class="sd">            the other dimensions sliced at. This is used to determine the size/alpha</span>
+<span class="sd">            gradient of the points based on how close each point is to the slice. If not</span>
+<span class="sd">            set, the points will not change size/alpha based on slice distance. The</span>
+<span class="sd">            Euclidean distance (s) of each point is calculated and converted to a</span>
+<span class="sd">            multipler by `exp(-c * s)`, where c is the slice_gradient. The multipler is</span>
+<span class="sd">            applied to the point_size and the alpha (transparency) of the points.</span>
+<span class="sd">        slice_gradient (float): The rate at which the multiplier decreases as a function</span>
+<span class="sd">            of the distance between a point and the slice. Defaults to 1.</span>
+<span class="sd">        cmap_colors (List[ColorType]): A list of colors to map the point colors to from</span>
+<span class="sd">            min to max of y. At least 2 colors are needed, but more colors will allow</span>
+<span class="sd">            customizing intermediate colors. Defaults to ["r", "b"].</span>
+<span class="sd">        label_points (bool): Add a way to identify the value of the points, whether as a</span>
+<span class="sd">            legend for cases there are 6 or less unique responses or a colorbar for</span>
+<span class="sd">            7 or more unique responses. Defaults to True.</span>
+<span class="sd">        legend_loc (str): If a legend is added, where should it be placed.</span>
+<span class="sd">        **kwargs: Extra kwargs passed to the ax.plot() call, note that every point is</span>
+<span class="sd">            plotted with an individual call so these kwargs must be applicable to single</span>
+<span class="sd">            points.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Axes: The axes with the points plotted in-place.</span>
+<span class="sd">    """</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">slice_vals</span> <span class="o">=</span> <span class="n">_tensor_cast</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">slice_vals</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmap_colors</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cmap_colors must be at least 2 colors."</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">"cmap"</span><span class="p">,</span> <span class="n">cmap_colors</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"x has more than 2 dimensions and no axis has been defined."</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xcoords</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">ycoords</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">slice_vals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">slice_vals</span> <span class="o">=</span> <span class="n">slice_vals</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+                <span class="n">not_axis</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">axis</span><span class="p">]</span>
+                <span class="n">normalize</span> <span class="o">=</span> <span class="n">ParameterTransforms</span><span class="p">(</span>
+                    <span class="n">normalize</span><span class="o">=</span><span class="n">NormalizeScale</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">indices</span><span class="o">=</span><span class="n">not_axis</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">not_x</span> <span class="o">=</span> <span class="n">normalize</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="n">not_axis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+                <span class="c1"># Freezes the inferred bounds</span>
+                <span class="n">normalize</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+                <span class="n">transformed_vals</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">transformed_vals</span><span class="p">[</span><span class="n">not_axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_vals</span>
+                <span class="n">transformed_vals</span> <span class="o">=</span> <span class="n">normalize</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">transformed_vals</span><span class="p">)</span>
+                <span class="n">transformed_vals</span> <span class="o">=</span> <span class="n">transformed_vals</span><span class="p">[</span><span class="n">not_axis</span><span class="p">]</span>
+
+                <span class="n">slice_dist</span> <span class="o">=</span> <span class="n">not_x</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">transformed_vals</span><span class="p">)</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+
+                <span class="c1"># Calculate point alphas (which is also used as a size multiplier)</span>
+                <span class="n">point_alphas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">slice_dist</span> <span class="o">*</span> <span class="n">slice_gradient</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">point_alphas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xcoords</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xcoords</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">ycoords</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">point_alphas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">xcoords</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># n-wise experiment</span>
+        <span class="c1"># Plot everything in pairs and add lines</span>
+        <span class="k">for</span> <span class="n">xcoord</span><span class="p">,</span> <span class="n">ycoord</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">point_alpha</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xcoords</span><span class="p">,</span> <span class="n">ycoords</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">point_alphas</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xcoord</span><span class="p">,</span> <span class="n">ycoord</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">xcoord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">ycoord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">y_</span><span class="p">)),</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">point_alpha</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                <span class="n">markersize</span><span class="o">=</span><span class="n">point_alpha</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">point_size</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">xcoord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">ycoord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="o">.</span><span class="n">reversed</span><span class="p">()(</span><span class="n">norm</span><span class="p">(</span><span class="n">y_</span><span class="p">)),</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">point_alpha</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                <span class="n">markersize</span><span class="o">=</span><span class="n">point_alpha</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">point_size</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">xcoord</span><span class="p">,</span> <span class="n">ycoord</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">point_alpha</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xcoords</span><span class="p">,</span> <span class="n">ycoords</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">point_alphas</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">xcoord</span><span class="p">,</span>
+                <span class="n">ycoord</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">y_</span><span class="p">)),</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">point_alpha</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+                <span class="n">markersize</span><span class="o">=</span><span class="n">point_alpha</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">point_size</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">label_points</span><span class="p">:</span>
+        <span class="n">_point_labeler</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">legend_loc</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="plot_contours"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_contours">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">plot_contours</span><span class="p">(</span>
+    <span class="n">prediction</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">ub</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">levels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">edge_multiplier</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ColorType</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"white"</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">linestyles</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">linestyle_str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"solid"</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Axes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Plot contour lines at the levels onto the axes based on the model predictions</span>
+<span class="sd">    with extents defined by lb and ub. Assumes that you're plotting ontop of a heatmap</span>
+<span class="sd">    of those predictions given the same extents.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prediction (Iterable[Iterable[float]]): A 2D array of the predictions, assumes it was a square</span>
+<span class="sd">            parameter grid where each cell was evaluated by the model.</span>
+<span class="sd">        lb (Iterable[float]): The lower bound of the two parameters being plotted.</span>
+<span class="sd">        ub (Iterable[float]): The upper bound of the two parameters being plotted.</span>
+<span class="sd">        ax (Axes, optional): The Matplotlib axes to plot onto. If not set, an axes is</span>
+<span class="sd">            made and returned.</span>
+<span class="sd">        levels (Iterable[float], optional): A sequence of values to plot the contours given</span>
+<span class="sd">            the predictions. If not set, a contour will be plotted at each integer.</span>
+<span class="sd">        edge_multiplier (float): How much to extend the plot extents beyond the parameter</span>
+<span class="sd">            bounds (lb, ub), the plot extends beyond the bounds by the absolute difference</span>
+<span class="sd">            multiplied by the edge_multiplier. Setting this to 0 will not extend the</span>
+<span class="sd">            edge, any postive value will plot beyond the bounds, negative will plot less</span>
+<span class="sd">            than the bounds. Used when you do not want the edges of the heatmap to be</span>
+<span class="sd">            right at the parameter boundaries, especially useful if many points are at</span>
+<span class="sd">            parameter boundaries. Defaults to 0.</span>
+<span class="sd">        color (ColorType): What colors the contours should be, defaults to white.</span>
+<span class="sd">        labels (bool): Whether or not to label the contours.</span>
+<span class="sd">        linestyles (linestyle_str, optional): How should the contour lines be styled,</span>
+<span class="sd">            defaults to "solid". Options are "solid", "dashsed", "dashdot", "dotted", can</span>
+<span class="sd">            be set to None to default to the Matplotlib default.</span>
+<span class="sd">        **kwargs: Extra keyword arguments to pass to the ax.contour() call that plots</span>
+<span class="sd">            the contours.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Axes: The axes with the points plotted in-place.</span>
+<span class="sd">    """</span>
+    <span class="n">prediction</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">_tensor_cast</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">levels</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="c1"># Make sure bounds are floats</span>
+    <span class="n">lb</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+    <span class="n">ub</span> <span class="o">=</span> <span class="n">ub</span><span class="o">.</span><span class="n">double</span><span class="p">()</span>
+
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ub</span> <span class="o">-</span> <span class="n">lb</span><span class="p">)</span>
+    <span class="n">edge_bumps</span> <span class="o">=</span> <span class="p">(</span><span class="n">diff</span> <span class="o">-</span> <span class="p">(</span><span class="n">diff</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">edge_multiplier</span><span class="p">)))</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">lb</span> <span class="o">-=</span> <span class="n">edge_bumps</span>
+    <span class="n">ub</span> <span class="o">+=</span> <span class="n">edge_bumps</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lb</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">ub</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">lb</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">ub</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">prediction</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">levels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+            <span class="n">prediction</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">floor</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">prediction</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">ceil</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="n">contours</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+        <span class="n">prediction</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span>
+        <span class="n">colors</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="n">linestyles</span><span class="o">=</span><span class="n">linestyles</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="facet_slices"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.facet_slices">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">facet_slices</span><span class="p">(</span>
+    <span class="n">prediction</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">plotted_axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">lb</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">ub</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">nrows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">ncols</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">plot_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Sets up a set of subplots to plot either a 3D or a 4D space where two dimensions</span>
+<span class="sd">    are plotted and the other dimensions are sliced over the subplots.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prediction(Union[torch.Tensor, np.ndarray]): The model predictions cube to</span>
+<span class="sd">            slice, in a 3D parameter space, it would be a 3D array, in a 4D parameter</span>
+<span class="sd">            space it would be a 4D array.</span>
+<span class="sd">        plotted_axes (List[int]): The two parameter indices that will be plotted, the</span>
+<span class="sd">            other parameters will be sliced over subplots.</span>
+<span class="sd">        lb (Iterable[Float]): The lower bound of the parameter space.</span>
+<span class="sd">        ub (Iterable[Float]): The upper bound of the parameter space.</span>
+<span class="sd">        nrows (int): How many rows to plot, which will also be how many slices there are</span>
+<span class="sd">            of the first sliced dimension.</span>
+<span class="sd">        ncols (int): How many columns to plot, which will also be how many slices there</span>
+<span class="sd">            are of the second sliced dimesion.</span>
+<span class="sd">        plot_size (float): The width of each individual square plot in inches.</span>
+<span class="sd">        **kwargs: Kwargs passed to the plt.subplots() call.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Figure: A Matplotlib figure of all of the subplots.</span>
+<span class="sd">        np.ndarray[Axes]: 2D object array of each subplot.</span>
+<span class="sd">        np.ndarray[torch.Tensor]: 2D object array of tensors representing the values of the sliced</span>
+<span class="sd">            dimensions for each subplot.</span>
+<span class="sd">        np.ndarray[torch.Tensor]: 2D object array of tensors representing the sliced predictions for</span>
+<span class="sd">            each subplot.</span>
+
+<span class="sd">    """</span>
+    <span class="n">prediction</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span> <span class="o">=</span> <span class="n">_tensor_cast</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">)</span>
+    <span class="n">not_axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lb</span><span class="p">))</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotted_axes</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_axes</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only 3 and 4 dimensional spaces can use this function."</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">"layout"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"layout"</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"The layout arg for subplots is defaulted to 'constrained', be careful when changing this"</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="s2">"constrained"</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span>
+        <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">plot_size</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">plot_size</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span>
+        <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">slice_template</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="kc">None</span> <span class="k">if</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">not_axes</span> <span class="k">else</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prediction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lb</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">slice_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+    <span class="n">slice_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">row_slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lb</span><span class="p">[</span><span class="n">not_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">ub</span><span class="p">[</span><span class="n">not_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">nrows</span><span class="p">)</span>
+        <span class="n">col_slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lb</span><span class="p">[</span><span class="n">not_axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ub</span><span class="p">[</span><span class="n">not_axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ncols</span><span class="p">)</span>
+        <span class="n">row_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prediction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">col_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prediction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+            <span class="n">slice_vals</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">row_slices</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">col_slices</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]]]</span>
+            <span class="n">tmp_slice</span> <span class="o">=</span> <span class="n">slice_template</span><span class="p">[:]</span>
+            <span class="n">tmp_slice</span><span class="p">[</span><span class="n">tmp_slice</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">=</span> <span class="n">row_idxs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">tmp_slice</span><span class="p">[</span><span class="n">tmp_slice</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">=</span> <span class="n">col_idxs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+            <span class="n">slice_predictions</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">tmp_slice</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nPlots</span> <span class="o">=</span> <span class="n">nrows</span> <span class="k">if</span> <span class="n">nrows</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">ncols</span>
+        <span class="n">slices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lb</span><span class="p">[</span><span class="n">not_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">ub</span><span class="p">[</span><span class="n">not_axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">nPlots</span><span class="p">)</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prediction</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nPlots</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ndindex</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+            <span class="n">slice_vals</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">slices</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">tmp_slice</span> <span class="o">=</span> <span class="n">slice_template</span><span class="p">[:]</span>
+            <span class="n">tmp_slice</span><span class="p">[</span><span class="n">tmp_slice</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+            <span class="n">slice_predictions</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="n">tmp_slice</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">slice_vals</span><span class="p">,</span> <span class="n">slice_predictions</span></div>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_point_labeler</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span>
+    <span class="n">responses</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="p">:</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Colormap</span><span class="p">,</span>
+    <span class="n">norm</span><span class="p">:</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">,</span>
+    <span class="n">legend_loc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># Given responses, create some way to indicate what point color means</span>
+    <span class="n">unique_responses</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_responses</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">6</span><span class="p">:</span>  <span class="c1"># Make a legend, probably categorical</span>
+        <span class="n">handles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">unique_responses</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+                <span class="n">linestyle</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">res</span><span class="p">)),</span>
+            <span class="p">)</span>
+            <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">legend_loc</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Make a colorbar, probably continuous</span>
+        <span class="n">mappable</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tensor_cast</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="c1"># Turns objects into tensors if possible</span>
+    <span class="n">casted_objs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span>
+                <span class="n">obj</span><span class="p">,</span> <span class="s2">"__iter__"</span>
+            <span class="p">):</span>  <span class="c1"># Checks if iterable</span>
+                <span class="n">casted_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">casted_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="n">casted_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">casted_objs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="plot_strat"><a class="viewcode-back" href="../../plotting.html#aepsych.plotting.plot_strat">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">plot_strat</span><span class="p">(</span>
@@ -82,6 +758,10 @@
 <span class="sd">                                 Default: True.</span>
 <span class="sd">    """</span>
 
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">"Plotting directly from strategy is deprecated, plots should be composed manually using the Matplotlib API, AEPsych specific helper functions are available in the plotting submodule."</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">assert</span> <span class="p">(</span>
         <span class="s2">"binary"</span> <span class="ow">in</span> <span class="n">strat</span><span class="o">.</span><span class="n">outcome_types</span>
     <span class="p">),</span> <span class="sa">f</span><span class="s2">"Plotting not supported for outcome_type </span><span class="si">{</span><span class="n">strat</span><span class="o">.</span><span class="n">outcome_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
@@ -428,6 +1108,10 @@
 <span class="sd">        save_path (str, optional): File name to save the plot to. Default: None.</span>
 <span class="sd">        show (bool): Whether the plot should be shown in an interactive window. Default: True.</span>
 <span class="sd">    """</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">"Plotting directly from strategy is deprecated, plots should be composed manually using the Matplotlib API, AEPsych specific helper functions are available in the plotting submodule."</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">assert</span> <span class="n">strat</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Cannot plot without a model!"</span>
 
     <span class="n">contour_levels_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>

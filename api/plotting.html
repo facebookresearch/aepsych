@@ -20,6 +20,261 @@
 <section id="module-aepsych.plotting">
 <span id="aepsych-plotting-module"></span><h2>aepsych.plotting module<a class="headerlink" href="#module-aepsych.plotting" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_predict_1d">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_predict_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shaded_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_predict_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_predict_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ax with the model predictions plotted in place as a 1D line plot.
+Usually plots the predictions in the posterior space or the probability space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The values where the model was evaluated, assumed to be
+ordered from lb to ub.</p></li>
+<li><p><strong>prediction</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The values of the predictions at every point it was
+evaluated, assumed to be the same order as x.</p></li>
+<li><p><strong>ax</strong> (<em>Axes</em><em>, </em><em>optional</em>) – The Matplotlib axes to plot onto. If not set, an axes is
+made and returned.</p></li>
+<li><p><strong>post_lower</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The lower part of the shaded region around
+the prediction line, both post_lower/post_upper must be set to plot the band.</p></li>
+<li><p><strong>post_upper</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The upper part of the shaded region around
+the prediction line, both post_lower/post_upper must be set to plot the band.</p></li>
+<li><p><strong>shaded_kwargs</strong> (<em>Dict</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Kwargs to pass to the
+<cite>ax.fill_between()</cite> call to modify the shaded regions, defaults to None.</p></li>
+<li><p><strong>**kwargs</strong> – Extra kwargs passed to the ax.plot() call, not passed to the plotting
+functions in charge of shaded regions.</p></li>
+<li><p><strong>pred_lower</strong> (<em>Optional</em><em>[</em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>pred_upper</strong> (<em>Optional</em><em>[</em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The input axes with the prediction plotted onto it. Note that plotting is</dt><dd><p>done in-place.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Axes</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_points_1d">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_points_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['r',</span> <span class="pre">'b']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_points_1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_points_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ax with the points plotted based on x and y in a 1D plot. If
+pred_x/pred_y is not set, these are plotted as marks at the bottom of the plot,
+otherwise, each point is plotted as close as possible to the line defined by
+the prediction values (pred_x/pred_y). Usually use alongside <cite>plot_predict_1d()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Iterable</em><em>[</em><em>Union</em><em>[</em><em>float</em><em>, </em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em><em>]</em>) – The <cite>(n, 1)</cite> or <cite>(n, d, 2)</cite> points to plot. The 3D case will
+be considered a pairwise plot.</p></li>
+<li><p><strong>y</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The <cite>(n, 1)</cite> responses to plot.</p></li>
+<li><p><strong>ax</strong> (<em>Axes</em><em>, </em><em>optional</em>) – The Matplotlib axes to plot onto. If not set, an axes is
+made and returned.</p></li>
+<li><p><strong>pred_x</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The points where the model was evaluated, used
+to position each point as close as possible to the line. If not set, the
+points are plotted as marks at the bottom of the plot.</p></li>
+<li><p><strong>pred_y</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – The model outputs at each point in pred_x, used to
+position each point as close as possible to the line. If not set, the points
+are plotted as marks at the bottom of the plot.</p></li>
+<li><p><strong>point_size</strong> (<em>float</em>) – The size of each plotted point, defaults to 5.0.</p></li>
+<li><p><strong>cmap_colors</strong> (<em>List</em><em>[</em><em>ColorType</em><em>]</em>) – A list of colors to map the point colors to from
+min to max of y. At least 2 colors are needed, but more colors will allow
+customizing intermediate colors. Defaults to [“r”, “b”].</p></li>
+<li><p><strong>label_points</strong> (<em>bool</em>) – Add a way to identify the value of the points, whether as a
+legend for cases there are 6 or less unique responses or a colorbar for
+7 or more unique responses. Defaults to True.</p></li>
+<li><p><strong>legend_loc</strong> (<em>str</em>) – If a legend is added, where should it be placed.</p></li>
+<li><p><strong>**kwargs</strong> – Extra kwargs passed to the ax.plot() call, note that every point is
+plotted with an individual call so these kwargs must be applicable to single
+points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The input axes with the points plotted onto it. Note that plotting is done</dt><dd><p>in-place.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Axes</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_predict_2d">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_predict_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_predict_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_predict_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ax with the model predictions plotted in-place as a 2D heatmap.
+Usually used to plot the model outputs in posterior space or probability space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prediction</strong> (<em>Iterable</em><em>[</em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em>) – A 2D array of the predictions, assumes it was a square
+parameter grid where each cell was evaluated by the model.</p></li>
+<li><p><strong>lb</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The lower bound of the two parameters being plotted.</p></li>
+<li><p><strong>ub</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The upper bound of the two parameters being plotted.</p></li>
+<li><p><strong>ax</strong> (<em>Axes</em><em>, </em><em>optional</em>) – The Matplotlib axes to plot onto. If not set, an axes is
+made and returned.</p></li>
+<li><p><strong>vmin</strong> (<em>float</em><em>, </em><em>optional</em>) – The minimum value of the predictions, if not set, it will
+be the minimum of prediction.</p></li>
+<li><p><strong>vmax</strong> (<em>float</em><em>, </em><em>optional</em>) – The maximum of the predictions, if not set, it will be the
+maximum of prediction.</p></li>
+<li><p><strong>edge_multiplier</strong> (<em>float</em>) – How much to extend the plot extents beyond the parameter
+bounds (lb, ub), the plot extends beyond the bounds by the absolute difference
+multiplied by the edge_multiplier. Setting this to 0 will not extend the
+edge, any postive value will plot beyond the bounds, negative will plot less
+than the bounds. Used when you do not want the edges of the heatmap to be
+right at the parameter boundaries, especially useful if many points are at
+parameter boundaries. Defaults to 0.</p></li>
+<li><p><strong>colorbar</strong> (<em>bool</em>) – Whether to add a colorbar (with bounds of [vmin, vmax]) to the
+parent figure of the Axes, defaults to True.</p></li>
+<li><p><strong>**kwargs</strong> – Extra kwargs passed to the ax.imshow() call that creates the heatmap.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The input axes with the predictions plotted onto it. Note that the plotting</dt><dd><p>is done in-place.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Axes</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_points_2d">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_points_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_gradient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['r',</span> <span class="pre">'b']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'best'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_points_2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_points_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the axes with the points defined by the parameters (x) and the outcomes
+(y) plotted in-place. If the inputs are from an experiment with stimuli per trial, a
+line is drawn between both. Usually used alongside <cite>plot_predict_2d()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Iterable</em><em>[</em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em>) – The <cite>(n, d, 2)</cite> or <cite>(n, d)</cite> data points to plot. Each point is
+a different trial.</p></li>
+<li><p><strong>y</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The <cite>(n, 1)</cite> responses given each set of datapoints. Each value
+is the response to a given trial.</p></li>
+<li><p><strong>ax</strong> (<em>Axes</em><em>, </em><em>optional</em>) – The Matplotlib axes to plot onto. If not set, an axes is
+made and returned.</p></li>
+<li><p><strong>point_size</strong> (<em>float</em>) – The size of the points, defaults to 5.</p></li>
+<li><p><strong>axis</strong> (<em>List</em><em>[</em><em>int</em><em>]</em><em>, </em><em>optional</em>) – If the dimensionality <cite>d</cite> is higher than 2, which
+two dimensions should the points be positioned with.</p></li>
+<li><p><strong>slice_vals</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – If the dimensionality <cite>d</cite> is higher than 2, where was
+the other dimensions sliced at. This is used to determine the size/alpha
+gradient of the points based on how close each point is to the slice. If not
+set, the points will not change size/alpha based on slice distance. The
+Euclidean distance (s) of each point is calculated and converted to a
+multipler by <cite>exp(-c * s)</cite>, where c is the slice_gradient. The multipler is
+applied to the point_size and the alpha (transparency) of the points.</p></li>
+<li><p><strong>slice_gradient</strong> (<em>float</em>) – The rate at which the multiplier decreases as a function
+of the distance between a point and the slice. Defaults to 1.</p></li>
+<li><p><strong>cmap_colors</strong> (<em>List</em><em>[</em><em>ColorType</em><em>]</em>) – A list of colors to map the point colors to from
+min to max of y. At least 2 colors are needed, but more colors will allow
+customizing intermediate colors. Defaults to [“r”, “b”].</p></li>
+<li><p><strong>label_points</strong> (<em>bool</em>) – Add a way to identify the value of the points, whether as a
+legend for cases there are 6 or less unique responses or a colorbar for
+7 or more unique responses. Defaults to True.</p></li>
+<li><p><strong>legend_loc</strong> (<em>str</em>) – If a legend is added, where should it be placed.</p></li>
+<li><p><strong>**kwargs</strong> – Extra kwargs passed to the ax.plot() call, note that every point is
+plotted with an individual call so these kwargs must be applicable to single
+points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The axes with the points plotted in-place.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Axes</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.plot_contours">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_contours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linestyles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'solid'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_contours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_contours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot contour lines at the levels onto the axes based on the model predictions
+with extents defined by lb and ub. Assumes that you’re plotting ontop of a heatmap
+of those predictions given the same extents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prediction</strong> (<em>Iterable</em><em>[</em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em>) – A 2D array of the predictions, assumes it was a square
+parameter grid where each cell was evaluated by the model.</p></li>
+<li><p><strong>lb</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The lower bound of the two parameters being plotted.</p></li>
+<li><p><strong>ub</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em>) – The upper bound of the two parameters being plotted.</p></li>
+<li><p><strong>ax</strong> (<em>Axes</em><em>, </em><em>optional</em>) – The Matplotlib axes to plot onto. If not set, an axes is
+made and returned.</p></li>
+<li><p><strong>levels</strong> (<em>Iterable</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A sequence of values to plot the contours given
+the predictions. If not set, a contour will be plotted at each integer.</p></li>
+<li><p><strong>edge_multiplier</strong> (<em>float</em>) – How much to extend the plot extents beyond the parameter
+bounds (lb, ub), the plot extends beyond the bounds by the absolute difference
+multiplied by the edge_multiplier. Setting this to 0 will not extend the
+edge, any postive value will plot beyond the bounds, negative will plot less
+than the bounds. Used when you do not want the edges of the heatmap to be
+right at the parameter boundaries, especially useful if many points are at
+parameter boundaries. Defaults to 0.</p></li>
+<li><p><strong>color</strong> (<em>ColorType</em>) – What colors the contours should be, defaults to white.</p></li>
+<li><p><strong>labels</strong> (<em>bool</em>) – Whether or not to label the contours.</p></li>
+<li><p><strong>linestyles</strong> (<em>linestyle_str</em><em>, </em><em>optional</em>) – How should the contour lines be styled,
+defaults to “solid”. Options are “solid”, “dashsed”, “dashdot”, “dotted”, can
+be set to None to default to the Matplotlib default.</p></li>
+<li><p><strong>**kwargs</strong> – Extra keyword arguments to pass to the ax.contour() call that plots
+the contours.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The axes with the points plotted in-place.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Axes</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="aepsych.plotting.facet_slices">
+<span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">facet_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotted_axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#facet_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.facet_slices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up a set of subplots to plot either a 3D or a 4D space where two dimensions
+are plotted and the other dimensions are sliced over the subplots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prediction</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>np.ndarray</em><em>]</em>) – The model predictions cube to
+slice, in a 3D parameter space, it would be a 3D array, in a 4D parameter
+space it would be a 4D array.</p></li>
+<li><p><strong>plotted_axes</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – The two parameter indices that will be plotted, the
+other parameters will be sliced over subplots.</p></li>
+<li><p><strong>lb</strong> (<em>Iterable</em><em>[</em><em>Float</em><em>]</em>) – The lower bound of the parameter space.</p></li>
+<li><p><strong>ub</strong> (<em>Iterable</em><em>[</em><em>Float</em><em>]</em>) – The upper bound of the parameter space.</p></li>
+<li><p><strong>nrows</strong> (<em>int</em>) – How many rows to plot, which will also be how many slices there are
+of the first sliced dimension.</p></li>
+<li><p><strong>ncols</strong> (<em>int</em>) – How many columns to plot, which will also be how many slices there
+are of the second sliced dimesion.</p></li>
+<li><p><strong>plot_size</strong> (<em>float</em>) – The width of each individual square plot in inches.</p></li>
+<li><p><strong>**kwargs</strong> – Kwargs passed to the plt.subplots() call.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A Matplotlib figure of all of the subplots.
+np.ndarray[Axes]: 2D object array of each subplot.
+np.ndarray[torch.Tensor]: 2D object array of tensors representing the values of the sliced</p>
+<blockquote>
+<div><p>dimensions for each subplot.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>np.ndarray[torch.Tensor]: 2D object array of tensors representing the sliced predictions for</dt><dd><p>each subplot.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Figure</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
 <dt class="sig sig-object py" id="aepsych.plotting.plot_strat">
 <span class="sig-prename descclassname"><span class="pre">aepsych.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_strat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_testfun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cred_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yes_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Yes</span> <span class="pre">trial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'No</span> <span class="pre">trial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flipx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/plotting.html#plot_strat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.plotting.plot_strat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a plot of a strategy, showing participants responses on each trial, the estimated response function and
