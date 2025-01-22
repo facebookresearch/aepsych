@@ -15,7 +15,7 @@ from aepsych.acquisition.objective import ProbitObjective
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator
 from aepsych.models import GPClassificationModel, PairwiseProbitModel
-from aepsych.strategy import Strategy
+from aepsych.strategy import SequentialStrategy, Strategy
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 from sklearn.datasets import make_classification
