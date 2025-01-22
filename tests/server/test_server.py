@@ -56,6 +56,24 @@ mean_covar_factory = default_mean_covar_factory
 n_points = 2
 """
 
+points = [[10, 10], [10, 11], [11, 10], [11, 11]]
+manual_dummy_config = f"""
+[common]
+lb = [10, 10]
+ub = [11, 11]
+parnames = [par1, par2]
+outcome_types = [binary]
+stimuli_per_trial = 1
+strategy_names = [init_strat]
+
+[init_strat]
+generator = ManualGenerator
+
+[ManualGenerator]
+points = {points}
+seed = 123
+"""
+
 
 class BaseServerTestCase(unittest.TestCase):
     # so that this can be overridden for tests that require specific databases.
