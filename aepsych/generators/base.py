@@ -5,7 +5,8 @@
 # LICENSE file in the root directory of this source tree.
 import abc
 import re
-from inspect import signature
+import warnings
+from inspect import _empty, signature
 from typing import Any, Dict, Generic, Optional, Protocol, runtime_checkable, TypeVar
 
 import torch
@@ -84,9 +85,8 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
             acqf_name = acqf.__name__
 
             # model is not an extra arg, it's a default arg
-            acqf_args_expected = [
-                i for i in list(signature(acqf).parameters.keys()) if i != "model"
-            ]
+            acqf_kwargs = signature(acqf).parameters
+            acqf_args_expected = [i for i in list(acqf_kwargs.keys()) if i != "model"]
 
             # this is still very ugly
             extra_acqf_args = {}
@@ -118,6 +118,35 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
                     extra_acqf_args[k] = v.from_config(config)
                 elif isinstance(v, type):  # instaniate a class if needed
                     extra_acqf_args[k] = v()
+
+            # Final checks, bandaid
+            for key, value in acqf_kwargs.items():
+                if key == "model":  # Model is handled separately
+                    continue
+                if value.default == _empty and key not in extra_acqf_args:
+                    if key not in config["common"]:
+                        # HACK: Not actually sure why some required args can be missing
+                        warnings.warn(
+                            f"{acqf_name} requires the {key} option but we could not find it.",
+                            UserWarning,
+                        )
+                        continue
+
+                    # A required parameter is missing! Look for it in common
+                    config_str = config.get("common", key)
+
+                    # An object that we know about
+                    if config_str in Config.registered_names.keys():
+                        extra_acqf_args[key] = config.getobj("common", key)
+
+                    # Some sequence
+                    if "[" in config_str and "]" in config_str:
+                        # Try to turn it into a tensor or fallback to list
+                        try:
+                            extra_acqf_args[key] = config.gettensor("common", key)
+                        except ValueError:
+                            extra_acqf_args[key] = config.getlist("common", key)
+
         else:
             extra_acqf_args = {}
 
