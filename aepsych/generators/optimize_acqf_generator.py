@@ -6,9 +6,12 @@
 from __future__ import annotations
 
 import time
+import warnings
 from typing import Any, Dict, Optional
 
 import torch
+from aepsych.acquisition import MCLevelSetEstimation
+from aepsych.acquisition.lookahead import LookaheadAcquisitionFunction
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import ModelProtocol
@@ -123,11 +126,27 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Returns:
             torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].
         """
+        # eval should be inherited from superclass
+        model.eval()  # type: ignore
+        if hasattr(model, "device"):
+            self.lb = self.lb.to(model.device)
+            self.ub = self.ub.to(model.device)
+
+        acqf = self._instantiate_acquisition_fn(model)
+
+        if isinstance(acqf, MCLevelSetEstimation) or isinstance(
+            acqf, LookaheadAcquisitionFunction
+        ):
+            warnings.warn(
+                f"{num_points} points were requested, but `{acqf.__class__.__name__}` can only generate one point at a time, returning only 1."
+            )
+            num_points = 1
 
         if self.stimuli_per_trial == 2:
             qbatch_points = self._gen(
                 num_points=num_points * 2,
                 model=model,
+                acqf=acqf,
                 fixed_features=fixed_features,
                 **gen_options,
             )
@@ -140,6 +159,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             return self._gen(
                 num_points=num_points,
                 model=model,
+                acqf=acqf,
                 fixed_features=fixed_features,
                 **gen_options,
             )
@@ -148,6 +168,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self,
         num_points: int,
         model: ModelProtocol,
+        acqf: AcquisitionFunction,
         fixed_features: Optional[Dict[int, float]] = None,
         **gen_options: Dict[str, Any],
     ) -> torch.Tensor:
@@ -157,6 +178,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Args:
             num_points (int): Number of points to query.
             model (ModelProtocol): Fitted model of the data.
+            acqf (AcquisitionFunction): Acquisition function.
             fixed_features (Dict[int, float], optional): The values where the specified
                 parameters should be at when generating. Should be a dictionary where
                 the keys are the indices of the parameters to fix and the values are the
@@ -166,14 +188,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         Returns:
             torch.Tensor: Next set of points to evaluate, with shape [num_points x dim].
         """
-        # eval should be inherited from superclass
-        model.eval()  # type: ignore
-        acqf = self._instantiate_acquisition_fn(model)
-
-        if hasattr(model, "device"):
-            self.lb = self.lb.to(model.device)
-            self.ub = self.ub.to(model.device)
-
         logger.info("Starting gen...")
         starttime = time.time()
 
@@ -188,7 +202,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             **gen_options,
         )
 
-        logger.info(f"Gen done, time={time.time()-starttime}")
+        logger.info(f"Gen done, time={time.time() - starttime}")
         return new_candidate
 
     @classmethod
