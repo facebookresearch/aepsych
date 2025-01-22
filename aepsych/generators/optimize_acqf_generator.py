@@ -13,31 +13,18 @@ import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.lookahead import LookaheadAcquisitionFunction
 from aepsych.config import Config
-from aepsych.generators.base import AEPsychGenerator
+from aepsych.generators.base import AcqfGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
-from botorch.acquisition import (
-    AcquisitionFunction,
-    LogNoisyExpectedImprovement,
-    NoisyExpectedImprovement,
-    qLogNoisyExpectedImprovement,
-    qNoisyExpectedImprovement,
-)
-from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
+from botorch.acquisition import AcquisitionFunction
+
 from botorch.optim import optimize_acqf
 
 logger = getLogger()
 
 
-class OptimizeAcqfGenerator(AEPsychGenerator):
+class OptimizeAcqfGenerator(AcqfGenerator):
     """Generator that chooses points by minimizing an acquisition function."""
-
-    baseline_requiring_acqfs = [
-        NoisyExpectedImprovement,
-        LogNoisyExpectedImprovement,
-        qNoisyExpectedImprovement,
-        qLogNoisyExpectedImprovement,
-    ]
 
     def __init__(
         self,
@@ -46,7 +33,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         acqf: AcquisitionFunction,
         acqf_kwargs: Optional[Dict[str, Any]] = None,
         restarts: int = 10,
-        samps: int = 1000,
+        samps: int = 1024,
         max_gen_time: Optional[float] = None,
         stimuli_per_trial: int = 1,
     ) -> None:
@@ -62,11 +49,7 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
             max_gen_time (float, optional): Maximum time (in seconds) to optimize the acquisition function. Defaults to None.
             stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
         """
-
-        if acqf_kwargs is None:
-            acqf_kwargs = {}
-        self.acqf = acqf
-        self.acqf_kwargs = acqf_kwargs
+        super().__init__(acqf=acqf, acqf_kwargs=acqf_kwargs)
         self.restarts = restarts
         self.samps = samps
         self.max_gen_time = max_gen_time
@@ -74,37 +57,6 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         self.lb = lb
         self.ub = ub
         self.dim = len(lb)
-
-    def _instantiate_acquisition_fn(self, model: ModelProtocol) -> AcquisitionFunction:
-        """
-        Instantiates the acquisition function with the specified model and additional arguments.
-
-        Args:
-            model (ModelProtocol): The model to use with the acquisition function.
-
-        Returns:
-            AcquisitionFunction: Configured acquisition function.
-        """
-        if self.acqf == AnalyticExpectedUtilityOfBestOption:
-            return self.acqf(pref_model=model)
-
-        if hasattr(model, "device"):
-            if "lb" in self.acqf_kwargs:
-                if not isinstance(self.acqf_kwargs["lb"], torch.Tensor):
-                    self.acqf_kwargs["lb"] = torch.tensor(self.acqf_kwargs["lb"])
-
-                self.acqf_kwargs["lb"] = self.acqf_kwargs["lb"].to(model.device)
-
-            if "ub" in self.acqf_kwargs:
-                if not isinstance(self.acqf_kwargs["ub"], torch.Tensor):
-                    self.acqf_kwargs["ub"] = torch.tensor(self.acqf_kwargs["ub"])
-
-                self.acqf_kwargs["ub"] = self.acqf_kwargs["ub"].to(model.device)
-
-        if self.acqf in self.baseline_requiring_acqfs:
-            return self.acqf(model, model.train_inputs[0], **self.acqf_kwargs)
-        else:
-            return self.acqf(model=model, **self.acqf_kwargs)
 
     def gen(
         self,
@@ -204,34 +156,42 @@ class OptimizeAcqfGenerator(AEPsychGenerator):
         return new_candidate
 
     @classmethod
-    def from_config(cls, config: Config) -> "OptimizeAcqfGenerator":
-        """
-        Creates an instance of OptimizeAcqfGenerator from a configuration object.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Get configuration options for the generator.
 
         Args:
-            config (Config): Configuration object containing initialization parameters.
+            config (Config): Configuration object.
+            name (str, optional): Name of the generator, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            OptimizeAcqfGenerator: A configured instance of OptimizeAcqfGenerator with specified acquisition function,
-            restart and sample parameters, maximum generation time, and stimuli per trial.
+            Dict[str, Any]: Configuration options for the generator.
         """
-        classname = cls.__name__
+        options = options or {}
+        options.update(super().get_config_options(config, name, options))
+
+        classname = name or cls.__name__
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
-        acqf = config.getobj(classname, "acqf", fallback=None)
-        extra_acqf_args = cls._get_acqf_options(acqf, config)
         stimuli_per_trial = config.getint(classname, "stimuli_per_trial")
         restarts = config.getint(classname, "restarts", fallback=10)
-        samps = config.getint(classname, "samps", fallback=1000)
+        samps = config.getint(classname, "samps", fallback=1024)
         max_gen_time = config.getfloat(classname, "max_gen_time", fallback=None)
 
-        return cls(
-            lb=lb,
-            ub=ub,
-            acqf=acqf,
-            acqf_kwargs=extra_acqf_args,
-            restarts=restarts,
-            samps=samps,
-            max_gen_time=max_gen_time,
-            stimuli_per_trial=stimuli_per_trial,
+        options.update(
+            {
+                "lb":lb,
+                "ub":ub,
+                "restarts":restarts,
+                "samps":samps,
+                "max_gen_time":max_gen_time,
+                "stimuli_per_trial":stimuli_per_trial,
+            }
         )
+    
+        return options
