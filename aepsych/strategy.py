@@ -652,6 +652,7 @@ class Strategy(object):
             model = None
             use_gpu_modeling = False
 
+        # Handles if acqf is not in the generator but strategy block, otherwise, above handles it
         acqf_cls = config.getobj(name, "acqf", fallback=None)
         if acqf_cls is not None and hasattr(generator, "acqf"):
             if generator.acqf is None:
