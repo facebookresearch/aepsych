@@ -84,7 +84,12 @@ class MCLevelSetEstimation(MCAcquisitionFunction):
 
         post = self.model.posterior(X)
         samples = self.sampler(post)  # num_samples x batch_shape x q x d_out
-        return self.acquisition(self.objective(samples, X)).squeeze(-1)
+        acq_vals = self.acquisition(self.objective(samples, X))
+
+        # Reduce q (which is a max on q)
+        acq_vals = torch.amax(acq_vals, dim=-1)
+
+        return acq_vals
 
 
 @acqf_input_constructor(MCLevelSetEstimation)
