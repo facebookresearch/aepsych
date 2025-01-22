@@ -24,9 +24,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCLevelSetEstimation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.lookahead</span><span class="w"> </span><span class="kn">import</span> <span class="n">LookaheadAcquisitionFunction</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
@@ -141,11 +144,25 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
+        <span class="c1"># eval should be inherited from superclass</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">acqf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_acquisition_fn</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">LookaheadAcquisitionFunction</span><span class="p">)</span> <span class="ow">and</span> <span class="n">num_points</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">num_points</span><span class="si">}</span><span class="s2"> points were requested, but `</span><span class="si">{</span><span class="n">acqf</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">` can only generate one point at a time, returning only 1."</span>
+            <span class="p">)</span>
+            <span class="n">num_points</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">qbatch_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen</span><span class="p">(</span>
                 <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
                 <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">acqf</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
                 <span class="n">fixed_features</span><span class="o">=</span><span class="n">fixed_features</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
             <span class="p">)</span>
@@ -158,6 +175,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen</span><span class="p">(</span>
                 <span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span>
                 <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+                <span class="n">acqf</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
                 <span class="n">fixed_features</span><span class="o">=</span><span class="n">fixed_features</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
             <span class="p">)</span></div>
@@ -166,6 +184,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">ModelProtocol</span><span class="p">,</span>
+        <span class="n">acqf</span><span class="p">:</span> <span class="n">AcquisitionFunction</span><span class="p">,</span>
         <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">gen_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
@@ -175,6 +194,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            num_points (int): Number of points to query.</span>
 <span class="sd">            model (ModelProtocol): Fitted model of the data.</span>
+<span class="sd">            acqf (AcquisitionFunction): Acquisition function.</span>
 <span class="sd">            fixed_features (Dict[int, float], optional): The values where the specified</span>
 <span class="sd">                parameters should be at when generating. Should be a dictionary where</span>
 <span class="sd">                the keys are the indices of the parameters to fix and the values are the</span>
@@ -184,14 +204,6 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: Next set of points to evaluate, with shape [num_points x dim].</span>
 <span class="sd">        """</span>
-        <span class="c1"># eval should be inherited from superclass</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
-        <span class="n">acqf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate_acquisition_fn</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"device"</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting gen..."</span><span class="p">)</span>
         <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -206,7 +218,7 @@
             <span class="o">**</span><span class="n">gen_options</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gen done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gen done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_candidate</span>
 
 <div class="viewcode-block" id="OptimizeAcqfGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
