@@ -96,6 +96,180 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         acqf = generator._instantiate_acquisition_fn(model=model)
         self.assertTrue(isinstance(acqf, AnalyticExpectedUtilityOfBestOption))
 
+    def test_batch_generation(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+
+        X, y = make_classification(
+            n_samples=100,
+            n_features=3,
+            n_redundant=0,
+            n_informative=3,
+            random_state=1,
+            n_clusters_per_class=4,
+        )
+        X, y = torch.Tensor(X), torch.Tensor(y)
+        lb = -3 * torch.ones(3)
+        ub = 3 * torch.ones(3)
+        inducing_size = 10
+
+        model = GPClassificationModel(
+            dim=3,
+            max_fit_time=0.5,
+            inducing_size=inducing_size,
+        )
+
+        model.fit(X, y)
+
+        generator = OptimizeAcqfGenerator(
+            acqf=qLogNoisyExpectedImprovement,
+            acqf_kwargs={"objective": ProbitObjective()},
+            lb=lb,
+            ub=ub,
+        )
+        cands = generator.gen(2, model)
+        self.assertEqual(len(cands), 2)
+
+        generator = OptimizeAcqfGenerator(
+            acqf=MCLevelSetEstimation,
+            acqf_kwargs={"objective": ProbitObjective()},
+            lb=lb,
+            ub=ub,
+        )
+        cands = generator.gen(2, model)
+        self.assertEqual(len(cands), 2)
+
+    def test_batch_generation_only_one(self):
+        seed = 1
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+
+        X, y = make_classification(
+            n_samples=100,
+            n_features=3,
+            n_redundant=0,
+            n_informative=3,
+            random_state=1,
+            n_clusters_per_class=4,
+        )
+        X, y = torch.Tensor(X), torch.Tensor(y)
+        lb = -3 * torch.ones(3)
+        ub = 3 * torch.ones(3)
+        inducing_size = 10
+
+        model = GPClassificationModel(
+            dim=3,
+            max_fit_time=0.5,
+            inducing_size=inducing_size,
+        )
+
+        model.fit(X, y)
+
+        generator = OptimizeAcqfGenerator(
+            acqf=EAVC,
+            acqf_kwargs={"target": 0.75, "lb": lb, "ub": ub},
+            lb=lb,
+            ub=ub,
+        )
+
+        with self.assertWarns(UserWarning) as cm:
+            cands = generator.gen(2, model)
+            self.assertTrue(
+                "can only generate one point at a time"
+                in cm.warnings[0].message.args[0]
+            )
+
+        self.assertEqual(len(cands), 1)
+
+    def test_get_acqf_options(self):
+        config_str = """
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [init_strat]
+            min_total_tells = 10
+            generator = SobolGenerator
+
+            [SobolGenerator]
+            seed = 12345
+
+            [opt_strat]
+            min_total_tells = 1
+            generator = OptimizeAcqfGenerator
+            model = GPClassificationModel
+            acqf = EAVC
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = Strategy.from_config(config, "opt_strat")
+
+        # We expect ub/lb to be found and they're in the transformed space
+        acqf_kwargs = strat.generator._get_acqf_options(strat.generator.acqf, config)
+        self.assertTrue("lb" in acqf_kwargs)
+        self.assertTrue(acqf_kwargs["lb"] == 0)
+        self.assertTrue("ub" in acqf_kwargs)
+        self.assertTrue(acqf_kwargs["ub"] == 1)
+
+    def test_acqf_from_config(self):
+        n_init = 10
+        n_opt = 1
+        config_str = f"""
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 100
+            upper_bound = 200
+
+            [init_strat]
+            min_total_tells = {n_init}
+            generator = SobolGenerator
+
+            [SobolGenerator]
+            seed = 12345
+
+            [opt_strat]
+            min_total_tells = {n_opt}
+            generator = OptimizeAcqfGenerator
+            model = GPClassificationModel
+            acqf = EAVC
+
+            [OptimizeAcqfGenerator]
+            samps = 10
+
+            [EAVC]
+            target = 0.75
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        for _ in range(n_init + n_opt):
+            point = strat.gen()
+            response = float(torch.randint(100, 200, size=(1,)) > point)
+            strat.add_data(point, response)
+
+        # Last generator should be EAVC, needs to have the right bounds
+        self.assertTrue(strat.generator.acqf_kwargs["lb"] == 0)
+        self.assertTrue(strat.generator.acqf_kwargs["ub"] == 1)
+
 
 if __name__ == "__main__":
     unittest.main()
