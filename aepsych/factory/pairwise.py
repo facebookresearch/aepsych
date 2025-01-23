@@ -55,10 +55,10 @@ def pairwise_mean_covar_factory(
         raise NotImplementedError(
             "Only default_mean_covar_factory is supported for the base factor of pairwise_mean_covar_factory right now!"
         )
-    
+
     zero_mean = config.getboolean(
-            "pairwise_mean_covar_factory", "zero_mean", fallback=True
-        )
+        "pairwise_mean_covar_factory", "zero_mean", fallback=True
+    )
 
     if len(shared_dims) > 0:
         active_dims = [i for i in range(config_dim) if i not in shared_dims]

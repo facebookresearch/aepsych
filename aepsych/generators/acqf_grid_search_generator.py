@@ -10,10 +10,11 @@ from typing import Dict, Optional
 
 import numpy as np
 import torch
-from .grid_eval_acqf_generator import GridEvalAcqfGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
 from numpy.random import choice
+
+from .grid_eval_acqf_generator import GridEvalAcqfGenerator
 
 logger = getLogger()
 
@@ -44,7 +45,9 @@ class AcqfGridSearchGenerator(GridEvalAcqfGenerator):
         logger.info("Starting gen...")
         starttime = time.time()
 
-        grid, acqf_vals = self._eval_acqf(self.samps, model, fixed_features, **gen_options)
+        grid, acqf_vals = self._eval_acqf(
+            self.samps, model, fixed_features, **gen_options
+        )
         _, idxs = torch.topk(acqf_vals, num_points)
         new_candidate = grid[idxs]
 

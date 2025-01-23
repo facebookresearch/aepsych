@@ -310,7 +310,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
     parameters are untransformed back to the raw parameter space.
     """
 
-    _base_obj: AcqfGenerator # Really this should be AEPsychGenerator, but this is a bandaid so mypy knows about acqfs until we can refactor our classes/transforms
+    _base_obj: AcqfGenerator  # Really this should be AEPsychGenerator, but this is a bandaid so mypy knows about acqfs until we can refactor our classes/transforms
 
     def __init__(
         self,

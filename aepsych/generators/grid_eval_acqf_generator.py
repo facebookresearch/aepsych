@@ -17,6 +17,7 @@ from botorch.acquisition import AcquisitionFunction
 
 logger = getLogger()
 
+
 class GridEvalAcqfGenerator(AcqfGenerator):
     """Abstract base class for generators that evaluate acquisition functions along a grid."""
 
@@ -28,7 +29,7 @@ class GridEvalAcqfGenerator(AcqfGenerator):
         acqf_kwargs: Optional[Dict[str, Any]] = None,
         samps: int = 1024,
         stimuli_per_trial: int = 1,
-        grid_generator: Optional[AEPsychGenerator] = None
+        grid_generator: Optional[AEPsychGenerator] = None,
     ) -> None:
         """Initialize GridEvalAcqfGenerator.
         Args:
@@ -41,7 +42,7 @@ class GridEvalAcqfGenerator(AcqfGenerator):
             stimuli_per_trial (int): Number of stimuli per trial. Defaults to 1.
         """
         dim = len(lb)
-        self.grid_gen = grid_generator or SobolGenerator(lb,ub,dim,stimuli_per_trial)
+        self.grid_gen = grid_generator or SobolGenerator(lb, ub, dim, stimuli_per_trial)
 
         if acqf_kwargs is None:
             acqf_kwargs = {}
@@ -49,8 +50,13 @@ class GridEvalAcqfGenerator(AcqfGenerator):
         self.acqf_kwargs = acqf_kwargs
         self.samps = samps
 
-
-    def gen(self, num_points: int, model: ModelProtocol, fixed_features: Optional[Dict[int, float]] = None, **gen_options) -> torch.Tensor:
+    def gen(
+        self,
+        num_points: int,
+        model: ModelProtocol,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **gen_options,
+    ) -> torch.Tensor:
         """Query next point(s) to run by optimizing the acquisition function.
         Args:
             num_points (int): Number of points to query.
@@ -61,7 +67,10 @@ class GridEvalAcqfGenerator(AcqfGenerator):
 
         if self.stimuli_per_trial == 2:
             qbatch_points = self._gen(
-                num_points=num_points * 2, model=model, fixed_features=fixed_features, **gen_options
+                num_points=num_points * 2,
+                model=model,
+                fixed_features=fixed_features,
+                **gen_options,
             )
 
             # output of super() is (q, dim) but the contract is (num_points, dim, 2)
@@ -69,20 +78,39 @@ class GridEvalAcqfGenerator(AcqfGenerator):
             return qbatch_points.reshape(num_points, 2, -1).swapaxes(-1, -2)
 
         else:
-            return self._gen(num_points=num_points, model=model, fixed_features=fixed_features, **gen_options)
-        
+            return self._gen(
+                num_points=num_points,
+                model=model,
+                fixed_features=fixed_features,
+                **gen_options,
+            )
+
     @abc.abstractmethod
-    def _gen(self, num_points: int, model: ModelProtocol, fixed_features: Optional[Dict[int, float]] = None, **gen_options) -> torch.Tensor:
+    def _gen(
+        self,
+        num_points: int,
+        model: ModelProtocol,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **gen_options,
+    ) -> torch.Tensor:
         pass
 
-    def _eval_acqf(self, num_points: int, model: ModelProtocol, fixed_features: Optional[Dict[int, float]] = None, **gen_options) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _eval_acqf(
+        self,
+        num_points: int,
+        model: ModelProtocol,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **gen_options,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         # eval should be inherited from superclass
         model.eval()  # type: ignore
         acqf = self._instantiate_acquisition_fn(model)
         X_rnd = self.grid_gen.gen(num_points, model, fixed_features, **gen_options)
         if len(X_rnd.shape) < 3:
-            X_rnd = X_rnd.unsqueeze(1) # need q in X_rnd so acqf will return proper shape
-        acqf_vals = acqf(X_rnd).to(torch.float64) 
+            X_rnd = X_rnd.unsqueeze(
+                1
+            )  # need q in X_rnd so acqf will return proper shape
+        acqf_vals = acqf(X_rnd).to(torch.float64)
         return X_rnd, acqf_vals
 
     @classmethod
@@ -111,7 +139,9 @@ class GridEvalAcqfGenerator(AcqfGenerator):
         samps = config.getint(classname, "samps", fallback=1024)
         grid_generator_cls = config.getobj(classname, "grid_generator", fallback=None)
         if grid_generator_cls is not None:
-            assert hasattr(grid_generator_cls, "from_config"), f"Specified {grid_generator_cls} as grid_generator for {classname}, but {grid_generator_cls} does not implement `from_config`!"
+            assert hasattr(
+                grid_generator_cls, "from_config"
+            ), f"Specified {grid_generator_cls} as grid_generator for {classname}, but {grid_generator_cls} does not implement `from_config`!"
             grid_generator = grid_generator_cls.from_config(config)
         else:
             grid_generator = None

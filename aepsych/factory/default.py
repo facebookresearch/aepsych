@@ -6,9 +6,9 @@
 # LICENSE file in the root directory of this source tree.
 
 import math
+import warnings
 from configparser import NoOptionError
 from typing import List, Optional, Tuple
-import warnings
 
 import gpytorch
 import torch
@@ -93,7 +93,9 @@ def _get_default_mean_function(
         )
         if fixed_mean:
             if zero_mean:
-                warnings.warn("Specified both `zero_mean = True` and `fixed_mean = True`. Deferring to fixed_mean!")
+                warnings.warn(
+                    "Specified both `zero_mean = True` and `fixed_mean = True`. Deferring to fixed_mean!"
+                )
             try:
                 target = config.getfloat("default_mean_covar_factory", "target")
                 mean.constant.requires_grad_(False)
