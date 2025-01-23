@@ -26,11 +26,12 @@ logger = logging.getLogger()
 
 
 class Database:
-    def __init__(self, db_path: Optional[str] = None) -> None:
+    def __init__(self, db_path: Optional[str] = None, update: bool = True) -> None:
         """Initialize the database object.
 
         Args:
             db_path (str, optional): The path to the database. Defaults to None.
+            update (bool): Update the db to the latest schema. Defaults to True.
         """
         if db_path is None:
             db_path = "./databases/default.db"
@@ -45,6 +46,9 @@ class Database:
             logger.info(f"No DB found at {db_path}, creating a new DB!")
 
         self._engine = self.get_engine()
+
+        if update and self.is_update_required():
+            self.perform_updates()
 
     def get_engine(self) -> sessionmaker:
         """Get the engine for the database.
