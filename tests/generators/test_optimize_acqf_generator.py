@@ -184,6 +184,94 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
 
         self.assertEqual(len(cands), 1)
 
+    def test_get_acqf_options(self):
+        config_str = """
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [init_strat]
+            min_total_tells = 10
+            generator = SobolGenerator
+
+            [SobolGenerator]
+            seed = 12345
+
+            [opt_strat]
+            min_total_tells = 1
+            generator = OptimizeAcqfGenerator
+            model = GPClassificationModel
+            acqf = EAVC
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = Strategy.from_config(config, "opt_strat")
+
+        # We expect ub/lb to be found and they're in the transformed space
+        acqf_kwargs = strat.generator._get_acqf_options(strat.generator.acqf, config)
+        self.assertTrue("lb" in acqf_kwargs)
+        self.assertTrue(acqf_kwargs["lb"] == 0)
+        self.assertTrue("ub" in acqf_kwargs)
+        self.assertTrue(acqf_kwargs["ub"] == 1)
+
+    def test_acqf_from_config(self):
+        n_init = 10
+        n_opt = 1
+        config_str = f"""
+            [common]
+            parnames = [signal1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+            target = 0.75
+            strategy_names = [init_strat, opt_strat]
+
+            [signal1]
+            par_type = continuous
+            lower_bound = 100
+            upper_bound = 200
+
+            [init_strat]
+            min_total_tells = {n_init}
+            generator = SobolGenerator
+
+            [SobolGenerator]
+            seed = 12345
+
+            [opt_strat]
+            min_total_tells = {n_opt}
+            generator = OptimizeAcqfGenerator
+            model = GPClassificationModel
+            acqf = EAVC
+
+            [OptimizeAcqfGenerator]
+            samps = 10
+
+            [EAVC]
+            target = 0.75
+        """
+        config = Config()
+        config.update(config_str=config_str)
+
+        strat = SequentialStrategy.from_config(config)
+
+        for _ in range(n_init + n_opt):
+            point = strat.gen()
+            response = float(torch.randint(100, 200, size=(1,)) > point)
+            strat.add_data(point, response)
+
+        # Last generator should be EAVC, needs to have the right bounds
+        self.assertTrue(strat.generator.acqf_kwargs["lb"] == 0)
+        self.assertTrue(strat.generator.acqf_kwargs["ub"] == 1)
+
 
 if __name__ == "__main__":
     unittest.main()
