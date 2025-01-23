@@ -124,20 +124,21 @@ class AEPsychClient:
             model_data (bool): If True, the data will be recorded in the db and included in the server's model. If False,
                 the data will be recorded in the db, but will not be used by the model. Defaults to True.
             trial_index (int): The associated trial index of the config.
-            metadata (optional kwargs) is passed to the extra_info field on the server.
+            metadata (optional kwargs) is passed to the extra_data field on the server.
 
         Raises:
             AssertionError if server failed to acknowledge the tell.
         """
+        message = {
+            "outcome": outcome,
+            "model_data": model_data,
+            "trial_index": trial_index,
+        }
+        message.update(**metadata)
 
         request = {
             "type": "tell",
-            "message": {
-                "outcome": outcome,
-                "model_data": model_data,
-                "trial_index": trial_index,
-            },
-            "extra_info": metadata,
+            "message": message,
         }
         self._send_recv(request)
 
@@ -154,22 +155,22 @@ class AEPsychClient:
         Args:
             config (Dict[str, str]): Config that was evaluated.
             outcome (int): Outcome that was obtained.
-            metadata (optional kwargs) is passed to the extra_info field on the server.
+            metadata (optional kwargs) is passed to the extra_data field on the server.
             model_data (bool): If True, the data will be recorded in the db and included in the server's model. If False,
                 the data will be recorded in the db, but will not be used by the model. Defaults to True.
 
         Raises:
             AssertionError if server failed to acknowledge the tell.
         """
-
+        message = {
+            "config": config,
+            "outcome": outcome,
+            "model_data": model_data,
+        }
+        message.update(**metadata)
         request = {
             "type": "tell",
-            "message": {
-                "config": config,
-                "outcome": outcome,
-                "model_data": model_data,
-            },
-            "extra_info": metadata,
+            "message": message,
         }
         self._send_recv(request)
 

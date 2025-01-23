@@ -85,7 +85,7 @@ class RemoteServerTestCase(unittest.TestCase):
         self.assertFalse(response["is_finished"])
         self.assertEqual(self.s.strat._count, 1)
 
-        self.client.tell(config={"x": [0]}, outcome=1)
+        self.client.tell(config={"x": [0]}, outcome=1, extra="data")
         self.assertEqual(self.s._strats[0].x, tensor([[0.0]]))
         self.assertEqual(self.s._strats[0].y, tensor([[1.0]]))
 
