@@ -63,11 +63,15 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting gen..."</span><span class="p">)</span>
         <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="n">grid</span><span class="p">,</span> <span class="n">acqf_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_acqf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fixed_features</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span><span class="p">)</span>
+        <span class="n">grid</span><span class="p">,</span> <span class="n">acqf_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_acqf</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">samps</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fixed_features</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_options</span>
+        <span class="p">)</span>
         <span class="n">acqf_vals</span> <span class="o">-=</span> <span class="n">acqf_vals</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="n">probability_dist</span> <span class="o">=</span> <span class="n">acqf_vals</span> <span class="o">/</span> <span class="n">acqf_vals</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">candidate_idx</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">acqf_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">size</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">probability_dist</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">acqf_vals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">=</span><span class="n">probability_dist</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="n">new_candidate</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">candidate_idx</span><span class="p">]</span>
 

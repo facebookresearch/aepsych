@@ -35,7 +35,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquisitionFunction</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.optim</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize_acqf</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
@@ -203,15 +202,15 @@
 
         <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">"lb"</span><span class="p">:</span><span class="n">lb</span><span class="p">,</span>
-                <span class="s2">"ub"</span><span class="p">:</span><span class="n">ub</span><span class="p">,</span>
-                <span class="s2">"restarts"</span><span class="p">:</span><span class="n">restarts</span><span class="p">,</span>
-                <span class="s2">"samps"</span><span class="p">:</span><span class="n">samps</span><span class="p">,</span>
-                <span class="s2">"max_gen_time"</span><span class="p">:</span><span class="n">max_gen_time</span><span class="p">,</span>
-                <span class="s2">"stimuli_per_trial"</span><span class="p">:</span><span class="n">stimuli_per_trial</span><span class="p">,</span>
+                <span class="s2">"lb"</span><span class="p">:</span> <span class="n">lb</span><span class="p">,</span>
+                <span class="s2">"ub"</span><span class="p">:</span> <span class="n">ub</span><span class="p">,</span>
+                <span class="s2">"restarts"</span><span class="p">:</span> <span class="n">restarts</span><span class="p">,</span>
+                <span class="s2">"samps"</span><span class="p">:</span> <span class="n">samps</span><span class="p">,</span>
+                <span class="s2">"max_gen_time"</span><span class="p">:</span> <span class="n">max_gen_time</span><span class="p">,</span>
+                <span class="s2">"stimuli_per_trial"</span><span class="p">:</span> <span class="n">stimuli_per_trial</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
-    
+
         <span class="k">return</span> <span class="n">options</span></div></div>
 </pre></div>
 </div>
