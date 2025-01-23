@@ -73,13 +73,17 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">"Only default_mean_covar_factory is supported for the base factor of pairwise_mean_covar_factory right now!"</span>
         <span class="p">)</span>
+    
+    <span class="n">zero_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
+            <span class="s2">"pairwise_mean_covar_factory"</span><span class="p">,</span> <span class="s2">"zero_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shared_dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">active_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config_dim</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_dims</span><span class="p">]</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">active_dims</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
         <span class="p">),</span> <span class="s2">"dimensionality of non-shared dims must be even!"</span>
-        <span class="n">mean</span> <span class="o">=</span> <span class="n">_get_default_mean_function</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">_get_default_mean_function</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">zero_mean</span><span class="p">)</span>
         <span class="n">cov1</span> <span class="o">=</span> <span class="n">_get_default_cov_function</span><span class="p">(</span>
             <span class="n">config</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_dims</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
@@ -92,7 +96,7 @@
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">config_dim</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"dimensionality must be even!"</span>
-        <span class="n">mean</span> <span class="o">=</span> <span class="n">_get_default_mean_function</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">_get_default_mean_function</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">zero_mean</span><span class="p">)</span>
         <span class="n">cov</span> <span class="o">=</span> <span class="n">_get_default_cov_function</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_dim</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">covar</span> <span class="o">=</span> <span class="n">PairwiseKernel</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
 
