@@ -373,6 +373,7 @@ class Database:
         master_table: tables.DBMasterTable,
         model_data: Any,
         timestamp: Optional[datetime.datetime] = None,
+        **extra_data,
     ) -> tables.DbRawTable:
         """Record raw data in the database.
 
@@ -380,6 +381,7 @@ class Database:
             master_table (tables.DBMasterTable): The master table.
             model_data (Any): The model data.
             timestamp (datetime.datetime, optional): The timestamp. Defaults to None.
+            **extra_data: Extra data to save as a json in the raw.
 
         Returns:
             tables.DbRawTable: The raw entry.
@@ -392,6 +394,8 @@ class Database:
         else:
             raw_entry.timestamp = timestamp
         raw_entry.parent = master_table
+
+        raw_entry.extra_data = json.dumps(extra_data)
 
         self._session.add(raw_entry)
         self._session.commit()

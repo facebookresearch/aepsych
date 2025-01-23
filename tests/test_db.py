@@ -214,7 +214,52 @@ class DBTestCase(unittest.TestCase):
 
         self.assertEqual(outcome_dict, outcome_dict_expected)
 
+        # Check if we have the extra_data column
+        pragma = (
+            test_database.get_engine()
+            .execute(
+                "SELECT * FROM pragma_table_info('raw_data') WHERE name='extra_data'"
+            )
+            .fetchall()
+        )
+        self.assertTrue(len(pragma) == 1)
+
         # Make sure that update is no longer required
+        self.assertFalse(test_database.is_update_required())
+
+        test_database.delete_db()
+
+    def test_update_db_with_raw_extra_data(self):
+        current_path = Path(os.path.abspath(__file__)).parent
+        db_path = current_path
+        db_path = db_path.joinpath("test_databases/extra_info.db")
+
+        # copy the db to a new file
+        dst_db_path = Path(self._dbname)
+        shutil.copy(str(db_path), str(dst_db_path))
+        self.assertTrue(dst_db_path.is_file())
+
+        # sleep to ensure db is ready
+        time.sleep(0.1)
+
+        # open the new db
+        test_database = db.Database(db_path=dst_db_path.as_posix(), update=False)
+
+        replay_tells = [
+            row for row in test_database.get_replay_for(1) if row.message_type == "tell"
+        ]
+
+        # Make sure that update is required
+        self.assertTrue(test_database.is_update_required())
+
+        # Update the database
+        test_database.perform_updates()
+
+        # The trial numbers line up with tells
+        for row in test_database.get_raw_for(1):
+            self.assertTrue(row.unique_id == row.extra_data["trial_number"])
+            self.assertTrue(row.extra_data["extra"] == "info")
+
         self.assertFalse(test_database.is_update_required())
 
         test_database.delete_db()
