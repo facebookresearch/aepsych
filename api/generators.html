@@ -1447,6 +1447,36 @@ with this generator. It should work with other similar acquisition functions.</p
 </dd>
 </dl>
 </dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="aepsych.generators.AcqfGridSearchGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.</span></span><span class="sig-name descname"><span class="pre">AcqfGridSearchGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimuli_per_trial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/acqf_grid_search_generator.html#AcqfGridSearchGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.AcqfGridSearchGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GridEvalAcqfGenerator</span></code></p>
+<p>Generator that samples points in a grid with probability proportional to an acquisition function value.</p>
+<p>Initialize GridEvalAcqfGenerator.
+:param lb: Lower bounds for the optimization.
+:type lb: torch.Tensor
+:param ub: Upper bounds for the optimization.
+:type ub: torch.Tensor
+:param acqf: Acquisition function to use.
+:type acqf: AcquisitionFunction
+:param acqf_kwargs: Extra arguments to</p>
+<blockquote>
+<div><p>pass to acquisition function. Defaults to no arguments.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samps</strong> (<em>int</em>) – Number of quasi-random samples to evaluate acquisition function on. Defaults to 1000.</p></li>
+<li><p><strong>stimuli_per_trial</strong> (<em>int</em>) – Number of stimuli per trial. Defaults to 1.</p></li>
+<li><p><strong>lb</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>ub</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>acqf</strong> (<em>botorch.acquisition.AcquisitionFunction</em>) – </p></li>
+<li><p><strong>acqf_kwargs</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>grid_generator</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><em>AEPsychGenerator</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 </section>
 </section>
 </div>
