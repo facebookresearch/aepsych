@@ -14,6 +14,7 @@ from aepsych.models import GPRegressionModel
 from aepsych.utils import dim_grid
 from botorch.acquisition import qLogNoisyExpectedImprovement
 
+
 class TestAcqfGridSearchGenerator(unittest.TestCase):
     def test_generation_probabilities(self):
         seed = 1

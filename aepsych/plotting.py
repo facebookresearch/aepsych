@@ -672,6 +672,7 @@ def _point_labeler(
 
         ax.legend(handles=handles, loc=legend_loc)
     else:  # Make a colorbar, probably continuous
+        assert ax.figure is not None  # for mypy, unlikely to actually happen
         mappable = matplotlib.cm.ScalarMappable(cmap=cmap, norm=norm)
         ax.figure.colorbar(mappable, ax=ax)
 

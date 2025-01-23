@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import torch
 from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
@@ -72,7 +72,8 @@ class MonotonicRejectionGenerator(AcqfGenerator):
         self.bounds = torch.stack((self.lb, self.ub))
 
     def _instantiate_acquisition_fn(
-        self, model: MonotonicRejectionGP # type: ignore
+        self,
+        model: MonotonicRejectionGP,  # type: ignore
     ) -> AcquisitionFunction:
         """
         Instantiates the acquisition function with the specified model and additional arguments.
@@ -215,27 +216,35 @@ class MonotonicRejectionGenerator(AcqfGenerator):
         lb = config.gettensor(classname, "lb")
         ub = config.gettensor(classname, "ub")
 
-        model_gen_options = {}
-        model_gen_options["num_restarts"] = config.getint(classname, "restarts", fallback=10)
-        model_gen_options["raw_samples"] = config.getint(classname, "samps", fallback=1000)
+        model_gen_options: Dict[str, Any] = {}
+        model_gen_options["num_restarts"] = config.getint(
+            classname, "restarts", fallback=10
+        )
+        model_gen_options["raw_samples"] = config.getint(
+            classname, "samps", fallback=1000
+        )
         model_gen_options["verbosity_freq"] = config.getint(
             classname, "verbosity_freq", fallback=-1
         )
-        model_gen_options["lr"] = config.getfloat(classname, "lr", fallback=0.01)  # type: ignore
-        model_gen_options["momentum"] = config.getfloat(classname, "momentum", fallback=0.9)  # type: ignore
-        model_gen_options["nesterov"] = config.getboolean(classname, "nesterov", fallback=True)
+        model_gen_options["lr"] = config.getfloat(classname, "lr", fallback=0.01)
+        model_gen_options["momentum"] = config.getfloat(
+            classname, "momentum", fallback=0.9
+        )
+        model_gen_options["nesterov"] = config.getboolean(
+            classname, "nesterov", fallback=True
+        )
         model_gen_options["epochs"] = config.getint(classname, "epochs", fallback=50)
         model_gen_options["milestones"] = config.getlist(
-            classname,
-            "milestones",
-            fallback=[25, 40],  # type: ignore
+            classname, "milestones", fallback=[25, 40]
         )
-        model_gen_options["gamma"] = config.getfloat(classname, "gamma", fallback=0.1)  # type: ignore
+        model_gen_options["gamma"] = config.getfloat(classname, "gamma", fallback=0.1)
         model_gen_options["loss_constraint_fun"] = config.getobj(
             classname, "loss_constraint_fun", fallback=default_loss_constraint_fun
         )
 
-        explore_features = config.getlist(classname, "explore_idxs", fallback=None)  # type: ignore
+        explore_features: Optional[List[int]] = config.getlist(
+            classname, "explore_idxs", fallback=None
+        )
 
         options.update(
             {

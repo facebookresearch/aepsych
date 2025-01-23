@@ -56,6 +56,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
     ) -> torch.Tensor:
         pass
 
+
 class AcqfGenerator(AEPsychGenerator, ConfigurableMixin):
     """Base class for generators that evaluate acquisition functions."""
 
