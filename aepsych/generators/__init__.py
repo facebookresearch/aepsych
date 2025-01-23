@@ -17,6 +17,7 @@ from .optimize_acqf_generator import OptimizeAcqfGenerator
 from .random_generator import RandomGenerator
 from .semi_p import IntensityAwareSemiPGenerator
 from .sobol_generator import SobolGenerator
+from .acqf_grid_search_generator import AcqfGridSearchGenerator
 
 __all__ = [
     "OptimizeAcqfGenerator",
@@ -29,6 +30,7 @@ __all__ = [
     "SampleAroundPointsGenerator",
     "IntensityAwareSemiPGenerator",
     "AcqfThompsonSamplerGenerator",
+    "AcqfGridSearchGenerator"
 ]
 
 Config.register_module(sys.modules[__name__])
