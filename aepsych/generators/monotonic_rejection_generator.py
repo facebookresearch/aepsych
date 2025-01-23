@@ -72,7 +72,8 @@ class MonotonicRejectionGenerator(AcqfGenerator):
         self.bounds = torch.stack((self.lb, self.ub))
 
     def _instantiate_acquisition_fn(
-        self, model: MonotonicRejectionGP # type: ignore
+        self,
+        model: MonotonicRejectionGP,  # type: ignore
     ) -> AcquisitionFunction:
         """
         Instantiates the acquisition function with the specified model and additional arguments.
@@ -216,14 +217,22 @@ class MonotonicRejectionGenerator(AcqfGenerator):
         ub = config.gettensor(classname, "ub")
 
         model_gen_options = {}
-        model_gen_options["num_restarts"] = config.getint(classname, "restarts", fallback=10)
-        model_gen_options["raw_samples"] = config.getint(classname, "samps", fallback=1000)
+        model_gen_options["num_restarts"] = config.getint(
+            classname, "restarts", fallback=10
+        )
+        model_gen_options["raw_samples"] = config.getint(
+            classname, "samps", fallback=1000
+        )
         model_gen_options["verbosity_freq"] = config.getint(
             classname, "verbosity_freq", fallback=-1
         )
         model_gen_options["lr"] = config.getfloat(classname, "lr", fallback=0.01)  # type: ignore
-        model_gen_options["momentum"] = config.getfloat(classname, "momentum", fallback=0.9)  # type: ignore
-        model_gen_options["nesterov"] = config.getboolean(classname, "nesterov", fallback=True)
+        model_gen_options["momentum"] = config.getfloat(
+            classname, "momentum", fallback=0.9  # type: ignore
+        )
+        model_gen_options["nesterov"] = config.getboolean(
+            classname, "nesterov", fallback=True
+        )
         model_gen_options["epochs"] = config.getint(classname, "epochs", fallback=50)
         model_gen_options["milestones"] = config.getlist(
             classname,

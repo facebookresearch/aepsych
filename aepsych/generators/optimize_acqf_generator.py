@@ -17,7 +17,6 @@ from aepsych.generators.base import AcqfGenerator
 from aepsych.models.base import ModelProtocol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import AcquisitionFunction
-
 from botorch.optim import optimize_acqf
 
 logger = getLogger()
@@ -185,13 +184,13 @@ class OptimizeAcqfGenerator(AcqfGenerator):
 
         options.update(
             {
-                "lb":lb,
-                "ub":ub,
-                "restarts":restarts,
-                "samps":samps,
-                "max_gen_time":max_gen_time,
-                "stimuli_per_trial":stimuli_per_trial,
+                "lb": lb,
+                "ub": ub,
+                "restarts": restarts,
+                "samps": samps,
+                "max_gen_time": max_gen_time,
+                "stimuli_per_trial": stimuli_per_trial,
             }
         )
-    
+
         return options

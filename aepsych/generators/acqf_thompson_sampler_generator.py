@@ -45,11 +45,15 @@ class AcqfThompsonSamplerGenerator(GridEvalAcqfGenerator):
         logger.info("Starting gen...")
         starttime = time.time()
 
-        grid, acqf_vals = self._eval_acqf(self.samps, model, fixed_features, **gen_options)
+        grid, acqf_vals = self._eval_acqf(
+            self.samps, model, fixed_features, **gen_options
+        )
         acqf_vals -= acqf_vals.min()
         probability_dist = acqf_vals / acqf_vals.sum()
         candidate_idx = choice(
-            np.arange(acqf_vals.shape[0]), size=num_points, p=probability_dist.detach().numpy()
+            np.arange(acqf_vals.shape[0]),
+            size=num_points,
+            p=probability_dist.detach().numpy(),
         )
         new_candidate = grid[candidate_idx]
 
