@@ -8,6 +8,7 @@
 import math
 from configparser import NoOptionError
 from typing import List, Optional, Tuple
+import warnings
 
 import gpytorch
 import torch
@@ -48,8 +49,7 @@ def default_mean_covar_factory(
 
     assert stimuli_per_trial in (1, 2), "stimuli_per_trial must be 1 or 2!"
 
-    mean = _get_default_mean_function(config)
-
+    zero_mean = False
     if config is not None:
         lb = config.gettensor("default_mean_covar_factory", "lb")
         ub = config.gettensor("default_mean_covar_factory", "ub")
@@ -61,13 +61,18 @@ def default_mean_covar_factory(
         else:
             dim = config_dim
 
+        zero_mean = config.getboolean(
+            "default_mean_covar_factory", "zero_mean", fallback=False
+        )
+
+    mean = _get_default_mean_function(config, zero_mean)
     covar = _get_default_cov_function(config, dim, stimuli_per_trial)  # type: ignore
 
     return mean, covar
 
 
 def _get_default_mean_function(
-    config: Optional[Config] = None,
+    config: Optional[Config] = None, zero_mean: bool = False
 ) -> gpytorch.means.ConstantMean:
     """Creates a default mean function for Gaussian Processes.
 
@@ -77,15 +82,18 @@ def _get_default_mean_function(
     Returns:
         gpytorch.means.ConstantMean: An instantiated mean function with appropriate priors based on the configuration.
     """
-    # default priors
-    fixed_mean = False
-    mean = gpytorch.means.ConstantMean()
+    if zero_mean:
+        mean = gpytorch.means.ZeroMean()
+    else:
+        mean = gpytorch.means.ConstantMean()
 
     if config is not None:
         fixed_mean = config.getboolean(
-            "default_mean_covar_factory", "fixed_mean", fallback=fixed_mean
+            "default_mean_covar_factory", "fixed_mean", fallback=False
         )
         if fixed_mean:
+            if zero_mean:
+                warnings.warn("Specified both `zero_mean = True` and `fixed_mean = True`. Deferring to fixed_mean!")
             try:
                 target = config.getfloat("default_mean_covar_factory", "target")
                 mean.constant.requires_grad_(False)

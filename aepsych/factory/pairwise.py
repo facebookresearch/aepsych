@@ -55,13 +55,17 @@ def pairwise_mean_covar_factory(
         raise NotImplementedError(
             "Only default_mean_covar_factory is supported for the base factor of pairwise_mean_covar_factory right now!"
         )
+    
+    zero_mean = config.getboolean(
+            "pairwise_mean_covar_factory", "zero_mean", fallback=True
+        )
 
     if len(shared_dims) > 0:
         active_dims = [i for i in range(config_dim) if i not in shared_dims]
         assert (
             len(active_dims) % 2 == 0
         ), "dimensionality of non-shared dims must be even!"
-        mean = _get_default_mean_function(config)
+        mean = _get_default_mean_function(config, zero_mean)
         cov1 = _get_default_cov_function(
             config, len(active_dims) // 2, stimuli_per_trial=1
         )
@@ -74,7 +78,7 @@ def pairwise_mean_covar_factory(
 
     else:
         assert config_dim % 2 == 0, "dimensionality must be even!"
-        mean = _get_default_mean_function(config)
+        mean = _get_default_mean_function(config, zero_mean)
         cov = _get_default_cov_function(config, config_dim // 2, stimuli_per_trial=1)
         covar = PairwiseKernel(cov)
 

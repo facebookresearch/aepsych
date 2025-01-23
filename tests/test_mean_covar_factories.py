@@ -296,7 +296,7 @@ class TestFactories(unittest.TestCase):
         config = Config(config_dict=conf)
         meanfun, covarfun = pairwise_mean_covar_factory(config)
         self.assertTrue(covarfun.latent_kernel.ard_num_dims == 1)
-        self.assertIsInstance(meanfun, gpytorch.means.ConstantMean)
+        self.assertIsInstance(meanfun, gpytorch.means.ZeroMean)
         self.assertIsInstance(covarfun, PairwiseKernel)
         self.assertIsInstance(covarfun.latent_kernel, gpytorch.kernels.RBFKernel)
 
@@ -309,7 +309,7 @@ class TestFactories(unittest.TestCase):
     def test_pairwise_factory_shared(self):
         conf = {
             "common": {"lb": [0, 0, 0], "ub": [1, 1, 1]},
-            "pairwise_mean_covar_factory": {"shared_dims": [0]},
+            "pairwise_mean_covar_factory": {"shared_dims": [0], "zero_mean": False},
         }
         config = Config(config_dict=conf)
         meanfun, covarfun = pairwise_mean_covar_factory(config)
