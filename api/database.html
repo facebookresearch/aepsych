@@ -24,12 +24,15 @@
 <span id="aepsych-database-db-module"></span><h2>aepsych.database.db module<a class="headerlink" href="#module-aepsych.database.db" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.database.db.Database">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.db.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.database.db.</span></span><span class="sig-name descname"><span class="pre">Database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Initialize the database object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>db_path</strong> (<em>str</em><em>, </em><em>optional</em>) – The path to the database. Defaults to None.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db_path</strong> (<em>str</em><em>, </em><em>optional</em>) – The path to the database. Defaults to None.</p></li>
+<li><p><strong>update</strong> (<em>bool</em>) – Update the db to the latest schema. Defaults to True.</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -294,7 +297,7 @@ Trials are delineated by the iteration_id.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.database.db.Database.record_raw">
-<span class="sig-name descname"><span class="pre">record_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_raw" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">record_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/database/db.html#Database.record_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.database.db.Database.record_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Record raw data in the database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -302,6 +305,7 @@ Trials are delineated by the iteration_id.</p>
 <li><p><strong>master_table</strong> (<a class="reference internal" href="#aepsych.database.tables.DBMasterTable" title="aepsych.database.tables.DBMasterTable"><em>tables.DBMasterTable</em></a>) – The master table.</p></li>
 <li><p><strong>model_data</strong> (<em>Any</em>) – The model data.</p></li>
 <li><p><strong>timestamp</strong> (<em>datetime.datetime</em><em>, </em><em>optional</em>) – The timestamp. Defaults to None.</p></li>
+<li><p><strong>**extra_data</strong> – Extra data to save as a json in the raw.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -773,6 +777,10 @@ for example, any mapped columns or relationships.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbRawTable.model_data">
 <span class="sig-name descname"><span class="pre">model_data</span></span><a class="headerlink" href="#aepsych.database.tables.DbRawTable.model_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.database.tables.DbRawTable.extra_data">
+<span class="sig-name descname"><span class="pre">extra_data</span></span><a class="headerlink" href="#aepsych.database.tables.DbRawTable.extra_data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.database.tables.DbRawTable.master_table_id">
