@@ -102,7 +102,7 @@ class DBTestCase(unittest.TestCase):
         time.sleep(0.1)
 
         # open the new db
-        test_database = db.Database(db_path=dst_db_path.as_posix())
+        test_database = db.Database(db_path=dst_db_path.as_posix(), update=False)
 
         self.assertFalse(tables.DbReplayTable._has_extra_info(test_database._engine))
         self.assertTrue(test_database.is_update_required())
@@ -146,7 +146,7 @@ class DBTestCase(unittest.TestCase):
         time.sleep(0.1)
 
         # open the new db
-        test_database = db.Database(db_path=dst_db_path.as_posix())
+        test_database = db.Database(db_path=dst_db_path.as_posix(), update=False)
 
         # Make sure that update is required
         self.assertTrue(test_database.is_update_required())
