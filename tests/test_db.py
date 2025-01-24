@@ -256,9 +256,16 @@ class DBTestCase(unittest.TestCase):
         test_database.perform_updates()
 
         # The trial numbers line up with tells
+        none_rows = 0
         for row in test_database.get_raw_for(1):
-            self.assertTrue(row.unique_id == row.extra_data["trial_number"])
-            self.assertTrue(row.extra_data["extra"] == "info")
+            if row.extra_data is None:
+                none_rows += 1
+            else:
+                self.assertTrue(row.unique_id == row.extra_data["trial_number"])
+                self.assertTrue(row.extra_data["extra"] == "info")
+
+        # Exactly one row should be none
+        self.assertTrue(none_rows == 1)
 
         self.assertFalse(test_database.is_update_required())
 
