@@ -7,6 +7,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import logging
 import pickle
 from collections.abc import Iterable
@@ -473,6 +474,7 @@ class DbRawTable(Base):
     unique_id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
     model_data = Column(Boolean)
+    extra_data = Column(PickleType(pickler=pickle))
 
     master_table_id = Column(Integer, ForeignKey("master.unique_id"))
     parent = relationship("DBMasterTable", back_populates="children_raw")
@@ -494,6 +496,7 @@ class DbRawTable(Base):
         this.timestamp = row["timestamp"]
         this.model_data = row["model_data"]
         this.master_table_id = row["master_table_id"]
+        this.extra_data = row["extra_data"]
 
         return this
 
@@ -519,75 +522,108 @@ class DbRawTable(Base):
         """
         logger.info("DbRawTable : update called")
 
-        # Get every master table
-        for master_table in db.get_master_records():
-            # Get raw tab
-            for message in master_table.children_replay:
-                if message.message_type != "tell":
-                    continue
+        # Adding extra_info
+        if not DbRawTable._has_column(engine, "extra_data"):
+            DbRawTable._add_column(engine, "extra_data")
 
-                timestamp = message.timestamp
+        n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
+        # If raws are not made yet:
+        if n_raws == 0:
+            # Get every master table
+            for master_table in db.get_master_records():
+                # Get raw tab
+                for message in master_table.children_replay:
+                    if message.message_type != "tell":
+                        continue
 
-                # Deserialize pickle message
-                message_contents = message.message_contents
+                    timestamp = message.timestamp
 
-                # Get outcome
-                outcomes = message_contents["message"]["outcome"]
-                # Get parameters
-                params = message_contents["message"]["config"]
-                # Get model_data
-                model_data = message_contents["message"].get("model_data", True)
+                    # Deserialize pickle message
+                    message_contents = message.message_contents
 
-                db_raw_record = db.record_raw(
-                    master_table=master_table,
-                    model_data=bool(model_data),
-                    timestamp=timestamp,
-                )
+                    # Get outcome
+                    outcomes = message_contents["message"]["outcome"]
+                    # Get parameters
+                    params = message_contents["message"]["config"]
+                    # Get model_data
+                    model_data = message_contents["message"].get("model_data", True)
+                    # Get extra_data
+                    extra_data = message_contents["extra_info"]
 
-                for param_name, param_value in params.items():
-                    if isinstance(param_value, Iterable) and type(param_value) != str:
-                        if len(param_value) == 1:
+                    db_raw_record = db.record_raw(
+                        master_table=master_table,
+                        model_data=bool(model_data),
+                        timestamp=timestamp,
+                        **extra_data,
+                    )
+
+                    for param_name, param_value in params.items():
+                        if (
+                            isinstance(param_value, Iterable)
+                            and type(param_value) != str
+                        ):
+                            if len(param_value) == 1:
+                                db.record_param(
+                                    raw_table=db_raw_record,
+                                    param_name=str(param_name),
+                                    param_value=float(param_value[0]),
+                                )
+                            else:
+                                for j, v in enumerate(param_value):
+                                    db.record_param(
+                                        raw_table=db_raw_record,
+                                        param_name=str(param_name)
+                                        + "_stimuli"
+                                        + str(j),
+                                        param_value=float(v),
+                                    )
+                        else:
                             db.record_param(
                                 raw_table=db_raw_record,
                                 param_name=str(param_name),
-                                param_value=float(param_value[0]),
+                                param_value=float(param_value),
                             )
-                        else:
-                            for j, v in enumerate(param_value):
-                                db.record_param(
-                                    raw_table=db_raw_record,
-                                    param_name=str(param_name) + "_stimuli" + str(j),
-                                    param_value=float(v),
-                                )
-                    else:
-                        db.record_param(
-                            raw_table=db_raw_record,
-                            param_name=str(param_name),
-                            param_value=float(param_value),
-                        )
 
-                if isinstance(outcomes, Iterable) and type(outcomes) != str:
-                    for j, outcome_value in enumerate(outcomes):
-                        if (
-                            isinstance(outcome_value, Iterable)
-                            and type(outcome_value) != str
-                        ):
-                            if len(outcome_value) == 1:
-                                outcome_value = outcome_value[0]
-                            else:
-                                raise ValueError(
-                                    "Multi-outcome values must be a list of lists of length 1!"
-                                )
+                    if isinstance(outcomes, Iterable) and type(outcomes) != str:
+                        for j, outcome_value in enumerate(outcomes):
+                            if (
+                                isinstance(outcome_value, Iterable)
+                                and type(outcome_value) != str
+                            ):
+                                if len(outcome_value) == 1:
+                                    outcome_value = outcome_value[0]
+                                else:
+                                    raise ValueError(
+                                        "Multi-outcome values must be a list of lists of length 1!"
+                                    )
+                            db.record_outcome(
+                                raw_table=db_raw_record,
+                                outcome_name="outcome_" + str(j),
+                                outcome_value=float(outcome_value),
+                            )
+                    else:
                         db.record_outcome(
                             raw_table=db_raw_record,
-                            outcome_name="outcome_" + str(j),
-                            outcome_value=float(outcome_value),
+                            outcome_name="outcome",
+                            outcome_value=float(outcomes),
                         )
+        else:  # Raws are already in, so we just need to update it
+            for master_table in db.get_master_records():
+                unique_id = master_table.unique_id
+                raws = db.get_raw_for(unique_id)
+                tells = [
+                    message
+                    for message in db.get_replay_for(unique_id)
+                    if message.message_type == "tell"
+                ]
+
+                if len(raws) == len(tells):
+                    for raw, tell in zip(raws, tells):
+                        if len(tell.extra_info) > 0:
+                            raw.extra_data = tell.extra_info
                 else:
-                    db.record_outcome(
-                        raw_table=db_raw_record,
-                        outcome_name="outcome",
-                        outcome_value=float(outcomes),
+                    logger.warning(
+                        f"Tried to update raw table for experiment unique ID {unique_id}, but the number of tells and raws were not the same."
                     )
 
     @staticmethod
@@ -600,6 +636,9 @@ class DbRawTable(Base):
         Returns:
             bool: True if the raw table is empty and data already exists, False otherwise.
         """
+        if not DbRawTable._has_column(engine, "extra_data"):
+            return True
+
         n_raws = engine.execute("SELECT COUNT (*) FROM raw_data").fetchone()[0]
         n_tells = engine.execute(
             "SELECT COUNT (*) FROM replay_data \
@@ -609,6 +648,54 @@ class DbRawTable(Base):
         if n_raws == 0 and n_tells != 0:
             return True
         return False
+
+    @staticmethod
+    def _has_column(engine: Engine, column: str) -> bool:
+        """Check if the master table has a column.
+
+        Args:
+            engine (Engine): The sqlalchemy engine.
+            column (str): The column name.
+
+        Returns:
+            bool: True if the column exists, False otherwise.
+        """
+        result = engine.execute(
+            "SELECT COUNT(*) FROM pragma_table_info('raw_data') WHERE name='{0}'".format(
+                column
+            )
+        )
+        rows = result.fetchall()
+        count = rows[0][0]
+        return count != 0
+
+    @staticmethod
+    def _add_column(engine: Engine, column: str) -> None:
+        """Add a column to the master table.
+
+        Args:
+            engine (Engine): The sqlalchemy engine.
+            column (str): The column name.
+        """
+        try:
+            result = engine.execute(
+                "SELECT COUNT(*) FROM pragma_table_info('raw_data') WHERE name='{0}'".format(
+                    column
+                )
+            )
+            rows = result.fetchall()
+            count = rows[0][0]
+
+            if 0 == count:
+                logger.debug(
+                    "Altering the raw_data table to add the {0} column".format(column)
+                )
+                engine.execute(
+                    "ALTER TABLE raw_data ADD COLUMN {0} VARCHAR".format(column)
+                )
+                engine.commit()
+        except Exception as e:
+            logger.debug(f"Column already exists, no need to alter. [{e}]")
 
 
 class DbParamTable(Base):
