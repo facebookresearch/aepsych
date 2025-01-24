@@ -619,7 +619,7 @@ class DbRawTable(Base):
 
                 if len(raws) == len(tells):
                     for raw, tell in zip(raws, tells):
-                        if len(tell.extra_info) > 0:
+                        if tell.extra_info is not None and len(tell.extra_info) > 0:
                             raw.extra_data = tell.extra_info
                 else:
                     logger.warning(
