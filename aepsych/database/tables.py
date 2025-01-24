@@ -591,6 +591,20 @@ class DbRawTable(Base):
                             outcome_name="outcome_" + str(j),
                             outcome_value=float(outcome_value),
                         )
+        else:  # Raws are already in, so we just need to update it
+            for master_table in db.get_master_records():
+                unique_id = master_table.unique_id
+                raws = db.get_raw_for(unique_id)
+                tells = [
+                    message
+                    for message in db.get_replay_for(unique_id)
+                    if message.message_type == "tell"
+                ]
+
+                if len(raws) == len(tells):
+                    for raw, tell in zip(raws, tells):
+                        if tell.extra_info is not None and len(tell.extra_info) > 0:
+                            raw.extra_data = tell.extra_info
                 else:
                     db.record_outcome(
                         raw_table=db_raw_record,
