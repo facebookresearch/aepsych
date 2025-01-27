@@ -6,11 +6,9 @@
 # LICENSE file in the root directory of this source tree.
 
 import json
-import logging
 import os
 import unittest
 import uuid
-from pathlib import Path
 
 import torch
 from aepsych.acquisition import EAVC, MCLevelSetEstimation
@@ -18,7 +16,7 @@ from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.acquisition.objective import FloorGumbelObjective, ProbitObjective
 from aepsych.config import Config, ParameterConfigError
 from aepsych.generators import (
-    MonotonicRejectionGenerator,
+    IntensityAwareSemiPGenerator,
     OptimizeAcqfGenerator,
     SobolGenerator,
 )
@@ -26,8 +24,8 @@ from aepsych.likelihoods import BernoulliObjectiveLikelihood
 from aepsych.models import (
     GPClassificationModel,
     HadamardSemiPModel,
-    MonotonicRejectionGP,
     PairwiseProbitModel,
+    SemiParametricGPModel,
 )
 from aepsych.models.inducing_points import SobolAllocator
 from aepsych.server import AEPsychServer
@@ -268,10 +266,10 @@ class ConfigTestCase(unittest.TestCase):
         acqf = MCLevelSetEstimation
 
         [opt_strat2]
-        generator = MonotonicRejectionGenerator
+        generator = IntensityAwareSemiPGenerator
         min_asks = 1
-        model = MonotonicRejectionGP
-        acqf = MonotonicMCLSE
+        model = SemiParametricGPModel
+        acqf = EAVC
 
         """
 
@@ -290,10 +288,10 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(strat.strat_list[1].generator.acqf is MCLevelSetEstimation)
 
         self.assertTrue(
-            isinstance(strat.strat_list[2].generator, MonotonicRejectionGenerator)
+            isinstance(strat.strat_list[2].generator, IntensityAwareSemiPGenerator)
         )
-        self.assertTrue(isinstance(strat.strat_list[2].model, MonotonicRejectionGP))
-        self.assertTrue(strat.strat_list[2].generator.acqf is MonotonicMCLSE)
+        self.assertTrue(isinstance(strat.strat_list[2].model, SemiParametricGPModel))
+        self.assertTrue(strat.strat_list[2].generator.acqf is EAVC)
 
     def test_experiment_deprecation(self):
         config_str = """
@@ -344,65 +342,6 @@ class ConfigTestCase(unittest.TestCase):
         config = Config(config_str=in_str)
         out_str = str(config).strip().replace(" ", "")
         self.assertEqual(in_str, out_str)
-
-    def test_conversion(self):
-        config_str = """
-        [common]
-        parnames = [par1, par2]
-        lb = [0, 0]
-        ub = [1, 1]
-        outcome_type = single_probit
-        target = 0.75
-
-        [SobolStrategy]
-        n_trials = 10
-
-        [ModelWrapperStrategy]
-        n_trials = 20
-        refit_every = 5
-
-        [experiment]
-        acqf = MonotonicMCLSE
-        init_strat_cls = SobolStrategy
-        opt_strat_cls = ModelWrapperStrategy
-        modelbridge_cls = MonotonicSingleProbitModelbridge
-        model = MonotonicRejectionGP
-
-        [MonotonicMCLSE]
-        beta = 3.84
-
-        [MonotonicRejectionGP]
-        inducing_size = 100
-        mean_covar_factory = monotonic_mean_covar_factory
-
-        [MonotonicSingleProbitModelbridge]
-        restarts = 10
-        samps = 1000
-        """
-
-        config = Config(config_str=config_str)
-        self.assertEqual(config.version, "0.0")
-        config.convert_to_latest()
-        self.assertEqual(config.version, __version__)
-
-        self.assertEqual(config["common"]["strategy_names"], "[init_strat, opt_strat]")
-        self.assertEqual(config["common"]["acqf"], "MonotonicMCLSE")
-
-        self.assertEqual(config["init_strat"]["min_asks"], "10")
-        self.assertEqual(config["init_strat"]["generator"], "SobolGenerator")
-
-        self.assertEqual(config["opt_strat"]["min_asks"], "20")
-        self.assertEqual(config["opt_strat"]["refit_every"], "5")
-        self.assertEqual(
-            config["opt_strat"]["generator"], "MonotonicRejectionGenerator"
-        )
-        self.assertEqual(config["opt_strat"]["model"], "MonotonicRejectionGP")
-
-        self.assertEqual(config["MonotonicRejectionGenerator"]["restarts"], "10")
-        self.assertEqual(config["MonotonicRejectionGenerator"]["samps"], "1000")
-
-        self.assertEqual(config["common"]["stimuli_per_trial"], "1")
-        self.assertEqual(config["common"]["outcome_types"], "[binary]")
 
     def test_warn_about_refit(self):
         config_str = """
@@ -1393,6 +1332,16 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(
             options["maxfun"] != 0, "maxfun should be overridden by max_fit_time"
         )
+
+    def test_deprecation_warning(self):
+        config_str = f"""
+                [common]
+                generator = MonotonicRejectionGenerator
+        """
+        config = Config(config_str=config_str)
+
+        with self.assertRaises(TypeError):
+            config.getobj("common", "generator")
 
 
 if __name__ == "__main__":
