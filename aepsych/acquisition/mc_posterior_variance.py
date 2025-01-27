@@ -8,7 +8,6 @@
 from typing import Any, Dict, Optional
 
 import torch
-from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.acquisition.objective import ProbitObjective
 from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
@@ -120,20 +119,3 @@ def construct_inputs(
         "objective": objective,
         "sampler": sampler,
     }
-
-
-class MonotonicMCPosteriorVariance(MonotonicMCAcquisition):
-    def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
-        """
-        Evaluates the acquisition function value for monotonic posterior variance.
-
-        Args:
-            obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.
-                Should have shape samples x batch_shape.
-
-        Returns:
-            torch.Tensor: The BALV acquisition function value, representing the posterior variance
-            calculated over the sample dimension.
-        """
-
-        return balv_acq(obj_samples)

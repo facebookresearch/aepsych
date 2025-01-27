@@ -11,7 +11,6 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import torch
-from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.acquisition.objective import ProbitObjective
 from botorch.acquisition.input_constructors import acqf_input_constructor
 from botorch.acquisition.monte_carlo import MCAcquisitionFunction
@@ -140,22 +139,3 @@ def construct_inputs_mi(
         "objective": objective,
         "sampler": sampler,
     }
-
-
-class MonotonicBernoulliMCMutualInformation(MonotonicMCAcquisition):
-    def acquisition(self, obj_samples: torch.Tensor) -> torch.Tensor:
-        """Evaluate the acquisition function value based on samples.
-
-        Args:
-            obj_samples (torch.Tensor): Samples from the model, transformed through the objective.
-
-        Returns:
-            torch.Tensor: value of the acquisition function (BALD) at the input samples.
-        """
-        # TODO this is identical to nono-monotonic BALV acquisition with a different
-        # base class mixin, consider redesigning?
-        # RejectionSampler drops the final dim so we reaugment it
-        # here for compatibility with non-Monotonic MCAcquisition
-        if len(obj_samples.shape) == 2:
-            obj_samples = obj_samples[..., None]
-        return bald_acq(obj_samples)

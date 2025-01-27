@@ -11,7 +11,6 @@ from unittest.mock import MagicMock
 import numpy as np
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
-from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
@@ -49,7 +48,7 @@ class TestSequenceGenerators(unittest.TestCase):
             generator=ParameterTransformedGenerator(
                 OptimizeAcqfGenerator,
                 transforms=transforms,
-                acqf=MonotonicMCLSE,
+                acqf=MCLevelSetEstimation,
                 acqf_kwargs=extra_acqf_args,
                 lb=lb,
                 ub=ub,
