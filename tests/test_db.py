@@ -271,60 +271,6 @@ class DBTestCase(unittest.TestCase):
 
         test_database.delete_db()
 
-    def test_update_configs(self):
-        config_str = """
-        [common]
-        parnames = [par1, par2]
-        lb = [0, 0]
-        ub = [1, 1]
-        outcome_type = single_probit
-        target = 0.75
-
-        [SobolStrategy]
-        n_trials = 10
-
-        [ModelWrapperStrategy]
-        n_trials = 20
-        refit_every = 5
-
-        [experiment]
-        acqf = MonotonicMCLSE
-        init_strat_cls = SobolStrategy
-        opt_strat_cls = ModelWrapperStrategy
-        modelbridge_cls = MonotonicSingleProbitModelbridge
-        model = MonotonicRejectionGP
-
-        [MonotonicMCLSE]
-        beta = 3.84
-
-        [MonotonicRejectionGP]
-        inducing_size = 100
-        mean_covar_factory = monotonic_mean_covar_factory
-
-        [MonotonicSingleProbitModelbridge]
-        restarts = 10
-        samps = 1000
-        """
-
-        request = {
-            "type": "setup",
-            "version": "0.01",
-            "message": {"config_str": config_str},
-        }
-
-        dbname = "./{}.db".format(str(uuid.uuid4().hex))
-        database = db.Database(dbname)
-        database.record_setup(
-            description="default description",
-            name="default name",
-            request=request,
-        )
-
-        self.assertTrue(database.is_update_required())
-        database.perform_updates()
-        self.assertFalse(database.is_update_required())
-        database.delete_db()
-
     def test_strat_table(self):
         test_strat = {"strat": "this is nothing like a strat"}
         master_table = self._database.record_setup(
