@@ -398,41 +398,6 @@ class BenchProblemTestCase(unittest.TestCase):
         e = problem.evaluate(strat)
         self.assertTrue(e["mean_square_err_p"] < 0.05)
 
-    def test_monotonic_single_lse_eval(self):
-        config = {
-            "common": {
-                "stimuli_per_trial": 1,
-                "outcome_types": ["binary"],
-                "strategy_names": "[init_strat, opt_strat]",
-                "acqf": "MonotonicMCLSE",
-                "model": "MonotonicRejectionGP",
-            },
-            "init_strat": {"generator": "SobolGenerator", "min_asks": 50},
-            "opt_strat": {"generator": "MonotonicRejectionGenerator", "min_asks": 1},
-            "SobolGenerator": {"seed": 1},
-            "MonotonicMCLSE": {
-                "target": 0.75,
-                "beta": 3.84,
-            },
-            "MonotonicRejectionGP": {
-                "inducing_size": 10,
-                "mean_covar_factory": "monotonic_mean_covar_factory",
-                "monotonic_idxs": "[1]",
-            },
-            "MonotonicRejectionGenerator": {
-                "model_gen_options": {
-                    "num_restarts": 10,
-                    "raw_samples": 1000,
-                }
-            },
-        }
-        problem = LSETestProblem()
-        bench = Benchmark(problems=[problem], configs=config, log_every=100)
-        _, strat = bench.run_experiment(problem, bench.combinations[0], 0, 0)
-
-        e = problem.evaluate(strat)
-        self.assertTrue(e["mean_square_err_p"] < 0.05)
-
 
 if __name__ == "__main__":
     unittest.main()

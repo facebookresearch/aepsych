@@ -33,6 +33,8 @@ from aepsych.version import __version__
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
 
+DEPRECATED_OBJS = ["MonotonicRejectionGenerator"]
+
 
 class Config(configparser.ConfigParser):
     # names in these packages can be referred to by string name
@@ -320,7 +322,12 @@ class Config(configparser.ConfigParser):
             return self.registered_names[v]
         except KeyError:
             if warn:
-                warnings.warn(f'No known object "{v}"!')
+                if v in DEPRECATED_OBJS:
+                    raise TypeError(
+                        f"Object {v} is deprecated and no longer supported!"
+                    )
+                else:
+                    warnings.warn(f'No known object "{v}"!')
             return fallback_type(v)
 
     def _check_param_settings(self, param_name: str) -> None:
@@ -497,21 +504,6 @@ class Config(configparser.ConfigParser):
                     ]
                 if "PairwiseGP" in self:
                     self["PairwiseProbitModel"] = self["PairwiseGP"]
-
-            elif bridge == "MonotonicSingleProbitModelbridge":
-                self["init_strat"] = {
-                    "generator": "SobolGenerator",
-                    "min_asks": n_sobol,
-                }
-                self["opt_strat"] = {
-                    "generator": "MonotonicRejectionGenerator",
-                    "model": "MonotonicRejectionGP",
-                    "min_asks": n_opt,
-                }
-                if "MonotonicSingleProbitModelbridge" in self:
-                    self["MonotonicRejectionGenerator"] = self[
-                        "MonotonicSingleProbitModelbridge"
-                    ]
 
             elif bridge == "SingleProbitModelbridge":
                 self["init_strat"] = {
