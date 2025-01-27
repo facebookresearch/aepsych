@@ -10,9 +10,9 @@ from unittest.mock import MagicMock
 
 import numpy as np
 import torch
-from aepsych.acquisition import MonotonicMCLSE
+from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
-from aepsych.generators import EpsilonGreedyGenerator, MonotonicRejectionGenerator
+from aepsych.generators import EpsilonGreedyGenerator, OptimizeAcqfGenerator
 
 
 class TestEpsilonGreedyGenerator(unittest.TestCase):
@@ -27,8 +27,8 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
 
         for epsilon in (0.1, 0.5):
             gen = EpsilonGreedyGenerator(
-                subgenerator=MonotonicRejectionGenerator(
-                    acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args, lb=lb, ub=ub
+                subgenerator=OptimizeAcqfGenerator(
+                    acqf=MCLevelSetEstimation, acqf_kwargs=extra_acqf_args, lb=lb, ub=ub
                 ),
                 epsilon=epsilon,
                 lb=lb,
@@ -50,8 +50,8 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
         ub = torch.tensor([1.0])
 
         gen = EpsilonGreedyGenerator(
-            subgenerator=MonotonicRejectionGenerator(
-                acqf=MonotonicMCLSE, acqf_kwargs=extra_acqf_args, lb=lb, ub=ub
+            subgenerator=OptimizeAcqfGenerator(
+                acqf=MCLevelSetEstimation, acqf_kwargs=extra_acqf_args, lb=lb, ub=ub
             ),
             epsilon=1,
             lb=lb,
@@ -65,16 +65,21 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
     def test_greedyepsilon_config(self):
         config_str = """
             [common]
-            acqf = MonotonicMCLSE
+            stimuli_per_trial = 1
+            acqf = MCLevelSetEstimation
             lb = [0]
             ub = [1]
             [EpsilonGreedyGenerator]
-            subgenerator = MonotonicRejectionGenerator
+            subgenerator = OptimizeAcqfGenerator
             epsilon = .5
             """
         config = Config()
         config.update(config_str=config_str)
         gen = EpsilonGreedyGenerator.from_config(config)
-        self.assertIsInstance(gen.subgenerator, MonotonicRejectionGenerator)
-        self.assertEqual(gen.subgenerator.acqf, MonotonicMCLSE)
+        self.assertIsInstance(gen.subgenerator, OptimizeAcqfGenerator)
+        self.assertEqual(gen.subgenerator.acqf, MCLevelSetEstimation)
         self.assertEqual(gen.epsilon, 0.5)
+
+
+if __name__ == "__main__":
+    unittest.main()

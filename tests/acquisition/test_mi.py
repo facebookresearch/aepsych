@@ -9,18 +9,11 @@ import unittest
 
 import numpy as np
 import torch
-from aepsych.acquisition.mutual_information import (
-    BernoulliMCMutualInformation,
-    MonotonicBernoulliMCMutualInformation,
-)
+from aepsych.acquisition.mutual_information import BernoulliMCMutualInformation
 from aepsych.acquisition.objective import ProbitObjective
 from aepsych.benchmark.test_functions import f_1d
-from aepsych.generators import (
-    MonotonicRejectionGenerator,
-    OptimizeAcqfGenerator,
-    SobolGenerator,
-)
-from aepsych.models import GPClassificationModel, MonotonicRejectionGP
+from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
+from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
 from gpytorch.kernels import LinearKernel
 from gpytorch.means import ConstantMean
@@ -28,62 +21,6 @@ from scipy.stats import bernoulli, multivariate_normal, norm, pearsonr
 
 
 class SingleProbitMI(unittest.TestCase):
-    def test_1d_monotonic_single_probit(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        n_init = 15
-        n_opt = 1
-        lb = torch.tensor([-4.0])
-        ub = torch.tensor([4.0])
-        inducing_size = 10
-
-        acqf = MonotonicBernoulliMCMutualInformation
-        acqf_kwargs = {"objective": ProbitObjective()}
-        model_list = [
-            Strategy(
-                lb=lb,
-                ub=ub,
-                min_asks=n_init,
-                generator=SobolGenerator(lb=lb, ub=ub, seed=seed),
-                stimuli_per_trial=1,
-                outcome_types=["binary"],
-            ),
-            Strategy(
-                lb=lb,
-                ub=ub,
-                min_asks=n_opt,
-                model=MonotonicRejectionGP(
-                    lb=lb,
-                    ub=ub,
-                    monotonic_idxs=[0],
-                    num_induc=inducing_size,
-                ),
-                generator=MonotonicRejectionGenerator(
-                    lb=lb, ub=ub, acqf=acqf, acqf_kwargs=acqf_kwargs
-                ),
-                stimuli_per_trial=1,
-                outcome_types=["binary"],
-            ),
-        ]
-
-        strat = SequentialStrategy(model_list)
-
-        for _i in range(n_init + n_opt):
-            next_x = strat.gen()
-            strat.add_data(next_x, [bernoulli.rvs(f_1d(next_x))])
-
-        x = torch.linspace(-4, 4, 100).reshape(-1, 1)
-
-        zhat, _ = strat.predict(x)
-
-        true = f_1d(x)
-        est = zhat
-
-        # close enough!
-        normal_dist = torch.distributions.Normal(0, 1)
-        self.assertTrue((((normal_dist.cdf(est) - true) ** 2).mean()) < 0.25)
-
     def test_1d_single_probit(self):
         seed = 1
         torch.manual_seed(seed)

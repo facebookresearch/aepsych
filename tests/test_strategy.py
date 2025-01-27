@@ -12,11 +12,7 @@ import numpy as np
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.generators import (
-    MonotonicRejectionGenerator,
-    OptimizeAcqfGenerator,
-    SobolGenerator,
-)
+from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
 from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
@@ -51,7 +47,7 @@ class TestSequenceGenerators(unittest.TestCase):
                 monotonic_idxs=[1],
             ),
             generator=ParameterTransformedGenerator(
-                MonotonicRejectionGenerator,
+                OptimizeAcqfGenerator,
                 transforms=transforms,
                 acqf=MonotonicMCLSE,
                 acqf_kwargs=extra_acqf_args,
