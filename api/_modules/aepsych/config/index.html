@@ -51,6 +51,8 @@
 <span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_T"</span><span class="p">)</span>
 <span class="n">_ET</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_ET"</span><span class="p">)</span>
 
+<span class="n">DEPRECATED_OBJS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"MonotonicRejectionGenerator"</span><span class="p">]</span>
+
 
 <div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../config.html#aepsych.config.Config">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Config</span><span class="p">(</span><span class="n">configparser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">):</span>
     <span class="c1"># names in these packages can be referred to by string name</span>
@@ -338,7 +340,12 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">registered_names</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">warn</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'No known object "</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">"!'</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">DEPRECATED_OBJS</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"Object </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2"> is deprecated and no longer supported!"</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">'No known object "</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">"!'</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">fallback_type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_param_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -515,21 +522,6 @@
                     <span class="p">]</span>
                 <span class="k">if</span> <span class="s2">"PairwiseGP"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                     <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseProbitModel"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseGP"</span><span class="p">]</span>
-
-            <span class="k">elif</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"MonotonicSingleProbitModelbridge"</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"SobolGenerator"</span><span class="p">,</span>
-                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
-                <span class="p">}</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"MonotonicRejectionGenerator"</span><span class="p">,</span>
-                    <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"MonotonicRejectionGP"</span><span class="p">,</span>
-                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
-                <span class="p">}</span>
-                <span class="k">if</span> <span class="s2">"MonotonicSingleProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="p">[</span><span class="s2">"MonotonicRejectionGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span>
-                        <span class="s2">"MonotonicSingleProbitModelbridge"</span>
-                    <span class="p">]</span>
 
             <span class="k">elif</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"SingleProbitModelbridge"</span><span class="p">:</span>
                 <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>

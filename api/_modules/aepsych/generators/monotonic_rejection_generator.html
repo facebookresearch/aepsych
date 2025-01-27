@@ -23,21 +23,19 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.monotonic_rejection</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcqfGenerator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.monotonic_rejection_gp</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicRejectionGP</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_bounds</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcquisitionFunction</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.optim.initializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">gen_batch_initial_conditions</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.optim.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">columnwise_clamp</span><span class="p">,</span> <span class="n">fix_features</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.acquisition.monotonic_rejection</span> <span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerator</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.monotonic_rejection_gp</span> <span class="kn">import</span> <span class="n">MonotonicRejectionGP</span>
+<span class="kn">from</span> <span class="nn">botorch.logging</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">botorch.optim.initializers</span> <span class="kn">import</span> <span class="n">gen_batch_initial_conditions</span>
+<span class="kn">from</span> <span class="nn">botorch.optim.utils</span> <span class="kn">import</span> <span class="n">columnwise_clamp</span><span class="p">,</span> <span class="n">fix_features</span>
 
 
-<div class="viewcode-block" id="default_loss_constraint_fun"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.default_loss_constraint_fun">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">default_loss_constraint_fun</span><span class="p">(</span>
+<div class="viewcode-block" id="default_loss_constraint_fun"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.default_loss_constraint_fun">[docs]</a><span class="k">def</span> <span class="nf">default_loss_constraint_fun</span><span class="p">(</span>
     <span class="n">loss</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">candidates</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Identity transform for constrained optimization.</span>
@@ -47,7 +45,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        loss (torch.Tensor): Value of loss at candidate points.</span>
-<span class="sd">        candidates (torch.Tensor): Location of candidate points. Unused.</span>
+<span class="sd">        candidates (torch.Tensor): Location of candidate points.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        torch.Tensor: New loss (unchanged)</span>
@@ -55,15 +53,13 @@
     <span class="k">return</span> <span class="n">loss</span></div>
 
 
-<div class="viewcode-block" id="MonotonicRejectionGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MonotonicRejectionGenerator</span><span class="p">(</span><span class="n">AcqfGenerator</span><span class="p">):</span>
+<div class="viewcode-block" id="MonotonicRejectionGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator">[docs]</a><span class="k">class</span> <span class="nc">MonotonicRejectionGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">[</span><span class="n">MonotonicRejectionGP</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">"""Generator specifically to be used with MonotonicRejectionGP, which generates new points to sample by minimizing</span>
 <span class="sd">    an acquisition function through stochastic gradient descent."""</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">acqf</span><span class="p">:</span> <span class="n">MonotonicMCAcquisition</span><span class="p">,</span>
-        <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">acqf_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">model_gen_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">explore_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -71,14 +67,12 @@
 <span class="w">        </span><span class="sd">"""Initialize MonotonicRejectionGenerator.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            acqf (AcquisitionFunction): Acquisition function to use.</span>
-<span class="sd">            lb (torch.Tensor): Lower bounds for the optimization.</span>
-<span class="sd">            ub (torch.Tensor): Upper bounds for the optimization.</span>
 <span class="sd">            acqf_kwargs (Dict[str, object], optional): Extra arguments to</span>
-<span class="sd">                pass to acquisition function. Defaults to None.</span>
-<span class="sd">            model_gen_options (Dict[str, Any], optional): Dictionary with options for generating candidate, such as</span>
-<span class="sd">                SGD parameters. See code for all options and their defaults. Defaults to None.</span>
-<span class="sd">            explore_features (Sequence[int], optional): List of features that will be selected randomly and then</span>
-<span class="sd">                fixed for acquisition fn optimization. Defaults to None.</span>
+<span class="sd">                pass to acquisition function. Defaults to no arguments.</span>
+<span class="sd">            model_gen_options: Dictionary with options for generating candidate, such as</span>
+<span class="sd">                SGD parameters. See code for all options and their defaults.</span>
+<span class="sd">            explore_features: List of features that will be selected randomly and then</span>
+<span class="sd">                fixed for acquisition fn optimization.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">acqf_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">acqf_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
@@ -86,48 +80,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span> <span class="o">=</span> <span class="n">acqf_kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_gen_options</span> <span class="o">=</span> <span class="n">model_gen_options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">explore_features</span> <span class="o">=</span> <span class="n">explore_features</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">))</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">model</span><span class="p">:</span> <span class="n">MonotonicRejectionGP</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AcquisitionFunction</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Instantiates the acquisition function with the specified model and additional arguments.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            model (MonotonicRejectionGP): The model to use with the acquisition function.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            AcquisitionFunction: Configured acquisition function.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">_instantiate_acquisition_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">MonotonicRejectionGP</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acqf</span><span class="p">(</span>
             <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
             <span class="n">deriv_constraint_points</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">_get_deriv_constraint_points</span><span class="p">(),</span>
             <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">acqf_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="MonotonicRejectionGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span>
+<div class="viewcode-block" id="MonotonicRejectionGenerator.gen"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1"># Current implementation only generates 1 point at a time</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">MonotonicRejectionGP</span><span class="p">,</span>
-        <span class="n">fixed_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
 <span class="sd">        Args:</span>
-<span class="sd">            num_points (int): Number of points to query. Currently only supports 1.</span>
+<span class="sd">            num_points (int, optional): Number of points to query.</span>
 <span class="sd">            model (AEPsychMixin): Fitted model of the data.</span>
-<span class="sd">            fixed_features (Dict[int, float], optional): Not implemented for this generator.</span>
-<span class="sd">            **kwargs: Ignored, API compatibility</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
+<span class="sd">            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">fixed_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">"Cannot fix features when generating from MonotonicRejectionGenerator"</span>
-            <span class="p">)</span>
+
         <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_gen_options</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">num_restarts</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"num_restarts"</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
         <span class="n">raw_samples</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"raw_samples"</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
@@ -143,9 +116,9 @@
         <span class="p">)</span>
 
         <span class="c1"># Augment bounds with deriv indicator</span>
-        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">bounds_</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Fix deriv indicator to 0 during optimization</span>
-        <span class="n">fixed_features_</span> <span class="o">=</span> <span class="p">{(</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">0.0</span><span class="p">}</span>
+        <span class="n">fixed_features</span> <span class="o">=</span> <span class="p">{(</span><span class="n">bounds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">0.0</span><span class="p">}</span>
         <span class="c1"># Fix explore features to random values</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">explore_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">explore_features</span><span class="p">:</span>
@@ -154,7 +127,7 @@
                     <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">bounds</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
                     <span class="o">*</span> <span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">idx</span><span class="p">])</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-                <span class="n">fixed_features_</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="n">fixed_features</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
                 <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
                 <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
@@ -171,7 +144,7 @@
         <span class="n">clamped_candidates</span> <span class="o">=</span> <span class="n">columnwise_clamp</span><span class="p">(</span>
             <span class="n">X</span><span class="o">=</span><span class="n">batch_initial_conditions</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">candidates</span> <span class="o">=</span> <span class="n">fix_features</span><span class="p">(</span><span class="n">clamped_candidates</span><span class="p">,</span> <span class="n">fixed_features_</span><span class="p">)</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">fix_features</span><span class="p">(</span><span class="n">clamped_candidates</span><span class="p">,</span> <span class="n">fixed_features</span><span class="p">)</span>
         <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span>
             <span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">clamped_candidates</span><span class="p">],</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">momentum</span><span class="p">,</span> <span class="n">nesterov</span><span class="o">=</span><span class="n">nesterov</span>
         <span class="p">)</span>
@@ -189,7 +162,7 @@
             <span class="k">if</span> <span class="n">verbosity_freq</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">verbosity_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Iter: </span><span class="si">{}</span><span class="s2"> - Value: </span><span class="si">{:.3f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())))</span>
 
-            <span class="k">def</span><span class="w"> </span><span class="nf">closure</span><span class="p">():</span>
+            <span class="k">def</span> <span class="nf">closure</span><span class="p">():</span>
                 <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
                 <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span>
                     <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span>
@@ -200,7 +173,7 @@
             <span class="n">clamped_candidates</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">columnwise_clamp</span><span class="p">(</span>
                 <span class="n">X</span><span class="o">=</span><span class="n">clamped_candidates</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper</span><span class="o">=</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">)</span>
-            <span class="n">candidates</span> <span class="o">=</span> <span class="n">fix_features</span><span class="p">(</span><span class="n">clamped_candidates</span><span class="p">,</span> <span class="n">fixed_features_</span><span class="p">)</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">fix_features</span><span class="p">(</span><span class="n">clamped_candidates</span><span class="p">,</span> <span class="n">fixed_features</span><span class="p">)</span>
             <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 
         <span class="c1"># Extract best point</span>
@@ -210,70 +183,38 @@
         <span class="n">Xopt</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="n">best</span><span class="p">][:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">Xopt</span></div>
 
-<div class="viewcode-block" id="MonotonicRejectionGenerator.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Get configuration options for the generator.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object.</span>
-<span class="sd">            name (str, optional): Name of the generator, defaults to None. Ignored.</span>
-<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict[str, Any]: Configuration options for the generator.</span>
-<span class="sd">        """</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
+<div class="viewcode-block" id="MonotonicRejectionGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.monotonic_rejection_generator.MonotonicRejectionGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
         <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-
-        <span class="n">model_gen_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"num_restarts"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"restarts"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">10</span>
-        <span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"raw_samples"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"samps"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1000</span>
-        <span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"verbosity_freq"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"num_restarts"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"restarts"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"raw_samples"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"samps"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"verbosity_freq"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span>
             <span class="n">classname</span><span class="p">,</span> <span class="s2">"verbosity_freq"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=-</span><span class="mi">1</span>
         <span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"lr"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lr"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"momentum"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"momentum"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.9</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"lr"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lr"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"momentum"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"momentum"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"nesterov"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"nesterov"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"epochs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"epochs"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"milestones"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+            <span class="n">classname</span><span class="p">,</span> <span class="s2">"milestones"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
         <span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"nesterov"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"nesterov"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"epochs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"epochs"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"milestones"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"milestones"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"gamma"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"gamma"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
-        <span class="n">model_gen_options</span><span class="p">[</span><span class="s2">"loss_constraint_fun"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"gamma"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"gamma"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">options</span><span class="p">[</span><span class="s2">"loss_constraint_fun"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
             <span class="n">classname</span><span class="p">,</span> <span class="s2">"loss_constraint_fun"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">default_loss_constraint_fun</span>
         <span class="p">)</span>
 
-        <span class="n">explore_features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"explore_idxs"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span>
+        <span class="n">explore_features</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"explore_idxs"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"lb"</span><span class="p">:</span> <span class="n">lb</span><span class="p">,</span>
-                <span class="s2">"ub"</span><span class="p">:</span> <span class="n">ub</span><span class="p">,</span>
-                <span class="s2">"model_gen_options"</span><span class="p">:</span> <span class="n">model_gen_options</span><span class="p">,</span>
-                <span class="s2">"explore_features"</span><span class="p">:</span> <span class="n">explore_features</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">options</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">acqf</span><span class="o">=</span><span class="n">acqf</span><span class="p">,</span>
+            <span class="n">acqf_kwargs</span><span class="o">=</span><span class="n">extra_acqf_args</span><span class="p">,</span>
+            <span class="n">model_gen_options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="n">explore_features</span><span class="o">=</span><span class="n">explore_features</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
@@ -297,7 +238,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>
