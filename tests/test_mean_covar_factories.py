@@ -12,7 +12,6 @@ import numpy as np
 from aepsych.config import Config
 from aepsych.factory import (
     default_mean_covar_factory,
-    monotonic_mean_covar_factory,
     pairwise_mean_covar_factory,
     song_mean_covar_factory,
 )
@@ -130,53 +129,6 @@ class TestFactories(unittest.TestCase):
         self.assertTrue(isinstance(meanfun, gpytorch.means.ConstantMean))
         self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
         self.assertTrue(isinstance(covarfun.base_kernel, gpytorch.kernels.RBFKernel))
-
-    def test_monotonic_factory_1d(self):
-        conf = {"monotonic_mean_covar_factory": {"lb": [0], "ub": [1]}}
-        config = Config(config_dict=conf)
-        meanfun, covarfun = monotonic_mean_covar_factory(config)
-        self.assertTrue(covarfun.base_kernel.ard_num_dims == 1)
-        self.assertTrue(isinstance(meanfun, ConstantMeanPartialObsGrad))
-        self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
-        self.assertTrue(isinstance(covarfun.base_kernel, RBFKernelPartialObsGrad))
-        self.assertTrue(meanfun.constant.requires_grad)
-
-    def test_monotonic_factory_args_1d(self):
-        conf = {
-            "monotonic_mean_covar_factory": {
-                "lb": [0],
-                "ub": [1],
-                "fixed_mean": True,
-                "target": 0.88,
-            }
-        }
-        config = Config(config_dict=conf)
-
-        meanfun, covarfun = monotonic_mean_covar_factory(config)
-        self.assertTrue(covarfun.base_kernel.ard_num_dims == 1)
-        self.assertTrue(isinstance(meanfun, ConstantMeanPartialObsGrad))
-        self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
-        self.assertTrue(isinstance(covarfun.base_kernel, RBFKernelPartialObsGrad))
-        self.assertFalse(meanfun.constant.requires_grad)
-        self.assertTrue(np.allclose(meanfun.constant, norm.ppf(0.88)))
-
-    def test_monotonic_factory_2d(self):
-        conf = {
-            "monotonic_mean_covar_factory": {
-                "lb": [0, 1],
-                "ub": [1, 70],
-                "fixed_mean": True,
-                "target": 0.89,
-            }
-        }
-        config = Config(config_dict=conf)
-        meanfun, covarfun = monotonic_mean_covar_factory(config)
-        self.assertTrue(covarfun.base_kernel.ard_num_dims == 2)
-        self.assertTrue(isinstance(meanfun, ConstantMeanPartialObsGrad))
-        self.assertTrue(isinstance(covarfun, gpytorch.kernels.ScaleKernel))
-        self.assertTrue(isinstance(covarfun.base_kernel, RBFKernelPartialObsGrad))
-        self.assertFalse(meanfun.constant.requires_grad)
-        self.assertTrue(np.allclose(meanfun.constant, norm.ppf(0.89)))
 
     def test_song_factory_1d(self):
         conf = {"song_mean_covar_factory": {"lb": [0], "ub": [1]}}
