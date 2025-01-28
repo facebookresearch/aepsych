@@ -31,12 +31,6 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">MonotonicBernoulliMCMutualInformation</span><span class="p">,</span>
-    <span class="n">MonotonicMCLSE</span><span class="p">,</span>
-    <span class="n">MonotonicMCPosteriorVariance</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.monotonic_rejection</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychGenerator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychMixin</span>
@@ -86,13 +80,6 @@
 <span class="w">    </span><span class="sd">"""Object that combines models and generators to generate points to sample."""</span>
 
     <span class="n">_n_eval_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
-
-    <span class="n">no_gpu_acqfs</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">MonotonicMCAcquisition</span><span class="p">,</span>
-        <span class="n">MonotonicBernoulliMCMutualInformation</span><span class="p">,</span>
-        <span class="n">MonotonicMCPosteriorVariance</span><span class="p">,</span>
-        <span class="n">MonotonicMCLSE</span><span class="p">,</span>
-    <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -200,13 +187,7 @@
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">generator</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_gpu_acqfs</span><span class="p">:</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"GPU requested for acquistion function </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">acqf</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but this acquisiton function does not support GPU! Using CPU instead."</span><span class="p">,</span>
-                        <span class="ne">UserWarning</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">"GPU requested for generator </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but no GPU found! Using CPU instead."</span><span class="p">,</span>
                         <span class="ne">UserWarning</span><span class="p">,</span>

@@ -26,7 +26,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.monotonic_rejection</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicMCAcquisition</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.acquisition.objective</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProbitObjective</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition.input_constructors</span><span class="w"> </span><span class="kn">import</span> <span class="n">acqf_input_constructor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition.monte_carlo</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCAcquisitionFunction</span>
@@ -138,23 +137,6 @@
         <span class="s2">"objective"</span><span class="p">:</span> <span class="n">objective</span><span class="p">,</span>
         <span class="s2">"sampler"</span><span class="p">:</span> <span class="n">sampler</span><span class="p">,</span>
     <span class="p">}</span>
-
-
-<div class="viewcode-block" id="MonotonicMCPosteriorVariance"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MonotonicMCPosteriorVariance</span><span class="p">(</span><span class="n">MonotonicMCAcquisition</span><span class="p">):</span>
-<div class="viewcode-block" id="MonotonicMCPosteriorVariance.acquisition"><a class="viewcode-back" href="../../../acquisition.html#aepsych.acquisition.mc_posterior_variance.MonotonicMCPosteriorVariance.acquisition">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">acquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_samples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Evaluates the acquisition function value for monotonic posterior variance.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            obj_samples (torch.Tensor): Samples from the GP, transformed by the objective.</span>
-<span class="sd">                Should have shape samples x batch_shape.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: The BALV acquisition function value, representing the posterior variance</span>
-<span class="sd">            calculated over the sample dimension.</span>
-<span class="sd">        """</span>
-
-        <span class="k">return</span> <span class="n">balv_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">)</span></div></div>
 </pre></div>
 </div>
 </div>
