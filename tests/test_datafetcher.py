@@ -1,6 +1,6 @@
 import logging
-import os
 import unittest
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import aepsych.server as server
@@ -91,30 +91,16 @@ class DataFetcherTestCase(unittest.TestCase):
             config_str += "\n" + "\n".join(f"{k} = {v}" for k, v in ex_data.items())
         return config_str
 
-    @property
-    def database_path(self):
-        # the parent directory for locally run tests
-
-        dirs = os.path.split(os.getcwd())
-        if dirs[len(dirs) - 1] == "ae":
-            return "./aepsych/tests/test_databases/1000_outcome.db"
-        elif dirs[len(dirs) - 1] == "tests":
-            return "./test_databases/1000_outcome.db"
-        else:  # using cwd to get appropriate path for internal tests.
-            return f"{os.getcwd()}/frl/ae/aepsych/tests/test_databases/1000_outcome.db"
-
     def setUp(self):
         # setup logger
-
         server.logger = utils_logging.getLogger(logging.DEBUG, "logs")
+
         # random port
-
         socket = server.sockets.PySocket(port=0)
-        # random datebase path name without dashes
 
-        database_path = self.database_path
+        database_path = Path(__file__).parent / "test_databases" / "1000_outcome.db"
         self.s = server.AEPsychServer(socket=socket, database_path=database_path)
-        self.db_name = database_path.split("/")[1]
+        self.db_name = database_path.name
         self.db_path = database_path
 
         setup_message = {
