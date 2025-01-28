@@ -7,9 +7,7 @@
 
 import unittest
 
-from aepsych.acquisition.monotonic_rejection import MonotonicMCLSE
-from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
-from aepsych.models.gp_classification import GPClassificationModel
+from aepsych.generators import SobolGenerator
 from aepsych.strategy import Strategy
 
 
@@ -23,21 +21,6 @@ class TestStrategyGPU(unittest.TestCase):
                 outcome_types=["binary"],
                 min_asks=1,
                 generator=SobolGenerator(lb=[0], ub=[1]),
-                use_gpu_generating=True,
-            )
-
-    def test_no_gpu_acqf(self):
-        with self.assertWarns(UserWarning):
-            Strategy(
-                lb=[0.0],
-                ub=[1.0],
-                stimuli_per_trial=1,
-                outcome_types=["binary"],
-                min_asks=1,
-                model=GPClassificationModel(
-                    dim=1,
-                ),
-                generator=OptimizeAcqfGenerator(acqf=MonotonicMCLSE, lb=[0], ub=[1]),
                 use_gpu_generating=True,
             )
 

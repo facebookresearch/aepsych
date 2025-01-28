@@ -10,12 +10,8 @@ import sys
 from ..config import Config
 from .lookahead import ApproxGlobalSUR, EAVC, GlobalMI, GlobalSUR, LocalMI, LocalSUR
 from .lse import MCLevelSetEstimation
-from .mc_posterior_variance import MCPosteriorVariance, MonotonicMCPosteriorVariance
-from .monotonic_rejection import MonotonicMCLSE
-from .mutual_information import (
-    BernoulliMCMutualInformation,
-    MonotonicBernoulliMCMutualInformation,
-)
+from .mc_posterior_variance import MCPosteriorVariance
+from .mutual_information import BernoulliMCMutualInformation
 from .objective import (
     FloorGumbelObjective,
     FloorLogitObjective,
@@ -25,7 +21,6 @@ from .objective import (
 )
 
 lse_acqfs = [
-    MonotonicMCLSE,
     GlobalMI,
     GlobalSUR,
     ApproxGlobalSUR,
@@ -35,10 +30,7 @@ lse_acqfs = [
 ]
 __all__ = [
     "BernoulliMCMutualInformation",
-    "MonotonicBernoulliMCMutualInformation",
-    "MonotonicMCLSE",
     "MCPosteriorVariance",
-    "MonotonicMCPosteriorVariance",
     "MCPosteriorVariance",
     "MCLevelSetEstimation",
     "ProbitObjective",

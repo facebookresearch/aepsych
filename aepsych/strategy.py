@@ -13,12 +13,6 @@ from typing import Any, Callable, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from aepsych.acquisition import (
-    MonotonicBernoulliMCMutualInformation,
-    MonotonicMCLSE,
-    MonotonicMCPosteriorVariance,
-)
-from aepsych.acquisition.monotonic_rejection import MonotonicMCAcquisition
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
@@ -68,13 +62,6 @@ class Strategy(object):
     """Object that combines models and generators to generate points to sample."""
 
     _n_eval_points: int = 1000
-
-    no_gpu_acqfs = (
-        MonotonicMCAcquisition,
-        MonotonicBernoulliMCMutualInformation,
-        MonotonicMCPosteriorVariance,
-        MonotonicMCLSE,
-    )
 
     def __init__(
         self,
@@ -182,13 +169,7 @@ class Strategy(object):
                 )
                 self.generator_device = torch.device("cpu")
             else:
-                if hasattr(generator, "acqf") and generator.acqf in self.no_gpu_acqfs:
-                    warnings.warn(
-                        f"GPU requested for acquistion function {type(generator.acqf).__name__}, but this acquisiton function does not support GPU! Using CPU instead.",
-                        UserWarning,
-                    )
-                    self.generator_device = torch.device("cpu")
-                elif not torch.cuda.is_available():
+                if not torch.cuda.is_available():
                     warnings.warn(
                         f"GPU requested for generator {type(generator).__name__}, but no GPU found! Using CPU instead.",
                         UserWarning,
