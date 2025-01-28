@@ -6,6 +6,5 @@
 # LICENSE file in the root directory of this source tree.
 
 from .pairwisekernel import PairwiseKernel
-from .rbf_partial_grad import RBFKernelPartialObsGrad
 
-__all__ = ["PairwiseKernel", "RBFKernelPartialObsGrad"]
+__all__ = ["PairwiseKernel"]

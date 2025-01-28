@@ -16,9 +16,6 @@ from aepsych.factory import (
     song_mean_covar_factory,
 )
 from aepsych.kernels.pairwisekernel import PairwiseKernel
-from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
-from aepsych.means.constant_partial_grad import ConstantMeanPartialObsGrad
-from scipy.stats import norm
 
 
 class TestFactories(unittest.TestCase):
