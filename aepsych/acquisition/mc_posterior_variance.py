@@ -87,10 +87,6 @@ class MCPosteriorVariance(MCAcquisitionFunction):
         Returns:
             torch.Tensor: Acquisition function at the sampled values.
         """
-        # RejectionSampler drops the final dim so we reaugment it
-        # here for compatibility with non-Monotonic MCAcquisition
-        if len(obj_samples.shape) == 2:
-            obj_samples = obj_samples[..., None]
         return balv_acq(obj_samples)
 
 
