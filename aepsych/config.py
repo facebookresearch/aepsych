@@ -33,7 +33,12 @@ from aepsych.version import __version__
 _T = TypeVar("_T")
 _ET = TypeVar("_ET")
 
-DEPRECATED_OBJS = ["MonotonicRejectionGenerator"]
+DEPRECATED_OBJS = [
+    "MonotonicRejectionGenerator",
+    "MonotonicMCPosteriorVariance",
+    "MonotonicBernoulliMCMutualInformation",
+    "MonotonicMCLSE",
+]
 
 
 class Config(configparser.ConfigParser):
