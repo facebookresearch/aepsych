@@ -39,6 +39,7 @@ DEPRECATED_OBJS = [
     "MonotonicBernoulliMCMutualInformation",
     "MonotonicMCLSE",
     "MonotonicRejectionGP",
+    "monotonic_mean_covar_factory",
 ]
 
 
