@@ -38,6 +38,7 @@ DEPRECATED_OBJS = [
     "MonotonicMCPosteriorVariance",
     "MonotonicBernoulliMCMutualInformation",
     "MonotonicMCLSE",
+    "MonotonicRejectionGP",
 ]
 
 

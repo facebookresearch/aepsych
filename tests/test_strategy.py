@@ -13,7 +13,6 @@ import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.models.gp_classification import GPClassificationModel
-from aepsych.models.monotonic_rejection_gp import MonotonicRejectionGP
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import (
     ParameterTransformedGenerator,
@@ -39,11 +38,9 @@ class TestSequenceGenerators(unittest.TestCase):
 
         self.strat = Strategy(
             model=ParameterTransformedModel(
-                MonotonicRejectionGP,
-                lb=lb,
-                ub=ub,
+                GPClassificationModel,
+                dim=2,
                 transforms=transforms,
-                monotonic_idxs=[1],
             ),
             generator=ParameterTransformedGenerator(
                 OptimizeAcqfGenerator,
