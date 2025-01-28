@@ -1,5 +1,8 @@
 import logging
+import shutil
+import time
 import unittest
+import uuid
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -99,9 +102,14 @@ class DataFetcherTestCase(unittest.TestCase):
         socket = server.sockets.PySocket(port=0)
 
         database_path = Path(__file__).parent / "test_databases" / "1000_outcome.db"
-        self.s = server.AEPsychServer(socket=socket, database_path=database_path)
-        self.db_name = database_path.name
-        self.db_path = database_path
+
+        dst_db_path = Path("./{}.db".format(str(uuid.uuid4().hex)))
+        shutil.copy(database_path, dst_db_path)
+
+        time.sleep(0.1)
+        self.assertTrue(dst_db_path.is_file())
+
+        self.s = server.AEPsychServer(socket=socket, database_path=dst_db_path)
 
         setup_message = {
             "type": "setup",
@@ -116,7 +124,10 @@ class DataFetcherTestCase(unittest.TestCase):
         self.s.handle_request(setup_message)
 
     def tearDown(self):
+        time.sleep(0.1)
+
         self.s.cleanup()
+        self.s.db.delete_db()
 
     def test_create_from_config(self):
         test_names = ["my experiment", "my_exp"]
