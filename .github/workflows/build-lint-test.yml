@@ -20,15 +20,19 @@ jobs:
         run: |
           pip install ".[dev]"
       - name: Lint with flake8
+        id: flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Type check with mypy
+        id: mypy
+        if: always()
         run: |
           mypy --config-file mypy.ini
       - uses: omnilib/ufmt@action-v1
+        if: always()
         with:
           path: aepsych tests tests_gpu
           requirements: requirements-fmt.txt
