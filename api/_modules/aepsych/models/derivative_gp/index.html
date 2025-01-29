@@ -23,24 +23,24 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.kernels.rbf_partial_grad</span><span class="w"> </span><span class="kn">import</span> <span class="n">RBFKernelPartialObsGrad</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.means.constant_partial_grad</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConstantMeanPartialObsGrad</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.models.gpytorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">GPyTorchModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultivariateNormal</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">Kernel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.kernels.scale_kernel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScaleKernel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.means</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mean</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.priors.torch_priors</span><span class="w"> </span><span class="kn">import</span> <span class="n">GammaPrior</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.variational</span><span class="w"> </span><span class="kn">import</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">,</span> <span class="n">VariationalStrategy</span>
+<span class="kn">import</span> <span class="nn">gpytorch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">aepsych.kernels.rbf_partial_grad</span> <span class="kn">import</span> <span class="n">RBFKernelPartialObsGrad</span>
+<span class="kn">from</span> <span class="nn">aepsych.means.constant_partial_grad</span> <span class="kn">import</span> <span class="n">ConstantMeanPartialObsGrad</span>
+<span class="kn">from</span> <span class="nn">botorch.models.gpytorch</span> <span class="kn">import</span> <span class="n">GPyTorchModel</span>
+<span class="kn">from</span> <span class="nn">gpytorch.distributions</span> <span class="kn">import</span> <span class="n">MultivariateNormal</span>
+<span class="kn">from</span> <span class="nn">gpytorch.kernels</span> <span class="kn">import</span> <span class="n">Kernel</span>
+<span class="kn">from</span> <span class="nn">gpytorch.kernels.scale_kernel</span> <span class="kn">import</span> <span class="n">ScaleKernel</span>
+<span class="kn">from</span> <span class="nn">gpytorch.means</span> <span class="kn">import</span> <span class="n">Mean</span>
+<span class="kn">from</span> <span class="nn">gpytorch.priors.torch_priors</span> <span class="kn">import</span> <span class="n">GammaPrior</span>
+<span class="kn">from</span> <span class="nn">gpytorch.variational</span> <span class="kn">import</span> <span class="n">CholeskyVariationalDistribution</span><span class="p">,</span> <span class="n">VariationalStrategy</span>
 
 
-<div class="viewcode-block" id="MixedDerivativeVariationalGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">MixedDerivativeVariationalGP</span><span class="p">(</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ApproximateGP</span><span class="p">,</span> <span class="n">GPyTorchModel</span><span class="p">):</span>
+<div class="viewcode-block" id="MixedDerivativeVariationalGP"><a class="viewcode-back" href="../../../models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP">[docs]</a><span class="k">class</span> <span class="nc">MixedDerivativeVariationalGP</span><span class="p">(</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ApproximateGP</span><span class="p">,</span> <span class="n">GPyTorchModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A variational GP with mixed derivative observations.</span>
 
 <span class="sd">    For more on GPs with derivative observations, see e.g. Riihimaki &amp; Vehtari 2010.</span>
@@ -50,7 +50,7 @@
 <span class="sd">            monotonicity information. Journal of Machine Learning Research, 9, 645–652.</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">train_x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">train_y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -68,7 +68,7 @@
 <span class="sd">                is an observation of df/dx_i.</span>
 <span class="sd">            train_y (torch.Tensor): Training y points</span>
 <span class="sd">            inducing_points (torch.Tensor): Inducing points to use</span>
-<span class="sd">            scales (Union[torch.Tensor, float]): Typical scale of each dimension</span>
+<span class="sd">            scales (Union[torch.Tensor, float], optional): Typical scale of each dimension</span>
 <span class="sd">                of input space (this is used to set the lengthscale prior).</span>
 <span class="sd">                Defaults to 1.0.</span>
 <span class="sd">            mean_module (Mean, optional): A mean class that supports derivative</span>
@@ -119,7 +119,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">train_targets</span> <span class="o">=</span> <span class="n">train_y</span>
         <span class="bp">self</span><span class="p">(</span><span class="n">train_x</span><span class="p">)</span>  <span class="c1"># Necessary for CholeskyVariationalDistribution</span>
 
-<div class="viewcode-block" id="MixedDerivativeVariationalGP.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultivariateNormal</span><span class="p">:</span>
+<div class="viewcode-block" id="MixedDerivativeVariationalGP.forward"><a class="viewcode-back" href="../../../models.html#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultivariateNormal</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluate the model</span>
 
 <span class="sd">        Args:</span>
@@ -155,7 +155,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../likelihoods.html">aepsych.likelihoods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plotting.html">aepsych.plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">aepsych.transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils_logging.html">aepsych.utils_logging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils.html">aepsych.utils</a></li>
 </ul>

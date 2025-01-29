@@ -340,62 +340,8 @@ to not require it.</p>
 </dd></dl>
 </dd></dl>
 </section>
-<section id="module-aepsych.models.derivative_gp">
-<span id="aepsych-models-derivative-gp-module"></span><h2>aepsych.models.derivative_gp module<a class="headerlink" href="#module-aepsych.models.derivative_gp" title="Permalink to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.models.derivative_gp.MixedDerivativeVariationalGP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.derivative_gp.</span></span><span class="sig-name descname"><span class="pre">MixedDerivativeVariationalGP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inducing_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covar_module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_prior_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/derivative_gp.html#MixedDerivativeVariationalGP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.derivative_gp.MixedDerivativeVariationalGP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ApproximateGP</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GPyTorchModel</span></code></p>
-<p>A variational GP with mixed derivative observations.</p>
-<p>For more on GPs with derivative observations, see e.g. Riihimaki &amp; Vehtari 2010.</p>
-<p class="rubric">References</p>
-<dl class="simple">
-<dt>Riihimäki, J., &amp; Vehtari, A. (2010). Gaussian processes with</dt><dd><p>monotonicity information. Journal of Machine Learning Research, 9, 645–652.</p>
-</dd>
-</dl>
-<p>Initialize MixedDerivativeVariationalGP</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>train_x</strong> (<em>torch.Tensor</em>) – Training x points. The last column of x is the derivative
-indiciator: 0 if it is an observation of f(x), and i if it
-is an observation of df/dx_i.</p></li>
-<li><p><strong>train_y</strong> (<em>torch.Tensor</em>) – Training y points</p></li>
-<li><p><strong>inducing_points</strong> (<em>torch.Tensor</em>) – Inducing points to use</p></li>
-<li><p><strong>scales</strong> (<em>Union</em><em>[</em><em>torch.Tensor</em><em>, </em><em>float</em><em>]</em>) – Typical scale of each dimension
-of input space (this is used to set the lengthscale prior).
-Defaults to 1.0.</p></li>
-<li><p><strong>mean_module</strong> (<em>Mean</em><em>, </em><em>optional</em>) – A mean class that supports derivative
-indexes as the final dim. Defaults to a constant mean.</p></li>
-<li><p><strong>covar_module</strong> (<em>Kernel</em><em>, </em><em>optional</em>) – A covariance kernel class that
-supports derivative indexes as the final dim. Defaults to RBF kernel.</p></li>
-<li><p><strong>fixed_prior_mean</strong> (<em>float</em><em>, </em><em>optional</em>) – A prior mean value to use with the
-constant mean. Often setting this to the target threshold speeds
-up experiments. Defaults to None, in which case the mean will be inferred.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/derivative_gp.html#MixedDerivativeVariationalGP.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.derivative_gp.MixedDerivativeVariationalGP.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Points at which to evaluate.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Object containig mean and covariance</dt><dd><p>of GP at these points.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>MultivariateNormal</p>
-</dd>
-</dl>
-</dd></dl>
-</dd></dl>
+<section id="aepsych-models-derivative-gp-module">
+<h2>aepsych.models.derivative_gp module<a class="headerlink" href="#aepsych-models-derivative-gp-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-aepsych.models.gp_classification">
 <span id="aepsych-models-gp-classification-module"></span><h2>aepsych.models.gp_classification module<a class="headerlink" href="#module-aepsych.models.gp_classification" title="Permalink to this heading">¶</a></h2>

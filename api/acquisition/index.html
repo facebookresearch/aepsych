@@ -1306,47 +1306,8 @@ that gives the threshold distribution.</p>
 </dd></dl>
 </dd></dl>
 </section>
-<section id="module-aepsych.acquisition.rejection_sampler">
-<span id="aepsych-acquisition-rejection-sampler-module"></span><h2>aepsych.acquisition.rejection_sampler module<a class="headerlink" href="#module-aepsych.acquisition.rejection_sampler" title="Permalink to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="aepsych.acquisition.rejection_sampler.RejectionSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.acquisition.rejection_sampler.</span></span><span class="sig-name descname"><span class="pre">RejectionSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rejection_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constrained_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/rejection_sampler.html#RejectionSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.rejection_sampler.RejectionSampler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MCSampler</span></code></p>
-<p>Samples from a posterior subject to the constraint that samples in constrained_idx
-should be &gt;= 0.</p>
-<p>If not enough feasible samples are generated, will return the least violating
-samples.</p>
-<p>Initialize RejectionSampler</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_samples</strong> (<em>int</em>) – Number of samples to return. Note that if fewer samples
-than this number are positive in the required dimension, the remaining
-samples returned will be the “least violating”, i.e. closest to 0.</p></li>
-<li><p><strong>num_rejection_samples</strong> (<em>int</em>) – Number of samples to draw before rejecting.</p></li>
-<li><p><strong>constrained_idx</strong> (<em>torch.Tensor</em>) – Indices of input dimensions that should be
-constrained positive.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.acquisition.rejection_sampler.RejectionSampler.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/acquisition/rejection_sampler.html#RejectionSampler.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.acquisition.rejection_sampler.RejectionSampler.forward" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run the rejection sampler.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>posterior</strong> (<em>Posterior</em>) – The unconstrained GP posterior object
-to perform rejection samples on.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Kept samples.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-</dd></dl>
+<section id="aepsych-acquisition-rejection-sampler-module">
+<h2>aepsych.acquisition.rejection_sampler module<a class="headerlink" href="#aepsych-acquisition-rejection-sampler-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-aepsych.acquisition">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aepsych.acquisition" title="Permalink to this heading">¶</a></h2>

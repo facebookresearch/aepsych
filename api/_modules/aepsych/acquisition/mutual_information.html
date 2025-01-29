@@ -124,10 +124,6 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            torch.Tensor: value of the acquisition function (BALD) at the input samples.</span>
 <span class="sd">        """</span>
-        <span class="c1"># RejectionSampler drops the final dim so we reaugment it</span>
-        <span class="c1"># here for compatibility with non-Monotonic MCAcquisition</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_samples</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">obj_samples</span> <span class="o">=</span> <span class="n">obj_samples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">bald_acq</span><span class="p">(</span><span class="n">obj_samples</span><span class="p">)</span></div></div>
 
 
