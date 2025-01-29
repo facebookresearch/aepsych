@@ -106,10 +106,6 @@ class BernoulliMCMutualInformation(MCAcquisitionFunction):
         Returns:
             torch.Tensor: value of the acquisition function (BALD) at the input samples.
         """
-        # RejectionSampler drops the final dim so we reaugment it
-        # here for compatibility with non-Monotonic MCAcquisition
-        if len(obj_samples.shape) == 2:
-            obj_samples = obj_samples[..., None]
         return bald_acq(obj_samples)
 
 
