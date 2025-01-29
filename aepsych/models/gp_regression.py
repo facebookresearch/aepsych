@@ -79,69 +79,6 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         self._fresh_state_dict = deepcopy(self.state_dict())
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
 
-    @classmethod
-    def construct_inputs(cls, config: Config) -> Dict:
-        """Construct inputs for the GP regression model from configuration.
-
-        Args:
-            config (Config): A configuration containing keys/values matching this class.
-
-        Returns:
-            Dict: Dictionary of inputs for the GP regression model.
-        """
-        classname = cls.__name__
-
-        dim = config.getint(classname, "dim", fallback=None)
-        if dim is None:
-            dim = get_dims(config)
-
-        mean_covar_factory = config.getobj(
-            classname, "mean_covar_factory", fallback=default_mean_covar_factory
-        )
-
-        mean, covar = mean_covar_factory(config)
-
-        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
-
-        if likelihood_cls is not None:
-            if hasattr(likelihood_cls, "from_config"):
-                likelihood = likelihood_cls.from_config(config)
-            else:
-                likelihood = likelihood_cls()
-        else:
-            likelihood = None  # fall back to __init__ default
-
-        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
-
-        optimizer_options = get_optimizer_options(config, classname)
-
-        return {
-            "dim": dim,
-            "mean_module": mean,
-            "covar_module": covar,
-            "likelihood": likelihood,
-            "max_fit_time": max_fit_time,
-            "optimizer_options": optimizer_options,
-        }
-
-    @classmethod
-    def from_config(cls, config: Config) -> GPRegressionModel:
-        """Alternate constructor for GP regression model.
-
-        This is used when we recursively build a full sampling strategy
-        from a configuration. TODO: document how this works in some tutorial.
-
-        Args:
-            config (Config): A configuration containing keys/values matching this class.
-
-        Returns:
-            GPRegressionModel: Configured class instance.
-        """
-
-        args = cls.construct_inputs(config)
-
-        return cls(**args)
-
     def fit(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs) -> None:
         """Fit underlying model.
 

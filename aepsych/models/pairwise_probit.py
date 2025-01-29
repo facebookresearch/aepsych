@@ -270,39 +270,43 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             return -samps + samps_ref
 
     @classmethod
-    def from_config(cls, config: Config) -> "PairwiseProbitModel":
-        """Initialize the model from a config object.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Alternate constructor for GPClassification model from a configuration.
+
+        This is used when we recursively build a full sampling strategy
+        from a configuration. TODO: document how this works in some tutorial.
 
         Args:
-            config (Config): a configuration containing keys/values matching this class
+            config (Config): A configuration containing keys/values matching this class
 
         Returns:
-            PairwiseProbitModel: Configured class instance.
+            GPClassificationModel: Configured class instance.
         """
-        classname = cls.__name__
-
-        mean_covar_factory = config.getobj(
-            "PairwiseProbitModel",
-            "mean_covar_factory",
-            fallback=default_mean_covar_factory,
-        )
+        options = options or {}
+        options.update(super().get_config_options(config, name, options))
+        name = name or cls.__name__
 
         # no way of passing mean into PairwiseGP right now
-        _, covar = mean_covar_factory(config, stimuli_per_trial=cls.stimuli_per_trial)
+        if "mean_module" in options:
+            del options["mean_module"]
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
-        dim = get_dims(config)
+        # This model doesn't take flexible likelihoods
+        if "likelihood" in options:
+            del options["likelihood"]
 
-        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
+        lb = config.gettensor(name, "lb")
+        ub = config.gettensor(name, "ub")
 
-        optimizer_options = get_optimizer_options(config, classname)
-
-        return cls(
-            lb=lb,
-            ub=ub,
-            dim=dim,
-            covar_module=covar,
-            max_fit_time=max_fit_time,
-            optimizer_options=optimizer_options,
+        options.update(
+            {
+                "lb": lb,
+                "ub": ub,
+            }
         )
+
+        return options

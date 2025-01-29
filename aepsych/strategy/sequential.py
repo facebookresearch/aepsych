@@ -13,8 +13,9 @@ from typing import Any, List, Optional, Union
 import numpy as np
 import torch
 from aepsych.config import Config
-from aepsych.strategy import Strategy
 from aepsych.utils_logging import getLogger
+
+from .strategy import Strategy
 
 logger = getLogger()
 

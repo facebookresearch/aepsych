@@ -321,62 +321,39 @@ class SemiParametricGPModel(GPClassificationModel):
         )
 
     @classmethod
-    def from_config(cls, config: Config) -> SemiParametricGPModel:
-        """Alternate constructor for SemiParametricGPModel model.
-
-        This is used when we recursively build a full sampling strategy
-        from a configuration.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Get configuration options for the model.
 
         Args:
-            config (Config): A configuration containing keys/values matching this class
+            config (Config): Configuration object.
+            name (str, optional): Name of the model, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            SemiParametricGPModel: Configured class instance.
+            Dict[str, Any]: Configuration options for the model.
         """
 
-        classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=100)
+        options = options or {}
+        options.update(super().get_config_options(config, name, options))
 
-        dim = config.getint(classname, "dim", fallback=None)
+        name = name or cls.__name__
 
-        if dim is None:
-            dim = get_dims(config)
+        stim_dim = config.getint(name, "stim_dim", fallback=0)
+        slope_mean = config.getfloat(name, "slope_mean", fallback=2)
 
-        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
-
-        inducing_point_method_class = config.getobj(
-            classname, "inducing_point_method", fallback=GreedyVarianceReduction
+        options.update(
+            {
+                "stim_dim": stim_dim,
+                "slope_mean": slope_mean,
+            }
         )
-        # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, "from_config"):
-            inducing_point_method = inducing_point_method_class.from_config(config)
-        else:
-            inducing_point_method = inducing_point_method_class()
-        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
 
-        if hasattr(likelihood_cls, "from_config"):
-            likelihood = likelihood_cls.from_config(config)
-        elif likelihood_cls is not None:
-            likelihood = likelihood_cls()
-        else:
-            likelihood = None
-
-        stim_dim = config.getint(classname, "stim_dim", fallback=0)
-
-        slope_mean = config.getfloat(classname, "slope_mean", fallback=2)
-
-        optimizer_options = get_optimizer_options(config, classname)
-
-        return cls(
-            stim_dim=stim_dim,
-            dim=dim,
-            likelihood=likelihood,
-            slope_mean=slope_mean,
-            inducing_size=inducing_size,
-            max_fit_time=max_fit_time,
-            inducing_point_method=inducing_point_method,
-            optimizer_options=optimizer_options,
-        )
+        return options
 
     def fit(
         self,
@@ -626,73 +603,54 @@ class HadamardSemiPModel(GPClassificationModel):
         return MultivariateNormal(mean_x, cov_x)
 
     @classmethod
-    def from_config(cls, config: Config) -> HadamardSemiPModel:
-        """Alternate constructor for HadamardSemiPModel model.
-
-        This is used when we recursively build a full sampling strategy
-        from a configuration.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Get configuration options for the model.
 
         Args:
-            config (Config): A configuration containing keys/values matching this class
+            config (Config): Configuration object.
+            name (str, optional): Name of the model, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            HadamardSemiPModel: Configured class instance.
+            Dict[str, Any]: Configuration options for the model.
         """
 
-        classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=100)
+        options = options or {}
+        options.update(super().get_config_options(config, name, options))
 
-        dim = config.getint(classname, "dim", fallback=None)
-        if dim is None:
-            dim = get_dims(config)
+        # This model has special modules
+        if "mean_module" in options:
+            del options["mean_module"]
 
-        slope_mean_module = config.getobj(classname, "slope_mean_module", fallback=None)
-        slope_covar_module = config.getobj(
-            classname, "slope_covar_module", fallback=None
+        if "covar_module" in options:
+            del options["covar_module"]
+
+        name = name or cls.__name__
+
+        slope_mean_module = config.getobj(name, "slope_mean_module", fallback=None)
+        slope_covar_module = config.getobj(name, "slope_covar_module", fallback=None)
+        offset_mean_module = config.getobj(name, "offset_mean_module", fallback=None)
+        offset_covar_module = config.getobj(name, "offset_covar_module", fallback=None)
+        stim_dim = config.getint(name, "stim_dim", fallback=0)
+        slope_mean = config.getfloat(name, "slope_mean", fallback=2)
+
+        options.update(
+            {
+                "stim_dim": stim_dim,
+                "slope_mean_module": slope_mean_module,
+                "slope_covar_module": slope_covar_module,
+                "offset_mean_module": offset_mean_module,
+                "offset_covar_module": offset_covar_module,
+                "slope_mean": slope_mean,
+            }
         )
-        offset_mean_module = config.getobj(
-            classname, "offset_mean_module", fallback=None
-        )
-        offset_covar_module = config.getobj(
-            classname, "offset_covar_module", fallback=None
-        )
 
-        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
-
-        inducing_point_method_class = config.getobj(
-            classname, "inducing_point_method", fallback=GreedyVarianceReduction
-        )
-        # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, "from_config"):
-            inducing_point_method = inducing_point_method_class.from_config(config)
-        else:
-            inducing_point_method = inducing_point_method_class()
-        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
-        if hasattr(likelihood_cls, "from_config"):
-            likelihood = likelihood_cls.from_config(config)
-        else:
-            likelihood = likelihood_cls()
-
-        slope_mean = config.getfloat(classname, "slope_mean", fallback=2)
-
-        stim_dim = config.getint(classname, "stim_dim", fallback=0)
-
-        optimizer_options = get_optimizer_options(config, classname)
-
-        return cls(
-            stim_dim=stim_dim,
-            dim=dim,
-            slope_mean_module=slope_mean_module,
-            slope_covar_module=slope_covar_module,
-            offset_mean_module=offset_mean_module,
-            offset_covar_module=offset_covar_module,
-            likelihood=likelihood,
-            slope_mean=slope_mean,
-            inducing_size=inducing_size,
-            max_fit_time=max_fit_time,
-            inducing_point_method=inducing_point_method,
-            optimizer_options=optimizer_options,
-        )
+        return options
 
     def predict(
         self, x: torch.Tensor, probability_space: bool = False

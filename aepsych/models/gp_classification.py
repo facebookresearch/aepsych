@@ -17,7 +17,7 @@ from aepsych.factory.default import default_mean_covar_factory
 from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
-from aepsych.utils import get_dims, get_optimizer_options, promote_0d
+from aepsych.utils import promote_0d
 from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
@@ -118,35 +118,29 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
 
     @classmethod
-    def from_config(cls, config: Config) -> GPClassificationModel:
-        """Alternate constructor for GPClassification model from a configuration.
-
-        This is used when we recursively build a full sampling strategy
-        from a configuration. TODO: document how this works in some tutorial.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Get configuration options for the model.
 
         Args:
-            config (Config): A configuration containing keys/values matching this class
+            config (Config): Configuration object.
+            name (str, optional): Name of the model, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            GPClassificationModel: Configured class instance.
+            Dict[str, Any]: Configuration options for the model.
         """
+        options = options or {}
+        options.update(super().get_config_options(config, name, options))
 
-        classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=100)
-
-        dim = config.getint(classname, "dim", fallback=None)
-        if dim is None:
-            dim = get_dims(config)
-
-        mean_covar_factory = config.getobj(
-            classname, "mean_covar_factory", fallback=default_mean_covar_factory
-        )
-
-        mean, covar = mean_covar_factory(config)
-        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
-
+        name = name or cls.__name__
+        inducing_size = config.getint(name, "inducing_size", fallback=100)
         inducing_point_method_class = config.getobj(
-            classname, "inducing_point_method", fallback=GreedyVarianceReduction
+            name, "inducing_point_method", fallback=GreedyVarianceReduction
         )
         # Check if allocator class has a `from_config` method
         if hasattr(inducing_point_method_class, "from_config"):
@@ -154,28 +148,14 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         else:
             inducing_point_method = inducing_point_method_class()
 
-        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
-
-        if likelihood_cls is not None:
-            if hasattr(likelihood_cls, "from_config"):
-                likelihood = likelihood_cls.from_config(config)
-            else:
-                likelihood = likelihood_cls()
-        else:
-            likelihood = None  # fall back to __init__ default
-
-        optimizer_options = get_optimizer_options(config, classname)
-
-        return cls(
-            dim=dim,
-            inducing_size=inducing_size,
-            mean_module=mean,
-            covar_module=covar,
-            max_fit_time=max_fit_time,
-            inducing_point_method=inducing_point_method,
-            likelihood=likelihood,
-            optimizer_options=optimizer_options,
+        options.update(
+            {
+                "inducing_size": inducing_size,
+                "inducing_point_method": inducing_point_method,
+            }
         )
+
+        return options
 
     def _reset_hyperparameters(self) -> None:
         """Reset hyperparameters to their initial values."""
