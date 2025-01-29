@@ -4,18 +4,21 @@
             {"zIndex":100}
           )
         });
-        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/demos/" target="_self">Demos</a></li><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div>
-<script type="text/javascript" id="documentation_options" data-url_root="./" src="/js/documentation_options.js"></script>
+        </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/static-logo.png" alt="AEPsych"/><h2 class="headerTitleWithLogo">AEPsych</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/demos/" target="_self">Demos</a></li><li class=""><a href="/docs/introduction" target="_self">Docs</a></li><li class=""><a href="/tutorials/" target="_self">Tutorials</a></li><li class=""><a href="/api/" target="_self">API Reference</a></li><li class=""><a href="https://github.com/facebookresearch/aepsych" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div><script type="text/javascript" id="documentation_options" data-url_root="./"
+    src="/js/documentation_options.js"></script>
 <script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/js/underscore.js"></script>
 <script type="text/javascript" src="/js/doctools.js"></script>
 <script type="text/javascript" src="/js/language_data.js"></script>
 <script type="text/javascript" src="/js/searchtools.js"></script>
-<div class="sphinx"><div class="document">
-<div class="documentwrapper">
-<div class="bodywrapper">
-<div class="body" role="main">
-<h1>Source code for aepsych.strategy</h1><div class="highlight"><pre>
+<div class="sphinx">
+    <div class="document">
+        <div class="documentwrapper">
+            <div class="bodywrapper">
+                <div class="body" role="main">
+                    <h1>Source code for aepsych.strategy</h1>
+                    <div class="highlight">
+                        <pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># Copyright (c) Facebook, Inc. and its affiliates.</span>
 <span class="c1"># All rights reserved.</span>
@@ -23,42 +26,41 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychGenerator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_jnd</span><span class="p">,</span> <span class="n">get_max</span><span class="p">,</span> <span class="n">get_min</span><span class="p">,</span> <span class="n">inv_query</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ParameterTransformedGenerator</span><span class="p">,</span>
-    <span class="n">ParameterTransformedModel</span><span class="p">,</span>
-    <span class="n">ParameterTransforms</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">aepsych.config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
+<span class="kn">from</span> <span class="nn">aepsych.generators.base</span> <span class="kn">import</span> <span class="n">AEPsychGenerationStep</span><span class="p">,</span> <span class="n">AEPsychGenerator</span>
+<span class="kn">from</span> <span class="nn">aepsych.generators.sobol_generator</span> <span class="kn">import</span> <span class="n">AxSobolGenerator</span><span class="p">,</span> <span class="n">SobolGenerator</span>
+<span class="kn">from</span> <span class="nn">aepsych.models.base</span> <span class="kn">import</span> <span class="n">ModelProtocol</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_process_bounds</span><span class="p">,</span>
+    <span class="n">get_objectives</span><span class="p">,</span>
+    <span class="n">get_parameters</span><span class="p">,</span>
+    <span class="n">make_scaled_sobol</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_process_bounds</span><span class="p">,</span> <span class="n">make_scaled_sobol</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">getLogger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.exceptions.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFittingError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">botorch.models.transforms.input</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainedInputTransform</span>
+<span class="kn">from</span> <span class="nn">aepsych.utils_logging</span> <span class="kn">import</span> <span class="n">getLogger</span>
+<span class="kn">from</span> <span class="nn">ax.core.base_trial</span> <span class="kn">import</span> <span class="n">TrialStatus</span>
+<span class="kn">from</span> <span class="nn">ax.modelbridge.generation_strategy</span> <span class="kn">import</span> <span class="n">GenerationStrategy</span>
+<span class="kn">from</span> <span class="nn">ax.plot.contour</span> <span class="kn">import</span> <span class="n">interact_contour</span>
+<span class="kn">from</span> <span class="nn">ax.plot.slice</span> <span class="kn">import</span> <span class="n">plot_slice</span>
+<span class="kn">from</span> <span class="nn">ax.service.ax_client</span> <span class="kn">import</span> <span class="n">AxClient</span>
+<span class="kn">from</span> <span class="nn">ax.utils.notebook.plotting</span> <span class="kn">import</span> <span class="n">render</span>
+<span class="kn">from</span> <span class="nn">botorch.exceptions.errors</span> <span class="kn">import</span> <span class="n">ModelFittingError</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="ensure_model_is_fresh"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.ensure_model_is_fresh">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">ensure_model_is_fresh</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Decorator to ensure that the model is up-to-date before running a method.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        f (Callable): The function to wrap.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Callable: The wrapped function.</span>
-<span class="sd">    """</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="ensure_model_is_fresh"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.ensure_model_is_fresh">[docs]</a><span class="k">def</span> <span class="nf">ensure_model_is_fresh</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_fit</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_is_fresh</span><span class="p">:</span>
             <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">refit_every</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">refit_every</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -76,24 +78,22 @@
     <span class="k">return</span> <span class="n">wrapper</span></div>
 
 
-<div class="viewcode-block" id="Strategy"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Strategy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Strategy"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy">[docs]</a><span class="k">class</span> <span class="nc">Strategy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Object that combines models and generators to generate points to sample."""</span>
 
     <span class="n">_n_eval_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">generator</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AEPsychGenerator</span><span class="p">,</span> <span class="n">ParameterTransformedGenerator</span><span class="p">],</span>
+        <span class="n">generator</span><span class="p">:</span> <span class="n">AEPsychGenerator</span><span class="p">,</span>
         <span class="n">lb</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
         <span class="n">ub</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
         <span class="n">stimuli_per_trial</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">outcome_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">outcome_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
         <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_total_tells</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">min_asks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AEPsychMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">use_gpu_modeling</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">use_gpu_generating</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelProtocol</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">refit_every</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">min_total_outcome_occurrences</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">max_asks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -101,23 +101,18 @@
         <span class="n">min_post_range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
         <span class="n">run_indefinitely</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">transforms</span><span class="p">:</span> <span class="n">ChainedInputTransform</span> <span class="o">=</span> <span class="n">ChainedInputTransform</span><span class="p">(</span><span class="o">**</span><span class="p">{}),</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Initialize the strategy object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            generator (AEPsychGenerator): The generator object that determines how points are sampled.</span>
-<span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
-<span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
-<span class="sd">            stimuli_per_trial (int): The number of stimuli per trial.</span>
-<span class="sd">            outcome_types (Sequence[Type[str]]): The types of outcomes that the strategy will generate.</span>
+<span class="sd">            lb (Union[numpy.ndarray, torch.Tensor]): Lower bounds of the parameters.</span>
+<span class="sd">            ub (Union[numpy.ndarray, torch.Tensor]): Upper bounds of the parameters.</span>
 <span class="sd">            dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size</span>
 <span class="sd">                of lb and ub.</span>
 <span class="sd">            min_total_tells (int): The minimum number of total observations needed to complete this strategy.</span>
 <span class="sd">            min_asks (int): The minimum number of points that should be generated from this strategy.</span>
 <span class="sd">            model (ModelProtocol, optional): The AEPsych model of the data.</span>
-<span class="sd">            use_gpu_modeling (bool): Whether to move the model to GPU fitting/predictions, defaults to False.</span>
-<span class="sd">            use_gpu_generating (bool): Whether to use the GPU for generating points, defaults to False.</span>
 <span class="sd">            refit_every (int): How often to refit the model from scratch.</span>
 <span class="sd">            min_total_outcome_occurrences (int): The minimum number of total observations needed for each outcome before the strategy will finish.</span>
 <span class="sd">                Defaults to 1 (i.e., for binary outcomes, there must be at least one "yes" trial and one "no" trial).</span>
@@ -131,11 +126,6 @@
 <span class="sd">            name (str): The name of the strategy. Defaults to the empty string.</span>
 <span class="sd">            run_indefinitely (bool): If true, the strategy will run indefinitely until finish() is explicitly called. Other stopping criteria will</span>
 <span class="sd">                be ignored. Defaults to False.</span>
-<span class="sd">            transforms (ReversibleInputTransform, optional): Transforms</span>
-<span class="sd">                to apply parameters. This is immediately applied to lb/ub, thus lb/ub</span>
-<span class="sd">                should be defined in raw parameter space for initialization. However,</span>
-<span class="sd">                if the lb/ub attribute are access from an initialized Strategy object,</span>
-<span class="sd">                it will be returned in transformed space.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -162,55 +152,15 @@
                     <span class="nb">len</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">outcome_types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span>
                 <span class="p">),</span> <span class="sa">f</span><span class="s2">"Strategy outcome types is </span><span class="si">{</span><span class="n">outcome_types</span><span class="si">}</span><span class="s2"> but model outcome type is </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">!"</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="p">(</span>
-                    <span class="nb">set</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">outcome_types</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span>
                 <span class="p">),</span> <span class="sa">f</span><span class="s2">"Strategy outcome types is </span><span class="si">{</span><span class="n">outcome_types</span><span class="si">}</span><span class="s2"> but model outcome type is </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">outcome_type</span><span class="si">}</span><span class="s2">!"</span>
-
-            <span class="k">if</span> <span class="n">use_gpu_modeling</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"GPU requested for model </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but no GPU found! Using CPU instead."</span><span class="p">,</span>
-                        <span class="ne">UserWarning</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using GPU for modeling with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">use_gpu_generating</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"GPU requested for generator </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> but this generator has no model to move to GPU. Using CPU instead."</span><span class="p">,</span>
-                    <span class="ne">UserWarning</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"GPU requested for generator </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, but no GPU found! Using CPU instead."</span><span class="p">,</span>
-                        <span class="ne">UserWarning</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"Using GPU for generating with </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">generator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
-                    <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run_indefinitely</span> <span class="o">=</span> <span class="n">run_indefinitely</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">_process_bounds</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_total_outcome_occurrences</span> <span class="o">=</span> <span class="n">min_total_outcome_occurrences</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="o">=</span> <span class="n">max_asks</span> <span class="ow">or</span> <span class="n">generator</span><span class="o">.</span><span class="n">max_asks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="o">=</span> <span class="n">max_asks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="o">=</span> <span class="n">keep_most_recent</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="o">=</span> <span class="n">transforms</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">min_post_range</span> <span class="o">=</span> <span class="n">min_post_range</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_post_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -219,15 +169,9 @@
                 <span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_eval_points</span>
             <span class="p">)</span>
 
-            <span class="c1"># this grid needs to be in untransformed space because it goes through a</span>
-            <span class="c1"># transform wrapped model</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">untransform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">)</span>
-
-        <span class="c1"># similar to ub/lb/grid, x is in raw parameter space</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_asks</span> <span class="o">=</span> <span class="n">min_asks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_total_tells</span> <span class="o">=</span> <span class="n">min_total_tells</span>
@@ -237,7 +181,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
@@ -255,232 +199,95 @@
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">])</span>
 
-<div class="viewcode-block" id="Strategy.normalize_inputs"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.normalize_inputs">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">normalize_inputs</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<div class="viewcode-block" id="Strategy.normalize_inputs"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.normalize_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""converts inputs into normalized format for this strategy</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            x (torch.Tensor): training inputs</span>
-<span class="sd">            y (torch.Tensor): training outputs</span>
+<span class="sd">            x (np.ndarray): training inputs</span>
+<span class="sd">            y (np.ndarray): training outputs</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            x (torch.Tensor): training inputs, normalized</span>
-<span class="sd">            y (torch.Tensor): training outputs, normalized</span>
+<span class="sd">            x (np.ndarray): training inputs, normalized</span>
+<span class="sd">            y (np.ndarray): training outputs, normalized</span>
 <span class="sd">            n (int): number of observations</span>
 <span class="sd">        """</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">"x shape should be </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2"> or batch x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="si">}</span><span class="s2">, instead got </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
 
-        <span class="c1"># Handle scalar y values</span>
-        <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_shape</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
 
-        <span class="c1"># Ensure the correct dtype</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n</span></div>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">n</span></div>
 
+    <span class="c1"># TODO: allow user to pass in generator options</span>
 <div class="viewcode-block" id="Strategy.gen"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.gen">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Query next point(s) to run by optimizing the acquisition function.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            num_points (int): Number of points to query. Defaults to 1.</span>
+<span class="sd">            num_points (int, optional): Number of points to query. Defaults to 1.</span>
 <span class="sd">            Other arguments are forwared to underlying model.</span>
-<span class="sd">            **kwargs: Kwargs to send to pass to the underlying generator.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: Next set of point(s) to evaluate, [num_points x dim].</span>
+<span class="sd">            np.ndarray: Next set of point(s) to evaluate, [num_points x dim].</span>
 <span class="sd">        """</span>
-        <span class="n">original_device</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">"cuda"</span><span class="p">:</span>
-            <span class="n">original_device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">device</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator_device</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">+</span> <span class="n">num_points</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">original_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">original_device</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-
-        <span class="k">return</span> <span class="n">points</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.get_max"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_max">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_max</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return the maximum of the modeled function, subject to constraints</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            constraints (Mapping[int, float], optional): Which parameters to fix at specfic points. Defaults to None.</span>
-<span class="sd">            probability_space (bool): Whether to return the max in probability space. Defaults to False.</span>
-<span class="sd">            max_time (float, optional): Maximum time to run the optimization. Defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Tuple[float, torch.Tensor]: Tuple containing the max and its location (argmax).</span>
-<span class="sd">        """</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="s2">"model is None! Cannot get the max without a model!"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>
-
-        <span class="n">val</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">get_max</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
-            <span class="n">locked_dims</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>
-            <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">,</span>
-            <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">val</span><span class="p">,</span> <span class="n">arg</span></div>
+    <span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_max</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.get_min"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_min">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_min</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Return the minimum of the modeled function, subject to constraints</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            constraints (Mapping[int, float], optional): Which parameters to fix at specific points. Defaults to None.</span>
-<span class="sd">            probability_space (bool): Whether to return the min in probability space. Defaults to False.</span>
-<span class="sd">            max_time (float, optional): Maximum time to run the optimization. Defaults to None.</span>
-<span class="sd">        """</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="s2">"model is None! Cannot get the min without a model!"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>
-
-        <span class="n">val</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">get_min</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
-            <span class="n">locked_dims</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>
-            <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">,</span>
-            <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">val</span><span class="p">,</span> <span class="n">arg</span></div>
+    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_min</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.inv_query"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.inv_query">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">inv_query</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">constraints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">max_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Get the input that corresponds to a given output value.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            y (int): The output value.</span>
-<span class="sd">            constraints (Mapping[int, List[float]], optional): Which parameters to fix at specific points. Defaults to None.</span>
-<span class="sd">            probability_space (bool): Whether to return the input in probability space. Defaults to False.</span>
-<span class="sd">            max_time (float, optional): Maximum time to run the optimization. Defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Tuple[float, torch.Tensor]: The input that corresponds to the given output value and the corresponding output.</span>
-<span class="sd">        """</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="s2">"model is None! Cannot get the inv_query without a model!"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>
-
-        <span class="n">val</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">inv_query</span><span class="p">(</span>
-            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
-            <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
-            <span class="n">locked_dims</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>
-            <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">,</span>
-            <span class="n">max_time</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">val</span><span class="p">,</span> <span class="n">arg</span></div>
+    <span class="k">def</span> <span class="nf">inv_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">constraints</span> <span class="o">=</span> <span class="n">constraints</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">inv_query</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">constraints</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.predict"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.predict">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Predict the output value(s) for the given input(s).</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            x (torch.Tensor): The input value(s).</span>
-<span class="sd">            probability_space (bool): Whether to return the output in probability space. Defaults to False.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: The predicted output value(s).</span>
-<span class="sd">        """</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"model is None! Cannot predict without a model!"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="n">probability_space</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.get_jnd"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.get_jnd">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_jnd</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">"""Get the just-noticeable difference (JND) for the given input(s).</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: The JND value(s).</span>
-<span class="sd">        """</span>
-        <span class="k">assert</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="s2">"model is None! Cannot get the get jnd without a model!"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">get_jnd</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">lb</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ub</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-        <span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">get_jnd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">get_jnd</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.sample"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.sample">[docs]</a>    <span class="nd">@ensure_model_is_fresh</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Sample the output value(s) for the given input(s).</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            x (torch.Tensor): The input value(s).</span>
-<span class="sd">            num_samples (int, optional): The number of samples to generate. Defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: The sampled output value(s).</span>
-<span class="sd">        """</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"model is None! Cannot sample without a model!"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Strategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.finish">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Finish the strategy."""</span>
+<div class="viewcode-block" id="Strategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">True</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Check if the strategy is finished.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            bool: True if the strategy is finished, False otherwise.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_indefinitely</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"finished"</span><span class="p">):</span>  <span class="c1"># defer to generator if possible</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">finished</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># always need some data before switching strats</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -488,27 +295,19 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_asks</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"finished"</span><span class="p">):</span>  <span class="c1"># defer to generator if possible</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">finished</span>
-
         <span class="k">if</span> <span class="s2">"binary"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_types</span><span class="p">:</span>
             <span class="n">n_yes_trials</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="n">n_no_trials</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">sufficient_outcomes</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span>
-                <span class="p">(</span><span class="n">n_yes_trials</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_total_outcome_occurrences</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-                <span class="ow">and</span> <span class="p">(</span><span class="n">n_no_trials</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_total_outcome_occurrences</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">sufficient_outcomes</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">n_yes_trials</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_total_outcome_occurrences</span>
+                <span class="ow">and</span> <span class="n">n_no_trials</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_total_outcome_occurrences</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sufficient_outcomes</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_post_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">),</span> <span class="s2">"model is None! Cannot predict without a model!"</span>
             <span class="n">fmean</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_grid</span><span class="p">,</span> <span class="n">probability_space</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">meets_post_range</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">(</span><span class="n">fmean</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">fmean</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_post_range</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">meets_post_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">fmean</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">fmean</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_post_range</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">meets_post_range</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">finished</span> <span class="o">=</span> <span class="p">(</span>
@@ -520,104 +319,59 @@
         <span class="k">return</span> <span class="n">finished</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">can_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Check if the strategy can be fitted.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            bool: True if the strategy can be fitted, False otherwise.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">can_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_model</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">n_trials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Get the number of trials.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            int: The number of trials.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">n_trials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">"'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead."</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_asks</span>
 
-<div class="viewcode-block" id="Strategy.pre_warm_model"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.pre_warm_model">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">pre_warm_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Adds new data points to the strategy, and normalizes the inputs.</span>
-<span class="sd">        We speceifically disregard the n return value of normalize_inputs here in order</span>
-<span class="sd">        to stop warm start data from affecting the trials run length.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            x torch.Tensor: The input data points.</span>
-<span class="sd">            y torch.Tensor: The output data points.</span>
-
-<span class="sd">        """</span>
-        <span class="c1"># warming the model shouldn't affect strategy.n</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_inputs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_is_fresh</span> <span class="o">=</span> <span class="kc">False</span></div>
-
-<div class="viewcode-block" id="Strategy.add_data"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.add_data">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_data</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Adds new data points to the strategy, and normalizes the inputs.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            x (Union[np.ndarray, torch.Tensor]): The input data points. Can be a PyTorch tensor or NumPy array.</span>
-<span class="sd">            y (Union[np.ndarray, torch.Tensor]): The output data points. Can be a PyTorch tensor or NumPy array.</span>
-
-<span class="sd">        """</span>
-        <span class="c1"># Necessary as sometimes the data is passed in as numpy arrays or torch tensors.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-
+<div class="viewcode-block" id="Strategy.add_data"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_inputs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_is_fresh</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Strategy.fit"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.fit">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Fit the model."""</span>
+<div class="viewcode-block" id="Strategy.fit"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_fit</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>  <span class="c1"># type: ignore</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>  <span class="c1"># type: ignore</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
                     <span class="p">)</span>
-                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Cannot fit: no model has been initialized!"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Strategy.update"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.update">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Update the model."""</span>
+<div class="viewcode-block" id="Strategy.update"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_fit</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_device</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>  <span class="c1"># type: ignore</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>  <span class="c1"># type: ignore</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_most_recent</span> <span class="p">:],</span>
                     <span class="p">)</span>
-                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-                <span class="k">except</span> <span class="n">ModelFittingError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">ModelFittingError</span><span class="p">):</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                         <span class="s2">"Failed to fit model! Predictions may not be accurate!"</span>
                     <span class="p">)</span>
@@ -625,48 +379,23 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Cannot fit: no model has been initialized!"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Strategy.from_config"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.Strategy.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Strategy</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Create a strategy object from a configuration object.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): The configuration object.</span>
-<span class="sd">            name (str): The name of the strategy.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Strategy: The strategy object.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
         <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-        <span class="n">transforms</span> <span class="o">=</span> <span class="n">ParameterTransforms</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
         <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"stimuli_per_trial"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">outcome_types</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"outcome_types"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
 
-        <span class="n">generator</span> <span class="o">=</span> <span class="n">ParameterTransformedGenerator</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
-            <span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">"transforms"</span><span class="p">:</span> <span class="n">transforms</span><span class="p">}</span>
-        <span class="p">)</span>
-        <span class="n">use_gpu_generating</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-            <span class="n">generator</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"use_gpu"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
+        <span class="n">gen_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"generator"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">SobolGenerator</span><span class="p">)</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">gen_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="n">model_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">ParameterTransformedModel</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
-                <span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">"transforms"</span><span class="p">:</span> <span class="n">transforms</span><span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">use_gpu_modeling</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span>
-                <span class="n">model</span><span class="o">.</span><span class="n">_base_obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">"use_gpu"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">use_gpu_modeling</span><span class="p">:</span>
-                <span class="n">model</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">model_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">use_gpu_modeling</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="c1"># Handles if acqf is not in the generator but strategy block, otherwise, above handles it</span>
         <span class="n">acqf_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">acqf_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">generator</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">generator</span><span class="o">.</span><span class="n">acqf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -708,10 +437,7 @@
             <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="n">stimuli_per_trial</span><span class="p">,</span>
             <span class="n">outcome_types</span><span class="o">=</span><span class="n">outcome_types</span><span class="p">,</span>
             <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="n">transforms</span><span class="o">=</span><span class="n">transforms</span><span class="p">,</span>
-            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-            <span class="n">use_gpu_modeling</span><span class="o">=</span><span class="n">use_gpu_modeling</span><span class="p">,</span>
-            <span class="n">use_gpu_generating</span><span class="o">=</span><span class="n">use_gpu_generating</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
             <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span>
             <span class="n">min_asks</span><span class="o">=</span><span class="n">min_asks</span><span class="p">,</span>
             <span class="n">refit_every</span><span class="o">=</span><span class="n">refit_every</span><span class="p">,</span>
@@ -723,7 +449,7 @@
         <span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SequentialStrategy"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SequentialStrategy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SequentialStrategy"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy">[docs]</a><span class="k">class</span> <span class="nc">SequentialStrategy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Runs a sequence of strategies defined by its config</span>
 
 <span class="sd">    All getter methods defer to the current strat</span>
@@ -732,43 +458,22 @@
 <span class="sd">        strat_list (list[Strategy]): TODO make this nicely typed / doc'd</span>
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Strategy</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Initialize the SequentialStrategy object.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            strat_list (List[Strategy]): The list of strategies.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strat_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Strategy</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strat_list</span> <span class="o">=</span> <span class="n">strat_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_strat_idx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_strat</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Strategy</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Get the current strategy.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Strategy: The current strategy.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">_strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">strat_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_strat_idx</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Get the attribute of the current strategy.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            name (str): The name of the attribute.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Any: The attribute of the current strategy.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="c1"># return current strategy's attr if it's not a container attr</span>
         <span class="k">if</span> <span class="s2">"strat_list"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"Have no strategies in container, what happened?"</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_make_next_strat</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Switch to the next strategy."""</span>
+    <span class="k">def</span> <span class="nf">_make_next_strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_strat_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_list</span><span class="p">):</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">"Ran out of generators, staying on final generator!"</span><span class="p">,</span> <span class="ne">RuntimeWarning</span>
@@ -784,55 +489,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_strat_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat_idx</span> <span class="o">+</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="SequentialStrategy.gen"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.gen">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Generate the next set of points to evaluate.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            num_points (int): The number of points to generate. Defaults to 1.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            torch.Tensor: The next set of points to evaluate.</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="SequentialStrategy.gen"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_make_next_strat</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suggest_count</span> <span class="o">+</span> <span class="n">num_points</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span><span class="n">num_points</span><span class="o">=</span><span class="n">num_points</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequentialStrategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.finish">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Finish the strategy."""</span>
+<div class="viewcode-block" id="SequentialStrategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Check if the strategy is finished.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            bool: True if the strategy is finished, False otherwise.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat_idx</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">finished</span>
 
-<div class="viewcode-block" id="SequentialStrategy.add_data"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.add_data">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">add_data</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Add new data points to the strategy.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            x (Union[np.ndarray, torch.Tensor]): The input data points.</span>
-<span class="sd">            y (Union[np.ndarray, torch.Tensor]): The output data points.</span>
-<span class="sd">        """</span>
+<div class="viewcode-block" id="SequentialStrategy.add_data"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.add_data">[docs]</a>    <span class="k">def</span> <span class="nf">add_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_strat</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequentialStrategy.from_config"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.SequentialStrategy.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SequentialStrategy</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Create a SequentialStrategy object from a configuration object.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): The configuration object.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            SequentialStrategy: The SequentialStrategy object.</span>
-<span class="sd">        """</span>
+    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
         <span class="n">strat_names</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"strategy_names"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
 
         <span class="c1"># ensure strat_names are unique</span>
@@ -846,53 +520,223 @@
             <span class="n">strats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">strat_list</span><span class="o">=</span><span class="n">strats</span><span class="p">)</span></div></div>
-</pre></div>
+
+
+<div class="viewcode-block" id="AEPsychStrategy"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy">[docs]</a><span class="k">class</span> <span class="nc">AEPsychStrategy</span><span class="p">(</span><span class="n">ConfigurableMixin</span><span class="p">):</span>
+    <span class="n">is_finished</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax_client</span><span class="p">:</span> <span class="n">AxClient</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span> <span class="o">=</span> <span class="n">ax_client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">num_asks</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="AEPsychStrategy.get_config_options"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="c1"># TODO: Fix the mypy errors</span>
+        <span class="n">strat_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"strategy_names"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">strat_names</span><span class="p">:</span>
+            <span class="n">generator</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"generator"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">AxSobolGenerator</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="n">opts</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="n">AEPsychGenerationStep</span><span class="p">(</span><span class="o">**</span><span class="n">opts</span><span class="p">)</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+        <span class="c1"># Add an extra step at the end that we can `ask` endlessly.</span>
+        <span class="n">final_step</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">final_step</span><span class="o">.</span><span class="n">completion_criteria</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">final_step</span><span class="p">)</span>
+
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">get_parameters</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">parameter_constraints</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+            <span class="s2">"common"</span><span class="p">,</span> <span class="s2">"par_constraints"</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="n">objectives</span> <span class="o">=</span> <span class="n">get_objectives</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">strat</span> <span class="o">=</span> <span class="n">GenerationStrategy</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
+        <span class="n">ax_client</span> <span class="o">=</span> <span class="n">AxClient</span><span class="p">(</span><span class="n">strat</span><span class="p">)</span>
+        <span class="n">ax_client</span><span class="o">.</span><span class="n">create_experiment</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"experiment"</span><span class="p">,</span>
+            <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+            <span class="n">parameter_constraints</span><span class="o">=</span><span class="n">parameter_constraints</span><span class="p">,</span>
+            <span class="n">objectives</span><span class="o">=</span><span class="n">objectives</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"ax_client"</span><span class="p">:</span> <span class="n">ax_client</span><span class="p">}</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_maybe_transition_to_next_node</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">_steps</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AEPsychStrategy.finish"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_finished</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.gen"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.gen">[docs]</a>    <span class="k">def</span> <span class="nf">gen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">get_next_trials</span><span class="p">(</span><span class="n">max_trials</span><span class="o">=</span><span class="n">num_points</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">num_asks</span> <span class="o">+=</span> <span class="n">num_points</span>
+
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.complete_new_trial"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.complete_new_trial">[docs]</a>    <span class="k">def</span> <span class="nf">complete_new_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">outcome</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">trial_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">attach_trial</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">complete_existing_trial</span><span class="p">(</span><span class="n">trial_index</span><span class="p">,</span> <span class="n">outcome</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.complete_existing_trial"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.complete_existing_trial">[docs]</a>    <span class="k">def</span> <span class="nf">complete_existing_trial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_index</span><span class="p">,</span> <span class="n">outcome</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">complete_trial</span><span class="p">(</span><span class="n">trial_index</span><span class="p">,</span> <span class="n">outcome</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">experiment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">experiment</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">strat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">can_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">strat</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">trial_indices_by_status</span><span class="p">[</span><span class="n">TrialStatus</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_warn_on_outcome_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ax_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">aepsych_model</span> <span class="o">=</span> <span class="n">ax_model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">surrogate</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">aepsych_model</span><span class="p">,</span> <span class="s2">"outcome_type"</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">aepsych_model</span><span class="o">.</span><span class="n">outcome_type</span> <span class="o">!=</span> <span class="s2">"continuous"</span>
+        <span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"Cannot directly plot non-continuous outcomes. Plotting the latent function instead."</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="AEPsychStrategy.plot_contours"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.plot_contours">[docs]</a>    <span class="k">def</span> <span class="nf">plot_contours</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">slice_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Plot predictions for a 2-d slice of the parameter space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            density: Number of points along each parameter to evaluate predictions.</span>
+<span class="sd">            slice_values: A dictionary {name: val} for the fixed values of the</span>
+<span class="sd">                other parameters. If not provided, then the mean of numeric</span>
+<span class="sd">                parameters or the mode of choice parameters will be used.</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="p">),</span> <span class="s2">"plot_contours requires at least 2 parameters! Use 'plot_slice' instead."</span>
+        <span class="n">ax_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn_on_outcome_mismatch</span><span class="p">()</span>
+
+        <span class="n">render</span><span class="p">(</span>
+            <span class="n">interact_contour</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">ax_model</span><span class="p">,</span>
+                <span class="n">metric_name</span><span class="o">=</span><span class="s2">"objective"</span><span class="p">,</span>
+                <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span>
+                <span class="n">slice_values</span><span class="o">=</span><span class="n">slice_values</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.plot_slice"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.plot_slice">[docs]</a>    <span class="k">def</span> <span class="nf">plot_slice</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">param_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">density</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="n">slice_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Plot predictions for a 1-d slice of the parameter space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            param_name: Name of parameter that will be sliced</span>
+<span class="sd">            density: Number of points along slice to evaluate predictions.</span>
+<span class="sd">            slice_values: A dictionary {name: val} for the fixed values of the</span>
+<span class="sd">                other parameters. If not provided, then the mean of numeric</span>
+<span class="sd">                parameters or the mode of choice parameters will be used.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn_on_outcome_mismatch</span><span class="p">()</span>
+        <span class="n">ax_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">render</span><span class="p">(</span>
+            <span class="n">plot_slice</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">=</span><span class="n">ax_model</span><span class="p">,</span>
+                <span class="n">param_name</span><span class="o">=</span><span class="n">param_name</span><span class="p">,</span>
+                <span class="n">metric_name</span><span class="o">=</span><span class="s2">"objective"</span><span class="p">,</span>
+                <span class="n">density</span><span class="o">=</span><span class="n">density</span><span class="p">,</span>
+                <span class="n">slice_values</span><span class="o">=</span><span class="n">slice_values</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AEPsychStrategy.get_pareto_optimal_parameters"><a class="viewcode-back" href="../../strategy.html#aepsych.strategy.AEPsychStrategy.get_pareto_optimal_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_pareto_optimal_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax_client</span><span class="o">.</span><span class="n">get_pareto_optimal_parameters</span><span class="p">()</span></div></div>
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+            <div class="sphinxsidebarwrapper">
+                <h1 class="logo"><a href="../../index.html">AEPsych</a></h1>
+                <h3>Navigation</h3>
+                <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal"
+                            href="../../acquisition.html">aepsych.acquisition</a></li>
+                    <li class="toctree-l1"><a class="reference internal"
+                            href="../../benchmark.html">aepsych.benchmark</a></li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../database.html">aepsych.database</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../factory.html">aepsych.factory</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal"
+                            href="../../generators.html">aepsych.generators</a></li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../kernels.html">aepsych.kernels</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../means.html">aepsych.means</a></li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../models.html">aepsych.models</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../server.html">aepsych.server</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../config.html">aepsych.config</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal"
+                            href="../../likelihoods.html">aepsych.likelihoods</a></li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../plotting.html">aepsych.plotting</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../strategy.html">aepsych.strategy</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal"
+                            href="../../utils_logging.html">aepsych.utils_logging</a></li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../utils.html">aepsych.utils</a></li>
+                </ul>
+                <div class="relations">
+                    <h3>Related Topics</h3>
+                    <ul>
+                        <li><a href="../../index.html">Documentation overview</a>
+                            <ul>
+                                <li><a href="../index.html">Module code</a>
+                                    <ul>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div id="searchbox" role="search" style="display: none">
+                    <h3 id="searchlabel">Quick search</h3>
+                    <div class="searchformwrapper">
+                        <form action="../../search.html" class="search" method="get">
+                            <input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off"
+                                autocorrect="off" name="q" spellcheck="false" type="text" />
+                            <input type="submit" value="Go" />
+                        </form>
+                    </div>
+                </div>
+                <script>document.getElementById('searchbox').style.display = "block"</script>
+            </div>
+        </div>
+        <div class="clearer"></div>
+    </div>
 </div>
-</div>
-</div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">AEPsych</a></h1>
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../acquisition.html">aepsych.acquisition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../benchmark.html">aepsych.benchmark</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../database.html">aepsych.database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../factory.html">aepsych.factory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../generators.html">aepsych.generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../kernels.html">aepsych.kernels</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../means.html">aepsych.means</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../models.html">aepsych.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../server.html">aepsych.server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../config.html">aepsych.config</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../likelihoods.html">aepsych.likelihoods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../plotting.html">aepsych.plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../strategy.html">aepsych.strategy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../transforms.html">aepsych.transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../utils_logging.html">aepsych.utils_logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../utils.html">aepsych.utils</a></li>
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-<li><a href="../../index.html">Documentation overview</a><ul>
-<li><a href="../index.html">Module code</a><ul>
-</ul></li>
-</ul></li>
-</ul>
-</div>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="../../search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
-</div>
-</div>
-<div class="clearer"></div>
-</div></div></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2025 Meta Platforms, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
+</div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/favicon.ico" alt="AEPsych" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/introduction">Introduction</a><a href="/docs/getting_started">Getting Started</a><a href="/tutorials/">Tutorials</a><a href="/api/">API Reference</a></div><div><h5>Legal</h5><a href="https://opensource.facebook.com/legal/privacy/" target="_blank" rel="noreferrer noopener">Privacy</a><a href="https://opensource.facebook.com/legal/terms/" target="_blank" rel="noreferrer noopener">Terms</a></div><div><div class="footerSection"><h5>Social</h5><div class="social"><a class="github-button" href="https://github.com/facebookresearch/aepsych" data-count-href="https://github.com/facebookresearch/aepsych/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star AEPsych on GitHub">aepsych</a></div></div></div></section><a href="https://opensource.facebook.com/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2025 Meta Platforms, Inc.  Built with Docusaurus.</section><div class="cookie-container"><p>We use cookies to enhance your experience, and to analyse the use of our website. By clicking or navigating, you agree to allow our usage of cookies.</p><button class="cookie-btn">accept</button></div></footer></div></body></html>
