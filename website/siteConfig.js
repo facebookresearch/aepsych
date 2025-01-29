@@ -45,11 +45,11 @@ const siteConfig = {
   // This would become <meta name="keywords" content="cooking, blog"> in the generated HTML
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
-  { href: `${baseUrl}demos/`, label: "Demos" },
-  { doc: 'introduction', label: 'Docs' },
-  { href: `${baseUrl}tutorials/`, label: "Tutorials" },
-  { href: `${baseUrl}api/`, label: "API Reference" },
-  { href: "https://github.com/facebookresearch/aepsych", label: "GitHub" },
+    { href: `${baseUrl}demos/`, label: "Demos" },
+    { doc: 'introduction', label: 'Docs' },
+    { href: `${baseUrl}tutorials/`, label: "Tutorials" },
+    { href: `${baseUrl}api/`, label: "API Reference" },
+    { href: "https://github.com/facebookresearch/aepsych", label: "GitHub" },
     // { search: false } disabled agnolia searchbar for now
   ],
 
@@ -75,7 +75,7 @@ const siteConfig = {
     secondaryColor: '#000080',
   },
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-  copyright: `Copyright © ${new Date().getFullYear()} Meta, Inc.`,
+  copyright: `Copyright © ${new Date().getFullYear()} Meta Platforms, Inc.`,
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.
