@@ -482,7 +482,7 @@ lookahead_type (Literal[“levelset”, “posterior”]): The type of look-ahea
 <p>target (float, optional): Threshold value to target in p-space. Default is None.
 query_set_size (int, optional): Number of points in the query set. Default is 256.
 Xq (torch.Tensor, optional): (m x d) global reference set. Default is None.
-k (float, optional): Scaling factor for the softmax approximation, controlling the “softness” of the maximum operation. Default is 20.0.</p>
+k (float): Scaling factor for the softmax approximation, controlling the “softness” of the maximum operation. Default is 20.0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -493,7 +493,7 @@ k (float, optional): Scaling factor for the softmax approximation, controlling t
 <li><p><strong>target</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
 <li><p><strong>query_set_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
 <li><p><strong>Xq</strong> (<em>Optional</em><em>[</em><em>Tensor</em><em>]</em>) – </p></li>
-<li><p><strong>k</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>k</strong> (<em>float</em>) – </p></li>
 </ul>
 </dd>
 </dl>

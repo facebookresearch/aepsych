@@ -57,6 +57,7 @@
 <span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s2">"indices"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform_on_train</span> <span class="o">=</span> <span class="n">transform_on_train</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform_on_eval</span> <span class="o">=</span> <span class="n">transform_on_eval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform_on_fantasize</span> <span class="o">=</span> <span class="n">transform_on_fantasize</span>
