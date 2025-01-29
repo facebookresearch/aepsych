@@ -11,7 +11,6 @@ from ..config import Config
 from .gp_classification import GPBetaRegressionModel, GPClassificationModel
 from .gp_regression import GPRegressionModel
 from .monotonic_projection_gp import MonotonicProjectionGP
-from .multitask_regression import IndependentMultitaskGPRModel, MultitaskGPRModel
 from .ordinal_gp import OrdinalGPModel
 from .pairwise_probit import PairwiseProbitModel
 from .semi_p import (
@@ -25,8 +24,6 @@ __all__ = [
     "GPRegressionModel",
     "OrdinalGPModel",
     "MonotonicProjectionGP",
-    "MultitaskGPRModel",
-    "IndependentMultitaskGPRModel",
     "HadamardSemiPModel",
     "SemiParametricGPModel",
     "semi_p_posterior_transform",
