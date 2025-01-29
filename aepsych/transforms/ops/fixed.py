@@ -53,7 +53,9 @@ class Fixed(Transform, StringParameterMixin, torch.nn.Module):
 
         super().__init__()
         self.register_buffer("indices", indices_)
+        self.indices: torch.Tensor
         self.register_buffer("values", values_)
+        self.values: torch.Tensor
         self.transform_on_train = transform_on_train
         self.transform_on_eval = transform_on_eval
         self.transform_on_fantasize = transform_on_fantasize
