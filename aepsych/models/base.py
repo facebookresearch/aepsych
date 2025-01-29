@@ -12,6 +12,10 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple
 
 import gpytorch
 import torch
+
+from aepsych.config import Config, ConfigurableMixin
+from aepsych.factory.default import default_mean_covar_factory
+from aepsych.utils import get_dims, get_optimizer_options
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
@@ -104,13 +108,14 @@ class ModelProtocol(Protocol):
         pass
 
 
-class AEPsychMixin(GPyTorchModel):
+class AEPsychMixin(GPyTorchModel, ConfigurableMixin):
     """Mixin class that provides AEPsych-specific utility methods."""
 
     extremum_solver = "Nelder-Mead"
     outcome_types: List[str] = []
     train_inputs: Optional[Tuple[torch.Tensor]]
     train_targets: Optional[torch.Tensor]
+    stimuli_per_trial: int = 1
 
     def set_train_data(
         self,
@@ -188,6 +193,69 @@ class AEPsychMixin(GPyTorchModel):
             mll, optimizer=optimizer, optimizer_kwargs=optimizer_kwargs, **kwargs
         )
         return res
+
+    @classmethod
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """.
+
+        Args:
+            config (Config): Config to look for options in.
+            name (str, optional): The name of the strategy to warm start (Not actually optional here.)
+            options (Dict[str, Any], optional): options are ignored.
+
+        Raises:
+            ValueError: the name of the strategy is necessary to identify warm start search criteria.
+            KeyError: the config specified this strategy should be warm started but the associated config section wasn't defined.
+
+        Returns:
+            Dict[str, Any]: a dictionary of the search criteria described in the experiment's config
+        """
+        options = options or {}
+
+        name = name or cls.__name__
+
+        dim = config.getint(name, "dim", fallback=None)
+        if dim is None:
+            dim = get_dims(config)
+
+        mean_covar_factory = config.getobj(
+            name, "mean_covar_factory", fallback=default_mean_covar_factory
+        )
+
+        mean, covar = mean_covar_factory(
+            config, stimuli_per_trial=cls.stimuli_per_trial
+        )
+        max_fit_time = config.getfloat(name, "max_fit_time", fallback=None)
+
+        likelihood_cls = config.getobj(name, "likelihood", fallback=None)
+
+        if likelihood_cls is not None:
+            if hasattr(likelihood_cls, "from_config"):
+                likelihood = likelihood_cls.from_config(config)
+            else:
+                likelihood = likelihood_cls()
+        else:
+            likelihood = None  # fall back to __init__ default
+
+        optimizer_options = get_optimizer_options(config, name)
+
+        options.update(
+            {
+                "dim": dim,
+                "mean_module": mean,
+                "covar_module": covar,
+                "max_fit_time": max_fit_time,
+                "likelihood": likelihood,
+                "optimizer_options": optimizer_options,
+            }
+        )
+
+        return options
 
     def p_below_threshold(
         self, x: torch.Tensor, f_thresh: torch.Tensor
