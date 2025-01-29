@@ -219,76 +219,44 @@ class MonotonicProjectionGP(GPClassificationModel):
         return samps
 
     @classmethod
-    def from_config(cls, config: Config) -> MonotonicProjectionGP:
-        """Alternate constructor for MonotonicProjectionGP model.
-
-        This is used when we recursively build a full sampling strategy
-        from a configuration. TODO: document how this works in some tutorial.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Get configuration options for the model.
 
         Args:
-            config (Config): A configuration containing keys/values matching this class
+            config (Config): Configuration object.
+            name (str, optional): Name of the model, defaults to None.
+            options (Dict[str, Any], optional): Additional options, defaults to None.
 
         Returns:
-            MonotonicProjectionGP: Configured class instance.
+            Dict[str, Any]: Configuration options for the model.
         """
+        options = options or {}
+        options.update(super().get_config_options(config, name, options))
 
-        classname = cls.__name__
-        inducing_size = config.getint(classname, "inducing_size", fallback=100)
+        name = name or cls.__name__
 
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
-        dim = config.getint(classname, "dim", fallback=None)
-
-        if dim is None:
-            dim = get_dims(config)
-
-        mean_covar_factory = config.getobj(
-            classname, "mean_covar_factory", fallback=default_mean_covar_factory
-        )
-
-        mean, covar = mean_covar_factory(config)
-        max_fit_time = config.getfloat(classname, "max_fit_time", fallback=None)
-
-        inducing_point_method_class = config.getobj(
-            classname, "inducing_point_method", fallback=GreedyVarianceReduction
-        )
-        # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, "from_config"):
-            inducing_point_method = inducing_point_method_class.from_config(config)
-        else:
-            inducing_point_method = inducing_point_method_class()
-        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
-
-        if likelihood_cls is not None:
-            if hasattr(likelihood_cls, "from_config"):
-                likelihood = likelihood_cls.from_config(config)
-            else:
-                likelihood = likelihood_cls()
-        else:
-            likelihood = None  # fall back to __init__ default
+        lb = config.gettensor(name, "lb")
+        ub = config.gettensor(name, "ub")
 
         monotonic_dims: List[int] = config.getlist(
-            classname, "monotonic_dims", fallback=[-1]
+            name, "monotonic_dims", fallback=[-1]
         )
-        monotonic_grid_size = config.getint(
-            classname, "monotonic_grid_size", fallback=20
-        )
-        min_f_val = config.getfloat(classname, "min_f_val", fallback=None)
+        monotonic_grid_size = config.getint(name, "monotonic_grid_size", fallback=20)
+        min_f_val = config.getfloat(name, "min_f_val", fallback=None)
 
-        optimizer_options = get_optimizer_options(config, classname)
-
-        return cls(
-            lb=lb,
-            ub=ub,
-            dim=dim,
-            inducing_size=inducing_size,
-            mean_module=mean,
-            covar_module=covar,
-            max_fit_time=max_fit_time,
-            inducing_point_method=inducing_point_method,
-            likelihood=likelihood,
-            monotonic_dims=monotonic_dims,
-            monotonic_grid_size=monotonic_grid_size,
-            min_f_val=min_f_val,
-            optimizer_options=optimizer_options,
+        options.update(
+            {
+                "lb": lb,
+                "ub": ub,
+                "monotonic_dims": monotonic_dims,
+                "monotonic_grid_size": monotonic_grid_size,
+                "min_f_val": min_f_val,
+            }
         )
+
+        return options
