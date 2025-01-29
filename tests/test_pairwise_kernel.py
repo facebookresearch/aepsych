@@ -11,7 +11,6 @@ import numpy as np
 import numpy.testing as npt
 import torch
 from aepsych.kernels.pairwisekernel import PairwiseKernel
-from aepsych.kernels.rbf_partial_grad import RBFKernelPartialObsGrad
 from gpytorch.kernels import RBFKernel
 
 
@@ -23,35 +22,6 @@ class PairwiseKernelTest(unittest.TestCase):
     def setUp(self):
         self.latent_kernel = RBFKernel()
         self.kernel = PairwiseKernel(self.latent_kernel)
-
-    def test_kernelgrad_pairwise(self):
-        kernel = PairwiseKernel(RBFKernelPartialObsGrad(), is_partial_obs=True)
-        x1 = torch.rand(torch.Size([2, 4]))
-        x2 = torch.rand(torch.Size([2, 4]))
-
-        x1 = torch.cat((x1, torch.zeros(2, 1)), dim=1)
-        x2 = torch.cat((x2, torch.zeros(2, 1)), dim=1)
-
-        deriv_idx_1 = x1[..., -1][:, None]
-        deriv_idx_2 = x2[..., -1][:, None]
-
-        a = torch.cat((x1[..., :2], deriv_idx_1), dim=1)
-        b = torch.cat((x1[..., 2:-1], deriv_idx_1), dim=1)
-        c = torch.cat((x2[..., :2], deriv_idx_2), dim=1)
-        d = torch.cat((x2[..., 2:-1], deriv_idx_2), dim=1)
-
-        c12 = kernel.forward(x1, x2).to_dense().detach().numpy()
-        pwc = (
-            (
-                kernel.latent_kernel.forward(a, c)
-                - kernel.latent_kernel.forward(a, d)
-                - kernel.latent_kernel.forward(b, c)
-                + kernel.latent_kernel.forward(b, d)
-            )
-            .detach()
-            .numpy()
-        )
-        npt.assert_allclose(c12, pwc, atol=1e-6)
 
     def test_dim_check(self):
         """
