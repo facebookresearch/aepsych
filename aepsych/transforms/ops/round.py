@@ -39,6 +39,7 @@ class Round(Transform, torch.nn.Module):
         """
         super().__init__()
         self.register_buffer("indices", torch.tensor(indices, dtype=torch.long))
+        self.indices: torch.Tensor
         self.transform_on_train = transform_on_train
         self.transform_on_eval = transform_on_eval
         self.transform_on_fantasize = transform_on_fantasize
