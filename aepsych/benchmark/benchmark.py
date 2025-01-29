@@ -16,7 +16,8 @@ import numpy as np
 import pandas as pd
 import torch
 from aepsych.config import Config
-from aepsych.strategy import ensure_model_is_fresh, SequentialStrategy
+from aepsych.strategy import SequentialStrategy
+from aepsych.strategy.utils import ensure_model_is_fresh
 from tqdm.contrib.itertools import product as tproduct
 
 from .problem import Problem

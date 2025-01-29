@@ -136,7 +136,7 @@ class Problem:
             mean (plain brier) and in expectation over the posterior (expected_brier).
 
         Args:
-            strat (aepsych.strategy.Strategy): Strategy to evaluate.
+            strat (Strategy): Strategy to evaluate.
 
         Returns:
             Dict[str, float]: A dictionary containing metrics and their values.
@@ -269,7 +269,7 @@ class LSEProblem(Problem):
             for misclassification error.
 
         Args:
-            strat (aepsych.strategy.Strategy): Strategy to evaluate.
+            strat (Strategy): Strategy to evaluate.
 
 
         Returns:
