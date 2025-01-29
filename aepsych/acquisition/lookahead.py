@@ -449,7 +449,7 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         target: Optional[float] = None,
         query_set_size: Optional[int] = 256,
         Xq: Optional[torch.Tensor] = None,
-        k: Optional[float] = 20.0,
+        k: float = 20.0,
     ) -> None:
         """
         model (GPyTorchModel): The gpytorch model to use.
@@ -459,7 +459,7 @@ class SMOCU(GlobalLookaheadAcquisitionFunction):
         target (float, optional): Threshold value to target in p-space. Default is None.
         query_set_size (int, optional): Number of points in the query set. Default is 256.
         Xq (torch.Tensor, optional): (m x d) global reference set. Default is None.
-        k (float, optional): Scaling factor for the softmax approximation, controlling the "softness" of the maximum operation. Default is 20.0.
+        k (float): Scaling factor for the softmax approximation, controlling the "softness" of the maximum operation. Default is 20.0.
         """
 
         super().__init__(
