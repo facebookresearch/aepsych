@@ -5,7 +5,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import gpytorch
 from aepsych.config import Config
@@ -19,15 +19,22 @@ from aepsych.kernels.pairwisekernel import PairwiseKernel
 
 def pairwise_mean_covar_factory(
     config: Config,
+    dim: Optional[int] = None,
+    stimuli_per_trial: int = 1,
 ) -> Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]:
     """Creates a mean and covariance function for pairwise GPs.
 
     Args:
         config (Config): Config object containing bounds.
-
+        dim (int, optional): Dimensionality of the parameter space. Unused; here for API consistency with the default factory.
+        stimuli_per_trial (int): Number of stimuli per trial. Because this factory is intended to be used with GPClassificationModel, this must actually be 1.
     Returns:
         Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing
         the mean function (ConstantMean) and the covariance function (ScaleKernel)."""
+
+    assert (
+        stimuli_per_trial == 1
+    ), f"pairwise_mean_covar_factory must have stimuli_per_trial == 1, but {stimuli_per_trial} was passed instead!"
     lb = config.gettensor("common", "lb")
     ub = config.gettensor("common", "ub")
     assert lb.shape[0] == ub.shape[0], "bounds shape mismatch!"
