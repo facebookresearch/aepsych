@@ -280,13 +280,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">"Missing ub or lb in [common] with incomplete parameter-specific bounds, cannot fallback!"</span>
-                    <span class="p">)</span>
-
-        <span class="c1"># Deprecation warning for "experiment" section</span>
-        <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]</span></div>
+                    <span class="p">)</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_str_to_list</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">element_type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_ET</span><span class="p">],</span> <span class="n">_ET</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span>
@@ -488,114 +482,7 @@
             <span class="n">_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">"</span>
             <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">sec</span><span class="p">:</span>
                 <span class="n">_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">setting</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">][</span><span class="n">setting</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
-        <span class="k">return</span> <span class="n">_str</span>
-
-<div class="viewcode-block" id="Config.convert_to_latest"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.convert_to_latest">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_latest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Converts the config to the latest version in place."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Config.convert"><a class="viewcode-back" href="../../config.html#aepsych.config.Config.convert">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_version</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Converts a config from an older version to a newer version.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            from_version (str): The version of the config to be converted.</span>
-<span class="sd">            to_version (str): The version the config should be converted to.</span>
-<span class="sd">        """</span>
-
-        <span class="k">if</span> <span class="n">from_version</span> <span class="o">==</span> <span class="s2">"0.0"</span><span class="p">:</span>
-            <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"strategy_names"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[init_strat, opt_strat]"</span>
-
-            <span class="k">if</span> <span class="s2">"experiment"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">]:</span>
-                    <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"experiment"</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-
-            <span class="n">bridge</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"modelbridge_cls"</span><span class="p">]</span>
-            <span class="n">n_sobol</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"SobolStrategy"</span><span class="p">][</span><span class="s2">"n_trials"</span><span class="p">]</span>
-            <span class="n">n_opt</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">][</span><span class="s2">"n_trials"</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"PairwiseProbitModelbridge"</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"PairwiseSobolGenerator"</span><span class="p">,</span>
-                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
-                <span class="p">}</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"PairwiseOptimizeAcqfGenerator"</span><span class="p">,</span>
-                    <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"PairwiseProbitModel"</span><span class="p">,</span>
-                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
-                <span class="p">}</span>
-                <span class="k">if</span> <span class="s2">"PairwiseProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseOptimizeAcqfGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span>
-                        <span class="s2">"PairwiseProbitModelbridge"</span>
-                    <span class="p">]</span>
-                <span class="k">if</span> <span class="s2">"PairwiseGP"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseProbitModel"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"PairwiseGP"</span><span class="p">]</span>
-
-            <span class="k">elif</span> <span class="n">bridge</span> <span class="o">==</span> <span class="s2">"SingleProbitModelbridge"</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"init_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"SobolGenerator"</span><span class="p">,</span>
-                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_sobol</span><span class="p">,</span>
-                <span class="p">}</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">"generator"</span><span class="p">:</span> <span class="s2">"OptimizeAcqfGenerator"</span><span class="p">,</span>
-                    <span class="s2">"model"</span><span class="p">:</span> <span class="s2">"GPClassificationModel"</span><span class="p">,</span>
-                    <span class="s2">"min_asks"</span><span class="p">:</span> <span class="n">n_opt</span><span class="p">,</span>
-                <span class="p">}</span>
-                <span class="k">if</span> <span class="s2">"SingleProbitModelbridge"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="p">[</span><span class="s2">"OptimizeAcqfGenerator"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"SingleProbitModelbridge"</span><span class="p">]</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"Refactor for </span><span class="si">{</span><span class="n">bridge</span><span class="si">}</span><span class="s2"> has not been implemented!"</span>
-                <span class="p">)</span>
-
-            <span class="k">if</span> <span class="s2">"ModelWrapperStrategy"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">"refit_every"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">]:</span>
-                    <span class="bp">self</span><span class="p">[</span><span class="s2">"opt_strat"</span><span class="p">][</span><span class="s2">"refit_every"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"ModelWrapperStrategy"</span><span class="p">][</span>
-                        <span class="s2">"refit_every"</span>
-                    <span class="p">]</span>
-
-            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"model"</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">to_version</span> <span class="o">==</span> <span class="n">__version__</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"single_probit"</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"stimuli_per_trial"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_types"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[binary]"</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"single_continuous"</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"stimuli_per_trial"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_types"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[continuous]"</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"pairwise_probit"</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"stimuli_per_trial"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"2"</span>
-                <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_types"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"[binary]"</span>
-
-            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">][</span><span class="s2">"outcome_type"</span><span class="p">]</span></div>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Returns the version number of the config.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            str: Version number of the config.</span>
-<span class="sd">        """</span>
-        <span class="c1"># TODO: implement an explicit versioning system</span>
-
-        <span class="c1"># Try to infer the version</span>
-        <span class="k">if</span> <span class="s2">"stimuli_per_trial"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]</span> <span class="ow">and</span> <span class="s2">"outcome_types"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
-            <span class="k">return</span> <span class="n">__version__</span>
-
-        <span class="k">if</span> <span class="s2">"common"</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="s2">"strategy_names"</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="s2">"common"</span><span class="p">]:</span>
-            <span class="k">return</span> <span class="s2">"0.1"</span>
-
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="s2">"SobolStrategy"</span> <span class="ow">in</span> <span class="bp">self</span>
-            <span class="ow">or</span> <span class="s2">"ModelWrapperStrategy"</span> <span class="ow">in</span> <span class="bp">self</span>
-            <span class="ow">or</span> <span class="s2">"EpsilonGreedyModelWrapperStrategy"</span> <span class="ow">in</span> <span class="bp">self</span>
-        <span class="p">):</span>
-            <span class="k">return</span> <span class="s2">"0.0"</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unrecognized config format!"</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_str</span></div>
 
 
 <div class="viewcode-block" id="ConfigurableMixin"><a class="viewcode-back" href="../../config.html#aepsych.config.ConfigurableMixin">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigurableMixin</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
