@@ -61,28 +61,6 @@ def configure(server, config=None, **config_args):
         usedconfig = Config(**config_args)
     else:
         usedconfig = config
-    if "experiment" in usedconfig:
-        logger.warning(
-            'The "experiment" section is being deprecated from configs. Please put everything in the "experiment" section in the "common" section instead.'
-        )
-
-        for i in usedconfig["experiment"]:
-            usedconfig["common"][i] = usedconfig["experiment"][i]
-        del usedconfig["experiment"]
-
-    version = usedconfig.version
-    if version < __version__:
-        try:
-            usedconfig.convert_to_latest()
-
-            server.db.perform_updates()
-            logger.warning(
-                f"Config version {version} is less than AEPsych version {__version__}. The config was automatically modified to be compatible. Check the config table in the db to see the changes."
-            )
-        except RuntimeError:
-            logger.warning(
-                f"Config version {version} is less than AEPsych version {__version__}, but couldn't automatically update the config! Trying to configure the server anyway..."
-            )
 
     strat_id = _configure(server, usedconfig)
     server.db.record_config(master_table=server._db_master_record, config=usedconfig)

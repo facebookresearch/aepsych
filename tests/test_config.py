@@ -292,17 +292,6 @@ class ConfigTestCase(unittest.TestCase):
         self.assertTrue(isinstance(strat.strat_list[2].model, SemiParametricGPModel))
         self.assertTrue(strat.strat_list[2].generator.acqf is EAVC)
 
-    def test_experiment_deprecation(self):
-        config_str = """
-            [experiment]
-            acqf = PairwiseMCPosteriorVariance
-            model = PairwiseProbitModel
-            """
-        config = Config()
-        config.update(config_str=config_str)
-        self.assertTrue("acqf" in config["common"])
-        self.assertTrue("model" in config["common"])
-
     def test_to_string(self):
         in_str = """
             [common]

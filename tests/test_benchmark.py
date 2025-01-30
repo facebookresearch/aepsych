@@ -170,10 +170,6 @@ class BenchmarkTestCase(unittest.TestCase):
                 "outcome_types": ["binary"],
                 "strategy_names": "[init_strat, opt_strat]",
             },
-            "experiment": {
-                "acqf": "MCLevelSetEstimation",
-                "model": "GPClassificationModel",
-            },
             "init_strat": {
                 "min_asks": [2, 4],
                 "generator": "SobolGenerator",
@@ -188,6 +184,7 @@ class BenchmarkTestCase(unittest.TestCase):
                         [("problem", "name")], lambda x: 2 + int(x == "test problem")
                     ),
                 ],
+                "model": "GPClassificationModel",
                 "generator": "OptimizeAcqfGenerator",
                 "min_total_outcome_occurrences": 0,
             },
@@ -205,6 +202,7 @@ class BenchmarkTestCase(unittest.TestCase):
                 "restarts": 1,
                 "samps": 20,
                 "max_gen_time": 0.1,
+                "acqf": "MCLevelSetEstimation",
             },
         }
 

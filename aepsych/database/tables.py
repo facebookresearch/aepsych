@@ -245,30 +245,6 @@ class DbReplayTable(Base):
         return count != 0
 
     @staticmethod
-    def _configs_require_conversion(engine: Engine) -> bool:
-        """Check if the replay_data table has any old configs that need to be converted.
-
-        Args:
-            engine (Engine): The sqlalchemy engine.
-
-        Returns:
-            bool: True if any old configs need to be converted, False otherwise.
-        """
-        Base.metadata.create_all(engine)
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        results = session.query(DbReplayTable).all()
-
-        for result in results:
-            if result.message_contents["type"] == "setup":
-                config_str = result.message_contents["message"]["config_str"]
-                config = Config(config_str=config_str)
-                if config.version < __version__:
-                    return True  # assume that if any config needs to be refactored, all of them do
-
-        return False
-
-    @staticmethod
     def update(engine: Engine) -> None:
         """Update the replay_data table schema to include an extra_info column and convert old configs.
 
@@ -280,9 +256,6 @@ class DbReplayTable(Base):
         if not DbReplayTable._has_extra_info(engine):
             DbReplayTable._add_extra_info(engine)
 
-        if DbReplayTable._configs_require_conversion(engine):
-            DbReplayTable._convert_configs(engine)
-
     @staticmethod
     def requires_update(engine: Engine) -> bool:
         """Check if the replay_data table schema requires an update.
@@ -290,9 +263,7 @@ class DbReplayTable(Base):
         Args:
             engine (Engine): The sqlalchemy engine.
         """
-        return not DbReplayTable._has_extra_info(
-            engine
-        ) or DbReplayTable._configs_require_conversion(engine)
+        return not DbReplayTable._has_extra_info(engine)
 
     @staticmethod
     def _add_extra_info(engine: Engine) -> None:
@@ -316,34 +287,6 @@ class DbReplayTable(Base):
                 engine.commit()
         except Exception as e:
             logger.debug(f"Column already exists, no need to alter. [{e}]")
-
-    @staticmethod
-    def _convert_configs(engine: Engine) -> None:
-        """Convert old configs to the latest version.
-
-        Args:
-            engine (Engine): The sqlalchemy engine.
-        """
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        results = session.query(DbReplayTable).all()
-
-        for result in results:
-            if result.message_contents["type"] == "setup":
-                config_str = result.message_contents["message"]["config_str"]
-                config = Config(config_str=config_str)
-                if config.version < __version__:
-                    config.convert_to_latest()
-                new_str = str(config)
-
-                new_message = {"type": "setup", "message": {"config_str": new_str}}
-                if "version" in result.message_contents:
-                    new_message["version"] = result.message_contents["version"]
-
-                result.message_contents = new_message
-
-        session.commit()
-        logger.info("DbReplayTable : updated old configs.")
 
 
 class DbStratTable(Base):
