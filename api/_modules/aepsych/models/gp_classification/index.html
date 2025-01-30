@@ -35,7 +35,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychModelDeviceMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.inducing_points</span><span class="w"> </span><span class="kn">import</span> <span class="n">GreedyVarianceReduction</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.inducing_points.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InducingPointAllocator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_dims</span><span class="p">,</span> <span class="n">get_optimizer_options</span><span class="p">,</span> <span class="n">promote_0d</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">promote_0d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">getLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">BernoulliLikelihood</span><span class="p">,</span> <span class="n">BetaLikelihood</span><span class="p">,</span> <span class="n">Likelihood</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApproximateGP</span>
@@ -135,36 +135,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_state_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fresh_likelihood_dict</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">state_dict</span><span class="p">())</span>
 
-<div class="viewcode-block" id="GPClassificationModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.gp_classification.GPClassificationModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GPClassificationModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Alternate constructor for GPClassification model from a configuration.</span>
-
-<span class="sd">        This is used when we recursively build a full sampling strategy</span>
-<span class="sd">        from a configuration. TODO: document how this works in some tutorial.</span>
+<div class="viewcode-block" id="GPClassificationModel.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.gp_classification.GPClassificationModel.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the model, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            GPClassificationModel: Configured class instance.</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the model.</span>
 <span class="sd">        """</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
 
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="n">mean_covar_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"mean_covar_factory"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">default_mean_covar_factory</span>
-        <span class="p">)</span>
-
-        <span class="n">mean</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
         <span class="n">inducing_point_method_class</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">GreedyVarianceReduction</span>
+            <span class="n">name</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">GreedyVarianceReduction</span>
         <span class="p">)</span>
         <span class="c1"># Check if allocator class has a `from_config` method</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inducing_point_method_class</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
@@ -172,28 +166,14 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method_class</span><span class="p">()</span>
 
-        <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"inducing_size"</span><span class="p">:</span> <span class="n">inducing_size</span><span class="p">,</span>
+                <span class="s2">"inducing_point_method"</span><span class="p">:</span> <span class="n">inducing_point_method</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">likelihood_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
-                <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># fall back to __init__ default</span>
-
-        <span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
-            <span class="n">mean_module</span><span class="o">=</span><span class="n">mean</span><span class="p">,</span>
-            <span class="n">covar_module</span><span class="o">=</span><span class="n">covar</span><span class="p">,</span>
-            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
-            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
-            <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
-            <span class="n">optimizer_options</span><span class="o">=</span><span class="n">optimizer_options</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">options</span></div>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_reset_hyperparameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Reset hyperparameters to their initial values."""</span>

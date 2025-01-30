@@ -180,7 +180,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.base.</span></span><span class="sig-name descname"><span class="pre">AEPsychMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GPyTorchModel</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">GPyTorchModel</span></code>, <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
 <p>Mixin class that provides AEPsych-specific utility methods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -208,6 +208,10 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.train_targets">
 <span class="sig-name descname"><span class="pre">train_targets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.train_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.stimuli_per_trial">
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.set_train_data">
@@ -242,6 +246,32 @@ to not require it.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>gpytorch.distributions.MultivariateNormal</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aepsych.models.base.AEPsychMixin.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/base.html#AEPsychMixin.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.base.AEPsychMixin.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the strategy to warm start (Not actually optional here.)</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – options are ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – the name of the strategy is necessary to identify warm start search criteria.</p></li>
+<li><p><strong>KeyError</strong> – the config specified this strategy should be warm started but the associated config section wasn’t defined.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a dictionary of the search criteria described in the experiment’s config</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,27 +408,29 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.stimuli_per_trial">
-<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.outcome_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alternate constructor for GPClassification model from a configuration.</p>
-<p>This is used when we recursively build a full sampling strategy
-from a configuration. TODO: document how this works in some tutorial.</p>
+<dt class="sig sig-object py" id="aepsych.models.gp_classification.GPClassificationModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.gp_classification.GPClassificationModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration options for the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model, defaults to None.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional options, defaults to None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured class instance.</p>
+<dd class="field-even"><p>Configuration options for the model.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.gp_classification.GPClassificationModel" title="aepsych.models.gp_classification.GPClassificationModel">GPClassificationModel</a></p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -756,7 +788,7 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.stimuli_per_trial">
-<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.outcome_type">
@@ -767,20 +799,22 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 <span class="sig-name descname"><span class="pre">likelihood</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Likelihood</span></em><a class="headerlink" href="#aepsych.models.GPClassificationModel.likelihood" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alternate constructor for GPClassification model from a configuration.</p>
-<p>This is used when we recursively build a full sampling strategy
-from a configuration. TODO: document how this works in some tutorial.</p>
+<dt class="sig sig-object py" id="aepsych.models.GPClassificationModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_classification.html#GPClassificationModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPClassificationModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration options for the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model, defaults to None.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional options, defaults to None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured class instance.</p>
+<dd class="field-even"><p>Configuration options for the model.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.GPClassificationModel" title="aepsych.models.GPClassificationModel">GPClassificationModel</a></p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -902,46 +936,12 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.stimuli_per_trial">
-<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'continuous'</span></em><a class="headerlink" href="#aepsych.models.GPRegressionModel.outcome_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.construct_inputs">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">construct_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.construct_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.construct_inputs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct inputs for the GP regression model from configuration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary of inputs for the GP regression model.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alternate constructor for GP regression model.</p>
-<p>This is used when we recursively build a full sampling strategy
-from a configuration. TODO: document how this works in some tutorial.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured class instance.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.GPRegressionModel" title="aepsych.models.GPRegressionModel">GPRegressionModel</a></p>
-</dd>
-</dl>
-</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="aepsych.models.GPRegressionModel.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/gp_regression.html#GPRegressionModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.GPRegressionModel.fit" title="Permalink to this definition">¶</a></dt>
@@ -1204,20 +1204,22 @@ posterior. Defaults to False.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.MonotonicProjectionGP.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_projection_gp.html#MonotonicProjectionGP.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MonotonicProjectionGP.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alternate constructor for MonotonicProjectionGP model.</p>
-<p>This is used when we recursively build a full sampling strategy
-from a configuration. TODO: document how this works in some tutorial.</p>
+<dt class="sig sig-object py" id="aepsych.models.MonotonicProjectionGP.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_projection_gp.html#MonotonicProjectionGP.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MonotonicProjectionGP.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration options for the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model, defaults to None.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional options, defaults to None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured class instance.</p>
+<dd class="field-even"><p>Configuration options for the model.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.MonotonicProjectionGP" title="aepsych.models.MonotonicProjectionGP">MonotonicProjectionGP</a></p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1278,7 +1280,7 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.stimuli_per_trial">
-<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.outcome_type">
@@ -1306,20 +1308,22 @@ locations and thus acts as a constant offset to the k mvn.
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#HadamardSemiPModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alternate constructor for HadamardSemiPModel model.</p>
-<p>This is used when we recursively build a full sampling strategy
-from a configuration.</p>
+<dt class="sig sig-object py" id="aepsych.models.HadamardSemiPModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#HadamardSemiPModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.HadamardSemiPModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration options for the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model, defaults to None.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional options, defaults to None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured class instance.</p>
+<dd class="field-even"><p>Configuration options for the model.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.HadamardSemiPModel" title="aepsych.models.HadamardSemiPModel">HadamardSemiPModel</a></p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1388,27 +1392,29 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.stimuli_per_trial">
-<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.outcome_type">
 <span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.outcome_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#SemiParametricGPModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alternate constructor for SemiParametricGPModel model.</p>
-<p>This is used when we recursively build a full sampling strategy
-from a configuration.</p>
+<dt class="sig sig-object py" id="aepsych.models.SemiParametricGPModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/semi_p.html#SemiParametricGPModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.SemiParametricGPModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration options for the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model, defaults to None.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Additional options, defaults to None.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Configured class instance.</p>
+<dd class="field-even"><p>Configuration options for the model.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.SemiParametricGPModel" title="aepsych.models.SemiParametricGPModel">SemiParametricGPModel</a></p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1567,7 +1573,7 @@ gamma prior. Defaults to None.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.stimuli_per_trial">
-<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stimuli_per_trial</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.stimuli_per_trial" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.outcome_type">
@@ -1670,18 +1676,24 @@ gamma prior. Defaults to None.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize the model from a config object.</p>
+<dt class="sig sig-object py" id="aepsych.models.PairwiseProbitModel.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/pairwise_probit.html#PairwiseProbitModel.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.PairwiseProbitModel.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternate constructor for GPClassification model from a configuration.</p>
+<p>This is used when we recursively build a full sampling strategy
+from a configuration. TODO: document how this works in some tutorial.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – a configuration containing keys/values matching this class</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – A configuration containing keys/values matching this class</p></li>
+<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>options</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Configured class instance.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.PairwiseProbitModel" title="aepsych.models.PairwiseProbitModel">PairwiseProbitModel</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#aepsych.models.GPClassificationModel" title="aepsych.models.GPClassificationModel">GPClassificationModel</a></p>
 </dd>
 </dl>
 </dd></dl>

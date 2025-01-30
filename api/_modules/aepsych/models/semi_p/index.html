@@ -338,63 +338,40 @@
             <span class="n">optimizer_options</span><span class="o">=</span><span class="n">optimizer_options</span><span class="p">,</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="SemiParametricGPModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SemiParametricGPModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Alternate constructor for SemiParametricGPModel model.</span>
-
-<span class="sd">        This is used when we recursively build a full sampling strategy</span>
-<span class="sd">        from a configuration.</span>
+<div class="viewcode-block" id="SemiParametricGPModel.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the model, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            SemiParametricGPModel: Configured class instance.</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the model.</span>
 <span class="sd">        """</span>
 
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
 
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
-        <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">slope_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"slope_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="n">inducing_point_method_class</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">GreedyVarianceReduction</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"stim_dim"</span><span class="p">:</span> <span class="n">stim_dim</span><span class="p">,</span>
+                <span class="s2">"slope_mean"</span><span class="p">:</span> <span class="n">slope_mean</span><span class="p">,</span>
+            <span class="p">}</span>
         <span class="p">)</span>
-        <span class="c1"># Check if allocator class has a `from_config` method</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inducing_point_method_class</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
-            <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method_class</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method_class</span><span class="p">()</span>
-        <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">likelihood_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">slope_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-
-        <span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">stim_dim</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span>
-            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
-            <span class="n">slope_mean</span><span class="o">=</span><span class="n">slope_mean</span><span class="p">,</span>
-            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
-            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
-            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
-            <span class="n">optimizer_options</span><span class="o">=</span><span class="n">optimizer_options</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">options</span></div>
 
 <div class="viewcode-block" id="SemiParametricGPModel.fit"><a class="viewcode-back" href="../../../models.html#aepsych.models.SemiParametricGPModel.fit">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -643,74 +620,55 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">MultivariateNormal</span><span class="p">(</span><span class="n">mean_x</span><span class="p">,</span> <span class="n">cov_x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HadamardSemiPModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.HadamardSemiPModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HadamardSemiPModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Alternate constructor for HadamardSemiPModel model.</span>
-
-<span class="sd">        This is used when we recursively build a full sampling strategy</span>
-<span class="sd">        from a configuration.</span>
+<div class="viewcode-block" id="HadamardSemiPModel.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.HadamardSemiPModel.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get configuration options for the model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
+<span class="sd">            config (Config): Configuration object.</span>
+<span class="sd">            name (str, optional): Name of the model, defaults to None.</span>
+<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            HadamardSemiPModel: Configured class instance.</span>
+<span class="sd">            Dict[str, Any]: Configuration options for the model.</span>
 <span class="sd">        """</span>
 
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">inducing_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
 
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># This model has special modules</span>
+        <span class="k">if</span> <span class="s2">"mean_module"</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">options</span><span class="p">[</span><span class="s2">"mean_module"</span><span class="p">]</span>
 
-        <span class="n">slope_mean_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_mean_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="n">slope_covar_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_covar_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">"covar_module"</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">options</span><span class="p">[</span><span class="s2">"covar_module"</span><span class="p">]</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="n">slope_mean_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"slope_mean_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">slope_covar_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"slope_covar_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">offset_mean_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"offset_mean_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">offset_covar_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"offset_covar_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">slope_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"slope_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"stim_dim"</span><span class="p">:</span> <span class="n">stim_dim</span><span class="p">,</span>
+                <span class="s2">"slope_mean_module"</span><span class="p">:</span> <span class="n">slope_mean_module</span><span class="p">,</span>
+                <span class="s2">"slope_covar_module"</span><span class="p">:</span> <span class="n">slope_covar_module</span><span class="p">,</span>
+                <span class="s2">"offset_mean_module"</span><span class="p">:</span> <span class="n">offset_mean_module</span><span class="p">,</span>
+                <span class="s2">"offset_covar_module"</span><span class="p">:</span> <span class="n">offset_covar_module</span><span class="p">,</span>
+                <span class="s2">"slope_mean"</span><span class="p">:</span> <span class="n">slope_mean</span><span class="p">,</span>
+            <span class="p">}</span>
         <span class="p">)</span>
-        <span class="n">offset_mean_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"offset_mean_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span>
-        <span class="n">offset_covar_module</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"offset_covar_module"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span>
 
-        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="n">inducing_point_method_class</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="n">classname</span><span class="p">,</span> <span class="s2">"inducing_point_method"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">GreedyVarianceReduction</span>
-        <span class="p">)</span>
-        <span class="c1"># Check if allocator class has a `from_config` method</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inducing_point_method_class</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
-            <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method_class</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">inducing_point_method</span> <span class="o">=</span> <span class="n">inducing_point_method_class</span><span class="p">()</span>
-        <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="p">()</span>
-
-        <span class="n">slope_mean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"slope_mean"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-
-        <span class="n">stim_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"stim_dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">stim_dim</span><span class="o">=</span><span class="n">stim_dim</span><span class="p">,</span>
-            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="n">slope_mean_module</span><span class="o">=</span><span class="n">slope_mean_module</span><span class="p">,</span>
-            <span class="n">slope_covar_module</span><span class="o">=</span><span class="n">slope_covar_module</span><span class="p">,</span>
-            <span class="n">offset_mean_module</span><span class="o">=</span><span class="n">offset_mean_module</span><span class="p">,</span>
-            <span class="n">offset_covar_module</span><span class="o">=</span><span class="n">offset_covar_module</span><span class="p">,</span>
-            <span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span>
-            <span class="n">slope_mean</span><span class="o">=</span><span class="n">slope_mean</span><span class="p">,</span>
-            <span class="n">inducing_size</span><span class="o">=</span><span class="n">inducing_size</span><span class="p">,</span>
-            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
-            <span class="n">inducing_point_method</span><span class="o">=</span><span class="n">inducing_point_method</span><span class="p">,</span>
-            <span class="n">optimizer_options</span><span class="o">=</span><span class="n">optimizer_options</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">options</span></div>
 
 <div class="viewcode-block" id="HadamardSemiPModel.predict"><a class="viewcode-back" href="../../../models.html#aepsych.models.HadamardSemiPModel.predict">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">probability_space</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>

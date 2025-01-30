@@ -287,43 +287,47 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="o">-</span><span class="n">samps</span> <span class="o">+</span> <span class="n">samps_ref</span></div>
 
-<div class="viewcode-block" id="PairwiseProbitModel.from_config"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PairwiseProbitModel"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Initialize the model from a config object.</span>
+<div class="viewcode-block" id="PairwiseProbitModel.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.PairwiseProbitModel.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Alternate constructor for GPClassification model from a configuration.</span>
+
+<span class="sd">        This is used when we recursively build a full sampling strategy</span>
+<span class="sd">        from a configuration. TODO: document how this works in some tutorial.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config (Config): a configuration containing keys/values matching this class</span>
+<span class="sd">            config (Config): A configuration containing keys/values matching this class</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            PairwiseProbitModel: Configured class instance.</span>
+<span class="sd">            GPClassificationModel: Configured class instance.</span>
 <span class="sd">        """</span>
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-
-        <span class="n">mean_covar_factory</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span>
-            <span class="s2">"PairwiseProbitModel"</span><span class="p">,</span>
-            <span class="s2">"mean_covar_factory"</span><span class="p">,</span>
-            <span class="n">fallback</span><span class="o">=</span><span class="n">default_mean_covar_factory</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="c1"># no way of passing mean into PairwiseGP right now</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">covar</span> <span class="o">=</span> <span class="n">mean_covar_factory</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">stimuli_per_trial</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">stimuli_per_trial</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"mean_module"</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">options</span><span class="p">[</span><span class="s2">"mean_module"</span><span class="p">]</span>
 
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">get_dims</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># This model doesn't take flexible likelihoods</span>
+        <span class="k">if</span> <span class="s2">"likelihood"</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span>
 
-        <span class="n">max_fit_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_fit_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
 
-        <span class="n">optimizer_options</span> <span class="o">=</span> <span class="n">get_optimizer_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">classname</span><span class="p">)</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"lb"</span><span class="p">:</span> <span class="n">lb</span><span class="p">,</span>
+                <span class="s2">"ub"</span><span class="p">:</span> <span class="n">ub</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">,</span>
-            <span class="n">ub</span><span class="o">=</span><span class="n">ub</span><span class="p">,</span>
-            <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">,</span>
-            <span class="n">covar_module</span><span class="o">=</span><span class="n">covar</span><span class="p">,</span>
-            <span class="n">max_fit_time</span><span class="o">=</span><span class="n">max_fit_time</span><span class="p">,</span>
-            <span class="n">optimizer_options</span><span class="o">=</span><span class="n">optimizer_options</span><span class="p">,</span>
-        <span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">options</span></div></div>
 </pre></div>
 </div>
 </div>
