@@ -23,7 +23,7 @@
 <span class="c1"># This source code is licensed under the license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">gpytorch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
@@ -37,15 +37,22 @@
 
 <div class="viewcode-block" id="pairwise_mean_covar_factory"><a class="viewcode-back" href="../../../factory.html#aepsych.factory.pairwise_mean_covar_factory">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">pairwise_mean_covar_factory</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stimuli_per_trial</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">ConstantMean</span><span class="p">,</span> <span class="n">gpytorch</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">ScaleKernel</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Creates a mean and covariance function for pairwise GPs.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        config (Config): Config object containing bounds.</span>
-
+<span class="sd">        dim (int, optional): Dimensionality of the parameter space. Unused; here for API consistency with the default factory.</span>
+<span class="sd">        stimuli_per_trial (int): Number of stimuli per trial. Because this factory is intended to be used with GPClassificationModel, this must actually be 1.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[gpytorch.means.ConstantMean, gpytorch.kernels.ScaleKernel]: A tuple containing</span>
 <span class="sd">        the mean function (ConstantMean) and the covariance function (ScaleKernel)."""</span>
+
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="n">stimuli_per_trial</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">"pairwise_mean_covar_factory must have stimuli_per_trial == 1, but </span><span class="si">{</span><span class="n">stimuli_per_trial</span><span class="si">}</span><span class="s2"> was passed instead!"</span>
     <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
     <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"common"</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">lb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ub</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"bounds shape mismatch!"</span>
