@@ -21,6 +21,7 @@ import numpy.testing as npt
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
+from aepsych.kernels import PairwiseKernel
 from aepsych.models import GPClassificationModel
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransformedModel, ParameterTransforms
@@ -28,6 +29,7 @@ from aepsych.transforms.ops import NormalizeScale
 from botorch.acquisition import qUpperConfidenceBound
 from botorch.optim.fit import fit_gpytorch_mll_torch
 from botorch.optim.stopping import ExpMAStoppingCriterion
+from gpytorch.means import ZeroMean
 from scipy.stats import bernoulli, norm, pearsonr
 from sklearn.datasets import make_classification
 from torch.distributions import Normal
@@ -886,6 +888,40 @@ class GPClassificationTest(unittest.TestCase):
             # no obvious way to test paramtransform equivalence)
 
         self.assertTrue(m1.inducing_size == m2.inducing_size)
+
+    def test_pairwise_factory(self):
+        config_str = """
+        [common]
+        parnames = [foo1, bar1, foo2, bar2]
+        stimuli_per_trial = 1
+        
+        [foo1]
+        par_type = continuous
+        lower_bound = 0.3
+        upper_bound = 0.9
+
+        [bar1]
+        par_type = continuous
+        lower_bound = 24
+        upper_bound = 66
+
+        [foo2]
+        par_type = continuous
+        lower_bound = 0.3
+        upper_bound = 0.9
+
+        [bar2]
+        par_type = continuous
+        lower_bound = 24
+        upper_bound = 66
+
+        [GPClassificationModel]
+        mean_covar_factory = pairwise_mean_covar_factory
+        """
+        config = Config(config_str=config_str)
+        m = GPClassificationModel.from_config(config=config)
+        self.assertIsInstance(m.mean_module, ZeroMean)
+        self.assertIsInstance(m.covar_module, PairwiseKernel)
 
 
 if __name__ == "__main__":
