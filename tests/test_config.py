@@ -1332,6 +1332,71 @@ class ConfigTestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             config.getobj("common", "generator")
 
+    def test_object_alias(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            outcome_types = [binary]
+            stimuli_per_trial = 1
+            strategy_names = [opt_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [opt_strat]
+            model = ModelAlias
+            generator = SobolGenerator
+
+            [ModelAlias]
+            class = GPClassificationModel
+            inducing_size = 50
+        """
+        config = Config(config_str=config_str)
+
+        strat = Strategy.from_config(config, "opt_strat")
+
+        self.assertIsInstance(strat.model, GPClassificationModel)
+        self.assertTrue(strat.model.inducing_size == 50)
+
+    def test_object_double_alias(self):
+        config_str = """
+            [common]
+            parnames = [par1]
+            outcome_types = [binary]
+            stimuli_per_trial = 1
+            strategy_names = [init_strat, opt_strat]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [init_strat]
+            model = ModelAlias
+            generator = SobolGenerator
+
+            [opt_strat]
+            model = ModelAlias
+            generator = SobolGenerator
+
+            [ModelAlias]
+            class = GPClassificationModel
+            inducing_size = 50
+        """
+        config = Config(config_str=config_str)
+
+        strat = Strategy.from_config(config, "init_strat")
+
+        self.assertIsInstance(strat.model, GPClassificationModel)
+        self.assertTrue(strat.model.inducing_size == 50)
+
+        strat2 = Strategy.from_config(config, "opt_strat")
+
+        self.assertIsInstance(strat2.model, GPClassificationModel)
+        self.assertTrue(strat2.model.inducing_size == 50)
+
 
 class TestConfigurableMixing(unittest.TestCase):
     """Temporary test cases until ConfigurableMixin rolls out entirely."""

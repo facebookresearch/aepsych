@@ -13,6 +13,7 @@ import logging
 import re
 import typing
 import warnings
+from copy import deepcopy
 from types import ModuleType, NoneType
 from typing import (
     Any,
@@ -324,6 +325,16 @@ class Config(configparser.ConfigParser):
         try:
             return self.registered_names[v]
         except KeyError:
+            # Check if this is an alias
+            if v in self:
+                # Return alias class with a new name
+                class_ = self.getobj(v, "class")
+                alias_class = type(
+                    class_.__name__, (class_,), {}
+                )  # Creates a deepcopy of the class
+                alias_class.__name__ = v
+                return alias_class
+
             if warn:
                 if v in DEPRECATED_OBJS:
                     raise TypeError(
@@ -331,6 +342,7 @@ class Config(configparser.ConfigParser):
                     )
                 else:
                     warnings.warn(f'No known object "{v}"!')
+
             return fallback_type(v)
 
     def _check_param_settings(self, param_name: str) -> None:
