@@ -388,6 +388,27 @@ def get_jnd(
     return median, lower, upper
 
 
+def p_below_threshold(
+    model: ModelProtocol, x: torch.Tensor, f_thresh: torch.Tensor
+) -> torch.Tensor:
+    """Compute the probability that the latent function is below a threshold.
+
+    Args:
+        x (torch.Tensor): Points at which to evaluate the probability.
+        f_thresh (torch.Tensor): Threshold value.
+
+    Returns:
+        torch.Tensor: Probability that the latent function is below the threshold.
+    """
+    f, var = model.predict(x)
+    f_thresh = f_thresh.reshape(-1, 1)
+    f = f.reshape(1, -1)
+    var = var.reshape(1, -1)
+
+    z = (f_thresh - f) / var.sqrt()
+    return torch.distributions.Normal(0, 1).cdf(z)  # Use PyTorch's CDF equivalent
+
+
 class TargetDistancePosteriorTransform(PosteriorTransform):
     def __init__(
         self,

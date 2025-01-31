@@ -43,18 +43,6 @@ class ModelProtocol(Protocol):
         pass
 
     @property
-    def lb(self) -> torch.Tensor:
-        pass
-
-    @property
-    def ub(self) -> torch.Tensor:
-        pass
-
-    @property
-    def bounds(self) -> torch.Tensor:
-        pass
-
-    @property
     def dim(self) -> int:
         pass
 
@@ -82,28 +70,12 @@ class ModelProtocol(Protocol):
     def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
         pass
 
-    def _get_extremum(
-        self,
-        extremum_type: str,
-        locked_dims: Optional[Mapping[int, List[float]]],
-        n_samples=1000,
-    ) -> Tuple[float, torch.Tensor]:
-        pass
-
-    def dim_grid(self, gridsize: int = 30) -> torch.Tensor:
-        pass
-
     def fit(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs: Any) -> None:
         pass
 
     def update(
         self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs: Any
     ) -> None:
-        pass
-
-    def p_below_threshold(
-        self, x: torch.Tensor, f_thresh: torch.Tensor
-    ) -> torch.Tensor:
         pass
 
 
@@ -255,26 +227,6 @@ class AEPsychMixin(GPyTorchModel, ConfigurableMixin):
         )
 
         return options
-
-    def p_below_threshold(
-        self, x: torch.Tensor, f_thresh: torch.Tensor
-    ) -> torch.Tensor:
-        """Compute the probability that the latent function is below a threshold.
-
-        Args:
-            x (torch.Tensor): Points at which to evaluate the probability.
-            f_thresh (torch.Tensor): Threshold value.
-
-        Returns:
-            torch.Tensor: Probability that the latent function is below the threshold.
-        """
-        f, var = self.predict(x)
-        f_thresh = f_thresh.reshape(-1, 1)
-        f = f.reshape(1, -1)
-        var = var.reshape(1, -1)
-
-        z = (f_thresh - f) / var.sqrt()
-        return torch.distributions.Normal(0, 1).cdf(z)  # Use PyTorch's CDF equivalent
 
 
 class AEPsychModelDeviceMixin(AEPsychMixin):

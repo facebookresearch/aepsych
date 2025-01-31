@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Union
 import aepsych
 import numpy as np
 import torch
+from aepsych.models.utils import p_below_threshold
 from aepsych.strategy import SequentialStrategy
 from aepsych.utils import make_scaled_sobol
 from scipy.stats import bernoulli
@@ -287,7 +288,7 @@ class LSEProblem(Problem):
         # define what "threshold" means in high-dim.
 
         # Brier score on level-set probabilities
-        p_l = model.p_below_threshold(self.eval_grid, self.f_threshold(model))
+        p_l = p_below_threshold(model, self.eval_grid, self.f_threshold(model))
         true_p_l = self.true_below_threshold
         assert (
             p_l.ndim == 2
