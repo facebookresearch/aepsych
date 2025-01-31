@@ -488,7 +488,7 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
 
         Args:
             config (Config): Config to look for options in.
-            name (str, optional): Strategy to look for the Generator and find options for.
+            name (str, optional): Generator to look for and find options for.
             options (Dict[str, Any], optional): Options to override from the config.
 
         Returns:
@@ -507,14 +507,10 @@ class ParameterTransformedGenerator(ParameterTransformWrapper, ConfigurableMixin
             options = deepcopy(options)
             options["transforms"] = transforms
 
-        if name is None:
-            raise ValueError("name of strategy must be set to initialize a generator")
-        else:
-            gen_cls = config.getobj(name, "generator")
-
         # Transform config
         transformed_config = transform_options(config, options["transforms"])
 
+        gen_cls = config._str_to_obj(name)  # type: ignore
         options["generator"] = gen_cls.from_config(transformed_config)
 
         return options
@@ -741,7 +737,7 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
 
         Args:
             config (Config): Config to look for options in.
-            name (str, optional): Strategy to find options for.
+            name (str, optional): Model to find options for.
             options (Dict[str, Any], optional): Options to override from the config.
 
         Returns:
@@ -760,14 +756,10 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
             options = deepcopy(options)
             options["transforms"] = transforms
 
-        if name is None:
-            raise ValueError("name of strategy must be set to initialize a model")
-        else:
-            model_cls = config.getobj(name, "model")
-
         # Transform config
         transformed_config = transform_options(config, options["transforms"])
 
+        model_cls = config._str_to_obj(name)  # type: ignore
         options["model"] = model_cls.from_config(transformed_config)
 
         return options
