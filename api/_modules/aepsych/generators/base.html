@@ -232,16 +232,10 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict[str, Any]: Configuration options for the generator.</span>
 <span class="sd">        """</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">acqf</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"acqf"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="n">extra_acqf_args</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">acqf</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"acqf"</span><span class="p">:</span> <span class="n">acqf</span><span class="p">,</span>
-                <span class="s2">"acqf_kwargs"</span><span class="p">:</span> <span class="n">extra_acqf_args</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"acqf_kwargs"</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_acqf_options</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s2">"acqf"</span><span class="p">],</span> <span class="n">config</span><span class="p">)})</span>
 
         <span class="k">return</span> <span class="n">options</span></div></div>
 </pre></div>

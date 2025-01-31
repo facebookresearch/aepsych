@@ -170,48 +170,7 @@
         <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Gen done, time=</span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">starttime</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">new_candidate</span>
-
-<div class="viewcode-block" id="OptimizeAcqfGenerator.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.optimize_acqf_generator.OptimizeAcqfGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Get configuration options for the generator.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object.</span>
-<span class="sd">            name (str, optional): Name of the generator, defaults to None.</span>
-<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict[str, Any]: Configuration options for the generator.</span>
-<span class="sd">        """</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
-
-        <span class="n">classname</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-        <span class="n">stimuli_per_trial</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"stimuli_per_trial"</span><span class="p">)</span>
-        <span class="n">restarts</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"restarts"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">samps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"samps"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
-        <span class="n">max_gen_time</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"max_gen_time"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"lb"</span><span class="p">:</span> <span class="n">lb</span><span class="p">,</span>
-                <span class="s2">"ub"</span><span class="p">:</span> <span class="n">ub</span><span class="p">,</span>
-                <span class="s2">"restarts"</span><span class="p">:</span> <span class="n">restarts</span><span class="p">,</span>
-                <span class="s2">"samps"</span><span class="p">:</span> <span class="n">samps</span><span class="p">,</span>
-                <span class="s2">"max_gen_time"</span><span class="p">:</span> <span class="n">max_gen_time</span><span class="p">,</span>
-                <span class="s2">"stimuli_per_trial"</span><span class="p">:</span> <span class="n">stimuli_per_trial</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">options</span></div></div>
+        <span class="k">return</span> <span class="n">new_candidate</span></div>
 </pre></div>
 </div>
 </div>
