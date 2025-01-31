@@ -110,38 +110,6 @@ class AEPsychClient:
             response = json.loads(response)
         return response
 
-    def tell_trial_by_index(
-        self,
-        trial_index: int,
-        outcome: int,
-        model_data: bool = True,
-        **metadata: Dict[str, Any],
-    ) -> None:
-        """Update the server on a trial that already has a trial index, as provided by `ask`.
-
-        Args:
-            outcome (int): Outcome that was obtained.
-            model_data (bool): If True, the data will be recorded in the db and included in the server's model. If False,
-                the data will be recorded in the db, but will not be used by the model. Defaults to True.
-            trial_index (int): The associated trial index of the config.
-            metadata (optional kwargs) is passed to the extra_data field on the server.
-
-        Raises:
-            AssertionError if server failed to acknowledge the tell.
-        """
-        message = {
-            "outcome": outcome,
-            "model_data": model_data,
-            "trial_index": trial_index,
-        }
-        message.update(**metadata)
-
-        request = {
-            "type": "tell",
-            "message": message,
-        }
-        self._send_recv(request)
-
     def tell(
         self,
         config: Dict[str, List[Any]],
