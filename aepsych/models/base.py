@@ -12,7 +12,6 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple
 
 import gpytorch
 import torch
-
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.factory.default import default_mean_covar_factory
 from aepsych.utils import get_dims, get_optimizer_options
