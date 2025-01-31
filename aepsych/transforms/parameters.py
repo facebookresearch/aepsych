@@ -693,21 +693,6 @@ class ParameterTransformedModel(ParameterTransformWrapper, ConfigurableMixin):
         train_x = self.transforms.transform(train_x)
         self._base_obj.update(train_x, train_y, **kwargs)
 
-    def p_below_threshold(
-        self, x: torch.Tensor, f_thresh: torch.Tensor
-    ) -> torch.Tensor:
-        """Compute the probability that the latent function is below a threshold.
-
-        Args:
-            x (torch.Tensor): Points at which to evaluate the probability.
-            f_thresh (torch.Tensor): Threshold value.
-
-        Returns:
-            torch.Tensor: Probability that the latent function is below the threshold.
-        """
-        x = self.transforms.transform(x)
-        return self._base_obj.p_below_threshold(x, f_thresh)
-
     @property
     def training(self) -> bool:
         # Check if model has it first
