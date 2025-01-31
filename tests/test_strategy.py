@@ -225,24 +225,6 @@ class TestSequenceGenerators(unittest.TestCase):
         self.strat.finish()
         self.assertTrue(self.strat.finished)
 
-    def test_n_trials_deprecation(self):
-        seed = 1
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-        lb = [-1, -1]
-        ub = [1, 1]
-
-        self.strat = Strategy(
-            generator=SobolGenerator(lb=lb, ub=ub),
-            min_asks=50,
-            lb=lb,
-            ub=ub,
-            stimuli_per_trial=1,
-            outcome_types=["binary"],
-        )
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(self.strat.n_trials, 50)
-
     def test_batchsobol_pairwise(self):
         lb = [1, 2, 3]
         ub = [2, 3, 4]

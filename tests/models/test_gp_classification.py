@@ -23,6 +23,7 @@ from aepsych.config import Config
 from aepsych.generators import OptimizeAcqfGenerator, SobolGenerator
 from aepsych.kernels import PairwiseKernel
 from aepsych.models import GPClassificationModel
+from aepsych.models.utils import get_jnd
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransformedModel, ParameterTransforms
 from aepsych.transforms.ops import NormalizeScale
@@ -701,12 +702,26 @@ class GPClassificationTest(unittest.TestCase):
         # we expect jnd close to the target to be close to the correct
         # jnd (1.5), and since this is linear model this should be true
         # for both definitions of JND
-        jnd_step = strat.get_jnd(grid=x[:, None], method="step")
+        jnd_step = get_jnd(
+            strat.model,
+            strat.lb,
+            strat.ub,
+            dim=strat.dim,
+            grid=x[:, None],
+            method="step",
+        )
         est_jnd_step = jnd_step[50]
         # looser test because step-jnd is hurt more by reverting to the mean
         self.assertTrue(np.abs(est_jnd_step - 1.5) < 0.5)
 
-        jnd_taylor = strat.get_jnd(grid=x[:, None], method="taylor")
+        jnd_taylor = get_jnd(
+            strat.model,
+            strat.lb,
+            strat.ub,
+            dim=strat.dim,
+            grid=x[:, None],
+            method="taylor",
+        )
         est_jnd_taylor = jnd_taylor[50]
         self.assertTrue(np.abs(est_jnd_taylor - 1.5) < 0.25)
 

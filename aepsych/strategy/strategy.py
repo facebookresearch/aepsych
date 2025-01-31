@@ -15,7 +15,7 @@ import torch
 from aepsych.config import Config
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
-from aepsych.models.utils import get_jnd, get_max, get_min, inv_query
+from aepsych.models.utils import get_max, get_min, inv_query
 from aepsych.strategy.utils import ensure_model_is_fresh
 from aepsych.transforms import (
     ParameterTransformedGenerator,
@@ -386,23 +386,6 @@ class Strategy(object):
         return self.model.predict(x=x, probability_space=probability_space)
 
     @ensure_model_is_fresh
-    def get_jnd(
-        self, *args, **kwargs
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
-        """Get the just-noticeable difference (JND) for the given input(s).
-
-        Returns:
-            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]: The JND value(s).
-        """
-        assert (
-            self.model is not None
-        ), "model is None! Cannot get the get jnd without a model!"
-        self.model.to(self.model_device)
-        return get_jnd(  # type: ignore
-            model=self.model, lb=self.lb, ub=self.ub, dim=self.dim, *args, **kwargs
-        )
-
-    @ensure_model_is_fresh
     def sample(
         self, x: torch.Tensor, num_samples: Optional[int] = None
     ) -> torch.Tensor:
@@ -481,19 +464,6 @@ class Strategy(object):
             bool: True if the strategy can be fitted, False otherwise.
         """
         return self.has_model and self.x is not None and self.y is not None
-
-    @property
-    def n_trials(self) -> int:
-        """Get the number of trials.
-
-        Returns:
-            int: The number of trials.
-        """
-        warnings.warn(
-            "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead.",
-            DeprecationWarning,
-        )
-        return self.min_asks
 
     def pre_warm_model(self, x: torch.Tensor, y: torch.Tensor) -> None:
         """
