@@ -7,11 +7,13 @@
 import abc
 import ast
 import configparser
+import inspect
 import json
 import logging
 import re
+import typing
 import warnings
-from types import ModuleType
+from types import ModuleType, NoneType
 from typing import (
     Any,
     Callable,
@@ -469,7 +471,6 @@ class Config(configparser.ConfigParser):
 
 class ConfigurableMixin(abc.ABC):
     @classmethod
-    @abc.abstractmethod
     def get_config_options(
         cls,
         config: Config,
@@ -478,7 +479,8 @@ class ConfigurableMixin(abc.ABC):
     ) -> Dict[str, Any]:
         """
         Return a dictionary of the relevant options to initialize this class from the
-        config, even if it is outside of the named section.
+        config, even if it is outside of the named section. By default, this will look
+        for options in name based on the __init__'s arguments/defaults.
 
         Args:
             config (Config): Config to look for options in.
@@ -491,10 +493,104 @@ class ConfigurableMixin(abc.ABC):
         Return:
             Dict[str, Any]: A dictionary of options to initialize this class.
         """
+        if name is None:
+            name = cls.__name__
 
-        raise NotImplementedError(
-            f"get_config_options hasn't been defined for {cls.__name__}!"
-        )
+        def _sort_types(annotations):
+            # Rebuild the annotations, prefering float, int, string, then the rest
+            reordered = []
+            if float in annotations:
+                reordered += [float]
+
+            if int in annotations:
+                reordered += [int]
+
+            if str in annotations:
+                reordered += [str]
+
+            reordered += [elem for elem in annotations if elem not in [float, int, str]]
+            return tuple(reordered)
+
+        args = inspect.signature(cls, eval_str=True).parameters
+
+        options = {}
+        for key, signature in args.items():
+            # Used as fallback
+            value = signature.default
+
+            if (
+                typing.get_origin(signature.annotation) is typing.Union
+            ):  # Includes Optional
+                annotations = typing.get_args(signature.annotation)
+                annotations = _sort_types(annotations)
+
+            else:
+                annotations = (signature.annotation,)
+
+            for annotation in annotations:
+                try:
+                    # Tensor
+                    if annotation is torch.Tensor:
+                        value = config.gettensor(name, key)
+
+                    # Numpy array
+                    elif annotation is np.ndarray:
+                        value = config.getarray(name, key)
+
+                    # Default list
+                    elif annotation is list:
+                        try:
+                            value = config.getlist(name, key, element_type=float)
+                        except ValueError:
+                            value = config.getlist(name, key, element_type=str)
+
+                    # Generic List[...]
+                    elif typing.get_origin(annotation) is list:
+                        element_types = typing.get_args(annotation)
+                        element_type = _sort_types(element_types)[0]
+
+                        value = config.getlist(
+                            name,
+                            key,
+                            element_type=element_type,
+                        )
+
+                    # String
+                    elif annotation is str:
+                        value = config.get(name, key)
+
+                    # Int
+                    elif annotation is int:
+                        value = config.getint(name, key)
+
+                    # Float
+                    elif annotation is float:
+                        value = config.getfloat(name, key)
+
+                    # Bool
+                    elif annotation is bool:
+                        value = config.getboolean(name, key)
+
+                    # Object
+                    elif inspect.isclass(annotation):
+                        object_cls = config.getobj(name, key)
+                        if ConfigurableMixin in object_cls.__bases__:
+                            value = object_cls.from_config(config, object_cls.__name__)
+                        else:
+                            value = object_cls
+
+                    # None type
+                    elif annotation is NoneType:
+                        value = None
+
+                    # We essentially keep trying until we succeed
+                    break
+                except (ValueError, configparser.NoOptionError):
+                    pass
+
+            options[key] = value
+
+        return options
 
     @classmethod
     def from_config(
@@ -516,7 +612,7 @@ class ConfigurableMixin(abc.ABC):
             ConfigurableMixin: Initialized class based on config and name.
         """
 
-        return cls(**cls.get_config_options(config, name, options))
+        return cls(**cls.get_config_options(config=config, name=name, options=options))
 
 
 Config.register_module(gpytorch.likelihoods)
