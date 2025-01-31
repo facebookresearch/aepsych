@@ -174,10 +174,12 @@ class QueryHandlerTestCase(BaseServerTestCase):
             [opt_strat]
             min_asks = 2
             generator = OptimizeAcqfGenerator
-            acqf = qLogNoisyExpectedImprovement
             model = PairwiseProbitModel
             min_total_outcome_occurrences = 0
 
+            [OptimizeAcqfGenerator]
+            acqf = qLogNoisyExpectedImprovement
+            
             [qLogNoisyExpectedImprovement]
             objective = ProbitObjective
         """

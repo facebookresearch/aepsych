@@ -525,7 +525,7 @@ class ConfigurableMixin(abc.ABC):
 
         args = inspect.signature(cls, eval_str=True).parameters
 
-        options = {}
+        options = options or {}
         for key, signature in args.items():
             # Used as fallback
             value = signature.default
@@ -600,7 +600,8 @@ class ConfigurableMixin(abc.ABC):
                 except (ValueError, configparser.NoOptionError):
                     pass
 
-            options[key] = value
+            if key not in options:
+                options[key] = value
 
         return options
 

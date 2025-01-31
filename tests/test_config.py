@@ -263,14 +263,17 @@ class ConfigTestCase(unittest.TestCase):
         generator = OptimizeAcqfGenerator
         min_asks = 1
         model = GPClassificationModel
+
+        [OptimizeAcqfGenerator]
         acqf = MCLevelSetEstimation
 
         [opt_strat2]
         generator = IntensityAwareSemiPGenerator
         min_asks = 1
         model = SemiParametricGPModel
+        
+        [IntensityAwareSemiPGenerator]
         acqf = EAVC
-
         """
 
         config = Config()
@@ -394,8 +397,6 @@ class ConfigTestCase(unittest.TestCase):
             outcome_types = [binary]
             parnames = [par1, par2]
             strategy_names = [init_strat, opt_strat]
-            acqf = PairwiseMCPosteriorVariance
-            model = PairwiseProbitModel
 
             [par1]
             par_type = continuous
@@ -414,6 +415,7 @@ class ConfigTestCase(unittest.TestCase):
             [opt_strat]
             min_asks = 20
             generator = OptimizeAcqfGenerator
+            model = PairwiseProbitModel
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
@@ -424,6 +426,7 @@ class ConfigTestCase(unittest.TestCase):
             [OptimizeAcqfGenerator]
             restarts = 10
             samps = 1000
+            acqf = PairwiseMCPosteriorVariance
 
             [SobolGenerator]
             n_points = 20

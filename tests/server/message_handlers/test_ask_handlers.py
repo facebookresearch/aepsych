@@ -130,9 +130,11 @@ class AskHandlerTestCase(BaseServerTestCase):
 
         [opt_strat]
         generator = OptimizeAcqfGenerator
-        acqf = MCLevelSetEstimation
         model = GPClassificationModel
         min_total_tells = 2
+
+        [OptimizeAcqfGenerator]
+        acqf = MCLevelSetEstimation
         """
         setup_request = {
             "type": "setup",

@@ -54,6 +54,8 @@ class GPRegressionTest(unittest.TestCase):
             min_asks = 5
             generator = OptimizeAcqfGenerator
             model = GPRegressionModel
+
+            [OptimizeAcqfGenerator]
             acqf = qNoisyExpectedImprovement
 
             [GPRegressionModel]

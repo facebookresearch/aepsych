@@ -214,15 +214,9 @@ class AcqfGenerator(AEPsychGenerator, ConfigurableMixin):
         Returns:
             Dict[str, Any]: Configuration options for the generator.
         """
-        options = options or {}
-        classname = cls.__name__
-        acqf = config.getobj(classname, "acqf", fallback=None)
-        extra_acqf_args = cls._get_acqf_options(acqf, config)
-        options.update(
-            {
-                "acqf": acqf,
-                "acqf_kwargs": extra_acqf_args,
-            }
-        )
+        name = name or cls.__name__
+        options = super().get_config_options(config=config, name=name, options=options)
+
+        options.update({"acqf_kwargs": cls._get_acqf_options(options["acqf"], config)})
 
         return options

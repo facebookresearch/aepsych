@@ -361,9 +361,11 @@ class TransformsLog10Test(unittest.TestCase):
 
             [opt_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
             min_total_tells = 70
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
             """
 
         config = Config()
@@ -505,9 +507,11 @@ class TransformsInteger(unittest.TestCase):
 
             [opt_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
             min_total_tells = 1
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
 
         config = Config()
@@ -616,9 +620,11 @@ class TransformsFixed(unittest.TestCase):
 
             [opt_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
             min_asks = 1
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
         config = Config()
         config.update(config_str=config_str)

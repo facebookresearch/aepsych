@@ -52,11 +52,13 @@ class GPRegressionTest(unittest.TestCase):
             min_asks = 5
             generator = OptimizeAcqfGenerator
             model = GPRegressionModel
-            acqf = qNoisyExpectedImprovement
 
             [GPRegressionModel]
             likelihood = GaussianLikelihood
             max_fit_time = 1
+
+            [OptimizeAcqfGenerator]
+            acqf = qNoisyExpectedImprovement
         """
         self.server = AEPsychServer(database_path=dbname)
         configure(self.server, config_str=config)
