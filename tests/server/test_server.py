@@ -44,9 +44,11 @@ min_total_outcome_occurrences = 0
 [opt_strat]
 min_asks = 2
 generator = OptimizeAcqfGenerator
-acqf = MCPosteriorVariance
 model = GPClassificationModel
 min_total_outcome_occurrences = 0
+
+[OptimizeAcqfGenerator]
+acqf = MCPosteriorVariance
 
 [GPClassificationModel]
 inducing_size = 10
@@ -387,9 +389,11 @@ class ServerTestCase(BaseServerTestCase):
             [opt_strat]
             min_asks = 2
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
             min_total_outcome_occurrences = 0
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
         setup_request = {
             "type": "setup",
