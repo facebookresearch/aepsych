@@ -22,6 +22,7 @@ from aepsych.benchmark import (
 )
 from aepsych.models import GPClassificationModel
 from aepsych.models.inducing_points import GreedyVarianceReduction
+from aepsych.models.utils import p_below_threshold
 
 torch.set_num_threads(1)
 torch.set_num_interop_threads(1)
@@ -96,7 +97,7 @@ class MultipleLSETestCase(unittest.TestCase):
 
     def test_vectorized_score_calculation(self):
         f_thresholds = self.test_problem.f_threshold(self.model)
-        p_l = self.model.p_below_threshold(self.test_problem.eval_grid, f_thresholds)
+        p_l = p_below_threshold(self.model, self.test_problem.eval_grid, f_thresholds)
         true_p_l = self.test_problem.true_below_threshold
         # Now, perform the Brier score calculation and classification error in PyTorch
         brier_p_below_thresh = torch.mean(2 * torch.square(true_p_l - p_l), dim=1)
