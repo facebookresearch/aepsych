@@ -10,7 +10,6 @@ from copy import deepcopy
 from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
-import numpy as np
 import torch
 from aepsych.config import Config
 from aepsych.factory.default import default_mean_covar_factory
@@ -22,9 +21,12 @@ from aepsych.utils_logging import getLogger
 from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
-from scipy.special import owens_t
-from scipy.stats import norm
 from torch.distributions import Normal
+
+from .transformed_posteriors import (
+    BernoulliProbitProbabilityPosterior,
+    MCTransformedPosterior,
+)
 
 logger = getLogger()
 
@@ -256,33 +258,22 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         with torch.no_grad():
             x = x.to(self.device)
             post = self.posterior(x)
-            fmean = post.mean.squeeze()
-            fvar = post.variance.squeeze()
-        if probability_space:
-            if isinstance(self.likelihood, BernoulliLikelihood):
-                # Probability-space mean and variance for Bernoulli-probit models is
-                # available in closed form, Proposition 1 in Letham et al. 2022 (AISTATS).
-                a_star = fmean / torch.sqrt(1 + fvar)
-                pmean = Normal(0, 1).cdf(a_star)
-                t_term = torch.tensor(
-                    owens_t(
-                        a_star.cpu().numpy(), 1 / np.sqrt(1 + 2 * fvar.cpu().numpy())
-                    ),
-                    dtype=a_star.dtype,
-                ).to(self.device)
-                pvar = pmean - 2 * t_term - pmean.square()
-                return promote_0d(pmean), promote_0d(pvar)
-            else:
-                fsamps = post.sample(torch.Size([10000]))
-                if hasattr(self.likelihood, "objective"):
-                    psamps = self.likelihood.objective(fsamps)
-                else:
-                    psamps = norm.cdf(fsamps)
-                pmean, pvar = psamps.mean(0), psamps.var(0)
-                return promote_0d(pmean), promote_0d(pvar)
 
-        else:
-            return promote_0d(fmean), promote_0d(fvar)
+            if probability_space:
+                if isinstance(self.likelihood, BernoulliLikelihood):
+                    post = BernoulliProbitProbabilityPosterior(post)
+
+                else:
+                    if hasattr(self.likelihood, "objective"):
+                        transform = self.likelihood.objective
+                    else:
+                        transform = Normal(0, 1).cdf
+                    post = MCTransformedPosterior(post, transform, 1000)
+
+            mean = post.mean.squeeze()
+            var = post.variance.squeeze()
+
+        return promote_0d(mean.to(self.device)), promote_0d(var.to(self.device))
 
     def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance in probability space.
