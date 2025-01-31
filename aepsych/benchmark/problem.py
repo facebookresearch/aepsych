@@ -330,7 +330,9 @@ class LSEProblemWithEdgeLogging(LSEProblem):
         # add number of edge samples to the log
 
         # get the trials selected by the final strat only
-        n_opt_trials = strat.strat_list[-1].n_trials
+        n_opt_trials = (
+            len(strat.strat_list[-1].x) if strat.strat_list[-1].x is not None else 0
+        )
 
         lb, ub = strat.lb, strat.ub
         r = ub - lb
