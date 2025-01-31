@@ -9,11 +9,13 @@ import json
 import os
 import unittest
 import uuid
+from typing import List, Optional, Union
 
+import numpy as np
 import torch
 from aepsych.acquisition import EAVC, MCLevelSetEstimation
 from aepsych.acquisition.objective import FloorGumbelObjective, ProbitObjective
-from aepsych.config import Config, ParameterConfigError
+from aepsych.config import Config, ConfigurableMixin, ParameterConfigError
 from aepsych.generators import (
     IntensityAwareSemiPGenerator,
     OptimizeAcqfGenerator,
@@ -32,7 +34,6 @@ from aepsych.server.message_handlers.handle_setup import configure
 from aepsych.strategy import SequentialStrategy, Strategy
 from aepsych.transforms import ParameterTransforms, transform_options
 from aepsych.transforms.ops import Log10Plus, NormalizeScale
-from aepsych.version import __version__
 from botorch.acquisition import qLogNoisyExpectedImprovement
 from botorch.acquisition.active_learning import PairwiseMCPosteriorVariance
 
@@ -1330,6 +1331,65 @@ class ConfigTestCase(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             config.getobj("common", "generator")
+
+
+class TestConfigurableMixing(unittest.TestCase):
+    """Temporary test cases until ConfigurableMixin rolls out entirely."""
+
+    def test_mixin(self):
+        class TestClass(ConfigurableMixin):
+            def __init__(
+                self,
+                objectArg: SobolGenerator,
+                tensorArg: torch.Tensor,
+                optionalArg: Optional[List[int]] = None,
+                stringArg: str = "default string",
+                unionArg: Union[str, int, float, List] = 4.3,
+                listArg: List[str] = ["string", "listed"],
+                arrayArg: Optional[np.ndarray] = None,
+                boolArg: bool = True,
+            ):
+                self.objectArg = objectArg
+                self.tensorArg = tensorArg
+                self.optionalArg = optionalArg
+                self.stringArg = stringArg
+                self.unionArg = unionArg
+                self.listArg = listArg
+                self.arrayArg = arrayArg
+                self.boolArg = boolArg
+
+        config_str = """
+            [common]
+            parnames = [par1]
+            stimuli_per_trial = 1
+            outcome_types = [binary]
+
+            [par1]
+            par_type = continuous
+            lower_bound = 1
+            upper_bound = 100
+
+            [TestClass]
+            objectArg = SobolGenerator
+            tensorArg = [4, 5, 6]
+            # optionalArg = [1, 2, 3]
+            stringArg = string
+            unionArg = 1
+            listArg = [a, b]
+            arrayArg = [4.5, 9.5, 8.0]
+            boolArg = False
+        """
+        config = Config(config_str=config_str)
+
+        testclass = TestClass.from_config(config, name="TestClass")
+
+        self.assertIs(testclass.objectArg, SobolGenerator)
+        self.assertTrue(torch.all(testclass.tensorArg == torch.tensor([4, 5, 6])))
+        self.assertIsNone(testclass.optionalArg)
+        self.assertEqual(testclass.stringArg, "string")
+        self.assertEqual(testclass.listArg, ["a", "b"])
+        self.assertTrue(np.all(testclass.arrayArg == np.array([4.5, 9.5, 8.0])))
+        self.assertFalse(testclass.boolArg)
 
 
 if __name__ == "__main__":
