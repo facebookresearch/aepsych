@@ -330,6 +330,7 @@ class Config(configparser.ConfigParser):
                 # Return alias class with a new name
                 alias_class = deepcopy(self.getobj(v, "class"))
                 alias_class.__name__ = v
+                raise ValueError
                 return alias_class
 
             if warn:
