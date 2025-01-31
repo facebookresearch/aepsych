@@ -209,6 +209,8 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
             min_total_tells = 1
             generator = OptimizeAcqfGenerator
             model = GPClassificationModel
+
+            [OptimizeAcqfGenerator]
             acqf = EAVC
         """
         config = Config()
@@ -250,10 +252,10 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
             min_total_tells = {n_opt}
             generator = OptimizeAcqfGenerator
             model = GPClassificationModel
-            acqf = EAVC
 
             [OptimizeAcqfGenerator]
             samps = 10
+            acqf = EAVC
 
             [EAVC]
             target = 0.75
