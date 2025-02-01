@@ -90,17 +90,6 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.likelihood, self)
         return self._fit_mll(mll, self.optimizer_options, **kwargs)
 
-    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
-        """Sample from underlying model.
-
-        Args:
-            x (torch.Tensor): Points at which to sample.
-            num_samples (int): Number of samples to return.
-
-        Returns:
-            torch.Tensor: Posterior samples [num_samples x dim]
-        """
-        return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
         """Perform a warm-start update of the model from previous fit.
@@ -111,17 +100,3 @@ class GPRegressionModel(AEPsychModelDeviceMixin, ExactGP):
         """
         return self.fit(train_x, train_y, **kwargs)
 
-    def predict(self, x: torch.Tensor, **kwargs) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Query the model for posterior mean and variance.
-
-        Args:
-            x (torch.Tensor): Points at which to predict from the model.
-
-        Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
-        """
-        with torch.no_grad():
-            post = self.posterior(x)
-        fmean = post.mean.squeeze()
-        fvar = post.variance.squeeze()
-        return promote_0d(fmean), promote_0d(fvar)
