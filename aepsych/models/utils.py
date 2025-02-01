@@ -7,12 +7,12 @@
 from __future__ import annotations
 
 import warnings
-from typing import Mapping, Optional, Tuple, Union
+from typing import Callable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
 from aepsych.models.base import ModelProtocol
-from aepsych.utils import dim_grid, get_jnd_multid
+from aepsych.utils import dim_grid, get_jnd_multid, promote_0d
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
     PosteriorTransform,
@@ -407,6 +407,28 @@ def p_below_threshold(
 
     z = (f_thresh - f) / var.sqrt()
     return torch.distributions.Normal(0, 1).cdf(z)  # Use PyTorch's CDF equivalent
+
+
+def bernoulli_probit_prob_transform(mean: torch.Tensor, var: torch.Tensor):
+    """Computes the probability-space mean and variance from a Bernoulli-probit model. Closed form expression taken from Proposition 1 in Letham et al. 2022 (AISTATS).
+
+    Args:
+        mean (torch.Tensor): The latent mean of a Bernoulli-probit model evaluated at a set of query points.
+        mean (torch.Tensor): The latent variance of a Bernoulli-probit model evaluated at a set of query points.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points in probability space.
+    """
+    fmean = mean.squeeze()
+    fvar = var.squeeze()
+    a_star = fmean / torch.sqrt(1 + fvar)
+    pmean = Normal(0, 1).cdf(a_star)
+    t_term = torch.tensor(
+        owens_t(a_star.cpu().numpy(), 1 / np.sqrt(1 + 2 * fvar.cpu().numpy())),
+        dtype=a_star.dtype,
+    ).to(a_star)
+    pvar = pmean - 2 * t_term - pmean.square()
+    return pmean, pvar
 
 
 class TargetDistancePosteriorTransform(PosteriorTransform):
