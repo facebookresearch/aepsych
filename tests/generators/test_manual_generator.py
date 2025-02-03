@@ -51,7 +51,7 @@ class TestManualGenerator(unittest.TestCase):
                 """
         config = Config()
         config.update(config_str=config_str)
-        gen = ParameterTransformedGenerator.from_config(config, "init_strat")
+        gen = ParameterTransformedGenerator.from_config(config, "ManualGenerator")
         npt.assert_equal(gen.lb.numpy(), np.array([0, 0]))
         npt.assert_equal(gen.ub.numpy(), np.array([1, 1]))
         self.assertFalse(gen.finished)
@@ -84,7 +84,7 @@ class TestManualGenerator(unittest.TestCase):
                 """
         config = Config()
         config.update(config_str=config_str)
-        gen = ParameterTransformedGenerator.from_config(config, "init_strat")
+        gen = ParameterTransformedGenerator.from_config(config, "ManualGenerator")
 
         with self.assertWarnsRegex(Warning, "Cannot fix features"):
             gen.gen(fixed_features={0: 10.5})

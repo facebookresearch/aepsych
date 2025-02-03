@@ -60,7 +60,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         fixed_kernel_amplitude = False
         """
         config = Config(config_str=config_str)
-        model = ParameterTransformedModel.from_config(config, "init_strat")
+        model = ParameterTransformedModel.from_config(config, "MonotonicProjectionGP")
         model.fit(X, y)
 
         # Check that it is monotonic in both dims
@@ -101,7 +101,7 @@ class MonotonicProjectionGPtest(unittest.TestCase):
         fixed_kernel_amplitude = False
         """
         config = Config(config_str=config_str)
-        model = ParameterTransformedModel.from_config(config, "init_strat")
+        model = ParameterTransformedModel.from_config(config, "MonotonicProjectionGP")
         post = model.posterior(Xtest)
         mu = post.mean.squeeze()
         self.assertTrue(mu.min().item() >= 4.9)
