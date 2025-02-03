@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from aepsych.config import Config
 
-from ..models.base import ModelProtocol
+from ..models.model_protocol import ModelProtocol
 from .base import AEPsychGenerator
 from .optimize_acqf_generator import OptimizeAcqfGenerator
 

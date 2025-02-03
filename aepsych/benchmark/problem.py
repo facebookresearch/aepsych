@@ -7,9 +7,9 @@
 from functools import cached_property
 from typing import Any, Dict, List, Union
 
-import aepsych
 import numpy as np
 import torch
+from aepsych.models.model_protocol import ModelProtocol
 from aepsych.models.utils import p_below_threshold
 from aepsych.strategy import SequentialStrategy
 from aepsych.utils import make_scaled_sobol
@@ -78,11 +78,11 @@ class Problem:
         """
         return bernoulli.rvs(self.p(x))
 
-    def f_hat(self, model: aepsych.models.base.ModelProtocol) -> torch.Tensor:
+    def f_hat(self, model: ModelProtocol) -> torch.Tensor:
         """Generate mean predictions from the model over the evaluation grid.
 
         Args:
-            model (aepsych.models.base.ModelProtocol): Model to evaluate.
+            model (TensoModelProtocolr): Model to evaluate.
 
         Returns:
             torch.Tensor: Posterior mean from underlying model over the evaluation grid.
@@ -109,11 +109,11 @@ class Problem:
         normal_dist = torch.distributions.Normal(0, 1)
         return normal_dist.cdf(self.f_true)
 
-    def p_hat(self, model: aepsych.models.base.ModelProtocol) -> torch.Tensor:
+    def p_hat(self, model: ModelProtocol) -> torch.Tensor:
         """Generate mean predictions from the model over the evaluation grid.
 
         Args:
-            model (aepsych.models.base.ModelProtocol): Model to evaluate.
+            model (TensoModelProtocolr): Model to evaluate.
 
         Returns:
             torch.Tensor: Posterior mean from underlying model over the evaluation grid.

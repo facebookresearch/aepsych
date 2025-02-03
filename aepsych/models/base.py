@@ -8,75 +8,21 @@ from __future__ import annotations
 
 import time
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Mapping, Optional, Protocol, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import gpytorch
 import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.factory.default import default_mean_covar_factory
-from aepsych.utils import get_dims, get_optimizer_options
+from aepsych.utils import get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll, fit_gpytorch_mll_scipy
 from botorch.models.gpytorch import GPyTorchModel
-from botorch.posteriors import GPyTorchPosterior
-from gpytorch.likelihoods import Likelihood
+from botorch.posteriors import TransformedPosterior
 from gpytorch.mlls import MarginalLogLikelihood
 
+
 logger = getLogger()
-
-
-class ModelProtocol(Protocol):
-    @property
-    def _num_outputs(self) -> int:
-        pass
-
-    @property
-    def outcome_type(self) -> str:
-        pass
-
-    @property
-    def extremum_solver(self) -> str:
-        pass
-
-    @property
-    def train_inputs(self) -> torch.Tensor:
-        pass
-
-    @property
-    def dim(self) -> int:
-        pass
-
-    @property
-    def device(self) -> torch.device:
-        pass
-
-    def posterior(self, X: torch.Tensor) -> GPyTorchPosterior:
-        pass
-
-    def predict(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
-        pass
-
-    def predict_probability(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
-        pass
-
-    @property
-    def stimuli_per_trial(self) -> int:
-        pass
-
-    @property
-    def likelihood(self) -> Likelihood:
-        pass
-
-    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
-        pass
-
-    def fit(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs: Any) -> None:
-        pass
-
-    def update(
-        self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs: Any
-    ) -> None:
-        pass
 
 
 class AEPsychMixin(GPyTorchModel, ConfigurableMixin):
@@ -328,3 +274,75 @@ class AEPsychModelDeviceMixin(AEPsychMixin):
             # setting device on copy to not change original
             train_targets = deepcopy(train_targets).to(self.device)
             self._train_targets = train_targets
+
+    def predict(
+        self,
+        x: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
+        """
+        with torch.no_grad():
+            x = x.to(self.device)
+            post = self.posterior(x)
+            mean = post.mean.squeeze()
+            var = post.variance.squeeze()
+
+        return promote_0d(mean.to(self.device)), promote_0d(var.to(self.device))
+
+    def predict_transform(
+        self,
+        x: torch.Tensor,
+        transformed_posterior_cls: Optional[type[TransformedPosterior]] = None,
+        **transform_kwargs,
+    ):
+        """Query the model for posterior mean and variance under some tranformation.
+
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            transformed_posterior_cls (TransformedPosterior type, optional): The type of transformation to apply to the posterior.
+                Note that you should give TransformedPosterior itself, rather than an instance. Defaults to None, in which case no
+                transformation is applied.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
+        """
+        if transformed_posterior_cls is None:
+            return self.predict(x)
+        with torch.no_grad():
+            x = x.to(self.device)
+            post = self.posterior(x)
+            post = transformed_posterior_cls(post, **transform_kwargs)
+
+            mean = post.mean.squeeze()
+            var = post.variance.squeeze()
+
+        return promote_0d(mean.to(self.device)), promote_0d(var.to(self.device))
+
+    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
+        """Sample from underlying model.
+
+        Args:
+            x (torch.Tensor): Points at which to sample.
+            num_samples (int): Number of samples to return.
+            kwargs are ignored
+
+        Returns:
+            torch.Tensor: Posterior samples [num_samples x dim]
+        """
+        x = x.to(self.device)
+        return self.posterior(x).sample(torch.Size([num_samples])).squeeze()
+
+    def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
+        """Perform a warm-start update of the model from previous fit.
+
+        Args:
+            train_x (torch.Tensor): Inputs.
+            train_y (torch.Tensor): Responses.
+        """
+        return self.fit(train_x, train_y, **kwargs)

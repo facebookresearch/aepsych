@@ -16,10 +16,8 @@ from aepsych.acquisition.objective import FloorLogitObjective
 from aepsych.acquisition.objective.semi_p import SemiPThresholdObjective
 from aepsych.config import Config
 from aepsych.likelihoods import BernoulliObjectiveLikelihood, LinearBernoulliLikelihood
-from aepsych.models import GPClassificationModel
-from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
-from aepsych.utils import get_dims, get_optimizer_options, promote_0d
+from aepsych.utils import promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.acquisition.objective import PosteriorTransform
 from botorch.optim.fit import fit_gpytorch_mll_scipy
@@ -30,6 +28,8 @@ from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 from gpytorch.means import ConstantMean, ZeroMean
 from gpytorch.priors import GammaPrior
 from torch.distributions import Normal
+
+from .variationalgp import VariationalGPModel
 
 # TODO: Implement a covar factory and analytic method for getting the lse
 logger = getLogger()
@@ -230,7 +230,7 @@ class SemiPPosterior(GPyTorchPosterior):
         )(samples=fsamps, X=self.Xi)
 
 
-class SemiParametricGPModel(GPClassificationModel):
+class SemiParametricGPModel(VariationalGPModel):
     """
     Semiparametric GP model for psychophysics.
 
@@ -467,7 +467,7 @@ class SemiParametricGPModel(GPClassificationModel):
             return posterior
 
 
-class HadamardSemiPModel(GPClassificationModel):
+class HadamardSemiPModel(VariationalGPModel):
     """
     Semiparametric GP model for psychophysics, with a MVN approximation to the elementwise
     product of GPs.

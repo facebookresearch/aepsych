@@ -15,7 +15,8 @@ import numpy as np
 import torch
 from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AcqfGenerator, AEPsychGenerator
-from aepsych.models.base import AEPsychMixin, ModelProtocol
+from aepsych.models.base import AEPsychMixin
+from aepsych.models.model_protocol import ModelProtocol
 from aepsych.transforms.ops import Fixed, Log10Plus, NormalizeScale, Round
 from aepsych.transforms.ops.base import Transform
 from aepsych.utils import get_bounds
