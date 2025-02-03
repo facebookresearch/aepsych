@@ -506,7 +506,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            config (Config): Config to look for options in.</span>
-<span class="sd">            name (str, optional): Strategy to look for the Generator and find options for.</span>
+<span class="sd">            name (str, optional): Generator to look for and find options for.</span>
 <span class="sd">            options (Dict[str, Any], optional): Options to override from the config.</span>
 
 <span class="sd">        Returns:</span>
@@ -525,14 +525,10 @@
             <span class="n">options</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
             <span class="n">options</span><span class="p">[</span><span class="s2">"transforms"</span><span class="p">]</span> <span class="o">=</span> <span class="n">transforms</span>
 
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"name of strategy must be set to initialize a generator"</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gen_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"generator"</span><span class="p">)</span>
-
         <span class="c1"># Transform config</span>
         <span class="n">transformed_config</span> <span class="o">=</span> <span class="n">transform_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">[</span><span class="s2">"transforms"</span><span class="p">])</span>
 
+        <span class="n">gen_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_str_to_obj</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="n">options</span><span class="p">[</span><span class="s2">"generator"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gen_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">transformed_config</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">options</span></div></div>
@@ -759,7 +755,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            config (Config): Config to look for options in.</span>
-<span class="sd">            name (str, optional): Strategy to find options for.</span>
+<span class="sd">            name (str, optional): Model to find options for.</span>
 <span class="sd">            options (Dict[str, Any], optional): Options to override from the config.</span>
 
 <span class="sd">        Returns:</span>
@@ -778,14 +774,10 @@
             <span class="n">options</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
             <span class="n">options</span><span class="p">[</span><span class="s2">"transforms"</span><span class="p">]</span> <span class="o">=</span> <span class="n">transforms</span>
 
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"name of strategy must be set to initialize a model"</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">model_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"model"</span><span class="p">)</span>
-
         <span class="c1"># Transform config</span>
         <span class="n">transformed_config</span> <span class="o">=</span> <span class="n">transform_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">options</span><span class="p">[</span><span class="s2">"transforms"</span><span class="p">])</span>
 
+        <span class="n">model_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_str_to_obj</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="n">options</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">transformed_config</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">options</span></div></div>
