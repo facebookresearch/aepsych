@@ -165,7 +165,6 @@ class SemiPSmokeTests(unittest.TestCase):
         )
 
     @parameterized.expand(test_configs)
-    @unittest.skip("Slow smoke test, TODO speed me up")
     def test_memorize_data(self, objective, floor, model_constructor):
         """
         see approximate accuracy on easy logistic ps that only varies in 1d
@@ -181,7 +180,6 @@ class SemiPSmokeTests(unittest.TestCase):
             y = torch.bernoulli(link(self.f))
 
             model = model_constructor(
-                inducing_point_method=self.inducing_point_method,
                 stim_dim=self.stim_dim,
                 floor=floor,
                 objective=objective,
