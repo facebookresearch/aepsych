@@ -378,8 +378,8 @@ class DataFetcherTestCase(unittest.TestCase):
                 "par1": ["continuous", 0, 1, True],
                 "par2": ["continuous", 0, 1, True],
             },
-            outcome_types=["ordinal"],
-            model_name="OrdinalGPModel",
+            outcome_types=["continuous"],
+            model_name="GPRegressionModel",
         ) + self.pre_seed_config(
             "seed_conds", exp_names=["multi_param_gen", "negative_param_exp"]
         )
