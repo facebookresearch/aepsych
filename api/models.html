@@ -950,63 +950,6 @@ fitting. Assumes we are using L-BFGS-B.</p></li>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">OrdinalGPModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/ordinal_gp.html#OrdinalGPModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.OrdinalGPModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.models.gp_classification.GPClassificationModel" title="aepsych.models.gp_classification.GPClassificationModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">GPClassificationModel</span></code></a></p>
-<p>Convenience wrapper for GPClassificationModel that hardcodes
-an ordinal likelihood, better priors for this setting, and
-adds a convenience method for computing outcome probabilities.</p>
-<p>TODO: at some point we should refactor posteriors so that things like
-OrdinalPosterior and MonotonicPosterior don’t have to have their own
-model classes.</p>
-<p>Initialize the OrdinalGPModel</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>likelihood</strong> (<em>Likelihood</em>) – The likelihood function to use. If None defaults to
-Ordinal likelihood.</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.outcome_type">
-<span class="sig-name descname"><span class="pre">outcome_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ordinal'</span></em><a class="headerlink" href="#aepsych.models.OrdinalGPModel.outcome_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.predict_probs">
-<span class="sig-name descname"><span class="pre">predict_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xgrid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/ordinal_gp.html#OrdinalGPModel.predict_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.OrdinalGPModel.predict_probs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict probabilities of each ordinal level at xgrid</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>xgrid</strong> (<em>torch.Tensor</em>) – Tensor of input points to predict at</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tensor of probabilities of each ordinal level at xgrid</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.models.OrdinalGPModel.calculate_probs">
-<span class="sig-name descname"><span class="pre">calculate_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fvar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/ordinal_gp.html#OrdinalGPModel.calculate_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.OrdinalGPModel.calculate_probs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate probabilities of each ordinal level given a mean and variance</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>fmean</strong> (<em>torch.Tensor</em>) – Mean of the latent function</p></li>
-<li><p><strong>fvar</strong> (<em>torch.Tensor</em>) – Variance of the latent function</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tensor of probabilities of each ordinal level</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>torch.Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
 <dt class="sig sig-object py" id="aepsych.models.MonotonicProjectionGP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.models.</span></span><span class="sig-name descname"><span class="pre">MonotonicProjectionGP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/models/monotonic_projection_gp.html#MonotonicProjectionGP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.models.MonotonicProjectionGP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#aepsych.models.gp_classification.GPClassificationModel" title="aepsych.models.gp_classification.GPClassificationModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">GPClassificationModel</span></code></a></p>
