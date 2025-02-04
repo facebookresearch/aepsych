@@ -13,22 +13,22 @@ from aepsych.extensions import ExtensionManager
 
 
 class ExtensionsTest(unittest.TestCase):
-    extension_path = Path(__file__).parent / "extensions"
+    extension_path = Path(__file__).parent.parent / "extensions_example"
 
     def test_load_extensions(self):
-        exts = ExtensionManager(files=[self.extension_path / "register_object.py"])
+        exts = ExtensionManager(files=[self.extension_path / "new_objects.py"])
         exts.load()
 
         self.assertTrue(len(exts.loaded_modules) == 1)
 
-        module = exts.loaded_modules["register_object"]
+        module = exts.loaded_modules["new_objects"]
         self.assertIsInstance(module, ModuleType)
         self.assertTrue(hasattr(module, "OnesGenerator"))
 
     def test_raise_missing_extension(self):
         exts = ExtensionManager(
             files=[
-                self.extension_path / "register_object.py",
+                self.extension_path / "new_objects.py",
                 self.extension_path / "missing_extension.py",
             ]
         )
@@ -36,7 +36,7 @@ class ExtensionsTest(unittest.TestCase):
             exts.load()
 
     def test_double_load(self):
-        exts = ExtensionManager(files=[self.extension_path / "register_object.py"])
+        exts = ExtensionManager(files=[self.extension_path / "new_objects.py"])
         exts.load()
 
         with self.assertWarns(UserWarning):
