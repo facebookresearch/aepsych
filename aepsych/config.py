@@ -610,7 +610,7 @@ class ConfigurableMixin(abc.ABC):
                 except (ValueError, configparser.NoOptionError):
                     pass
 
-            if key not in options:
+            if key not in options and value is not inspect._empty:
                 options[key] = value
 
         return options
