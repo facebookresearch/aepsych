@@ -33,7 +33,7 @@ class AcqArgProtocol(Protocol):
         pass
 
 
-class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
+class AEPsychGenerator(ConfigurableMixin, abc.ABC, Generic[AEPsychModelType]):
     """Abstract base class for generators, which are responsible for generating new points to sample."""
 
     _requires_model = True
@@ -57,7 +57,7 @@ class AEPsychGenerator(abc.ABC, Generic[AEPsychModelType]):
         pass
 
 
-class AcqfGenerator(AEPsychGenerator, ConfigurableMixin):
+class AcqfGenerator(AEPsychGenerator):
     """Base class for generators that evaluate acquisition functions."""
 
     _requires_model = True
