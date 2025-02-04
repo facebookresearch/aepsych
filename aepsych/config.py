@@ -527,6 +527,12 @@ class ConfigurableMixin(abc.ABC):
 
         options = options or {}
         for key, signature in args.items():
+            if signature.kind in [
+                inspect.Parameter.KEYWORD_ONLY,  # Ignore *
+                inspect.Parameter.VAR_POSITIONAL,  # Ignore *args
+                inspect.Parameter.VAR_KEYWORD,  # Ignore **kwargs
+            ]:
+                continue
             # Used as fallback
             value = signature.default
 
