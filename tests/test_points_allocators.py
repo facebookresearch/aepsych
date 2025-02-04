@@ -52,13 +52,15 @@ class TestInducingPointAllocators(unittest.TestCase):
 
             [init_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             min_asks = 2
             model = GPClassificationModel
 
             [GPClassificationModel]
             inducing_point_method = SobolAllocator
             inducing_size = 2
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
 
         config = Config()
@@ -134,13 +136,15 @@ class TestInducingPointAllocators(unittest.TestCase):
 
             [init_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             min_asks = 2
             model = GPClassificationModel
 
             [GPClassificationModel]
             inducing_point_method = KMeansAllocator
             inducing_size = 2
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
 
         config = Config()
@@ -212,13 +216,15 @@ class TestInducingPointAllocators(unittest.TestCase):
 
             [init_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             min_asks = 2
             model = GPClassificationModel
 
             [GPClassificationModel]
             inducing_point_method = GreedyVarianceReduction
             inducing_size = 2
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
 
         config = Config()
@@ -244,13 +250,15 @@ class TestInducingPointAllocators(unittest.TestCase):
 
             [init_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             min_asks = 2
             model = GPClassificationModel
 
             [GPClassificationModel]
             inducing_point_method = FixedAllocator
             inducing_size = 2
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
 
             [FixedAllocator]
             points = [[0.1], [0.2]]
@@ -320,10 +328,12 @@ class TestInducingPointAllocators(unittest.TestCase):
 
             [init_strat]
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             min_asks = 2
             model = GPClassificationModel
 
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
+            
             [GPClassificationModel]
             inducing_size = 2
         """
