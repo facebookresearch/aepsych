@@ -7,17 +7,17 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import torch
-from aepsych.config import Config
+from aepsych.config import ConfigurableMixin
 from aepsych.likelihoods import LinearBernoulliLikelihood
 from botorch.acquisition.objective import MCAcquisitionObjective
 from gpytorch.likelihoods import Likelihood
 from torch import Tensor
 
 
-class SemiPObjectiveBase(MCAcquisitionObjective):
+class SemiPObjectiveBase(MCAcquisitionObjective, ConfigurableMixin):
     """Wraps the semi-parametric transform into an objective
     that correctly extracts various things
     """
@@ -70,29 +70,30 @@ class SemiPProbabilityObjective(SemiPObjectiveBase):
         return self.likelihood.p(function_samples=samples, Xi=Xi).squeeze(-1)
 
     @classmethod
-    def from_config(cls, config: Config) -> SemiPProbabilityObjective:
-        """Create a SemiPProbabilityObjective from a config object.
+    def get_config_options(
+        cls,
+        config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Find the config options for the objective.
 
         Args:
-            config (Config): Configuration object containing the initialization parameters.
+            config (Config): Config to look for options in.
+            name (str, optional): Unused, kept for API conformity.
+            options (Dict[str, Any], optional): Existing options, any key in options
+                will be ignored from the config.
 
-        Returns:
-            SemiPProbabilityObjective: A SemiPProbabilityObjective object.
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize the objective.
         """
+        options = super().get_config_options(config, name, options)
 
-        classname = cls.__name__
+        # Due to likelihood object not having a from_config, so we just initialize it
+        if isinstance(options["likelihood"], type):
+            options["likelihood"] = options["likelihood"]()
 
-        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
-
-        if likelihood_cls is not None:
-            if hasattr(likelihood_cls, "from_config"):
-                likelihood = likelihood_cls.from_config(config)
-            else:
-                likelihood = likelihood_cls()
-        else:
-            likelihood = None  # fall back to __init__ default
-
-        return cls(likelihood=likelihood)
+        return options
 
 
 class SemiPThresholdObjective(SemiPObjectiveBase):
@@ -102,7 +103,7 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
 
     def __init__(
         self,
-        target: float,
+        target: float = 0.75,
         likelihood: Optional[LinearBernoulliLikelihood] = None,
         *args,
         **kwargs,
@@ -135,26 +136,27 @@ class SemiPThresholdObjective(SemiPObjectiveBase):
         return (self.fspace_target + slope * offset) / slope
 
     @classmethod
-    def from_config(cls, config: Config) -> SemiPThresholdObjective:
-        """Create a SemiPThresholdObjective from a config object.
+    def get_config_options(
+        cls,
+        config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Find the config options for the objective.
 
         Args:
-            config (Config): Configuration object containing the initialization parameters.
+            config (Config): Config to look for options in.
+            name (str, optional): Unused, kept for API conformity.
+            options (Dict[str, Any], optional): Existing options, any key in options
+                will be ignored from the config.
 
-        Returns:
-            SemiPThresholdObjective: A SemiPThresholdObjective object.
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize the objective.
         """
-        classname = cls.__name__
+        options = super().get_config_options(config, name, options)
 
-        likelihood_cls = config.getobj(classname, "likelihood", fallback=None)
+        # Due to likelihood object not having a from_config, so we just initialize it
+        if isinstance(options["likelihood"], type):
+            options["likelihood"] = options["likelihood"]()
 
-        if likelihood_cls is not None:
-            if hasattr(likelihood_cls, "from_config"):
-                likelihood = likelihood_cls.from_config(config)
-            else:
-                likelihood = likelihood_cls()
-        else:
-            likelihood = None  # fall back to __init__ default
-
-        target = config.getfloat(classname, "target", fallback=0.75)
-        return cls(likelihood=likelihood, target=target)
+        return options
