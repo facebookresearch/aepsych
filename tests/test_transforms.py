@@ -102,8 +102,10 @@ class TransformsConfigTest(unittest.TestCase):
             min_total_tells = 50
             refit_every = 5
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
             """
 
         config = Config()

@@ -892,6 +892,9 @@ class ConfigTestCase(unittest.TestCase):
             [opt_strat]
             generator = OptimizeAcqfGenerator
             model = GPClassificationModel
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
             """
 
         bad_str = """
@@ -914,6 +917,9 @@ class ConfigTestCase(unittest.TestCase):
             [init_strat]
             generator = SobolGenerator
             model = GPClassificationModel
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
             """
 
         good_config = Config(config_str=good_str)
@@ -1026,8 +1032,10 @@ class ConfigTestCase(unittest.TestCase):
             min_total_tells = 20
             refit_every = 5
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
 
         config = Config()
@@ -1069,8 +1077,10 @@ class ConfigTestCase(unittest.TestCase):
             min_total_tells = 20
             refit_every = 5
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
 
         config = Config()
@@ -1112,8 +1122,10 @@ class ConfigTestCase(unittest.TestCase):
             min_total_tells = 20
             refit_every = 5
             generator = OptimizeAcqfGenerator
-            acqf = MCLevelSetEstimation
             model = GPClassificationModel
+
+            [OptimizeAcqfGenerator]
+            acqf = MCLevelSetEstimation
         """
 
         config = Config()
