@@ -9,11 +9,11 @@ from typing import Optional
 
 import torch
 from aepsych.acquisition.objective import AEPsychObjective, FloorProbitObjective
-from aepsych.config import Config
+from aepsych.config import ConfigurableMixin
 from gpytorch.likelihoods import _OneDimensionalLikelihood
 
 
-class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
+class LinearBernoulliLikelihood(_OneDimensionalLikelihood, ConfigurableMixin):
     """
     A likelihood of the form Bernoulli(sigma(k(x+c))), where k and c are
     GPs and sigma is a flexible link function.
@@ -122,24 +122,3 @@ class LinearBernoulliLikelihood(_OneDimensionalLikelihood):
 
         log_prob = self.quadrature(log_prob_lambda, function_dist)
         return log_prob
-
-    @classmethod
-    def from_config(cls, config: Config) -> "LinearBernoulliLikelihood":
-        """Create an instance from a configuration object.
-
-        Args:
-            config (Config): Configuration object.
-
-        Returns:
-            LinearBernoulliLikelihood: LinearBernoulliLikelihood instance.
-        """
-        classname = cls.__name__
-
-        objective = config.getobj(classname, "objective")
-
-        if hasattr(objective, "from_config"):
-            objective = objective.from_config(config)
-        else:
-            objective = objective
-
-        return cls(objective=objective)

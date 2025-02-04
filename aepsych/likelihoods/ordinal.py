@@ -5,16 +5,16 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 import gpytorch
 import torch
-from aepsych.config import Config
+from aepsych.config import ConfigurableMixin
 from gpytorch.likelihoods import Likelihood
 from torch.distributions import Categorical, Normal
 
 
-class OrdinalLikelihood(Likelihood):
+class OrdinalLikelihood(Likelihood, ConfigurableMixin):
     """
     Ordinal likelihood, suitable for rating models (e.g. likert scales). Formally,
     .. math:: z_k(x\\mid f) := p(d_k < f(x) \\le d_{k+1}) = \\sigma(d_{k+1}-f(x)) - \\sigma(d_{k}-f(x)),
@@ -69,17 +69,3 @@ class OrdinalLikelihood(Likelihood):
         probs[..., -1] = 1 - self.link(self.cutpoints[-1] - function_samples)
         res = Categorical(probs=probs)
         return res
-
-    @classmethod
-    def from_config(cls, config: Config) -> "OrdinalLikelihood":
-        """Creates an instance fron configuration object
-
-        Args:
-            config (Config): Configuration object.
-
-        Returns:
-            OrdinalLikelihood: OrdinalLikelihood instance"""
-        classname = cls.__name__
-        n_levels = config.getint(classname, "n_levels")
-        link = config.getobj(classname, "link", fallback=None)
-        return cls(n_levels=n_levels, link=link)
