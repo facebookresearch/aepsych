@@ -21,7 +21,7 @@ from botorch.acquisition import (
 )
 from botorch.acquisition.preference import AnalyticExpectedUtilityOfBestOption
 
-from ..models.base import ModelProtocol
+from ..models.model_protocol import ModelProtocol
 
 AEPsychModelType = TypeVar("AEPsychModelType", bound=AEPsychMixin)
 

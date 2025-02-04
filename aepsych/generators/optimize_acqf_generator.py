@@ -14,7 +14,7 @@ from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.acquisition.lookahead import LookaheadAcquisitionFunction
 from aepsych.config import Config
 from aepsych.generators.base import AcqfGenerator
-from aepsych.models.base import ModelProtocol
+from aepsych.models.model_protocol import ModelProtocol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import AcquisitionFunction
 from botorch.optim import optimize_acqf

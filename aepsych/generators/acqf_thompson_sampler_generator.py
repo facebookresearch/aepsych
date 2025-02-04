@@ -10,7 +10,7 @@ from typing import Dict, Optional
 
 import numpy as np
 import torch
-from aepsych.models.base import ModelProtocol
+from aepsych.models.model_protocol import ModelProtocol
 from aepsych.utils_logging import getLogger
 from numpy.random import choice
 
