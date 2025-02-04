@@ -8,11 +8,11 @@
 from __future__ import annotations
 
 import warnings
-from typing import List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from aepsych.config import Config
+from aepsych.config import Config, ConfigurableMixin
 from aepsych.generators.base import AEPsychGenerator
 from aepsych.models.base import AEPsychMixin
 from aepsych.models.utils import get_max, get_min, inv_query
@@ -30,7 +30,7 @@ from botorch.models.transforms.input import ChainedInputTransform
 logger = getLogger()
 
 
-class Strategy(object):
+class Strategy(ConfigurableMixin):
     """Object that combines models and generators to generate points to sample."""
 
     _n_eval_points: int = 1000
@@ -40,8 +40,8 @@ class Strategy(object):
         generator: Union[AEPsychGenerator, ParameterTransformedGenerator],
         lb: Union[np.ndarray, torch.Tensor],
         ub: Union[np.ndarray, torch.Tensor],
-        stimuli_per_trial: int,
         outcome_types: List[str],
+        stimuli_per_trial: int = 1,
         dim: Optional[int] = None,
         min_total_tells: int = 0,
         min_asks: int = 0,
@@ -63,8 +63,8 @@ class Strategy(object):
             generator (AEPsychGenerator): The generator object that determines how points are sampled.
             lb (torch.Tensor): Lower bounds of the parameters.
             ub (torch.Tensor): Upper bounds of the parameters.
-            stimuli_per_trial (int): The number of stimuli per trial.
             outcome_types (Sequence[Type[str]]): The types of outcomes that the strategy will generate.
+            stimuli_per_trial (int): The number of stimuli per trial, defaults to 1.
             dim (int, optional): The number of dimensions in the parameter space. If None, it is inferred from the size
                 of lb and ub.
             min_total_tells (int): The minimum number of total observations needed to complete this strategy.
@@ -549,37 +549,54 @@ class Strategy(object):
             warnings.warn("Cannot fit: no model has been initialized!", RuntimeWarning)
 
     @classmethod
-    def from_config(cls, config: Config, name: str) -> Strategy:
-        """Create a strategy object from a configuration object.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Return a dictionary of the relevant options to initialize this class from the
+        config, even if it is outside of the named section. By default, this will look
+        for options in name based on the __init__'s arguments/defaults.
 
         Args:
-            config (Config): The configuration object.
-            name (str): The name of the strategy.
+            config (Config): Config to look for options in.
+            name (str, optional): Primary section to look for options for this class and
+                the name to infer options from other sections in the config.
+            options (Dict[str, Any], optional): Options to override from the config,
+                defaults to None.
 
-        Returns:
-            Strategy: The strategy object.
+
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize this class.
         """
-        lb = config.gettensor(name, "lb")
-        ub = config.gettensor(name, "ub")
-        dim = config.getint(name, "dim", fallback=None)
+        if name is None:
+            raise ValueError(
+                "Strategy cannot be initialized from a config without providing a name!"
+            )
 
-        transforms = ParameterTransforms.from_config(config)
+        options = super().get_config_options(config=config, name=name, options=options)
 
-        stimuli_per_trial = config.getint(name, "stimuli_per_trial", fallback=1)
-        outcome_types = config.getlist(name, "outcome_types", element_type=str)
+        # Override transforms
+        options["transforms"] = ParameterTransforms.from_config(config)
 
+        # Rebuild generator
         gen_name = config.get(name, "generator")
-        generator = ParameterTransformedGenerator.from_config(
-            config, gen_name, options={"transforms": transforms}
+        options["generator"] = ParameterTransformedGenerator.from_config(
+            config, gen_name, options={"transforms": options["transforms"]}
         )
-        use_gpu_generating = config.getboolean(
-            generator._base_obj.__class__.__name__, "use_gpu", fallback=False
+        options["use_gpu_generating"] = config.getboolean(
+            options["generator"]._base_obj.__class__.__name__, "use_gpu", fallback=False
         )
 
+        # Rebuild model
         model_cls = config.getobj(name, "model", fallback=None)
         if model_cls is not None:
             model = ParameterTransformedModel.from_config(
-                config, model_cls.__name__, options={"transforms": transforms}
+                config,
+                model_cls.__name__,
+                options={"transforms": options["transforms"]},
             )
             use_gpu_modeling = config.getboolean(
                 model._base_obj.__class__.__name__, "use_gpu", fallback=False
@@ -587,62 +604,26 @@ class Strategy(object):
 
             if use_gpu_modeling:
                 model.cuda()
+
+            options["model"] = model
+            options["use_gpu_modeling"] = use_gpu_modeling
         else:
-            model = None
-            use_gpu_modeling = False
+            options["model"] = None
+            options["use_gpu_modeling"] = False
 
-        # Handles if acqf is not in the generator but strategy block, otherwise, above handles it
-        acqf_cls = config.getobj(name, "acqf", fallback=None)
-        if acqf_cls is not None and hasattr(generator, "acqf"):
-            if generator.acqf is None:
-                generator.acqf = acqf_cls
-                generator.acqf_kwargs = generator._get_acqf_options(acqf_cls, config)
-
-        min_asks = config.getint(name, "min_asks", fallback=0)
-        min_total_tells = config.getint(name, "min_total_tells", fallback=0)
-
-        refit_every = config.getint(name, "refit_every", fallback=1)
-
-        if model is not None and not generator._requires_model:
-            if refit_every < min_asks:
+        if options["model"] is not None and not options["generator"]._requires_model:
+            if options["refit_every"] < options["min_asks"]:
                 warnings.warn(
                     f"Strategy '{name}' has refit_every < min_asks even though its generator does not require a model. Consider making refit_every = min_asks to speed up point generation.",
                     UserWarning,
                 )
-        keep_most_recent = config.getint(name, "keep_most_recent", fallback=None)
 
-        min_total_outcome_occurrences = config.getint(
+        options["min_total_outcome_occurrences"] = config.getint(
             name,
             "min_total_outcome_occurrences",
-            fallback=1 if "binary" in outcome_types else 0,
+            fallback=1 if "binary" in options["outcome_types"] else 0,
         )
-        min_post_range = config.getfloat(name, "min_post_range", fallback=None)
-        keep_most_recent = config.getint(name, "keep_most_recent", fallback=None)
 
-        n_trials = config.getint(name, "n_trials", fallback=None)
-        if n_trials is not None:
-            warnings.warn(
-                "'n_trials' is deprecated and will be removed in a future release. Specify 'min_asks' instead.",
-                DeprecationWarning,
-            )
-            min_asks = n_trials
+        options["name"] = name
 
-        return cls(
-            lb=lb,
-            ub=ub,
-            stimuli_per_trial=stimuli_per_trial,
-            outcome_types=outcome_types,
-            dim=dim,
-            transforms=transforms,
-            model=model,  # type: ignore
-            use_gpu_modeling=use_gpu_modeling,
-            use_gpu_generating=use_gpu_generating,
-            generator=generator,
-            min_asks=min_asks,
-            refit_every=refit_every,
-            min_total_outcome_occurrences=min_total_outcome_occurrences,
-            min_post_range=min_post_range,
-            keep_most_recent=keep_most_recent,
-            min_total_tells=min_total_tells,
-            name=name,
-        )
+        return options
