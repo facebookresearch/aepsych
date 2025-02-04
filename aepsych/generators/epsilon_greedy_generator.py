@@ -5,11 +5,10 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 import torch
-from aepsych.config import Config
 
 from ..models.model_protocol import ModelProtocol
 from .base import AEPsychGenerator
@@ -39,24 +38,29 @@ class EpsilonGreedyGenerator(AEPsychGenerator):
         self.dim = len(lb)
 
     @classmethod
-    def from_config(cls, config: Config) -> "EpsilonGreedyGenerator":
-        """Create an EpsilonGreedyGenerator from a Config object.
+    def get_config_options(
+        cls,
+        config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Find the config options for the generator.
 
         Args:
-            config (Config): Configuration object containing initialization parameters.
+            config (Config): Config to look for options in.
+            name (str, optional): Unused, kept for API conformity.
+            options (Dict[str, Any], optional): Existing options, any key in options
+                will be ignored from the config.
 
-        Returns:
-            EpsilonGreedyGenerator: The generator.
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize the generator.
         """
-        classname = cls.__name__
-        lb = torch.tensor(config.getlist(classname, "lb"))
-        ub = torch.tensor(config.getlist(classname, "ub"))
-        subgen_cls = config.getobj(
-            classname, "subgenerator", fallback=OptimizeAcqfGenerator
-        )
-        subgen = subgen_cls.from_config(config)
-        epsilon = config.getfloat(classname, "epsilon", fallback=0.1)
-        return cls(lb=lb, ub=ub, subgenerator=subgen, epsilon=epsilon)
+        options = super().get_config_options(config, name, options)
+
+        if "subgenerator" not in options:  # Missing subgenerator
+            options["subgenerator"] = OptimizeAcqfGenerator.from_config(config)
+
+        return options
 
     def gen(
         self,
