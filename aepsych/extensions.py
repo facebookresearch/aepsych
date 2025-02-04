@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Copyright (c) Meta, Inc. and its affiliates.
 # All rights reserved.
-
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+
 
 import importlib.util
 import logging
@@ -11,7 +11,7 @@ import sys
 import warnings
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from aepsych.config import ConfigurableMixin
 from aepsych.utils_logging import getLogger
@@ -24,14 +24,17 @@ class ExtensionManager(ConfigurableMixin):
     simple Python scripts) as a module. In the future, extensions may have specific
     requirements that the extension manager will expect (e.g., unload)."""
 
-    def __init__(self, files: List[str]) -> None:
+    def __init__(self, extensions: Optional[List[str]] = None) -> None:
         """Initialize the ExtensionManager. Each extension is represented by a path to
         the script.
 
         Args:
             files (List[str]): List of file paths of extension scripts.
         """
-        self.ext_files = {Path(path).stem: Path(path) for path in files}
+        if extensions is not None:
+            self.ext_files = {Path(path).stem: Path(path) for path in extensions}
+        else:
+            self.ext_files = {}
         self.loaded_modules: Dict[str, ModuleType] = {}
 
     def load(self) -> None:
@@ -55,33 +58,3 @@ class ExtensionManager(ConfigurableMixin):
         self.loaded_modules[name] = module
 
         return module
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Find the config options for the extension manager.
-
-        Args:
-            config (Config): Config to look for options in.
-            name (str, optional): Unused, kept for API conformity.
-            options (Dict[str, Any], optional): Existing options, any key in options
-                will be ignored from the config.
-
-        Return:
-            Dict[str, Any]: A dictionary of options to initialize ExtensionManager.
-        """
-        if options is None:
-            options = {}
-
-        if "files" in options:  # Already have what we need
-            return options
-        elif "extensions" in config["common"]:
-            options["files"] = config.getlist("common", "extensions", element_type=str)
-        else:
-            options["files"] = {}
-
-        return options
