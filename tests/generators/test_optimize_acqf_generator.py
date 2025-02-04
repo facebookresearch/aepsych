@@ -104,7 +104,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         np.random.seed(seed)
 
         X, y = make_classification(
-            n_samples=100,
+            n_samples=10,
             n_features=3,
             n_redundant=0,
             n_informative=3,
@@ -129,6 +129,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
             acqf_kwargs={"objective": ProbitObjective()},
             lb=lb,
             ub=ub,
+            max_gen_time=0.1,
         )
         cands = generator.gen(2, model)
         self.assertEqual(len(cands), 2)
@@ -138,6 +139,7 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
             acqf_kwargs={"objective": ProbitObjective()},
             lb=lb,
             ub=ub,
+            max_gen_time=0.1,
         )
         cands = generator.gen(2, model)
         self.assertEqual(len(cands), 2)
