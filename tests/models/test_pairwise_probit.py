@@ -534,13 +534,13 @@ class PairwiseProbitModelServerTest(unittest.TestCase):
 
             [PairwiseProbitModel]
             mean_covar_factory = default_mean_covar_factory
+            max_fit_time = 1
 
             [PairwiseMCPosteriorVariance]
             objective = ProbitObjective
 
             [OptimizeAcqfGenerator]
-            restarts = 10
-            samps = 1000
+            max_gen_time = 1
             """
 
         server = self.s
