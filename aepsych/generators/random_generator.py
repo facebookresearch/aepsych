@@ -61,20 +61,3 @@ class RandomGenerator(AEPsychGenerator):
                 X[:, key] = value
 
         return X
-
-    @classmethod
-    def from_config(cls, config: Config) -> "RandomGenerator":
-        """
-        Create an instance of RandomGenerator from a configuration object.
-
-        Args:
-            config (Config): Configuration object containing initialization parameters.
-
-        Returns:
-            RandomGenerator: A configured instance of the generator with specified bounds and dimensionality.
-        """
-        classname = cls.__name__
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
-        dim = config.getint(classname, "dim", fallback=None)
-        return cls(lb=lb, ub=ub, dim=dim)
