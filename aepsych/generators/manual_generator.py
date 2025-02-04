@@ -6,7 +6,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import warnings
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import torch
 from aepsych.config import Config
@@ -83,51 +83,28 @@ class ManualGenerator(AEPsychGenerator):
         return points
 
     @classmethod
-    def from_config(
-        cls, config: Config, name: Optional[str] = None
-    ) -> "ManualGenerator":
-        return cls(**cls.get_config_options(config, name))
-
-    @classmethod
-    def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
-        """
-        Extracts and processes configuration options for initializing the ManualGenerator.
+    def get_config_options(
+        cls,
+        config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Find the config options for the generator.
 
         Args:
-            config (Config): Configuration object containing initialization parameters.
-            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.
+            config (Config): Config to look for options in.
+            name (str, optional): Unused, kept for API conformity.
+            options (Dict[str, Any], optional): Existing options, any key in options
+                will be ignored from the config.
 
-        Returns:
-            Dict: A dictionary of options, including:
-                 "lb" (torch.Tensor): Lower bounds of each parameter.
-                 "ub" (torch.Tensor): Upper bounds of each parameter.
-                 "dim" (int, optional): Dimensionality of the parameter space.
-                 "points" (torch.Tensor): Predefined points to generate.
-                 "shuffle" (bool): Whether to shuffle the order of points.
-                 "seed" (int, optional): Random seed for shuffling.
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize the generator.
         """
-        if name is None:
-            name = cls.__name__
+        options = super().get_config_options(config, name, options)
 
-        lb = config.gettensor(name, "lb")
-        ub = config.gettensor(name, "ub")
-        dim = config.getint(name, "dim", fallback=None)
-        points = config.gettensor(name, "points")
-        shuffle = config.getboolean(name, "shuffle", fallback=True)
-        seed = config.getint(name, "seed", fallback=None)
-
-        if len(points.shape) == 3:
-            # Configs have a reasonable natural input method that produces incorrect tensors
-            points = points.swapaxes(-1, -2)
-
-        options = {
-            "lb": lb,
-            "ub": ub,
-            "dim": dim,
-            "points": points,
-            "shuffle": shuffle,
-            "seed": seed,
-        }
+        # Configs have a reasonable natural input method that produces incorrect tensors
+        if len(options["points"].shape) == 3:
+            options["points"] = options["points"].swapaxes(-1, -2)
 
         return options
 
@@ -185,35 +162,3 @@ class SampleAroundPointsGenerator(ManualGenerator):
             generated = torch.vstack(gen_points)
 
         super().__init__(lb, ub, generated, dim, shuffle, seed)  # type: ignore
-
-    @classmethod
-    def get_config_options(cls, config: Config, name: Optional[str] = None) -> Dict:
-        """
-        Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.
-
-        Args:
-            config (Config): Configuration object containing initialization parameters.
-            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.
-
-        Returns:
-            Dict: A dictionary of options, including:
-                - "lb" (torch.Tensor): Lower bounds of each parameter.
-                - "ub" (torch.Tensor): Upper bounds of each parameter.
-                - "dim" (int, optional): Dimensionality of the parameter space.
-                - "points" (torch.Tensor): Predefined reference points.
-                - "shuffle" (bool): Whether to shuffle the order of points.
-                - "seed" (int, optional): Random seed for shuffling.
-                - "window" (torch.Tensor): Sampling range around each reference point along each dimension.
-                - "samples_per_point" (int): Number of samples to generate around each reference point.
-        """
-        if name is None:
-            name = cls.__name__
-
-        options = super().get_config_options(config)
-
-        window = config.gettensor(name, "window")
-        samples_per_point = config.getint(name, "samples_per_point")
-
-        options.update({"window": window, "samples_per_point": samples_per_point})
-
-        return options

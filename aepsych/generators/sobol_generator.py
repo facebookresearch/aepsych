@@ -73,27 +73,3 @@ class SobolGenerator(AEPsychGenerator):
             return grid
 
         return grid.reshape(num_points, self.stimuli_per_trial, -1).swapaxes(-1, -2)
-
-    @classmethod
-    def from_config(cls, config: Config) -> "SobolGenerator":
-        """
-        Creates an instance of SobolGenerator from a configuration object.
-
-        Args:
-            config (Config): Configuration object containing initialization parameters.
-
-        Returns:
-            SobolGenerator: A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.
-        """
-
-        classname = cls.__name__
-
-        lb = config.gettensor(classname, "lb")
-        ub = config.gettensor(classname, "ub")
-        dim = config.getint(classname, "dim", fallback=None)
-        seed = config.getint(classname, "seed", fallback=None)
-        stimuli_per_trial = config.getint(classname, "stimuli_per_trial")
-
-        return cls(
-            lb=lb, ub=ub, dim=dim, seed=seed, stimuli_per_trial=stimuli_per_trial
-        )
