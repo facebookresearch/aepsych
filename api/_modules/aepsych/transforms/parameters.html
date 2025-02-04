@@ -33,7 +33,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigurableMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.generators.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AcqfGenerator</span><span class="p">,</span> <span class="n">AEPsychGenerator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychMixin</span><span class="p">,</span> <span class="n">ModelProtocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AEPsychMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.models.model_protocol</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelProtocol</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fixed</span><span class="p">,</span> <span class="n">Log10Plus</span><span class="p">,</span> <span class="n">NormalizeScale</span><span class="p">,</span> <span class="n">Round</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.transforms.ops.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_bounds</span>
