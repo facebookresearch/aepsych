@@ -586,7 +586,7 @@ class ConfigurableMixin(abc.ABC):
                     # Object
                     elif inspect.isclass(annotation):
                         object_cls = config.getobj(name, key)
-                        if ConfigurableMixin in object_cls.__bases__:
+                        if hasattr(object_cls, "from_config"):
                             value = object_cls.from_config(config, object_cls.__name__)
                         else:
                             value = object_cls
