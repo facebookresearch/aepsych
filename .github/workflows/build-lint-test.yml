@@ -5,6 +5,8 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: "0 12 * * *" # every day at 4AM west coast time
 
 jobs:
   lint:
