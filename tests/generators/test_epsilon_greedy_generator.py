@@ -12,7 +12,11 @@ import numpy as np
 import torch
 from aepsych.acquisition import MCLevelSetEstimation
 from aepsych.config import Config
-from aepsych.generators import EpsilonGreedyGenerator, OptimizeAcqfGenerator
+from aepsych.generators import (
+    EpsilonGreedyGenerator,
+    OptimizeAcqfGenerator,
+    SobolGenerator,
+)
 
 
 class TestEpsilonGreedyGenerator(unittest.TestCase):
@@ -70,7 +74,23 @@ class TestEpsilonGreedyGenerator(unittest.TestCase):
             lb = [0]
             ub = [1]
             [EpsilonGreedyGenerator]
-            subgenerator = OptimizeAcqfGenerator
+            subgenerator = SobolGenerator
+            epsilon = .5
+            """
+        config = Config()
+        config.update(config_str=config_str)
+        gen = EpsilonGreedyGenerator.from_config(config)
+        self.assertIsInstance(gen.subgenerator, SobolGenerator)
+        self.assertEqual(gen.epsilon, 0.5)
+
+    def test_greedyepsilon_default_config(self):
+        config_str = """
+            [common]
+            stimuli_per_trial = 1
+            acqf = MCLevelSetEstimation
+            lb = [0]
+            ub = [1]
+            [EpsilonGreedyGenerator]
             epsilon = .5
             """
         config = Config()
