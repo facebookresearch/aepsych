@@ -42,7 +42,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.base.AEPsychGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.base.</span></span><span class="sig-name descname"><span class="pre">AEPsychGenerator</span></span><a class="reference internal" href="_modules/aepsych/generators/base.html#AEPsychGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.base.AEPsychGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">AEPsychModelType</span></code>]</p>
+<dd><p>Bases: <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">AEPsychModelType</span></code>]</p>
 <p>Abstract base class for generators, which are responsible for generating new points to sample.</p>
 <dl class="field-list simple">
 </dl>
@@ -78,7 +78,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.base.AcqfGenerator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aepsych.generators.base.</span></span><span class="sig-name descname"><span class="pre">AcqfGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acqf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acqf_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/base.html#AcqfGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.base.AcqfGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a>, <a class="reference internal" href="config.html#aepsych.config.ConfigurableMixin" title="aepsych.config.ConfigurableMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigurableMixin</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#aepsych.generators.base.AEPsychGenerator" title="aepsych.generators.base.AEPsychGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AEPsychGenerator</span></code></a></p>
 <p>Base class for generators that evaluate acquisition functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -140,18 +140,23 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an EpsilonGreedyGenerator from a Config object.</p>
+<dt class="sig sig-object py" id="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the config options for the generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Unused, kept for API conformity.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Existing options, any key in options
+will be ignored from the config.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The generator.</p>
+<dd class="field-even"><p>A dictionary of options to initialize the generator.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator" title="aepsych.generators.epsilon_greedy_generator.EpsilonGreedyGenerator">EpsilonGreedyGenerator</a></p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -237,45 +242,23 @@
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.manual_generator.ManualGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.manual_generator.ManualGenerator" title="aepsych.generators.manual_generator.ManualGenerator"><em>ManualGenerator</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.manual_generator.ManualGenerator.get_config_options">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts and processes configuration options for initializing the ManualGenerator.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.ManualGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the config options for the generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Unused, kept for API conformity.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Existing options, any key in options
+will be ignored from the config.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A dictionary of options, including:</dt><dd><p>”lb” (torch.Tensor): Lower bounds of each parameter.
-“ub” (torch.Tensor): Upper bounds of each parameter.
-“dim” (int, optional): Dimensionality of the parameter space.
-“points” (torch.Tensor): Predefined points to generate.
-“shuffle” (bool): Whether to shuffle the order of points.
-“seed” (int, optional): Random seed for shuffling.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>A dictionary of options to initialize the generator.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -320,38 +303,6 @@
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.manual_generator.SampleAroundPointsGenerator.get_config_options">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#SampleAroundPointsGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.manual_generator.SampleAroundPointsGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A dictionary of options, including:</dt><dd><ul class="simple">
-<li><p>”lb” (torch.Tensor): Lower bounds of each parameter.</p></li>
-<li><p>”ub” (torch.Tensor): Upper bounds of each parameter.</p></li>
-<li><p>”dim” (int, optional): Dimensionality of the parameter space.</p></li>
-<li><p>”points” (torch.Tensor): Predefined reference points.</p></li>
-<li><p>”shuffle” (bool): Whether to shuffle the order of points.</p></li>
-<li><p>”seed” (int, optional): Random seed for shuffling.</p></li>
-<li><p>”window” (torch.Tensor): Sampling range around each reference point along each dimension.</p></li>
-<li><p>”samples_per_point” (int): Number of samples to generate around each reference point.</p></li>
-</ul>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
 </dd></dl>
 </section>
 <section id="aepsych-generators-monotonic-rejection-generator-module">
@@ -474,22 +425,6 @@ values to fix them at.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.random_generator.RandomGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.random_generator.RandomGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an instance of RandomGenerator from a configuration object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A configured instance of the generator with specified bounds and dimensionality.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.random_generator.RandomGenerator" title="aepsych.generators.random_generator.RandomGenerator">RandomGenerator</a></p>
-</dd>
-</dl>
-</dd></dl>
 </dd></dl>
 </section>
 <section id="module-aepsych.generators.sobol_generator">
@@ -544,22 +479,6 @@ values to fix them at.</p>
 <li><p><strong>model</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="models.html#aepsych.models.base.AEPsychMixin" title="aepsych.models.base.AEPsychMixin"><em>AEPsychMixin</em></a><em>]</em>) – </p></li>
 <li><p><strong>fixed_features</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em>) – </p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.sobol_generator.SobolGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.sobol_generator.SobolGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates an instance of SobolGenerator from a configuration object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.sobol_generator.SobolGenerator" title="aepsych.generators.sobol_generator.SobolGenerator">SobolGenerator</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -676,22 +595,6 @@ values to fix them at.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.RandomGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/random_generator.html#RandomGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.RandomGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an instance of RandomGenerator from a configuration object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A configured instance of the generator with specified bounds and dimensionality.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.RandomGenerator" title="aepsych.generators.RandomGenerator">RandomGenerator</a></p>
-</dd>
-</dl>
-</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.SobolGenerator">
@@ -746,22 +649,6 @@ values to fix them at.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.SobolGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/sobol_generator.html#SobolGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SobolGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates an instance of SobolGenerator from a configuration object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A configured instance of the generator with specified bounds, dimensionality, random seed, and stimuli per trial.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.SobolGenerator" title="aepsych.generators.SobolGenerator">SobolGenerator</a></p>
-</dd>
-</dl>
-</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator">
@@ -779,18 +666,23 @@ values to fix them at.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an EpsilonGreedyGenerator from a Config object.</p>
+<dt class="sig sig-object py" id="aepsych.generators.EpsilonGreedyGenerator.get_config_options">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/epsilon_greedy_generator.html#EpsilonGreedyGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.EpsilonGreedyGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the config options for the generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Unused, kept for API conformity.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Existing options, any key in options
+will be ignored from the config.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The generator.</p>
+<dd class="field-even"><p>A dictionary of options to initialize the generator.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#aepsych.generators.EpsilonGreedyGenerator" title="aepsych.generators.EpsilonGreedyGenerator">EpsilonGreedyGenerator</a></p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -873,45 +765,23 @@ values to fix them at.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.ManualGenerator.from_config">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – </p></li>
-<li><p><strong>name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#aepsych.generators.manual_generator.ManualGenerator" title="aepsych.generators.manual_generator.ManualGenerator"><em>ManualGenerator</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
 <dt class="sig sig-object py" id="aepsych.generators.ManualGenerator.get_config_options">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts and processes configuration options for initializing the ManualGenerator.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#ManualGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.ManualGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the config options for the generator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Config to look for options in.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Unused, kept for API conformity.</p></li>
+<li><p><strong>options</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Existing options, any key in options
+will be ignored from the config.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A dictionary of options, including:</dt><dd><p>”lb” (torch.Tensor): Lower bounds of each parameter.
-“ub” (torch.Tensor): Upper bounds of each parameter.
-“dim” (int, optional): Dimensionality of the parameter space.
-“points” (torch.Tensor): Predefined points to generate.
-“shuffle” (bool): Whether to shuffle the order of points.
-“seed” (int, optional): Random seed for shuffling.</p>
-</dd>
-</dl>
-</p>
+<dd class="field-even"><p>A dictionary of options to initialize the generator.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>Dict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -956,38 +826,6 @@ values to fix them at.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="aepsych.generators.SampleAroundPointsGenerator.get_config_options">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_config_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aepsych/generators/manual_generator.html#SampleAroundPointsGenerator.get_config_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aepsych.generators.SampleAroundPointsGenerator.get_config_options" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="config.html#aepsych.config.Config" title="aepsych.config.Config"><em>Config</em></a>) – Configuration object containing initialization parameters.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the configuration section for this generator. Defaults to the class name.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A dictionary of options, including:</dt><dd><ul class="simple">
-<li><p>”lb” (torch.Tensor): Lower bounds of each parameter.</p></li>
-<li><p>”ub” (torch.Tensor): Upper bounds of each parameter.</p></li>
-<li><p>”dim” (int, optional): Dimensionality of the parameter space.</p></li>
-<li><p>”points” (torch.Tensor): Predefined reference points.</p></li>
-<li><p>”shuffle” (bool): Whether to shuffle the order of points.</p></li>
-<li><p>”seed” (int, optional): Random seed for shuffling.</p></li>
-<li><p>”window” (torch.Tensor): Sampling range around each reference point along each dimension.</p></li>
-<li><p>”samples_per_point” (int): Number of samples to generate around each reference point.</p></li>
-</ul>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict</p>
-</dd>
-</dl>
-</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="aepsych.generators.IntensityAwareSemiPGenerator">

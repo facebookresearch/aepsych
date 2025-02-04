@@ -24,7 +24,7 @@
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
@@ -100,52 +100,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">+=</span> <span class="n">num_points</span>
         <span class="k">return</span> <span class="n">points</span></div>
 
-<div class="viewcode-block" id="ManualGenerator.from_config"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.manual_generator.ManualGenerator.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ManualGenerator"</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div>
-
 <div class="viewcode-block" id="ManualGenerator.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.manual_generator.ManualGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Extracts and processes configuration options for initializing the ManualGenerator.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Find the config options for the generator.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
-<span class="sd">            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.</span>
+<span class="sd">            config (Config): Config to look for options in.</span>
+<span class="sd">            name (str, optional): Unused, kept for API conformity.</span>
+<span class="sd">            options (Dict[str, Any], optional): Existing options, any key in options</span>
+<span class="sd">                will be ignored from the config.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict: A dictionary of options, including:</span>
-<span class="sd">                 "lb" (torch.Tensor): Lower bounds of each parameter.</span>
-<span class="sd">                 "ub" (torch.Tensor): Upper bounds of each parameter.</span>
-<span class="sd">                 "dim" (int, optional): Dimensionality of the parameter space.</span>
-<span class="sd">                 "points" (torch.Tensor): Predefined points to generate.</span>
-<span class="sd">                 "shuffle" (bool): Whether to shuffle the order of points.</span>
-<span class="sd">                 "seed" (int, optional): Random seed for shuffling.</span>
+<span class="sd">        Return:</span>
+<span class="sd">            Dict[str, Any]: A dictionary of options to initialize the generator.</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
 
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"dim"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">)</span>
-        <span class="n">shuffle</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getboolean</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"shuffle"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">seed</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"seed"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="c1"># Configs have a reasonable natural input method that produces incorrect tensors</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
-
-        <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"lb"</span><span class="p">:</span> <span class="n">lb</span><span class="p">,</span>
-            <span class="s2">"ub"</span><span class="p">:</span> <span class="n">ub</span><span class="p">,</span>
-            <span class="s2">"dim"</span><span class="p">:</span> <span class="n">dim</span><span class="p">,</span>
-            <span class="s2">"points"</span><span class="p">:</span> <span class="n">points</span><span class="p">,</span>
-            <span class="s2">"shuffle"</span><span class="p">:</span> <span class="n">shuffle</span><span class="p">,</span>
-            <span class="s2">"seed"</span><span class="p">:</span> <span class="n">seed</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="c1"># Configs have a reasonable natural input method that produces incorrect tensors</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s2">"points"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">"points"</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">"points"</span><span class="p">]</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">options</span></div>
 
@@ -202,39 +179,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">generated</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">gen_points</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">generated</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-
-<div class="viewcode-block" id="SampleAroundPointsGenerator.get_config_options"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.manual_generator.SampleAroundPointsGenerator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Extracts and processes configuration options for initializing the SampleAroundPointsGenerator.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object containing initialization parameters.</span>
-<span class="sd">            name (str, optional): Name of the configuration section for this generator. Defaults to the class name.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict: A dictionary of options, including:</span>
-<span class="sd">                - "lb" (torch.Tensor): Lower bounds of each parameter.</span>
-<span class="sd">                - "ub" (torch.Tensor): Upper bounds of each parameter.</span>
-<span class="sd">                - "dim" (int, optional): Dimensionality of the parameter space.</span>
-<span class="sd">                - "points" (torch.Tensor): Predefined reference points.</span>
-<span class="sd">                - "shuffle" (bool): Whether to shuffle the order of points.</span>
-<span class="sd">                - "seed" (int, optional): Random seed for shuffling.</span>
-<span class="sd">                - "window" (torch.Tensor): Sampling range around each reference point along each dimension.</span>
-<span class="sd">                - "samples_per_point" (int): Number of samples to generate around each reference point.</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="n">window</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"window"</span><span class="p">)</span>
-        <span class="n">samples_per_point</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"samples_per_point"</span><span class="p">)</span>
-
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"window"</span><span class="p">:</span> <span class="n">window</span><span class="p">,</span> <span class="s2">"samples_per_point"</span><span class="p">:</span> <span class="n">samples_per_point</span><span class="p">})</span>
-
-        <span class="k">return</span> <span class="n">options</span></div></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span> <span class="n">ub</span><span class="p">,</span> <span class="n">generated</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>  <span class="c1"># type: ignore</span></div>
 </pre></div>
 </div>
 </div>

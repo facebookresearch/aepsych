@@ -545,6 +545,12 @@
 
         <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">signature</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">signature</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">,</span>  <span class="c1"># Ignore *</span>
+                <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">,</span>  <span class="c1"># Ignore *args</span>
+                <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">,</span>  <span class="c1"># Ignore **kwargs</span>
+            <span class="p">]:</span>
+                <span class="k">continue</span>
             <span class="c1"># Used as fallback</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="n">default</span>
 
@@ -604,10 +610,14 @@
                     <span class="c1"># Object</span>
                     <span class="k">elif</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">annotation</span><span class="p">):</span>
                         <span class="n">object_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">ConfigurableMixin</span> <span class="ow">in</span> <span class="n">object_cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">object_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
                             <span class="n">value</span> <span class="o">=</span> <span class="n">object_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">object_cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">value</span> <span class="o">=</span> <span class="n">object_cls</span>
+
+                    <span class="c1"># Callable</span>
+                    <span class="k">elif</span> <span class="n">annotation</span> <span class="ow">is</span> <span class="n">Callable</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
                     <span class="c1"># None type</span>
                     <span class="k">elif</span> <span class="n">annotation</span> <span class="ow">is</span> <span class="n">NoneType</span><span class="p">:</span>
@@ -618,7 +628,7 @@
                 <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">configparser</span><span class="o">.</span><span class="n">NoOptionError</span><span class="p">):</span>
                     <span class="k">pass</span>
 
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">_empty</span><span class="p">:</span>
                 <span class="n">options</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
         <span class="k">return</span> <span class="n">options</span></div>

@@ -25,17 +25,17 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurableMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aepsych.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearBernoulliLikelihood</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">botorch.acquisition.objective</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCAcquisitionObjective</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gpytorch.likelihoods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Likelihood</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">SemiPObjectiveBase</span><span class="p">(</span><span class="n">MCAcquisitionObjective</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SemiPObjectiveBase</span><span class="p">(</span><span class="n">MCAcquisitionObjective</span><span class="p">,</span> <span class="n">ConfigurableMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Wraps the semi-parametric transform into an objective</span>
 <span class="sd">    that correctly extracts various things</span>
 <span class="sd">    """</span>
@@ -87,30 +87,31 @@
         <span class="c1"># so we remove the final dim</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">function_samples</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span> <span class="n">Xi</span><span class="o">=</span><span class="n">Xi</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SemiPProbabilityObjective.from_config"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.SemiPProbabilityObjective.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SemiPProbabilityObjective</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Create a SemiPProbabilityObjective from a config object.</span>
+<div class="viewcode-block" id="SemiPProbabilityObjective.get_config_options"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.SemiPProbabilityObjective.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Find the config options for the objective.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object containing the initialization parameters.</span>
+<span class="sd">            config (Config): Config to look for options in.</span>
+<span class="sd">            name (str, optional): Unused, kept for API conformity.</span>
+<span class="sd">            options (Dict[str, Any], optional): Existing options, any key in options</span>
+<span class="sd">                will be ignored from the config.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            SemiPProbabilityObjective: A SemiPProbabilityObjective object.</span>
+<span class="sd">        Return:</span>
+<span class="sd">            Dict[str, Any]: A dictionary of options to initialize the objective.</span>
 <span class="sd">        """</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
 
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="c1"># Due to likelihood object not having a from_config, so we just initialize it</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">],</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]()</span>
 
-        <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">likelihood_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
-                <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># fall back to __init__ default</span>
-
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">options</span></div></div>
 
 
 <div class="viewcode-block" id="SemiPThresholdObjective"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.SemiPThresholdObjective">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SemiPThresholdObjective</span><span class="p">(</span><span class="n">SemiPObjectiveBase</span><span class="p">):</span>
@@ -120,7 +121,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">target</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">,</span>
         <span class="n">likelihood</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LinearBernoulliLikelihood</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -152,30 +153,31 @@
         <span class="n">slope</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fspace_target</span> <span class="o">+</span> <span class="n">slope</span> <span class="o">*</span> <span class="n">offset</span><span class="p">)</span> <span class="o">/</span> <span class="n">slope</span></div>
 
-<div class="viewcode-block" id="SemiPThresholdObjective.from_config"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.SemiPThresholdObjective.from_config">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SemiPThresholdObjective</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Create a SemiPThresholdObjective from a config object.</span>
+<div class="viewcode-block" id="SemiPThresholdObjective.get_config_options"><a class="viewcode-back" href="../../../../acquisition.html#aepsych.acquisition.objective.SemiPThresholdObjective.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Find the config options for the objective.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object containing the initialization parameters.</span>
+<span class="sd">            config (Config): Config to look for options in.</span>
+<span class="sd">            name (str, optional): Unused, kept for API conformity.</span>
+<span class="sd">            options (Dict[str, Any], optional): Existing options, any key in options</span>
+<span class="sd">                will be ignored from the config.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            SemiPThresholdObjective: A SemiPThresholdObjective object.</span>
+<span class="sd">        Return:</span>
+<span class="sd">            Dict[str, Any]: A dictionary of options to initialize the objective.</span>
 <span class="sd">        """</span>
-        <span class="n">classname</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
 
-        <span class="n">likelihood_cls</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getobj</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># Due to likelihood object not having a from_config, so we just initialize it</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">],</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]()</span>
 
-        <span class="k">if</span> <span class="n">likelihood_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">likelihood_cls</span><span class="p">,</span> <span class="s2">"from_config"</span><span class="p">):</span>
-                <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood_cls</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">likelihood</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># fall back to __init__ default</span>
-
-        <span class="n">target</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">classname</span><span class="p">,</span> <span class="s2">"target"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">likelihood</span><span class="o">=</span><span class="n">likelihood</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">options</span></div></div>
 </pre></div>
 </div>
 </div>

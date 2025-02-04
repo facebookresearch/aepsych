@@ -51,7 +51,7 @@
         <span class="k">pass</span></div></div>
 
 
-<div class="viewcode-block" id="AEPsychGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AEPsychGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AEPsychGenerator</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">AEPsychModelType</span><span class="p">]):</span>
+<div class="viewcode-block" id="AEPsychGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AEPsychGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AEPsychGenerator</span><span class="p">(</span><span class="n">ConfigurableMixin</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">AEPsychModelType</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">"""Abstract base class for generators, which are responsible for generating new points to sample."""</span>
 
     <span class="n">_requires_model</span> <span class="o">=</span> <span class="kc">True</span>
@@ -75,7 +75,7 @@
         <span class="k">pass</span></div></div>
 
 
-<div class="viewcode-block" id="AcqfGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AcqfGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AcqfGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">,</span> <span class="n">ConfigurableMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="AcqfGenerator"><a class="viewcode-back" href="../../../generators.html#aepsych.generators.base.AcqfGenerator">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">AcqfGenerator</span><span class="p">(</span><span class="n">AEPsychGenerator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Base class for generators that evaluate acquisition functions."""</span>
 
     <span class="n">_requires_model</span> <span class="o">=</span> <span class="kc">True</span>
