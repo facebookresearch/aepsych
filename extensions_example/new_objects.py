@@ -5,8 +5,12 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
+from typing import Any, Dict, Optional
+
+import torch
 from aepsych import GPClassificationModel
-from aepsych.config import Config
+from aepsych.config import Config, ConfigurableMixin
+from aepsych.generators.base import AEPsychGenerator
 
 """
 Extensions scripts that can be invoked by configs to allow extending AEPsych's 
@@ -66,3 +70,53 @@ upper_bound = 100
 model = VerboseGPClassificationModel
 generator = SobolGenerator
 """
+
+
+# Multiple objects can be added at once, this one is used for a test!
+class OnesGenerator(AEPsychGenerator, ConfigurableMixin):
+    def __init__(self, dim: int) -> None:
+        """A generator that just always gives back 1s"""
+        self.dim = dim
+
+    def gen(
+        self,
+        num_points: int,
+        model=None,
+        fixed_features: Optional[Dict[int, float]] = None,
+        **kwargs,
+    ) -> torch.Tensor:
+        """Make ones"""
+        return torch.ones([num_points, self.dim])
+
+    @classmethod
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Return a dictionary of the relevant options to initialize this class from the
+        config, even if it is outside of the named section. By default, this will look
+        for options in name based on the __init__'s arguments/defaults.
+
+        Args:
+            config (Config): Config to look for options in.
+            name (str, optional): Primary section to look for options for this class and
+                the name to infer options from other sections in the config.
+            options (Dict[str, Any], optional): Options to override from the config,
+                defaults to None.
+
+
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize this class.
+        """
+        options = super().get_config_options(config, name, options)
+
+        if "dim" not in options:
+            options["dim"] = len(config.getlist("common", "parnames", element_type=str))
+
+        return options
+
+
+Config.register_object(OnesGenerator)

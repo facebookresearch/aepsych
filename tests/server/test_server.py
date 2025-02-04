@@ -444,8 +444,8 @@ class ServerTestCase(BaseServerTestCase):
         self.assertTrue("experiment_id" not in extra_metadata)
 
     def test_extension_server(self):
-        extension_path = Path(__file__).parent.parent
-        extension_path = extension_path / "extensions" / "register_object.py"
+        extension_path = Path(__file__).parent.parent.parent
+        extension_path = extension_path / "extensions_example" / "new_objects.py"
 
         config_str = f"""
             [common]
