@@ -597,6 +597,10 @@ class ConfigurableMixin(abc.ABC):
                         else:
                             value = object_cls
 
+                    # Callable
+                    elif annotation is Callable:
+                        value = config.getobj(name, key)
+
                     # None type
                     elif annotation is NoneType:
                         value = None
