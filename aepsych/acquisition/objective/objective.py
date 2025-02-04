@@ -10,13 +10,13 @@ from __future__ import annotations
 from typing import Optional
 
 import torch
-from aepsych.config import Config
+from aepsych.config import ConfigurableMixin
 from botorch.acquisition.objective import MCAcquisitionObjective
 from torch import Tensor
 from torch.distributions.normal import Normal
 
 
-class AEPsychObjective(MCAcquisitionObjective):
+class AEPsychObjective(MCAcquisitionObjective, ConfigurableMixin):
     def inverse(self, samples: Tensor, X: Optional[Tensor] = None) -> Tensor:
         raise NotImplementedError
 
@@ -122,19 +122,6 @@ class FloorLinkObjective(AEPsychObjective):
             This is an abstract method that should be implemented by subclasses.
         """
         raise NotImplementedError
-
-    @classmethod
-    def from_config(cls, config: Config) -> FloorLinkObjective:
-        """Create a FloorLinkObjective from a configuration.
-
-        Args:
-            config (Config): Configuration object containing the initialization parameters.
-
-        Returns:
-            FloorLinkObjective: The initialized objective.
-        """
-        floor = config.getfloat(cls.__name__, "floor")
-        return cls(floor=floor)
 
 
 class FloorLogitObjective(FloorLinkObjective):
