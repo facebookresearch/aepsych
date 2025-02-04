@@ -190,7 +190,7 @@ class GPClassificationSmoketest(unittest.TestCase):
             X,
             y,
             optimizer=fit_gpytorch_mll_torch,
-            optimizer_kwargs={"stopping_criterion": ExpMAStoppingCriterion(maxiter=30)},
+            optimizer_kwargs={},
         )
 
         # pspace

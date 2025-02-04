@@ -11,7 +11,7 @@ import torch
 from aepsych.config import Config
 from aepsych.generators.base import AcqfGenerator, AEPsychGenerator
 from aepsych.generators.sobol_generator import SobolGenerator
-from aepsych.models.base import ModelProtocol
+from aepsych.models.model_protocol import ModelProtocol
 from aepsych.utils_logging import getLogger
 from botorch.acquisition import AcquisitionFunction
 

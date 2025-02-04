@@ -6,32 +6,23 @@
 # LICENSE file in the root directory of this source tree.
 from __future__ import annotations
 
-from copy import deepcopy
 from typing import Any, Dict, Optional, Tuple
 
 import gpytorch
 import torch
-from aepsych.config import Config
-from aepsych.factory.default import default_mean_covar_factory
-from aepsych.models.base import AEPsychModelDeviceMixin
-from aepsych.models.inducing_points import GreedyVarianceReduction
 from aepsych.models.inducing_points.base import InducingPointAllocator
-from aepsych.utils import promote_0d
 from aepsych.utils_logging import getLogger
-from gpytorch.likelihoods import BernoulliLikelihood, BetaLikelihood, Likelihood
-from gpytorch.models import ApproximateGP
-from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
-from torch.distributions import Normal
+from botorch.posteriors import TransformedPosterior
+from gpytorch.likelihoods import BernoulliLikelihood, Likelihood
 
-from .transformed_posteriors import (
-    BernoulliProbitProbabilityPosterior,
-    MCTransformedPosterior,
-)
+from .transformed_posteriors import BernoulliProbitProbabilityPosterior
+
+from .variationalgp import VariationalGPModel
 
 logger = getLogger()
 
 
-class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
+class GPClassificationModel(VariationalGPModel):
     """Probit-GP model with variational inference.
 
     From a conventional ML perspective this is a GP Classification model,
@@ -43,7 +34,6 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
     https://docs.gpytorch.ai/en/v1.1.1/examples/04_Variational_and_Approximate_GPs/
     """
 
-    _batch_size = 1
     _num_outputs = 1
     stimuli_per_trial = 1
     outcome_type = "binary"
@@ -67,7 +57,7 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
                 gamma prior.
             likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
-                Bernouli likelihood.
+                Bernouli likelihood. This should not be modified unless you know what you're doing.
             inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
                 If not set, a GreedyVarianceReduction is made.
             inducing_size (int): Number of inducing points. Defaults to 100.
@@ -76,171 +66,19 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             optimizer_options (Dict[str, Any], optional): Optimizer options to pass to the SciPy optimizer during
                 fitting. Assumes we are using L-BFGS-B.
         """
-        self.dim = dim
-        self.max_fit_time = max_fit_time
-        self.inducing_size = inducing_size
-
-        self.optimizer_options = (
-            {"options": optimizer_options} if optimizer_options else {"options": {}}
-        )
-
         if likelihood is None:
             likelihood = BernoulliLikelihood()
 
-        if mean_module is None or covar_module is None:
-            default_mean, default_covar = default_mean_covar_factory(
-                dim=self.dim, stimuli_per_trial=self.stimuli_per_trial
-            )
-
-        self.inducing_point_method = inducing_point_method or GreedyVarianceReduction(
-            dim=self.dim
+        super().__init__(
+            dim=dim,
+            mean_module=mean_module,
+            covar_module=covar_module,
+            likelihood=likelihood,
+            inducing_point_method=inducing_point_method,
+            inducing_size=inducing_size,
+            max_fit_time=max_fit_time,
+            optimizer_options=optimizer_options,
         )
-        inducing_points = self.inducing_point_method.allocate_inducing_points(
-            num_inducing=self.inducing_size,
-            covar_module=covar_module or default_covar,
-        )
-
-        variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-        ).to(inducing_points)
-
-        variational_strategy = VariationalStrategy(
-            self,
-            inducing_points,
-            variational_distribution,
-            learn_inducing_locations=False,
-        )
-        super().__init__(variational_strategy)
-
-        self.likelihood = likelihood
-        self.mean_module = mean_module or default_mean
-        self.covar_module = covar_module or default_covar
-
-        self._fresh_state_dict = deepcopy(self.state_dict())
-        self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Get configuration options for the model.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the model, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            Dict[str, Any]: Configuration options for the model.
-        """
-        options = options or {}
-        options.update(super().get_config_options(config, name, options))
-
-        name = name or cls.__name__
-        inducing_size = config.getint(name, "inducing_size", fallback=100)
-        inducing_point_method_class = config.getobj(
-            name, "inducing_point_method", fallback=GreedyVarianceReduction
-        )
-        # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, "from_config"):
-            inducing_point_method = inducing_point_method_class.from_config(config)
-        else:
-            inducing_point_method = inducing_point_method_class()
-
-        options.update(
-            {
-                "inducing_size": inducing_size,
-                "inducing_point_method": inducing_point_method,
-            }
-        )
-
-        return options
-
-    def _reset_hyperparameters(self) -> None:
-        """Reset hyperparameters to their initial values."""
-        # warmstart_hyperparams affects hyperparams but not the variational strat,
-        # so we keep the old variational strat (which is only refreshed
-        # if warmstart_induc=False).
-        vsd = self.variational_strategy.state_dict()  # type: ignore
-        vsd_hack = {f"variational_strategy.{k}": v for k, v in vsd.items()}
-        state_dict = deepcopy(self._fresh_state_dict)
-        state_dict.update(vsd_hack)
-        self.load_state_dict(state_dict)
-        self.likelihood.load_state_dict(self._fresh_likelihood_dict)
-
-    def _reset_variational_strategy(self) -> None:
-        if self.train_inputs is not None:
-            # remember original device
-            device = self.device
-            inducing_points = self.inducing_point_method.allocate_inducing_points(
-                num_inducing=self.inducing_size,
-                covar_module=self.covar_module,
-                inputs=self.train_inputs[0],
-            ).to(device)
-            variational_distribution = CholeskyVariationalDistribution(
-                inducing_points.size(0), batch_shape=torch.Size([self._batch_size])
-            ).to(device)
-            self.variational_strategy = VariationalStrategy(
-                self,
-                inducing_points,
-                variational_distribution,
-                learn_inducing_locations=False,
-            ).to(device)
-
-    def fit(
-        self,
-        train_x: torch.Tensor,
-        train_y: torch.Tensor,
-        warmstart_hyperparams: bool = False,
-        warmstart_induc: bool = False,
-        **kwargs,
-    ) -> None:
-        """Fit underlying model.
-
-        Args:
-            train_x (torch.Tensor): Inputs.
-            train_y (torch.LongTensor): Responses.
-            warmstart_hyperparams (bool): Whether to reuse the previous hyperparameters (True) or fit from scratch
-                (False). Defaults to False.
-            warmstart_induc (bool): Whether to reuse the previous inducing points or fit from scratch (False).
-                Defaults to False.
-        """
-        self.set_train_data(train_x, train_y)
-
-        # by default we reuse the model state and likelihood. If we
-        # want a fresh fit (no warm start), copy the state from class initialization.
-        if not warmstart_hyperparams:
-            self._reset_hyperparameters()
-
-        if not warmstart_induc or (
-            self.inducing_point_method.last_allocator_used is None
-        ):
-            self._reset_variational_strategy()
-
-        n = train_y.shape[0]
-        mll = gpytorch.mlls.VariationalELBO(self.likelihood, self, n)
-
-        if "optimizer_kwargs" in kwargs:
-            self._fit_mll(mll, **kwargs)
-        else:
-            self._fit_mll(mll, optimizer_kwargs=self.optimizer_options, **kwargs)
-
-    def sample(self, x: torch.Tensor, num_samples: int) -> torch.Tensor:
-        """Sample from underlying model.
-
-        Args:
-            x (torch.Tensor): Points at which to sample.
-            num_samples (int): Number of samples to return.
-            kwargs are ignored
-
-        Returns:
-            torch.Tensor: Posterior samples [num_samples x dim]
-        """
-        x = x.to(self.device)
-        return self.posterior(x).rsample(torch.Size([num_samples])).detach().squeeze()
 
     def predict(
         self, x: torch.Tensor, probability_space: bool = False
@@ -255,25 +93,37 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
-        with torch.no_grad():
-            x = x.to(self.device)
-            post = self.posterior(x)
 
-            if probability_space:
-                if isinstance(self.likelihood, BernoulliLikelihood):
-                    post = BernoulliProbitProbabilityPosterior(post)
+        if not probability_space:
+            return super().predict(x)
 
-                else:
-                    if hasattr(self.likelihood, "objective"):
-                        transform = self.likelihood.objective
-                    else:
-                        transform = Normal(0, 1).cdf
-                    post = MCTransformedPosterior(post, transform, 1000)
+        return self.predict_transform(
+            x=x, transformed_posterior_cls=BernoulliProbitProbabilityPosterior
+        )
 
-            mean = post.mean.squeeze()
-            var = post.variance.squeeze()
+    def predict_transform(
+        self,
+        x: torch.Tensor,
+        transformed_posterior_cls: Optional[
+            type[TransformedPosterior]
+        ] = BernoulliProbitProbabilityPosterior,
+        **transform_kwargs,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Query the model for posterior mean and variance under some tranformation.
 
-        return promote_0d(mean.to(self.device)), promote_0d(var.to(self.device))
+        Args:
+            x (torch.Tensor): Points at which to predict from the model.
+            transformed_posterior_cls (TransformedPosterior type, optional): The type of transformation to apply to the posterior.
+                Note that you should give TransformedPosterior itself, rather than an instance. Defaults to None, in which case no
+                transformation is applied.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Transformed posterior mean and variance at queries points.
+        """
+
+        return super().predict_transform(
+            x=x, transformed_posterior_cls=transformed_posterior_cls
+        )
 
     def predict_probability(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """Query the model for posterior mean and variance in probability space.
@@ -285,58 +135,3 @@ class GPClassificationModel(AEPsychModelDeviceMixin, ApproximateGP):
             Tuple[torch.Tensor, torch.Tensor]: Posterior mean and variance at queries points.
         """
         return self.predict(x, probability_space=True)
-
-    def update(self, train_x: torch.Tensor, train_y: torch.Tensor, **kwargs):
-        """Perform a warm-start update of the model from previous fit.
-
-        Args:
-            train_x (torch.Tensor): Inputs.
-            train_y (torch.Tensor): Responses.
-        """
-        return self.fit(
-            train_x, train_y, warmstart_hyperparams=True, warmstart_induc=True, **kwargs
-        )
-
-
-class GPBetaRegressionModel(GPClassificationModel):
-    outcome_type = "percentage"
-
-    def __init__(
-        self,
-        dim: int,
-        mean_module: Optional[gpytorch.means.Mean] = None,
-        covar_module: Optional[gpytorch.kernels.Kernel] = None,
-        likelihood: Optional[Likelihood] = None,
-        inducing_point_method: Optional[InducingPointAllocator] = None,
-        inducing_size: int = 100,
-        max_fit_time: Optional[float] = None,
-        optimizer_options: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Initialize the GP Beta Regression model
-
-        Args:
-            dim (int): The number of dimensions in the parameter space.
-            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.
-            covar_module (gpytorch.kernels.Kernel, optional): GP covariance kernel class. Defaults to scaled RBF with a
-                gamma prior.
-            likelihood (gpytorch.likelihood.Likelihood, optional): The likelihood function to use. If None defaults to
-                Beta likelihood.
-            inducing_point_method (InducingPointAllocator, optional): The method to use for selecting inducing points.
-                If not set, a GreedyVarianceReduction is made.
-            inducing_size (int): Number of inducing points. Defaults to 100.
-            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,
-                there is no limit to the fitting time. Defaults to None.
-        """
-        if likelihood is None:
-            likelihood = BetaLikelihood()
-
-        super().__init__(
-            dim=dim,
-            mean_module=mean_module,
-            covar_module=covar_module,
-            likelihood=likelihood,
-            inducing_size=inducing_size,
-            max_fit_time=max_fit_time,
-            inducing_point_method=inducing_point_method,
-            optimizer_options=optimizer_options,
-        )

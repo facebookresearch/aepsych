@@ -7,11 +7,11 @@
 from __future__ import annotations
 
 import warnings
-from typing import Callable, Mapping, Optional, Tuple, Union
+from typing import Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from aepsych.models.base import ModelProtocol
+from aepsych.models.model_protocol import ModelProtocol
 from aepsych.utils import dim_grid, get_jnd_multid, promote_0d
 from botorch.acquisition import PosteriorMean
 from botorch.acquisition.objective import (
