@@ -8,11 +8,11 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import torch
-from aepsych.config import Config
+from aepsych.config import Config, ConfigurableMixin
 from aepsych.utils_logging import getLogger
 
 from .strategy import Strategy
@@ -20,7 +20,7 @@ from .strategy import Strategy
 logger = getLogger()
 
 
-class SequentialStrategy(object):
+class SequentialStrategy(ConfigurableMixin):
     """Runs a sequence of strategies defined by its config
 
     All getter methods defer to the current strat
@@ -121,15 +121,31 @@ class SequentialStrategy(object):
         self._strat.add_data(x, y)
 
     @classmethod
-    def from_config(cls, config: Config) -> SequentialStrategy:
-        """Create a SequentialStrategy object from a configuration object.
+    def get_config_options(
+        cls,
+        config: Config,
+        name: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Return a dictionary of the relevant options to initialize this class from the
+        config, even if it is outside of the named section. By default, this will look
+        for options in name based on the __init__'s arguments/defaults.
 
         Args:
-            config (Config): The configuration object.
+            config (Config): Config to look for options in.
+            name (str, optional): Primary section to look for options for this class and
+                the name to infer options from other sections in the config.
+            options (Dict[str, Any], optional): Options to override from the config,
+                defaults to None.
 
-        Returns:
-            SequentialStrategy: The SequentialStrategy object.
+
+        Return:
+            Dict[str, Any]: A dictionary of options to initialize this class.
         """
+        if options is None:
+            options = {}
+
         strat_names = config.getlist("common", "strategy_names", element_type=str)
 
         # ensure strat_names are unique
@@ -142,4 +158,6 @@ class SequentialStrategy(object):
             strat = Strategy.from_config(config, str(name))
             strats.append(strat)
 
-        return cls(strat_list=strats)
+        options.update({"strat_list": strats})
+
+        return options
