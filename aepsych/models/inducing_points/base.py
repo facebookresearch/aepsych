@@ -74,8 +74,7 @@ class BaseAllocator(InducingPointAllocator, ConfigurableMixin):
         Returns:
             Dict[str, Any]: Configuration options for the DummyAllocator.
         """
-        if options is None:
-            options = {}
+        options = super().get_config_options(config, name, options)
 
         if "dim" not in options:
             options["dim"] = get_dims(config)
