@@ -62,30 +62,7 @@
         <span class="c1"># right now.</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">last_allocator_used</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div>
-
-<div class="viewcode-block" id="FixedAllocator.get_config_options"><a class="viewcode-back" href="../../../../models.html#aepsych.models.inducing_points.FixedAllocator.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Get configuration options for the FixedAllocator.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object.</span>
-<span class="sd">            name (str, optional): Name of the allocator, defaults to None.</span>
-<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict[str, Any]: Configuration options for the FixedAllocator.</span>
-<span class="sd">        """</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-
-        <span class="n">options</span><span class="p">[</span><span class="s2">"points"</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="s2">"FixedAllocator"</span><span class="p">,</span> <span class="s2">"points"</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">options</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div></div>
 </pre></div>
 </div>
 </div>
