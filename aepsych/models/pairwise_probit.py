@@ -152,8 +152,10 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
             # figure out how long evaluating a single samp
             starttime = time.time()
             _ = mll(self(datapoints), comparisons)
-            single_eval_time = time.time() - starttime
-            n_eval = int(max_fit_time / single_eval_time)
+            single_eval_time = (
+                time.time() - starttime + 1e-6
+            )  # add an epsilon to avoid divide by zero
+            n_eval = int(max_fit_time / (single_eval_time))
 
             optimizer_kwargs["options"]["maxfun"] = n_eval
             logger.info(f"fit maxfun is {n_eval}")
