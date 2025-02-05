@@ -11,7 +11,7 @@ import gpytorch
 import torch
 from aepsych.config import Config
 from aepsych.factory import default_mean_covar_factory
-from aepsych.models.base import AEPsychMixin
+from aepsych.models.base import AEPsychModelDeviceMixin
 from aepsych.utils import _process_bounds, get_dims, get_optimizer_options, promote_0d
 from aepsych.utils_logging import getLogger
 from botorch.fit import fit_gpytorch_mll
@@ -22,7 +22,7 @@ from torch.distributions import Normal
 logger = getLogger()
 
 
-class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
+class PairwiseProbitModel(PairwiseGP, AEPsychModelDeviceMixin):
     _num_outputs = 1
     stimuli_per_trial = 2
     outcome_type = "binary"
@@ -63,7 +63,10 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
                 comparisons.append(comparison)
             else:
                 comparisons.append(comparison[::-1])
-        return unique_coords.T, torch.LongTensor(comparisons)
+
+        datapoints = unique_coords.T.to(self.device)
+        comps = torch.LongTensor(comparisons).to(self.device)
+        return datapoints, comps
 
     def __init__(
         self,
@@ -164,18 +167,6 @@ class PairwiseProbitModel(PairwiseGP, AEPsychMixin):
         starttime = time.time()
         fit_gpytorch_mll(mll, optimizer_kwargs=optimizer_kwargs, **kwargs)
         logger.info(f"Fit done, time={time.time() - starttime}")
-
-    def update(
-        self, train_x: torch.Tensor, train_y: torch.Tensor, warmstart: bool = True
-    ) -> None:
-        """Perform a warm-start update of the model from previous fit.
-
-        Args:
-            train_x (torch.Tensor): Train X.
-            train_y (torch.Tensor): Train Y.
-            warmstart (bool): If True, warm-start model fitting with current parameters. Defaults to True.
-        """
-        self.fit(train_x, train_y)
 
     def predict(
         self,
