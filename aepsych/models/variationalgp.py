@@ -21,7 +21,6 @@ from gpytorch.likelihoods import GaussianLikelihood, Likelihood
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
 
-
 logger = getLogger()
 
 
@@ -100,46 +99,6 @@ class VariationalGPModel(AEPsychModelDeviceMixin, ApproximateGP):
 
         self._fresh_state_dict = deepcopy(self.state_dict())
         self._fresh_likelihood_dict = deepcopy(self.likelihood.state_dict())
-
-    @classmethod
-    def get_config_options(
-        cls,
-        config: Config,
-        name: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """Get configuration options for the model.
-
-        Args:
-            config (Config): Configuration object.
-            name (str, optional): Name of the model, defaults to None.
-            options (Dict[str, Any], optional): Additional options, defaults to None.
-
-        Returns:
-            Dict[str, Any]: Configuration options for the model.
-        """
-        options = options or {}
-        options.update(super().get_config_options(config, name, options))
-
-        name = name or cls.__name__
-        inducing_size = config.getint(name, "inducing_size", fallback=100)
-        inducing_point_method_class = config.getobj(
-            name, "inducing_point_method", fallback=GreedyVarianceReduction
-        )
-        # Check if allocator class has a `from_config` method
-        if hasattr(inducing_point_method_class, "from_config"):
-            inducing_point_method = inducing_point_method_class.from_config(config)
-        else:
-            inducing_point_method = inducing_point_method_class()
-
-        options.update(
-            {
-                "inducing_size": inducing_size,
-                "inducing_point_method": inducing_point_method,
-            }
-        )
-
-        return options
 
     def _reset_hyperparameters(self) -> None:
         """Reset hyperparameters to their initial values."""
