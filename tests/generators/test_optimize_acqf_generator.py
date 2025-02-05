@@ -39,11 +39,9 @@ class TestOptimizeAcqfGenerator(unittest.TestCase):
         lb = -3 * torch.ones(8)
         ub = 3 * torch.ones(8)
         inducing_size = 10
-        bounds = torch.stack([lb, ub])
 
         model = GPClassificationModel(
             dim=8,
-            max_fit_time=0.5,
             inducing_size=inducing_size,
         )
 
