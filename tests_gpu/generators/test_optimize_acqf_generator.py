@@ -8,6 +8,7 @@
 import unittest
 from inspect import signature
 
+import numpy as np
 import torch
 from aepsych.acquisition import (
     ApproxGlobalSUR,
@@ -50,6 +51,9 @@ acqfs = [
 class TestOptimizeAcqfGenerator(unittest.TestCase):
     @parameterized.expand(acqfs)
     def test_gpu_smoketest(self, acqf, acqf_kwargs):
+        np.random.seed(1)
+        torch.manual_seed(1)
+
         lb = torch.tensor([0.0])
         ub = torch.tensor([1.0])
         inducing_size = 10
