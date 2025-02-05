@@ -116,7 +116,7 @@
         <span class="n">lb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">ub</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">monotonic_dims</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">monotonic_dims</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">monotonic_grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
         <span class="n">min_f_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mean_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpytorch</span><span class="o">.</span><span class="n">means</span><span class="o">.</span><span class="n">Mean</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -133,8 +133,8 @@
 <span class="sd">            lb (torch.Tensor): Lower bounds of the parameters.</span>
 <span class="sd">            ub (torch.Tensor): Upper bounds of the parameters.</span>
 <span class="sd">            dim (int, optional): The number of dimensions in the parameter space.</span>
-<span class="sd">            monotonic_dims (List[int]): A list of the dimensions on which monotonicity should</span>
-<span class="sd">                be enforced.</span>
+<span class="sd">            monotonic_dims (List[int], optional): A list of the dimensions on which monotonicity should</span>
+<span class="sd">                be enforced. If not set, it will default to [-1].</span>
 <span class="sd">            monotonic_grid_size (int): The size of the grid, s, in 1. above. Defaults to 20.</span>
 <span class="sd">            min_f_val (float, optional): If provided, maintains this minimum in the projection in 5. Defaults to None.</span>
 <span class="sd">            mean_module (gpytorch.means.Mean, optional): GP mean class. Defaults to a constant with a normal prior. Defaults to None.</span>
@@ -148,6 +148,9 @@
 <span class="sd">            max_fit_time (float, optional): The maximum amount of time, in seconds, to spend fitting the model. If None,</span>
 <span class="sd">                there is no limit to the fitting time. Defaults to None.</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">monotonic_dims</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">monotonic_dims</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">monotonic_dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">monotonic_dims</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">monotonic_dims</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mon_grid_size</span> <span class="o">=</span> <span class="n">monotonic_grid_size</span>
@@ -234,50 +237,7 @@
         <span class="n">samps</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_f_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">samps</span> <span class="o">=</span> <span class="n">samps</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_f_val</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">samps</span></div>
-
-<div class="viewcode-block" id="MonotonicProjectionGP.get_config_options"><a class="viewcode-back" href="../../../models.html#aepsych.models.MonotonicProjectionGP.get_config_options">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config_options</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Get configuration options for the model.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config (Config): Configuration object.</span>
-<span class="sd">            name (str, optional): Name of the model, defaults to None.</span>
-<span class="sd">            options (Dict[str, Any], optional): Additional options, defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict[str, Any]: Configuration options for the model.</span>
-<span class="sd">        """</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config_options</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">options</span><span class="p">))</span>
-
-        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span>
-
-        <span class="n">lb</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"lb"</span><span class="p">)</span>
-        <span class="n">ub</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">gettensor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"ub"</span><span class="p">)</span>
-
-        <span class="n">monotonic_dims</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="s2">"monotonic_dims"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="n">monotonic_grid_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"monotonic_grid_size"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-        <span class="n">min_f_val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">"min_f_val"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-        <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">"lb"</span><span class="p">:</span> <span class="n">lb</span><span class="p">,</span>
-                <span class="s2">"ub"</span><span class="p">:</span> <span class="n">ub</span><span class="p">,</span>
-                <span class="s2">"monotonic_dims"</span><span class="p">:</span> <span class="n">monotonic_dims</span><span class="p">,</span>
-                <span class="s2">"monotonic_grid_size"</span><span class="p">:</span> <span class="n">monotonic_grid_size</span><span class="p">,</span>
-                <span class="s2">"min_f_val"</span><span class="p">:</span> <span class="n">min_f_val</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">options</span></div></div>
+        <span class="k">return</span> <span class="n">samps</span></div></div>
 </pre></div>
 </div>
 </div>
